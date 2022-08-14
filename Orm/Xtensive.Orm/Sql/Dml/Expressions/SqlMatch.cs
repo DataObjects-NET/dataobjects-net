@@ -52,27 +52,20 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlMatch>(expression, "expression");
-      SqlMatch replacingExpression = expression as SqlMatch;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlMatch>(expression);
       value = replacingExpression.Value;
       subQuery = replacingExpression.SubQuery;
       matchType = replacingExpression.MatchType;
       unique = replacingExpression.Unique;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlMatch clone = new SqlMatch((SqlExpression)value.Clone(context),
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlMatch((SqlExpression)value.Clone(context),
                                     (SqlSubQuery)subQuery.Clone(context),
                                     unique,
                                     matchType);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
 
     internal SqlMatch(SqlExpression value, SqlSubQuery subQuery, bool unique, SqlMatchType matchType)
       : base(SqlNodeType.Match)

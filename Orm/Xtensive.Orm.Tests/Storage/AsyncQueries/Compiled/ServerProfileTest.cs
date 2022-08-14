@@ -155,7 +155,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     {
       var transactionOpeningCount = 0;
       var transactionOpenedCount = 0;
-      var sessionOpeningCount = 0;
       var sessionOpenedCount = 0;
       Domain.SessionOpen += (sender, args) => sessionOpenedCount++;
       using (var session = Domain.OpenSession()) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -19,6 +19,7 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Sorting;
+using JetBrains.Annotations;
 
 namespace Xtensive.Reflection
 {
@@ -42,25 +43,44 @@ namespace Xtensive.Reflection
       }
     }
 
-    private const string invokeMethodName = "Invoke";
+    private const string InvokeMethodName = "Invoke";
 
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
-      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
-
-    private static readonly object emitLock = new object();
+    private static readonly object EmitLock = new object();
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
-    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
+    private static readonly int ValueTuple1 = typeof(ValueTuple<>).MetadataToken;
+    private static readonly int ValueTuple8 = typeof(ValueTuple<,,,,,,,>).MetadataToken;
+    private static readonly Module SystemCoreLibModule = WellKnownTypes.NullableOfT.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
-    private static readonly ConcurrentDictionary<Type, Type[]> orderedInterfaces =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+      new(new TypesEqualityComparer());
 
-    private static readonly ConcurrentDictionary<Type, Type[]> orderedCompatibles =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
 
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
-      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
+    private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
+
+    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Type> GenericTypeInstances2 = new();
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInfo> GenericMethodFactory1 =
+      key => key.genericDefinition.MakeGenericMethod(key.typeArgument);
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInfo> GenericMethodFactory2 =
+      key => key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
+
+    private static readonly Func<(Type genericDefinition, Type typeArgument), Type> GenericTypeFactory1 = key =>
+      key.genericDefinition.MakeGenericType(key.typeArgument);
+
+    private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> GenericTypeFactory2 = key =>
+      key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
 
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
@@ -403,7 +423,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
       ArgumentValidator.EnsureArgumentNotNull(inheritFrom, nameof(inheritFrom));
       EnsureEmitInitialized();
-      lock (emitLock) {
+      lock (EmitLock) {
         var typeBuilder = moduleBuilder.DefineType(
           typeName,
           TypeAttributes.Public | TypeAttributes.Sealed,
@@ -459,7 +479,7 @@ namespace Xtensive.Reflection
         return;
       }
 
-      lock (emitLock) {
+      lock (EmitLock) {
         if (moduleBuilder != null) {
           return;
         }
@@ -562,8 +582,8 @@ namespace Xtensive.Reflection
                 var projectedConstraintArguments = new Type[constraintArguments.Length];
                 for (var j = 0; j < constraintArguments.Length; j++) {
                   projectedConstraintArguments[j] =
-                    genericParameterIndexes.ContainsKey(constraintArguments[j])
-                      ? genericArguments[genericParameterIndexes[constraintArguments[j]]]
+                    genericParameterIndexes.TryGetValue(constraintArguments[j], out var index)
+                      ? genericArguments[index]
                       : constraintArguments[j];
                 }
 
@@ -600,7 +620,7 @@ namespace Xtensive.Reflection
           argumentTypes[i] = o.GetType();
         }
 
-        var constructor = type.GetConstructor(bindingFlags, argumentTypes);
+        var constructor = type.GetConstructorEx(bindingFlags, argumentTypes);
         return constructor == null ? null : constructor.Invoke(arguments);
       }
       catch (Exception) {
@@ -618,11 +638,41 @@ namespace Xtensive.Reflection
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
     /// </returns>
+    [Obsolete, CanBeNull]
     public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
-      GetSingleConstructor(type, arguments.Select(a => a?.GetType()).ToArray());
+      GetSingleConstructorOrDefault(type, arguments.Select(a => a?.GetType()).ToArray());
 
+    /// <summary>
+    /// Gets the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise throws <see cref="InvalidOperationException"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
+    /// -or- more than one such constructor.
+    /// </exception>
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
-      constructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
+        ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+
+    /// <summary>
+    /// Gets the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    [CanBeNull]
+    public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
       (var type, var argumentTypes) = t;
@@ -671,8 +721,17 @@ namespace Xtensive.Reflection
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
+    [Obsolete("Use GetInterfacesOrderByInheritance instead")]
     public static Type[] GetInterfaces(this Type type) =>
-      orderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+
+    /// <summary>
+    /// Gets the interfaces of the specified type.
+    /// Interfaces will be ordered from the very base ones to ancestors.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
+      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the sequence of type itself, all its base types and interfaces.
@@ -681,7 +740,7 @@ namespace Xtensive.Reflection
     /// <param name="type">The type to get compatible types for.</param>
     /// <returns>The interfaces of the specified type.</returns>
     public static Type[] GetCompatibles(this Type type) =>
-      orderedCompatibles.GetOrAdd(type,
+      OrderedCompatibles.GetOrAdd(type,
         t => {
           var interfaces = t.GetInterfaces();
           var bases = EnumerableUtils.Unfold(t.BaseType, baseType => baseType.BaseType);
@@ -709,7 +768,7 @@ namespace Xtensive.Reflection
 
       var declaringType = type.DeclaringType;
       if (declaringType == null) {
-        return type.GetFullNameBase();
+        return type.InnerGetTypeName(useShortForm: false);
       }
 
       if (declaringType.IsGenericTypeDefinition) {
@@ -720,65 +779,7 @@ namespace Xtensive.Reflection
               .ToArray());
       }
 
-      return $"{declaringType.GetFullName()}+{type.GetFullNameBase()}";
-    }
-
-    private static string GetFullNameBase(this Type type)
-    {
-      var result = type.DeclaringType != null // Is nested
-        ? type.Name
-        : type.Namespace + "." + type.Name;
-      var arrayBracketPosition = result.IndexOf('[');
-      if (arrayBracketPosition > 0) {
-        result = result.Substring(0, arrayBracketPosition);
-      }
-
-      var arguments = type.GetGenericArguments();
-      if (arguments.Length > 0) {
-        if (type.DeclaringType != null) {
-          arguments = arguments
-            .Skip(type.DeclaringType.GetGenericArguments().Length)
-            .ToArray();
-        }
-
-        var sb = new StringBuilder();
-        sb.Append(TrimGenericSuffix(result));
-        sb.Append('<');
-        char? comma = default;
-        foreach (var argument in arguments) {
-          if (comma.HasValue) {
-            sb.Append(comma.Value);
-          }
-
-          if (!type.IsGenericTypeDefinition) {
-            sb.Append(GetFullNameBase(argument));
-          }
-
-          comma = ',';
-        }
-
-        sb.Append('>');
-        result = sb.ToString();
-      }
-
-      if (type.IsArray) {
-        var sb = new StringBuilder(result);
-        var elementType = type;
-        while (elementType?.IsArray == true) {
-          sb.Append('[');
-          var commaCount = elementType.GetArrayRank() - 1;
-          for (var i = 0; i < commaCount; i++) {
-            sb.Append(',');
-          }
-
-          sb.Append(']');
-          elementType = elementType.GetElementType();
-        }
-
-        result = sb.ToString();
-      }
-
-      return result;
+      return $"{declaringType.GetFullName()}+{type.InnerGetTypeName(useShortForm: false)}";
     }
 
     /// <summary>
@@ -798,7 +799,7 @@ namespace Xtensive.Reflection
 
       var declaringType = type.DeclaringType;
       if (declaringType == null) {
-        return type.GetShortNameBase();
+        return type.InnerGetTypeName(useShortForm: true);
       }
 
       if (declaringType.IsGenericTypeDefinition) {
@@ -809,12 +810,17 @@ namespace Xtensive.Reflection
               .ToArray());
       }
 
-      return $"{declaringType.GetShortName()}+{type.GetShortNameBase()}";
+      return $"{declaringType.GetShortName()}+{type.InnerGetTypeName(useShortForm: true)}";
     }
 
-    private static string GetShortNameBase(this Type type)
+    private static string InnerGetTypeName(this Type type, bool useShortForm)
     {
-      var result = type.Name;
+      var result = useShortForm
+        ? type.Name
+        : type.DeclaringType != null // Is nested
+          ? type.Name
+          : type.Namespace + "." + type.Name;
+
       var arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0) {
         result = result.Substring(0, arrayBracketPosition);
@@ -828,23 +834,21 @@ namespace Xtensive.Reflection
             .ToArray();
         }
 
-        var sb = new StringBuilder();
-        sb.Append(TrimGenericSuffix(result));
-        sb.Append('<');
+        var sb = new StringBuilder().Append(TrimGenericSuffix(result)).Append('<');
         char? comma = default;
         foreach (var argument in arguments) {
           if (comma.HasValue) {
-            sb.Append(comma.Value);
+            _ = sb.Append(comma.Value);
           }
 
           if (!type.IsGenericTypeDefinition) {
-            sb.Append(GetShortNameBase(argument));
+            _ = sb.Append(InnerGetTypeName(argument, useShortForm));
           }
 
           comma = ',';
         }
 
-        sb.Append('>');
+        _ = sb.Append('>');
         result = sb.ToString();
       }
 
@@ -852,19 +856,16 @@ namespace Xtensive.Reflection
         var sb = new StringBuilder(result);
         var elementType = type;
         while (elementType?.IsArray == true) {
-          sb.Append('[');
+          _ = sb.Append('[');
           var commaCount = elementType.GetArrayRank() - 1;
           for (var i = 0; i < commaCount; i++) {
-            sb.Append(',');
+            _ = sb.Append(',');
           }
-
-          sb.Append(']');
+          _ = sb.Append(']');
           elementType = elementType.GetElementType();
         }
-
         result = sb.ToString();
       }
-
       return result;
     }
 
@@ -875,7 +876,7 @@ namespace Xtensive.Reflection
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
     public static bool IsNullable(this Type type) =>
-      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, NullableTypeModule);
+      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, SystemCoreLibModule);
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -907,7 +908,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
     /// <returns><see cref="MethodInfo"/> object describing the delegate "Invoke" method.</returns>
-    public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(invokeMethodName);
+    public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(InvokeMethodName);
 
 
     /// <summary>
@@ -924,6 +925,18 @@ namespace Xtensive.Reflection
       && (ReferenceEquals(method.Module, genericMethodDefinition.Module)
         || method.Module == genericMethodDefinition.Module)
       && method.IsGenericMethod && genericMethodDefinition.IsGenericMethodDefinition;
+
+    public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument) =>
+      GenericMethodInstances1.GetOrAdd((genericDefinition, typeArgument), GenericMethodFactory1);
+
+    public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      GenericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodFactory2);
+
+    public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>
+      GenericTypeInstances1.GetOrAdd((genericDefinition, typeArgument), GenericTypeFactory1);
+
+    public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      GenericTypeInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericTypeFactory2);
 
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> is an ancestor or an instance of the
@@ -1026,7 +1039,7 @@ namespace Xtensive.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsValueType && !type.IsNullable()
-        ? WellKnownTypes.NullableOfT.MakeGenericType(type)
+        ? WellKnownTypes.NullableOfT.CachedMakeGenericType(type)
         : type;
     }
 
@@ -1129,6 +1142,20 @@ namespace Xtensive.Reflection
         default:
           return false;
       }
+    }
+
+    /// <summary>
+    /// Determines whether <paramref name="type"/> is generic form of <see cref="ValueTuple"/>
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    internal static bool IsValueTuple(this Type type)
+    {
+      // this stands on the theory that tokens for all generic versions of ValueTuple
+      // go one after another.
+      var currentToken = type.MetadataToken;
+      return ((currentToken >= ValueTuple1) && currentToken <= ValueTuple8)
+        && ReferenceEquals(type.Module, SystemCoreLibModule);
     }
 
     #region Private \ internal methods

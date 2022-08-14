@@ -1,3 +1,7 @@
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -220,8 +224,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
       Assert.AreEqual(100, itemsCount);
     }
 
-    private static bool canFinish = true;
-
     [Test]
     public void SynchronizationTest()
     {
@@ -275,7 +277,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
     private void RemoveItem(CancellationToken cancellationToken)
     {
-      int counter = 0;
       while (!cancellationToken.IsCancellationRequested) {
         TestClass test = null;
         foreach (TestClass testClass in globalCache) {

@@ -1,6 +1,6 @@
 // Copyright (C) 2008-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.05.27
 
@@ -219,13 +219,24 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         passCountBase /= 10;
 
       TestHelper.CollectGarbage();
-      using (warmup ? null : TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+      if (warmup) {
         ThreadedTest(target, passCountBase,     target.ExecuteLock);
         ThreadedTest(target, passCountBase,     target.ExecuteReadLock);
         ThreadedTest(target, passCountBase,     target.ExecuteWriteLock);
         if (threadCount>1) {
           ThreadedTest(target, passCountBase / 200, target.ExecuteWaitLock);
           ThreadedTest(target, passCountBase / 400, target.ExecuteSleepLock);
+        }
+      }
+      else {
+        using (TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+          ThreadedTest(target, passCountBase,     target.ExecuteLock);
+          ThreadedTest(target, passCountBase,     target.ExecuteReadLock);
+          ThreadedTest(target, passCountBase,     target.ExecuteWriteLock);
+          if (threadCount>1) {
+            ThreadedTest(target, passCountBase / 200, target.ExecuteWaitLock);
+            ThreadedTest(target, passCountBase / 400, target.ExecuteSleepLock);
+          }
         }
       }
     }
@@ -240,8 +251,13 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         passCountBase /= 10;
 
       TestHelper.CollectGarbage();
-      using (warmup ? null : TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+      if (warmup) {
         ThreadedTest(target, passCountBase/100, target.ExecuteInvokeAsync);
+      }
+      else {
+        using (TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+          ThreadedTest(target, passCountBase/100, target.ExecuteInvokeAsync);
+        }
       }
     }
 

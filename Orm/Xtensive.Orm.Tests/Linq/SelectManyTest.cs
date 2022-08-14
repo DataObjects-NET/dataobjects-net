@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -392,6 +392,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void IntersectBetweenFilterAndApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
       var expected = Session.Query.All<Invoice>().Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
       IQueryable<Invoice> result = Session.Query.All<Customer>()
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Intersect(Session.Query.All<Invoice>())
@@ -458,14 +460,14 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
 
       var actual = from c in Session.Query.All<Customer>()
-        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
-          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress).Where(x => x.StartsWith("M")))
+          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress).Where(x => x.StartsWith("N")))
         orderby n
         select n;
 
       var expected = from c in Customers
-        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
-          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress).Where(x => x.StartsWith("M")))
+          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress).Where(x => x.StartsWith("N")))
         orderby n
         select n;
 
@@ -477,6 +479,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void TwoFilterWithApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
       var actual = from c in Session.Query.All<Customer>()
         from i in (c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A"))
           .Intersect(c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A"))))

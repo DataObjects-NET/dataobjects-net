@@ -21,9 +21,9 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
-    private static readonly ComparerProvider DefaultProvider;
-    private static readonly SystemComparerProvider SystemProvider;
-    private static readonly Type BaseComparerWrapperType;
+    private static readonly Type BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
+    private static readonly ComparerProvider DefaultProvider = new ComparerProvider();
+    private static readonly SystemComparerProvider SystemProvider = SystemComparerProvider.Instance;
 
     /// <summary>
     /// Gets default instance of this type.
@@ -66,7 +66,7 @@ namespace Xtensive.Comparison
       // the comparer.
       var comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
       if (foundFor == null) {
-        CoreLog.Warning(Strings.LogCantFindAssociateFor,
+        CoreLog.Warning(nameof(Strings.LogCantFindAssociateFor),
           TypeSuffixes.ToDelimitedString(" \\ "),
           typeof(TAssociate).GetShortName(),
           typeof(TKey).GetShortName());
@@ -77,7 +77,7 @@ namespace Xtensive.Comparison
       }
       associate = BaseComparerWrapperType.Activate(new[] { typeof(TKey), foundFor }, ConstructorParams) as TAssociate;
       if (associate != null) {
-        CoreLog.Warning(Strings.LogGenericAssociateIsUsedFor,
+        CoreLog.Warning(nameof(Strings.LogGenericAssociateIsUsedFor),
           BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
@@ -85,7 +85,7 @@ namespace Xtensive.Comparison
         return associate;
       }
       else {
-        CoreLog.Warning(Strings.LogGenericAssociateCreationHasFailedFor,
+        CoreLog.Warning(nameof(Strings.LogGenericAssociateCreationHasFailedFor),
           BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
@@ -120,13 +120,6 @@ namespace Xtensive.Comparison
     protected ComparerProvider(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    }
-
-    static ComparerProvider()
-    {
-      BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
-      DefaultProvider = new ComparerProvider();
-      SystemProvider = SystemComparerProvider.Instance;
     }
   }
 }

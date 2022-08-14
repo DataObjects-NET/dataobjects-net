@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       if (IsTypeUndefined)
         return false;
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       if (IsTypeUndefined)
         return false;
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

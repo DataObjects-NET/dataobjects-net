@@ -6,10 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Reflection;
 
 using Factory = System.Func<
@@ -53,13 +53,13 @@ namespace Xtensive.Linq
       }
     }
 
-    private readonly ThreadSafeDictionary<Type, Factory> cache;
+    private readonly ConcurrentDictionary<Type, Factory> cache;
     private readonly Func<Type, Factory> createHandler;
     private readonly MethodInfo slowFactoryMethod;
 
     public LambdaExpression CreateLambda(Type delegateType, Expression body, ParameterExpression[] parameters)
     {
-      var factory = cache.GetValue(delegateType, createHandler);
+      var factory = cache.GetOrAdd(delegateType, createHandler);
       return factory.Invoke(body, parameters);
     }
 
@@ -74,14 +74,14 @@ namespace Xtensive.Linq
     internal Factory CreateFactorySlow(Type delegateType)
     {
       var factory = (SlowFactory) Delegate.CreateDelegate(
-        SlowFactoryType, slowFactoryMethod.MakeGenericMethod(delegateType));
+        SlowFactoryType, slowFactoryMethod.CachedMakeGenericMethod(delegateType));
 
       return (body, parameters) => factory.Invoke(body, parameters);
     }
 
     internal static Factory CreateFactoryFast(Type delegateType)
     {
-      var method = WellKnownTypes.ExpressionOfT.MakeGenericType(delegateType).GetMethod(
+      var method = WellKnownTypes.ExpressionOfT.CachedMakeGenericType(delegateType).GetMethod(
         "Create", BindingFlags.Static | BindingFlags.NonPublic, null, internalFactorySignature, null);
 
       if (method == null) {
@@ -108,7 +108,7 @@ namespace Xtensive.Linq
 
     private LambdaExpressionFactory()
     {
-      cache = ThreadSafeDictionary<Type, Factory>.Create(new object());
+      cache = new ConcurrentDictionary<Type, Factory>();
 
       slowFactoryMethod = WellKnownTypes.Expression.GetMethods().Single(m =>
         m.IsGenericMethod &&

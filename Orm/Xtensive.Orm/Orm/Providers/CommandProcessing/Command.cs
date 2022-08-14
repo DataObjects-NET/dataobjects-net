@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Providers
       }
 
       prepared = true;
-      underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
+      underlyingCommand.CommandText = origin.Driver.BuildBatch(statements);
       return underlyingCommand;
     }
 

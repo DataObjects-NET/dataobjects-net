@@ -32,13 +32,13 @@ namespace Xtensive.Collections
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
-    private readonly Set<Assembly> assemblies = new Set<Assembly>();
+    private ISet<Assembly> assemblies = new HashSet<Assembly>();
     protected ServiceRegistration[] serviceRegistrations;
 
     /// <summary>
     /// Gets assemblies containing registered types.
     /// </summary>
-    public Set<Assembly> Assemblies { get { return assemblies; } }
+    public IReadOnlySet<Assembly> Assemblies { get { return (IReadOnlySet<Assembly>)assemblies; } }
 
     /// <summary>
     /// Determines whether the specified <see cref="Type"/> is contained in this instance.
@@ -57,16 +57,13 @@ namespace Xtensive.Collections
     /// <param name="type">The type to register.</param>
     public void Register(Type type)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!isProcessingPendingActions)
         Register(new TypeRegistration(type));
-      else {
-        if (typeSet.Contains(type))
-          return;
+      else if (typeSet.Add(type)) {
         serviceRegistrations = null;
         types.Add(type);
-        typeSet.Add(type);
         assemblies.Add(type.Assembly);
       }
     }
@@ -81,7 +78,7 @@ namespace Xtensive.Collections
     /// <exception cref="ArgumentNullException">When <paramref name="assembly"/> is null.</exception>
     public void Register(Assembly assembly)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       Register(new TypeRegistration(assembly));
     }
@@ -98,7 +95,7 @@ namespace Xtensive.Collections
     /// or <paramref name="namespace"/> is empty string.</exception>
     public void Register(Assembly assembly, string @namespace)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
       Register(new TypeRegistration(assembly, @namespace));
@@ -112,7 +109,7 @@ namespace Xtensive.Collections
     /// otherwise, <see langword="false" />.</returns>
     public bool Register(TypeRegistration action)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
       if (actionSet.Contains(action))
         return false;
@@ -146,8 +143,9 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
+      EnsureNotLocked();
       ProcessPendingActions();
-      assemblies.Lock(true);
+      assemblies = new ReadOnlyHashSet<Assembly>((HashSet<Assembly>)assemblies);
       base.Lock(recursive);
     }
 
@@ -216,7 +214,7 @@ namespace Xtensive.Collections
       types = new List<Type>(source.types);
       typeSet = new HashSet<Type>(source.typeSet);
       processor = source.processor;
-      assemblies = new Set<Assembly>(source.assemblies);
+      assemblies = new HashSet<Assembly>(source.assemblies);
     }
   }
 }

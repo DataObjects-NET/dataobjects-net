@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers
 
     public bool Equals(QueryParameterIdentity other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -53,14 +53,9 @@ namespace Xtensive.Orm.Providers
       return !Equals(left, right);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return obj is QueryParameterIdentity && Equals((QueryParameterIdentity) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is QueryParameterIdentity other && Equals(other);
 
     // Constructors
 

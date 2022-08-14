@@ -19,25 +19,20 @@ namespace Xtensive.Sql.Dml
     
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentIs<SqlRound>(expression, "expression");
-      var replacingExpression = (SqlRound) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRound>(expression);
       Argument = replacingExpression.Argument;
       Length = replacingExpression.Length;
       Type = replacingExpression.Type;
       Mode = replacingExpression.Mode;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlRound(
-        (SqlExpression) Argument.Clone(context),
-        Length.IsNullReference() ? null : (SqlExpression) Length.Clone(context),
-        Type, Mode);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlRound(
+            (SqlExpression) Argument.Clone(context),
+            Length is null ? null : (SqlExpression) Length.Clone(context),
+            Type, Mode);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

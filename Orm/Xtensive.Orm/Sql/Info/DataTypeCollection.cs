@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Info
     /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (!IsLocked)
         sqlTypes.Add(sqlType, dataTypeInfo);
     }

@@ -12,6 +12,7 @@ using Xtensive.Core;
 
 using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
+using System.Linq;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -29,7 +30,7 @@ namespace Xtensive.Modelling.Actions
     public string Path {
       get { return path; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         path = value;
       }
     }
@@ -38,7 +39,7 @@ namespace Xtensive.Modelling.Actions
     public Difference Difference {
       get { return difference; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         difference = value;
       }
     }
@@ -124,7 +125,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The sequence of nested actions.</returns>
     protected virtual IEnumerable<NodeAction> GetNestedActions()
     {
-      return EnumerableUtils<NodeAction>.Empty;
+      return Enumerable.Empty<NodeAction>();
     }
 
     #endregion

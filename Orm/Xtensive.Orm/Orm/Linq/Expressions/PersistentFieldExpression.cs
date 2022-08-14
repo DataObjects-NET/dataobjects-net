@@ -22,11 +22,11 @@ namespace Xtensive.Orm.Linq.Expressions
     public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions);
 
     public override string ToString()
     {
-      return string.Format("{0} {1}, {2}", base.ToString(), Name, Mapping);
+      return $"{base.ToString()} {Name}, {Mapping}";
     }
 
 

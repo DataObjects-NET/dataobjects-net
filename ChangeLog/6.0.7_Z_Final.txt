@@ -1,0 +1,4 @@
+[main] Fixed issue of actual NULL constant being treated as a caching value
+[main] Fixed rare case of infinite loop on batching commands
+[main] Improved VS compatibility by not processing design-time builds
+[main] Introduced IDbConnectionAccessor that gives access to certain stages of connection opening

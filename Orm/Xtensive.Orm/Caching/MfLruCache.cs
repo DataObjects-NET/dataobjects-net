@@ -22,7 +22,7 @@ namespace Xtensive.Caching
   /// <typeparam name="TKey">The key of the item.</typeparam>
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   public class MfLruCache<TKey, TItem> :
-    ICache<TKey, TItem>,
+    CacheBase<TKey, TItem>,
     IHasGarbage
   {
     /// <summary>
@@ -42,7 +42,6 @@ namespace Xtensive.Caching
     private readonly int mfuCapacity;
     private readonly int capacity;
     private readonly int efficiencyFactor;
-    private readonly Converter<TItem, TKey> keyExtractor;
     private readonly ICache<TKey, TItem> chainedCache;
     private Dictionary<TKey, CachedItem> items;
     private int time;
@@ -66,12 +65,6 @@ namespace Xtensive.Caching
     #endregion
 
     #region Properites: KeyExtractor, ChainedCache, LruCapacity, MfuCapacity, Capacity, EfficiencyFactor, Count, Size
-
-    /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor {
-      [DebuggerStepThrough]
-      get { return keyExtractor; }
-    }
 
     /// <summary>
     /// Gets chained cache.
@@ -113,7 +106,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public int Count {
+    public override int Count {
       [DebuggerStepThrough]
       get { return items.Count; }
     }
@@ -121,18 +114,7 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        TItem item;
-        if (TryGetItem(key, markAsHit, out item))
-          return item;
-        else
-          return default(TItem);
-      }
-    }
-
-    /// <inheritdoc/>
-    public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       OnOperation();
       CachedItem cached;
@@ -157,13 +139,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item)
-    {
-      return ContainsKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
-    public virtual bool ContainsKey(TKey key)
+    public override bool ContainsKey(TKey key)
     {
       if (items.ContainsKey(key))
         return true;
@@ -175,13 +151,7 @@ namespace Xtensive.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
-
-    /// <inheritdoc/>
-    public virtual TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       OnOperation2();
@@ -205,20 +175,13 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      RemoveKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
-    public virtual void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       RemoveKey(key, false);
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely)
+    public override void RemoveKey(TKey key, bool removeCompletely)
     {
       CachedItem cached;
       if (items.TryGetValue(key, out cached)) {
@@ -234,7 +197,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public virtual void Clear()
+    public override void Clear()
     {
       foreach (var pair in items) {
         var key = pair.Key;
@@ -246,12 +209,6 @@ namespace Xtensive.Caching
       items.Clear();
       time = 0;
       Cleared();
-    }
-
-    /// <inheritdoc/>
-    public void Invalidate()
-    {
-      Clear();
     }
 
     /// <inheritdoc/>
@@ -351,14 +308,7 @@ namespace Xtensive.Caching
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items)
         yield return pair.Value.Item;
@@ -412,7 +362,7 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public MfLruCache(int lruCapacity, int mfuCapacity, Converter<TItem, TKey> keyExtractor)
       : this(lruCapacity, mfuCapacity, DefaultEfficiencyFactor, keyExtractor, null)
     {
@@ -424,7 +374,7 @@ namespace Xtensive.Caching
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
     /// <param name="efficiencyFactor">The <see cref="EfficiencyFactor"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public MfLruCache(int lruCapacity, int mfuCapacity, int efficiencyFactor,
       Converter<TItem, TKey> keyExtractor)
       : this(lruCapacity, mfuCapacity, efficiencyFactor, keyExtractor, null)
@@ -436,7 +386,7 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
     public MfLruCache(int lruCapacity, int mfuCapacity, 
       Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
@@ -450,7 +400,7 @@ namespace Xtensive.Caching
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
     /// <param name="efficiencyFactor">The <see cref="EfficiencyFactor"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
     public MfLruCache(int lruCapacity, int mfuCapacity, int efficiencyFactor,
       Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
@@ -466,7 +416,7 @@ namespace Xtensive.Caching
       this.efficiencyFactor = efficiencyFactor;
       if (efficiencyFactor<0)
         timeShift = -efficiencyFactor-1; // Constant timeShift is defined
-      this.keyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor;
       this.chainedCache = chainedCache;
       // items = new Dictionary<TKey, CachedItem>(1 + capacity);
       items = new Dictionary<TKey, CachedItem>();

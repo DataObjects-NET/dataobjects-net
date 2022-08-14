@@ -27,16 +27,15 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression, "expression");
-      SqlSubQuery replacingExpression = expression as SqlSubQuery;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
       query = replacingExpression.Query;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       SqlSubQuery clone;
       SqlSelect select = query as SqlSelect;

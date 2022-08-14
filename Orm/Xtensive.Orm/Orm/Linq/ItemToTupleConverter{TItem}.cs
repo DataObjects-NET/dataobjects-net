@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -52,20 +52,22 @@ namespace Xtensive.Orm.Linq
       }
     }
 
+    private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
+
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
-    private Func<TItem, Tuple> converter;
-    private readonly Expression sourceExpression;
     private readonly Type entityTypestoredInKey;
     private readonly bool isKeyConverter;
 
+    private Func<TItem, Tuple> converter;
+    
+
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
-      var selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), WellKnownOrmTypes.Tuple);
-      var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, paramContext);
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContext);
+      var select = Expression.Call(SelectMethod, call, Expression.Constant(converter));
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContext);
     }
 
 
@@ -75,16 +77,15 @@ namespace Xtensive.Orm.Linq
       if (type==WellKnownOrmTypes.Entity
         || type.IsSubclassOf(WellKnownOrmTypes.Entity)
           || type==WellKnownOrmTypes.Structure
-            || type.IsSubclassOf(WellKnownOrmTypes.Structure)
-        ) {
+            || type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         if (!model.Types.Contains(type))
-          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
+          throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
       if (type.IsOfGenericType(RefOfTType)) {
         var entityType = type.GetGenericType(RefOfTType).GetGenericArguments()[0];
         if (!model.Types.Contains(entityType))
-          throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
+          throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
       return TypeIsStorageMappable(type);
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Linq
     {
       // TODO: AG: Take info from storage!
       type = type.StripNullable();
-      return type.IsPrimitive || 
+      return type.IsPrimitive ||
         type.IsEnum ||
         type==WellKnownTypes.ByteArray ||
         type==WellKnownTypes.Decimal ||
@@ -106,84 +107,86 @@ namespace Xtensive.Orm.Linq
     }
 
 
-    private void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
+    private static void FillLocalCollectionField(object item, Tuple tuple, Expression expression)
     {
       if (item==null)
         return;
       // LocalCollectionExpression
-      if (expression is LocalCollectionExpression) {
-        var itemExpression = (LocalCollectionExpression) expression;
-        foreach (var field in itemExpression.Fields) {
-          var propertyInfo = field.Key as PropertyInfo;
-          object value = propertyInfo==null
-            ? ((FieldInfo) field.Key).GetValue(item)
-            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-          if (value!=null)
-            FillLocalCollectionField(value, tuple, (Expression) field.Value);
+      switch (expression) {
+        case LocalCollectionExpression itemExpression:
+          foreach (var field in itemExpression.Fields) {
+            object value;
+            if (field.Key is PropertyInfo propertyInfo) {
+              value = propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+            }
+            else {
+              value = ((FieldInfo) field.Key).GetValue(item);
+            }
+            if (value != null)
+              FillLocalCollectionField(value, tuple, (Expression) field.Value);
+          }
+          break;
+        case ColumnExpression columnExpression:
+          tuple.SetValue(columnExpression.Mapping.Offset, item);
+          break;
+        case StructureExpression structureExpression:
+          var structure = (Structure) item;
+          var typeInfo = structureExpression.PersistentType;
+          var tupleDescriptor = typeInfo.TupleDescriptor;
+          var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
+          var structureTuple = structure.Tuple.GetSegment(tupleSegment);
+          structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
+          break;
+        case EntityExpression entityExpression: {
+          var entity = (Entity) item;
+          var keyTuple = entity.Key.Value;
+          keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
         }
+        break;
+        case KeyExpression keyExpression: {
+          var key = (Key) item;
+          var keyTuple = key.Value;
+          keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
+        }
+        break;
+        default:
+          throw new NotSupportedException();
       }
-      else if (expression is ColumnExpression) {
-        var columnExpression = (ColumnExpression) expression;
-        tuple.SetValue(columnExpression.Mapping.Offset, item);
-      }
-      else if (expression is StructureExpression) {
-        var structureExpression = (StructureExpression) expression;
-        var structure = (Structure) item;
-        var typeInfo = structureExpression.PersistentType;
-        var tupleDescriptor = typeInfo.TupleDescriptor;
-        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
-        var structureTuple = structure.Tuple.GetSegment(tupleSegment);
-        structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
-      }
-      else if (expression is EntityExpression) {
-        var entityExpression = (EntityExpression) expression;
-        var entity = (Entity) item;
-        var keyTuple = entity.Key.Value;
-        keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
-      }
-      else if (expression is KeyExpression) {
-        var keyExpression = (KeyExpression) expression;
-        var key = (Key) item;
-        var keyTuple = key.Value;
-        keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
-      }
-      else
-        throw new NotSupportedException();
     }
 
-    private LocalCollectionExpression BuildLocalCollectionExpression(Type type, HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types)
+    private LocalCollectionExpression BuildLocalCollectionExpression(Type type,
+      HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types, Expression sourceExpression)
     {
       if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
       if (!processedTypes.Add(type))
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
 
-      IEnumerable<MemberInfo> members = type
+      var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo => propertyInfo.CanRead)
         .Cast<MemberInfo>()
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
       var fields = new Dictionary<MemberInfo, IMappedExpression>();
-      foreach (MemberInfo memberInfo in members) {
+      foreach (var memberInfo in members) {
         var propertyInfo = memberInfo as PropertyInfo;
-        Type memberType = propertyInfo==null
+        var memberType = propertyInfo==null
           ? ((FieldInfo) memberInfo).FieldType
           : propertyInfo.PropertyType;
         if (IsPersistableType(memberType)) {
-          IMappedExpression expression = BuildField(memberType, ref columnIndex, types);
+          var expression = BuildField(memberType, ref columnIndex, types);
           fields.Add(memberInfo, expression);
         }
         else {
-          LocalCollectionExpression collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types);
+          var collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
           fields.Add(memberInfo, collectionExpression);
         }
       }
       if (fields.Count==0)
-        throw new InvalidOperationException(String.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
-      var result = new LocalCollectionExpression(type, parentMember, sourceExpression);
-      result.Fields = fields;
-      return result;
+        throw new InvalidOperationException(string.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
+
+      return new LocalCollectionExpression(type, parentMember, sourceExpression) { Fields = fields };
     }
 
 
@@ -201,9 +204,9 @@ namespace Xtensive.Orm.Linq
 //      }
 
       if (type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
-        TypeInfo typeInfo = model.Types[type];
-        KeyInfo keyInfo = typeInfo.Key;
-        TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
+        var typeInfo = model.Types[type];
+        var keyInfo = typeInfo.Key;
+        var keyTupleDescriptor = keyInfo.TupleDescriptor;
         IMappedExpression expression;
         if (isKeyConverter)
           expression = KeyExpression.Create(typeInfo, index);
@@ -218,10 +221,10 @@ namespace Xtensive.Orm.Linq
       }
 
       if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
-        TypeInfo typeInfo = model.Types[type];
-        TupleDescriptor tupleDescriptor = typeInfo.TupleDescriptor;
+        var typeInfo = model.Types[type];
+        var tupleDescriptor = typeInfo.TupleDescriptor;
         var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
-        StructureExpression structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
+        var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
         index += tupleDescriptor.Count;
         types.AddRange(tupleDescriptor);
         return structureExpression;
@@ -237,7 +240,7 @@ namespace Xtensive.Orm.Linq
       throw new NotSupportedException();
     }
 
-    private void BuildConverter()
+    private void BuildConverter(Expression sourceExpression)
     {
       var itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
       var index = 0;
@@ -248,13 +251,13 @@ namespace Xtensive.Orm.Linq
       }
       else {
         var processedTypes = new HashSet<Type>();
-        var itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, types);
+        var itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, types, sourceExpression);
         TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
         Expression = itemExpression;
       }
 
       converter = delegate(TItem item) {
-        Tuple tuple = Tuple.Create(TupleDescriptor);
+        var tuple = Tuple.Create(TupleDescriptor);
         if (ReferenceEquals(item, null)) {
           return tuple;
         }
@@ -267,10 +270,9 @@ namespace Xtensive.Orm.Linq
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
-      this.sourceExpression = sourceExpression;
-      this.entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof (TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
-      BuildConverter();
+      entityTypestoredInKey = storedEntityType;
+      isKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
+      BuildConverter(sourceExpression);
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -23,29 +23,36 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethodEx(nameof(VisitLocalCollectionSequence),
+        BindingFlags.NonPublic | BindingFlags.Instance,
+        new[] { "TItem" },
+        new object[] { WellKnownTypes.Expression });
+
+    private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
+
     private readonly CompiledQueryProcessingScope compiledQueryScope;
-    public static readonly MethodInfo TranslateMethod;
-    private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
     public TranslatedQuery Translate()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
-      return Translate(projection, Enumerable.Empty<Parameter<Tuple>>());
+      return Translate(projection, Array.Empty<Parameter<Tuple>>());
     }
 
-    private TranslatedQuery Translate(ProjectionExpression projection,
+    internal TranslatedQuery Translate(ProjectionExpression projection,
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
-      var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
-      var result = new ProjectionExpression(
-        projection.Type,
-        newItemProjector,
-        projection.TupleParameterBindings,
-        projection.ResultAccessMethod);
+      var result = projection;
+      if (context.SessionTags != null)
+        result = ApplySessionTags(result, context.SessionTags);
+      var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
+      result = result.Apply(newItemProjector);
+
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
-      var prepared = compiledQueryScope!=null
+      var prepared = compiledQueryScope != null
         ? PrepareCachedQuery(optimized, compiledQueryScope)
         : optimized;
 
@@ -57,10 +64,10 @@ namespace Xtensive.Orm.Linq
       var materializer = BuildMaterializer(prepared, tupleParameterBindings);
       var translatedQuery = new TranslatedQuery(
         compiled, materializer, prepared.ResultAccessMethod,
-        projection.TupleParameterBindings, tupleParameterBindings);
+        result.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
-      if (compiledQueryScope != null && translatedQuery.TupleParameters.Count == 0) {
+      if (compiledQueryScope != null && !translatedQuery.TupleParameters.Any()) {
         var parameterizedQuery = new ParameterizedQuery(
           translatedQuery,
           compiledQueryScope.QueryParameter);
@@ -79,16 +86,13 @@ namespace Xtensive.Orm.Linq
         .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad)
         .ToList();
 
-      if (usedColumns.Count==0)
+      if (usedColumns.Count == 0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
-        var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
-        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
-        var result = new ProjectionExpression(
-          origin.Type,
-          itemProjector,
-          origin.TupleParameterBindings,
-          origin.ResultAccessMethod);
+        var usedColumnsArray = usedColumns.ToArray();
+        var resultProvider = new SelectProvider(originProvider, usedColumnsArray);
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumnsArray);
+        var result = origin.Apply(itemProjector);
         return result;
       }
       return origin;
@@ -97,46 +101,54 @@ namespace Xtensive.Orm.Linq
     private static ProjectionExpression PrepareCachedQuery(
       ProjectionExpression origin, CompiledQueryProcessingScope compiledQueryScope)
     {
-      if (compiledQueryScope.QueryParameter!=null) {
+      if (compiledQueryScope.QueryParameter != null) {
         var result = compiledQueryScope.QueryParameterReplacer.Replace(origin);
         return (ProjectionExpression) result;
       }
       return origin;
     }
 
+    private static ProjectionExpression ApplySessionTags(ProjectionExpression origin, IReadOnlyList<string> tags)
+    {
+      var currentProjection = origin;
+      foreach (var tag in tags) {
+        var projector = currentProjection.ItemProjector;
+        var newDataSource = projector.DataSource.Tag(tag);
+        var newItemProjector = new ItemProjectorExpression(projector.Item, newDataSource, projector.Context);
+        currentProjection = currentProjection.Apply(newItemProjector);
+      }
+      return currentProjection;
+    }
+
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof (Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
-      var materializeMethod = MaterializationHelper.MaterializeMethodInfo.MakeGenericMethod(elementType);
+      var materializeMethod = MaterializationHelper.MaterializeMethodInfo.CachedMakeGenericMethod(elementType);
       var itemMaterializerFactoryMethod =
         elementType.IsNullable()
-          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.MakeGenericMethod(
+          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethod(
             elementType.GetGenericArguments()[0])
-          : MaterializationHelper.CreateItemMaterializerMethodInfo.MakeGenericMethod(elementType);
+          : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethod(elementType);
 
       var itemMaterializer = itemMaterializerFactoryMethod.Invoke(
-        null, new object[] {materializationInfo.Expression, itemProjector.AggregateType});
+        null, new object[] { materializationInfo.Expression, itemProjector.AggregateType });
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
-        tupleReader,
+        TupleReader,
         materializationContextExpression,
-        parameterContext,
+        ParameterContext,
         Expression.Constant(itemMaterializer));
 
       var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, tupleReader, session, parameterContext);
+        body, TupleReader, Session, ParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
@@ -145,18 +157,17 @@ namespace Xtensive.Orm.Linq
       var arguments = new List<Expression>();
       foreach (var argument in n.Arguments) {
         Expression body;
-        using (state.CreateScope()) {
-          state.CalculateExpressions = false;
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.IsProjection() 
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }
       var constructorParameters = n.GetConstructorParameters();
       for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].Type!=constructorParameters[i].ParameterType)
+        if (arguments[i].Type != constructorParameters[i].ParameterType)
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
       return arguments;
@@ -164,7 +175,7 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)
     {
-      if (le.Parameters.Count==2) {
+      if (le.Parameters.Count == 2) {
         var indexDataSource = sequence.ItemProjector.DataSource.RowNumber(context.GetNextColumnAlias());
         var columnExpression = ColumnExpression.Create(WellKnownTypes.Int64, indexDataSource.Header.Columns.Count - 1);
         var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1L));
@@ -172,11 +183,7 @@ namespace Xtensive.Orm.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = new ProjectionExpression(
-          sequence.Type, 
-          sequenceItemProjector, 
-          sequence.TupleParameterBindings, 
-          sequence.ResultAccessMethod);
+        sequence = sequence.Apply(sequenceItemProjector);
         return indexProjectionExpression;
       }
       return null;
@@ -187,7 +194,7 @@ namespace Xtensive.Orm.Linq
       var returnType = mc.Method.ReturnType;
 
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(returnType));
+      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(returnType));
       var source = ConstructQueryable(queryAll);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
@@ -198,25 +205,12 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Orm.Session"/>.</exception>
     internal Translator(TranslatorContext context, CompiledQueryProcessingScope compiledQueryScope)
     {
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
-      state = new TranslatorState(this);
-    }
-
-    static Translator()
-    {
-      TranslateMethod = typeof(Translator).GetMethod(nameof(Translate),
-        BindingFlags.NonPublic | BindingFlags.Instance,
-        Array.Empty<string>(),
-        new object[] {WellKnownOrmTypes.ProjectionExpression, typeof(IEnumerable<Parameter<Tuple>>)});
-
-      VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
-        BindingFlags.NonPublic | BindingFlags.Instance,
-        new[] {"TItem"},
-        new object[] {WellKnownTypes.Expression});
+      tagsEnabled = context.Domain.TagsEnabled;
     }
   }
 }

@@ -5,6 +5,7 @@
 // Created:    2009.10.12
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -28,14 +29,26 @@ namespace Xtensive.IoC
   {
     private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
-    private readonly Dictionary<Key, List<ServiceRegistration>> types =
-      new Dictionary<Key, List<ServiceRegistration>>();
-    private readonly Dictionary<ServiceRegistration, object> instances =
-      new Dictionary<ServiceRegistration, object>();
-    private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
-      new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
-    private readonly HashSet<Type> creating = new HashSet<Type>();
-    private readonly object _lock = new object();
+    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+      var mappedType = serviceInfo.MappedType;
+      var ctor = (
+        from c in mappedType.GetConstructors()
+        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
+        select c
+        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
+      var @params = ctor?.GetParameters();
+      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
+    };
+
+    private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
+
+    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
+      new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
+
+    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
+      new ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
+
+    private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
 
     #region Protected virtual methods (to override)
 
@@ -43,28 +56,20 @@ namespace Xtensive.IoC
     /// <exception cref="AmbiguousMatchException">Multiple services match to the specified arguments.</exception>
     protected override object HandleGet(Type serviceType, string name)
     {
-      // Not very optimal, but...
-      lock (_lock) {
-        if (!types.TryGetValue(GetKey(serviceType, name), out var list))
-          return null;
-        return list.Count switch {
-          0 => null,
-          1 => GetOrCreateInstances(list).Single(),
-          _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
-        };
-      }
+      if (!types.TryGetValue(GetKey(serviceType, name), out var list))
+        return null;
+      return list.Count switch {
+        0 => null,
+        1 => GetOrCreateInstance(list[0]),
+        _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
+      };
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<object> HandleGetAll(Type serviceType)
-    {
-      // Not very optimal, but...
-      lock (_lock) {
-        return types.TryGetValue(GetKey(serviceType, null), out var list)
-          ? GetOrCreateInstances(list)
-          : Array.Empty<object>();
-      }
-    }
+    protected override IEnumerable<object> HandleGetAll(Type serviceType) =>
+      types.TryGetValue(GetKey(serviceType, null), out var list)
+        ? list.Select(GetOrCreateInstance)
+        : Array.Empty<object>();
 
     /// <summary>
     /// Creates the service instance for the specified <paramref name="serviceInfo"/>.
@@ -74,36 +79,32 @@ namespace Xtensive.IoC
     /// <exception cref="ActivationException">Something went wrong.</exception>
     protected virtual object CreateInstance(ServiceRegistration serviceInfo)
     {
-      if (creating.Contains(serviceInfo.Type))
-        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
-      Pair<ConstructorInfo, ParameterInfo[]> cachedInfo;
-      var mappedType = serviceInfo.MappedType;
-      if (!constructorCache.TryGetValue(serviceInfo, out cachedInfo)) {
-        var @ctor = (
-          from c in mappedType.GetConstructors()
-          where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
-          select c
-          ).SingleOrDefault();
-        if (@ctor == null)
-          @ctor = mappedType.GetConstructor(ArrayUtils<Type>.EmptyArray);
-        var @params = @ctor == null ? null : @ctor.GetParameters();
-        cachedInfo = new Pair<ConstructorInfo, ParameterInfo[]>(@ctor, @params);
-        constructorCache[serviceInfo] = cachedInfo;
-      }
+      var cachedInfo = constructorCache.GetOrAdd(serviceInfo, ConstructorFactory);
       var cInfo = cachedInfo.First;
-      if (cInfo == null)
+      if (cInfo == null) {
         return null;
+      }
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length == 0)
-        return Activator.CreateInstance(mappedType);
+      if (pInfos.Length == 0) {
+        return Activator.CreateInstance(serviceInfo.MappedType);
+      }
+      var managedThreadId = Environment.CurrentManagedThreadId;
+      var key = (serviceInfo.Type, managedThreadId);
+      if (!creating.TryAdd(key, true)) {
+        throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
+      }
       var args = new object[pInfos.Length];
-      creating.Add(serviceInfo.Type);
       try {
-        for (int i = 0; i < pInfos.Length; i++)
-          args[i] = Get(pInfos[i].ParameterType);
+        for (var i = 0; i < pInfos.Length; i++) {
+          var type = pInfos[i].ParameterType;
+          if (creating.ContainsKey((type, managedThreadId))) {
+            throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
+          }
+          args[i] = Get(type);
+        }
       }
       finally {
-        creating.Remove(serviceInfo.Type);
+        _ = creating.TryRemove(key, out _);
       }
       return cInfo.Invoke(args);
     }
@@ -115,27 +116,18 @@ namespace Xtensive.IoC
     private static Key GetKey(Type serviceType, string name) =>
       new Key(serviceType, string.IsNullOrEmpty(name) ? null : name);
 
-    private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services)
-    {
-      foreach (var registration in services) {
-        object result;
-        if (registration.Singleton && instances.TryGetValue(registration, out result)) {
-          yield return result;
-          continue;
-        }
+    private object InstanceFactory(ServiceRegistration registration) =>
+      registration.MappedInstance ?? CreateInstance(registration);
 
-        if (registration.MappedInstance != null)
-          result = registration.MappedInstance;
-        else
-          result = CreateInstance(registration);
+    private Lazy<object> LazyFactory(ServiceRegistration registration) =>
+      new Lazy<object>(() => InstanceFactory(registration));
 
-        if (registration.Singleton)
-          instances[registration] = result;
-        yield return result;
-      }
-    }
+    private object GetOrCreateInstance(ServiceRegistration registration) =>
+      registration.Singleton
+        ? instances.GetOrAdd(registration, LazyFactory).Value
+        : InstanceFactory(registration);
 
-    private void Register(ServiceRegistration serviceRegistration)
+    private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
       var key = GetKey(serviceRegistration.Type, serviceRegistration.Name);
       if (!types.TryGetValue(key, out var list)) {
@@ -201,7 +193,7 @@ namespace Xtensive.IoC
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
-      return (IServiceContainer)(
+      return (IServiceContainer) (
         FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
         ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
         ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
@@ -210,7 +202,7 @@ namespace Xtensive.IoC
     }
 
     private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
-      containerType.GetSingleConstructor(argumentTypes);
+      containerType.GetSingleConstructorOrDefault(argumentTypes);
 
     #endregion
 
@@ -305,32 +297,18 @@ namespace Xtensive.IoC
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public ServiceContainer()
-      : this(null, null)
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="configuration">The configuration.</param>
-    public ServiceContainer(IEnumerable<ServiceRegistration> configuration)
-      : this(configuration, null)
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
     /// <param name="configuration">The configuration.</param>
     /// <param name="parent">The parent container.</param>
-    public ServiceContainer(IEnumerable<ServiceRegistration> configuration, IServiceContainer parent)
+    public ServiceContainer(IEnumerable<ServiceRegistration> configuration = null, IServiceContainer parent = null)
       : base(parent)
     {
-      if (configuration == null)
-        return;
-      foreach (var serviceRegistration in configuration)
-        Register(serviceRegistration);
+      var typesDictionary = new Dictionary<Key, List<ServiceRegistration>>();
+      if (configuration != null) {
+        foreach (var serviceRegistration in configuration) {
+          Register(typesDictionary, serviceRegistration);
+        }
+      }
+      types = typesDictionary;
     }
 
     // Dispose implementation
@@ -338,11 +316,10 @@ namespace Xtensive.IoC
     public override void Dispose()
     {
       using (var toDispose = new DisposableSet()) {
-        foreach (var pair in instances) {
-          var service = pair.Value;
-          var disposable = service as IDisposable;
-          if (disposable != null)
+        foreach (var lazy in instances.Values) {
+          if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
             toDispose.Add(disposable);
+          }
         }
       }
     }

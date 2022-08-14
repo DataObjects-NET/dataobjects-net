@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.11.11
 
@@ -14,9 +14,9 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public static class IndentManager
   {
-    private sealed class IndentScope : IDisposable
+    public struct IndentScope : IDisposable
     {
-      private readonly string oldIndent;
+      private readonly int oldIndent;
       private readonly Action endAction;
       private bool disposed;
 
@@ -25,35 +25,35 @@ namespace Xtensive.Orm.Logging
         if (disposed)
           return;
         disposed = true;
-        CurrentIndentValueAsync.Value = oldIndent;
-        if (endAction!=null)
-          endAction.Invoke();
+        CurrentIndentLengthAsync.Value = oldIndent;
+        endAction?.Invoke();
       }
 
-      public IndentScope(string oldIndent, Action endAction)
+      public IndentScope(int oldIndent, Action endAction)
       {
         this.oldIndent = oldIndent;
         this.endAction = endAction;
+        disposed = false;
       }
     }
 
-    private const string SingleIndent = "  ";
+    private const int SingleIndentLength = 2;
     
-    private static readonly AsyncLocal<string> CurrentIndentValueAsync = new AsyncLocal<string>();
+    private static readonly AsyncLocal<int> CurrentIndentLengthAsync = new();
 
     /// <summary>
     /// Gets indentation for current thread.
     /// </summary>
-    public static string CurrentIdent { get { return CurrentIndentValueAsync.Value ?? string.Empty; } }
+    public static int CurrentIndentLength => CurrentIndentLengthAsync.Value;
 
     /// <summary>
     /// Increases indentation for current thread.
     /// </summary>
     /// <returns>Indentation scope.</returns>
-    public static IDisposable IncreaseIndent(Action endAction = null)
+    public static IndentScope IncreaseIndent(Action endAction = null)
     {
-      var oldIndent = CurrentIndentValueAsync.Value;
-      CurrentIndentValueAsync.Value = oldIndent==null ? SingleIndent : oldIndent + SingleIndent;
+      var oldIndent = CurrentIndentLengthAsync.Value;
+      CurrentIndentLengthAsync.Value = oldIndent + SingleIndentLength;
       return new IndentScope(oldIndent, endAction);
     }
   }

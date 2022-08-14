@@ -1021,6 +1021,37 @@ namespace Xtensive.Orm.Tests.Linq
       QueryDumper.Dump(query);
     }
 
+    [Test]
+    public void GroupByBoolExpression()
+    {
+      var query = Session.Query.All<Invoice>();
+      var falseResult = query.Count(c => c.Status != (InvoiceStatus) 1);
+      var trueResult = query.Count(c => c.Status == (InvoiceStatus) 1);
+
+      var result = query.GroupBy(c => c.Status == (InvoiceStatus) 1)
+        .Select(c => new {Value = c.Key, Count = c.Count()})
+        .ToArray();
+
+      Assert.AreEqual(falseResult, result.Single(i => !i.Value).Count);
+      Assert.AreEqual(trueResult, result.Single(i => i.Value).Count);
+    }
+
+    [Test]
+    public void GroupByBoolExpressionComplex()
+    {
+      var query = Session.Query.All<Invoice>();
+      var falseResult = query.Count(c => !(c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2));
+      var trueResult = query.Count(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2);
+
+      var result = query
+        .GroupBy(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
+        .Select(c => new {Value = c.Key, Count = c.Count()})
+        .ToArray();
+
+      Assert.AreEqual(falseResult, result.Single(i => !i.Value).Count);
+      Assert.AreEqual(trueResult, result.Single(i => i.Value).Count);
+    }
+
     private void DumpGrouping<TKey, TValue>(IQueryable<IGrouping<TKey, TValue>> result)
     {
       DumpGrouping(result, false);
@@ -1031,7 +1062,7 @@ namespace Xtensive.Orm.Tests.Linq
       // Just enumerate
       foreach (IGrouping<TKey, TValue> grouping in result) {
         foreach (var group in grouping) {
-          int i = 10;
+          Assert.IsNotNull(group);
         }
       }
 

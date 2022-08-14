@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Model
     {
       get { return hierarchy; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         hierarchy = value;
       }
     }
@@ -52,12 +53,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the fields forming the key.
     /// </summary>
-    public ReadOnlyList<FieldInfo> Fields { get; private set; }
+    public IReadOnlyList<FieldInfo> Fields { get; private set; }
 
     /// <summary>
     /// Gets the columns forming the key.
     /// </summary>
-    public ReadOnlyList<ColumnInfo> Columns { get; private set; }
+    public IReadOnlyList<ColumnInfo> Columns { get; private set; }
 
     /// <summary>
     /// Gets the key generator name.
@@ -68,7 +69,7 @@ namespace Xtensive.Orm.Model
       get { return generatorName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorName = value;
       }
     }
@@ -83,7 +84,7 @@ namespace Xtensive.Orm.Model
       get { return generatorBaseName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorBaseName = value;
       }
     }
@@ -96,7 +97,7 @@ namespace Xtensive.Orm.Model
       get { return generatorKind; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorKind = value;
       }
     }
@@ -125,7 +126,7 @@ namespace Xtensive.Orm.Model
     public SequenceInfo Sequence {
       get { return sequence; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         sequence = value;
       }
     }
@@ -138,7 +139,7 @@ namespace Xtensive.Orm.Model
     {
       get { return isFirstAmongSimilarKeys; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isFirstAmongSimilarKeys = value;
       }
     }
@@ -154,7 +155,7 @@ namespace Xtensive.Orm.Model
     {
       get { return equalityIdentifier; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         equalityIdentifier = value;
       }
     }
@@ -198,8 +199,8 @@ namespace Xtensive.Orm.Model
       TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
       : base(name)
     {
-      Fields = new ReadOnlyList<FieldInfo>(fields);
-      Columns = new ReadOnlyList<ColumnInfo>(columns);
+      Fields = new ReadOnlyCollection<FieldInfo>(fields);
+      Columns = new ReadOnlyCollection<ColumnInfo>(columns);
 
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,9 +13,24 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
+using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
+  [Explicit]
+  public class MSSQLTestsInMemory : MSSQLTests
+  {
+    protected override bool InMemory => true;
+
+#if DEBUG
+    protected override bool PerformanceCheck => false;
+#else
+    protected override bool PerformanceCheck => true;
+#endif
+  }
+
+
   [TestFixture, Explicit]
   public class MSSQLTests : AdventureWorks
   {
@@ -24,67 +39,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
-    #region Internals
+    protected virtual bool PerformanceCheck => false;
 
-    private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteDataReaderResult(dbCommand);
-      r2 = GetExecuteDataReaderResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount!=r2.RowCount)
-        return false;
-      if (r1.FieldCount!=r2.FieldCount)
-        return false;
-      for (int i = 0; i<r1.FieldCount; i++) {
-        if (r1.FieldNames[i]!=r2.FieldNames[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    private bool CompareExecuteNonQuery(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteNonQueryResult(dbCommand);
-      r2 = GetExecuteNonQueryResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount!=r2.RowCount)
-        return false;
-      return true;
-    }
-
-    private SqlCompilationResult Compile(ISqlCompileUnit statement)
-    {
-      return sqlDriver.Compile(statement);
-    }
-
-    #endregion
+    protected virtual int RunsPerGroup => 50;
 
     [OneTimeSetUp]
     public override void SetUp()
@@ -100,6 +57,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       }
       catch (SystemException e) {
         Console.WriteLine(e);
+      }
+
+      if (InMemory) {
+        return;
       }
 
       var stopWatch = new Stopwatch();
@@ -121,8 +82,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     public void TearDown()
     {
       try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
+        if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) {
           sqlConnection.Close();
+        }
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
@@ -135,53 +97,203 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
     }
 
+    #region Internals
+
+    private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)
+    {
+      var compiledCommandText = PerformanceCheck
+        ? CompileWithPerformanceCheck(statement)
+        : CompileRegular(statement);
+
+      Console.WriteLine(compiledCommandText);
+      if (InMemory) {
+        return true;
+      }
+
+      sqlCommand.CommandText = compiledCommandText;
+      sqlCommand.Prepare();
+
+      Console.WriteLine(commandText);
+      dbCommand.CommandText = commandText;
+
+      var r1 = GetExecuteDataReaderResult(dbCommand);
+      var r2 = GetExecuteDataReaderResult(sqlCommand);
+
+      Console.WriteLine();
+      Console.WriteLine();
+      Console.WriteLine(r1);
+      Console.WriteLine(r2);
+
+      if (r1.RowCount != r2.RowCount) {
+        return false;
+      }
+      if (r1.FieldCount != r2.FieldCount) {
+        return false;
+      }
+      for (var i = 0; i < r1.FieldCount; i++) {
+        if (r1.FieldNames[i] != r2.FieldNames[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private bool CompareExecuteNonQuery(string commandText, ISqlCompileUnit statement)
+    {
+      var compiledCommandText = PerformanceCheck
+        ? CompileWithPerformanceCheck(statement)
+        : CompileRegular(statement);
+
+      Console.WriteLine(compiledCommandText);
+      if (InMemory) {
+        return true;
+      }
+
+      sqlCommand.CommandText = compiledCommandText;
+      sqlCommand.Prepare();
+
+      Console.WriteLine(commandText);
+      dbCommand.CommandText = commandText;
+
+      var r1 = GetExecuteNonQueryResult(dbCommand);
+      var r2 = GetExecuteNonQueryResult(sqlCommand);
+
+      Console.WriteLine();
+      Console.WriteLine();
+      Console.WriteLine(r1);
+      Console.WriteLine(r2);
+
+      return r1.RowCount == r2.RowCount;
+    }
+
+    private string Compile(ISqlCompileUnit statement)
+    {
+      return PerformanceCheck
+        ? CompileWithPerformanceCheck(statement)
+        : CompileRegular(statement);
+    }
+
+    private string CompileWithPerformanceCheck(ISqlCompileUnit statement)
+    {
+      var runs = new TimeSpan[RunsPerGroup * 5];
+      var stopwatch = new Stopwatch();
+      var compiledCommandText = sqlDriver.Compile(statement).GetCommandText();
+      for (var i = 0; i < RunsPerGroup * 5; i++) {
+        stopwatch.Start();
+        _ = sqlDriver.Compile(statement).GetCommandText();
+        stopwatch.Stop();
+
+        runs[i] = stopwatch.Elapsed;
+        stopwatch.Reset();
+      }
+
+      WriteDetailedStats(runs);
+      return compiledCommandText;
+    }
+
+    private string CompileRegular(ISqlCompileUnit statement)
+    {
+      var stopwatch = new Stopwatch();
+      stopwatch.Start();
+      var compiledStatement = sqlDriver.Compile(statement);
+      stopwatch.Stop();
+      WriteDuration(stopwatch);
+      return compiledStatement.GetCommandText();
+    }
+
+    private void WriteDuration(Stopwatch stopwatch) =>
+      Console.WriteLine($"Compilation elapsed ticks: {stopwatch.Elapsed} ({stopwatch.ElapsedTicks} ticks)");
+
+    private void WriteDetailedStats(TimeSpan[] values)
+    {
+      var runs = RunsPerGroup;
+      var part1 = new ArraySegment<TimeSpan>(values, runs * 0, runs);
+      var part2 = new ArraySegment<TimeSpan>(values, runs * 1, runs);
+      var part3 = new ArraySegment<TimeSpan>(values, runs * 2, runs);
+      var part4 = new ArraySegment<TimeSpan>(values, runs * 3, runs);
+      var part5 = new ArraySegment<TimeSpan>(values, runs * 4, runs);
+
+      var orderedTicks = values.Select(ts => ts.Ticks).OrderBy(t => t).ToArray(values.Length);
+      var min = orderedTicks[0];
+      var max = orderedTicks[^1];
+      var avg = orderedTicks.Average();
+
+      var p95barier = (int) (0.95 * values.Length);
+      var p95Values = new ArraySegment<long>(orderedTicks, 0, p95barier);
+      var p95Max = p95Values[^1];
+      var p95Avg = p95Values.Average();
+      var deltas = values.Select(d => Math.Abs(avg - d.Ticks));
+
+      Console.WriteLine("-------------------------------------");
+      Console.WriteLine($"Min: {min} ticks({new TimeSpan(min)})");
+      Console.WriteLine($"Max: {max} ticks({new TimeSpan(max)})");
+      Console.WriteLine($"P95Max {p95Max} ticks({new TimeSpan(p95Max)})");
+      Console.WriteLine($"Avg: {avg} ticks");
+      Console.WriteLine($"P95Avg: {p95Avg} ticks");
+
+      Console.WriteLine("-------------------------------------");
+
+      Console.WriteLine("--------------Raw values-------------");
+      for (var i = 0; i < part1.Count; i++) {
+        Console.WriteLine($"{part1[i].Ticks}    {part2[i].Ticks}    {part3[i].Ticks}    {part4[i].Ticks}    {part5[i].Ticks}");
+      }
+      Console.WriteLine("-------------------------------------");
+    }
+
+    #endregion
+
     [Test]
     public void Test000()
     {
+      if (InMemory) {
+        throw new IgnoreException("Execution of query required");
+      }
+
       var p = sqlCommand.CreateParameter();
       p.ParameterName = "p1";
       p.DbType = DbType.Int32;
       p.Value = 40;
-      sqlCommand.Parameters.Add(p);
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      _ = sqlCommand.Parameters.Add(p);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
       select.Where = product["ListPrice"]>SqlDml.ParameterRef(p.ParameterName);
       select.OrderBy.Add(product["ListPrice"]);
 
-      sqlCommand.CommandText = Compile(select).GetCommandText();
+      sqlCommand.CommandText = Compile(select);
       sqlCommand.Prepare();
 
-      DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
+      var r = GetExecuteDataReaderResult(sqlCommand);
       Console.WriteLine(r);
     }
 
     [Test]
     public void Test001()
     {
-      string nativeSql = "SELECT ProductID, Name, ListPrice "
+      var nativeSql = "SELECT ProductID, Name, ListPrice "
         +"FROM Production.Product "
           +"WHERE ListPrice > $40 "
             +"ORDER BY ListPrice ASC";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["ListPrice"]);
       select.Where = product["ListPrice"]>40;
       select.OrderBy.Add(product["ListPrice"]);
       select.OrderBy.Add(1);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+
     }
 
     [Test]
     public void Test002()
     {
-      string nativeSql = "SELECT * "
+      var nativeSql = "SELECT * "
         +"FROM AdventureWorks.Purchasing.ShipMethod";
 
-      SqlTableRef purchasing = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ShipMethod"]);
-      SqlSelect select = SqlDml.Select(purchasing);
+      var purchasing = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ShipMethod"]);
+      var select = SqlDml.Select(purchasing);
       select.Columns.Add(SqlDml.Asterisk);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -190,14 +302,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test003()
     {
-      string nativeSql = "SELECT DISTINCT Sales.Customer.CustomerID, Sales.Store.Name "
+      var nativeSql = "SELECT DISTINCT Sales.Customer.CustomerID, Sales.Store.Name "
         +"FROM Sales.Customer JOIN Sales.Store ON "
           +"(Sales.Customer.CustomerID = Sales.Store.CustomerID) "
             +"WHERE Sales.Customer.TerritoryID = 1";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
+      var select = SqlDml.Select(customer);
       select.Distinct = true;
       select.Columns.AddRange(customer["CustomerID"], store["Name"]);
       select.From = select.From.InnerJoin(store, customer["CustomerID"]==store["CustomerID"]);
@@ -209,16 +321,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test004()
     {
-      string nativeSql = "SELECT DISTINCT c.CustomerID, s.Name "
+      var nativeSql = "SELECT DISTINCT c.CustomerID, s.Name "
         +"FROM Sales.Customer AS c "
           +"JOIN "
             +"Sales.Store AS s "
               +"ON ( c.CustomerID = s.CustomerID) "
                 +"WHERE c.TerritoryID = 1";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select =
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select =
         SqlDml.Select(customer.InnerJoin(store, customer["CustomerID"]==store["CustomerID"]));
       select.Distinct = true;
       select.Columns.AddRange(customer["CustomerID"], store["Name"]);
@@ -230,12 +342,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test005()
     {
-      string nativeSql = "SELECT DISTINCT ShipToAddressID, TerritoryID "
+      var nativeSql = "SELECT DISTINCT ShipToAddressID, TerritoryID "
         +"FROM Sales.SalesOrderHeader "
           +"ORDER BY TerritoryID";
 
-      SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlSelect select = SqlDml.Select(salesOrderHeader);
+      var salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var select = SqlDml.Select(salesOrderHeader);
       select.Distinct = true;
       select.Columns.AddRange(salesOrderHeader["ShipToAddressID"], salesOrderHeader["TerritoryID"]);
       select.OrderBy.Add(salesOrderHeader["TerritoryID"]);
@@ -246,13 +358,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test006()
     {
-      string nativeSql = "SELECT TOP 10 SalesOrderID, OrderDate "
+      var nativeSql = "SELECT TOP 10 SalesOrderID, OrderDate "
         +"FROM Sales.SalesOrderHeader "
           +"WHERE OrderDate < '2007-01-01T01:01:01.012'"
             +"ORDER BY OrderDate DESC";
 
-      SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlSelect select = SqlDml.Select(salesOrderHeader);
+      var salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var select = SqlDml.Select(salesOrderHeader);
       select.Limit = 10;
       select.Columns.AddRange(salesOrderHeader["SalesOrderID"], salesOrderHeader["OrderDate"]);
       select.Where = salesOrderHeader["OrderDate"]<DateTime.Now;
@@ -264,7 +376,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test007()
     {
-      string nativeSql = "SELECT e.IDENTITYCOL AS \"Employee ID\", "
+      var nativeSql = "SELECT e.IDENTITYCOL AS \"Employee ID\", "
         +"c.FirstName + ' ' + c.LastName AS \"Employee Name\", "
           +"c.Phone "
             +"FROM AdventureWorks.HumanResources.Employee e "
@@ -272,9 +384,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"ON e.ContactID = c.ContactID "
                   +"ORDER BY LastName, FirstName ASC";
 
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlSelect select =
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var select =
         SqlDml.Select(employee.InnerJoin(contact, employee["ContactID"]==contact["ContactID"]));
       select.Columns.Add(employee["EmployeeID"], "Employee ID");
       select.Columns.Add(contact["FirstName"]+'.'+contact["LastName"], "Employee Name");
@@ -288,12 +400,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test008()
     {
-      string nativeSql = "SELECT * "
+      var nativeSql = "SELECT * "
         +"FROM Production.Product "
           +"ORDER BY Name";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(SqlDml.Asterisk);
       select.OrderBy.Add(product["Name"]);
 
@@ -303,19 +415,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test009()
     {
-      string nativeSql = "SELECT s.UnitPrice, p.* "
+      var nativeSql = "SELECT s.UnitPrice, p.* "
         +"FROM Production.Product p "
           +"JOIN "
             +"Sales.SalesOrderDetail s "
               +"ON (p.ProductID = s.ProductID) "
                 +"ORDER BY p.ProductID";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef salesOrderDetail =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var salesOrderDetail =
         SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "s");
-      SqlSelect select =
-        SqlDml.Select(
-          product.InnerJoin(salesOrderDetail, product["ProductID"]==salesOrderDetail["ProductID"]));
+      var select = SqlDml.Select(
+        product.InnerJoin(salesOrderDetail, product["ProductID"]==salesOrderDetail["ProductID"]));
       select.Columns.Add(salesOrderDetail["UnitPrice"]);
       select.Columns.Add(product.Asterisk);
       select.OrderBy.Add(product["ProductID"]);
@@ -326,12 +437,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test010()
     {
-      string nativeSql = "SELECT * "
+      var nativeSql = "SELECT * "
         +"FROM Sales.Customer "
           +"ORDER BY CustomerID ASC";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var select = SqlDml.Select(customer);
       select.Columns.Add(SqlDml.Asterisk);
       select.OrderBy.Add(customer["CustomerID"]);
 
@@ -341,14 +452,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test011()
     {
-      string nativeSql = ""
-        +
+      var nativeSql =
         "SELECT CustomerID, TerritoryID, AccountNumber, CustomerType, ModifiedDate "
           +"FROM Sales.Customer "
             +"ORDER BY CustomerID ASC";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerID"]);
       select.Columns.Add(customer["TerritoryID"]);
       select.Columns.Add(customer["AccountNumber"]);
@@ -362,15 +472,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test012()
     {
-      string nativeSql = "SELECT c.FirstName, c.Phone "
+      var nativeSql = "SELECT c.FirstName, c.Phone "
         +"FROM AdventureWorks.HumanResources.Employee e "
           +"JOIN AdventureWorks.Person.Contact c "
             +"ON e.ContactID = c.ContactID "
               +"ORDER BY FirstName ASC";
 
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlSelect select =
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var select =
         SqlDml.Select(employee.InnerJoin(contact, employee["ContactID"]==contact["ContactID"]));
       select.Columns.AddRange(contact["FirstName"], contact["Phone"]);
       select.OrderBy.Add(contact["FirstName"]);
@@ -381,12 +491,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test013()
     {
-      string nativeSql = "SELECT LastName + ', ' + FirstName AS ContactName "
+      var nativeSql = "SELECT LastName + ', ' + FirstName AS ContactName "
         +"FROM AdventureWorks.Person.Contact "
           +"ORDER BY LastName, FirstName ASC";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["LastName"]+", "+contact["FirstName"], "ContactName");
       select.OrderBy.Add(contact["LastName"]);
       select.OrderBy.Add(contact["FirstName"]);
@@ -397,12 +507,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test014()
     {
-      string nativeSql = "SELECT ROUND( (ListPrice * .9), 2) AS DiscountPrice "
+      var nativeSql = "SELECT ROUND( (ListPrice * .9), 2) AS DiscountPrice "
         +"FROM Production.Product "
           +"WHERE ProductID = 58";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(SqlDml.Round(product["ListPrice"]*0.9, 2), "DiscountPrice");
       select.Where = product["ProductID"]==58;
 
@@ -412,12 +522,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test015()
     {
-      string nativeSql = "SELECT ( CAST(ProductID AS VARCHAR(10)) + ': ' "
+      var nativeSql = "SELECT ( CAST(ProductID AS VARCHAR(10)) + ': ' "
         +"+ Name ) AS ProductIDName "
           +"FROM Production.Product";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(
         SqlDml.Cast(product["ProductID"], new SqlValueType("varchar(10)")), "ProductIDName");
 
@@ -427,7 +537,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test016()
     {
-      string nativeSql = "SELECT ProductID, Name, "
+      var nativeSql = "SELECT ProductID, Name, "
         +"CASE Class "
           +"WHEN 'H' THEN ROUND( (ListPrice * .6), 2) "
             +"WHEN 'L' THEN ROUND( (ListPrice * .7), 2) "
@@ -436,10 +546,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"END AS DiscountPrice "
                     +"FROM Production.Product";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
-      SqlCase discountPrice = SqlDml.Case(product["Class"]);
+      var discountPrice = SqlDml.Case(product["Class"]);
       discountPrice['H'] = SqlDml.Round(product["ListPrice"]*0.6, 2);
       discountPrice['L'] = SqlDml.Round(product["ListPrice"]*0.7, 2);
       discountPrice['M'] = SqlDml.Round(product["ListPrice"]*0.8, 2);
@@ -452,7 +562,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test017()
     {
-      string nativeSql = "SELECT Prd.ProductID, Prd.Name, "
+      var nativeSql = "SELECT Prd.ProductID, Prd.Name, "
         +"(   SELECT SUM(OD.UnitPrice * OD.OrderQty) "
           +"FROM AdventureWorks.Sales.SalesOrderDetail AS OD "
             +"WHERE OD.ProductID = Prd.ProductID "
@@ -460,12 +570,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"FROM AdventureWorks.Production.Product AS Prd "
                   +"ORDER BY Prd.ProductID";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd");
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd");
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
-      SqlTableRef salesOrderDetail =
+      var salesOrderDetail =
         SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OD");
-      SqlSelect sumOfSales = SqlDml.Select(salesOrderDetail);
+      var sumOfSales = SqlDml.Select(salesOrderDetail);
       sumOfSales.Columns.Add(SqlDml.Sum(salesOrderDetail["UnitPrice"]*salesOrderDetail["OrderQty"]));
       sumOfSales.Where = salesOrderDetail["ProductID"]==product["ProductID"];
       select.Columns.Add(sumOfSales, "SumOfSales");
@@ -477,7 +587,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test018()
     {
-      string nativeSql = "SELECT p.ProductID, p.Name, "
+      var nativeSql = "SELECT p.ProductID, p.Name, "
         +"SUM (p.ListPrice * i.Quantity) AS InventoryValue "
           +"FROM AdventureWorks.Production.Product p "
             +"JOIN AdventureWorks.Production.ProductInventory i "
@@ -485,9 +595,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"GROUP BY p.ProductID, p.Name "
                   +"ORDER BY p.ProductID";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef i = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductInventory"], "i");
-      SqlSelect select = SqlDml.Select(p.InnerJoin(i, p["ProductID"]==i["ProductID"]));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var i = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductInventory"], "i");
+      var select = SqlDml.Select(p.InnerJoin(i, p["ProductID"]==i["ProductID"]));
       select.Columns.AddRange(p["ProductID"], p["Name"]);
       select.Columns.Add(SqlDml.Sum(p["ListPrice"]*i["Quantity"]), "InventoryValue");
       select.GroupBy.AddRange(p["ProductID"], p["Name"]);
@@ -499,13 +609,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test019()
     {
-      string nativeSql = "SELECT SalesOrderID, "
+      var nativeSql = "SELECT SalesOrderID, "
         +"DATEDIFF(dd, ShipDate, GETDATE() ) AS DaysSinceShipped "
           +"FROM AdventureWorks.Sales.SalesOrderHeader "
             +"WHERE ShipDate IS NOT NULL";
 
-      SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlSelect select = SqlDml.Select(salesOrderHeader);
+      var salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var select = SqlDml.Select(salesOrderHeader);
       select.Columns.Add(salesOrderHeader["SalesOrderID"]);
       select.Columns.Add(
         SqlDml.FunctionCall(
@@ -519,13 +629,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test020()
     {
-      string nativeSql = "SELECT SalesOrderID, "
+      var nativeSql = "SELECT SalesOrderID, "
         +"DaysSinceShipped = DATEDIFF(dd, ShipDate, GETDATE() ) "
           +"FROM AdventureWorks.Sales.SalesOrderHeader "
             +"WHERE ShipDate IS NOT NULL";
 
-      SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlSelect select = SqlDml.Select(salesOrderHeader);
+      var salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var select = SqlDml.Select(salesOrderHeader);
       select.Columns.Add(salesOrderHeader["SalesOrderID"]);
       select.Columns.Add(
         SqlDml.FunctionCall(
@@ -539,12 +649,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test021()
     {
-      string nativeSql = "SELECT Name AS \"Product Name\" "
+      var nativeSql = "SELECT Name AS \"Product Name\" "
         +"FROM Production.Product "
           +"ORDER BY Name ASC";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"], "Product Name");
       select.OrderBy.Add(product["Name"]);
 
@@ -554,11 +664,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test022()
     {
-      string nativeSql = "SELECT SUM(TotalDue) AS \"sum\" "
+      var nativeSql = "SELECT SUM(TotalDue) AS \"sum\" "
         +"FROM Sales.SalesOrderHeader";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(SqlDml.Sum(product["TotalDue"]), "sum");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -567,12 +677,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test023()
     {
-      string nativeSql = "SELECT DISTINCT ProductID "
+      var nativeSql = "SELECT DISTINCT ProductID "
         +"FROM Production.ProductInventory";
 
-      SqlTableRef productInventory =
+      var productInventory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductInventory"]);
-      SqlSelect select = SqlDml.Select(productInventory);
+      var select = SqlDml.Select(productInventory);
       select.Distinct = true;
       select.Columns.Add(productInventory["ProductID"]);
 
@@ -582,17 +692,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test024()
     {
-      string nativeSql = "SELECT Cst.CustomerID, St.Name, Ord.ShipDate, Ord.Freight "
+      var nativeSql = "SELECT Cst.CustomerID, St.Name, Ord.ShipDate, Ord.Freight "
         +"FROM AdventureWorks.Sales.Store AS St "
           +"JOIN AdventureWorks.Sales.Customer AS Cst "
             +"ON St.CustomerID = Cst.CustomerID "
               +"JOIN AdventureWorks.Sales.SalesOrderHeader AS Ord "
                 +"ON Cst.CustomerID = Ord.CustomerID";
 
-      SqlTableRef st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "St");
-      SqlTableRef cst = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "Cst");
-      SqlTableRef ord = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "Ord");
-      SqlSelect select = SqlDml.Select(st);
+      var st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "St");
+      var cst = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "Cst");
+      var ord = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "Ord");
+      var select = SqlDml.Select(st);
       select.From = select.From.InnerJoin(cst, st["CustomerID"]==cst["CustomerID"]);
       select.From = select.From.InnerJoin(ord, cst["CustomerID"]==ord["CustomerID"]);
       select.Columns.AddRange(cst["CustomerID"], st["Name"], ord["ShipDate"], ord["Freight"]);
@@ -604,7 +714,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("")]
     public void Test025()
     {
-      string nativeSql = "Not Valid Sql string "
+      var nativeSql = "Not Valid Sql string "
         +"USE AdventureWorks ; "
           +"GO "
             +"SELECT RTRIM(c.FirstName) + ' ' + LTRIM(c.LastName) AS Name, "
@@ -616,13 +726,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                       +"ON e.AddressID = d.AddressID "
                         +"ORDER BY c.LastName, c.FirstName ;";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef address = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Address"]);
-      SqlSelect subSelect = SqlDml.Select(address);
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var address = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Address"]);
+      var subSelect = SqlDml.Select(address);
       subSelect.Columns.AddRange(address["AddressID"], address["City"]);
-      SqlQueryRef d = SqlDml.QueryRef(subSelect, "d");
-      SqlSelect select = SqlDml.Select(c);
+      var d = SqlDml.QueryRef(subSelect, "d");
+      var select = SqlDml.Select(c);
       select.From = select.From.InnerJoin(e, c["ContactID"]==e["ContactID"]);
       select.From = select.From.InnerJoin(d, e["AddressID"]==d["AddressID"]);
       select.Columns.Add(
@@ -636,10 +746,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [Ignore("")]
+    [Ignore("Test is empty.")]
     public void Test026()
     {
-      //      string nativeSql = "SELECT @MyIntVariable "
+      //      var nativeSql = "SELECT @MyIntVariable "
       //                                   +"SELECT @@VERSION "
       //                                   +"SELECT DB_ID('AdventureWorks')";
       //
@@ -661,14 +771,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test027()
     {
-      string nativeSql = "SELECT c.CustomerID, s.Name "
+      var nativeSql = "SELECT c.CustomerID, s.Name "
         +"FROM Sales.Customer AS c "
           +"JOIN Sales.Store AS s "
             +"ON c.CustomerID = s.CustomerID";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
+      var c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
       select.Columns.AddRange(c["CustomerID"], s["Name"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -677,15 +787,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test028()
     {
-      string nativeSql = "SELECT c.CustomerID, s.Name "
+      var nativeSql = "SELECT c.CustomerID, s.Name "
         +"FROM AdventureWorks.Sales.Customer c "
           +"JOIN AdventureWorks.Sales.Store s "
             +"ON s.CustomerID = c.CustomerID "
               +"WHERE c.TerritoryID = 1";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
+      var c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
       select.Columns.AddRange(c["CustomerID"], s["Name"]);
       select.Where = c["TerritoryID"]==1;
 
@@ -695,7 +805,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test029()
     {
-      string nativeSql = "SELECT OrdD1.SalesOrderID AS OrderID, "
+      var nativeSql = "SELECT OrdD1.SalesOrderID AS OrderID, "
         +"SUM(OrdD1.OrderQty) AS \"Units Sold\", "
           +"SUM(OrdD1.UnitPrice * OrdD1.OrderQty) AS Revenue "
             +"FROM Sales.SalesOrderDetail AS OrdD1 "
@@ -705,12 +815,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                     +"GROUP BY OrdD1.SalesOrderID "
                       +"HAVING SUM(OrdD1.OrderQty) > 100";
 
-      SqlTableRef ordD1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD1");
-      SqlTableRef ordD2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD2");
-      SqlSelect subSelect = SqlDml.Select(ordD2);
+      var ordD1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD1");
+      var ordD2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD2");
+      var subSelect = SqlDml.Select(ordD2);
       subSelect.Columns.Add(ordD2["SalesOrderID"]);
       subSelect.Where = ordD2["SalesOrderID"]>100;
-      SqlSelect select = SqlDml.Select(ordD1);
+      var select = SqlDml.Select(ordD1);
       select.Columns.Add(ordD1["SalesOrderID"], "OrderID");
       select.Columns.Add(SqlDml.Sum(ordD1["OrderQty"]), "Units Sold");
       select.Columns.Add(SqlDml.Sum(ordD1["UnitPrice"]*ordD1["OrderQty"]), "Revenue");
@@ -724,13 +834,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test030()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE Class = 'H' "
             +"ORDER BY ProductID";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["Class"]=='H';
       select.OrderBy.Add(product["ProductID"]);
@@ -741,13 +851,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test031()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice BETWEEN 100 and 500 "
             +"ORDER BY ListPrice";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.Between(product["ListPrice"], 100, 500);
       select.OrderBy.Add(product["ListPrice"]);
@@ -758,13 +868,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test032()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE Color IN ('Multi', 'Silver') "
             +"ORDER BY ProductID";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.In(product["Color"], SqlDml.Row("Multi", "Silver"));
       select.OrderBy.Add(product["ProductID"]);
@@ -775,13 +885,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test033()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE Name LIKE 'Ch%' "
             +"ORDER BY ProductID";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.Like(product["Name"], "Ch%");
       select.OrderBy.Add(product["ProductID"]);
@@ -792,16 +902,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test034()
     {
-      string nativeSql = "SELECT s.Name "
+      var nativeSql = "SELECT s.Name "
         +"FROM AdventureWorks.Sales.Customer c "
           +"JOIN AdventureWorks.Sales.Store s "
             +"ON c.CustomerID = s.CustomerID "
               +"WHERE s.SalesPersonID IS NOT NULL "
                 +"ORDER BY s.Name";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
+      var c = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"], "c");
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
       select.Columns.Add(s["Name"]);
       select.Where = SqlDml.IsNotNull(s["SalesPersonID"]);
       select.OrderBy.Add(s["Name"]);
@@ -812,7 +922,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test035()
     {
-      string nativeSql = "SELECT OrdD1.SalesOrderID, OrdD1.ProductID "
+      var nativeSql = "SELECT OrdD1.SalesOrderID, OrdD1.ProductID "
         +"FROM Sales.SalesOrderDetail OrdD1 "
           +"WHERE OrdD1.OrderQty > ALL "
             +"(SELECT OrdD2.OrderQty "
@@ -821,15 +931,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"ON OrdD2.ProductID = Prd.ProductID "
                   +"WHERE Prd.Class = 'H')";
 
-      SqlTableRef ordD1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD1");
-      SqlTableRef ordD2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD2");
-      SqlTableRef prd = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd");
-      SqlSelect subSelect = SqlDml.Select(ordD2.InnerJoin(prd, ordD2["ProductID"]==prd["ProductID"]));
+      var ordD1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD1");
+      var ordD2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdD2");
+      var prd = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd");
+      var subSelect = SqlDml.Select(ordD2.InnerJoin(prd, ordD2["ProductID"]==prd["ProductID"]));
       subSelect.Columns.Add(ordD2["OrderQty"]);
       subSelect.Where = prd["Class"]=='H';
-      SqlSelect select = SqlDml.Select(ordD1);
+      var select = SqlDml.Select(ordD1);
       select.Columns.AddRange(ordD1["SalesOrderID"], ordD1["ProductID"]);
-      select.Where = ordD1["OrderQty"]>SqlDml.All(subSelect);
+      select.Where = ordD1["OrderQty"] > SqlDml.All(subSelect);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -837,16 +947,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test036()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice < 500 "
             +"OR (Class = 'L' AND ProductLine = 'S')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
-      select.Where = product["ListPrice"]<500 ||
-        (product["Class"]=='L' && product["ProductLine"]=='S');
+      select.Where = product["ListPrice"] < 500 ||
+        (product["Class"] == 'L' && product["ProductLine"] == 'S');
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -854,12 +964,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test037()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice > $50.00";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = product["ListPrice"]>50;
 
@@ -869,12 +979,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test038()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice BETWEEN 15 AND 25";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.Between(product["ListPrice"], 15, 25);
 
@@ -884,12 +994,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test039()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice = 15 OR ListPrice = 25";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["ListPrice"]==15 || product["ListPrice"]==25;
 
@@ -899,12 +1009,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test040()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice > 15 AND ListPrice < 25";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["ListPrice"]>15 && product["ListPrice"]<25;
 
@@ -914,12 +1024,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test041()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice NOT BETWEEN 15 AND 25";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = !SqlDml.Between(product["ListPrice"], 15, 25);
 
@@ -929,13 +1039,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test042()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ProductSubcategoryID = 12 OR ProductSubcategoryID = 14 "
             +"OR ProductSubcategoryID = 16";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["ProductSubcategoryID"]==12 || product["ProductSubcategoryID"]==14 ||
         product["ProductSubcategoryID"]==16;
@@ -946,12 +1056,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test043()
     {
-      string nativeSql = "SELECT ProductID, Name "
+      var nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ProductSubcategoryID IN (12, 14, 16)";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], SqlDml.Row(12, 14, 16));
 
@@ -961,19 +1071,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test044()
     {
-      string nativeSql = "SELECT DISTINCT Name "
+      var nativeSql = "SELECT DISTINCT Name "
         +"FROM Production.Product "
           +"WHERE ProductModelID IN "
             +"(SELECT ProductModelID "
               +"FROM Production.ProductModel "
                 +"WHERE Name = 'Long-sleeve logo jersey');";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productModel = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"]);
-      SqlSelect subSelect = SqlDml.Select(productModel);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productModel = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"]);
+      var subSelect = SqlDml.Select(productModel);
       subSelect.Columns.Add(productModel["ProductModelID"]);
       subSelect.Where = productModel["Name"]=="Long-sleeve logo jersey";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Distinct = true;
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductModelID"], subSelect);
@@ -984,19 +1094,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test045()
     {
-      string nativeSql = "SELECT DISTINCT Name "
+      var nativeSql = "SELECT DISTINCT Name "
         +"FROM Production.Product "
           +"WHERE ProductModelID NOT IN "
             +"(SELECT ProductModelID "
               +"FROM Production.ProductModel "
                 +"WHERE Name = 'Long-sleeve logo jersey');";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productModel = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"]);
-      SqlSelect subSelect = SqlDml.Select(productModel);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productModel = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"]);
+      var subSelect = SqlDml.Select(productModel);
       subSelect.Columns.Add(productModel["ProductModelID"]);
       subSelect.Where = productModel["Name"]=="Long-sleeve logo jersey";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Distinct = true;
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.NotIn(product["ProductModelID"], subSelect);
@@ -1007,12 +1117,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test046()
     {
-      string nativeSql = "SELECT Phone "
+      var nativeSql = "SELECT Phone "
         +"FROM AdventureWorks.Person.Contact "
           +"WHERE Phone LIKE '415%'";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "415%");
 
@@ -1022,12 +1132,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test047()
     {
-      string nativeSql = "SELECT Phone "
+      var nativeSql = "SELECT Phone "
         +"FROM AdventureWorks.Person.Contact "
           +"WHERE Phone NOT LIKE '415%'";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["Phone"]);
       select.Where = !SqlDml.Like(contact["Phone"], "415%");
 
@@ -1037,12 +1147,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test048()
     {
-      string nativeSql = "SELECT Phone "
+      var nativeSql = "SELECT Phone "
         +"FROM Person.Contact "
           +"WHERE Phone LIKE '415%' and Phone IS NOT NULL";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "415%") && SqlDml.IsNotNull(contact["Phone"]);
 
@@ -1052,18 +1162,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test049()
     {
-      #region Like
-
-      string nativeSql = "SELECT Phone "
+      var nativeSql = "SELECT Phone "
         +"FROM Person.Contact "
           +"WHERE Phone LIKE '%5/%%' ESCAPE '/'";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "%5/%%", '/');
-
-      #endregion
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1071,12 +1177,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test050()
     {
-      string nativeSql = "SELECT ProductID, Name, Color "
+      var nativeSql = "SELECT ProductID, Name, Color "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE Color IS NULL";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["Name"], product["Color"]);
       select.Where = SqlDml.IsNull(product["Color"]);
 
@@ -1086,13 +1192,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test051()
     {
-      string nativeSql = "SELECT CustomerID, AccountNumber, TerritoryID "
+      var nativeSql = "SELECT CustomerID, AccountNumber, TerritoryID "
         +"FROM AdventureWorks.Sales.Customer "
           +"WHERE TerritoryID IN (1, 2, 3) "
             +"OR TerritoryID IS NULL";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var select = SqlDml.Select(customer);
       select.Columns.AddRange(
         customer["CustomerID"], customer["AccountNumber"], customer["TerritoryID"]);
       select.Where = SqlDml.In(customer["TerritoryID"], SqlDml.Row(1, 2, 3)) ||
@@ -1104,12 +1210,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test052()
     {
-      string nativeSql = "SELECT CustomerID, AccountNumber, TerritoryID "
+      var nativeSql = "SELECT CustomerID, AccountNumber, TerritoryID "
         +"FROM AdventureWorks.Sales.Customer "
           +"WHERE TerritoryID = NULL";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var select = SqlDml.Select(customer);
       select.Columns.AddRange(
         customer["CustomerID"], customer["AccountNumber"], customer["TerritoryID"]);
       select.Where = customer["TerritoryID"]==SqlDml.Null;
@@ -1120,12 +1226,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test053()
     {
-      string nativeSql = "SELECT CustomerID, Name "
+      var nativeSql = "SELECT CustomerID, Name "
         +"FROM AdventureWorks.Sales.Store "
           +"WHERE CustomerID LIKE '1%' AND Name LIKE N'Bicycle%'";
 
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
-      SqlSelect select = SqlDml.Select(store);
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
+      var select = SqlDml.Select(store);
       select.Columns.AddRange(store["CustomerID"], store["Name"]);
       select.Where = SqlDml.Like(store["CustomerID"], "1%") && SqlDml.Like(store["Name"], "Bicycle%");
 
@@ -1135,12 +1241,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test054()
     {
-      string nativeSql = "SELECT CustomerID, Name "
+      var nativeSql = "SELECT CustomerID, Name "
         +"FROM AdventureWorks.Sales.Store "
           +"WHERE CustomerID LIKE '1%' OR Name LIKE N'Bicycle%'";
 
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
-      SqlSelect select = SqlDml.Select(store);
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
+      var select = SqlDml.Select(store);
       select.Columns.AddRange(store["CustomerID"], store["Name"]);
       select.Where = SqlDml.Like(store["CustomerID"], "1%") || SqlDml.Like(store["Name"], "Bicycle%");
 
@@ -1150,16 +1256,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test055()
     {
-      string nativeSql = "SELECT ProductID, ProductModelID "
+      var nativeSql = "SELECT ProductID, ProductModelID "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ProductModelID = 20 OR ProductModelID = 21 "
             +"AND Color = 'Red'";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["ProductModelID"]);
-      select.Where = product["ProductModelID"]==20 ||
-        product["ProductModelID"]==21 && product["Color"]=="RED";
+      select.Where = product["ProductModelID"] == 20 ||
+        (product["ProductModelID"] == 21 && product["Color"] == "RED");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1167,16 +1273,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test056()
     {
-      string nativeSql = "SELECT ProductID, ProductModelID "
+      var nativeSql = "SELECT ProductID, ProductModelID "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE (ProductModelID = 20 OR ProductModelID = 21) "
             +"AND Color = 'Red'";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["ProductModelID"]);
-      select.Where = (product["ProductModelID"]==20 || product["ProductModelID"]==21) &&
-        product["Color"]=="RED";
+      select.Where = (product["ProductModelID"] == 20 || product["ProductModelID"] == 21) &&
+        product["Color"] == "RED";
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1184,16 +1290,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test057()
     {
-      string nativeSql = "SELECT ProductID, ProductModelID "
+      var nativeSql = "SELECT ProductID, ProductModelID "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ProductModelID = 20 OR (ProductModelID = 21 "
             +"AND Color = 'Red')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductID"], product["ProductModelID"]);
-      select.Where = product["ProductModelID"]==20 ||
-        (product["ProductModelID"]==21 && product["Color"]=="RED");
+      select.Where = product["ProductModelID"] == 20 ||
+        (product["ProductModelID"] == 21 && product["Color"] == "RED");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1201,13 +1307,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test058()
     {
-      string nativeSql = "SELECT SalesOrderID, SUM(LineTotal) AS SubTotal "
+      var nativeSql = "SELECT SalesOrderID, SUM(LineTotal) AS SubTotal "
         +"FROM Sales.SalesOrderDetail sod "
           +"GROUP BY SalesOrderID "
             +"ORDER BY SalesOrderID ;";
 
-      SqlTableRef sod = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sod");
-      SqlSelect select = SqlDml.Select(sod);
+      var sod = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sod");
+      var select = SqlDml.Select(sod);
       select.Columns.Add(sod["SalesOrderID"]);
       select.Columns.Add(SqlDml.Sum(sod["LineTotal"]), "SubTotal");
       select.GroupBy.Add(sod["SalesOrderID"]);
@@ -1219,13 +1325,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test059()
     {
-      string nativeSql = "SELECT DATEPART(yy, HireDate) AS Year, "
+      var nativeSql = "SELECT DATEPART(yy, HireDate) AS Year, "
         +"COUNT(*) AS NumberOfHires "
           +"FROM AdventureWorks.HumanResources.Employee "
             +"GROUP BY DATEPART(yy, HireDate)";
 
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlSelect select = SqlDml.Select(employee);
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var select = SqlDml.Select(employee);
       select.Columns.Add(
         SqlDml.Extract(SqlDateTimePart.Year, employee["HireDate"]), "Year");
       select.Columns.Add(SqlDml.Count(), "NumberOfHires");
@@ -1237,7 +1343,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test060()
     {
-      string nativeSql = ""
+      var nativeSql = ""
         +
         "SELECT ProductID, SpecialOfferID, AVG(UnitPrice) AS 'Average Price', "
           +"SUM(LineTotal) AS SubTotal "
@@ -1245,8 +1351,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
               +"GROUP BY ProductID, SpecialOfferID "
                 +"ORDER BY ProductID";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(salesOrderDetail["SpecialOfferID"]);
       select.Columns.Add(SqlDml.Avg(salesOrderDetail["UnitPrice"]), "Average Price");
@@ -1260,7 +1366,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test061()
     {
-      string nativeSql = ""
+      var nativeSql = ""
         +
         "SELECT ProductID, SpecialOfferID, AVG(UnitPrice) AS 'Average Price', "
           +"SUM(LineTotal) AS SubTotal "
@@ -1268,8 +1374,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
               +"GROUP BY ProductID, SpecialOfferID "
                 +"ORDER BY ProductID";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(salesOrderDetail["SpecialOfferID"]);
       select.Columns.Add(SqlDml.Avg(salesOrderDetail["UnitPrice"]), "Average Price");
@@ -1283,14 +1389,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test062()
     {
-      string nativeSql = "SELECT ProductModelID, AVG(ListPrice) AS 'Average List Price' "
+      var nativeSql = "SELECT ProductModelID, AVG(ListPrice) AS 'Average List Price' "
         +"FROM Production.Product "
           +"WHERE ListPrice > $1000 "
             +"GROUP BY ProductModelID "
               +"ORDER BY ProductModelID ;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["ProductModelID"]);
       select.Columns.Add(SqlDml.Avg(product["ListPrice"]), "Average List Price");
       select.Where = product["ListPrice"]>1000;
@@ -1303,21 +1409,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test063()
     {
-      string nativeSql = ""
-        +
+      var nativeSql =
         "SELECT ProductID, AVG(OrderQty) AS AverageQuantity, SUM(LineTotal) AS Total "
           +"FROM Sales.SalesOrderDetail "
             +"GROUP BY ProductID "
               +"HAVING SUM(LineTotal) > $1000000.00 "
                 +"AND AVG(OrderQty) < 3 ;";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(SqlDml.Avg(salesOrderDetail["OrderQty"]), "AverageQuantity");
       select.Columns.Add(SqlDml.Sum(salesOrderDetail["LineTotal"]), "Total");
-      select.Having = SqlDml.Sum(salesOrderDetail["LineTotal"])>1000000 &&
-        SqlDml.Avg(salesOrderDetail["OrderQty"])<3;
+      select.Having = SqlDml.Sum(salesOrderDetail["LineTotal"]) > 1000000 &&
+        SqlDml.Avg(salesOrderDetail["OrderQty"]) < 3;
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -1326,13 +1431,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test064()
     {
-      string nativeSql = "SELECT ProductID, Total = SUM(LineTotal) "
+      var nativeSql = "SELECT ProductID, Total = SUM(LineTotal) "
         +"FROM Sales.SalesOrderDetail "
           +"GROUP BY ProductID "
             +"HAVING SUM(LineTotal) > $2000000.00 ;";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(SqlDml.Sum(salesOrderDetail["LineTotal"]), "Total");
       select.Having = SqlDml.Sum(salesOrderDetail["LineTotal"])>2000000;
@@ -1344,13 +1449,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test065()
     {
-      string nativeSql = "SELECT ProductID, SUM(LineTotal) AS Total "
+      var nativeSql = "SELECT ProductID, SUM(LineTotal) AS Total "
         +"FROM Sales.SalesOrderDetail "
           +"GROUP BY ProductID "
             +"HAVING COUNT(*) > 1500 ;";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(SqlDml.Sum(salesOrderDetail["LineTotal"]), "Total");
       select.Having = SqlDml.Count()>1500;
@@ -1362,17 +1467,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test066()
     {
-      string nativeSql = "SELECT ProductID "
+      var nativeSql = "SELECT ProductID "
         +"FROM Sales.SalesOrderDetail "
           +"GROUP BY ProductID "
             +"HAVING AVG(OrderQty) > 5 "
               +"ORDER BY ProductID ;";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
-      select.Having = SqlDml.Avg(salesOrderDetail["OrderQty"])>5;
+      select.Having = SqlDml.Avg(salesOrderDetail["OrderQty"]) > 5;
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -1381,7 +1486,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test067()
     {
-      string nativeSql = "SELECT pm.Name, AVG(ListPrice) AS 'Average List Price' "
+      var nativeSql = "SELECT pm.Name, AVG(ListPrice) AS 'Average List Price' "
         +"FROM Production.Product AS p "
           +"JOIN Production.ProductModel AS pm "
             +"ON p.ProductModelID = pm.ProductModelID "
@@ -1389,9 +1494,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"HAVING pm.Name LIKE 'Mountain%' "
                   +"ORDER BY pm.Name ;";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef pm = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"], "pm");
-      SqlSelect select = SqlDml.Select(p.InnerJoin(pm, p["ProductModelID"]==pm["ProductModelID"]));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var pm = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductModel"], "pm");
+      var select = SqlDml.Select(p.InnerJoin(pm, p["ProductModelID"]==pm["ProductModelID"]));
       select.Columns.Add(pm["Name"]);
       select.Columns.Add(SqlDml.Avg(p["ListPrice"]), "Average List Price");
       select.GroupBy.Add(pm["Name"]);
@@ -1404,17 +1509,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test068()
     {
-      string nativeSql = "SELECT ProductID, AVG(UnitPrice) AS 'Average Price' "
+      var nativeSql = "SELECT ProductID, AVG(UnitPrice) AS 'Average Price' "
         +"FROM Sales.SalesOrderDetail "
           +"WHERE OrderQty > 10 "
             +"GROUP BY ProductID "
               +"ORDER BY ProductID ;";
 
-      SqlTableRef salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
-      SqlSelect select = SqlDml.Select(salesOrderDetail);
+      var salesOrderDetail = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"]);
+      var select = SqlDml.Select(salesOrderDetail);
       select.Columns.Add(salesOrderDetail["ProductID"]);
       select.Columns.Add(SqlDml.Avg(salesOrderDetail["UnitPrice"]), "Average Price");
-      select.Where = salesOrderDetail["OrderQty"]>10;
+      select.Where = salesOrderDetail["OrderQty"] > 10;
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
@@ -1424,14 +1529,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test069()
     {
-      string nativeSql = "SELECT Color, AVG (ListPrice) AS 'average list price' "
+      var nativeSql = "SELECT Color, AVG (ListPrice) AS 'average list price' "
         +"FROM Production.Product "
           +"WHERE Color IS NOT NULL "
             +"GROUP BY Color "
               +"ORDER BY Color";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Color"]);
       select.Columns.Add(SqlDml.Avg(product["ListPrice"]), "average list price");
       select.Where = SqlDml.IsNotNull(product["Color"]);
@@ -1444,12 +1549,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test070()
     {
-      string nativeSql = "SELECT ProductID, ProductSubcategoryID, ListPrice "
+      var nativeSql = "SELECT ProductID, ProductSubcategoryID, ListPrice "
         +"FROM Production.Product "
           +"ORDER BY ProductSubcategoryID DESC, ListPrice";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(
         product["ProductID"], product["ProductSubcategoryID"], product["ListPrice"]);
       select.OrderBy.Add(product["ProductSubcategoryID"], false);
@@ -1462,12 +1567,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("")]
     public void Test071()
     {
-      string nativeSql = "SELECT LastName FROM Person.Contact "
+      var nativeSql = "SELECT LastName FROM Person.Contact "
         +"ORDER BY LastName "
           +"COLLATE Traditional_Spanish_ci_ai ASC";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(contact);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(contact);
       select.Columns.Add(contact["LastName"]);
       select.OrderBy.Add(
         SqlDml.Collate(contact["LastName"], Catalog.Schemas["Person"].Collations["Traditional_Spanish_CI_AI"]));
@@ -1478,13 +1583,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test072()
     {
-      string nativeSql = "SELECT Color, AVG (ListPrice) AS 'average list price' "
+      var nativeSql = "SELECT Color, AVG (ListPrice) AS 'average list price' "
         +"FROM Production.Product "
           +"GROUP BY Color "
             +"ORDER BY 'average list price'";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect select = SqlDml.Select(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Color"]);
       select.Columns.Add(SqlDml.Avg(product["ListPrice"]), "average list price");
       select.GroupBy.Add(product["Color"]);
@@ -1496,19 +1601,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test073()
     {
-      string nativeSql = "SELECT Ord.SalesOrderID, Ord.OrderDate, "
-        +"(SELECT MAX(OrdDet.UnitPrice) "
-          +"FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet "
-            +
-            "     WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice "
-              +"FROM AdventureWorks.Sales.SalesOrderHeader AS Ord";
+      var nativeSql =
+        "SELECT Ord.SalesOrderID, Ord.OrderDate, "
+          +"(SELECT MAX(OrdDet.UnitPrice) "
+            +"FROM AdventureWorks.Sales.SalesOrderDetail AS OrdDet "
+              +"WHERE Ord.SalesOrderID = OrdDet.SalesOrderID) AS MaxUnitPrice "
+          +"FROM AdventureWorks.Sales.SalesOrderHeader AS Ord";
 
-      SqlTableRef ordDet = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdDet");
-      SqlTableRef ord = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "Ord");
-      SqlSelect subSelect = SqlDml.Select(ordDet);
+      var ordDet = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "OrdDet");
+      var ord = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "Ord");
+      var subSelect = SqlDml.Select(ordDet);
       subSelect.Columns.Add(SqlDml.Max(ordDet["UnitPrice"]));
       subSelect.Where = ord["SalesOrderID"]==ordDet["SalesOrderID"];
-      SqlSelect select = SqlDml.Select(ord);
+      var select = SqlDml.Select(ord);
       select.Columns.AddRange(ord["SalesOrderID"], ord["OrderDate"]);
       select.Columns.Add(subSelect, "MaxUnitPrice");
 
@@ -1518,19 +1623,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test074()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM AdventureWorks.Production.Product "
           +"WHERE ListPrice = "
             +"(SELECT ListPrice "
               +"FROM AdventureWorks.Production.Product "
                 +"WHERE Name = 'Chainring Bolts' )";
 
-      SqlTableRef product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(product2["ListPrice"]);
       subSelect.Where = product2["Name"]=="Chainring Bolts";
-      SqlSelect select = SqlDml.Select(product1);
+      var select = SqlDml.Select(product1);
       select.Columns.AddRange(product1["Name"]);
       select.Where = product1["ListPrice"]==subSelect;
 
@@ -1540,15 +1645,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test075()
     {
-      string nativeSql = "SELECT Prd1. Name "
+      var nativeSql = "SELECT Prd1. Name "
         +"FROM AdventureWorks.Production.Product AS Prd1 "
           +"JOIN AdventureWorks.Production.Product AS Prd2 "
             +"ON (Prd1.ListPrice = Prd2.ListPrice) "
               +"WHERE Prd2. Name = 'Chainring Bolts'";
 
-      SqlTableRef prd1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd1");
-      SqlTableRef prd2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd2");
-      SqlSelect select = SqlDml.Select(prd1.InnerJoin(prd2, prd1["ListPrice"]==prd2["ListPrice"]));
+      var prd1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd1");
+      var prd2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "Prd2");
+      var select = SqlDml.Select(prd1.InnerJoin(prd2, prd1["ListPrice"]==prd2["ListPrice"]));
       select.Columns.Add(prd1["Name"]);
       select.Where = prd2["Name"]=="Chainring Bolts";
 
@@ -1558,19 +1663,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test076()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Sales.Store "
           +"WHERE Sales.Store.CustomerID NOT IN "
             +"(SELECT Sales.Customer.CustomerID "
               +"FROM Sales.Customer "
                 +"WHERE TerritoryID = 5)";
 
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlSelect subSelect = SqlDml.Select(customer);
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var subSelect = SqlDml.Select(customer);
       subSelect.Columns.Add(customer["CustomerID"]);
       subSelect.Where = customer["TerritoryID"]==5;
-      SqlSelect select = SqlDml.Select(store);
+      var select = SqlDml.Select(store);
       select.Columns.Add(store["Name"]);
       select.Where = SqlDml.NotIn(store["CustomerID"], subSelect);
 
@@ -1580,19 +1685,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test077()
     {
-      string nativeSql = "SELECT EmployeeID, ManagerID "
+      var nativeSql = "SELECT EmployeeID, ManagerID "
         +"FROM HumanResources.Employee "
           +"WHERE ManagerID IN "
             +"(SELECT ManagerID "
               +"FROM HumanResources.Employee "
                 +"WHERE EmployeeID = 12)";
 
-      SqlTableRef employee1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlTableRef employee2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlSelect subSelect = SqlDml.Select(employee2);
+      var employee1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var employee2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var subSelect = SqlDml.Select(employee2);
       subSelect.Columns.Add(employee2["ManagerID"]);
       subSelect.Where = employee2["EmployeeID"]==12;
-      SqlSelect select = SqlDml.Select(employee1);
+      var select = SqlDml.Select(employee1);
       select.Columns.AddRange(employee1["EmployeeID"], employee1["ManagerID"]);
       select.Where = SqlDml.In(employee1["ManagerID"], subSelect);
 
@@ -1602,15 +1707,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test078()
     {
-      string nativeSql = "SELECT e1.EmployeeID, e1.ManagerID "
+      var nativeSql = "SELECT e1.EmployeeID, e1.ManagerID "
         +"FROM HumanResources.Employee AS e1 "
           +"INNER JOIN HumanResources.Employee AS e2 "
             +"ON e1.ManagerID = e2.ManagerID "
               +"AND e2.EmployeeID = 12";
 
-      SqlTableRef e1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e1");
-      SqlTableRef e2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e2");
-      SqlSelect select =
+      var e1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e1");
+      var e2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e2");
+      var select =
         SqlDml.Select(e1.InnerJoin(e2, e1["ManagerID"]==e2["ManagerID"] && e2["EmployeeID"]==12));
       select.Columns.AddRange(e1["EmployeeID"], e1["ManagerID"]);
 
@@ -1620,19 +1725,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test079()
     {
-      string nativeSql = "SELECT e1.EmployeeID, e1.ManagerID "
+      var nativeSql = "SELECT e1.EmployeeID, e1.ManagerID "
         +"FROM HumanResources.Employee AS e1 "
           +"WHERE e1.ManagerID IN "
             +"(SELECT e2.ManagerID "
               +"FROM HumanResources.Employee AS e2 "
                 +"WHERE e2.EmployeeID = 12)";
 
-      SqlTableRef e1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e1");
-      SqlTableRef e2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e2");
-      SqlSelect subSelect = SqlDml.Select(e2);
+      var e1 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e1");
+      var e2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e2");
+      var subSelect = SqlDml.Select(e2);
       subSelect.Columns.Add(e2["ManagerID"]);
-      subSelect.Where = e2["EmployeeID"]==12;
-      SqlSelect select = SqlDml.Select(e1);
+      subSelect.Where = e2["EmployeeID"] == 12;
+      var select = SqlDml.Select(e1);
       select.Columns.AddRange(e1["EmployeeID"], e1["ManagerID"]);
       select.Where = SqlDml.In(e1["ManagerID"], subSelect);
 
@@ -1642,20 +1747,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test080()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ProductSubcategoryID IN "
             +"(SELECT ProductSubcategoryID "
               +"FROM Production.ProductSubcategory "
                 +"WHERE Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory["ProductSubcategoryID"]);
-      subSelect.Where = productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      subSelect.Where = productSubcategory["Name"] == "Wheels";
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
@@ -1665,18 +1770,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test081()
     {
-      string nativeSql = "SELECT p.Name, s.Name "
+      var nativeSql = "SELECT p.Name, s.Name "
         +"FROM Production.Product p "
           +"INNER JOIN Production.ProductSubcategory s "
             +"ON p.ProductSubcategoryID = s.ProductSubcategoryID "
               +"AND s.Name = 'Wheels'";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"], "s");
-      SqlSelect select =
-        SqlDml.Select(
-          p.InnerJoin(
-            s, p["ProductSubcategoryID"]==s["ProductSubcategoryID"] && s["Name"]=="Wheels"));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var s = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"], "s");
+      var select = SqlDml.Select(
+        p.InnerJoin(
+          s, p["ProductSubcategoryID"] == s["ProductSubcategoryID"] && s["Name"] == "Wheels"));
       select.Columns.AddRange(p["Name"], s["Name"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -1685,7 +1789,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test082()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Purchasing.Vendor "
           +"WHERE CreditRating = 1 "
             +"AND VendorID IN "
@@ -1694,14 +1798,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"WHERE MinOrderQty >= 20 "
                     +"AND AverageLeadTime < 16)";
 
-      SqlTableRef vendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
-      SqlTableRef productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
-      SqlSelect subSelect = SqlDml.Select(productVendor);
+      var vendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
+      var productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
+      var subSelect = SqlDml.Select(productVendor);
       subSelect.Columns.Add(productVendor["VendorID"]);
       subSelect.Where = productVendor["MinOrderQty"]>=20 && productVendor["AverageLeadTime"]<16;
-      SqlSelect select = SqlDml.Select(vendor);
+      var select = SqlDml.Select(vendor);
       select.Columns.Add(vendor["Name"]);
-      select.Where = vendor["CreditRating"]==1 &&
+      select.Where = vendor["CreditRating"] == 1 &&
         SqlDml.In(vendor["VendorID"], subSelect);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -1710,7 +1814,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test083()
     {
-      string nativeSql = "SELECT DISTINCT Name "
+      var nativeSql = "SELECT DISTINCT Name "
         +"FROM Purchasing.Vendor v "
           +"INNER JOIN Purchasing.ProductVendor p "
             +"ON v.VendorID = p.VendorID "
@@ -1718,12 +1822,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"AND MinOrderQty >= 20 "
                   +"AND OnOrderQty IS NULL";
 
-      SqlTableRef v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p");
-      SqlSelect select = SqlDml.Select(v.InnerJoin(p, v["VendorID"]==p["VendorID"]));
+      var v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
+      var p = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p");
+      var select = SqlDml.Select(v.InnerJoin(p, v["VendorID"] == p["VendorID"]));
       select.Distinct = true;
       select.Columns.Add(v["Name"]);
-      select.Where = v["CreditRating"]==1 && p["MinOrderQty"]>=20 && SqlDml.IsNull(p["OnOrderQty"]);
+      select.Where = v["CreditRating"] == 1 && p["MinOrderQty"] >= 20 && SqlDml.IsNull(p["OnOrderQty"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1731,7 +1835,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test084()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ProductSubcategoryID NOT IN "
             +"(SELECT ProductSubcategoryID "
@@ -1740,13 +1844,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"OR Name = 'Road Bikes' "
                     +"OR Name = 'Touring Bikes')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(product2["ProductSubcategoryID"]);
-      subSelect.Where = product2["Name"]=="Mountain Bikes" || product2["Name"]=="Road Bikes" ||
-        product2["Name"]=="Touring Bikes";
-      SqlSelect select = SqlDml.Select(product);
+      subSelect.Where = product2["Name"] == "Mountain Bikes" || product2["Name"] == "Road Bikes" ||
+        product2["Name"] == "Touring Bikes";
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.NotIn(product["ProductSubcategoryID"], subSelect);
 
@@ -1756,20 +1860,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test085()
     {
-      string nativeSql = "UPDATE Production.Product "
+      var nativeSql = "UPDATE Production.Product "
         +"SET ListPrice = ListPrice * 2 "
           +"WHERE ProductID IN "
             +"(SELECT ProductID "
               +"FROM Purchasing.ProductVendor "
                 +"WHERE VendorID = 51);";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
-      SqlSelect subSelect = SqlDml.Select(productVendor);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
+      var subSelect = SqlDml.Select(productVendor);
       subSelect.Columns.Add(productVendor["ProductID"]);
-      subSelect.Where = productVendor["VendorID"]==51;
-      SqlUpdate update = SqlDml.Update(product);
-      update.Values[product["ListPrice"]] = product["ListPrice"]*2;
+      subSelect.Where = productVendor["VendorID"] == 51;
+      var update = SqlDml.Update(product);
+      update.Values[product["ListPrice"]] = product["ListPrice"] * 2;
       update.Where = SqlDml.In(product["ProductID"], subSelect);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
@@ -1778,19 +1882,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test086()
     {
-      string nativeSql = "UPDATE Production.Product "
+      var nativeSql = "UPDATE Production.Product "
         +"SET ListPrice = ListPrice * 2 "
           +"FROM Production.Product AS p "
             +"INNER JOIN Purchasing.ProductVendor AS pv "
               +"ON p.ProductID = pv.ProductID AND pv.VendorID = 51;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
 
-      SqlUpdate update = SqlDml.Update(product);
-      update.Values[product["ListPrice"]] = p["ListPrice"]*2;
-      update.From = p.InnerJoin(pv, p["ProductID"]==pv["ProductID"] && pv["VendorID"]==51);
+      var update = SqlDml.Update(product);
+      update.Values[product["ListPrice"]] = p["ListPrice"] * 2;
+      update.From = p.InnerJoin(pv, p["ProductID"] == pv["ProductID"] && pv["VendorID"] == 51);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
     }
@@ -1798,21 +1902,21 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test087()
     {
-      string nativeSql = "SELECT CustomerID "
+      var nativeSql = "SELECT CustomerID "
         +"FROM Sales.Customer "
           +"WHERE TerritoryID = "
             +"(SELECT TerritoryID "
               +"FROM Sales.SalesPerson "
                 +"WHERE SalesPersonID = 276)";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlSelect subSelect = SqlDml.Select(salesPerson);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var subSelect = SqlDml.Select(salesPerson);
       subSelect.Columns.Add(salesPerson["TerritoryID"]);
-      subSelect.Where = salesPerson["SalesPersonID"]==276;
-      SqlSelect select = SqlDml.Select(customer);
+      subSelect.Where = salesPerson["SalesPersonID"] == 276;
+      var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerID"]);
-      select.Where = customer["TerritoryID"]==subSelect;
+      select.Where = customer["TerritoryID"] == subSelect;
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -1820,17 +1924,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test088()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ListPrice > "
             +"(SELECT AVG (ListPrice) "
               +"FROM Production.Product)";
 
-      SqlTableRef product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(SqlDml.Avg(product2["ListPrice"]));
-      SqlSelect select = SqlDml.Select(product1);
+      var select = SqlDml.Select(product1);
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>subSelect;
 
@@ -1840,7 +1944,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test089()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ListPrice > "
             +"(SELECT MIN (ListPrice) "
@@ -1848,13 +1952,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"GROUP BY ProductSubcategoryID "
                   +"HAVING ProductSubcategoryID = 14)";
 
-      SqlTableRef product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(SqlDml.Min(product2["ListPrice"]));
       subSelect.GroupBy.Add(product2["ProductSubcategoryID"]);
       subSelect.Having = product2["ProductSubcategoryID"]==14;
-      SqlSelect select = SqlDml.Select(product1);
+      var select = SqlDml.Select(product1);
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>subSelect;
 
@@ -1864,19 +1968,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test090()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ListPrice >= ANY "
             +"(SELECT MAX (ListPrice) "
               +"FROM Production.Product "
                 +"GROUP BY ProductSubcategoryID)";
 
-      SqlTableRef product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(SqlDml.Max(product2["ListPrice"]));
       subSelect.GroupBy.Add(product2["ProductSubcategoryID"]);
-      SqlSelect select = SqlDml.Select(product1);
+      var select = SqlDml.Select(product1);
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>=SqlDml.Any(subSelect);
 
@@ -1886,20 +1990,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test091()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ProductSubcategoryID=ANY "
             +"(SELECT ProductSubcategoryID "
               +"FROM Production.ProductSubcategory "
                 +"WHERE Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory["ProductSubcategoryID"]);
       subSelect.Where = productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = product["ProductSubcategoryID"]==SqlDml.Any(subSelect);
 
@@ -1909,20 +2013,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test092()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ProductSubcategoryID IN "
             +"(SELECT ProductSubcategoryID "
               +"FROM Production.ProductSubcategory "
                 +"WHERE Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory["ProductSubcategoryID"]);
       subSelect.Where = productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
@@ -1932,17 +2036,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test093()
     {
-      string nativeSql = "SELECT CustomerID "
+      var nativeSql = "SELECT CustomerID "
         +"FROM Sales.Customer "
           +"WHERE TerritoryID <> ANY "
             +"(SELECT TerritoryID "
               +"FROM Sales.SalesPerson)";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlSelect subSelect = SqlDml.Select(salesPerson);
+      var customer = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Customer"]);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var subSelect = SqlDml.Select(salesPerson);
       subSelect.Columns.Add(salesPerson["TerritoryID"]);
-      SqlSelect select = SqlDml.Select(customer);
+      var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerID"]);
       select.Where = customer["TerritoryID"]!=SqlDml.Any(subSelect);
 
@@ -1952,7 +2056,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test094()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE EXISTS "
             +"(SELECT * "
@@ -1961,14 +2065,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"Production.Product.ProductSubcategoryID "
                     +"AND Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory.Asterisk);
       subSelect.Where = productSubcategory["ProductSubcategoryID"]==product["ProductSubcategoryID"];
       subSelect.Where = subSelect.Where && productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.Exists(subSelect);
 
@@ -1978,20 +2082,20 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test095()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE ProductSubcategoryID IN "
             +"(SELECT ProductSubcategoryID "
               +"FROM Production.ProductSubcategory "
                 +"WHERE Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory["ProductSubcategoryID"]);
       subSelect.Where = productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
@@ -2001,7 +2105,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test096()
     {
-      string nativeSql = "SELECT Name "
+      var nativeSql = "SELECT Name "
         +"FROM Production.Product "
           +"WHERE NOT EXISTS "
             +"(SELECT * "
@@ -2010,14 +2114,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"Production.Product.ProductSubcategoryID "
                     +"AND Name = 'Wheels')";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef productSubcategory =
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var productSubcategory =
         SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"]);
-      SqlSelect subSelect = SqlDml.Select(productSubcategory);
+      var subSelect = SqlDml.Select(productSubcategory);
       subSelect.Columns.Add(productSubcategory.Asterisk);
       subSelect.Where = productSubcategory["ProductSubcategoryID"]==product["ProductSubcategoryID"];
       subSelect.Where = subSelect.Where && productSubcategory["Name"]=="Wheels";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.Add(product["Name"]);
       select.Where = !SqlDml.Exists(subSelect);
 
@@ -2027,7 +2131,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test097()
     {
-      string nativeSql = "SELECT Name, ListPrice, "
+      var nativeSql = "SELECT Name, ListPrice, "
         +"(SELECT AVG(ListPrice) FROM Production.Product) AS Average, "
           +
           "    ListPrice - (SELECT AVG(ListPrice) FROM Production.Product) "
@@ -2035,11 +2139,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
               +"FROM Production.Product "
                 +"WHERE ProductSubcategoryID = 1";
 
-      SqlTableRef product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlSelect subSelect = SqlDml.Select(product2);
+      var product1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var product2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var subSelect = SqlDml.Select(product2);
       subSelect.Columns.Add(SqlDml.Avg(product2["ListPrice"]));
-      SqlSelect select = SqlDml.Select(product1);
+      var select = SqlDml.Select(product1);
       select.Columns.AddRange(product1["Name"], product1["ListPrice"]);
       select.Columns.Add(subSelect, "Average");
       select.Columns.Add(product1["ListPrice"]-subSelect, "Difference");
@@ -2051,7 +2155,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test098()
     {
-      string nativeSql = "SELECT LastName, FirstName "
+      var nativeSql = "SELECT LastName, FirstName "
         +"FROM Person.Contact "
           +"WHERE ContactID IN "
             +"(SELECT ContactID "
@@ -2060,15 +2164,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"(SELECT SalesPersonID "
                     +"FROM Sales.SalesPerson))";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlSelect subSelect2 = SqlDml.Select(salesPerson);
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var subSelect2 = SqlDml.Select(salesPerson);
       subSelect2.Columns.Add(salesPerson["SalesPersonID"]);
-      SqlSelect subSelect1 = SqlDml.Select(employee);
+      var subSelect1 = SqlDml.Select(employee);
       subSelect1.Columns.Add(employee["ContactID"]);
       subSelect1.Where = SqlDml.In(employee["EmployeeID"], subSelect2);
-      SqlSelect select = SqlDml.Select(contact);
+      var select = SqlDml.Select(contact);
       select.Columns.AddRange(contact["LastName"], contact["FirstName"]);
       select.Where = SqlDml.In(contact["ContactID"], subSelect1);
 
@@ -2078,17 +2182,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test099()
     {
-      string nativeSql = "SELECT LastName, FirstName "
+      var nativeSql = "SELECT LastName, FirstName "
         +"FROM Person.Contact c "
           +"INNER JOIN HumanResources.Employee e "
             +"ON c.ContactID = e.ContactID "
               +"JOIN Sales.SalesPerson s "
                 +"ON e.EmployeeID = s.SalesPersonID";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "s");
-      SqlSelect select = SqlDml.Select(c);
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "s");
+      var select = SqlDml.Select(c);
       select.From = select.From.InnerJoin(e, c["ContactID"]==e["ContactID"]);
       select.From = select.From.InnerJoin(s, e["EmployeeID"]==s["SalesPersonID"]);
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
@@ -2099,7 +2203,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test100()
     {
-      string nativeSql = "SELECT DISTINCT c.LastName, c.FirstName "
+      var nativeSql = "SELECT DISTINCT c.LastName, c.FirstName "
         +"FROM Person.Contact c JOIN HumanResources.Employee e "
           +"ON e.ContactID = c.ContactID "
             +"WHERE 5000.00 IN "
@@ -2107,13 +2211,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"FROM Sales.SalesPerson sp "
                   +"WHERE e.EmployeeID = sp.SalesPersonID);";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
-      SqlSelect subSelect = SqlDml.Select(sp);
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
+      var subSelect = SqlDml.Select(sp);
       subSelect.Columns.Add(sp["Bonus"]);
-      subSelect.Where = e["EmployeeID"]==sp["SalesPersonID"];
-      SqlSelect select = SqlDml.Select(c.InnerJoin(e, c["ContactID"]==e["ContactID"]));
+      subSelect.Where = e["EmployeeID"] == sp["SalesPersonID"];
+      var select = SqlDml.Select(c.InnerJoin(e, c["ContactID"] == e["ContactID"]));
       select.Distinct = true;
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
       select.Where = SqlDml.In(5000.00, subSelect);
@@ -2124,14 +2228,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test101()
     {
-      string nativeSql = "SELECT LastName, FirstName "
+      var nativeSql = "SELECT LastName, FirstName "
         +"FROM Person.Contact c JOIN HumanResources.Employee e "
           +"ON e.ContactID = c.ContactID "
             +"WHERE 5000 IN (5000)";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlSelect select = SqlDml.Select(c.InnerJoin(e, c["ContactID"]==e["ContactID"]));
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var select = SqlDml.Select(c.InnerJoin(e, c["ContactID"]==e["ContactID"]));
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
       select.Where = SqlDml.In(5000, SqlDml.Row(5000));
 
@@ -2141,7 +2245,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test102()
     {
-      string nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
+      var nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
         +"FROM Purchasing.ProductVendor pv1 "
           +"WHERE ProductID IN "
             +"(SELECT pv2.ProductID "
@@ -2149,12 +2253,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"WHERE pv1.VendorID <> pv2.VendorID) "
                   +"ORDER  BY pv1.VendorID";
 
-      SqlTableRef pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
-      SqlTableRef pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
-      SqlSelect subSelect = SqlDml.Select(pv2);
+      var pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
+      var pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
+      var subSelect = SqlDml.Select(pv2);
       subSelect.Columns.Add(pv2["ProductID"]);
       subSelect.Where = pv1["VendorID"]!=pv2["VendorID"];
-      SqlSelect select = SqlDml.Select(pv1);
+      var select = SqlDml.Select(pv1);
       select.Distinct = true;
       select.Columns.AddRange(pv1["ProductID"], pv1["VendorID"]);
       select.Where = SqlDml.In(pv1["ProductID"], subSelect);
@@ -2166,18 +2270,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test103()
     {
-      string nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
+      var nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
         +"FROM Purchasing.ProductVendor pv1 "
           +"INNER JOIN Purchasing.ProductVendor pv2 "
             +"ON pv1.ProductID = pv2.ProductID "
               +"AND pv1.VendorID <> pv2.VendorID "
                 +"ORDER BY pv1.VendorID";
 
-      SqlTableRef pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
-      SqlTableRef pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
-      SqlSelect select =
-        SqlDml.Select(
-          pv1.InnerJoin(pv2, pv1["ProductID"]==pv2["ProductID"] && pv1["VendorID"]!=pv2["VendorID"]));
+      var pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
+      var pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
+      var select = SqlDml.Select(
+        pv1.InnerJoin(pv2, pv1["ProductID"]==pv2["ProductID"] && pv1["VendorID"]!=pv2["VendorID"]));
       select.Distinct = true;
       select.Columns.AddRange(pv1["ProductID"], pv1["VendorID"]);
       select.OrderBy.Add(pv1["VendorID"]);
@@ -2188,19 +2291,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test104()
     {
-      string nativeSql = "SELECT ProductID, OrderQty "
+      var nativeSql = "SELECT ProductID, OrderQty "
         +"FROM Sales.SalesOrderDetail s1 "
           +"WHERE s1.OrderQty < "
             +"(SELECT AVG (s2.OrderQty) "
               +"FROM Sales.SalesOrderDetail s2 "
                 +"WHERE s2.ProductID = s1.ProductID)";
 
-      SqlTableRef s1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "s1");
-      SqlTableRef s2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "s2");
-      SqlSelect subSelect = SqlDml.Select(s2);
+      var s1 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "s1");
+      var s2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "s2");
+      var subSelect = SqlDml.Select(s2);
       subSelect.Columns.Add(SqlDml.Avg(s2["OrderQty"]));
       subSelect.Where = s2["ProductID"]==s1["ProductID"];
-      SqlSelect select = SqlDml.Select(s1);
+      var select = SqlDml.Select(s1);
       select.Columns.AddRange(s1["ProductID"], s1["OrderQty"]);
       select.Where = s1["OrderQty"]<subSelect;
 
@@ -2210,19 +2313,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test105()
     {
-      string nativeSql = "SELECT p1.ProductSubcategoryID, p1.Name "
+      var nativeSql = "SELECT p1.ProductSubcategoryID, p1.Name "
         +"FROM Production.Product p1 "
           +"WHERE p1.ListPrice > "
             +"(SELECT AVG (p2.ListPrice) "
               +"FROM Production.Product p2 "
                 +"WHERE p1.ProductSubcategoryID = p2.ProductSubcategoryID)";
 
-      SqlTableRef p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
-      SqlTableRef p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
-      SqlSelect subSelect = SqlDml.Select(p2);
+      var p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
+      var p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
+      var subSelect = SqlDml.Select(p2);
       subSelect.Columns.Add(SqlDml.Avg(p2["ListPrice"]));
       subSelect.Where = p2["ProductSubcategoryID"]==p1["ProductSubcategoryID"];
-      SqlSelect select = SqlDml.Select(p1);
+      var select = SqlDml.Select(p1);
       select.Columns.AddRange(p1["ProductSubcategoryID"], p1["Name"]);
       select.Where = p1["ListPrice"]>subSelect;
 
@@ -2232,7 +2335,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test106()
     {
-      string nativeSql = "SELECT p1.ProductModelID "
+      var nativeSql = "SELECT p1.ProductModelID "
         +"FROM Production.Product p1 "
           +"GROUP BY p1.ProductModelID "
             +"HAVING MAX(p1.ListPrice) >= ALL "
@@ -2240,12 +2343,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"FROM Production.Product p2 "
                   +"WHERE p1.ProductModelID = p2.ProductModelID) ;";
 
-      SqlTableRef p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
-      SqlTableRef p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
-      SqlSelect subSelect = SqlDml.Select(p2);
+      var p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
+      var p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
+      var subSelect = SqlDml.Select(p2);
       subSelect.Columns.Add(2*SqlDml.Avg(p2["ListPrice"]));
       subSelect.Where = p2["ProductModelID"]==p1["ProductModelID"];
-      SqlSelect select = SqlDml.Select(p1);
+      var select = SqlDml.Select(p1);
       select.Columns.Add(p1["ProductModelID"]);
       select.GroupBy.Add(p1["ProductModelID"]);
       select.Having = SqlDml.Max(p1["ListPrice"])>=SqlDml.All(subSelect);
@@ -2256,16 +2359,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test107()
     {
-      string nativeSql = "SELECT ProductID, Purchasing.Vendor.VendorID, Name "
+      var nativeSql = "SELECT ProductID, Purchasing.Vendor.VendorID, Name "
         +"FROM Purchasing.ProductVendor JOIN Purchasing.Vendor "
-          +
-          "    ON (Purchasing.ProductVendor.VendorID = Purchasing.Vendor.VendorID) "
+          +"ON (Purchasing.ProductVendor.VendorID = Purchasing.Vendor.VendorID) "
             +"WHERE StandardPrice > $10 "
               +"AND Name LIKE N'F%'";
 
-      SqlTableRef productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
-      SqlTableRef vendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
-      SqlSelect select =
+      var productVendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"]);
+      var vendor = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
+      var select =
         SqlDml.Select(productVendor.InnerJoin(vendor, productVendor["VendorID"]==vendor["VendorID"]));
       select.Columns.AddRange(productVendor["ProductID"], vendor["VendorID"], vendor["Name"]);
       select.Where = productVendor["StandardPrice"]>10 && SqlDml.Like(vendor["Name"], "F%");
@@ -2276,15 +2378,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test108()
     {
-      string nativeSql = "SELECT pv.ProductID, v.VendorID, v.Name "
+      var nativeSql = "SELECT pv.ProductID, v.VendorID, v.Name "
         +"FROM Purchasing.ProductVendor pv JOIN Purchasing.Vendor v "
           +"ON (pv.VendorID = v.VendorID) "
             +"WHERE StandardPrice > $10 "
               +"AND Name LIKE N'F%'";
 
-      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
-      SqlTableRef v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
-      SqlSelect select = SqlDml.Select(pv.InnerJoin(v, pv["VendorID"]==v["VendorID"]));
+      var pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+      var v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
+      var select = SqlDml.Select(pv.InnerJoin(v, pv["VendorID"]==v["VendorID"]));
       select.Columns.AddRange(pv["ProductID"], v["VendorID"], v["Name"]);
       select.Where = pv["StandardPrice"]>10 && SqlDml.Like(v["Name"], "F%");
 
@@ -2294,15 +2396,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test109()
     {
-      string nativeSql = "SELECT pv.ProductID, v.VendorID, v.Name "
+      var nativeSql = "SELECT pv.ProductID, v.VendorID, v.Name "
         +"FROM Purchasing.ProductVendor pv, Purchasing.Vendor v "
           +"WHERE pv.VendorID = v.VendorID "
             +"AND StandardPrice > $10 "
               +"AND Name LIKE N'F%'";
 
-      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
-      SqlTableRef v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
-      SqlSelect select = SqlDml.Select(pv.CrossJoin(v));
+      var pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+      var v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
+      var select = SqlDml.Select(pv.CrossJoin(v));
       select.Columns.AddRange(pv["ProductID"], v["VendorID"], v["Name"]);
       select.Where = pv["VendorID"]==v["VendorID"] && pv["StandardPrice"]>10 &&
         SqlDml.Like(v["Name"], "F%");
@@ -2313,14 +2415,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test110()
     {
-      string nativeSql = "SELECT e.EmployeeID "
+      var nativeSql = "SELECT e.EmployeeID "
         +"FROM HumanResources.Employee AS e "
           +"INNER JOIN Sales.SalesPerson AS s "
             +"ON e.EmployeeID = s.SalesPersonID";
 
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "s");
-      SqlSelect select = SqlDml.Select(e.InnerJoin(s, e["EmployeeID"]==s["SalesPersonID"]));
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "s");
+      var select = SqlDml.Select(e.InnerJoin(s, e["EmployeeID"]==s["SalesPersonID"]));
       select.Columns.Add(e["EmployeeID"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -2329,15 +2431,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test111()
     {
-      string nativeSql = "SELECT * "
+      var nativeSql = "SELECT * "
         +"FROM HumanResources.Employee AS e "
           +"INNER JOIN Person.Contact AS c "
             +"ON e.ContactID = c.ContactID "
               +"ORDER BY c.LastName";
 
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
-      SqlSelect select = SqlDml.Select(e.InnerJoin(c, e["ContactID"]==c["ContactID"]));
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"], "c");
+      var select = SqlDml.Select(e.InnerJoin(c, e["ContactID"]==c["ContactID"]));
       select.Columns.Add(SqlDml.Asterisk);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -2346,20 +2448,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test112()
     {
-      string nativeSql = ""
-        +
+      var nativeSql =
         "SELECT DISTINCT p.ProductID, p.Name, p.ListPrice, sd.UnitPrice AS 'Selling Price' "
           +"FROM Sales.SalesOrderDetail AS sd "
             +"JOIN Production.Product AS p "
-              +
-              "    ON sd.ProductID = p.ProductID AND sd.UnitPrice < p.ListPrice "
+              +"ON sd.ProductID = p.ProductID AND sd.UnitPrice < p.ListPrice "
                 +"WHERE p.ProductID = 718;";
 
-      SqlTableRef sd = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sd");
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlSelect select =
-        SqlDml.Select(
-          sd.InnerJoin(p, sd["ProductID"]==p["ProductID"] && sd["UnitPrice"]<p["ListPrice"]));
+      var sd = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sd");
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var select = SqlDml.Select(
+        sd.InnerJoin(p, sd["ProductID"]==p["ProductID"] && sd["UnitPrice"]<p["ListPrice"]));
       select.Distinct = true;
       select.Columns.AddRange(p["ProductID"], p["Name"], p["ListPrice"]);
       select.Columns.Add(sd["UnitPrice"], "Selling Price");
@@ -2371,7 +2470,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test113()
     {
-      string nativeSql = "SELECT DISTINCT p1.ProductSubcategoryID, p1.ListPrice "
+      var nativeSql = "SELECT DISTINCT p1.ProductSubcategoryID, p1.ListPrice "
         +"FROM Production.Product p1 "
           +"INNER JOIN Production.Product p2 "
             +"ON p1.ProductSubcategoryID = p2.ProductSubcategoryID "
@@ -2379,14 +2478,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"WHERE p1.ListPrice < $15 AND p2.ListPrice < $15 "
                   +"ORDER BY ProductSubcategoryID;";
 
-      SqlTableRef p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
-      SqlTableRef p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
-      SqlSelect select =
-        SqlDml.Select(
-          p1.InnerJoin(
-            p2,
-            p1["ProductSubcategoryID"]==p2["ProductSubcategoryID"] &&
-              p1["ListPrice"]!=p2["ListPrice"]));
+      var p1 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p1");
+      var p2 = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p2");
+      var select = SqlDml.Select(
+        p1.InnerJoin(
+          p2,
+          p1["ProductSubcategoryID"] == p2["ProductSubcategoryID"] &&
+            p1["ListPrice"] != p2["ListPrice"]));
       select.Distinct = true;
       select.Columns.AddRange(p1["ProductSubcategoryID"], p1["ListPrice"]);
       select.Where = p1["ListPrice"]<15 && p2["ListPrice"]<15;
@@ -2398,19 +2496,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test114()
     {
-      string nativeSql = "SELECT DISTINCT p1.VendorID, p1.ProductID "
+      var nativeSql = "SELECT DISTINCT p1.VendorID, p1.ProductID "
         +"FROM Purchasing.ProductVendor p1 "
           +"INNER JOIN Purchasing.ProductVendor p2 "
             +"ON p1.ProductID = p2.ProductID "
               +"WHERE p1.VendorID <> p2.VendorID "
                 +"ORDER BY p1.VendorID";
 
-      SqlTableRef p1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p1");
-      SqlTableRef p2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p2");
-      SqlSelect select = SqlDml.Select(p1.InnerJoin(p2, p1["ProductID"]==p2["ProductID"]));
+      var p1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p1");
+      var p2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "p2");
+      var select = SqlDml.Select(p1.InnerJoin(p2, p1["ProductID"]==p2["ProductID"]));
       select.Distinct = true;
       select.Columns.AddRange(p1["VendorID"], p1["ProductID"]);
-      select.Where = p1["VendorID"]!=p2["VendorID"];
+      select.Where = p1["VendorID"] != p2["VendorID"];
       select.OrderBy.Add(p1["VendorID"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -2419,14 +2517,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test115()
     {
-      string nativeSql = "SELECT p.Name, pr.ProductReviewID "
+      var nativeSql = "SELECT p.Name, pr.ProductReviewID "
         +"FROM Production.Product p "
           +"LEFT OUTER JOIN Production.ProductReview pr "
             +"ON p.ProductID = pr.ProductID";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef pr = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductReview"], "pr");
-      SqlSelect select = SqlDml.Select(p.LeftOuterJoin(pr, p["ProductID"]==pr["ProductID"]));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var pr = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductReview"], "pr");
+      var select = SqlDml.Select(p.LeftOuterJoin(pr, p["ProductID"]==pr["ProductID"]));
       select.Columns.AddRange(p["Name"], pr["ProductReviewID"]);
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -2435,14 +2533,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test116()
     {
-      string nativeSql = "SELECT st.Name AS Territory, sp.SalesPersonID "
+      var nativeSql = "SELECT st.Name AS Territory, sp.SalesPersonID "
         +"FROM Sales.SalesTerritory st "
           +"RIGHT OUTER JOIN Sales.SalesPerson sp "
             +"ON st.TerritoryID = sp.TerritoryID ;";
 
-      SqlTableRef st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesTerritory"], "st");
-      SqlTableRef sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
-      SqlSelect select = SqlDml.Select(st.RightOuterJoin(sp, st["TerritoryID"]==sp["TerritoryID"]));
+      var st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesTerritory"], "st");
+      var sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
+      var select = SqlDml.Select(st.RightOuterJoin(sp, st["TerritoryID"]==sp["TerritoryID"]));
       select.Columns.Add(st["Name"], "Territory");
       select.Columns.Add(sp["SalesPersonID"]);
 
@@ -2452,15 +2550,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test117()
     {
-      string nativeSql = "SELECT st.Name AS Territory, sp.SalesPersonID "
+      var nativeSql = "SELECT st.Name AS Territory, sp.SalesPersonID "
         +"FROM Sales.SalesTerritory st "
           +"RIGHT OUTER JOIN Sales.SalesPerson sp "
             +"ON st.TerritoryID = sp.TerritoryID "
               +"WHERE st.SalesYTD < $2000000;";
 
-      SqlTableRef st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesTerritory"], "st");
-      SqlTableRef sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
-      SqlSelect select = SqlDml.Select(st.RightOuterJoin(sp, st["TerritoryID"]==sp["TerritoryID"]));
+      var st = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesTerritory"], "st");
+      var sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
+      var select = SqlDml.Select(st.RightOuterJoin(sp, st["TerritoryID"]==sp["TerritoryID"]));
       select.Columns.Add(st["Name"], "Territory");
       select.Columns.Add(sp["SalesPersonID"]);
       select.Where = st["SalesYTD"]<2000000;
@@ -2471,7 +2569,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test118()
     {
-      string nativeSql = "SELECT p.Name, sod.SalesOrderID "
+      var nativeSql = "SELECT p.Name, sod.SalesOrderID "
         +"FROM Production.Product p "
           +"FULL OUTER JOIN Sales.SalesOrderDetail sod "
             +"ON p.ProductID = sod.ProductID "
@@ -2479,9 +2577,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"OR sod.ProductID IS NULL "
                   +"ORDER BY p.Name ;";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef sod = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sod");
-      SqlSelect select = SqlDml.Select(p.FullOuterJoin(sod, p["ProductID"]==sod["ProductID"]));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var sod = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderDetail"], "sod");
+      var select = SqlDml.Select(p.FullOuterJoin(sod, p["ProductID"]==sod["ProductID"]));
       select.Columns.AddRange(p["Name"], sod["SalesOrderID"]);
       select.Where = SqlDml.IsNull(p["ProductID"]) || SqlDml.IsNull(sod["ProductID"]);
       select.OrderBy.Add(p["Name"]);
@@ -2492,14 +2590,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test119()
     {
-      string nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
+      var nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
         +"FROM HumanResources.Employee e "
           +"CROSS JOIN HumanResources.Department d "
             +"ORDER BY e.EmployeeID, d.Name ;";
 
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
-      SqlSelect select = SqlDml.Select(e.CrossJoin(d));
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
+      var select = SqlDml.Select(e.CrossJoin(d));
       select.Columns.Add(e["EmployeeID"]);
       select.Columns.Add(d["Name"], "Department");
       select.OrderBy.Add(e["EmployeeID"]);
@@ -2512,15 +2610,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("Invalid column")]
     public void Test120()
     {
-      string nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
+      var nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
         +"FROM HumanResources.Employee e "
           +"CROSS JOIN HumanResources.Department d "
             +"WHERE e.DepartmentID = d.DepartmentID "
               +"ORDER BY e.EmployeeID, d.Name ;";
 
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
-      SqlSelect select = SqlDml.Select(e.CrossJoin(d));
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
+      var select = SqlDml.Select(e.CrossJoin(d));
       select.Columns.Add(e["EmployeeID"]);
       select.Columns.Add(d["Name"], "Department");
       select.Where = e["DepartmentID"]==d["DepartmentID"];
@@ -2534,15 +2632,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("Invalid column")]
     public void Test121()
     {
-      string nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
+      var nativeSql = "SELECT e.EmployeeID, d.Name AS Department "
         +"FROM HumanResources.Employee e "
           +"INNER JOIN HumanResources.Department d "
             +"ON e.DepartmentID = d.DepartmentID "
               +"ORDER BY e.EmployeeID, d.Name ;";
 
-      SqlTableRef e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
-      SqlTableRef d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
-      SqlSelect select = SqlDml.Select(e.InnerJoin(d, e["DepartmentID"]==d["DepartmentID"]));
+      var e = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"], "e");
+      var d = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"], "d");
+      var select = SqlDml.Select(e.InnerJoin(d, e["DepartmentID"]==d["DepartmentID"]));
       select.Columns.Add(e["EmployeeID"]);
       select.Columns.Add(d["Name"], "Department");
       select.OrderBy.Add(e["EmployeeID"]);
@@ -2554,18 +2652,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test122()
     {
-      string nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
+      var nativeSql = "SELECT DISTINCT pv1.ProductID, pv1.VendorID "
         +"FROM Purchasing.ProductVendor pv1 "
           +"INNER JOIN Purchasing.ProductVendor pv2 "
             +"ON pv1.ProductID = pv2.ProductID "
               +"AND pv1.VendorID <> pv2.VendorID "
                 +"ORDER BY pv1.ProductID";
 
-      SqlTableRef pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
-      SqlTableRef pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
-      SqlSelect select =
-        SqlDml.Select(
-          pv1.InnerJoin(pv2, pv1["ProductID"]==pv2["ProductID"] && pv1["VendorID"]!=pv2["VendorID"]));
+      var pv1 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv1");
+      var pv2 = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv2");
+      var select = SqlDml.Select(
+        pv1.InnerJoin(pv2, pv1["ProductID"]==pv2["ProductID"] && pv1["VendorID"]!=pv2["VendorID"]));
       select.Distinct = true;
       select.Columns.AddRange(pv1["ProductID"], pv1["VendorID"]);
       select.OrderBy.Add(pv1["ProductID"]);
@@ -2576,7 +2673,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test123()
     {
-      string nativeSql = "SELECT p.Name, v.Name "
+      var nativeSql = "SELECT p.Name, v.Name "
         +"FROM Production.Product p "
           +"JOIN Purchasing.ProductVendor pv "
             +"ON p.ProductID = pv.ProductID "
@@ -2585,13 +2682,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                   +"WHERE ProductSubcategoryID = 15 "
                     +"ORDER BY v.Name";
 
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
-      SqlTableRef v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
-      SqlSelect select =
-        SqlDml.Select(
-          p.InnerJoin(pv, p["ProductID"]==pv["ProductID"]).InnerJoin(
-            v, pv["VendorID"]==v["VendorID"]));
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+      var v = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"], "v");
+      var select = SqlDml.Select(
+        p.InnerJoin(pv, p["ProductID"]==pv["ProductID"]).InnerJoin(
+          v, pv["VendorID"]==v["VendorID"]));
       select.Columns.AddRange(p["Name"], v["Name"]);
       select.Where = p["ProductSubcategoryID"]==15;
       select.OrderBy.Add(v["Name"]);
@@ -2602,11 +2698,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test124()
     {
-      string nativeSql = "INSERT INTO Production.UnitMeasure "
+      var nativeSql = "INSERT INTO Production.UnitMeasure "
         +"VALUES (N'F2', N'Square Feet', GETDATE());";
 
-      SqlTableRef unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
-      SqlInsert insert = SqlDml.Insert(unitMeasure);
+      var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
+      var insert = SqlDml.Insert(unitMeasure);
       insert.Values[unitMeasure[0]] = "F2";
       insert.Values[unitMeasure[1]] = "Square Feet";
       insert.Values[unitMeasure[2]] = SqlDml.CurrentDate();
@@ -2617,12 +2713,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test125()
     {
-      string nativeSql = "UPDATE AdventureWorks.Production.Product "
+      var nativeSql = "UPDATE AdventureWorks.Production.Product "
         +"SET ListPrice = ListPrice * 1.1 "
           +"WHERE ProductModelID = 37;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlUpdate update = SqlDml.Update(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var update = SqlDml.Update(product);
       update.Values[product["ListPrice"]] = product["ListPrice"]*1.1;
       update.Where = product["ProductModelID"]==37;
 
@@ -2632,12 +2728,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test126()
     {
-      string nativeSql = "UPDATE Person.Address "
+      var nativeSql = "UPDATE Person.Address "
         +"SET PostalCode = '98000' "
           +"WHERE City = 'Bothell';";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Address"]);
-      SqlUpdate update = SqlDml.Update(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Address"]);
+      var update = SqlDml.Update(product);
       update.Values[product["PostalCode"]] = "98000";
       update.Where = product["City"]=="Bothell";
 
@@ -2647,11 +2743,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test127()
     {
-      string nativeSql = "UPDATE Sales.SalesPerson "
+      var nativeSql = "UPDATE Sales.SalesPerson "
         +"SET Bonus = 6000, CommissionPct = .10, SalesQuota = NULL;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlUpdate update = SqlDml.Update(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var update = SqlDml.Update(product);
       update.Values[product["Bonus"]] = 6000;
       update.Values[product["CommissionPct"]] = .10;
       update.Values[product["SalesQuota"]] = SqlDml.Null;
@@ -2662,11 +2758,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test128()
     {
-      string nativeSql = "UPDATE Production.Product "
+      var nativeSql = "UPDATE Production.Product "
         +"SET ListPrice = ListPrice * 2;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlUpdate update = SqlDml.Update(product);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var update = SqlDml.Update(product);
       update.Values[product["ListPrice"]] = product["ListPrice"]*2;
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
@@ -2675,7 +2771,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test129()
     {
-      string nativeSql = "UPDATE Sales.SalesPerson "
+      var nativeSql = "UPDATE Sales.SalesPerson "
         +"SET SalesYTD = SalesYTD + "
           +"(SELECT SUM(so.SubTotal) "
             +"FROM Sales.SalesOrderHeader AS so "
@@ -2686,17 +2782,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                       +"AND Sales.SalesPerson.SalesPersonID = so.SalesPersonID "
                         +"GROUP BY so.SalesPersonID);";
 
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlTableRef so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
-      SqlTableRef so2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so2");
-      SqlSelect subSelect = SqlDml.Select(so2);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
+      var so2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so2");
+      var subSelect = SqlDml.Select(so2);
       subSelect.Columns.Add(SqlDml.Max(so2["OrderDate"]));
       subSelect.Where = so2["SalesPersonID"]==so["SalesPersonID"];
-      SqlSelect select = SqlDml.Select(so);
+      var select = SqlDml.Select(so);
       select.Columns.Add(SqlDml.Sum(so["SubTotal"]));
       select.Where = so["OrderDate"]==subSelect && salesPerson["SalesPersonID"]==so["SalesPersonID"];
       select.GroupBy.Add(so["SalesPersonID"]);
-      SqlUpdate update = SqlDml.Update(salesPerson);
+      var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"]+select;
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
@@ -2705,12 +2801,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test130()
     {
-      string nativeSql = "UPDATE AdventureWorks.Sales.SalesReason "
+      var nativeSql = "UPDATE AdventureWorks.Sales.SalesReason "
         +"SET Name = N'Unknown' "
           +"WHERE Name = N'Other';";
 
-      SqlTableRef salesReason = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesReason"]);
-      SqlUpdate update = SqlDml.Update(salesReason);
+      var salesReason = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesReason"]);
+      var update = SqlDml.Update(salesReason);
       update.Values[salesReason["Name"]] = "Unknown";
       update.Where = salesReason["Name"]=="Other";
 
@@ -2720,7 +2816,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test131()
     {
-      string nativeSql = "UPDATE Sales.SalesPerson "
+      var nativeSql = "UPDATE Sales.SalesPerson "
         +"SET SalesYTD = SalesYTD + SubTotal "
           +"FROM Sales.SalesPerson AS sp "
             +"JOIN Sales.SalesOrderHeader AS so "
@@ -2730,17 +2826,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                     +"WHERE SalesPersonID = "
                       +"sp.SalesPersonID);";
 
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlTableRef salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
-      SqlTableRef sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
-      SqlTableRef so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
-      SqlSelect subSelect = SqlDml.Select(salesOrderHeader);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var salesOrderHeader = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"]);
+      var sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"], "sp");
+      var so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
+      var subSelect = SqlDml.Select(salesOrderHeader);
       subSelect.Columns.Add(SqlDml.Max(salesOrderHeader["OrderDate"]));
       subSelect.Where = salesOrderHeader["SalesPersonID"]==sp["SalesPersonID"];
-      SqlSelect select =
-        SqlDml.Select(
-          sp.InnerJoin(so, sp["SalesPersonID"]==so["SalesPersonID"] && so["OrderDate"]==subSelect));
-      SqlUpdate update = SqlDml.Update(salesPerson);
+      _ = SqlDml.Select(
+        sp.InnerJoin(so, sp["SalesPersonID"]==so["SalesPersonID"] && so["OrderDate"]==subSelect));
+      var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"];
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
@@ -2749,7 +2844,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test132()
     {
-      string nativeSql = "UPDATE Sales.SalesPerson "
+      var nativeSql = "UPDATE Sales.SalesPerson "
         +"SET SalesYTD = SalesYTD + "
           +"(SELECT SUM(so.SubTotal) "
             +"FROM Sales.SalesOrderHeader AS so "
@@ -2760,17 +2855,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                       +"AND Sales.SalesPerson.SalesPersonID = so.SalesPersonID "
                         +"GROUP BY so.SalesPersonID);";
 
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlTableRef so2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so2");
-      SqlTableRef so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
-      SqlSelect subSelect = SqlDml.Select(so2);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var so2 = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so2");
+      var so = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesOrderHeader"], "so");
+      var subSelect = SqlDml.Select(so2);
       subSelect.Columns.Add(SqlDml.Max(so2["OrderDate"]));
       subSelect.Where = so2["SalesPersonID"]==so["SalesPersonID"];
-      SqlSelect select = SqlDml.Select(so);
+      var select = SqlDml.Select(so);
       select.Columns.Add(SqlDml.Sum(so["SubTotal"]));
       select.Where = so["OrderDate"]==subSelect && salesPerson["SalesPersonID"]==so["SalesPersonID"];
       select.GroupBy.Add(so["SalesPersonID"]);
-      SqlUpdate update = SqlDml.Update(salesPerson);
+      var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"]+select;
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
@@ -2779,12 +2874,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test133()
     {
-      string nativeSql = "UPDATE Sales.Store "
+      var nativeSql = "UPDATE Sales.Store "
         + "SET SalesPersonID = 276 "
         + "WHERE SalesPersonID = 275;";
 
-      SqlTableRef store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
-      SqlUpdate update = SqlDml.Update(store);
+      var store = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"]);
+      var update = SqlDml.Update(store);
       update.Values[store["SalesPersonID"]] = 276;
       update.Where = store["SalesPersonID"]==275;
 
@@ -2794,22 +2889,22 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test134()
     {
-      string nativeSql = "UPDATE HumanResources.Employee "
+      var nativeSql = "UPDATE HumanResources.Employee "
         +"SET VacationHours = VacationHours + 8 "
           +"FROM (SELECT TOP 10 EmployeeID FROM HumanResources.Employee "
             +"ORDER BY HireDate ASC) AS th "
               +"WHERE HumanResources.Employee.EmployeeID = th.EmployeeID;";
 
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlTableRef employee2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var employee2 = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
 
-      SqlSelect select = SqlDml.Select(employee);
+      var select = SqlDml.Select(employee);
       select.Limit = 10;
       select.Columns.Add(employee["EmployeeID"]);
       select.OrderBy.Add(employee["HireDate"]);
-      SqlQueryRef th = SqlDml.QueryRef(select, "th");
+      var th = SqlDml.QueryRef(select, "th");
 
-      SqlUpdate update = SqlDml.Update(employee2);
+      var update = SqlDml.Update(employee2);
       update.Values[employee2["VacationHours"]] = employee2["VacationHours"]+8;
       update.From = th;
       update.Where = employee2["EmployeeID"]==th["EmployeeID"];
@@ -2820,19 +2915,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test135()
     {
-      string nativeSql = "DELETE FROM Sales.SalesPersonQuotaHistory "
+      var nativeSql = "DELETE FROM Sales.SalesPersonQuotaHistory "
         +"WHERE SalesPersonID IN "
           +"(SELECT SalesPersonID "
             +"FROM Sales.SalesPerson "
               +"WHERE SalesYTD > 2500000.00);";
 
-      SqlTableRef salesPersonQuotaHistory =
+      var salesPersonQuotaHistory =
         SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPersonQuotaHistory"]);
-      SqlTableRef salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlSelect subSelect = SqlDml.Select(salesPerson);
+      var salesPerson = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var subSelect = SqlDml.Select(salesPerson);
       subSelect.Columns.Add(salesPerson["SalesPersonID"]);
       subSelect.Where = salesPerson["SalesYTD"]>2500000.00;
-      SqlDelete delete = SqlDml.Delete(salesPersonQuotaHistory);
+      var delete = SqlDml.Delete(salesPersonQuotaHistory);
       delete.Where = SqlDml.In(salesPersonQuotaHistory["SalesPersonID"], subSelect);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
@@ -2841,21 +2936,21 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test136()
     {
-      string nativeSql = "DELETE FROM Sales.SalesPersonQuotaHistory "
+      var nativeSql = "DELETE FROM Sales.SalesPersonQuotaHistory "
         +"WHERE SalesPersonID IN  "
           +"(SELECT SalesPersonID "
             +"FROM Sales.SalesPerson "
               +"WHERE SalesYTD > 2500000.00);";
 
-      SqlTableRef salesPersonQuotaHistory =
+      var salesPersonQuotaHistory =
         SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPersonQuotaHistory"]);
 
-      SqlTableRef sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
-      SqlSelect subSelect = SqlDml.Select(sp);
+      var sp = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SalesPerson"]);
+      var subSelect = SqlDml.Select(sp);
       subSelect.Columns.Add(sp["SalesPersonID"]);
       subSelect.Where = sp["SalesYTD"]>2500000.00;
 
-      SqlDelete delete = SqlDml.Delete(salesPersonQuotaHistory);
+      var delete = SqlDml.Delete(salesPersonQuotaHistory);
       delete.Where = SqlDml.In(salesPersonQuotaHistory["SalesPersonID"], subSelect);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
@@ -2864,21 +2959,21 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test137()
     {
-      string nativeSql = "DELETE FROM Purchasing.PurchaseOrderDetail "
+      var nativeSql = "DELETE FROM Purchasing.PurchaseOrderDetail "
         +"WHERE PurchaseOrderDetailID IN "
           +"(SELECT TOP 10 PurchaseOrderDetailID "
             +"FROM Purchasing.PurchaseOrderDetail "
               +"ORDER BY DueDate ASC);";
 
-      SqlTableRef purchaseOrderDetail1 =
+      var purchaseOrderDetail1 =
         SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["PurchaseOrderDetail"]);
-      SqlTableRef purchaseOrderDetail2 =
+      var purchaseOrderDetail2 =
         SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["PurchaseOrderDetail"]);
-      SqlSelect select = SqlDml.Select(purchaseOrderDetail2);
+      var select = SqlDml.Select(purchaseOrderDetail2);
       select.Limit = 10;
       select.Columns.Add(purchaseOrderDetail2["PurchaseOrderDetailID"]);
       select.OrderBy.Add(purchaseOrderDetail2["DueDate"]);
-      SqlDelete delete = SqlDml.Delete(purchaseOrderDetail1);
+      var delete = SqlDml.Delete(purchaseOrderDetail1);
       delete.Where = SqlDml.In(purchaseOrderDetail1["PurchaseOrderDetailID"], select);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
@@ -2887,18 +2982,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test138()
     {
-      string nativeSql = "DECLARE @EmpIDVar int; "
-        +"SET @EmpIDVar = 1234; "
-          +"SELECT * "
-            +"FROM HumanResources.Employee "
-              +"WHERE EmployeeID = @EmpIDVar;";
+      // var nativeSql = "DECLARE @EmpIDVar int; "
+      //   +"SET @EmpIDVar = 1234; "
+      //     +"SELECT * "
+      //       +"FROM HumanResources.Employee "
+      //         +"WHERE EmployeeID = @EmpIDVar;";
 
-      SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
-      SqlVariable empIDVar = SqlDml.Variable("EmpIDVar", SqlType.Int32);
-      SqlBatch batch = SqlDml.Batch();
+      var employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
+      var empIDVar = SqlDml.Variable("EmpIDVar", SqlType.Int32);
+      var batch = SqlDml.Batch();
       batch.Add(empIDVar.Declare());
       batch.Add(SqlDml.Assign(empIDVar, 1234));
-      SqlSelect select = SqlDml.Select(employee);
+      var select = SqlDml.Select(employee);
       select.Columns.Add(employee.Asterisk);
       select.Where = employee["EmployeeID"]==empIDVar;
       batch.Add(select);
@@ -2909,7 +3004,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test139()
     {
-      string nativeSql = "SELECT Name, "
+      var nativeSql = "SELECT Name, "
         +"CASE Name "
           +"WHEN 'Human Resources' THEN 'HR' "
             +"WHEN 'Finance' THEN 'FI' "
@@ -2920,11 +3015,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                       +"FROM AdventureWorks.HumanResources.Department "
                         +"WHERE GroupName = 'Executive General and Administration'";
 
-      SqlTableRef department = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"]);
-      SqlCase c = SqlDml.Case(department["Name"]);
-      c.Add("Human Resources", "HR").Add("Finance", "FI").Add("Information Services", "IS").Add("Executive", "EX");
+      var department = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Department"]);
+      var c = SqlDml.Case(department["Name"]);
+      _ = c.Add("Human Resources", "HR").Add("Finance", "FI").Add("Information Services", "IS").Add("Executive", "EX");
       c["Facilities and Maintenance"] = "FM";
-      SqlSelect select = SqlDml.Select(department);
+      var select = SqlDml.Select(department);
       select.Columns.AddRange(department["Name"]);
       select.Columns.Add(c, "Abbreviation");
       select.Where = department["GroupName"]=="Executive General and Administration";
@@ -2935,7 +3030,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test140()
     {
-      string nativeSql = "SELECT   ProductNumber, Category = "
+      var nativeSql = "SELECT   ProductNumber, Category = "
         +"CASE ProductLine "
           +"WHEN 'R' THEN 'Road' "
             +"WHEN 'M' THEN 'Mountain' "
@@ -2947,14 +3042,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                         +"FROM Production.Product "
                           +"ORDER BY ProductNumber;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlCase c = SqlDml.Case(product["ProductLine"]);
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var c = SqlDml.Case(product["ProductLine"]);
       c["R"] = "Road";
       c["M"] = "Mountain";
       c["T"] = "Touring";
       c["S"] = "Other sale items";
       c.Else = "Not for sale";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductNumber"]);
       select.Columns.Add(c, "Category");
       select.Columns.Add(product["Name"]);
@@ -2966,27 +3061,25 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test141()
     {
-      string nativeSql = "SELECT   ProductNumber, Name, 'Price Range' = "
+      var nativeSql = "SELECT   ProductNumber, Name, 'Price Range' = "
         +"CASE "
           +"WHEN ListPrice =  0 THEN 'Mfg item - not for resale' "
             +"WHEN ListPrice < 50 THEN 'Under $50' "
-              +
-              "         WHEN ListPrice >= 50 and ListPrice < 250 THEN 'Under $250' "
-                +
-                "         WHEN ListPrice >= 250 and ListPrice < 1000 THEN 'Under $1000' "
+              +"WHEN ListPrice >= 50 and ListPrice < 250 THEN 'Under $250' "
+                +"WHEN ListPrice >= 250 and ListPrice < 1000 THEN 'Under $1000' "
                   +"ELSE 'Over $1000' "
                     +"END "
                       +"FROM Production.Product "
                         +"ORDER BY ProductNumber ;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlCase c = SqlDml.Case();
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var c = SqlDml.Case();
       c[product["ListPrice"]==0] = "Mfg item - not for resale";
       c[product["ListPrice"]<50] = "Under $50";
       c[product["ListPrice"]>=50 && product["ListPrice"]<250] = "Under $250";
       c[product["ListPrice"]>=250 && product["ListPrice"]<1000] = "Under $1000";
       c.Else = "Over $1000";
-      SqlSelect select = SqlDml.Select(product);
+      var select = SqlDml.Select(product);
       select.Columns.AddRange(product["ProductNumber"], product["Name"]);
       select.Columns.Add(c, "Price Range");
       select.OrderBy.Add(product["ProductNumber"]);
@@ -2997,18 +3090,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test142()
     {
-      string nativeSql = "DECLARE @find varchar(30); "
+      var nativeSql = "DECLARE @find varchar(30); "
         +"SET @find = 'Man%'; "
           +"SELECT LastName, FirstName, Phone "
             +"FROM Person.Contact "
               +"WHERE LastName LIKE @find;";
 
-      SqlTableRef contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlVariable find = SqlDml.Variable("find", new SqlValueType("varchar(30)"));
-      SqlBatch batch = SqlDml.Batch();
+      var contact = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var find = SqlDml.Variable("find", new SqlValueType("varchar(30)"));
+      var batch = SqlDml.Batch();
       batch.Add(find.Declare());
       batch.Add(SqlDml.Assign(find, "Man%"));
-      SqlSelect select = SqlDml.Select(contact);
+      var select = SqlDml.Select(contact);
       select.Columns.AddRange(contact["LastName"], contact["FirstName"], contact["Phone"]);
       select.Where = SqlDml.Like(contact["LastName"], find);
       batch.Add(select);
@@ -3019,13 +3112,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test143()
     {
-      string nativeSql = "SELECT * "
-        +"FROM Sales.Store s "
-          +
-          "WHERE s.Name IN ('West Side Mart', 'West Wind Distributors', 'Westside IsCyclic Store')";
+      var nativeSql = "SELECT * "
+        + "FROM Sales.Store s "
+          + "WHERE s.Name IN ('West Side Mart', 'West Wind Distributors', 'Westside IsCyclic Store')";
 
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select = SqlDml.Select(s);
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select = SqlDml.Select(s);
       select.Columns.Add(SqlDml.Asterisk);
       select.Where =
         SqlDml.In(
@@ -3037,12 +3129,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test144()
     {
-      string nativeSql = "SELECT * "
+      var nativeSql = "SELECT * "
         +"FROM Sales.Store s "
           +"WHERE s.CustomerID IN (1, 2, 3)";
 
-      SqlTableRef s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
-      SqlSelect select = SqlDml.Select(s);
+      var s = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["Store"], "s");
+      var select = SqlDml.Select(s);
       select.Columns.Add(SqlDml.Asterisk);
       select.Where = SqlDml.In(s["CustomerID"], SqlDml.Array(1, 2, 3));
 
@@ -3052,7 +3144,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test145()
     {
-      string nativeSql = "DECLARE complex_cursor CURSOR FOR "
+      var nativeSql = "DECLARE complex_cursor CURSOR FOR "
         +"SELECT a.EmployeeID "
           +"FROM HumanResources.EmployeePayHistory AS a "
             +"WHERE RateChangeDate <> "
@@ -3067,21 +3159,21 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                               +"CLOSE complex_cursor; "
                                 +"DEALLOCATE complex_cursor;";
 
-      SqlBatch batch = SqlDml.Batch();
-      SqlTableRef employeePayHistory = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"]);
-      SqlTableRef a = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], "a");
-      SqlTableRef b = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], "b");
-      SqlSelect selectInner = SqlDml.Select(b);
+      var batch = SqlDml.Batch();
+      var employeePayHistory = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"]);
+      var a = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], "a");
+      var b = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], "b");
+      var selectInner = SqlDml.Select(b);
       selectInner.Columns.Add(SqlDml.Max(b["RateChangeDate"]));
       selectInner.Where = a["EmployeeID"]==b["EmployeeID"];
-      SqlSelect select = SqlDml.Select(a);
+      var select = SqlDml.Select(a);
       select.Columns.Add(a["EmployeeID"]);
       select.Where = a["RateChangeDate"]!=selectInner;
-      SqlCursor cursor = SqlDml.Cursor("complex_cursor", select);
+      var cursor = SqlDml.Cursor("complex_cursor", select);
       batch.Add(cursor.Declare());
       batch.Add(cursor.Open());
       batch.Add(cursor.Fetch());
-      SqlUpdate update = SqlDml.Update(employeePayHistory);
+      var update = SqlDml.Update(employeePayHistory);
       update.Values[employeePayHistory["PayFrequency"]] = 2;
       update.Where = cursor;
       batch.Add(update);
@@ -3093,7 +3185,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test146()
     {
-      SqlDropTable drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"]);
+      var drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"]);
 
       Console.Write(Compile(drop));
     }
@@ -3101,7 +3193,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test147()
     {
-      SqlDropTable drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], false);
+      var drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"].Tables["EmployeePayHistory"], false);
 
       Console.Write(Compile(drop));
     }
@@ -3109,7 +3201,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test148()
     {
-      SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"]);
+      var drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"]);
 
       Console.Write(Compile(drop));
     }
@@ -3117,7 +3209,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test149()
     {
-      SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"], false);
+      var drop = SqlDdl.Drop(Catalog.Schemas["HumanResources"], false);
 
       Console.Write(Compile(drop));
     }
@@ -3125,7 +3217,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test150()
     {
-      SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Production"].Tables["Product"]);
+      var create = SqlDdl.Create(Catalog.Schemas["Production"].Tables["Product"]);
       create.Table.Filegroup = "xxx";
       Console.Write(Compile(create));
     }
@@ -3133,36 +3225,36 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test151()
     {
-      string nativeSql = "CREATE VIEW [HumanResources].[vEmployee] "
-        +"AS SELECT "
-          +"e.[EmployeeID], "
-            +"c.[Title], "
-              +"c.[FirstName], "
-                +"c.[MiddleName], "
-                  +"c.[LastName], "
-                    +"c.[Suffix], "
-                      +"e.[Title] AS [JobTitle], "
-                        +"c.[Phone], "
-                          +"c.[EmailAddress], "
-                            +"c.[EmailPromotion], "
-                              +"a.[AddressLine1], "
-                                +"a.[AddressLine2], "
-                                  +"a.[City], "
-                                    +"sp.[Name] AS [StateProvinceName], "
-                                      +"a.[PostalCode], "
-                                        +"cr.[Name] AS [CountryRegionName], "
-                                          +"FROM [HumanResources].[Employee] e "
-                                            +"INNER JOIN [Person].[Contact] c "
-                                              +"ON c.[ContactID] = e.[ContactID] "
-                                                +"INNER JOIN [HumanResources].[EmployeeAddress] ea "
-                                                  +"ON e.[EmployeeID] = ea.[EmployeeID] "
-                                                    +"INNER JOIN [Person].[Address] a "
-                                                      +"ON ea.[AddressID] = a.[AddressID] "
-                                                        +"INNER JOIN [Person].[StateProvince] sp "
-                                                          +"ON sp.[StateProvinceID] = a.[StateProvinceID] "
-                                                            +"INNER JOIN [Person].[CountryRegion] cr "
-                                                              +"ON cr.[CountryRegionCode] = sp.[CountryRegionCode]";
-      SqlCreateView create = SqlDdl.Create(Catalog.Schemas["HumanResources"].Views["vEmployee"]);
+      // var nativeSql = "CREATE VIEW [HumanResources].[vEmployee] "
+      //   +"AS SELECT "
+      //     +"e.[EmployeeID], "
+      //       +"c.[Title], "
+      //         +"c.[FirstName], "
+      //           +"c.[MiddleName], "
+      //             +"c.[LastName], "
+      //               +"c.[Suffix], "
+      //                 +"e.[Title] AS [JobTitle], "
+      //                   +"c.[Phone], "
+      //                     +"c.[EmailAddress], "
+      //                       +"c.[EmailPromotion], "
+      //                         +"a.[AddressLine1], "
+      //                           +"a.[AddressLine2], "
+      //                             +"a.[City], "
+      //                               +"sp.[Name] AS [StateProvinceName], "
+      //                                 +"a.[PostalCode], "
+      //                                   +"cr.[Name] AS [CountryRegionName], "
+      //                                     +"FROM [HumanResources].[Employee] e "
+      //                                       +"INNER JOIN [Person].[Contact] c "
+      //                                         +"ON c.[ContactID] = e.[ContactID] "
+      //                                           +"INNER JOIN [HumanResources].[EmployeeAddress] ea "
+      //                                             +"ON e.[EmployeeID] = ea.[EmployeeID] "
+      //                                               +"INNER JOIN [Person].[Address] a "
+      //                                                 +"ON ea.[AddressID] = a.[AddressID] "
+      //                                                   +"INNER JOIN [Person].[StateProvince] sp "
+      //                                                     +"ON sp.[StateProvinceID] = a.[StateProvinceID] "
+      //                                                       +"INNER JOIN [Person].[CountryRegion] cr "
+      //                                                         +"ON cr.[CountryRegionCode] = sp.[CountryRegionCode]";
+      var create = SqlDdl.Create(Catalog.Schemas["HumanResources"].Views["vEmployee"]);
 
       Console.Write(Compile(create));
     }
@@ -3170,14 +3262,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test152()
     {
-      Assertion assertion =
-        Catalog.Schemas["Production"].CreateAssertion("assertion", SqlDml.Literal(1)==1, false, false);
-      SqlCreateAssertion create = SqlDdl.Create(assertion);
+      var assertion = Catalog.Schemas["Production"]
+        .CreateAssertion("assertion", SqlDml.Literal(1)==1, false, false);
+      var create = SqlDdl.Create(assertion);
 
       Console.Write(Compile(create));
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test153()
     {
 //      CharacterSet characterSetBase = new CharacterSet(Catalog.Schemas["Production"], "characterSetBase");
@@ -3189,6 +3282,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test154()
     {
 //      CharacterSet characterSetBase = new CharacterSet(Catalog.Schemas["Production"], "characterSetBase");
@@ -3200,6 +3294,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test155()
     {
 //      CharacterSet characterSetBase = new CharacterSet(Catalog.Schemas["Production"], "characterSetBase");
@@ -3213,6 +3308,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test156()
     {
 //      CharacterSet characterSetBase = new CharacterSet(Catalog.Schemas["Production"], "characterSetBase");
@@ -3225,6 +3321,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test157()
     {
 //      Translation translation = new Translation(Catalog.Schemas["Production"], "tranlsation");
@@ -3238,6 +3335,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test158()
     {
 //      Translation translation = new Translation(Catalog.Schemas["Production"], "tranlsation");
@@ -3255,16 +3353,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test159()
     {
-      Xtensive.Sql.Model.Domain domain =
+      var domain =
         Catalog.Schemas["HumanResources"].CreateDomain("domain", new SqlValueType(SqlType.Decimal, 8, 2), 1);
       domain.Collation = Catalog.Schemas["HumanResources"].Collations["SQL_Latin1_General_CP1_CI_AS"];
-      domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
-      SqlCreateDomain create = SqlDdl.Create(domain);
+      _ = domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
+      var create = SqlDdl.Create(domain);
 
       Console.Write(Compile(create));
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test160()
     {
 //      CharacterSet characterSet = new CharacterSet(Catalog.Schemas["Production"], "characterSet");
@@ -3279,6 +3378,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test161()
     {
 //      CharacterSet source = new CharacterSet(Catalog.Schemas["Production"], "characterSetSource");
@@ -3294,6 +3394,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is emtpy.")]
     public void Test162()
     {
 //      CharacterSet source = new CharacterSet(Catalog.Schemas["Production"], "characterSetSource");
@@ -3309,6 +3410,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    [Ignore("Test is empty.")]
     public void Test163()
     {
 //      CharacterSet source = new CharacterSet(Catalog.Schemas["Production"], "characterSetSource");
@@ -3326,7 +3428,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test164()
     {
-      SqlCreateSchema create = SqlDdl.Create(Catalog.Schemas["Production"]);
+      var create = SqlDdl.Create(Catalog.Schemas["Production"]);
 
       Console.Write(Compile(create));
     }
@@ -3334,10 +3436,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test165()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.AddColumn(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.AddColumn(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
 
       Console.Write(Compile(alter));
     }
@@ -3345,10 +3446,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test166()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.DropDefault(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.DropDefault(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
 
       Console.Write(Compile(alter));
     }
@@ -3356,10 +3456,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test167()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.SetDefault("Empty", Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.SetDefault("Empty", Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
 
       Console.Write(Compile(alter));
     }
@@ -3367,10 +3466,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test168()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.DropColumn(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.DropColumn(Catalog.Schemas["Production"].Tables["Product"].TableColumns["Name"]));
 
       Console.Write(Compile(alter));
     }
@@ -3378,10 +3476,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test169()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.AddConstraint(Catalog.Schemas["Production"].Tables["Product"].TableConstraints[0]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.AddConstraint(Catalog.Schemas["Production"].Tables["Product"].TableConstraints[0]));
 
       Console.Write(Compile(alter));
     }
@@ -3389,10 +3486,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test170()
     {
-      SqlAlterTable alter =
-        SqlDdl.Alter(
-          Catalog.Schemas["Production"].Tables["Product"],
-          SqlDdl.DropConstraint(Catalog.Schemas["Production"].Tables["Product"].TableConstraints[0]));
+      var alter = SqlDdl.Alter(
+        Catalog.Schemas["Production"].Tables["Product"],
+        SqlDdl.DropConstraint(Catalog.Schemas["Production"].Tables["Product"].TableConstraints[0]));
 
       Console.Write(Compile(alter));
     }
@@ -3401,10 +3497,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("ALTER DOMAIN is not supported")]
     public void Test171()
     {
-      Xtensive.Sql.Model.Domain domain =
+      var domain =
         Catalog.Schemas["HumanResources"].CreateDomain("domain171", new SqlValueType(SqlType.Decimal, 8, 2), 1);
-      domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
-      SqlAlterDomain alter = SqlDdl.Alter(domain, SqlDdl.AddConstraint(domain.DomainConstraints[0]));
+      _ = domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
+      var alter = SqlDdl.Alter(domain, SqlDdl.AddConstraint(domain.DomainConstraints[0]));
 
       Console.Write(Compile(alter));
     }
@@ -3413,10 +3509,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("ALTER DOMAIN is not supported")]
     public void Test172()
     {
-      Xtensive.Sql.Model.Domain domain =
-        Catalog.Schemas["HumanResources"].CreateDomain("domain172", new SqlValueType(SqlType.Decimal, 8, 2), 1);
-      domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
-      SqlAlterDomain alter = SqlDdl.Alter(domain, SqlDdl.DropConstraint(domain.DomainConstraints[0]));
+      var domain = Catalog.Schemas["HumanResources"]
+        .CreateDomain("domain172", new SqlValueType(SqlType.Decimal, 8, 2), 1);
+      _ = domain.CreateConstraint("domainConstraint", SqlDml.Literal(1)==1);
+      var alter = SqlDdl.Alter(domain, SqlDdl.DropConstraint(domain.DomainConstraints[0]));
 
       Console.Write(Compile(alter));
     }
@@ -3425,9 +3521,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("ALTER DOMAIN is not supported")]
     public void Test173()
     {
-      Xtensive.Sql.Model.Domain domain =
-        Catalog.Schemas["HumanResources"].CreateDomain("domain173", new SqlValueType(SqlType.Decimal, 8, 2), 1);
-      SqlAlterDomain alter = SqlDdl.Alter(domain, SqlDdl.SetDefault(0));
+      var domain = Catalog.Schemas["HumanResources"]
+        .CreateDomain("domain173", new SqlValueType(SqlType.Decimal, 8, 2), 1);
+      var alter = SqlDdl.Alter(domain, SqlDdl.SetDefault(0));
 
       Console.Write(Compile(alter));
     }
@@ -3436,9 +3532,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Ignore("ALTER DOMAIN is not supported")]
     public void Test174()
     {
-      Xtensive.Sql.Model.Domain domain =
-        Catalog.Schemas["HumanResources"].CreateDomain("domain174", new SqlValueType(SqlType.Decimal, 8, 2), 1);
-      SqlAlterDomain alter = SqlDdl.Alter(domain, SqlDdl.DropDefault());
+      var domain = Catalog.Schemas["HumanResources"]
+        .CreateDomain("domain174", new SqlValueType(SqlType.Decimal, 8, 2), 1);
+      var alter = SqlDdl.Alter(domain, SqlDdl.DropDefault());
 
       Console.Write(Compile(alter));
     }
@@ -3446,8 +3542,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test175()
     {
-      Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator175");
-      SqlCreateSequence create = SqlDdl.Create(s);
+      var sequence = Catalog.Schemas["Production"].CreateSequence("Generator175");
+      var create = SqlDdl.Create(sequence);
 
       Console.Write(Compile(create));
     }
@@ -3455,13 +3551,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test176()
     {
-      Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator176");
-      s.SequenceDescriptor.IsCyclic = true;
-      s.SequenceDescriptor.StartValue = 1000;
-      s.SequenceDescriptor.MaxValue = 1000;
-      s.SequenceDescriptor.MinValue = -1000;
-      s.SequenceDescriptor.Increment = -1;
-      SqlCreateSequence create = SqlDdl.Create(s);
+      var seq = Catalog.Schemas["Production"].CreateSequence("Generator176");
+      seq.SequenceDescriptor.IsCyclic = true;
+      seq.SequenceDescriptor.StartValue = 1000;
+      seq.SequenceDescriptor.MaxValue = 1000;
+      seq.SequenceDescriptor.MinValue = -1000;
+      seq.SequenceDescriptor.Increment = -1;
+      var create = SqlDdl.Create(seq);
 
       Console.Write(Compile(create));
     }
@@ -3469,8 +3565,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test177()
     {
-      Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator177");
-      SqlDropSequence drop = SqlDdl.Drop(s);
+      var sequence = Catalog.Schemas["Production"].CreateSequence("Generator177");
+      var drop = SqlDdl.Drop(sequence);
 
       Console.Write(Compile(drop));
     }
@@ -3478,8 +3574,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test178()
     {
-      Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator178");
-      SqlAlterSequence alter = SqlDdl.Alter(s, new SequenceDescriptor(s, 0, 1, null, null, true));
+      var sequence = Catalog.Schemas["Production"].CreateSequence("Generator178");
+      var alter = SqlDdl.Alter(sequence, new SequenceDescriptor(sequence, 0, 1, null, null, true));
 
       Console.Write(Compile(alter));
     }
@@ -3487,8 +3583,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test179()
     {
-      Sequence s = Catalog.Schemas["Production"].CreateSequence("Generator179");
-      SqlAlterSequence alter = SqlDdl.Alter(s, new SequenceDescriptor(s, null, null, 1000, -1000));
+      var sequence = Catalog.Schemas["Production"].CreateSequence("Generator179");
+      var alter = SqlDdl.Alter(sequence, new SequenceDescriptor(sequence, null, null, 1000, -1000));
 
       Console.Write(Compile(alter));
     }
@@ -3496,10 +3592,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test180()
     {
-      Table table = Catalog.Schemas["Production"].Tables["Product"];
-      SqlAlterIdentityInfo action =
+      var table = Catalog.Schemas["Production"].Tables["Product"];
+      var action =
         SqlDdl.Alter(table.TableColumns["ProductID"], new SequenceDescriptor(table.TableColumns["ProductID"], 2, 3, null, null, true));
-      SqlAlterTable alter = SqlDdl.Alter(table, action);
+      var alter = SqlDdl.Alter(table, action);
 
       Console.Write(Compile(alter));
     }
@@ -3507,7 +3603,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test181()
     {
-      SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Purchasing"].Tables["PurchaseOrderDetail"]);
+      var create = SqlDdl.Create(Catalog.Schemas["Purchasing"].Tables["PurchaseOrderDetail"]);
 
       Console.Write(Compile(create));
     }
@@ -3515,10 +3611,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test182()
     {
-      PartitionFunction pf =
+      var pf =
         Catalog.CreatePartitionFunction("pf182", new SqlValueType(SqlType.Decimal, 5, 2), "1", "5", "10");
       pf.BoundaryType = BoundaryType.Right;
-      SqlCreatePartitionFunction create = SqlDdl.Create(pf);
+      var create = SqlDdl.Create(pf);
 
       Console.Write(Compile(create));
     }
@@ -3526,9 +3622,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test183()
     {
-      PartitionFunction pf =
+      var pf =
         Catalog.CreatePartitionFunction("pf183", new SqlValueType(SqlType.Decimal, 5, 2), "1", "5", "10");
-      SqlDropPartitionFunction drop = SqlDdl.Drop(pf);
+      var drop = SqlDdl.Drop(pf);
 
       Console.Write(Compile(drop));
     }
@@ -3536,9 +3632,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test184()
     {
-      PartitionFunction pf =
+      var pf =
         Catalog.CreatePartitionFunction("pf184", new SqlValueType(SqlType.Decimal, 5, 2), "1", "5", "10");
-      SqlAlterPartitionFunction alter = SqlDdl.Alter(pf, "5", SqlAlterPartitionFunctionOption.Split);
+      var alter = SqlDdl.Alter(pf, "5", SqlAlterPartitionFunctionOption.Split);
 
       Console.Write(Compile(alter));
     }
@@ -3546,10 +3642,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test185()
     {
-      PartitionFunction pf =
+      var pf =
         Catalog.CreatePartitionFunction("pf185", new SqlValueType(SqlType.Decimal, 5, 2), "1", "5", "10");
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps1", pf, "[PRIMARY]", "sdf", "sdf1", "sdf2");
-      SqlCreatePartitionScheme create = SqlDdl.Create(ps);
+      var ps = Catalog.CreatePartitionSchema("ps1", pf, "[PRIMARY]", "sdf", "sdf1", "sdf2");
+      var create = SqlDdl.Create(ps);
 
       Console.Write(Compile(create));
     }
@@ -3557,10 +3653,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test186()
     {
-      PartitionFunction pf =
+      var pf =
         Catalog.CreatePartitionFunction("pf186", new SqlValueType(SqlType.Decimal, 5, 2), "1", "5", "10");
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps186", pf, "[PRIMARY]");
-      SqlCreatePartitionScheme create = SqlDdl.Create(ps);
+      var ps = Catalog.CreatePartitionSchema("ps186", pf, "[PRIMARY]");
+      var create = SqlDdl.Create(ps);
 
       Console.Write(Compile(create));
     }
@@ -3568,8 +3664,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test187()
     {
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps187", null, "[PRIMARY]");
-      SqlDropPartitionScheme drop = SqlDdl.Drop(ps);
+      var ps = Catalog.CreatePartitionSchema("ps187", null, "[PRIMARY]");
+      var drop = SqlDdl.Drop(ps);
 
       Console.Write(Compile(drop));
     }
@@ -3577,8 +3673,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test188()
     {
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps188", null, "[PRIMARY]");
-      SqlAlterPartitionScheme alter = SqlDdl.Alter(ps);
+      var ps = Catalog.CreatePartitionSchema("ps188", null, "[PRIMARY]");
+      var alter = SqlDdl.Alter(ps);
 
       Console.Write(Compile(alter));
     }
@@ -3586,8 +3682,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test189()
     {
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps189", null, "[PRIMARY]");
-      SqlAlterPartitionScheme alter = SqlDdl.Alter(ps, "sdfg");
+      var ps = Catalog.CreatePartitionSchema("ps189", null, "[PRIMARY]");
+      var alter = SqlDdl.Alter(ps, "sdfg");
 
       Console.Write(Compile(alter));
     }
@@ -3595,10 +3691,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test190()
     {
-      PartitionSchema ps = Catalog.CreatePartitionSchema("ps190", null, "[PRIMARY]");
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
+      var ps = Catalog.CreatePartitionSchema("ps190", null, "[PRIMARY]");
+      var t = Catalog.Schemas["Production"].Tables["Product"];
       t.PartitionDescriptor = new PartitionDescriptor(t, t.TableColumns["ProductID"], ps);
-      SqlCreateTable create = SqlDdl.Create(t);
+      var create = SqlDdl.Create(t);
 
       Console.Write(Compile(create));
     }
@@ -3606,9 +3702,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test191()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
+      var t = Catalog.Schemas["Production"].Tables["Product"];
       t.PartitionDescriptor = new PartitionDescriptor(t, t.TableColumns["ProductID"], PartitionMethod.Hash, 10);
-      SqlCreateTable create = SqlDdl.Create(t);
+      var create = SqlDdl.Create(t);
 
       Console.Write(Compile(create));
     }
@@ -3616,12 +3712,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test192()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
+      var t = Catalog.Schemas["Production"].Tables["Product"];
       t.PartitionDescriptor = new PartitionDescriptor(t, t.TableColumns["ProductID"], PartitionMethod.Hash);
-      t.PartitionDescriptor.CreateHashPartition("ts1");
-      t.PartitionDescriptor.CreateHashPartition("ts2");
-      t.PartitionDescriptor.CreateHashPartition("ts3");
-      SqlCreateTable create = SqlDdl.Create(t);
+      _ = t.PartitionDescriptor.CreateHashPartition("ts1");
+      _ = t.PartitionDescriptor.CreateHashPartition("ts2");
+      _ = t.PartitionDescriptor.CreateHashPartition("ts3");
+      var create = SqlDdl.Create(t);
 
       Console.Write(Compile(create));
     }
@@ -3629,11 +3725,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test193()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
+      var t = Catalog.Schemas["Production"].Tables["Product"];
       t.PartitionDescriptor = new PartitionDescriptor(t, t.TableColumns["ProductID"], PartitionMethod.List);
-      t.PartitionDescriptor.CreateListPartition("p1", "ts1", "sdf", "sdf1", "sdfg");
-      t.PartitionDescriptor.CreateListPartition("p2", "ts2", "sir");
-      SqlCreateTable create = SqlDdl.Create(t);
+      _ = t.PartitionDescriptor.CreateListPartition("p1", "ts1", "sdf", "sdf1", "sdfg");
+      _ = t.PartitionDescriptor.CreateListPartition("p2", "ts2", "sir");
+      var create = SqlDdl.Create(t);
 
       Console.Write(Compile(create));
     }
@@ -3641,12 +3737,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test194()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
+      var t = Catalog.Schemas["Production"].Tables["Product"];
       t.PartitionDescriptor = new PartitionDescriptor(t, t.TableColumns["ProductID"], PartitionMethod.Range);
-      t.PartitionDescriptor.CreateRangePartition("ts1", new DateTime(2006, 01, 01).ToString());
-      t.PartitionDescriptor.CreateRangePartition("ts2", new DateTime(2007, 01, 01).ToString());
-      t.PartitionDescriptor.CreateRangePartition("ts3", "MAXVALUE");
-      SqlCreateTable create = SqlDdl.Create(t);
+      _ = t.PartitionDescriptor.CreateRangePartition("ts1", new DateTime(2006, 01, 01).ToString());
+      _ = t.PartitionDescriptor.CreateRangePartition("ts2", new DateTime(2007, 01, 01).ToString());
+      _ = t.PartitionDescriptor.CreateRangePartition("ts3", "MAXVALUE");
+      var create = SqlDdl.Create(t);
 
       Console.Write(Compile(create));
     }
@@ -3654,19 +3750,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test195()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
-      Index index = t.CreateIndex("MegaIndex195");
-      index.CreateIndexColumn(t.TableColumns[0]);
-      index.CreateIndexColumn(t.TableColumns[1]);
-      index.CreateIndexColumn(t.TableColumns[2], false);
-      index.CreateIndexColumn(t.TableColumns[3]);
-      index.CreateIndexColumn(t.TableColumns[4]);
-      index.CreateIndexColumn(t.TableColumns[5]);
+      var t = Catalog.Schemas["Production"].Tables["Product"];
+      var index = t.CreateIndex("MegaIndex195");
+      _ = index.CreateIndexColumn(t.TableColumns[0]);
+      _ = index.CreateIndexColumn(t.TableColumns[1]);
+      _ = index.CreateIndexColumn(t.TableColumns[2], false);
+      _ = index.CreateIndexColumn(t.TableColumns[3]);
+      _ = index.CreateIndexColumn(t.TableColumns[4]);
+      _ = index.CreateIndexColumn(t.TableColumns[5]);
       index.IsUnique = true;
       index.IsClustered = true;
       index.FillFactor = 80;
       index.Filegroup = "\"default\"";
-      SqlCreateIndex create = SqlDdl.Create(index);
+      var create = SqlDdl.Create(index);
 
       Console.Write(Compile(create));
     }
@@ -3674,9 +3770,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test196()
     {
-      Table t = Catalog.Schemas["Production"].Tables["Product"];
-      Index index = t.CreateIndex("MegaIndex196");
-      SqlDropIndex drop = SqlDdl.Drop(index);
+      var t = Catalog.Schemas["Production"].Tables["Product"];
+      var index = t.CreateIndex("MegaIndex196");
+      var drop = SqlDdl.Drop(index);
 
       Console.Write(Compile(drop));
     }
@@ -3684,7 +3780,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test197()
     {
-      string nativeSql = "Select Top 10 * "
+      var nativeSql = "Select Top 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3692,16 +3788,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"inner merge join Person.CountryRegion d on c.StateProvinceCode=d.CountryRegionCode)"
                   +" on a.CountryRegionCode=c.CountryRegionCode";
 
-      SqlTableRef a = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "a");
-      SqlTableRef b = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "b");
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "c");
-      SqlTableRef d = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "d");
+      var a = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "a");
+      var b = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "b");
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "c");
+      var d = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "d");
 
-      SqlJoinedTable ab = a.InnerJoin(b, a["StateProvinceCode"]==b["CountryRegionCode"]);
-      SqlJoinedTable cd = c.InnerJoin(d, c["StateProvinceCode"]==d["CountryRegionCode"]);
-      SqlJoinedTable abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
+      var ab = a.InnerJoin(b, a["StateProvinceCode"]==b["CountryRegionCode"]);
+      var cd = c.InnerJoin(d, c["StateProvinceCode"]==d["CountryRegionCode"]);
+      var abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
 
-      SqlSelect select = SqlDml.Select(abcd);
+      var select = SqlDml.Select(abcd);
       select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, ab));
@@ -3715,7 +3811,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test198()
     {
-      string nativeSql = "Select Top 10 * "
+      var nativeSql = "Select Top 10 * "
         +"From (Person.StateProvince a "
           +"inner hash join Person.CountryRegion b on a.StateProvinceCode=b.CountryRegionCode)"
             +"inner loop join "
@@ -3723,16 +3819,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"inner merge join Person.CountryRegion d on c.StateProvinceCode=d.CountryRegionCode)"
                   +" on a.CountryRegionCode=c.CountryRegionCode";
 
-      SqlTableRef a = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "a");
-      SqlTableRef b = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "b");
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "c");
-      SqlTableRef d = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "d");
+      var a = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "a");
+      var b = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "b");
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["StateProvince"], "c");
+      var d = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["CountryRegion"], "d");
 
-      SqlJoinedTable ab = a.InnerJoin(b, a["StateProvinceCode"]==b["CountryRegionCode"]);
-      SqlJoinedTable cd = c.InnerJoin(d, c["StateProvinceCode"]==d["CountryRegionCode"]);
-      SqlJoinedTable abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
+      var ab = a.InnerJoin(b, a["StateProvinceCode"]==b["CountryRegionCode"]);
+      var cd = c.InnerJoin(d, c["StateProvinceCode"]==d["CountryRegionCode"]);
+      var abcd = SqlDml.Join(SqlJoinType.InnerJoin, ab, cd, a["CountryRegionCode"]==c["CountryRegionCode"]);
 
-      SqlSelect select = SqlDml.Select(abcd);
+      var select = SqlDml.Select(abcd);
       select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, b));
@@ -3745,13 +3841,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test199()
     {
-      string nativeSql =
+      var nativeSql =
         "Select Top 10 EmailAddress "+
         "From Person.Contact a "+
         "Where EmailAddress Like 'a%'";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(c);
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(c);
       select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
@@ -3762,13 +3858,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test200()
     {
-      string nativeSql =
+      var nativeSql =
         "Select Top 10 EmailAddress " +
         "From Person.Contact a " +
         "Where EmailAddress Like 'a%' " +
         "OPTION (FAST 10, KEEP PLAN, ROBUST PLAN)";
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select = SqlDml.Select(c);
+
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select = SqlDml.Select(c);
       select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
@@ -3780,7 +3877,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test201()
     {
-      string nativeSql = "Select Top 10 EmailAddress "
+      var nativeSql = "Select Top 10 EmailAddress "
         +"From Person.Contact a "
           +"Where EmailAddress Like 'a%' "
             + "UNION ALL "
@@ -3788,12 +3885,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
                 +"From Person.Contact b "
                   +"Where EmailAddress Like 'b%' ";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlSelect select1 = SqlDml.Select(c);
+      var c = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var select1 = SqlDml.Select(c);
       select1.Limit = 10;
       select1.Columns.Add(c["EmailAddress"]);
       select1.Where = SqlDml.Like(c["EmailAddress"], "a%");
-      SqlSelect select2 = SqlDml.Select(c);
+      var select2 = SqlDml.Select(c);
       select2.Limit = 10;
       select2.Columns.Add(c["EmailAddress"]);
       select2.Where = SqlDml.Like(c["EmailAddress"], "a%");
@@ -3804,16 +3901,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test202()
     {
-      string nativeSql =
+      var nativeSql =
         "DECLARE test202cursor CURSOR FOR SELECT * FROM Purchasing.Vendor;\n" +
         "OPEN test202cursor;\n"  +
         "FETCH NEXT FROM test202cursor;\n" +
         "CLOSE test202cursor;";
-      SqlBatch batch = SqlDml.Batch();
-      SqlTableRef vendors = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
-      SqlSelect select = SqlDml.Select(vendors);
+
+      var batch = SqlDml.Batch();
+      var vendors = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
+      var select = SqlDml.Select(vendors);
       select.Columns.Add(select.Asterisk);
-      SqlCursor cursor = SqlDml.Cursor("test202cursor_", select);
+      var cursor = SqlDml.Cursor("test202cursor_", select);
       batch.Add(cursor.Declare());
       batch.Add(cursor.Open());
       batch.Add(cursor.Fetch());
@@ -3825,31 +3923,29 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test203()
     {
-      string nativeSql = "INSERT INTO Person.Contact "
-        +"DEFAULT VALUES;";
+      var nativeSql = "INSERT INTO Person.Contact DEFAULT VALUES;";
 
-      SqlTableRef unitMeasure = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
-      SqlInsert insert = SqlDml.Insert(unitMeasure);
+      var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
+      var insert = SqlDml.Insert(unitMeasure);
 
-      Assert.Throws<System.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
+      _ = Assert.Throws<Microsoft.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
     }
 
     [Test]
     public void Test204()
     {
-      string nativeSql = "SELECT a.f FROM ((SELECT 1 as f UNION SELECT 2) EXCEPT (SELECT 3 UNION SELECT 4)) a";
+      var nativeSql = "SELECT a.f FROM ((SELECT 1 as f UNION SELECT 2) EXCEPT (SELECT 3 UNION SELECT 4)) a";
 
-      SqlSelect s1 = SqlDml.Select();
-      SqlSelect s2 = SqlDml.Select();
-      SqlSelect s3 = SqlDml.Select();
-      SqlSelect s4 = SqlDml.Select();
-      SqlSelect select;
+      var s1 = SqlDml.Select();
+      var s2 = SqlDml.Select();
+      var s3 = SqlDml.Select();
+      var s4 = SqlDml.Select();
       s1.Columns.Add(1, "f");
       s2.Columns.Add(2);
       s3.Columns.Add(3);
       s4.Columns.Add(4);
-      SqlQueryRef qr = SqlDml.QueryRef(s1.Union(s2).Except(s3.Union(s4)), "a");
-      select = SqlDml.Select(qr);
+      var qr = SqlDml.QueryRef(s1.Union(s2).Except(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
@@ -3858,7 +3954,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test205()
     {
-      string nativeSql =
+      var nativeSql =
         "DECLARE test205cursor CURSOR FOR SELECT * FROM Purchasing.Vendor;\n" +
         "OPEN test205cursor;\n" +
         "BEGIN\n" +
@@ -3866,14 +3962,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "END\n" +
         "CLOSE test205cursor;";
 
-      SqlBatch batch = SqlDml.Batch();
-      SqlTableRef vendors = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
-      SqlSelect select = SqlDml.Select(vendors);
+      var batch = SqlDml.Batch();
+      var vendors = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["Vendor"]);
+      var select = SqlDml.Select(vendors);
       select.Columns.Add(select.Asterisk);
-      SqlCursor cursor = SqlDml.Cursor("test205cursor_", select);
+      var cursor = SqlDml.Cursor("test205cursor_", select);
       batch.Add(cursor.Declare());
       batch.Add(cursor.Open());
-      SqlStatementBlock block = SqlDml.StatementBlock();
+      var block = SqlDml.StatementBlock();
       block.Add(cursor.Fetch());
       batch.Add(block);
       batch.Add(cursor.Close());
@@ -3884,7 +3980,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test206()
     {
-      string nativeSql =
+      var nativeSql =
         "SELECT c.Name SubcategoryName, p.Name ProductName " +
           "FROM Production.ProductSubcategory c " +
             "CROSS APPLY (SELECT Name FROM Production.Product WHERE ProductSubcategoryID = c.ProductSubcategoryID) p " +
@@ -3913,7 +4009,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test207()
     {
-      string nativeSql =
+      var nativeSql =
         "DELETE FROM [Sales].[SpecialOfferProduct] WHERE NOT EXISTS (SELECT [ProductID] FROM [Production].[Product]"
       + " WHERE [Production].[Product].[ProductID] = [Sales].[SpecialOfferProduct].[ProductID])";
 
@@ -3933,20 +4029,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void RenameTest()
     {
-      var model = new Catalog("do40-tests");
-
-      Schema schema = Catalog.CreateSchema("S1");
-      Table table = schema.CreateTable("T1");
-      table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
+      var schema = Catalog.CreateSchema("S1");
+      var table = schema.CreateTable("T1");
+      _ = table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
 
       try {
         sqlConnection.BeginTransaction();
 
         using (var cmd = sqlConnection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
           batch.Add(SqlDdl.Create(schema));
-          cmd.CommandText = Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          cmd.CommandText = Compile(batch);
+          _ = cmd.ExecuteNonQuery();
         }
 
         var exModel1 = sqlDriver.ExtractCatalog(sqlConnection);
@@ -3956,11 +4050,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         Assert.IsNotNull(exC1);
 
         using (var cmd = sqlConnection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
           batch.Add(SqlDdl.Rename(exC1, "C2"));
           batch.Add(SqlDdl.Rename(exT1, "T2"));
-          cmd.CommandText = Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          cmd.CommandText = Compile(batch);
+          _ = cmd.ExecuteNonQuery();
         }
 
         var exModel2 = sqlDriver.ExtractCatalog(sqlConnection);
@@ -3978,17 +4072,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void TestDeleteFrom()
     {
-      string nativeSql = "DELETE FROM Production.Product "
+      var nativeSql = "DELETE FROM Production.Product "
         +"FROM Production.Product AS p "
           +"INNER JOIN Purchasing.ProductVendor AS pv "
             +"ON p.ProductID = pv.ProductID AND pv.VendorID = 0;";
 
-      SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      SqlTableRef p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
-      SqlTableRef pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
+      var product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
+      var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
+      var pv = SqlDml.TableRef(Catalog.Schemas["Purchasing"].Tables["ProductVendor"], "pv");
 
-      SqlDelete delete = SqlDml.Delete(product);
-      delete.From = p.InnerJoin(pv, p["ProductID"]==pv["ProductID"] && pv["VendorID"]==0);
+      var delete = SqlDml.Delete(product);
+      delete.From = p.InnerJoin(pv, p["ProductID"] == pv["ProductID"] && pv["VendorID"] == 0);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
     }

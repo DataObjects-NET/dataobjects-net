@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -11,21 +11,47 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Compiler : v09.Compiler
   {
+    protected const string OffsetPart = "TZoffset";
     protected const string UtcTimeZone = "+00:00";
+    protected const string ZeroTime = "'00:00:00.0000000'";
     protected const string SqlDateTypeName = "date";
     protected const string SqlDateTime2TypeName = "datetime2";
 
+    /// <summary>
+    /// Creates <see cref="SqlUserFunctionCall"/> expression that adds given nanoseconds to
+    /// given date.
+    /// </summary>
+    /// <param name="date">Date (datetime, datetimeoffset) expression.</param>
+    /// <param name="nanoseconds">Nanoseconds value expression.</param>
+    /// <returns>Result expression.</returns>
     protected static SqlUserFunctionCall DateAddNanosecond(SqlExpression date, SqlExpression nanoseconds) =>
-      SqlDml.FunctionCall("DATEADD", SqlDml.Native("NS"), nanoseconds, date);
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(NanosecondPart), nanoseconds, date);
 
+
+    /// <summary>
+    /// Creates <see cref="SqlUserFunctionCall"/> expression that represents subtraction of two date expression
+    /// which results value in nanoseconds.
+    /// given date.
+    /// </summary>
+    /// <param name="date1">First date (datetime, datetimeoffset) expression.</param>
+    /// <param name="date2">Second date (datetime, datetimeoffset) expression.</param>
+    /// <returns>Result expression.</returns>
     protected static SqlUserFunctionCall DateDiffNanosecond(SqlExpression date1, SqlExpression date2) =>
-      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("NS"), date1, date2);
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(NanosecondPart), date1, date2);
 
+    /// <inheritdoc/>
     protected override SqlExpression DateTimeTruncate(SqlExpression date) =>
       SqlDml.Cast(
         SqlDml.Cast(date, new SqlValueType(SqlDateTypeName)),
         new SqlValueType(SqlDateTime2TypeName));
 
+    /// <summary>
+    /// Creates expression that represents subtraction of two <see cref="DateTime"/> expressions.
+    /// </summary>
+    /// <param name="date1">First <see cref="DateTime"/> expression.</param>
+    /// <param name="date2">Second <see cref="DateTime"/> expression.</param>
+    /// <returns>Result expression.</returns>
+    /// <returns></returns>
     protected override SqlExpression  DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return base.DateTimeSubtractDateTime(date1, date2)
@@ -36,11 +62,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
           date1);
     }
 
-    protected virtual SqlExpression DateTimeOffsetSubtractDateTimeOffset(SqlExpression date1, SqlExpression date2)
-    {
-      return DateTimeSubtractDateTime(date1, date2);
-    }
+    /// <summary>
+    /// Creates expression that represents subtraction of two <see cref="DateTimeOffset"/> expressions.
+    /// </summary>
+    /// <param name="date1">First <see cref="DateTimeOffset"/> expressions.</param>
+    /// <param name="date2">Second <see cref="DateTimeOffset"/> expressions.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression DateTimeOffsetSubtractDateTimeOffset(SqlExpression date1, SqlExpression date2) =>
+      DateTimeSubtractDateTime(date1, date2);
 
+    /// <inheritdoc/>
     protected override SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
       return DateAddNanosecond(
@@ -50,6 +81,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         (interval/NanosecondsPerSecond) % NanosecondsPerDay/NanosecondsPerSecond);
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlExtract node)
     {
       switch (node.DateTimeOffsetPart) {
@@ -111,6 +143,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       base.Visit(node);
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlBinary node)
     {
       switch (node.NodeType) {
@@ -144,7 +177,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
       DateDiffMillisecond(
-        SqlDml.Native("'00:00:00.0000000'"),
+        SqlDml.Native(ZeroTime),
         SqlDml.Cast(dateTimeOffset, new SqlValueType("time")))
       * NanosecondsPerMillisecond;
 
@@ -158,7 +191,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDml.FunctionCall("SWITCHOFFSET", dateTimeOffset, offset);
 
     private static SqlUserFunctionCall DateTimeOffsetTimeZoneInMinutes(SqlExpression date) =>
-      SqlDml.FunctionCall("DATEPART", SqlDml.Native("TZoffset"), date);
+      SqlDml.FunctionCall("DATEPART", SqlDml.Native(OffsetPart), date);
 
     private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset) =>
       Switchoffset(dateTimeOffset, DateTimeOffsetTimeZoneInMinutes(SqlDml.Native("SYSDATETIMEOFFSET()")));
@@ -170,7 +203,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDml.FunctionCall("TODATETIMEOFFSET",
         dateTime,
         SqlDml.FunctionCall("DATEPART",
-          SqlDml.Native("TZoffset"),
+          SqlDml.Native(OffsetPart),
           SqlDml.Native("SYSDATETIMEOFFSET()")));
 
     #endregion

@@ -7,13 +7,9 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Collections;
 
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Tests.Upgrade.Model.Version2;
 using Xtensive.Orm.Upgrade;
-using M2 = Xtensive.Orm.Tests.Upgrade.Model.Version2;
-using M3 = Xtensive.Orm.Tests.Upgrade.Model.Version3;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -42,7 +38,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     public override bool CanUpgradeFrom(string oldVersion) => true;
 
-    protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

@@ -301,9 +301,9 @@ namespace Xtensive.Orm
 
     public static bool operator==(Structure left, Structure right)
     {
-      if (!ReferenceEquals(left, null))
+      if (left is not null)
         return left.Equals(right);
-      return ReferenceEquals(right, null);
+      return right is null;
     }
 
     public static bool operator !=(Structure left, Structure rigth)
@@ -312,13 +312,8 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj==null || !(obj is Structure)) {
-        return false;
-      }
-      return Equals((Structure) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is Structure other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(Structure other)

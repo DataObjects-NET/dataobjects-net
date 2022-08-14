@@ -116,9 +116,10 @@ namespace Xtensive.Orm.Upgrade
 
     private void VisitAction(NodeAction action)
     {
-      if (action is GroupingNodeAction)
-        foreach (var nodeAction in ((GroupingNodeAction) action).Actions)
+      if (action is GroupingNodeAction groupingNodeAction) {
+        foreach (var nodeAction in groupingNodeAction.Actions)
           VisitAction(nodeAction);
+      }
       else if (action is CreateNodeAction createNodeAction)
         VisitCreateAction(createNodeAction);
       else if (action is RemoveNodeAction removeNodeAction)
@@ -441,7 +442,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropDefaultConstraint(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
-      if (column.DefaultValue.IsNullReference())
+      if (column.DefaultValue is null)
         return;
       var table = column.Table;
       var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
@@ -734,7 +735,7 @@ namespace Xtensive.Orm.Upgrade
       var deleteActions = (
         from action in clearDataActions
         let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.PostCopy==postCopy
+        where deleteDataHint!=null && deleteDataHint.IsPostCopyCleanup==postCopy
         select action
         ).ToList();
 
@@ -847,11 +848,11 @@ namespace Xtensive.Orm.Upgrade
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
       var sortedTables = TopologicalSorter.Sort(nodes, out edges);
-      sortedTables.Reverse();
       // TODO: Process removed edges
 
       // Build DML commands
-      foreach (var table in sortedTables) {
+      for (var i = sortedTables.Count; i-- > 0;) {
+        var table = sortedTables[i];
         var tableRef = SqlDml.TableRef(FindTable(table));
         var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];
@@ -1032,7 +1033,7 @@ namespace Xtensive.Orm.Upgrade
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
+      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;

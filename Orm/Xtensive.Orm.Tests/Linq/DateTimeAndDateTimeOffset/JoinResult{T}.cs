@@ -4,6 +4,8 @@
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
+using System;
+
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 {
   public class JoinResult<T>
@@ -22,5 +24,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
              RightId==equalTo.RightId &&
              LeftDateTime.Equals(equalTo.LeftDateTime) && RightDateTime.Equals(equalTo.RightDateTime);
     }
+
+    public override int GetHashCode() => HashCode.Combine(LeftId, RightId, LeftDateTime, RightDateTime);
   }
 }

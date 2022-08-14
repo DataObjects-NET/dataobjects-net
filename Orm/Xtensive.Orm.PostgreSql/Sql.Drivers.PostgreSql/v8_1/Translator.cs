@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -10,38 +10,46 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class Translator : v8_0.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlContinue node)
-    {
-      return "CONTINUE";
-    }
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlContinue node) =>
+      context.Output.Append("CONTINUE");
 
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:
         case SqlIntervalPart.Hour:
           break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          return;
       }
       switch (section) {
         case ExtractSection.From:
-          return "from justify_hours(";
+          _ = context.Output.AppendOpeningPunctuation("from justify_hours(");
+          break;
         case ExtractSection.Exit:
-          return "))";
+          _ = context.Output.Append("))");
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
-    public override string Translate(SqlLockType lockType)
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlLockType lockType)
     {
       if (lockType.Supports(SqlLockType.SkipLocked)) {
-        return base.Translate(lockType);
+        base.Translate(output, lockType);
       }
-      return string.Format("FOR {0}{1}",
-        lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE",
-        lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "");
+      _ = lockType.Supports(SqlLockType.Shared)
+        ? output.Append("FOR SHARE")
+        : output.Append("FOR UPDATE");
+      if (lockType.Supports(SqlLockType.ThrowIfLocked)) {
+        _ = output.Append(" NOWAIT");
+      }
     }
 
     // Constructors

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString()
     {
-      return string.Format("{0}, Offset: {1}", base.ToString(), Mapping.Offset);
+      return $"{base.ToString()}, Offset: {Mapping.Offset}";
     }
 
 

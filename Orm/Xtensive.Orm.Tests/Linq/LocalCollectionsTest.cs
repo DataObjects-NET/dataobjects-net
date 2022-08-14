@@ -14,6 +14,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 {
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -66,7 +67,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -75,7 +76,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -118,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2, T3> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -127,7 +128,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -253,7 +254,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Poco1Test()
     {
-      Assert.Throws<QueryTranslationException>(() => {
+      _ = Assert.Throws<QueryTranslationException>(() => {
         var pocos = Customers
           .Select(customer => new Poco<string>() { Value = customer.LastName })
           .ToList();
@@ -357,7 +358,7 @@ namespace Xtensive.Orm.Tests.Linq
       var nodes = new Node[10];
       var query = Session.Query.All<Invoice>()
         .Join(nodes, invoice => invoice.Customer.Address.City, node => node.Name, (invoice, node) => new {invoice, node});
-      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
+      _ = Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
 
     [Test]
@@ -403,7 +404,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void KeyTest()
     {
-      Assert.Throws<QueryTranslationException>( () => {
+      _ = Assert.Throws<QueryTranslationException>(() => {
         var keys = Session.Query.All<Invoice>().Take(10).Select(invoice => invoice.Key).ToList();
         var query = Session.Query.All<Invoice>()
           .Join(keys, invoice => invoice.Key, key => key, (invoice, key) => new {invoice, key});
@@ -863,7 +864,6 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(result, expected);
     }
 
-
     [Test]
     public void Aggregate2Test()
     {
@@ -882,9 +882,26 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public async Task Aggregate2AsyncTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      var localItems = GetLocalItems(100);
+      var queryable = Session.Query.Store(localItems);
+      var result = (await Session.Query.All<Invoice>()
+        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).ExecuteAsync()).ToList();
+      var expected = Invoices
+        .Where(invoice => invoice.Commission > localItems.Max(poco => poco.Value2));
+
+      Assert.That(result, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(result).Count());
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
     public void ClosureCacheTest()
     {
-      Assert.Throws<QueryTranslationException>( () => {
+      _ = Assert.Throws<QueryTranslationException>( () => {
         var localItems = GetLocalItems(100);
         var queryable = Session.Query.Store(localItems);
         var result = Session.Query.Execute(qe => qe.All<Invoice>().Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)));

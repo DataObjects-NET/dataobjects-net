@@ -24,13 +24,15 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       var table = SqlTable;
       SqlNode clonedTable;
-      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable))
+      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable)) {
         table = (SqlTable) clonedTable;
+      }
       
       var clone = new SqlTableColumn(table, Name);
       context.NodeMapping[this] = clone;

@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -33,20 +33,25 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using var connection = new FbConnection(connectionString);
-      connection.Open();
-      SqlHelper.ExecuteInitializationSql(connection, configuration);
+      if (configuration.DbConnectionAccessors.Count > 0)
+        OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
+      else
+        OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var defaultSchema = GetDefaultSchema(connection);
       return CreateDriverInstance(
         connectionString, GetVersionFromServerVersionString(connection.ServerVersion), defaultSchema);
     }
 
+    /// <inheritdoc/>
     protected override async Task<SqlDriver> CreateDriverAsync(
       string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {
       var connection = new FbConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
-        await connection.OpenAsync(token).ConfigureAwait(false);
-        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, token).ConfigureAwait(false);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
+        else
+          await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
         return CreateDriverInstance(
           connectionString, GetVersionFromServerVersionString(connection.ServerVersion), defaultSchema);
@@ -64,15 +69,12 @@ namespace Xtensive.Sql.Drivers.Firebird
         DefaultSchemaName = defaultSchema.Schema,
       };
 
-      if (coreServerInfo.ServerVersion < new Version(2, 5)) {
-        throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
-      }
-
-      if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 5) {
-        return new v2_5.Driver(coreServerInfo);
-      }
-
-      return null;
+      return coreServerInfo.ServerVersion switch {
+        ({ Major: 2 } and { Minor: < 5 }) or { Major: < 2 } => throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported),
+        { Major: 2 } and { Minor: 5 } => new v2_5.Driver(coreServerInfo),
+        { Major: 4 }                  => new v4_0.Driver(coreServerInfo),
+        _ => throw new NotSupportedException()
+      };
     }
 
     /// <inheritdoc/>
@@ -117,6 +119,58 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override  Task<DefaultSchemaInfo> ReadDefaultSchemaAsync(
       DbConnection connection, DbTransaction transaction, CancellationToken token) =>
       SqlHelper.ReadDatabaseAndSchemaAsync(DatabaseAndSchemaQuery, connection, transaction, token);
+
+    private static async ValueTask OpenConnectionFast(FbConnection connection,
+      SqlDriverConfiguration configuration, bool isAsync, CancellationToken cancellationToken = default)
+    {
+      if (!isAsync) {
+        connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+      }
+      else {
+        await connection.OpenAsync().ConfigureAwait(false);
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+      }
+    }
+
+    private static async ValueTask OpenConnectionWithNotification(FbConnection connection,
+      SqlDriverConfiguration configuration, bool isAsync, CancellationToken cancellationToken = default)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      if (!isAsync) {
+        SqlHelper.NotifyConnectionOpening(accessors, connection);
+        try {
+          connection.Open();
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+            SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+          SqlHelper.ExecuteInitializationSql(connection, configuration);
+          SqlHelper.NotifyConnectionOpened(accessors, connection);
+        }
+        catch(Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+          throw;
+        }
+      }
+      else {
+        await SqlHelper.NotifyConnectionOpeningAsync(accessors, connection, false, cancellationToken).ConfigureAwait(false);
+        try {
+          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
+            await SqlHelper.NotifyConnectionInitializingAsync(accessors,
+                connection, configuration.ConnectionInitializationSql, false, cancellationToken)
+              .ConfigureAwait(false);
+          }
+
+          await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(accessors, connection, false, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
+          throw;
+        }
+      }
+    }
 
     private static Version GetVersionFromServerVersionString(string serverVersionString)
     {

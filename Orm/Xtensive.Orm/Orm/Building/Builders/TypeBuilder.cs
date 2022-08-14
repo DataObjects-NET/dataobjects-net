@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <param name="typeDef"><see cref="TypeDef"/> instance.</param>
     public TypeInfo BuildType(TypeDef typeDef)
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, typeDef.UnderlyingType.GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeDef.UnderlyingType.GetShortName())) {
 
         var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
           UnderlyingType = typeDef.UnderlyingType,
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private FieldInfo BuildDeclaredField(TypeInfo type, FieldDef fieldDef)
     {
-      BuildLog.Info(Strings.LogBuildingDeclaredFieldXY, type.Name, fieldDef.Name);
+      BuildLog.Info(nameof(Strings.LogBuildingDeclaredFieldXY), type.Name, fieldDef.Name);
 
       var fieldInfo = new FieldInfo(type, fieldDef.Attributes) {
         UnderlyingProperty = fieldDef.UnderlyingProperty,
@@ -296,13 +296,13 @@ namespace Xtensive.Orm.Building.Builders
           }
 
           currentIndex.Fields.AddRange(structureFullTextIndex.Fields
-            .Select(f => new {
+            .Select(f => (
               fieldInfo.DeclaringType
                 .StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
               f.IsAnalyzed,
               f.Configuration,
               f.TypeFieldName
-            })
+            ))
             .Select(g => new FullTextFieldDef(g.Name, g.IsAnalyzed) {
               Configuration = g.Configuration, TypeFieldName = g.TypeFieldName
             }));
@@ -323,7 +323,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
-      BuildLog.Info(Strings.LogBuildingInheritedFieldXY, type.Name, inheritedField.Name);
+      BuildLog.Info(nameof(Strings.LogBuildingInheritedFieldXY), type.Name, inheritedField.Name);
       var field = inheritedField.Clone();
       type.Fields.Add(field);
       field.ReflectedType = type;
@@ -401,7 +401,7 @@ namespace Xtensive.Orm.Building.Builders
           }
 
           typeDef.Indexes.Add(index);
-          BuildLog.Info(Strings.LogIndexX, index.Name);
+          BuildLog.Info(nameof(Strings.LogIndexX), index.Name);
         }
       }
     }

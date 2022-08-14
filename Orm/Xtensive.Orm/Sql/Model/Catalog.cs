@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Model
         return null;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (defaultSchema == value)
           return;
         if (value!=null && !schemas.Contains(value))
@@ -169,7 +169,7 @@ namespace Xtensive.Sql.Model
       this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
     }
 
-    internal string GetActualName(IDictionary<string, string> catalogNameMap)
+    internal string GetActualName(IReadOnlyDictionary<string, string> catalogNameMap)
     {
       if (!isNamesReadingDenied)
         return Name;
@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Model
       return name;
     }
 
-    internal string GetActualDbName(IDictionary<string, string> catalogNameMap)
+    internal string GetActualDbName(IReadOnlyDictionary<string, string> catalogNameMap)
     {
       if (!isNamesReadingDenied)
         return DbName;
@@ -198,10 +198,20 @@ namespace Xtensive.Sql.Model
 
     // Constructors
 
-    public Catalog(string name) : base(name)
+    public Catalog(string name)
+      : base(name)
     {
       schemas =
         new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1);
     }
+
+    public Catalog(string name, bool caseSensitiveNames = false)
+      : base(name)
+    {
+      schemas = caseSensitiveNames
+        ? new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.Ordinal)
+        : new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.OrdinalIgnoreCase);
+    }
+
   }
 }

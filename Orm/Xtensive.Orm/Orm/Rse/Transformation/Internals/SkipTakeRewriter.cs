@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override Provider Visit(CompilableProvider cp)
     {
-      var isPagingProvider = cp.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
+      var isPagingProvider = cp.Type is ProviderType.Take or ProviderType.Skip or ProviderType.Paging;
       if (isPagingProvider && !State.IsSkipTakeChain) {
         var visitedProvider = (CompilableProvider) base.Visit(cp);
 

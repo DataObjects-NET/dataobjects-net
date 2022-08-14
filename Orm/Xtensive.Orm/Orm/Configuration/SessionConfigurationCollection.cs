@@ -5,6 +5,7 @@
 // Created:    2008.12.05
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -73,17 +74,19 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public override void Insert(int index, SessionConfiguration item)
-    {
-      EnsureItemIsValid(item);
-      base.Insert(index, item);
-    }
-
-    /// <inheritdoc/>
     public override void Add(SessionConfiguration item)
     {
       EnsureItemIsValid(item);
       base.Add(item);
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<SessionConfiguration> items)
+    {
+      EnsureNotLocked();
+      foreach (var item in items) {
+        Add(item);
+      }
     }
 
     private void EnsureItemIsValid(SessionConfiguration item)
@@ -97,22 +100,14 @@ namespace Xtensive.Orm.Configuration
     #region Equality members
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      var scc = obj as SessionConfigurationCollection;
-      if (scc == null)
-        return false;
-      return Equals(scc);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is SessionConfigurationCollection other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(SessionConfigurationCollection obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 
@@ -159,7 +158,7 @@ namespace Xtensive.Orm
       var result = Validate(key, version);
       if (throwOnFailure && !result) {
         if (OrmLog.IsLogged(LogLevel.Info))
-          OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
+          OrmLog.Info(nameof(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3),
             "None (VersionSet)", key, version, Get(key));
         throw new VersionConflictException(string.Format(
           Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, key));
@@ -241,11 +240,7 @@ namespace Xtensive.Orm
     public bool Remove(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (Contains(key)) {
-        versions.Remove(key);
-        return true;
-      }
-      return false;
+      return versions.Remove(key);
     }
 
     /// <summary>

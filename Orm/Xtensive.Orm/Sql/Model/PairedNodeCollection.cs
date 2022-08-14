@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -39,11 +40,29 @@ namespace Xtensive.Sql.Model
     }
 
     /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TNode> items)
+    {
+      EnsureNotLocked();
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
+    /// <inheritdoc/>
     public override bool Remove(TNode item)
     {
       bool result = base.Remove(item);
       item.UpdatePairedProperty(property, null);
       return result;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+      foreach (var item in this) {
+        item.UpdatePairedProperty(property, null);
+      }
+      base.Clear();
     }
 
     #region Constructors
@@ -69,6 +88,24 @@ namespace Xtensive.Sql.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, "property");
+      this.owner = owner;
+      this.property = property;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PairedNodeCollection{TOwner,TNode}"/> class.
+    /// </summary>
+    /// <param name="owner">The collection owner.</param>
+    /// <param name="property">Owner collection property.</param>
+    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="equalityComparer">Comparer for inner name index.</param>
+    public PairedNodeCollection(TOwner owner, string property, int capacity, IEqualityComparer<string> equalityComparer)
+      : base(capacity, equalityComparer)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(owner, nameof(owner));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, nameof(property));
+      ArgumentValidator.EnsureArgumentNotNull(equalityComparer, nameof(equalityComparer));
+
       this.owner = owner;
       this.property = property;
     }

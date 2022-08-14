@@ -77,6 +77,17 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
+    protected override Provider VisitTag(TagProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      if (source == provider.Source)
+        return provider;
+      return new TagProvider(source, provider.Tag);
+    }
+
+    /// <inheritdoc/>
     protected override Provider VisitSeek(SeekProvider provider)
     {
       OnRecursionEntrance(provider);

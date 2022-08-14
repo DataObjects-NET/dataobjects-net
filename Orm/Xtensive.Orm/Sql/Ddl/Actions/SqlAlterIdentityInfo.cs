@@ -14,16 +14,10 @@ namespace Xtensive.Sql.Ddl
     public SequenceDescriptor SequenceDescriptor { get; set; }
     public SqlAlterIdentityInfoOptions InfoOption { get; set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlAlterIdentityInfo(Column, (SequenceDescriptor) SequenceDescriptor.Clone(), InfoOption);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlAlterIdentityInfo(Column, (SequenceDescriptor) SequenceDescriptor.Clone(), InfoOption);
 
     internal SqlAlterIdentityInfo(TableColumn column, SequenceDescriptor sequenceDescriptor, SqlAlterIdentityInfoOptions infoOption)
     {

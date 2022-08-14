@@ -49,8 +49,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       SqlInsert clone = new SqlInsert();
       if (Into!=null)
@@ -59,7 +60,7 @@ namespace Xtensive.Sql.Dml
         clone.From = (SqlSelect) from.Clone(context);
       foreach (KeyValuePair<SqlColumn, SqlExpression> p in values)
         clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
+          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
 
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)

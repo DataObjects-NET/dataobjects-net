@@ -82,6 +82,7 @@ namespace Xtensive.Orm
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private StorageNode storageNode;
+    private List<string> tags;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -239,6 +240,8 @@ namespace Xtensive.Orm
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+
+    internal IReadOnlyList<string> Tags => tags;
 
     internal void EnsureNotDisposed()
     {
@@ -472,18 +475,6 @@ namespace Xtensive.Orm
     #endregion
 
     /// <summary>
-    /// Selects storage node identifier by <paramref name="nodeId"/>.
-    /// </summary>
-    /// <param name="nodeId">Node identifier.</param>
-    [Obsolete("Use StorageNode instances to open a session to them instead")]
-    public void SelectStorageNode([NotNull] string nodeId)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      var node = Handlers.StorageNodeRegistry.Get(nodeId);
-      SetStorageNode(node);
-    }
-
-    /// <summary>
     /// Temporary overrides <see cref="CommandTimeout"/>.
     /// </summary>
     /// <param name="newTimeout">New <see cref="CommandTimeout"/> value.</param>
@@ -606,6 +597,8 @@ namespace Xtensive.Orm
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
+    public TagScope Tag(string tag) => new TagScope(tags ??= new List<string>(), tag);
+
     // IDisposable implementation
 
     /// <summary>
@@ -628,7 +621,7 @@ namespace Xtensive.Orm
 
       try {
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXDisposing, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXDisposing), this);
         }
 
         SystemEvents.NotifyDisposing();

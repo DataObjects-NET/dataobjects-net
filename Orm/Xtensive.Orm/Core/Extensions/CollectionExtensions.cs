@@ -195,19 +195,6 @@ namespace Xtensive.Core
       return source.Select(selector).ToList(source.Count);
     }
 
-    /// <summary>Inverts the order of the elements in a list.</summary>
-    /// <param name="source">A list of values to reverse.</param>
-    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
-    /// <returns>A sequence whose elements correspond to those of the input sequence in reverse order.</returns>
-    /// <exception cref="T:System.ArgumentNullException">
-    /// <paramref name="source" /> is <see langword="null" />.</exception>
-    public static IEnumerable<TSource> ReverseList<TSource>(this IList<TSource> source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      for (var i = source.Count - 1; i >= 0; i--)
-        yield return source[i];
-    }
-
     /// <summary>
     /// Projects each element of a sequence into two elements of new form and adds it to the first or the second array respectively.
     /// </summary>

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.11.26
 
@@ -20,16 +20,19 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
   [TestFixture]
   public sealed class RandomizedTest : AutoBuildTest
   {
-    private const int iterationCount = 1000;
-    private const int initialNodeCount = 5000;
-    private const int initialTreeCount = 10;
+    private const int IterationCount = 1000;
+    private const int InitialNodeCount = 5000;
+    private const int InitialTreeCount = 10;
+    private const int ConstSeed = 1439675735;
+
+    private readonly List<Key> entitySetCache = new();
+
     private List<Pair<Key, int>> nodesData;
-    private List<Action> actions;
+    private List<Action<Session>> actions;
     private Random randomProvider;
     private bool isSettingUp;
-    private readonly List<Key> entitySetCache = new List<Key>();
-    private bool isProtocolMemory;
     
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -41,18 +44,23 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     [SetUp]
     public void SetUp()
     {
-      var seed = 1439675735;//GetSeed();
+      var seed = GetSeed(useConst:true);
       Console.WriteLine("Seed: {0}", seed);
       randomProvider = new Random(seed);
-      actions = new List<Action> {AddNode, RemoveNode, TransferNode, AddTree};
+      actions = new List<Action<Session>> {AddNode, RemoveNode, TransferNode, AddTree, /*RemoveTree*/};
       nodesData = new List<Pair<Key, int>>();
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction(IsolationLevel.ReadCommitted)) {
         isSettingUp = true;
-        for (int i = 0; i < initialTreeCount; i++)
-          AddTree();
-        for (var j = 0; j < initialNodeCount - initialTreeCount; j++)
-          AddNode();
+        for (var i = 0; i < InitialTreeCount; i++) {
+          AddTree(session);
+        }
+
+        for (var j = 0; j < InitialNodeCount - InitialTreeCount; j++) {
+          AddNode(session);
+        }
+
         isSettingUp = false;
         tx.Complete();
       }
@@ -62,46 +70,58 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     public void CombinedTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      using (var session = Domain.OpenSession())
-        for (int i = 0; i < iterationCount; i++)
-          GetAction().Invoke();
+
+      using (var session = Domain.OpenSession()) {
+        for (var i = 0; i < IterationCount; i++) {
+          GetAction().Invoke(session);
+        }
+      }
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var trees = Session.Demand().Query.All<Tree>().ToList();
-        long totalCount = 0;
-        foreach (var tree in trees)
+        var trees = session.Query.All<Tree>().ToList();
+        var totalCount = 0L;
+        foreach (var tree in trees) {
           totalCount += ValidateNodes(tree.Root) + 1;
+        }
+
         Assert.AreEqual(nodesData.Count, totalCount);
       }
     }
 
     private long ValidateNodes(TreeNode current)
     {
-      if (current.Parent == null)
+      if (current.Parent == null) {
         Assert.IsNotNull(current.Tree);
-      else
+      }
+      else {
         Assert.IsNull(current.Tree);
+      }
+
       var nodePair = nodesData.Where(pair => pair.First == current.Key).First();
       Assert.AreEqual(current.Children.Count, nodePair.Second);
+
       var result = current.Children.Count;
-      if (current.Parent != null)
+      if (current.Parent != null) {
         Assert.IsTrue(current.Parent.Children.Contains(current));
-      foreach (var node in current.Children)
+      }
+      foreach (var node in current.Children) {
         result += ValidateNodes(node);
+      }
+
       return result;
     }
 
-    private void AddNode()
+    private void AddNode(Session session)
     {
       Key newNodeKey;
       Key parentNodeKey;
       try {
-        using (var tx = isSettingUp ? null : Session.Demand().OpenTransaction()) {
+        using (var tx = isSettingUp ? null : session.OpenTransaction()) {
           parentNodeKey = nodesData[GetNodeIndex()].First;
-          var parentNode = Session.Demand().Query.Single<TreeNode>(parentNodeKey);
+          var parentNode = session.Query.Single<TreeNode>(parentNodeKey);
           var newNode = new TreeNode();
-          parentNode.Children.Add(newNode);
+          _ = parentNode.Children.Add(newNode);
           newNodeKey = newNode.Key;
           ThrowOrCompleteTransaction(tx);
         }
@@ -113,25 +133,29 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       UpdateChildrenCount(parentNodeKey, true);
     }
 
-    private void RemoveNode()
+    private void RemoveNode(Session session)
     {
       Key removedNodeKey;
       Key parentNodeKey;
       long removedNodeChildCount;
       int removedNodeIndex;
       try {
-        using (var tx = Session.Demand().OpenTransaction()) {
+        using (var tx = session.OpenTransaction()) {
           removedNodeIndex = GetNodeIndex();
           removedNodeKey = nodesData[removedNodeIndex].First;
-          var removedNode = Session.Demand().Query.Single<TreeNode>(removedNodeKey);
-          if (removedNode.Parent == null)
+          var removedNode = session.Query.Single<TreeNode>(removedNodeKey);
+          if (removedNode.Parent == null) {
             return;
+          }
+
           parentNodeKey = removedNode.Parent.Key;
           removedNodeChildCount = removedNode.Children.Count;
           entitySetCache.Clear();
           entitySetCache.AddRange(removedNode.Children.Select(n => n.Key));
-          foreach (var key in entitySetCache)
-            removedNode.Parent.Children.Add(Session.Demand().Query.Single<TreeNode>(key));
+          foreach (var key in entitySetCache) {
+            _ = removedNode.Parent.Children.Add(session.Query.Single<TreeNode>(key));
+          }
+
           removedNode.Children.Clear();
           removedNode.Remove();
           ThrowOrCompleteTransaction(tx);
@@ -144,29 +168,37 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       UpdateChildrenCount(parentNodeKey, (int) (removedNodeChildCount - 1));
     }
 
-    private void TransferNode()
+    private void TransferNode(Session session)
     {
       Key oldParentKey;
       Key newParentKey;
       try {
-        using (var tx = Session.Demand().OpenTransaction()) {
-          var treeCount = Session.Demand().Query.All<Tree>().Count();
-          if (nodesData.Count == 1 || treeCount == 1)
+        using (var tx = session.OpenTransaction()) {
+          var treeCount = session.Query.All<Tree>().Count();
+          if (nodesData.Count == 1 || treeCount == 1) {
             return;
+          }
+
           var nodeIndex = GetNodeIndex();
           var nodeKey = nodesData[nodeIndex].First;
-          var node = Session.Demand().Query.Single<TreeNode>(nodeKey);
-          if (node.Parent == null)
+          var node = session.Query.Single<TreeNode>(nodeKey);
+          if (node.Parent == null) {
             return;
+          }
+
           var root = node;
-          while (root.Tree == null)
+          while (root.Tree == null) {
             root = root.Parent;
-          var newParentNode =  Session.Demand().Query.All<Tree>().Where(t => t != root.Tree)
-            .Skip(randomProvider.Next(0, treeCount)).First().Root;
+          }
+
+          var newParentNode =  session.Query.All<Tree>().Where(t => t != root.Tree)
+            .Skip(randomProvider.Next(0, treeCount))
+            .First()
+            .Root;
           newParentKey = newParentNode.Key;
           oldParentKey = node.Parent.Key;
-          node.Parent.Children.Remove(node);
-          newParentNode.Children.Add(node);
+          _ = node.Parent.Children.Remove(node);
+          _ = newParentNode.Children.Add(node);
           ThrowOrCompleteTransaction(tx);
         }
       }
@@ -177,11 +209,11 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       UpdateChildrenCount(oldParentKey, false);
     }
 
-    private void AddTree()
+    private void AddTree(Session session)
     {
       Key key;
       try {
-        using (var tx = isSettingUp ? null : Session.Demand().OpenTransaction()) {
+        using (var tx = isSettingUp ? null : session.OpenTransaction()) {
           var tree = new Tree();
           tree.Root = new TreeNode {Tree = tree};
           key = tree.Root.Key;
@@ -194,18 +226,24 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       nodesData.Add(new Pair<Key, int>(key, 0));
     }
 
-    private void RemoveTree()
+#pragma warning disable IDE0051 // Remove unused private members
+    private void RemoveTree(Session session)
+#pragma warning restore IDE0051 // Remove unused private members
     {
       var treeNodeKeys = new List<Key>();
       try {
-        using (var tx = Session.Demand().OpenTransaction()) {
-          if (Session.Demand().Query.All<Tree>().Count()==1)
+        using (var tx = session.OpenTransaction()) {
+          if (session.Query.All<Tree>().Count() == 1) {
             return;
+          }
+
           var nodeIndex = GetNodeIndex();
           var nodeKey = nodesData[nodeIndex].First;
-          var node = Session.Demand().Query.Single<TreeNode>(nodeKey);
-          while (node.Tree==null)
+          var node = session.Query.Single<TreeNode>(nodeKey);
+          while (node.Tree == null) {
             node = node.Parent;
+          }
+
           treeNodeKeys.AddRange(node.Children.Flatten(n => n.Children, null, true).Select(n => n.Key));
           treeNodeKeys.Add(node.Key);
           node.Tree.Remove();
@@ -217,14 +255,13 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       }
 
       // TODO: It's very slow. Probably it should be optimized.
-      foreach (var key in treeNodeKeys)
+      foreach (var key in treeNodeKeys) {
         nodesData.RemoveAt(FindNodeIndex(key));
+      }
     }
 
-    private void UpdateChildrenCount(Key parentNodeKey, bool increment)
-    {
+    private void UpdateChildrenCount(Key parentNodeKey, bool increment) =>
       UpdateChildrenCount(parentNodeKey, increment ? 1 : -1);
-    }
 
     private void UpdateChildrenCount(Key parentNodeKey, int increment)
     {
@@ -237,13 +274,14 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       for (var i = 0; i < nodesData.Count; i++) {
         var pair = nodesData[i];
-        if (pair.First == key)
+        if (pair.First == key) {
           return i;
+        }
       }
       throw new Exception();
     }
 
-    private Action GetAction()
+    private Action<Session> GetAction()
     {
       var index = randomProvider.Next(0, actions.Count);
       /*if(!isSettingUp)
@@ -251,24 +289,28 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       return actions[index];
     }
 
-    private int GetNodeIndex()
-    {
-      return randomProvider.Next(0, nodesData.Count);
-    }
+    private int GetNodeIndex() => randomProvider.Next(0, nodesData.Count);
 
     private void ThrowOrCompleteTransaction(TransactionScope tx)
     {
-      if (isSettingUp)
+      if (isSettingUp) {
         return;
-      if (randomProvider.Next(0, 2)==1)
+      }
+      if (randomProvider.Next(0, 2) == 1) {
         throw new InvalidOperationException();
+      }
       tx.Complete();
     }
 
-    private static int GetSeed()
+    private static int GetSeed(bool useConst)
     {
-      var bytes = new byte[sizeof (int)];
-      var seedProvider = new RNGCryptoServiceProvider();
+      if (useConst) {
+        return ConstSeed;
+      }
+
+      var bytes = new byte[sizeof(int)];
+
+      using var seedProvider = RandomNumberGenerator.Create();
       seedProvider.GetNonZeroBytes(bytes);
       return BitConverter.ToInt32(bytes, 0);
     }

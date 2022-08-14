@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -13,11 +13,10 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal sealed class Fetcher
+  internal readonly struct Fetcher
   {
-    private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();
-    private readonly HashSet<Key> foundKeys = new HashSet<Key>();
-
+    private readonly HashSet<EntityGroupTask> tasks;
+    private readonly HashSet<Key> foundKeys;
     private readonly PrefetchManager manager;
 
     public async ValueTask<int> ExecuteTasks(IReadOnlyCollection<GraphContainer> containers, bool skipPersist,
@@ -97,8 +96,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var newTask = container.GetTask();
       if (newTask != null) {
-        var existingTask = tasks[newTask];
-        if (existingTask == null) {
+        if (!tasks.TryGetValue(newTask, out var existingTask)) {
           _ = tasks.Add(newTask);
           existingTask = newTask;
         }
@@ -127,6 +125,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public Fetcher(PrefetchManager manager)
     {
+      tasks = new HashSet<EntityGroupTask>();
+      foundKeys = new HashSet<Key>();
       ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
       this.manager = manager;
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Configuration
       get { return realName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         realName = value;
       }
     }
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         minTypeId = value;
       }
     }
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Configuration
     {
       if (string.IsNullOrEmpty(realName))
         return name;
-      return string.Format("{0} -> {1}", name, realName);
+      return $"{name} -> {realName}";
     }
 
     /// <summary>

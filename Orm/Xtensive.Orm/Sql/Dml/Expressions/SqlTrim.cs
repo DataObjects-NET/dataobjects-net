@@ -43,23 +43,16 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlTrim>(expression, "expression");
-      var replacingExpression = (SqlTrim) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlTrim>(expression);
       this.expression = replacingExpression.expression;
       trimCharacters = replacingExpression.trimCharacters;
       trimType = replacingExpression.TrimType;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlTrim((SqlExpression) expression.Clone(context), trimCharacters, trimType);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlTrim((SqlExpression) expression.Clone(context), trimCharacters, trimType);
 
     internal SqlTrim(SqlExpression expression, string trimCharacters, SqlTrimType trimType) : base (SqlNodeType.Trim)
     {

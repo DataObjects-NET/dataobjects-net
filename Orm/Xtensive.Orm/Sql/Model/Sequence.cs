@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Model
     {
       get { return sequenceDescriptor; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         sequenceDescriptor = value;
         SequenceDescriptor old = sequenceDescriptor;

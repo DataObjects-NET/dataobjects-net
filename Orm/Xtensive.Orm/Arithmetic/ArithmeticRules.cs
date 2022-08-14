@@ -41,14 +41,8 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj==null)
-        return false;
-      if (obj is ArithmeticRules)
-        return Equals((ArithmeticRules)obj);
-      return false;
-    }
+    public override bool Equals(object obj) =>
+      obj is ArithmeticRules other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

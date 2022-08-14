@@ -4,14 +4,14 @@
 // Created by: Alex Gamzov
 // Created:    2010.11.17
 
-using System;
+using System.Collections.Generic;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
 {
   public class Upgrader: UpgradeHandler
   {
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       hints.Add(new RenameTypeHint(typeof (ModelVersion1.A).FullName, typeof (ModelVersion2.A)));
       hints.Add(new RenameTypeHint(typeof (ModelVersion1.B).FullName, typeof (ModelVersion2.B)));

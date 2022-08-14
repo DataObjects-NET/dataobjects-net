@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
     }
 
-    private readonly ParameterExpression calculatedColumnParameter;
+    private static readonly ParameterExpression CalculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
 
     private readonly Expression filterDataTuple;
     private readonly ApplyParameter filteredTuple;
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
 
       if (target.NodeType == ExpressionType.Constant && ((ConstantExpression) target).Value == filteredTuple) {
-        return calculatedColumnParameter;
+        return CalculatedColumnParameter;
       }
       return base.VisitMemberAccess(m);
     }
@@ -96,14 +96,12 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (tupleAccess != null) {
         return new MappingEntry(tupleAccess.GetTupleAccessArgument());
       }
-      expression = ExpressionReplacer.Replace(expression, filterDataTuple, calculatedColumnParameter);
-      return new MappingEntry(FastExpression.Lambda(expression, calculatedColumnParameter));
+      expression = ExpressionReplacer.Replace(expression, filterDataTuple, CalculatedColumnParameter);
+      return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameter));
     }
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
     {
-      calculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
-
       this.filterDataTuple = filterDataTuple;
       this.filteredTuple = filteredTuple;
       this.resultMapping = resultMapping;

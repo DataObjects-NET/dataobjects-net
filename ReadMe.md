@@ -3,38 +3,46 @@
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 
 Supported databases:
-- MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019
+- MS SQL Server 2012, 2014, 2016, 2017, 2019
 - MS Azure SQL Database
 - Oracle 10g, 11g
-- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11
-- MySQL 5.5, 5.6
-- Firebird 2.5
+- PostgreSQL 9.x, 10, 11, 12, 13
+- MySQL 5.6, 5.7, 8.0
+- Firebird 2.5, 4.0
 - Sqlite 3
+
+NOTE that MS SQL Server 2008 R2, PostgreSQL v8.3, v8.4, and MySQL v5.5 were removed from supported versions list because they're too old and reached End-Of-Live status. Drivers for these versions still exist within libraries and we will try to keep them working but no guarantee given.
 
 ### Installation
 
 DataObjects.Net is available on Nuget. Install main package (NOTE this package does not include any providers, install needed provider addtionally)
 
-    dotnet add package Xtensive.Orm
+```console
+dotnet add package Xtensive.Orm
+```
 
 Providers for MS SQL Server, Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed following way
 
-    dotnet add package Xtensive.Orm.SqlServer
-    dotnet add package Xtensive.Orm.Oracle
-    dotnet add package Xtensive.Orm.PostgreSQL
-    dotnet add package Xtensive.Orm.MySql
-    dotnet add package Xtensive.Orm.Firebird
-    dotnet add package Xtensive.Orm.Sqlite
+```console
+dotnet add package Xtensive.Orm.SqlServer
+dotnet add package Xtensive.Orm.Oracle
+dotnet add package Xtensive.Orm.PostgreSQL
+dotnet add package Xtensive.Orm.MySql
+dotnet add package Xtensive.Orm.Firebird
+dotnet add package Xtensive.Orm.Sqlite
+```
 
 DataObjects.Net extensions are available on Nuget as well (more about extensions [here](https://github.com/DataObjects-NET/dataobjects-net/blob/master/Documentation/Extensions.md))
 
-    dotnet add package Xtensive.Orm.BulkOperations
-    dotnet add package Xtensive.Orm.Localization
-    dotnet add package Xtensive.Orm.Logging.log4net
-    dotnet add package Xtensive.Orm.Reprocessing
-    dotnet add package Xtensive.Orm.Security
-    dotnet add package Xtensive.Orm.Tracking
-    dotnet add package Xtensive.Orm.Web
+```console
+dotnet add package Xtensive.Orm.BulkOperations
+dotnet add package Xtensive.Orm.Localization
+dotnet add package Xtensive.Orm.Logging.log4net
+dotnet add package Xtensive.Orm.Reprocessing
+dotnet add package Xtensive.Orm.Security
+dotnet add package Xtensive.Orm.Tracking
+dotnet add package Xtensive.Orm.Web
+```
 
 Use the --version option to specify version to install
 
@@ -94,16 +102,22 @@ This solution contains `Weaver` project responsible for post-build processing of
 
 In order to build project binaries one need to execute the `dotnet build` command in the solution folder. It will build everything in `Debug` configuration. In case `Release` binaries are needed just specify configuration parameter as following
 
-    dotnet build -c Release
+```console
+dotnet build -c Release
+```
 
 By defuault `Debug` configuration build doesn't generate Nuget packages but `Release` configuration build does. It is possible to change this default behavior by specifying `GeneratePackageOnBuild` parameter explicitly.
 So in case Nuget packages aren't needed for release build consider to run 
 
-    dotnet build -c Release /p:GeneratePackageOnBuild=false
+```console
+dotnet build -c Release /p:GeneratePackageOnBuild=false
+```
 
 alternatively the following command will generate packages for `Debug` build
 
-    dotnet build /p:GeneratePackageOnBuild=true
+```console
+dotnet build /p:GeneratePackageOnBuild=true
+```
 
 Build results are available in the `_Build` subdirectory of solution folder.
 

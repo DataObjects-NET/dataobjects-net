@@ -36,8 +36,7 @@ namespace Xtensive.Orm.Providers
 
       public void Dispose()
       {
-        while (finalizationQueue.Count > 0) {
-          var materializeSelf = finalizationQueue.Dequeue();
+        while (finalizationQueue.TryDequeue(out var materializeSelf)) {
           materializeSelf.Invoke();
         }
         transactionScope.DisposeSafely();

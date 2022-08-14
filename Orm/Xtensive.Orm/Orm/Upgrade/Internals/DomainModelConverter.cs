@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Upgrade
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
             .Append(type)
-            .Select((t, i) => new {Type = t, Index = i})
+            .Select((t, i) => (Type: t, Index: i))
             .ToDictionary(a => a.Type, a => a.Index);
           List<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
             .OrderBy(index => typeOrder[index.ReflectedType])
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       if (!providerInfo.Supports(ProviderFeatures.FullText)) {
-        UpgradeLog.Warning(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX, fullTextIndex.Name);
+        UpgradeLog.Warning(nameof(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX), fullTextIndex.Name);
         return null;
       }
 
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Upgrade
             typeColumn = table.Columns[fullTextColumn.TypeColumn.Name].Name;
         }
         else
-          UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
+          UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
         new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       
@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Upgrade
       if (type==WellKnownTypes.String)
         return string.Empty;
       if (type==WellKnownTypes.ByteArray)
-        return ArrayUtils<byte>.EmptyArray;
+        return Array.Empty<byte>();
       return Activator.CreateInstance(column.ValueType);
     }
 
@@ -557,7 +557,7 @@ namespace Xtensive.Orm.Upgrade
       var extractedStoredColumn = GetExtractedStoredColumn(column);
       if (extractedStoredColumn==null)
         return null;
-      var path = string.Format("Tables/{0}/Columns/{1}", extractedStoredColumn.DeclaringType.MappingName, extractedStoredColumn.MappingName);
+      var path = $"Tables/{extractedStoredColumn.DeclaringType.MappingName}/Columns/{extractedStoredColumn.MappingName}";
 
       return StorageModel.Resolve(path) as StorageColumnInfo;
     }

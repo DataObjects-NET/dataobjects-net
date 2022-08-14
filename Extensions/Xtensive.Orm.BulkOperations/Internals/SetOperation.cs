@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -12,6 +12,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -55,7 +56,7 @@ namespace Xtensive.Orm.BulkOperations
               Expression ex = setDescriptor.Expression;
               var call = ex as MethodCallExpression;
               if (call != null && call.Method.DeclaringType == typeof(Queryable) &&
-                call.Method.Name.In("First", "FirstOrDefault", "Single", "SingleOrDefault"))
+                call.Method.Name is "First" or "FirstOrDefault" or "Single" or "SingleOrDefault")
                 throw new NotSupportedException("Subqueries with structures are not supported");
               /*ex = call.Arguments[0];
         ParameterExpression parameter = Expression.Parameter(setDescriptor.Expression.Type, "parameter");
@@ -72,16 +73,18 @@ namespace Xtensive.Orm.BulkOperations
         ex = Expression.Call(
             typeof (Queryable), "Select", new[] {parameter.Type, f.ValueType}, ex, lambda);
         ex = Expression.Call(typeof (Queryable), call.Method.Name, new[] {f.ValueType}, ex);*/
-              else
-              {
+              else {
                 //ex = Expression.Convert(ex, typeof(Structure));
-                var list = new List<FieldInfo> { f };
-                while (list.Last().Parent != setDescriptor.Field)
-                  list.Add(f.Parent);
-                list.Reverse();
+                var last = f;
+                var fields = new List<FieldInfo> { last };
+                while (last.Parent != setDescriptor.Field) {
+                  last = f.Parent;
+                  fields.Add(last);
+                }
                 Expression member = ex;
-                foreach (FieldInfo f2 in list)
-                  member = Expression.MakeMemberAccess(member, f2.UnderlyingProperty);
+                for (var i = fields.Count; i-- > 0;) {
+                  member = Expression.MakeMemberAccess(member, fields[i].UnderlyingProperty);
+                }
                 ex = member;
               }
               Descriptors.Add(new SetDescriptor(f, setDescriptor.Parameter, ex));
@@ -100,7 +103,7 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect)request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
       var placeholder = ex as SqlPlaceholder;
       if (placeholder == null)
@@ -130,10 +133,10 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect) request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
       parent.Bindings.AddRange(request.ParameterBindings);
-      
+
       if(parent.JoinedTableRef!=null)
         ex.AcceptVisitor(new ComputedExpressionSqlVisitor(sqlSelect.From, parent.JoinedTableRef));
 
@@ -143,10 +146,11 @@ namespace Xtensive.Orm.BulkOperations
     private void AddConstantValue(AddValueContext addContext)
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
+      var constant = addContext.EvalLambdaBody();
       SqlExpression value;
-      object constant = FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
-      if (constant==null)
+      if (constant == null) {
         value = SqlDml.Null;
+      }
       else {
         QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), context => constant);
         parent.Bindings.Add(binding);
@@ -163,7 +167,7 @@ namespace Xtensive.Orm.BulkOperations
       int i;
       if (methodCall!=null) {
         if (methodCall.Method.DeclaringType==typeof (QueryEndpoint) &&
-          methodCall.Method.Name.In("Single", "SingleOrDefault")) {
+          methodCall.Method.Name is "Single" or "SingleOrDefault") {
           object[] keys;
           if (methodCall.Arguments[0].Type==typeof (Key) || methodCall.Arguments[0].Type.IsSubclassOf(typeof (Key))) {
             var key = (Key) methodCall.Arguments[0].Invoke();
@@ -191,7 +195,7 @@ namespace Xtensive.Orm.BulkOperations
           return;
         }
         if (methodCall.Method.DeclaringType==typeof (Queryable) &&
-          methodCall.Method.Name.In("Single", "SingleOrDefault", "First", "FirstOrDefault")) {
+          methodCall.Method.Name is "Single" or "SingleOrDefault" or "First" or "FirstOrDefault") {
           Expression exp = methodCall.Arguments[0];
           TypeInfo info = parent.GetTypeInfo(addContext.Field.ValueType);
           if (methodCall.Arguments.Count==2)
@@ -205,7 +209,7 @@ namespace Xtensive.Orm.BulkOperations
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
               FastExpression.Lambda(
-                WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(info.UnderlyingType, field.ValueType),
+                WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             IQueryable q =
@@ -214,13 +218,14 @@ namespace Xtensive.Orm.BulkOperations
             QueryTranslationResult request = parent.GetRequest(field.ValueType, q);
             parent.Bindings.AddRange(request.ParameterBindings);
             SqlTableColumn c = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Columns[i].Name);
-            addContext.Statement.AddValue(c, SqlDml.SubQuery((ISqlQueryExpression) request.Query));
+            addContext.Statement.AddValue(c, SqlDml.SubQuery(request.Query));
           }
           return;
         }
       }
       i = -1;
-      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
+      var entity = (IEntity)addContext.EvalLambdaBody();
+
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;
@@ -244,7 +249,7 @@ namespace Xtensive.Orm.BulkOperations
           Descriptor = descriptor,
           Lambda =
             FastExpression.Lambda(
-              WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(typeof (T), descriptor.Expression.Type),
+              WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement

@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildIndexes(BuildingContext context)
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Indexes)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Indexes)) {
         new IndexBuilder(context).BuildAll();
       }
     }
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Building.Builders
                   .Where(t => t.Hierarchy == grouping.Key && !t.IsAbstract)
                   .ToList();
                 var primaryIndexes = allImplementors
-                  .Select(t => new {Index = t.Indexes.Single(i => i.IsPrimary && !i.IsVirtual), Type = t})
+                  .Select(t => (Index: t.Indexes.Single(i => i.IsPrimary && !i.IsVirtual), Type: t))
                   .Select(p => untypedIndexes.Contains(p.Index) 
                     ? p.Type.Indexes.Single(i => i.IsPrimary && i.IsTyped) 
                     : p.Index)
@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Building.Builders
               case InheritanceSchema.ConcreteTable: {
                 var indexes = @interface.GetImplementors(true)
                   .Where(t => t.Hierarchy == grouping.Key)
-                  .Select(t => new { Index = t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual), Type = t })
+                  .Select(t => (Index: t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual), Type: t))
                   .Select(p => untypedIndexes.Contains(p.Index)
                     ? p.Type.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && i.IsTyped)
                     : p.Index);
@@ -289,7 +289,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
     private IndexInfo BuildIndex(TypeInfo typeInfo, IndexDef indexDef, bool buildAbstract)
     {
-      BuildLog.Info(Strings.LogBuildingIndexX, indexDef.Name);
+      BuildLog.Info(nameof(Strings.LogBuildingIndexX), indexDef.Name);
       var attributes = !buildAbstract ? indexDef.Attributes : indexDef.Attributes | IndexAttributes.Abstract;
 
       if (typeInfo.IsInterface && !typeInfo.IsMaterialized)
@@ -377,7 +377,7 @@ namespace Xtensive.Orm.Building.Builders
         // There might be difference in columns order of type and columns list
         // so we have to reorder them in correct sequence.
         if (typeInfo.IsInterface) {
-          var indexedColumns = columns.Select((column, i) => new { i, j = typeInfo.Columns.IndexOf(column), column }).ToList();
+          var indexedColumns = columns.Select((column, i) => (i, j: typeInfo.Columns.IndexOf(column), column)).ToList();
           var orderedColumns = indexedColumns.OrderBy(el => el.j).Select(el => el.column).Distinct();
           result.ValueColumns.AddRange(GatherValueColumns(orderedColumns));
         }
@@ -403,7 +403,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private IndexInfo BuildInheritedIndex(TypeInfo reflectedType, IndexInfo ancestorIndex, bool buildAbstract)
     {
-      BuildLog.Info(Strings.LogBuildingIndexX, ancestorIndex.Name);
+      BuildLog.Info(nameof(Strings.LogBuildingIndexX), ancestorIndex.Name);
       var attributes = IndexAttributes.None;
 
       if (reflectedType.IsInterface && !reflectedType.IsMaterialized)
@@ -507,7 +507,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = realIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, realIndex, ArrayUtils<IndexInfo>.EmptyArray);
+      var result = new IndexInfo(reflectedType, attributes, realIndex, Array.Empty<IndexInfo>());
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in realIndex.KeyColumns) {
@@ -542,7 +542,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToFilter.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {
+      var result = new IndexInfo(reflectedType, attributes, indexToFilter, Array.Empty<IndexInfo>()) {
         FilterByTypes = filterByTypes.ToList().AsReadOnly()
       };
 
@@ -592,7 +592,7 @@ namespace Xtensive.Orm.Building.Builders
       // Adding value columns
       var typeOrder = reflectedType.GetAncestors()
         .Append(reflectedType)
-        .Select((t, i) => new {Type = t, Index = i})
+        .Select((t, i) => (Type: t, Index: i))
         .ToDictionary(a => a.Type, a => a.Index);
       var types = reflectedType.GetAncestors().ToHashSet();
       types.Add(reflectedType);
@@ -627,7 +627,7 @@ namespace Xtensive.Orm.Building.Builders
         valueColumnMap.Add(columnMap);
       }
       var orderedIndexes = indexesToJoin
-        .Select((index, i) => new {index, columns = valueColumnMap[i], i})
+        .Select((index, i) => (index, columns: valueColumnMap[i], i))
         .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType])
         .ToList();
 
@@ -693,7 +693,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToApplyView.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.View | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, ArrayUtils<IndexInfo>.EmptyArray);
+      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, Array.Empty<IndexInfo>());
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToApplyView.KeyColumns) {
@@ -758,7 +758,7 @@ namespace Xtensive.Orm.Building.Builders
         columnMap.Add(keyLength + i);
       }
       var actualColumnMapping = valueColumns
-        .Zip(columnMap, (column, sourceIndex) => new {column, sourceIndex})
+        .Zip(columnMap, (column, sourceIndex) => (column, sourceIndex))
         .OrderBy(p => reflectedType.Columns.IndexOf(p.column))
         .ToList();
       valueColumns.Clear();
@@ -814,7 +814,7 @@ namespace Xtensive.Orm.Building.Builders
         : index.KeyColumns
             .Select(pair => pair.Key)
             .Concat(index.ValueColumns)
-            .Select((c, i) => new {c, i})
+            .Select((c, i) => (c, i))
             .Where(arg => arg.c.IsPrimaryKey)
             .Select(arg => arg.i)
             .ToList();

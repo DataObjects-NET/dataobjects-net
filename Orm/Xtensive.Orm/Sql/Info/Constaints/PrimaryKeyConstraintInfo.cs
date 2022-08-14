@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Info
     {
       get { return constantName; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         constantName = value;
       }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Info
     public PrimaryKeyConstraintFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

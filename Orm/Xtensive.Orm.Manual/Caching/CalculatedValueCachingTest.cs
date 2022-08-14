@@ -37,8 +37,7 @@ namespace Xtensive.Orm.Manual.Caching
 
     public override string ToString()
     {
-      return string.Format("Product #{0}, Name={1}, Orders.Count={2}",
-        Id, Name, Orders.Count);
+      return $"Product #{Id}, Name={Name}, Orders.Count={Orders.Count}";
     }
 
     public Product(Session session)
@@ -99,8 +98,7 @@ namespace Xtensive.Orm.Manual.Caching
 
     public override string ToString()
     {
-      return string.Format("Order #{0}, Product={1}, Quantity={2}",
-        Id, Product.Name, Quantity);
+      return $"Order #{Id}, Product={Product.Name}, Quantity={Quantity}";
     }
 
     public Order(Session session)

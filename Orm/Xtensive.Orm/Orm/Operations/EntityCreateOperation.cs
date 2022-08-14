@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public override string Description {
       get {
-        return string.Format("{0}, TypeName = {1}, Key = {2}", Title, TypeName, Key);
+        return $"{Title}, TypeName = {TypeName}, Key = {Key}";
       }
     }
 

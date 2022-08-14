@@ -14,8 +14,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
       var clone = new SqlRowNumber();
       foreach (SqlOrder so in OrderBy)
         clone.OrderBy.Add((SqlOrder) so.Clone(context));
@@ -30,9 +31,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRowNumber>(expression, "expression");
-      var replacingExpression = (SqlRowNumber) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRowNumber>(expression);
       OrderBy.Clear();
       foreach (var item in replacingExpression.OrderBy)
         OrderBy.Add(item);

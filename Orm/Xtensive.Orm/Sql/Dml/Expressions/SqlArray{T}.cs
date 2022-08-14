@@ -37,20 +37,14 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlArray<T>>(expression, "expression");
-      var replacingExpression = (SqlArray<T>) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlArray<T>>(expression);
       Values = replacingExpression.Values;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlArray<T>((T[]) Values.Clone());
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlArray<T>((T[]) Values.Clone());
 
 
     // Constructors

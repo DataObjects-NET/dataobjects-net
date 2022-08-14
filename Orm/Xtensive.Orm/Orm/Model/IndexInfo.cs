@@ -13,7 +13,7 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+using System.Collections.ObjectModel;
 
 namespace Xtensive.Orm.Model
 {
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Model
     private readonly IndexInfo declaringIndex;
     private double fillFactor;
     private string shortName;
-    private ReadOnlyList<ColumnInfo> columns;
+    private ReadOnlyCollection<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
     private IList<TypeInfo> filterByTypes;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Model
       get { return shortName; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         shortName = value;
       }
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Model
       get { return fillFactor; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fillFactor = value;
       }
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Model
       get { return columnGroup; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         columnGroup = value;
       }
     }
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a collection of all the columns that are included into the index.
     /// </summary>
-    public ReadOnlyList<ColumnInfo> Columns {
+    public IReadOnlyList<ColumnInfo> Columns {
       [DebuggerStepThrough]
       get {
         return columns;
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Model
       get { return filterByTypes; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filterByTypes = value;
       }
     }
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Model
       get { return filterExpression; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filterExpression = value;
       }
     }
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Model
       get { return filter; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filter = value;
       }
     }
@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Model
       get { return selectColumns; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         selectColumns = value;
       }
     }
@@ -229,7 +229,7 @@ namespace Xtensive.Orm.Model
       get { return valueColumnsMap; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         valueColumnsMap = value;
       }
     }
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Model
       get { return attributes; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value;
       }
     }
@@ -392,7 +392,7 @@ namespace Xtensive.Orm.Model
     {
       var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
       result.AddRange(valueColumns);
-      columns = new ReadOnlyList<ColumnInfo>(result);
+      columns = result.AsReadOnly();
     }
 
 

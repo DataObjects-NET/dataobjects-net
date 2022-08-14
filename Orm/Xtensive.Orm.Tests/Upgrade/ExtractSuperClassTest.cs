@@ -5,6 +5,7 @@
 // Created:    2012.04.24
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -99,7 +100,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           return "2";
         }
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           var oldClientType = typeof (Model1.Client).FullName;
           var oldClientRefType = typeof (Model1.ClientRef).FullName;

@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      return string.Format("{0} apply", ApplyType);
+      return $"{ApplyType} apply";
     }
 
 

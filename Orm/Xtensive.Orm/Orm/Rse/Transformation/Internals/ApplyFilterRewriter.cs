@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -17,18 +17,17 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyFilterRewriter : ExpressionVisitor
   {
+    private static readonly ParameterExpression LeftTupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "leftTuple");
     private ColumnCollection sourceColumns;
     private ColumnCollection targetColumns;
-    private ParameterExpression leftTupleParameter;
 
     public Expression<Func<Tuple, Tuple, bool>> Rewrite(Expression<Func<Tuple, bool>> predicate,
       ColumnCollection predicateColumns, ColumnCollection currentColumns)
     {
       Initialize(predicate, predicateColumns, currentColumns);
-      leftTupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "leftTuple");
       var visited = Visit(predicate.Body);
       return (Expression<Func<Tuple, Tuple, bool>>) FastExpression
-        .Lambda(visited, leftTupleParameter, predicate.Parameters[0]);
+        .Lambda(visited, LeftTupleParameter, predicate.Parameters[0]);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
@@ -36,7 +35,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (mc.AsTupleAccess() != null) {
         var sourceIndex = mc.GetTupleAccessArgument();
         if (mc.GetApplyParameter() != null)
-          return Expression.Call(leftTupleParameter, mc.Method, mc.Arguments[0]);
+          return Expression.Call(LeftTupleParameter, mc.Method, mc.Arguments[0]);
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
         var currentIndex = targetColumns[name].Index;
         return Expression.Call(mc.Object, mc.Method, Expression.Constant(currentIndex));

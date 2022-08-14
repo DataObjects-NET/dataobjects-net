@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered.ToList();
     }
     
-    public static List<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IEnumerable<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;
-      return ordered.ToList();
+      return ordered;
     }
 
     protected override Expression VisitMarker(MarkerExpression expression)

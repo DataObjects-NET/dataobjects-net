@@ -29,27 +29,6 @@ namespace Xtensive.Orm
     public TResult Value => Materialize<TResult>().ToScalar(resultAccessMethod);
 
     /// <summary>
-    /// Asynchronously gets value.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <returns>Task running this operation</returns>
-    [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
-    public Task<TResult> AsAsync() => AsAsync(CancellationToken.None);
-
-    /// <summary>
-    /// Asynchronously gets value.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>Task running this operation.</returns>
-    [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
-    public async Task<TResult> AsAsync(CancellationToken token) => await ExecuteAsync(token).ConfigureAwait(false);
-
-    /// <summary>
     /// Asynchronously executes delayed scalar query.
     /// </summary>
     /// <remarks>Multiple active operations in the same session instance are not supported. Use

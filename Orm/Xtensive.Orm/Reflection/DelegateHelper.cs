@@ -1,16 +1,15 @@
 // Copyright (C) 2007-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: 
+// Created by:
 // Created:    2007.10.25
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -18,7 +17,7 @@ using Xtensive.Core;
 namespace Xtensive.Reflection
 {
   /// <summary>
-  /// Delegate helper \ extension methods. 
+  /// Delegate helper \ extension methods.
   /// Simplifies various delegate creation.
   /// </summary>
   public static class DelegateHelper
@@ -32,8 +31,54 @@ namespace Xtensive.Reflection
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
 
-    private static readonly Type[] ActionTypes;
-    private static readonly Type[] FuncTypes;
+    private static readonly Type[] ActionTypes = new[]
+      {
+        typeof (Action),
+        typeof (Action<>),
+        typeof (Action<,>),
+        typeof (Action<,,>),
+        typeof (Action<,,,>),
+
+        typeof (Action<,,,,>),
+        typeof (Action<,,,,,>),
+        typeof (Action<,,,,,,>),
+        typeof (Action<,,,,,,,>),
+
+        typeof (Action<,,,,,,,,>),
+        typeof (Action<,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,>),
+
+        typeof (Action<,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,>),
+      };
+
+    private static readonly Type[] FuncTypes = new[]
+      {
+        typeof (Func<>),
+
+        typeof (Func<,>),
+        typeof (Func<,,>),
+        typeof (Func<,,,>),
+        typeof (Func<,,,,>),
+
+        typeof (Func<,,,,,>),
+        typeof (Func<,,,,,,>),
+        typeof (Func<,,,,,,,>),
+        typeof (Func<,,,,,,,,>),
+
+        typeof (Func<,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,>),
+
+        typeof (Func<,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,>),
+      };
 
     public const int MaxNumberOfGenericDelegateParameters = 16;
 
@@ -52,62 +97,50 @@ namespace Xtensive.Reflection
     /// <summary>
     /// Aspected factory method name.
     /// </summary>
-    public static readonly string AspectedFactoryMethodName = 
+    public static readonly string AspectedFactoryMethodName =
       "~Xtensive.Orm.CreateObject";
 
     #endregion
 
-    #region Nested type: MethodCallDelegateKey 
+    #region Nested type: MethodCallDelegateKey
 
-    private sealed class MethodCallDelegateKey
+    private readonly struct MethodCallDelegateKey: IEquatable<MethodCallDelegateKey>
     {
-      private object[] items;
-      private int hashCode;
+      private readonly (Type delegateType, string memberName, Type targetType, Type valueType) items;
+      private readonly int hashCode;
 
-      public bool Equals(MethodCallDelegateKey other)
-      {
-        if (ReferenceEquals(null, other))
-          return false;
-        if (other.hashCode!=hashCode)
-          return false;
-        var otherItems = other.items;
-        if (otherItems.Length!=items.Length)
-          return false;
-        for (int i = 0; i < items.Length; i++)
-          if (!Equals(otherItems[i], items[i]))
-            return false;
-        return true;
-      }
+      public Type DelegateType => items.delegateType;
+      public string MemberName => items.memberName;
+      public Type TargetType => items.targetType;
+      public Type ValueType => items.valueType;
 
-      public override bool Equals(object obj) =>
-        obj switch {
-          null => false,
-          MethodCallDelegateKey otherKey => Equals(otherKey),
-          _ => false
-        };
+      public bool Equals(MethodCallDelegateKey other) => items.Equals(other.items);
 
-      public override int GetHashCode()
-      {
-        return hashCode;
-      }
+      public override bool Equals(object obj) => obj is MethodCallDelegateKey other && Equals(other);
 
-      
+      public override int GetHashCode() => hashCode;
+
       // Constructors
 
-      public MethodCallDelegateKey(params object[] items)
+      public MethodCallDelegateKey(string memberName)
+        : this(null, memberName, null, null)
+      {}
+
+      public MethodCallDelegateKey(string memberName, Type targetType, Type valueType)
+        : this(null, memberName, targetType, valueType)
+      {}
+
+      public MethodCallDelegateKey(Type delegateType, string memberName, Type targetType, Type valueType)
       {
-        this.items = items;
-        unchecked {
-          foreach (var item in items)
-            hashCode = hashCode * 397 + (item==null ? 0 : item.GetHashCode());
-        }
+        items = (delegateType, memberName, targetType, valueType);
+        hashCode = items.GetHashCode();
       }
     }
 
     #endregion
 
-    private static ThreadSafeDictionary<object, Delegate> cachedDelegates = 
-      ThreadSafeDictionary<object, Delegate>.Create(new object());
+    private static ConcurrentDictionary<MethodCallDelegateKey, Lazy<Delegate>> cachedDelegates =
+      new ConcurrentDictionary<MethodCallDelegateKey, Lazy<Delegate>>();
 
     /// <summary>
     /// Creates get member delegate.
@@ -115,7 +148,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="TObject">Declaring type.</typeparam>
     /// <typeparam name="TValue">Member type.</typeparam>
     /// <param name="memberName">Member name.</param>
-    /// <returns><see cref="Func{A,R}"/> delegate 
+    /// <returns><see cref="Func{A,R}"/> delegate
     /// that gets member value.</returns>
     public static Func<TObject, TValue> CreateGetMemberDelegate<TObject, TValue>(string memberName)
     {
@@ -129,32 +162,31 @@ namespace Xtensive.Reflection
       Type tValue = typeof (TValue);
       var methodKey = new MethodCallDelegateKey(typeof (TDelegateType), memberName, type, tValue);
 
-      TDelegateType result = GetCachedDelegate(methodKey) as TDelegateType;
-      if (result==null)
-        lock (cachedDelegates.SyncRoot) {
-          result = GetCachedDelegate(methodKey) as TDelegateType;
-          if (result!=null)
-            return result;
-
+      static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey)
+      {
+        var type = methodKey.TargetType;
+        var memberName = methodKey.MemberName;
+        return new Lazy<Delegate>(() => {
           PropertyInfo pi = type.GetProperty(memberName);
           FieldInfo fi = type.GetField(memberName);
           MethodInfo smi;
-          if (pi!=null) {
+          if (pi != null) {
             // Member is a Property...
             MethodInfo mi = pi.GetGetMethod(true);
-            if (mi!=null) {
+            if (mi != null) {
               //  Calling a property's get accessor is faster/cleaner using
-              //  Delegate.CreateDelegate rather than Reflection.Emit 
-              result = Delegate.CreateDelegate(typeof (TDelegateType), mi) as TDelegateType;
+              //  Delegate.CreateDelegate rather than Reflection.Emit
+              return Delegate.CreateDelegate(typeof(TDelegateType), mi);
             }
-            else
+            else {
               throw new InvalidOperationException(string.Format(Strings.ExPropertyDoesNotHaveGetter,
                 memberName, type.GetShortName()));
+            }
           }
-          else if (fi!=null) {
+          else if (fi != null) {
             // Member is a Field...
             DynamicMethod dm = new DynamicMethod("Get" + memberName,
-              typeof (TValue), new Type[] {type}, type);
+              typeof(TValue), new Type[] { type }, type);
             ILGenerator il = dm.GetILGenerator();
             // Load the instance of the object (argument 0) onto the stack
             il.Emit(OpCodes.Ldarg_0);
@@ -163,22 +195,25 @@ namespace Xtensive.Reflection
             // return the value on the top of the stack
             il.Emit(OpCodes.Ret);
 
-            result = dm.CreateDelegate(typeof (TDelegateType)) as TDelegateType;
+            return dm.CreateDelegate(typeof(TDelegateType));
           }
-          else if (null!=(smi = type.GetMethod(AspectedPrivateFieldGetterPrefix + memberName,
-            BindingFlags.Instance | 
-            BindingFlags.Public | 
+          else if (null != (smi = type.GetMethod(AspectedPrivateFieldGetterPrefix + memberName,
+            BindingFlags.Instance |
+            BindingFlags.Public |
             BindingFlags.NonPublic |
             BindingFlags.ExactBinding))) {
-            result = Delegate.CreateDelegate(typeof (Func<TObject, TValue>), smi) as TDelegateType;
+            return Delegate.CreateDelegate(typeof(Func<TObject, TValue>), smi);
           }
-          else
+          else {
             throw new InvalidOperationException(string.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.GetShortName()));
+          }
+        });
+      }
 
-          AddCachedDelegate(methodKey, result as Delegate);
-        }
-      return result;
+      var lazyDelegate = cachedDelegates.GetOrAdd(methodKey, DelegateFactory);
+
+      return lazyDelegate.Value as TDelegateType;
     }
 
     /// <summary>
@@ -187,7 +222,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="TObject">Declaring type.</typeparam>
     /// <typeparam name="TValue">Member type.</typeparam>
     /// <param name="memberName">Member name.</param>
-    /// <returns><see cref="Action{T,R}"/> delegate 
+    /// <returns><see cref="Action{T,R}"/> delegate
     /// that sets member value.</returns>
     public static Action<TObject, TValue> CreateSetMemberDelegate<TObject, TValue>(string memberName)
     {
@@ -195,13 +230,11 @@ namespace Xtensive.Reflection
       Type tValue = typeof (TValue);
       var methodKey = new MethodCallDelegateKey(memberName, type, tValue);
 
-      Action<TObject, TValue> result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
-      if (result==null)
-        lock (cachedDelegates.SyncRoot) {
-          result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
-          if (result!=null)
-            return result;
-
+      static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey)
+      {
+        var type = methodKey.TargetType;
+        var memberName = methodKey.MemberName;
+        return new Lazy<Delegate>(() => {
           PropertyInfo pi = type.GetProperty(memberName);
           FieldInfo fi = type.GetField(memberName);
           if (pi!=null) {
@@ -209,13 +242,14 @@ namespace Xtensive.Reflection
             MethodInfo mi = pi.GetSetMethod(true);
             if (mi!=null) {
               //  Calling a property's get accessor is faster/cleaner using
-              //  Delegate.CreateDelegate rather than Reflection.Emit 
+              //  Delegate.CreateDelegate rather than Reflection.Emit
               // TODO: Check that type conversion is adequate.
-              result = (Action<TObject, TValue>)Delegate.CreateDelegate(typeof (Action<TObject, TValue>), mi);
+              return Delegate.CreateDelegate(typeof (Action<TObject, TValue>), mi);
             }
-            else
+            else {
               throw new InvalidOperationException(string.Format(Strings.ExPropertyDoesNotHaveSetter,
                 memberName, type.GetShortName()));
+            }
           }
           else if (fi!=null) {
             // Member is a Field...
@@ -231,14 +265,18 @@ namespace Xtensive.Reflection
             il.Emit(OpCodes.Ldc_I4_1);
             il.Emit(OpCodes.Ret);
 
-            result = (Action<TObject, TValue>)dm.CreateDelegate(typeof (Func<TObject, TValue>));
+            return dm.CreateDelegate(typeof (Func<TObject, TValue>));
           }
-          else
+          else {
             throw new InvalidOperationException(string.Format(Strings.ExMemberIsNotPublicPropertyOrField,
               memberName, type.GetShortName()));
-          AddCachedDelegate(methodKey, result);
-        }
-      return result;
+          }
+        });
+      }
+
+      var lazyDelegate = cachedDelegates.GetOrAdd(methodKey, DelegateFactory);
+
+      return (Action<TObject, TValue>) lazyDelegate.Value;
     }
 
     /// <summary>
@@ -249,51 +287,56 @@ namespace Xtensive.Reflection
     /// <returns>A delegate allowing to cast <typeparamref name="TSource"/> to <typeparamref name="TTarget"/>.</returns>
     /// <exception cref="InvalidCastException"><c>InvalidCastException</c>.</exception>
     public static Converter<TSource, TTarget> CreatePrimitiveCastDelegate<TSource, TTarget>()
-      where TSource: struct
-      where TTarget: struct
+      where TSource : struct
+      where TTarget : struct
     {
-      Type sourceType = typeof (TSource);
-      Type targetType = typeof (TTarget);
-      string methodName = string.Format("{0}_{1}_{2}", primitiveCastMethodName, sourceType, targetType);
-      var methodKey  = new MethodCallDelegateKey(methodName);
+      Type sourceType = typeof(TSource);
+      Type targetType = typeof(TTarget);
+      string methodName = $"{primitiveCastMethodName}_{sourceType}_{targetType}";
+      var methodKey = new MethodCallDelegateKey(methodName);
 
-      var result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
-      if (result==null)
-        lock (cachedDelegates.SyncRoot) {
-          result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
-          if (result!=null)
-            return result;
+      static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey, (Type sourceType, Type targetType) arg)
+      {
+        var methodName = methodKey.MemberName;
+        var (sourceType, targetType) = arg;
 
+        return new Lazy<Delegate>(() => {
           Type actualSourceType = sourceType;
-          if (sourceType.IsEnum)
+          if (sourceType.IsEnum) {
             actualSourceType = Enum.GetUnderlyingType(sourceType);
-          if (!opCodeConv.ContainsKey(actualSourceType))
-            throw new InvalidCastException(string.Format(Strings.ExInvalidCast, 
+          }
+          if (!opCodeConv.ContainsKey(actualSourceType)) {
+            throw new InvalidCastException(string.Format(Strings.ExInvalidCast,
               sourceType.GetShortName(),
               targetType.GetShortName()));
+          }
 
           Type actualTargetType = targetType;
-          if (targetType.IsEnum)
+          if (targetType.IsEnum) {
             actualTargetType = Enum.GetUnderlyingType(targetType);
-          if (!opCodeConv.ContainsKey(actualTargetType))
-            throw new InvalidCastException(string.Format(Strings.ExInvalidCast, 
+          }
+          if (!opCodeConv.ContainsKey(actualTargetType)) {
+            throw new InvalidCastException(string.Format(Strings.ExInvalidCast,
               sourceType.GetShortName(),
               targetType.GetShortName()));
+          }
 
           DynamicMethod dm = new DynamicMethod(methodName,
-            typeof(TTarget), new Type[] {sourceType});
+            typeof(TTarget), new Type[] { sourceType });
           ILGenerator il = dm.GetILGenerator();
           il.Emit(OpCodes.Ldarg_0);
 
-          if (targetType.IsEnum)
-          if (typeOnStack[actualSourceType]!=typeOnStack[actualSourceType])
+          if (targetType.IsEnum && typeOnStack[actualSourceType] != typeOnStack[actualTargetType]) {
             il.Emit(opCodeConv[actualTargetType]);
+          }
           il.Emit(OpCodes.Ret);
-          result = dm.CreateDelegate(typeof(Converter<TSource, TTarget>)) as Converter<TSource, TTarget>;
+          return dm.CreateDelegate(typeof(Converter<TSource, TTarget>));
+        });
+      }
 
-          AddCachedDelegate(methodKey, result);
-        }
-      return result;
+      var lazyDelegate = cachedDelegates.GetOrAdd(methodKey, DelegateFactory, (sourceType, targetType));
+
+      return lazyDelegate.Value as Converter<TSource, TTarget>;
     }
 
     /// <summary>
@@ -328,8 +371,8 @@ namespace Xtensive.Reflection
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
-      
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
@@ -342,7 +385,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Creates an array of generic method invocation delegates matching the method instance 
+    /// Creates an array of generic method invocation delegates matching the method instance
     /// with specified generic argument variants.
     /// </summary>
     /// <param name="callTarget">The delegate call target. <see langword="Null"/>, if static method should be called.</param>
@@ -374,18 +417,18 @@ namespace Xtensive.Reflection
         BindingFlags.ExactBinding;
       if (callTarget==null)
         bindingFlags |= BindingFlags.Static;
-      else 
+      else
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
 
       for (int i = 0; i<count; i++) {
-        MethodInfo instantiatedMethodInfo = methodInfo.MakeGenericMethod(genericArgumentVariants[i]);
+        MethodInfo instantiatedMethodInfo = methodInfo.CachedMakeGenericMethod(genericArgumentVariants[i]);
         if (callTarget==null)
           delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, instantiatedMethodInfo, true);
         else
@@ -466,7 +509,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
       // check for non-generic Action
       if (delegateType == ActionTypes[0])
-        return new Pair<Type, Type[]>(WellKnownTypes.Void, ArrayUtils<Type>.EmptyArray);
+        return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());
       if (delegateType.IsGenericType) {
         var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
@@ -489,23 +532,6 @@ namespace Xtensive.Reflection
       var method = delegateType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance);
       return new Pair<Type, Type[]>(method.ReturnType, method.GetParameterTypes());
     }
-
-    #region Private members
-
-    private static Delegate GetCachedDelegate(object delegateKey)
-    {
-      Delegate result;
-      return 
-        cachedDelegates.TryGetValue(delegateKey, out result) ? result : null;      
-    }
-
-    private static void AddCachedDelegate(object delegateKey, Delegate value)
-    {
-      cachedDelegates.SetValue(delegateKey, value);
-    }
-
-    #endregion
-
 
     // Type initializer
 
@@ -533,55 +559,6 @@ namespace Xtensive.Reflection
       typeOnStack.Add(WellKnownTypes.UInt64, WellKnownTypes.UInt64);
       typeOnStack.Add(WellKnownTypes.Single, WellKnownTypes.Single);
       typeOnStack.Add(WellKnownTypes.Double, WellKnownTypes.Double);
-
-      FuncTypes = new[]
-        {
-          typeof (Func<>),
-
-          typeof (Func<,>),
-          typeof (Func<,,>),
-          typeof (Func<,,,>),
-          typeof (Func<,,,,>),
-
-          typeof (Func<,,,,,>),
-          typeof (Func<,,,,,,>),
-          typeof (Func<,,,,,,,>),
-          typeof (Func<,,,,,,,,>),
-
-          typeof (Func<,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,>),
-
-          typeof (Func<,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,,,>),
-        };
-
-      ActionTypes = new[]
-        {
-          typeof (Action),
-          typeof (Action<>),
-          typeof (Action<,>),
-          typeof (Action<,,>),
-          typeof (Action<,,,>),
-
-          typeof (Action<,,,,>),
-          typeof (Action<,,,,,>),
-          typeof (Action<,,,,,,>),
-          typeof (Action<,,,,,,,>),
-
-          typeof (Action<,,,,,,,,>),
-          typeof (Action<,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,>),
-
-          typeof (Action<,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,,,>),
-        };
     }
   }
 }

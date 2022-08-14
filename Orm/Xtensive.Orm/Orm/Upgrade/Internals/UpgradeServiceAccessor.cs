@@ -5,8 +5,9 @@
 // Created:    2012.03.14
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -28,9 +29,9 @@ namespace Xtensive.Orm.Upgrade
     private SqlConnection connection;
     private PartialIndexFilterCompiler indexFilterCompiler;
 
-    private ReadOnlyList<IModule> modules;
-    private ReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
-    private ReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
+    private IReadOnlyList<IModule> modules;
+    private IReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
+    private IReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
     private IFullTextCatalogNameBuilder catalogNameBuilder;
 
     public DomainConfiguration Configuration
@@ -38,7 +39,7 @@ namespace Xtensive.Orm.Upgrade
       get { return configuration; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         configuration = value;
       }
     }
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Upgrade
       get { return handlerFactory; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         handlerFactory = value;
       }
     }
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Upgrade
       get { return storageDriver; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         storageDriver = value;
       }
     }
@@ -70,7 +71,7 @@ namespace Xtensive.Orm.Upgrade
       get { return nameBuilder; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         nameBuilder = value;
       }
     }
@@ -80,7 +81,7 @@ namespace Xtensive.Orm.Upgrade
       get { return mappingResolver; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingResolver = value;
       }
     }
@@ -90,37 +91,37 @@ namespace Xtensive.Orm.Upgrade
       get { return indexFilterCompiler; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         indexFilterCompiler = value;
       }
     }
 
-    public ReadOnlyList<IModule> Modules
+    public IReadOnlyList<IModule> Modules
     {
       get { return modules; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         modules = value;
       }
     }
 
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers
+    public IReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers
     {
       get { return orderedUpgradeHandlers; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         orderedUpgradeHandlers = value;
       }
     }
 
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers
+    public IReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers
     {
       get { return upgradeHandlers; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeHandlers = value;
       }
     }
@@ -130,7 +131,7 @@ namespace Xtensive.Orm.Upgrade
       get { return catalogNameBuilder; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         catalogNameBuilder = value;
       }
     }
@@ -140,7 +141,7 @@ namespace Xtensive.Orm.Upgrade
       get { return connection; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connection = value;
       }
     }

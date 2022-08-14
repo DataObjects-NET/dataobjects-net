@@ -14,10 +14,11 @@ namespace Xtensive.Sql.Dml
   {
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
-      var expressionsClone = new Collection<SqlExpression>();
+      var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
         expressionsClone.Add((SqlExpression) e.Clone(context));
 
@@ -28,9 +29,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRow>(expression, "expression");
-      var replacingExpression = (SqlRow) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression);
       expressions.Clear();
       foreach (SqlExpression e in replacingExpression)
         expressions.Add(e);

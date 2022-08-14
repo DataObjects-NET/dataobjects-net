@@ -148,9 +148,14 @@ namespace Xtensive.Sql.Info
     DeleteLimit = 1 << 25,
 
     /// <summary>
+    /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators but only for subqueries.
+    /// </summary>
+    CrossApplyForSubqueriesOnly = CrossApply | (1 << 26),
+
+    /// <summary>
     /// Indicates that RDBMS supports SQL parameter in selected columns of SELECT statement.
     /// </summary>
-    ParameterAsColumn = 1 << 26,
+    ParameterAsColumn = 1 << 27,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).

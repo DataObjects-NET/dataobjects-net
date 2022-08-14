@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.04.05
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -13,6 +14,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
   internal class Extractor : v10.Extractor
   {
+    private readonly Dictionary<int, Func<DbDataReader, int, long>> valueReaders;
+
     protected override void ExtractCatalogContents(ExtractionContext context)
     {
       base.ExtractCatalogContents(context);
@@ -57,6 +60,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
   SELECT
     schema_id,
     name,
+    user_type_id,
     start_value,
     increment,
     minimum_value,
@@ -74,15 +78,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
     private void ReadSequenceData(DbDataReader reader, ExtractionContext context)
     {
+
       var currentSchema = context.SchemaIndex[reader.GetInt32(0)];
-      var sequence = currentSchema.CreateSequence(reader.GetString(1));
+      var sequenceName = reader.GetString(1);
+      var sequence = currentSchema.CreateSequence(sequenceName);
       var descriptor = sequence.SequenceDescriptor;
-      descriptor.StartValue = reader.GetInt64(2);
-      descriptor.Increment = reader.GetInt64(3);
-      descriptor.MinValue = reader.GetInt64(4);
-      descriptor.MaxValue = reader.GetInt64(5);
-      descriptor.IsCyclic = reader.GetBoolean(6);
-      descriptor.LastValue = reader.GetInt64(7);
+
+      if (!valueReaders.TryGetValue(reader.GetInt32(2), out var valueReader)) {
+        throw new ArgumentOutOfRangeException($"Type of sequence '{sequenceName}' is not supported.");
+      }
+
+      descriptor.StartValue = valueReader(reader, 3);
+      descriptor.Increment = valueReader(reader, 4);
+      descriptor.MinValue = valueReader(reader, 5);
+      descriptor.MaxValue = valueReader(reader, 6);
+      descriptor.IsCyclic = reader.GetBoolean(7);
+      descriptor.LastValue = valueReader(reader, 8);
     }
 
 
@@ -95,6 +106,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     public Extractor(SqlDriver driver)
       : base(driver)
     {
+      valueReaders = new Dictionary<int, Func<DbDataReader, int, long>>(4);
+      valueReaders[48] = (DbDataReader reader, int index) => reader.GetByte(index);
+      valueReaders[52] = (DbDataReader reader, int index) => reader.GetInt16(index);
+      valueReaders[56] = (DbDataReader reader, int index) => reader.GetInt32(index);
+      valueReaders[127] = (DbDataReader reader, int index) => reader.GetInt64(index);
     }
   }
 }

@@ -1,16 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.06.19
 
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
@@ -270,10 +268,14 @@ namespace Xtensive.Sql
       if (value == null || value is byte[])
         return value;
 
-      var formatter = new BinaryFormatter();
-      var stream = new MemoryStream();
-      formatter.Serialize(stream, value);
-      return stream.ToArray();
+      throw new NotSupportedException("There is no support of SqlGeometry, SqlGeography, or other complex SQL types to the moment");
+      // As far as SqlGeometry and SqlGeography have no support in .Net 5
+      // we don't need to provide a functionality reading those data as byte arrays
+
+      // var formatter = new BinaryFormatter();
+      // var stream = new MemoryStream();
+      // formatter.Serialize(stream, value);
+      // return stream.ToArray();
     }
 
     #endregion
@@ -294,7 +296,7 @@ namespace Xtensive.Sql
     {
       return ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
     }
-    
+
     public virtual SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt8);

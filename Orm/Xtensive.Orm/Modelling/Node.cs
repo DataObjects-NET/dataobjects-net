@@ -5,12 +5,12 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -34,14 +34,15 @@ namespace Xtensive.Modelling
     /// Path delimiter character.
     /// </summary>
     public static readonly char PathDelimiter = '/';
+    public static readonly string PathDelimiterString = PathDelimiter.ToString();
     /// <summary>
     /// Path escape character.
     /// </summary>
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ThreadSafeDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
-      ThreadSafeDictionary<Type, PropertyAccessorDictionary>.Create(new object());
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors =
+      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -185,18 +186,24 @@ namespace Xtensive.Modelling
     public string Path {
       [DebuggerStepThrough]
       get {
-        if (cachedPath!=null)
+        if (cachedPath!=null) {
           return cachedPath;
-        if (Parent==null)
+        }
+
+        if (Parent==null) {
           return string.Empty;
-        string parentPath = Parent.Path;
-        if (parentPath.Length!=0)
-          parentPath += PathDelimiter;
+        }
+
+        var parentPath = Parent.Path;
+        if (parentPath.Length!=0) {
+          parentPath += PathDelimiterString;
+        }
+
         return string.Concat(
           parentPath,
           Nesting.EscapedPropertyName,
-          Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
-          Nesting.IsNestedToCollection ? EscapedName : string.Empty);
+          Nesting.IsNestedToCollection ? PathDelimiterString : null,
+          Nesting.IsNestedToCollection ? EscapedName : null);
       }
     }
 
@@ -210,7 +217,7 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       }
 
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (newParent == Parent && newName == Name && newIndex == Index) {
         return;
       }
@@ -335,7 +342,7 @@ namespace Xtensive.Modelling
         }
 
         ArgumentValidator.EnsureArgumentNotNull(newName, nameof(newName));
-      
+
         // Cloning the instance
         var model = isModel ? null : (IModel) newParent.Model;
         Node node;
@@ -390,9 +397,9 @@ namespace Xtensive.Modelling
       else if (accessor.HasSetter) {
         var value = GetProperty(propertyName);
         if (value is IPathNode pathNode) {
-          CloningContext.Current.AddFixup(() => 
-            accessor.Setter(target, 
-              PathNodeReference.Resolve((IModel) target.Model, 
+          CloningContext.Current.AddFixup(() =>
+            accessor.Setter(target,
+              PathNodeReference.Resolve((IModel) target.Model,
                 new PathNodeReference(pathNode.Path))));
           return;
         }
@@ -414,7 +421,7 @@ namespace Xtensive.Modelling
     /// <param name="newName">The new name.</param>
     /// <param name="newIndex">The new index.</param>
     /// <exception cref="ArgumentException">Item already exists.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range, 
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range,
     /// or <paramref name="newParent"/> belongs to a different <see cref="Model"/>.</exception>
     /// <exception cref="InvalidOperationException">newName!=newIndex for <see cref="IUnnamedNode"/>.</exception>
     protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
@@ -426,8 +433,7 @@ namespace Xtensive.Modelling
       }
 
       // Validating parent model
-      ArgumentValidator.EnsureArgumentNotNull(newParent, nameof(newParent));
-      ArgumentValidator.EnsureArgumentIs<Node>(newParent, nameof(newParent));
+      _ = ArgumentValidator.EnsureArgumentIs<Node>(newParent);
       var model = Model;
       if (model != null) {
         var newModel = newParent.Model;
@@ -621,7 +627,7 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// Performs "shift" operation 
+    /// Performs "shift" operation
     /// (induced by <see cref="Move"/> operation of another node).
     /// </summary>
     /// <param name="offset">Shift offset.</param>
@@ -709,7 +715,7 @@ namespace Xtensive.Modelling
       scope.Action = action;
       return scope;
     }
-    
+
     /// <summary>
     /// Begins registration of a new action.
     /// </summary>
@@ -771,7 +777,7 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       }
 
-      this.EnsureNotLocked();
+      EnsureNotLocked();
     }
 
     #endregion
@@ -845,8 +851,10 @@ namespace Xtensive.Modelling
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      return cachedPropertyAccessors.GetValue(type,
-        entityType => {
+
+      static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
+      {
+        return new Lazy<PropertyAccessorDictionary>(() => {
           var d = new Dictionary<string, PropertyAccessor>();
           if (entityType != WellKnownTypes.Object) {
             foreach (var pair in GetPropertyAccessors(entityType.BaseType)) {
@@ -862,8 +870,11 @@ namespace Xtensive.Modelling
             }
           }
 
-          return new PropertyAccessorDictionary(d, false);
+          return new PropertyAccessorDictionary(d);
         });
+      }
+
+      return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)
@@ -906,7 +917,7 @@ namespace Xtensive.Modelling
     {
       var prefix = string.Empty;
       if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorderedNodeCollection)) {
-        prefix = string.Format("{0}: ", Index);
+        prefix = $"{Index}: ";
       }
 
       CoreLog.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);
@@ -972,7 +983,7 @@ namespace Xtensive.Modelling
       var m = Model;
       var fullName = Path;
       if (m != null) {
-        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, PathDelimiterString, fullName);
       }
 
       if (!Nesting.IsNestedToCollection && !(this is IModel)) {

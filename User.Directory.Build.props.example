@@ -4,5 +4,10 @@
     <DoNugetFeedUserName>Put username here</DoNugetFeedUserName>
     <DoNugetFeedPassword>Put password here</DoNugetFeedPassword>
     <DoNugetFeedUrl>Put url here</DoNugetFeedUrl>
+
+    <!-- This allows to tell that build is from IDE in addition to standard "$(BuildingInsideVisualStudio)== 'true'" check -->
+    <!--
+    <DoIsIdeBuild Condition="$(DoIsIdeBuild) == 'true' OR <Put additional checks here>">true</DoIsIdeBuild>
+    -->
   </PropertyGroup>
 </Project>

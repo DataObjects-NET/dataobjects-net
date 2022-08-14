@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Rse
       return new FilterProvider(source, predicate);
     }
 
-    public static CompilableProvider Select(this CompilableProvider source, params int[] columnIndexes)
+    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
       return new SelectProvider(source, columnIndexes);
@@ -206,6 +206,11 @@ namespace Xtensive.Orm.Rse
       Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
     {
       return new LockProvider(source, lockMode, lockBehavior);
+    }
+
+    public static CompilableProvider Tag(this CompilableProvider source, string tag)
+    {
+      return new TagProvider(source, tag);
     }
 
     public static CompilableProvider MakeVoid(this CompilableProvider source)

@@ -516,8 +516,16 @@ namespace Xtensive.Orm.BulkOperations
       VisitInternal(node.Statement);
     }
 
-
     public virtual void Visit(SqlFragment node)
+    {
+      VisitInternal(node.Expression);
+    }
+
+    public virtual void Visit(SqlComment node)
+    {
+    }
+    
+    public virtual void Visit(SqlMetadata node)
     {
       VisitInternal(node.Expression);
     }

@@ -83,24 +83,18 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlBinary>(expression, "expression");
-      var replacingExpression = (SqlBinary) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlBinary>(expression);
       NodeType = replacingExpression.NodeType;
       Left = replacingExpression.Left;
       Right = replacingExpression.Right;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlBinary(NodeType,
-        (SqlExpression) Left.Clone(context),
-        (SqlExpression) Right.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlBinary(NodeType,
+            (SqlExpression) Left.Clone(context),
+            (SqlExpression) Right.Clone(context));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

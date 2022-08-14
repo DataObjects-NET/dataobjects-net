@@ -5,9 +5,8 @@
 // Created:    2009.04.22
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Core;
 
@@ -28,7 +27,7 @@ namespace Xtensive.Modelling.Actions
     public string Comment {
       get { return comment; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         comment = value;
       }
     }
@@ -47,7 +46,7 @@ namespace Xtensive.Modelling.Actions
     public void Add(NodeAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;
       if (ca!=null && actions.Count!=0) {
@@ -56,8 +55,7 @@ namespace Xtensive.Modelling.Actions
         var last = actions[lastIndex] as PropertyChangeAction;
         if (last!=null && ca.Path==last.Path) {
           foreach (var pair in last.Properties) {
-            if (!ca.Properties.ContainsKey(pair.Key))
-              ca.Properties.Add(pair.Key, pair.Value);
+            _ = ca.Properties.TryAdd(pair.Key, pair.Value);
           }
           actions.RemoveAt(lastIndex);
         }
@@ -109,7 +107,7 @@ namespace Xtensive.Modelling.Actions
       if (recursive)
         foreach (var action in actions)
           action.Lock(true);
-      actions = new ReadOnlyList<NodeAction>(actions, true);
+      actions = new ReadOnlyCollection<NodeAction>(actions.ToArray());
     }
   }
 }

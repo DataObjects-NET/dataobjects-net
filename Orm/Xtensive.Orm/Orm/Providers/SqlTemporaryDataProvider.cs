@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse.Providers;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Xtensive.Orm.Providers
 {
@@ -31,6 +33,17 @@ namespace Xtensive.Orm.Providers
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
       executor.Store(tableDescriptor, data, storageContext.ParameterContext);
+    }
+
+    protected async ValueTask LockAndStoreAsync(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data, CancellationToken token)
+    {
+      var storageContext = (EnumerationContext) context;
+      var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
+      if (tableLock == null)
+        return;
+      storageContext.SetValue(this, TemporaryTableLockName, tableLock);
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
+      await executor.StoreAsync(tableDescriptor, data, storageContext.ParameterContext, token).ConfigureAwait(false);
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty;
+    public static readonly NameMappingCollection Empty = new NameMappingCollection();
 
     private readonly Dictionary<string, string> items = new Dictionary<string, string>();
 
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(mappedName, "mappedName");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       items[originalName] = mappedName;
     }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Configuration
     public bool Remove([NotNull] string originalName)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       return items.Remove(originalName);
     }
 
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       items.Clear();
     }
 
@@ -125,7 +125,6 @@ namespace Xtensive.Orm.Configuration
 
     static NameMappingCollection()
     {
-      Empty = new NameMappingCollection();
       Empty.Lock();
     }
   }

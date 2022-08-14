@@ -53,7 +53,7 @@ namespace Xtensive.Core
         Get();
       }
       catch (Exception exception) {
-        logger?.Warning(Strings.LogAsyncOperationError, exception: exception);
+        logger?.Warning(nameof(Strings.LogAsyncOperationError), exception: exception);
       }
     }
 
@@ -67,7 +67,7 @@ namespace Xtensive.Core
         await GetAsync().ConfigureAwait(false);
       }
       catch (Exception exception) {
-        logger?.Warning(Strings.LogAsyncOperationError, exception: exception);
+        logger?.Warning(nameof(Strings.LogAsyncOperationError), exception: exception);
       }
     }
 

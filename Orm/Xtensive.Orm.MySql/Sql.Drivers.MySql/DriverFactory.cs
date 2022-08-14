@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -70,8 +70,10 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
+        else
+          OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.ServerVersion
           : configuration.ForcedServerVersion;
@@ -88,8 +90,10 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       var connection = new MySqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
-        await connection.OpenAsync(token).ConfigureAwait(false);
-        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, token).ConfigureAwait(false);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
+        else
+          await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.ServerVersion
           : configuration.ForcedServerVersion;
@@ -99,7 +103,6 @@ namespace Xtensive.Sql.Drivers.MySql
         return CreateDriverInstance(connectionString, version, defaultSchema);
       }
     }
-
     private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
     {
       var coreServerInfo = new CoreServerInfo {
@@ -119,7 +122,10 @@ namespace Xtensive.Sql.Drivers.MySql
         5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
         5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
         5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
-        _ => new v5_6.Driver(coreServerInfo)
+        5 when version.Minor == 7 => new v5_7.Driver(coreServerInfo),
+        6 or 7 => throw new NotSupportedException(string.Format(Strings.ExVersionXOfMySQLIsNotSupported, version)),
+        8 => new v8_0.Driver(coreServerInfo),
+        _ => new v8_0.Driver(coreServerInfo)
       };
     }
 
@@ -131,5 +137,84 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override Task<DefaultSchemaInfo> ReadDefaultSchemaAsync(
       DbConnection connection, DbTransaction transaction, CancellationToken token) =>
       SqlHelper.ReadDatabaseAndSchemaAsync(DatabaseAndSchemaQuery, connection, transaction, token);
+
+    private async ValueTask OpenConnectionFast(MySqlConnection connection,
+      SqlDriverConfiguration configuration,
+      bool isAsync,
+      CancellationToken cancellationToken = default)
+    {
+      if (!isAsync) {
+        connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+      }
+      else {
+        await connection.OpenAsync().ConfigureAwait(false);
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+      }
+    }
+
+    private async ValueTask OpenConnectionWithNotification(MySqlConnection connection,
+      SqlDriverConfiguration configuration,
+      bool isAsync,
+      CancellationToken cancellationToken = default)
+    {
+      var acessors = configuration.DbConnectionAccessors;
+      if (!isAsync) {
+        SqlHelper.NotifyConnectionOpening(acessors, connection);
+        try {
+          connection.Open();
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+            SqlHelper.NotifyConnectionInitializing(acessors, connection, configuration.ConnectionInitializationSql);
+          SqlHelper.ExecuteInitializationSql(connection, configuration);
+          SqlHelper.NotifyConnectionOpened(acessors, connection);
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(acessors, connection, ex);
+          throw;
+        }
+      }
+      else {
+        await SqlHelper.NotifyConnectionOpeningAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
+        try {
+          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
+            await SqlHelper.NotifyConnectionInitializingAsync(acessors,
+                connection, configuration.ConnectionInitializationSql, false, cancellationToken)
+              .ConfigureAwait(false);
+          }
+
+          await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(acessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
+          throw;
+        }
+      }
+    }
+
+    private void OpenConnectionFast(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
+      }
+    }
   }
 }

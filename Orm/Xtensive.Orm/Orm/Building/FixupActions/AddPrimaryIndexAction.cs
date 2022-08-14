@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add primary index to '{0}'", Type.Name);
+      return $"Add primary index to '{Type.Name}'";
     }
 
     // Constructors

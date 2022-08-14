@@ -78,13 +78,14 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Where;
 
       // Queryable extensions
-      public static readonly MethodInfo ExtensionCount;
-      public static readonly MethodInfo ExtensionLeftJoin;
-      public static readonly MethodInfo ExtensionLock;
-      public static readonly MethodInfo ExtensionTake;
-      public static readonly MethodInfo ExtensionSkip;
-      public static readonly MethodInfo ExtensionElementAt;
-      public static readonly MethodInfo ExtensionElementAtOrDefault;
+      public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
+      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
+      public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
+      public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
+      public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
+      public static readonly MethodInfo ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
+      public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
+      public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
 
       static Queryable()
       {
@@ -175,12 +176,12 @@ namespace Xtensive.Orm.Linq
               }
               break;
             case nameof(System.Linq.Queryable.ElementAt):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 ElementAt = methodInfo;
               }
               break;
             case nameof(System.Linq.Queryable.ElementAtOrDefault):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 ElementAtOrDefault = methodInfo;
               }
               break;
@@ -204,7 +205,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   FirstOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   FirstOrDefaultWithPredicate = methodInfo;
                   break;
               }
@@ -263,7 +264,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   LastOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   LastOrDefaultWithPredicate = methodInfo;
                   break;
               }
@@ -283,7 +284,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   Max = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   MaxWithSelector = methodInfo;
                   break;
               }
@@ -293,7 +294,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   Min = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   MinWithSelector = methodInfo;
                   break;
               }
@@ -361,7 +362,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   SingleOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   SingleOrDefaultWithPredicate = methodInfo;
                   break;
               }
@@ -397,7 +398,7 @@ namespace Xtensive.Orm.Linq
               }
               break;
             case nameof(System.Linq.Queryable.Take):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 Take = methodInfo;
               }
               break;
@@ -445,15 +446,6 @@ namespace Xtensive.Orm.Linq
         AverageWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(averageWithSelectorMethodInfos);
         SumMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumMethodInfos);
         SumWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumWithSelectorMethodInfos);
-
-        // Queryable extensions
-        ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-        ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
-        ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
-        ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
-        ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
-        ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
-        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
       }
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)

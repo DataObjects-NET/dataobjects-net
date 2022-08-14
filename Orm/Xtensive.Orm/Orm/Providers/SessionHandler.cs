@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract partial class SessionHandler : IDisposable, IAsyncDisposable
   {
-    private static readonly object CachingRegion = new object();
-
     /// <summary>
     /// Gets <see cref="HandlerAccessor"/>.
     /// </summary>
@@ -38,8 +36,9 @@ namespace Xtensive.Orm.Providers
     public SessionHandler GetRealHandler()
     {
       var handler = this;
-      while (handler is ChainingSessionHandler)
-        handler = (handler as ChainingSessionHandler).ChainedHandler;
+      while (handler is ChainingSessionHandler chainingSessionHandler) {
+        handler = chainingSessionHandler.ChainedHandler;
+      }
       return handler;
     }
 

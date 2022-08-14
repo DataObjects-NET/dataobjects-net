@@ -160,9 +160,9 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
+          var locations = session.Query.CreateDelayedQuery(endpoint => from location in endpoint.All<Location>()
             where location.Active && location.Id.In((
-              from loc in session.Query.All<Location>()
+              from loc in endpoint.All<Location>()
               where loc.Id > i && loc.Zone==null
               orderby loc.Id
               select loc.Id))
@@ -312,9 +312,9 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalId(Session session, int startId)
     {
-      var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
+      var locations = session.Query.CreateDelayedQuery(endpoint => from location in endpoint.All<Location>()
         where location.Active && location.Id.In((
-          from loc in session.Query.All<Location>()
+          from loc in endpoint.All<Location>()
           where loc.Id > startId && loc.Zone==null
           orderby loc.Id
           select loc.Id))

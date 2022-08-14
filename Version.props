@@ -2,8 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-    <DoVersion>7.0.1</DoVersion>
-    <DoVersionSuffix>dev</DoVersionSuffix>
+    <DoVersion>7.1.0</DoVersion>
+    <DoVersionSuffix>Beta-2-dev</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>

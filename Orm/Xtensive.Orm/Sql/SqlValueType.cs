@@ -55,7 +55,7 @@ namespace Xtensive.Sql
     /// <inheritdoc/>
     public bool Equals(SqlValueType other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       return
         other.Type==Type &&
@@ -81,9 +81,9 @@ namespace Xtensive.Sql
     {
       if (ReferenceEquals(left, right))
         return true;
-      if (ReferenceEquals(left, null))
+      if (left is null)
         return false;
-      if (ReferenceEquals(right, null))
+      if (right is null)
         return false;
       return left.Equals(right);
     }
@@ -140,9 +140,9 @@ namespace Xtensive.Sql
       if (TypeName!=null)
         return TypeName;
       if (Length!=null)
-        return string.Format("{0}({1})", Type, Length.Value);
+        return $"{Type}({Length.Value})";
       if (Precision!=null)
-        return string.Format("{0}({1},{2})", Type, Precision.Value, Scale.Value);
+        return $"{Type}({Precision.Value},{Scale.Value})";
       return Type.ToString();
     }
 

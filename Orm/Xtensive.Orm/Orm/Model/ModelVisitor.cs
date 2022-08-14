@@ -22,44 +22,21 @@ namespace Xtensive.Orm.Model
     /// <param name="node">The node.</param>
     /// <returns>Visit result.</returns>
     /// <exception cref="ArgumentException">Node type is unknown.</exception>
-    protected virtual TResult Visit(Node node)
-    {
-      var domainModel = node as DomainModel;
-      if (domainModel != null)
-        return VisitDomainModel(domainModel);
-      var keyProviderInfo = node as KeyInfo;
-      if (keyProviderInfo != null)
-        return VisitKeyInfo(keyProviderInfo);
-      var sequenceInfo = node as SequenceInfo;
-      if (sequenceInfo != null)
-        return VisitSequenceInfo(sequenceInfo);
-      var keyField = node as KeyField;
-      if (keyField != null)
-        return VisitKeyField(keyField);
-      var association = node as AssociationInfo;
-      if (association != null)
-        return VisitAssociationInfo(association);
-      var field = node as FieldInfo;
-      if (field != null)
-        return VisitFieldInfo(field);
-      var type = node as TypeInfo;
-      if (type != null)
-        return VisitTypeInfo(type);
-      var column = node as ColumnInfo;
-      if (column != null)
-        return VisitColumnInfo(column);
-      var hierarchy = node as HierarchyInfo;
-      if (hierarchy != null)
-        return VisitHierarchyInfo(hierarchy);
-      var index = node as IndexInfo;
-      if (index != null)
-        return VisitIndexInfo(index);
-      var fullTextIndex = node as FullTextIndexInfo;
-      if (fullTextIndex != null)
-        return VisitFullTextIndexInfo(fullTextIndex);
-
-      throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node");
-    }
+    protected virtual TResult Visit(Node node) =>
+      node switch {
+        DomainModel domainModel => VisitDomainModel(domainModel),
+        KeyInfo keyProviderInfo => VisitKeyInfo(keyProviderInfo),
+        SequenceInfo sequenceInfo => VisitSequenceInfo(sequenceInfo),
+        KeyField keyField => VisitKeyField(keyField),
+        AssociationInfo association => VisitAssociationInfo(association),
+        FieldInfo field => VisitFieldInfo(field),
+        TypeInfo type => VisitTypeInfo(type),
+        ColumnInfo column => VisitColumnInfo(column),
+        HierarchyInfo hierarchy => VisitHierarchyInfo(hierarchy),
+        IndexInfo index => VisitIndexInfo(index),
+        FullTextIndexInfo fullTextIndex => VisitFullTextIndexInfo(fullTextIndex),
+        _ => throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node")
+      };
 
     /// <summary>
     /// Visits key field.

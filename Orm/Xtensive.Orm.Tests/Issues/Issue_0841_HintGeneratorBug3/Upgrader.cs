@@ -1,15 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql.Drivers.SqlServer;
@@ -55,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
       return true;
     }
 
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
 #pragma warning disable 612,618
       // var hints = GetTypeRenameHints("Version1", "Version2");

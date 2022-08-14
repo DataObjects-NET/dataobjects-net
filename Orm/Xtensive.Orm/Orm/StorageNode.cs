@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,6 +14,9 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Interfaces;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Internals;
+using Xtensive.Orm.Internals.Prefetch;
 
 namespace Xtensive.Orm
 {
@@ -44,51 +47,52 @@ namespace Xtensive.Orm
     /// </summary>
     public TypeIdRegistry TypeIdRegistry { get; private set; }
 
-    internal ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
+    /// <summary>
+    /// Caches providers that lock certain type of entity with certain <see cref="LockMode"/> and <see cref="LockBehavior"/>.
+    /// </summary>
+    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; }
 
-    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
+    /// <summary>
+    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
+    /// </summary>
+    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; }
 
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
+    /// <summary>
+    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
+    /// </summary>
+    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; }
+
+    /// <summary>
+    /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
+    /// </summary>
+    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; }
+
+    /// <summary>
+    /// Caches queries that get references to entities for certain association.
+    /// </summary>
+    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; }
+    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
 
     /// <inheritdoc/>
-    public Session OpenSession()
-    {
-      return OpenSession(domain.Configuration.Sessions.Default);
-    }
+    public Session OpenSession() =>
+      OpenSession(domain.Configuration.Sessions.Default);
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionType type)
-    {
-      return type switch {
-        SessionType.User => OpenSession(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSession(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSession(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSession(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Session OpenSession(SessionType type) =>
+      OpenSession(domain.GetSessionConfiguration(type));
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      return domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
       OpenSessionAsync(domain.Configuration.Sessions.Default, cancellationToken);
 
     /// <inheritdoc/>
-    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
-    {
-      return type switch {
-        SessionType.User => OpenSessionAsync(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSessionAsync(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSessionAsync(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSessionAsync(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(domain.GetSessionConfiguration(type), cancellationToken);
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
@@ -117,14 +121,18 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
       ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, nameof(typeIdRegistry));
 
+      EntityLockProviderCache = new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
+      EntityFetchQueryCache = new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
+      EntitySetFetchQueryCache = new ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider>();
+      EntitySetTypeStateCache = new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
+      RefsToEntityQueryCache = new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
+      KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+
       this.domain = domain;
       Configuration = configuration;
       Mapping = mapping;
       TypeIdRegistry = typeIdRegistry;
-
-      KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
-      InternalQueryCache = new ConcurrentDictionary<object, object>();
     }
   }
 }

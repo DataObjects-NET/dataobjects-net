@@ -90,7 +90,7 @@ namespace Xtensive.Tuples
 
       public static FormatHandler Get(Type fieldType)
       {
-        return (FormatHandler) Activator.CreateInstance(FormatHandlerType.MakeGenericType(fieldType));
+        return (FormatHandler) Activator.CreateInstance(FormatHandlerType.CachedMakeGenericType(fieldType));
       }
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Tuples
 
       public static ParseHandler Get(Type fieldType)
       {
-        return (ParseHandler) Activator.CreateInstance(ParseHandlerType.MakeGenericType(fieldType));
+        return (ParseHandler) Activator.CreateInstance(ParseHandlerType.CachedMakeGenericType(fieldType));
       }
     }
 

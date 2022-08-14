@@ -1,50 +1,53 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.08.07
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Rse
 {
   /// <summary>
-  /// Read only collection of <see cref="ColumnGroup"/>.
+  /// Read only collection of the <see cref="ColumnGroup"/> instances.
   /// </summary>
   [Serializable]
-  public class ColumnGroupCollection : ReadOnlyCollection<ColumnGroup>
+  public class ColumnGroupCollection : IReadOnlyList<ColumnGroup>
   {
-    private static ThreadSafeCached<ColumnGroupCollection> cachedEmpty =
-      ThreadSafeCached<ColumnGroupCollection>.Create(new object());
+    private static readonly Lazy<ColumnGroupCollection> CachedEmpty =
+      new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
+
+    private readonly IReadOnlyList<ColumnGroup> items;
+
+    /// <inheritdoc/>
+    public int Count => items.Count;
 
     /// <summary>
     /// Gets the <see cref="ColumnGroup"/> by specified group index.
     /// </summary>
-    public ColumnGroup this[int groupIndex]
-    {
-      get
-      {
-        return this.ElementAt(groupIndex);
-      }
-    }
+    public ColumnGroup this[int groupIndex] => items[groupIndex];
 
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
-    /// </summary>    
+    /// </summary>
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
       get {
-        return cachedEmpty.GetValue(
-          () => new ColumnGroupCollection(Enumerable.Empty<ColumnGroup>()));
+        return CachedEmpty.Value;
       }
     }
 
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    public IEnumerator<ColumnGroup> GetEnumerator() => items.GetEnumerator();
 
     // Constructors
 
@@ -52,18 +55,17 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="items">The collection items.</param>
-    public ColumnGroupCollection(IEnumerable<ColumnGroup> items)
-      : base(items.ToList())
-    {      
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="items">The collection items.</param>
-    public ColumnGroupCollection(List<ColumnGroup> items)
-      : base(items)
-    {      
+    /// <remarks>
+    /// <paramref name="items"/> is used to initialize inner field directly
+    /// to save time on avoiding collection copy. If you pass an <see cref="IReadOnlyList{ColumnGroup}"/>
+    /// implementor that, in fact, can be changed, make sure the passed collection doesn't change afterwards.
+    /// Ideally, use arrays instead of <see cref="List{T}"/> or similar collections.
+    /// Changing the passed collection afterwards will lead to unpredictable results.
+    /// </remarks>
+    public ColumnGroupCollection(IReadOnlyList<ColumnGroup> items)
+    {
+      //!!! Direct initialization by parameter is unsafe performance optimization: See remark in ctor summary!
+      this.items = items;
     }
   }
 }

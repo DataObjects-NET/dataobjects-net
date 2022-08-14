@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public bool Equals(Node other)
     {
-      if (ReferenceEquals(null, other)) 
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other)) 
         return true;
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -49,18 +49,18 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void AppendDescription(StringBuilder output, int indent)
     {
-      output.AppendIndented(indent, GetDescription());
-      output.AppendLine();
-      var hasNestedNodes = this as IHasNestedNodes;
-      if (hasNestedNodes!=null)
-        foreach (var node in hasNestedNodes.NestedNodes)
+      _ = output.AppendIndented(indent, GetDescription()).AppendLine();
+      if (this is IHasNestedNodes hasNestedNodes) {
+        foreach (var node in hasNestedNodes.NestedNodes) {
           node.AppendDescription(output, indent + 2);
+        }
+      }
     }
 
     protected virtual string GetDescription()
     {
       var nodeName = GetType().Name.TryCutSuffix(typeof (Node).Name);
-      return string.Format("{0}({1})", nodeName, Path);
+      return $"{nodeName}({Path})";
     }
 
     // Constructors

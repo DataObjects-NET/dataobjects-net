@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Configuration
       get { return database; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         database = value;
       }
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration
       get { return schema; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         schema = value;
       }
     }
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Configuration
       get { return table; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         table = value;
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Configuration
       get { return column; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         column = value;
       }
     }
@@ -87,10 +87,10 @@ namespace Xtensive.Orm.Configuration
       var separator = ", ";
       StringBuilder sb = new StringBuilder();
       
-      var databasePart = !string.IsNullOrEmpty(database) ? string.Format("Database = {0}",database) : "<default database>";
-      var schemaPart = !string.IsNullOrEmpty(schema) ? string.Format("Schema = {0}", schema) : "<default schema>";
-      var tablePart = !string.IsNullOrEmpty(table) ? string.Format("Table = {0}", table) : "<any table>";
-      var columnPart = !string.IsNullOrEmpty(column) ? string.Format("Column = {0}", column) : "<any column>";
+      var databasePart = !string.IsNullOrEmpty(database) ? $"Database = {database}" : "<default database>";
+      var schemaPart = !string.IsNullOrEmpty(schema) ? $"Schema = {schema}" : "<default schema>";
+      var tablePart = !string.IsNullOrEmpty(table) ? $"Table = {table}" : "<any table>";
+      var columnPart = !string.IsNullOrEmpty(column) ? $"Column = {column}" : "<any column>";
       sb.Append(databasePart)
         .Append(separator)
         .Append(schemaPart)

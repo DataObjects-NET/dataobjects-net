@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
@@ -90,11 +90,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = new ProjectionExpression(
-        ProjectionExpression.Type, 
-        newItemProjector, 
-        ProjectionExpression.TupleParameterBindings, 
-        ProjectionExpression.ResultAccessMethod);
+      var newProjectionExpression = ProjectionExpression.Apply(newItemProjector);
       return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 

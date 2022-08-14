@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
         throw new InvalidOperationException(string.Format(
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
       UpdateRegistry(newItems, conflictHandlingMethod);
@@ -237,14 +237,14 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       
       if (!specialCase) {
         if (isCtor)
-          targetMember = targetType.GetConstructor(bindingFlags, parameterTypes);
+          targetMember = targetType.GetConstructorEx(bindingFlags, parameterTypes);
         else if (isField)
           targetMember = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
           targetMember = targetType
-            .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
+            .GetMethodEx(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 
@@ -321,8 +321,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         else if (canonicalMember is MethodInfo methodInfo) {
           canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods());
         }
-        else if (canonicalMember is ConstructorInfo)
-          canonicalMember = GetCanonicalMethod((ConstructorInfo) canonicalMember, targetType.GetConstructors());
+        else if (canonicalMember is ConstructorInfo constructorInfo)
+          canonicalMember = GetCanonicalMethod(constructorInfo, targetType.GetConstructors());
         else
           canonicalMember = null;
       }

@@ -223,7 +223,7 @@ namespace Xtensive.Linq
         case MemberBindingType.ListBinding:
           return VisitMemberListBinding((MemberListBinding) binding);
         default:
-          throw new Exception(string.Format("Unhandled binding type '{0}'", binding.BindingType));
+          throw new Exception($"Unhandled binding type '{binding.BindingType}'");
       }
     }
 

@@ -16,8 +16,8 @@ namespace Xtensive.Conversion
     where TTo : struct
     where TIntermediate : struct
   {
-    private static readonly Converter<TIntermediate, TTo> outputEnumConverter;
-    private static readonly Converter<TFrom, TIntermediate> inputEnumConverter;
+    private static readonly Converter<TIntermediate, TTo> outputEnumConverter = typeof(TTo).IsEnum ? DelegateHelper.CreatePrimitiveCastDelegate<TIntermediate, TTo>() : null;
+    private static readonly Converter<TFrom, TIntermediate> inputEnumConverter = typeof(TFrom).IsEnum ? DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TIntermediate>() : null;
 
     private readonly AdvancedConverterStruct<TIntermediate, TTo> outputValueTypeAdvancedConverter;
     private readonly AdvancedConverterStruct<TFrom, TIntermediate> inputValueTypeAdvancedConverter;
@@ -47,14 +47,6 @@ namespace Xtensive.Conversion
         inputValueTypeAdvancedConverter = provider.GetConverter<TFrom, TIntermediate>();
       if (!typeof (TTo).IsEnum)
         outputValueTypeAdvancedConverter = provider.GetConverter<TIntermediate, TTo>();
-    }
-
-    static EnumAdvancedConverter()
-    {
-      if (typeof (TTo).IsEnum)
-        outputEnumConverter = DelegateHelper.CreatePrimitiveCastDelegate<TIntermediate, TTo>();
-      if (typeof (TFrom).IsEnum)
-        inputEnumConverter = DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TIntermediate>();
     }
   }
 }

@@ -17,8 +17,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
       var clone = new SqlDynamicFilter(Id);
       foreach (var expression in Expressions) {
         clone.Expressions.Add((SqlExpression) expression.Clone(context));
@@ -35,9 +36,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlDynamicFilter>(expression, "expression");
-      var replacingExpression = (SqlDynamicFilter) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlDynamicFilter>(expression);
       Id = replacingExpression.Id;
       Expressions.Clear();
       Expressions.AddRange(replacingExpression.Expressions);

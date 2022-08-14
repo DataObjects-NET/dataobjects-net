@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.07.30
 
@@ -26,10 +26,8 @@ namespace Xtensive.Core
     /// <returns>
     /// A reference to the <paramref name="builder"/> after append operation has completed.
     /// </returns>
-    public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value)
-    {
-      return builder.AppendIndented(indent, value, true);
-    }
+    public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value) =>
+      builder.AppendIndented(indent, value, true);
 
     /// <summary>
     /// Appends the specified <see cref="string"/> indented by specified count of spaces.
@@ -43,33 +41,35 @@ namespace Xtensive.Core
     /// </returns>
     public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value, bool indentFirstLine)
     {
-      string indentString = new string(IndentChar, indent);
+      var indentString = new string(IndentChar, indent);
+      var lines = value.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
-      string[] lines = value.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+      for (var i = 0; i < lines.Length; i++) {
+        var line = lines[i];
 
-      for (int i = 0; i < lines.Length; i++) {       
-        string line = lines[i];        
-
-        bool isLast = i==lines.Length-1;
-        if (isLast && line.Trim() == string.Empty)
+        var isLast = i == lines.Length - 1;
+        if (isLast && line.Trim() == string.Empty) {
           break;
-        
-        if (i!=0 || indentFirstLine)
-          builder.Append(indentString);
+        }
 
-        builder.Append(line);
+        if (i != 0 || indentFirstLine) {
+          _ = builder.Append(indentString);
+        }
 
-        if (!isLast)
-          builder.AppendLine();
+        _ = builder.Append(line);
+
+        if (!isLast) {
+          _ = builder.AppendLine();
+        }
       }
 
       return builder;
     }
 
     /// <summary>
-    /// Appends the specified <see cref="byte"/> array in hexidecimal representation.
+    /// Appends the specified <see cref="byte"/> array in hexidecimal representation in lower case.
     /// These bytes are written from left to right, high part of byte is written first.
-    /// For example {1,2,10} will be appended as 01020A.
+    /// For example {1,2,10} will be appended as 01020a.
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="values">The values.</param>
@@ -78,11 +78,31 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
+
+      const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        int hi = item >> 4;
-        int low = item & 0xF;
-        builder.Append(Convert.ToString(hi, 16));
-        builder.Append(Convert.ToString(low, 16));
+        _ = builder.Append(lowerHexChars[item >> 4])
+          .Append(lowerHexChars[item & 0xF]);
+      }
+      return builder;
+    }
+
+    /// <summary>
+    /// Appends the specified <see cref="byte"/> array in hexidecimal representation in lower case.
+    /// These bytes are written from left to right, high part of byte is written first.
+    /// For example {1,2,10} will be appended as 01020a.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="values">The values.</param>
+    /// <returns>Original <paramref name="builder"/>.</returns>
+    public static StringBuilder AppendHexArray(this StringBuilder builder, in ReadOnlySpan<byte> values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
+
+      const string lowerHexChars = "0123456789abcdef";
+      foreach (var item in values) {
+        _ = builder.Append(lowerHexChars[item >> 4])
+          .Append(lowerHexChars[item & 0xF]);
       }
       return builder;
     }

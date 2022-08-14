@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
-
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
 {
@@ -38,6 +38,17 @@ namespace Xtensive.Sql.Model
         nameIndex.Add(item.GetNameInternal(), item);
     }
 
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TNode> nodes)
+    {
+      EnsureNotLocked();
+      foreach (var node in nodes) {
+        Add(node);
+      }
+    }
+
+
+    /// <inheritdoc/>
     public override bool Remove(TNode item)
     {
       bool result = base.Remove(item);
@@ -46,6 +57,7 @@ namespace Xtensive.Sql.Model
       return result;
     }
 
+    /// <inheritdoc/>
     public override void Clear()
     {
       base.Clear();
@@ -83,6 +95,17 @@ namespace Xtensive.Sql.Model
       : base(capacity)
     {
       nameIndex = new Dictionary<string, TNode>(capacity, Comparer);
+    }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="comparer">Comparer for inner name index.</param>
+    public NodeCollection(int capacity, IEqualityComparer<string> comparer)
+      : base(capacity)
+    {
+      nameIndex = new Dictionary<string, TNode>(capacity, comparer);
     }
   }
 }

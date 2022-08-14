@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
         providerVisitor.VisitCompilable(provider.Right);
         shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains)
           || groupByIsUsed
-          || provider.Left.Type.In(ProviderType.Store, ProviderType.Include)
+          || provider.Left.Type is ProviderType.Store or ProviderType.Include
           || left.Header.Columns.Count!=left.Request.Statement.Columns.Count;
       }
 
@@ -81,6 +81,8 @@ namespace Xtensive.Orm.Providers
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right, shouldUseQueryReference);
 
+        query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
+        
         return CreateProvider(query, provider, left, right);
       }
     }

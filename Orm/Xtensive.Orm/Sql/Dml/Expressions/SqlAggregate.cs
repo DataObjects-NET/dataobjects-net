@@ -33,24 +33,17 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlAggregate>(expression, "expression");
-      var replacingExpression = (SqlAggregate) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlAggregate>(expression);
       NodeType = replacingExpression.NodeType;
       distinct = replacingExpression.Distinct;
       this.expression = replacingExpression.Expression;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlAggregate(NodeType,
-        expression.IsNullReference() ? null : (SqlExpression) expression.Clone(context), distinct);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlAggregate(NodeType,
+            expression is null ? null : (SqlExpression) expression.Clone(context), distinct);
 
     internal SqlAggregate(SqlNodeType nodeType, SqlExpression expression, bool distinct) : base(nodeType)
     {

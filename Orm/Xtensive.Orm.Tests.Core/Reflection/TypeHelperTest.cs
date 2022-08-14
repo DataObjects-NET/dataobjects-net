@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
@@ -14,6 +14,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;
+using System.Linq;
 
 namespace Xtensive.Orm.Tests.Core.Reflection
 {
@@ -30,13 +31,13 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     public void DirectAssociateTest()
     {
       // Checking class A associates
-      o = TypeHelper.CreateAssociate<AAssociate>(typeof (A), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AAssociate>(typeof (A), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AIAssociate>(typeof (AI), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AIAssociate>(typeof (AI), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AITAssociate<int>>(typeof (AIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AITAssociate<int>>(typeof (AIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AIT2Associate<int, int>>(typeof (AIT2<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AIT2Associate<int, int>>(typeof (AIT2<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
     }
 
@@ -44,13 +45,13 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     public void InheritedAssociateTest1()
     {
       // Checking class B associates
-      o = TypeHelper.CreateAssociate<AAssociate>(typeof (BA), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AAssociate>(typeof (BA), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<InterfaceAssociate>(typeof (BI), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<InterfaceAssociate>(typeof (BI), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(typeof (BIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(typeof (BIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<T2InterfaceAssociate<int, int>>(typeof (BIT2<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<T2InterfaceAssociate<int, int>>(typeof (BIT2<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
     }
 
@@ -58,13 +59,13 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     public void InheritedAssociateTest2()
     {
       // Checking class C associates
-      o = TypeHelper.CreateAssociate<AAssociate>(typeof (CB), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AAssociate>(typeof (CB), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<InterfaceAssociate>(typeof (CBI), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<InterfaceAssociate>(typeof (CBI), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(typeof (CBIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(typeof (CBIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<T2InterfaceAssociate<int, int>>(typeof (CBIT2<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<T2InterfaceAssociate<int, int>>(typeof (CBIT2<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
     }
 
@@ -72,13 +73,13 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     public void InheritedAssociateTest3()
     {
       // Checking class D associates
-      o = TypeHelper.CreateAssociate<AAssociate>(typeof (DA), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AAssociate>(typeof (DA), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AIAssociate>(typeof (DAI), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AIAssociate>(typeof (DAI), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AITAssociate<int>>(typeof (DAIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AITAssociate<int>>(typeof (DAIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<AIT2Associate<int, int>>(typeof (DAIT2<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<AIT2Associate<int, int>>(typeof (DAIT2<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
     }
 
@@ -86,13 +87,13 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     public void OverridenAssociateTest()
     {
       // Checking class E associates
-      o = TypeHelper.CreateAssociate<EAAssociate>(typeof (EA), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<EAAssociate>(typeof (EA), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<EAIAssociate>(typeof (EAI), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<EAIAssociate>(typeof (EAI), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<EAITAssociate<int>>(typeof (EAIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<EAITAssociate<int>>(typeof (EAIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
-      o = TypeHelper.CreateAssociate<EAIT2Associate<int, int>>(typeof (EAIT2<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+      o = TypeHelper.CreateAssociate<EAIT2Associate<int, int>>(typeof (EAIT2<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
     }
 
@@ -102,68 +103,68 @@ namespace Xtensive.Orm.Tests.Core.Reflection
       // Checking multiple match associates
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (FIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (FIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (FIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (FIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
 
       o = TypeHelper.CreateAssociate<InterfaceAssociate>(
-        typeof (FIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (FIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
       o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(
-        typeof (FIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (FIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
 
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (GFIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (GFIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (GFIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (GFIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
 
       o = TypeHelper.CreateAssociate<InterfaceAssociate>(
-        typeof (GFIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (GFIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
       o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(
-        typeof (GFIIT<int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (GFIIT<int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
 
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
       try {
         TypeHelper.CreateAssociate<IAssociate>(
-          typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+          typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
         Assert.Fail("{0} expected.", typeof (InvalidOperationException).Name);
       }
       catch (InvalidOperationException) {
       }
 
       o = TypeHelper.CreateAssociate<InterfaceAssociate>(
-        typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
       o = TypeHelper.CreateAssociate<TInterfaceAssociate<int>>(
-        typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix, ArrayUtils<object>.EmptyArray);
+        typeof (GIT2FIIT<int, int>), out foundFor, associateSuffix,  Array.Empty<object>());
       Assert.IsNotNull(o);
 
       try {
@@ -479,6 +480,48 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
       Assert.IsFalse(TypeHelper.IsNullable<int>());
       Assert.IsFalse(TypeHelper.IsNullable<string>());
+    }
+
+    [Test]
+    public void IsValueTupleTest()
+    {
+      var tupleTypes = new[] {
+        typeof (ValueTuple<int>),
+        typeof (ValueTuple<int, int>),
+        typeof (ValueTuple<int, int, int>),
+        typeof (ValueTuple<int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int, int, int>)
+      };
+
+      var otherTypes = new[] {
+        typeof (string),
+        typeof (char),
+        typeof (bool),
+        typeof (DateTime),
+        typeof (TimeSpan),
+        typeof (Guid),
+        typeof (TypeCode),
+        typeof (byte[]),
+        typeof (Key),
+        this.GetType()
+      };
+
+      var startingToken = tupleTypes[0].MetadataToken;
+
+      Assert.That(
+        tupleTypes.Select(t => t.MetadataToken - startingToken).SequenceEqual(Enumerable.Range(0, tupleTypes.Length)),
+        Is.True);
+
+      foreach (var type in tupleTypes) {
+        Assert.IsTrue(type.IsValueTuple());
+      }
+
+      foreach (var type in otherTypes) {
+        Assert.IsFalse(type.IsValueTuple());
+      }
     }
   }
 }

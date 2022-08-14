@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -15,89 +15,79 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
+  internal readonly struct RecordSetCacheKey : IEquatable<RecordSetCacheKey>
+  {
+    public readonly int[] ColumnIndexes;
+    public readonly TypeInfo Type;
+    private readonly int cachedHashCode;
+
+    public bool Equals(RecordSetCacheKey other)
+    {
+      if (!Type.Equals(other.Type)) {
+        return false;
+      }
+
+      if (ColumnIndexes.Length != other.ColumnIndexes.Length) {
+        return false;
+      }
+
+      for (var i = ColumnIndexes.Length - 1; i >= 0; i--) {
+        if (ColumnIndexes[i] != other.ColumnIndexes[i]) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    public override bool Equals(object obj) =>
+      obj is RecordSetCacheKey other && Equals(other);
+
+    public override int GetHashCode() => cachedHashCode;
+
+
+    // Constructors
+
+    public RecordSetCacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
+    {
+      ColumnIndexes = columnIndexes;
+      Type = type;
+      this.cachedHashCode = cachedHashCode;
+    }
+  }
+
   [Serializable]
   internal sealed class EntityGroupTask : IEquatable<EntityGroupTask>
   {
-    #region Nested classes
-
-    private struct CacheKey : IEquatable<CacheKey>
-    {
-      public readonly int[] ColumnIndexes;
-      public readonly TypeInfo Type;
-      private readonly int cachedHashCode;
-
-      public bool Equals(CacheKey other)
-      {
-        if (!Type.Equals(other.Type)) {
-          return false;
-        }
-
-        if (ColumnIndexes.Length != other.ColumnIndexes.Length) {
-          return false;
-        }
-
-        for (var i = ColumnIndexes.Length - 1; i >= 0; i--) {
-          if (ColumnIndexes[i] != other.ColumnIndexes[i]) {
-            return false;
-          }
-        }
-
-        return true;
-      }
-
-      public override bool Equals(object obj)
-      {
-        if (ReferenceEquals(null, obj)) {
-          return false;
-        }
-
-        if (obj.GetType() != typeof(CacheKey)) {
-          return false;
-        }
-
-        return Equals((CacheKey) obj);
-      }
-
-      public override int GetHashCode() => cachedHashCode;
-
-
-      // Constructors
-
-      public CacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
-      {
-        ColumnIndexes = columnIndexes;
-        Type = type;
-        this.cachedHashCode = cachedHashCode;
-      }
-    }
-
-    #endregion
-
     private const int MaxKeyCountInOneStatement = 40;
-    private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<IEnumerable<Tuple>> includeParameter =
       new Parameter<IEnumerable<Tuple>>("Keys");
+
+    private static readonly Func<RecordSetCacheKey, CompilableProvider> CreateRecordSet = cachingKey => {
+      var selectedColumnIndexes = cachingKey.ColumnIndexes;
+      var primaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
+      var keyColumnsCount = primaryIndex.KeyColumns.Count;
+      var keyColumnIndexes = new int[keyColumnsCount];
+      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
+        keyColumnIndexes[index] = index;
+      }
+
+      var columnCollectionLength = primaryIndex.Columns.Count;
+      return primaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
+        true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
+        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
+    };
 
     private Dictionary<Key, bool> keys;
     private readonly TypeInfo type;
     private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
-    private readonly CacheKey cacheKey;
+    private readonly RecordSetCacheKey cacheKey;
 
     public CompilableProvider Provider { get; private set; }
 
-    public void AddKey(Key key, bool exactType)
-    {
-      if (keys == null) {
-        keys = new Dictionary<Key, bool>();
-      }
-
-      if (keys.ContainsKey(key)) {
-        return;
-      }
-
-      keys.Add(key, exactType);
-    }
+    public void AddKey(Key key, bool exactType) =>
+      (keys ??= new Dictionary<Key, bool>()).TryAdd(key, exactType);
 
     public void RegisterQueryTasks()
     {
@@ -135,25 +125,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public bool Equals(EntityGroupTask other)
     {
-      if (ReferenceEquals(null, other)) {
+      if (other is null) {
         return false;
       }
 
       return ReferenceEquals(this, other) || other.cacheKey.Equals(cacheKey);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-
-      return obj is EntityGroupTask entityGroupTask && Equals(entityGroupTask);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is EntityGroupTask other && Equals(other);
 
     public override int GetHashCode() => cacheKey.GetHashCode();
 
@@ -161,28 +142,15 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
-      object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
-      Func<object, object> generator = CreateRecordSet;
       var session = manager.Owner.Session;
-      Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
+      if (session.Domain.TagsEnabled && session.Tags != null) {
+        foreach (var tag in session.Tags) {
+          Provider = new TagProvider(Provider, tag);
+        }
+      }
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
-    }
-
-    private static CompilableProvider CreateRecordSet(object cachingKey)
-    {
-      var pair = (Pair<object, CacheKey>) cachingKey;
-      var selectedColumnIndexes = pair.Second.ColumnIndexes;
-      var keyColumnsCount = pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count;
-      var keyColumnIndexes = new int[keyColumnsCount];
-      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
-        keyColumnIndexes[index] = index;
-      }
-
-      var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
-        true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
-        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }
 
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, EntityDataReader reader,
@@ -190,13 +158,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var entityRecords = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
       foreach (var entityRecord in entityRecords) {
-        if (entityRecord != null) {
-          var fetchedKey = entityRecord.GetKey();
-          var tuple = entityRecord.GetTuple();
-          if (tuple != null) {
-            manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
-            foundedKeys.Add(fetchedKey);
-          }
+        var fetchedKey = entityRecord.GetKey();
+        var tuple = entityRecord.GetTuple();
+        if (tuple != null) {
+          manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
+          foundedKeys.Add(fetchedKey);
         }
       }
     }
@@ -250,7 +216,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
 
       cachedHashCode ^= type.GetHashCode();
-      cacheKey = new CacheKey(columnIndexes, type, cachedHashCode);
+      cacheKey = new RecordSetCacheKey(columnIndexes, type, cachedHashCode);
     }
   }
 }

@@ -32,15 +32,49 @@
     <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</DoGeneratePackage>
     <DoGeneratePackage Condition="$(MSBuildProjectName) == 'TestCommon'">false</DoGeneratePackage>
     <DoGeneratePackage Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</DoGeneratePackage>
+
+    <!-- BuildingInsideVisualStudio is also true in Rider -->
+    <DoIsIdeBuild>false</DoIsIdeBuild>
+    <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
+
+    <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
+    <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
+  </PropertyGroup>
+
+  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
+    <!-- hard binding to net6, no property and env variable allowed -->
+    <TargetFrameworks>net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Debug-NET5, Release-NET5 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET5')) == 'true'">
+    <!-- hard binding to net5, no property and env variable allowed-->
+    <TargetFrameworks>net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
+  <PropertyGroup Label="Defaults" Condition="$(Configuration.Contains('NET5')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
+    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
+    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0;net5.0</TargetFrameworks> <!-- fallback to default -->
+  </PropertyGroup>
+
+  <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
+   <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true'">
+   <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
-    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
     <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
@@ -50,9 +84,9 @@
       OR $(MSBuildProjectName) == 'TestCommon'
       OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)lib\</OutputPath>
-    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <MSBuildProjectExtensionsPath>$(IntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
-    <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
+    <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
 

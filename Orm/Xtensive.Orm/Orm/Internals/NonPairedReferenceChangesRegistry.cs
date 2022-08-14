@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Internals
       HashSet<EntityState> removedMap;
       if (removedReferences.TryGetValue(key, out removedMap))
         return removedMap;
-      return EnumerableUtils<EntityState>.Empty;
+      return Enumerable.Empty<EntityState>();
     }
 
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Internals
       HashSet<EntityState> removedMap;
       if (addedReferences.TryGetValue(key, out removedMap))
         return removedMap;
-      return EnumerableUtils<EntityState>.Empty;
+      return Enumerable.Empty<EntityState>();
     }
 
     public void Invalidate()
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Internals
 
     private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure)
     {
-      var name = string.Format("{0}.{1}", fieldOfOwner.Name, referenceFieldOfStructure.Name);
+      var name = $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
       return name;
     }
 

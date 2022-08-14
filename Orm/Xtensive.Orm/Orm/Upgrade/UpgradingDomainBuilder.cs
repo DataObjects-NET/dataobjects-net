@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Modelling.Comparison;
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
-      serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
+      serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToList().AsReadOnly();
     }
 
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -389,10 +389,8 @@ namespace Xtensive.Orm.Upgrade
         .Select(pair => pair.Value);
 
       // Storing the result
-      serviceAccessor.UpgradeHandlers = 
-        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
-      serviceAccessor.OrderedUpgradeHandlers = 
-        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+      serviceAccessor.UpgradeHandlers = new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
+      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList().AsReadOnly();
     }
 
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -550,7 +548,7 @@ namespace Xtensive.Orm.Upgrade
           context.SchemaHints.Add(schemaHint);
         }
         catch (Exception error) {
-          UpgradeLog.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+          UpgradeLog.Warning(nameof(Strings.LogFailedToAddSchemaHintXErrorY), schemaHint, error);
         }
       }
     }
@@ -558,7 +556,7 @@ namespace Xtensive.Orm.Upgrade
     private void SynchronizeSchema(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -568,7 +566,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -582,15 +580,15 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Third;
-        targetSchema = triplet.First;
+        var hintProcessingResult = triplet.Item3;
+        targetSchema = triplet.Item1;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Second;
+        var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         OnSchemaReady();
@@ -598,13 +596,12 @@ namespace Xtensive.Orm.Upgrade
         var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
           hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat, context.Stage);
-        var shouldDumpSchema = !schemaUpgradeMode.In(
-          SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
+        var shouldDumpSchema = !(schemaUpgradeMode is SchemaUpgradeMode.Skip or SchemaUpgradeMode.ValidateCompatible or SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;
@@ -644,7 +641,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task SynchronizeSchemaAsync(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode, CancellationToken token)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -654,7 +651,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -668,15 +665,15 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Third;
-        targetSchema = triplet.First;
+        var hintProcessingResult = triplet.Item3;
+        targetSchema = triplet.Item1;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Second;
+        var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         await OnSchemaReadyAsync(token).ConfigureAwait(false);
@@ -684,13 +681,12 @@ namespace Xtensive.Orm.Upgrade
         var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
           hints, context.Hints, schemaUpgradeMode, domain.Model, briefExceptionFormat, context.Stage);
-        var shouldDumpSchema = !schemaUpgradeMode.In(
-          SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
+        var shouldDumpSchema = !(schemaUpgradeMode is SchemaUpgradeMode.Skip or SchemaUpgradeMode.ValidateCompatible or SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;
@@ -729,7 +725,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult> BuildTargetModelAndHints(StorageModel extractedSchema)
+    private (StorageModel, HintSet, UpgradeHintsProcessingResult) BuildTargetModelAndHints(StorageModel extractedSchema)
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
@@ -737,9 +733,10 @@ namespace Xtensive.Orm.Upgrade
       var processedInfo = hintProcessor.Process(context.Hints);
       var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
-      if (context.Stage == UpgradeStage.Upgrading)
+      if (context.Stage == UpgradeStage.Upgrading) {
         BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
-      return new Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult>(targetModel, context.SchemaHints, processedInfo);
+      }
+      return (targetModel, context.SchemaHints, processedInfo);
     }
 
 

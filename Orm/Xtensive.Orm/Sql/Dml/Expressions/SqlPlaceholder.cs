@@ -12,14 +12,10 @@ namespace Xtensive.Sql.Dml
   {
     public object Id { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlPlaceholder(Id);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlPlaceholder(Id);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -28,9 +24,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlPlaceholder>(expression, "expression");
-      var replacingExpression = (SqlPlaceholder) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlPlaceholder>(expression);
       Id = replacingExpression.Id;
     }
 

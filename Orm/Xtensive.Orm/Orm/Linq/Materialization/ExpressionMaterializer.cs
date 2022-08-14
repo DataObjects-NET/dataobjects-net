@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -26,14 +26,18 @@ namespace Xtensive.Orm.Linq.Materialization
   [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
-    private static readonly MethodInfo BuildPersistentTupleMethod;
-    private static readonly MethodInfo GetTupleSegmentMethod;
-    private static readonly MethodInfo GetParameterValueMethod;
-    private static readonly PropertyInfo ParameterContextProperty;
-    private static readonly MethodInfo GetTupleParameterValueMethod;
+    private const string RootQueryTagsPrefix = "Root query tags ->";
+
+    private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
+    private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+    private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
+    private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
 
     private readonly TranslatorContext context;
-    private readonly ParameterExpression tupleParameter;
     private readonly ParameterExpression itemMaterializationContextParameter;
     private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
     private readonly HashSet<Parameter<Tuple>> tupleParameters;
@@ -50,19 +54,16 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
+      var visitor = new ExpressionMaterializer(context, null, Enumerable.Empty<Parameter<Tuple>>());
       var processedExpression = OwnerRemover.RemoveOwner(expression);
-      return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
+      return FastExpression.Lambda(visitor.Visit(processedExpression), TupleParameter);
     }
 
-    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
+    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context,
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var materializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, materializationContextParameter, tupleParameters);
-      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), tupleParameter, materializationContextParameter);
+      var visitor = new ExpressionMaterializer(context, MaterializationContextParameter, tupleParameters);
+      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), TupleParameter, MaterializationContextParameter);
       var count = visitor.entityRegistry.Count;
       return new MaterializationInfo(count, lambda);
     }
@@ -76,8 +77,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = WellKnownOrmTypes.FullTextMatchOfT
-        .MakeGenericType(expression.EntityExpression.Type)
-        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
+        .CachedMakeGenericType(expression.EntityExpression.Type)
+        .GetConstructorEx(BindingFlags.NonPublic | BindingFlags.Instance,
           new object[] {WellKnownTypes.Double, expression.EntityExpression.Type});
 
       return Expression.New(
@@ -90,11 +91,11 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       var target = expression.Target;
       var processedTarget = Visit(target);
-      if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
-        if (itemMaterializationContextParameter==null)
+      if (expression.MarkerType != MarkerType.None && (expression.MarkerType & MarkerType.Default) == MarkerType.None) {
+        if (itemMaterializationContextParameter == null)
           return processedTarget;
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
-        var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
+        var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, TupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowEmptySequenceExceptionMethodInfo), target.Type);
         return Expression.Condition(sequenceCheck, throwException, processedTarget);
       }
@@ -104,16 +105,14 @@ namespace Xtensive.Orm.Linq.Materialization
     protected override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
     {
       // 1. Prepare subquery parameters.
-      Parameter<Tuple> parameterOfTuple;
-      Type elementType;
-      ProjectionExpression projection;
-      var translatedQuery = PrepareSubqueryParameters(groupingExpression, out parameterOfTuple, out elementType, out projection);
+      var translatedQuery = PrepareSubqueryParameters(groupingExpression,
+        out var parameterOfTuple, out var elementType, out var projection);
 
       // 2. Create constructor
       var keyType = groupingExpression.KeyExpression.Type;
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
       var groupingCtor = WellKnownOrmTypes.GroupingOfTKeyTElement
-        .MakeGenericType(keyType, elementType)
+        .CachedMakeGenericType(keyType, elementType)
         .GetConstructor(new[] {
           WellKnownOrmTypes.ProjectionExpression,
           WellKnownOrmTypes.TranslatedQuery,
@@ -129,7 +128,7 @@ namespace Xtensive.Orm.Linq.Materialization
         Expression.Constant(projection),
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
-        tupleParameter,
+        TupleParameter,
         keyMaterializer,
         itemMaterializationContextParameter);
 
@@ -145,7 +144,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 2. Create constructor
       var subQueryCtor = WellKnownOrmTypes.SubQueryOfT
-        .MakeGenericType(elementType)
+        .CachedMakeGenericType(elementType)
         .GetConstructor(SubQueryConstructorArgumentTypes);
 
       // 3. Create result expression.
@@ -154,7 +153,7 @@ namespace Xtensive.Orm.Linq.Materialization
         Expression.Constant(projection),
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
-        tupleParameter,
+        TupleParameter,
         itemMaterializationContextParameter);
 
       return Expression.Convert(resultExpression, subQueryExpression.Type);
@@ -162,35 +161,40 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private TranslatedQuery PrepareSubqueryParameters(SubQueryExpression subQueryExpression, out Parameter<Tuple> parameterOfTuple, out Type elementType, out ProjectionExpression projection)
     {
+      var projectionExpression = subQueryExpression.ProjectionExpression;
+
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
+      var dataSource = projectionExpression.ItemProjector.DataSource;
+
+      var rootTags = context.GetMainQueryTags();
+      if (rootTags.Count > 0) {
+        dataSource = dataSource.Tag($"({RootQueryTagsPrefix} {string.Join(' ', rootTags)})");
+      }
+
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.DataSource,
+        dataSource,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.Item,
+        projectionExpression.ItemProjector.Item,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
-      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
+      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, projectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
-      // 2. Add only parameter<tuple>. Tuple value will be assigned 
+      // 2. Add only parameter<tuple>. Tuple value will be assigned
       // at the moment of materialization in SubQuery constructor
-      projection = new ProjectionExpression(
-        subQueryExpression.ProjectionExpression.Type,
-        itemProjector,
-        subQueryExpression.ProjectionExpression.TupleParameterBindings,
-        subQueryExpression.ProjectionExpression.ResultAccessMethod);
+      projection = projectionExpression.Apply(itemProjector);
 
       // 3. Make translation 
-      elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
-      var translateMethod = Translator.TranslateMethod;
-      return (TranslatedQuery) translateMethod.Invoke(
-        context.Translator,
-        new object[] {projection, tupleParameters.Append(parameterOfTuple)});
+      elementType = projectionExpression.ItemProjector.Item.Type;
+
+      using (context.DisableSessionTags()) {
+        return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
+      }
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
@@ -198,7 +202,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var tupleExpression = GetTupleExpression(expression);
 
       // Materialize non-owned field.
-      if (expression.Owner==null || expression.UnderlyingProperty == null) {
+      if (expression.Owner == null || expression.UnderlyingProperty == null) {
         if (expression.Field.IsEnum) {
           var underlyingType = Enum.GetUnderlyingType(expression.Type.StripNullable());
           if (expression.Field.IsNullable)
@@ -224,28 +228,27 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
-    {
-      throw new NotSupportedException(String.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.SourceExpression));
-    }
+    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
+      throw new NotSupportedException(
+        string.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.ToString()));
 
     protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
       // Materialize non-owned structure.
-      if (expression.Owner==null) {
+      if (expression.Owner == null) {
         var typeInfo = expression.PersistentType;
         var tuplePrototype = typeInfo.TuplePrototype;
         var mappingInfo = expression.Fields
           .OfType<FieldExpression>()
-          .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
+          .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
           .OrderBy(f => f.Field.MappingInfo.Offset)
           .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
           .Distinct()
           .ToArray();
 
-        int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
+        var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
         var persistentTupleExpression = (Expression) Expression.Call(
           BuildPersistentTupleMethod,
@@ -266,18 +269,18 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var newExpression = expression.Constructor==null
+      var newExpression = expression.Constructor == null
         ? Expression.New(expression.Type) // Value type with default ctor (expression.Constructor is null in that case)
         : Expression.New(expression.Constructor, expression.ConstructorArguments.Select(Visit));
 
       var realBindings = expression.NativeBindings;
 
-      return expression.NativeBindings.Count == 0 
-        ? newExpression 
+      return expression.NativeBindings.Count == 0
+        ? newExpression
         : (Expression) Expression.MemberInit(newExpression, expression
-        .NativeBindings
-        .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
-        .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
+          .NativeBindings
+          .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
+          .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }
 
     protected override Expression VisitStructureExpression(StructureExpression expression)
@@ -288,13 +291,13 @@ namespace Xtensive.Orm.Linq.Materialization
       var tuplePrototype = typeInfo.TuplePrototype;
       var mappingInfo = expression.Fields
         .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
+        .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
         .OrderBy(f => f.Field.MappingInfo.Offset)
         .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
-      int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
+      var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
       var persistentTupleExpression = (Expression) Expression.Call(
         BuildPersistentTupleMethod,
@@ -324,7 +327,7 @@ namespace Xtensive.Orm.Linq.Materialization
           Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
-        Expression.Constant(TypeReferenceAccuracy.BaseType),
+        TypeReferenceAccuracyConstantExpression,
         tupleExpression);
     }
 
@@ -337,21 +340,23 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <exception cref="InvalidOperationException">Unable to materialize Entity.</exception>
     private Expression CreateEntity(IEntityExpression expression, Expression tupleExpression)
     {
-      int index;
-      if (!entityRegistry.TryGetValue(expression, out index)) {
+      if (!entityRegistry.TryGetValue(expression, out var index)) {
         index = entityRegistry.Count;
         entityRegistry.Add(expression, index);
       }
 
-      if (itemMaterializationContextParameter==null)
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX, context.Translator.state.CurrentLambda, expression.PersistentType.UnderlyingType.FullName));
+      if (itemMaterializationContextParameter == null)
+        throw new InvalidOperationException(
+          string.Format(Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX,
+            context.Translator.State.CurrentLambda,
+            expression.PersistentType.UnderlyingType.FullName));
 
-      var typeIdField = expression.Fields.SingleOrDefault(f => f.Name==WellKnown.TypeIdFieldName);
-      int typeIdIndex = typeIdField==null ? -1 : typeIdField.Mapping.Offset;
+      var typeIdField = expression.Fields.SingleOrDefault(f => f.Name == WellKnown.TypeIdFieldName);
+      var typeIdIndex = typeIdField == null ? -1 : typeIdField.Mapping.Offset;
 
       var mappingInfo = expression.Fields
         .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
+        .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
         .OrderBy(f => f.Field.MappingInfo.Offset)
         .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
@@ -384,13 +389,13 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
-      if (expression.Entity!=null)
+      if (expression.Entity != null)
         return Visit(expression.Entity);
 
       var tupleExpression = GetTupleExpression(expression);
-      if (itemMaterializationContextParameter==null)
-        return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
-      return CreateEntity(expression, tupleExpression);
+      return itemMaterializationContextParameter == null
+        ? tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset)
+        : CreateEntity(expression, tupleExpression);
     }
 
     protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
@@ -398,7 +403,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var tupleExpression = GetTupleExpression(expression);
       var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
       var prefetechMethodInfo = MaterializationHelper.PrefetchEntitySetMethodInfo
-        .MakeGenericMethod(expression.Type);
+        .CachedMakeGenericMethod(expression.Type);
       var prefetchEntitySetExpression = Expression.Call(
         prefetechMethodInfo,
         materializedEntitySetExpression,
@@ -432,21 +437,18 @@ namespace Xtensive.Orm.Linq.Materialization
           var index = tupleAccess.GetTupleAccessArgument();
           return tupleAccess.Object.MakeTupleAccess(u.Type, index);
         }
-        if (operand != u.Operand) {
-          return Expression.Convert(operand, u.Type);
-        }
-        return u;
+        return operand != u.Operand ? Expression.Convert(operand, u.Type) : u;
       }
       return base.VisitUnary(u);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (m.Expression!=null) {
-        if ((ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection) {
+      if (m.Expression != null) {
+        if ((ExtendedExpressionType) m.Expression.NodeType == ExtendedExpressionType.LocalCollection) {
           return Visit((Expression) ((LocalCollectionExpression) m.Expression).Fields[m.Member]);
         }
-        if (itemMaterializationContextParameter!=null
+        if (itemMaterializationContextParameter != null
           && string.Equals(nameof(Parameter<object>.Value), m.Member.Name, StringComparison.Ordinal)
           && WellKnownOrmTypes.Parameter.IsAssignableFrom(m.Expression.Type)) {
           var parameterType = m.Expression.Type;
@@ -455,12 +457,12 @@ namespace Xtensive.Orm.Linq.Materialization
             : WellKnownTypes.Object;
           return Expression.Call(
             Expression.MakeMemberAccess(itemMaterializationContextParameter, ParameterContextProperty),
-              GetParameterValueMethod.MakeGenericMethod(parameterValueType), m.Expression);
+              GetParameterValueMethod.CachedMakeGenericMethod(parameterValueType), m.Expression);
         }
       }
 
       var expression = Visit(m.Expression);
-      if (expression==m.Expression) {
+      if (expression == m.Expression) {
         return m;
       }
 
@@ -471,15 +473,12 @@ namespace Xtensive.Orm.Linq.Materialization
 
     #region Private Methods
 
-    private Expression MaterializeThroughOwner(Expression target, Expression tuple)
-    {
-      return MaterializeThroughOwner(target, tuple, false);
-    }
+    private Expression MaterializeThroughOwner(Expression target, Expression tuple) =>
+      MaterializeThroughOwner(target, tuple, false);
 
     private Expression MaterializeThroughOwner(Expression target, Expression tuple, bool defaultIfEmpty)
     {
-      var field = target as FieldExpression;
-      if (field!=null) {
+      if (target is FieldExpression field) {
         defaultIfEmpty |= field.DefaultIfEmpty;
         var owner = field.Owner;
         var materializedOwner = MaterializeThroughOwner((Expression) owner, tuple, defaultIfEmpty);
@@ -492,21 +491,20 @@ namespace Xtensive.Orm.Linq.Materialization
         }
         else
           fieldExpression = Expression.MakeMemberAccess(materializedOwner, field.Field.UnderlyingProperty);
-        if (defaultIfEmpty) {
-          return Expression.Condition(
-            Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
-            Expression.Call(MaterializationHelper.GetDefaultMethodInfo.MakeGenericMethod(field.Type)),
-            fieldExpression);
-        }
-        return fieldExpression;
+        return defaultIfEmpty
+          ? Expression.Condition(
+              Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
+              Expression.Call(MaterializationHelper.GetDefaultMethodInfo.CachedMakeGenericMethod(field.Type)),
+              fieldExpression)
+          : fieldExpression;
       }
       return CreateEntity((EntityExpression) target, tuple);
     }
 
     private Expression GetTupleExpression(ParameterizedExpression expression)
     {
-      if (expression.OuterParameter==null)
-        return tupleParameter;
+      if (expression.OuterParameter == null)
+        return TupleParameter;
 
       var parameterOfTuple = context.GetTupleParameter(expression.OuterParameter);
       if (tupleParameters.Contains(parameterOfTuple)) {
@@ -517,17 +515,15 @@ namespace Xtensive.Orm.Linq.Materialization
       }
 
       // Use ApplyParameter for RecordSet predicates
-      if (itemMaterializationContextParameter==null) {
+      if (itemMaterializationContextParameter == null) {
         var projectionExpression = context.Bindings[expression.OuterParameter];
         var applyParameter = context.GetApplyParameter(projectionExpression);
         var applyParameterExpression = Expression.Constant(applyParameter);
         return Expression.Property(applyParameterExpression, WellKnownMembers.ApplyParameterValue);
       }
 
-      return tupleParameter;
+      return TupleParameter;
     }
-
-    // ReSharper disable UnusedMember.Local
 
     private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
     {
@@ -536,37 +532,20 @@ namespace Xtensive.Orm.Linq.Materialization
       return result;
     }
 
-    private static Tuple GetTupleSegment(Tuple tuple, in Segment<int> segment)
-    {
-      return tuple.GetSegment(segment).ToRegular();
-    }
-
-    // ReSharper restore UnusedMember.Local
+    private static Tuple GetTupleSegment(Tuple tuple, in Segment<int> segment) => tuple.GetSegment(segment).ToRegular();
 
     #endregion
 
     // Constructors
 
-    private ExpressionMaterializer(ParameterExpression
-      tupleParameter,
+    private ExpressionMaterializer(
       TranslatorContext context,
       ParameterExpression itemMaterializationContextParameter,
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       this.itemMaterializationContextParameter = itemMaterializationContextParameter;
-      this.tupleParameter = tupleParameter;
       this.context = context;
       this.tupleParameters = new HashSet<Parameter<Tuple>>(tupleParameters);
-    }
-
-    static ExpressionMaterializer()
-    {
-      ParameterContextProperty =
-        WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
-      GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
-      GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
-      BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
-      GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
     }
   }
 }

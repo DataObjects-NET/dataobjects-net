@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,7 +14,7 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class StorageDriver
+  public partial class StorageDriver
   {
     private sealed class InitializationSqlExtension
     {
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
     public SqlConnection CreateConnection(Session session)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXCreatingConnection, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXCreatingConnection), session.ToStringSafely());
       }
 
       SqlConnection connection;
@@ -49,6 +49,11 @@ namespace Xtensive.Orm.Providers
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
+      }
+
+      if (connectionAccessorFactories != null) {
+        connection.AssignConnectionAccessors(
+          CreateConnectionAccessorsFast(configuration.Types.DbConnectionAccessors));
       }
 
       var sessionConfiguration = GetConfiguration(session);
@@ -68,15 +73,14 @@ namespace Xtensive.Orm.Providers
     public void OpenConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+        SqlLog.Info(nameof(Strings.LogSessionXOpeningConnectionY), session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
-      var script = extension?.Script;
       try {
         if (!string.IsNullOrEmpty(script)) {
-          connection.OpenAndInitialize(extension.Script);
+          connection.OpenAndInitialize(script);
         }
         else {
           connection.Open();
@@ -94,14 +98,14 @@ namespace Xtensive.Orm.Providers
       CancellationToken cancellationToken)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+        SqlLog.Info(nameof(Strings.LogSessionXOpeningConnectionY), session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
       try {
-        if (!string.IsNullOrEmpty(extension?.Script)) {
-          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(script)) {
+          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
         }
         else {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
@@ -137,7 +141,7 @@ namespace Xtensive.Orm.Providers
       }
 
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+        SqlLog.Info(nameof(Strings.LogSessionXClosingConnectionY), session.ToStringSafely(), connection.ConnectionInfo);
       }
 
       try {
@@ -155,7 +159,7 @@ namespace Xtensive.Orm.Providers
       }
 
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+        SqlLog.Info(nameof(Strings.LogSessionXClosingConnectionY), session.ToStringSafely(), connection.ConnectionInfo);
       }
 
       try {
@@ -169,7 +173,7 @@ namespace Xtensive.Orm.Providers
     public void DisposeConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXDisposingConnection, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXDisposingConnection), session.ToStringSafely());
       }
 
       try {
@@ -183,7 +187,7 @@ namespace Xtensive.Orm.Providers
     public async Task DisposeConnectionAsync(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXDisposingConnection, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXDisposingConnection), session.ToStringSafely());
       }
 
       try {
@@ -197,7 +201,7 @@ namespace Xtensive.Orm.Providers
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel? isolationLevel)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(),
+        SqlLog.Info(nameof(Strings.LogSessionXBeginningTransactionWithYIsolationLevel), session.ToStringSafely(),
           isolationLevel);
       }
 
@@ -215,7 +219,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, IsolationLevel? isolationLevel, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(),
+        SqlLog.Info(nameof(Strings.LogSessionXBeginningTransactionWithYIsolationLevel), session.ToStringSafely(),
           isolationLevel);
       }
 
@@ -232,7 +236,7 @@ namespace Xtensive.Orm.Providers
     public void CommitTransaction(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
@@ -247,7 +251,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
@@ -261,7 +265,7 @@ namespace Xtensive.Orm.Providers
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXRollbackTransaction), session.ToStringSafely());
       }
 
       try {
@@ -276,7 +280,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+        SqlLog.Info(nameof(Strings.LogSessionXRollbackTransaction), session.ToStringSafely());
       }
 
       try {
@@ -290,7 +294,7 @@ namespace Xtensive.Orm.Providers
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXMakeSavepointY), session.ToStringSafely(), name);
       }
 
       if (!hasSavepoints) {
@@ -309,7 +313,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, string name, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXMakeSavepointY), session.ToStringSafely(), name);
       }
 
       if (!hasSavepoints) {
@@ -327,7 +331,7 @@ namespace Xtensive.Orm.Providers
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXRollbackToSavepointY), session.ToStringSafely(), name);
       }
 
       if (!hasSavepoints) {
@@ -346,7 +350,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, string name, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXRollbackToSavepointY), session.ToStringSafely(), name);
       }
 
       if (!hasSavepoints) {
@@ -364,7 +368,7 @@ namespace Xtensive.Orm.Providers
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXReleaseSavepointY), session.ToStringSafely(), name);
       }
 
       try {
@@ -379,7 +383,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, string name, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+        SqlLog.Info(nameof(Strings.LogSessionXReleaseSavepointY), session.ToStringSafely(), name);
       }
 
       try {
@@ -429,7 +433,7 @@ namespace Xtensive.Orm.Providers
       Session session, DbCommand command, CommandBehavior commandBehavior, Func<DbCommand, CommandBehavior, TResult> action)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+        SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
       }
 
       session?.Events.NotifyDbCommandExecuting(command);
@@ -454,7 +458,7 @@ namespace Xtensive.Orm.Providers
       CancellationToken cancellationToken, Func<DbCommand, CommandBehavior, CancellationToken, Task<TResult>> action)
     {
       if (isLoggingEnabled) {
-        SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+        SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
       }
 
       cancellationToken.ThrowIfCancellationRequested();

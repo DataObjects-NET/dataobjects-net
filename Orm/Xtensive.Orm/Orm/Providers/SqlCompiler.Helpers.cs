@@ -77,6 +77,7 @@ namespace Xtensive.Orm.Providers
         var queryRef = compiledSource.PermanentReference;
         var query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns);
+        query.Comment = sourceSelect.Comment;
         return query;
       }
       return sourceSelect.ShallowClone();
@@ -207,10 +208,10 @@ namespace Xtensive.Orm.Providers
 
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
       var pagingIsUsed = rowNumberIsUsed
-        || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
+        || sourceSelect.Limit is not null || sourceSelect.Offset is not null;
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
-      var filterIsUsed = !sourceSelect.Where.IsNullReference();
+      var filterIsUsed = sourceSelect.Where is not null;
 
       switch (origin.Type) {
         case ProviderType.Filter: {

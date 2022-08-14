@@ -1,8 +1,9 @@
-// Copyright (C) 2003-2021 Xtensive LLC.
+// Copyright (C) 2003-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Index = Xtensive.Sql.Model.Index;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -21,41 +23,48 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public abstract class SqlTranslator : SqlDriverBound
   {
+    protected readonly bool supportsClusteredIndexes;
+    protected readonly bool supportsExplicitJoinOrder;
+    protected readonly bool supportsMultischemaQueries;
+
+
     public DateTimeFormatInfo DateTimeFormat { get; private set; }
     public NumberFormatInfo IntegerNumberFormat { get; private set; }
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine { get { return "\r\n"; } }
+    public virtual string NewLine => "\r\n";
 
-    public virtual string OpeningParenthesis { get { return "("; } }
-    public virtual string ClosingParenthesis { get { return ")"; } }
+    public virtual string OpeningParenthesis => "(";
+    public virtual string ClosingParenthesis => ")";
 
-    public virtual string BatchBegin { get { return string.Empty; } }
-    public virtual string BatchEnd { get { return string.Empty; } }
-    public virtual string BatchItemDelimiter { get { return ";"; } }
-    
-    public virtual string RowBegin { get { return "("; } }
-    public virtual string RowEnd { get { return ")"; } }
-    public virtual string RowItemDelimiter { get { return ","; } }
+    public virtual string BatchBegin => string.Empty;
+    public virtual string BatchEnd => string.Empty;
+    public virtual string BatchItemDelimiter => ";";
 
-    public virtual string ArgumentDelimiter { get { return ","; } }
-    public virtual string ColumnDelimiter { get { return ","; } }
-    public virtual string WhenDelimiter { get { return string.Empty; } }
-    public virtual string DdlStatementDelimiter { get { return string.Empty; } }
-    public virtual string HintDelimiter { get { return string.Empty; } }
+    public virtual string RowBegin => "(";
+    public virtual string RowEnd => ")";
+    public virtual string RowItemDelimiter => ",";
+
+    public virtual string ArgumentDelimiter => ",";
+    public virtual string ColumnDelimiter => ",";
+    public virtual string WhenDelimiter => string.Empty;
+    public virtual string DdlStatementDelimiter => string.Empty;
+    public virtual string HintDelimiter => string.Empty;
+
+    public virtual SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBrackets;
 
     /// <summary>
     /// Gets the float format string.
     /// See <see cref="double.ToString(string)"/> for details.
     /// </summary>
-    public virtual string FloatFormatString { get { return "0.0######"; } }
-    
+    public string FloatFormatString { get; protected set; } = "0.0######";
+
     /// <summary>
     /// Gets the double format string.
     /// See <see cref="double.ToString(string)"/> for details.
     /// </summary>
-    public virtual string DoubleFormatString { get { return "0.0##############"; } }
+    public string DoubleFormatString { get; protected set; } = "0.0##############";
 
     /// <summary>
     /// Gets the date time format string.
@@ -68,7 +77,7 @@ namespace Xtensive.Sql.Compiler
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
-    
+
     /// <summary>
     /// Gets the parameter prefix.
     /// </summary>
@@ -90,341 +99,504 @@ namespace Xtensive.Sql.Compiler
         : string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return Translate(node.NodeType) + "(" + (node.Distinct ? "DISTINCT" : string.Empty);
-      case NodeSection.Exit:
-        return ")";
-      }
-      return string.Empty;
-    }
+    #region Translate methods for nodes and expressions that write to output directly
 
-    public virtual string Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
+    /// <summary>
+    /// Translates <see cref="SqlAggregate"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAggregate node, NodeSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case AlterDomainSection.Entry:
-        return "ALTER DOMAIN " + Translate(context, node.Domain);
-      case AlterDomainSection.AddConstraint:
-        return "ADD";
-      case AlterDomainSection.DropConstraint:
-        return "DROP";
-      case AlterDomainSection.SetDefault:
-        return "SET DEFAULT";
-      case AlterDomainSection.DropDefault:
-        return "DROP DEFAULT";
-      default:
-        return String.Empty;
+        case NodeSection.Entry:
+          Translate(context.Output, node.NodeType);
+          _= output.AppendOpeningPunctuation(node.Distinct ? "(DISTINCT" : "(");
+          break;
+        case NodeSection.Exit:
+          _ = output.AppendClosingPunctuation(")");
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlAlterPartitionFunction node)
+    /// <summary>
+    /// Translates <see cref="SqlAlterDomain"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAlterDomain node, AlterDomainSection section)
     {
-      var builder = new StringBuilder();
-      builder.Append("ALTER PARTITION FUNCTION " + QuoteIdentifier(node.PartitionFunction.DbName) + "()");
-      if (node.Option == SqlAlterPartitionFunctionOption.Split)
-        builder.Append(" SPLIT RANGE (");
-      else
-        builder.Append(" MERGE RANGE (");
-      builder.Append(node.Boundary + ")");
-      return builder.ToString();
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlAlterPartitionScheme node)
-    {
-      return
-        "ALTER PARTITION SCHEME " + QuoteIdentifier(node.PartitionSchema.DbName) + " NEXT USED" +
-        (string.IsNullOrEmpty(node.Filegroup) ? "" : " " + node.Filegroup);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
-    {
+      var output = context.Output;
       switch (section) {
-      case AlterTableSection.Entry:
-        return "ALTER TABLE " + Translate(context, node.Table);
-      case AlterTableSection.AddColumn:
-        return "ADD COLUMN";
-      case AlterTableSection.AlterColumn:
-        return "ALTER COLUMN";
-      case AlterTableSection.DropColumn:
-        return "DROP COLUMN";
-      case AlterTableSection.AddConstraint:
-        return "ADD";
-      case AlterTableSection.DropConstraint:
-        return "DROP";
-      case AlterTableSection.RenameColumn:
-        return "RENAME COLUMN";
-      case AlterTableSection.To:
-        return "TO";
-      case AlterTableSection.DropBehavior:
-        var cascadableAction = node.Action as SqlCascadableAction;
-        if (cascadableAction==null)
-          return string.Empty;
-        return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
-      default:
-        return string.Empty;
+        case AlterDomainSection.Entry:
+          _ = output.Append("ALTER DOMAIN ");
+          Translate(context, node.Domain);
+          break;
+        case AlterDomainSection.AddConstraint:
+          _ = output.Append("ADD");
+          break;
+        case AlterDomainSection.DropConstraint:
+          _ = output.Append("DROP");
+          break;
+        case AlterDomainSection.SetDefault:
+          _ = output.Append("SET DEFAULT");
+          break;
+        case AlterDomainSection.DropDefault:
+          _ = output.Append("DROP DEFAULT");
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlAlterPartitionFunction"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAlterPartitionFunction node)
     {
-      switch (section) {
-      case NodeSection.Entry:
-        return "ALTER SEQUENCE " + Translate(context, node.Sequence);
-      default:
-        return string.Empty;
+      var output = context.Output;
+      _ = output.Append("ALTER PARTITION FUNCTION ");
+      TranslateIdentifier(output, node.PartitionFunction.DbName);
+      _ = output.Append("()")
+        .Append(node.Option == SqlAlterPartitionFunctionOption.Split ? " SPLIT RANGE (" : " MERGE RANGE (")
+        .Append(node.Boundary)
+        .Append(")");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlAlterPartitionScheme"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAlterPartitionScheme node)
+    {
+      var output = context.Output;
+      _ = output.Append("ALTER PARTITION SCHEME ");
+      TranslateIdentifier(output, node.PartitionSchema.DbName);
+      _ = output.Append(" NEXT USED");
+      if (!string.IsNullOrEmpty(node.Filegroup)) {
+        _ = output.AppendSpace().Append(node.Filegroup);
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
+    /// <summary>
+    /// Translates <see cref="SqlAlterTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case TableColumnSection.Entry:
-        return QuoteIdentifier(column.DbName);
-      case TableColumnSection.Type:
-        return column.Domain==null ? Translate(column.DataType) : Translate(context, column.Domain);
-      case TableColumnSection.DefaultValue:
-        return "DEFAULT";
-      case TableColumnSection.DropDefault:
-        return "DROP DEFAULT";
-      case TableColumnSection.SetDefault:
-        return "SET DEFAULT";
-      case TableColumnSection.GenerationExpressionExit:
-        return ")" + (column.IsPersisted ? " PERSISTED" : "");
-      case TableColumnSection.SetIdentityInfoElement:
-        return "SET";
-      case TableColumnSection.NotNull:
-        return "NOT NULL";
-      case TableColumnSection.Collate:
-        return "COLLATE " + Translate(column.Collation);
-      default:
-        return string.Empty;
+        case AlterTableSection.Entry:
+          _ = output.Append("ALTER TABLE ");
+          Translate(context, node.Table);
+          break;
+        case AlterTableSection.AddColumn:
+          _ = output.Append("ADD COLUMN");
+          break;
+        case AlterTableSection.AlterColumn:
+          _ = output.Append("ALTER COLUMN");
+          break;
+        case AlterTableSection.DropColumn:
+          _ = output.Append("DROP COLUMN");
+          break;
+        case AlterTableSection.AddConstraint:
+          _ = output.Append("ADD");
+          break;
+        case AlterTableSection.DropConstraint:
+          _ = output.Append("DROP");
+          break;
+        case AlterTableSection.RenameColumn:
+          _ = output.Append("RENAME COLUMN");
+          break;
+        case AlterTableSection.To:
+          _ = output.Append("TO");
+          break;
+        case AlterTableSection.DropBehavior when node.Action is SqlCascadableAction cascadableAction:
+          _ = output.Append(cascadableAction.Cascade ? "CASCADE" : "RESTRICT");
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
-    {
-      switch (section) {
-        case ConstraintSection.Entry: {
-          if (!String.IsNullOrEmpty(constraint.DbName))
-            return "CONSTRAINT " + QuoteIdentifier(constraint.DbName);
-          return String.Empty;
-        }
-        case ConstraintSection.Check:
-          return "CHECK (";
-        case ConstraintSection.PrimaryKey:
-          return "PRIMARY KEY (";
-        case ConstraintSection.Unique:
-          return "UNIQUE (";
-        case ConstraintSection.ForeignKey:
-          return "FOREIGN KEY (";
-        case ConstraintSection.ReferencedColumns: {
-          var fk = (ForeignKey) constraint;
-          return ") REFERENCES " + Translate(context, fk.ReferencedColumns[0].DataTable) + " (";
-        }
-        case ConstraintSection.Exit: {
-          var fk = constraint as ForeignKey;
-          var sb = new StringBuilder();
-          sb.Append(")");
-          if (fk != null) {
-            if (fk.MatchType != SqlMatchType.None)
-              sb.Append(" MATCH " + Translate(fk.MatchType));
-            if (fk.OnUpdate != ReferentialAction.NoAction)
-              sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
-            if (fk.OnDelete != ReferentialAction.NoAction)
-              sb.Append(" ON DELETE " + Translate(fk.OnDelete));
-          }
-          if (constraint.IsDeferrable.HasValue) {
-            if (constraint.IsDeferrable.Value)
-              sb.Append(" DEFERRABLE");
-            else
-              sb.Append(" NOT DEFERRABLE");
-          }
-          if (constraint.IsInitiallyDeferred.HasValue) {
-            if (constraint.IsInitiallyDeferred.Value)
-              sb.Append(" INITIALLY DEFERRED");
-            else
-              sb.Append(" INITIALLY IMMEDIATE");
-          }
-          return sb.ToString();
-        }
-        default:
-          return String.Empty;
-      }
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
-    {
-      switch (section) {
-      case ArraySection.Entry:
-        return "(";
-      case ArraySection.Exit:
-        return ")";
-      case ArraySection.EmptyArray:
-        return "(NULL)";
-      default:
-        throw new ArgumentOutOfRangeException("section");
-      }
-    }
-
-//      Type itemType = node.ItemType;
-//      object[] values = node.GetValues();
-//      int count = values.Length;
-//      if (count==0)
-//        return "(NULL)";
-//      var buffer = new string[count];
-//      for (int index = 0; index < count; index++)
-//        buffer[index] = Translate(context, (SqlLiteral) SqlDml.Literal(values[index], itemType));
-//      if (count==1)
-//        return "(" + buffer[0] + ")";
-//
-//      buffer[0] = "(" + buffer[0];
-//      buffer[count - 1] += ")";
-//      return String.Join(RowItemDelimiter, buffer);
-//    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "SET";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlBetween node, BetweenSection section)
-    {
-      switch (section) {
-      case BetweenSection.Between:
-        return Translate(node.NodeType);
-      case BetweenSection.And:
-        return "AND";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : OpeningParenthesis;
-      case NodeSection.Exit:
-         return (node.NodeType==SqlNodeType.RawConcat) ? string.Empty : ClosingParenthesis;
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlBreak node)
-    {
-      return "BREAK";
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCase node, CaseSection section)
-    {
-      switch (section) {
-      case CaseSection.Entry:
-        return "(CASE";
-      case CaseSection.Else:
-        return "ELSE";
-      case CaseSection.Exit:
-        return "END)";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCase node, SqlExpression item, CaseSection section)
-    {
-      switch (section) {
-      case CaseSection.When:
-        return "WHEN";
-      case CaseSection.Then:
-        return "THEN";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "CAST(";
-      case NodeSection.Exit:
-        return " AS " + Translate(node.Type) + ")";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCloseCursor node)
-    {
-      return "CLOSE " + node.Cursor.Name;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCollate node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Exit:
-        return "COLLATE " + node.Collation.DbName;
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
-    {
-      switch (section) {
-      case ColumnSection.Entry:
-        return QuoteIdentifier(node.Name);
-      case ColumnSection.AliasDeclaration:
-        return (string.IsNullOrEmpty(node.Name)) ? string.Empty : "AS " + QuoteIdentifier(node.Name);
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlAlterSequence"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
     {
       switch (section) {
         case NodeSection.Entry:
-          return "(";
-        case NodeSection.Exit:
-          return ")";
-        default:
-          return string.Empty;
+          _ = context.Output.Append("ALTER SEQUENCE ");
+          Translate(context, node.Sequence);
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlContinue node)
+    /// <summary>
+    /// Translates <see cref="TableColumn"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="column">Column to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
-      return "CONTINUE";
+      var output = context.Output;
+      switch (section) {
+        case TableColumnSection.Entry:
+          TranslateIdentifier(output, column.DbName);
+          break;
+        case TableColumnSection.Type:
+          if (column.Domain == null) {
+            _ = output.Append(Translate(column.DataType));
+          }
+          else {
+            Translate(context, column.Domain);
+          }
+          break;
+        case TableColumnSection.DefaultValue:
+          _ = output.Append("DEFAULT");
+          break;
+        case TableColumnSection.DropDefault:
+          _ = output.Append("DROP DEFAULT");
+          break;
+        case TableColumnSection.SetDefault:
+          _ = output.Append("SET DEFAULT");
+          break;
+        case TableColumnSection.GenerationExpressionExit:
+          _ = output.Append(column.IsPersisted ? ") PERSISTED" : ")");
+          break;
+        case TableColumnSection.SetIdentityInfoElement:
+          _ = output.Append("SET");
+          break;
+        case TableColumnSection.NotNull:
+          _ = output.Append("NOT NULL");
+          break;
+        case TableColumnSection.Collate:
+          _ = output.Append("COLLATE ");
+          Translate(context, column.Collation);
+          break;
+      }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateAssertion node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="Constraint"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="constraint">Constraint to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case ConstraintSection.Entry when !string.IsNullOrEmpty(constraint.DbName):
+          _ = output.Append("CONSTRAINT ");
+          TranslateIdentifier(output, constraint.DbName);
+          break;
+        case ConstraintSection.Check:
+          _ = output.AppendOpeningPunctuation("CHECK (");
+          break;
+        case ConstraintSection.PrimaryKey:
+          _ = output.AppendOpeningPunctuation("PRIMARY KEY (");
+          break;
+        case ConstraintSection.Unique:
+          _ = output.AppendOpeningPunctuation("UNIQUE (");
+          break;
+        case ConstraintSection.ForeignKey:
+          _ = output.AppendOpeningPunctuation("FOREIGN KEY (");
+          break;
+        case ConstraintSection.ReferencedColumns: {
+          var fk = (ForeignKey) constraint;
+          _ = output.Append(") REFERENCES ");
+          Translate(context, fk.ReferencedColumns[0].DataTable);
+          _ = output.AppendOpeningPunctuation(" (");
+        }
+        break;
+        case ConstraintSection.Exit: {
+          _ = output.AppendClosingPunctuation(")");
+          if (constraint is ForeignKey fk) {
+            if (fk.MatchType != SqlMatchType.None) {
+              _ = output.Append(" MATCH ");
+              Translate(output, fk.MatchType);
+            }
+            if (fk.OnUpdate != ReferentialAction.NoAction) {
+              _ = output.Append(" ON UPDATE ");
+              Translate(output, fk.OnUpdate);
+            }
+            if (fk.OnDelete != ReferentialAction.NoAction) {
+              _ = output.Append(" ON DELETE ");
+              Translate(output, fk.OnDelete);
+            }
+          }
+          if (constraint.IsDeferrable.HasValue) {
+            _ = output.Append(constraint.IsDeferrable.Value ? " DEFERRABLE" : " NOT DEFERRABLE");
+          }
+          if (constraint.IsInitiallyDeferred.HasValue) {
+            _ = output.Append(constraint.IsInitiallyDeferred.Value ? " INITIALLY DEFERRED" : " INITIALLY IMMEDIATE");
+          }
+        }
+        break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlArray"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlArray node, ArraySection section) =>
+      _ = context.Output.Append(section switch {
+        ArraySection.Entry => "(",
+        ArraySection.Exit => ")",
+        ArraySection.EmptyArray => "(NULL)",
+        _ => throw new ArgumentOutOfRangeException(nameof(section))
+      });
+
+    /// <summary>
+    /// Translates <see cref="SqlAssignment"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
       switch (section) {
-      case NodeSection.Entry:
-        return "CREATE ASSERTION " + Translate(context, node.Assertion) + " CHECK";
-      case NodeSection.Exit:
-        StringBuilder sb = new StringBuilder();
-        if (node.Assertion.IsDeferrable.HasValue) {
-          if (node.Assertion.IsDeferrable.Value)
-            sb.Append(" DEFERRABLE");
-          else
-            sb.Append(" NOT DEFERRABLE");
-        }
-        if (node.Assertion.IsInitiallyDeferred.HasValue) {
-          if (node.Assertion.IsInitiallyDeferred.Value)
-            sb.Append(" INITIALLY DEFERRED");
-          else
-            sb.Append(" INITIALLY IMMEDIATE");
-        }
-        return sb.ToString();
-      default:
-        return string.Empty;
+        case NodeSection.Entry:
+          _ = context.Output.Append("SET");
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateCharacterSet node)
+    /// <summary>
+    /// Translates <see cref="SqlBetween"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlBetween node, BetweenSection section)
     {
-      StringBuilder sb = new StringBuilder();
+      switch (section) {
+        case BetweenSection.Between:
+          Translate(context.Output, node.NodeType);
+          break;
+        case BetweenSection.And:
+          _ = context.Output.Append("AND");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlBinary"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlBinary node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry when node.NodeType != SqlNodeType.RawConcat:
+          _ = context.Output.AppendOpeningPunctuation(OpeningParenthesis);
+          break;
+        case NodeSection.Exit when node.NodeType != SqlNodeType.RawConcat:
+          _ = context.Output.Append(ClosingParenthesis);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlBreak"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlBreak node) => context.Output.Append("BREAK");
+
+    /// <summary>
+    /// Translates <see cref="SqlCase"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCase node, CaseSection section)
+    {
+      switch (section) {
+        case CaseSection.Entry:
+          _ = context.Output.Append("(CASE");
+          break;
+        case CaseSection.Else:
+          _ = context.Output.Append("ELSE");
+          break;
+        case CaseSection.Exit:
+          _ = context.Output.Append("END)");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCase"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="item"></param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCase node, SqlExpression item, CaseSection section)
+    {
+      switch (section) {
+        case CaseSection.When:
+          _ = context.Output.Append("WHEN");
+          break;
+        case CaseSection.Then:
+          _ = context.Output.Append("THEN");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCast"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          _ = context.Output.AppendOpeningPunctuation("CAST(");
+          break;
+        case NodeSection.Exit:
+          _ = context.Output.Append(" AS ")
+            .Append(Translate(node.Type))
+            .Append(")");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCloseCursor"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCloseCursor node) =>
+      _ = context.Output.Append("CLOSE ").Append(node.Cursor.Name);
+
+    /// <summary>
+    /// Translates <see cref="SqlCollate"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCollate node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Exit:
+          _ = context.Output.Append("COLLATE ").Append(node.Collation.DbName);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlColumnRef"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case ColumnSection.Entry:
+          TranslateIdentifier(output, node.Name);
+          break;
+        case ColumnSection.AliasDeclaration when !string.IsNullOrEmpty(node.Name):
+          _ = output.Append(" AS ");
+          TranslateIdentifier(output, node.Name);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlComment"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="comment">Comment to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlComment comment)
+    {
+      if (comment?.Text == null) {
+        return;
+      }
+
+      if (comment.Text.IndexOfAny(new char[] { '*', '/' }) != -1) {
+        throw new ArgumentException(string.Format(Strings.ExArgumentContainsInvalidCharacters, nameof(comment), "*/"));
+      }
+
+      _ = context.Output.Append($"/*{comment.Text}*/");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlConcat"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Entry:
+          _ = context.Output.AppendOpeningPunctuation("(");
+          break;
+        case NodeSection.Exit:
+          _ = context.Output.AppendClosingPunctuation(")");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlContinue"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlContinue node) => context.Output.Append("CONTINUE");
+
+    /// <summary>
+    /// Translates <see cref="SqlCreateAssertion"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateAssertion node, NodeSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case NodeSection.Entry:
+          _ = output.Append("CREATE ASSERTION ");
+          Translate(context, node.Assertion);
+          _ = output.Append(" CHECK");
+          break;
+        case NodeSection.Exit:
+          var assertion = node.Assertion;
+          if (assertion.IsDeferrable.HasValue) {
+            _ = output.Append(assertion.IsDeferrable.Value ? " DEFERRABLE" : " NOT DEFERRABLE");
+          }
+          if (assertion.IsInitiallyDeferred.HasValue) {
+            _ = output.Append(assertion.IsInitiallyDeferred.Value ? " INITIALLY DEFERRED" : " INITIALLY IMMEDIATE");
+          }
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCreateCharacterSet"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateCharacterSet node)
+    {
       //      sb.Append("CREATE CHARACTER SET "+Translate(node.CharacterSet));
       //      sb.Append(" AS GET "+Translate(node.CharacterSet.CharacterSetSource));
       //      if (node.CharacterSet.Collate!=null)
@@ -450,12 +622,15 @@ namespace Xtensive.Sql.Compiler
       //            sb.Append(" THEN COLLATION "+Translate(collationSource.ThenCollation));
       //        }
       //      }
-      return sb.ToString();
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateCollation node)
+    /// <summary>
+    /// Translates <see cref="SqlCreateCollation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateCollation node)
     {
-      StringBuilder sb = new StringBuilder();
       //      sb.Append("CREATE COLLATION "+Translate(node.Collation));
       //      sb.Append(" FOR "+Translate(node.Collation.CharacterSet));
       //      sb.Append(" FROM ");
@@ -483,1099 +658,1430 @@ namespace Xtensive.Sql.Compiler
       //        else
       //          sb.Append(" NO PAD");
       //      }
-      return sb.ToString();
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
+    /// <summary>
+    /// Translates <see cref="SqlCreateDomain"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case CreateDomainSection.Entry:
-        var sb = new StringBuilder();
-        sb.Append("CREATE DOMAIN " + Translate(context, node.Domain));
-        sb.Append(" AS " + Translate(node.Domain.DataType));
-        return sb.ToString();
-      case CreateDomainSection.DomainDefaultValue:
-        return "DEFAULT";
-      case CreateDomainSection.DomainCollate:
-        return "COLLATE " + Translate(node.Domain.Collation);
-      default:
-        return string.Empty;
+        case CreateDomainSection.Entry:
+          _ = output.Append("CREATE DOMAIN ");
+          Translate(context, node.Domain);
+          _ = output.Append(" AS ").Append(Translate(node.Domain.DataType));
+          break;
+        case CreateDomainSection.DomainDefaultValue:
+          _ = output.Append("DEFAULT");
+          break;
+        case CreateDomainSection.DomainCollate:
+          _ = output.Append("COLLATE ");
+          Translate(context, node.Domain.Collation);
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    /// <summary>
+    /// Translates <see cref="SqlCreateIndex"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
+      var output = context.Output;
       switch (section) {
         case CreateIndexSection.Entry:
-          Index index = node.Index;
+          var index = node.Index;
           if (index.IsFullText) {
-            return "CREATE FULLTEXT INDEX ON " + Translate(context, index.DataTable);
+            _ = output.Append("CREATE FULLTEXT INDEX ON ");
+            Translate(context, index.DataTable);
+            return;
           }
-          var builder = new StringBuilder();
-          builder.Append("CREATE ");
-          if (index.IsUnique)
-            builder.Append("UNIQUE ");
-          else if (index.IsBitmap)
-            builder.Append("BITMAP ");
-          else if (index.IsSpatial)
-            builder.Append("SPATIAL ");
-          if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered))
-            if (index.IsClustered)
-              builder.Append("CLUSTERED ");
-          builder.Append("INDEX " + QuoteIdentifier(index.DbName));
-          builder.Append(" ON " + Translate(context, index.DataTable));
-          return builder.ToString();
+
+          _ = output.Append("CREATE ");
+          if (index.IsUnique) {
+            _ = output.Append("UNIQUE ");
+          }
+          else if (index.IsBitmap) {
+            _ = output.Append("BITMAP ");
+          }
+          else if (index.IsSpatial) {
+            _ = output.Append("SPATIAL ");
+          }
+
+          if (index.IsClustered && supportsClusteredIndexes) {
+            _ = output.Append("CLUSTERED ");
+          }
+
+          _ = output.Append("INDEX ");
+          TranslateIdentifier(output, index.DbName);
+          _ = output.Append(" ON ");
+          Translate(context, index.DataTable);
+          break;
         case CreateIndexSection.ColumnsEnter:
-          return "(";
+          _ = output.AppendOpeningPunctuation("(");
+          break;
         case CreateIndexSection.ColumnsExit:
-          return ")";
+          _ = output.AppendClosingPunctuation(")");
+          break;
         case CreateIndexSection.NonkeyColumnsEnter:
-          return " INCLUDE (";
+          _ = output.AppendOpeningPunctuation("INCLUDE (");
+          break;
         case CreateIndexSection.NonkeyColumnsExit:
-          return ")";
+          _ = output.AppendClosingPunctuation(")");
+          break;
         case CreateIndexSection.Where:
-          return " WHERE";
+          _ = output.Append("WHERE");
+          break;
         case CreateIndexSection.Exit:
           index = node.Index;
-          builder = new StringBuilder();
           if (index.FillFactor.HasValue) {
-            builder.Append(" WITH (FILLFACTOR = " + index.FillFactor.Value + ")");
+            _ = output.Append($"WITH (FILLFACTOR = {index.FillFactor.Value})");
           }
           if (index.PartitionDescriptor != null) {
-            builder.Append(" " + Translate(index.PartitionDescriptor, true));
+            _ = output.Append(" ");
+            Translate(output, index.PartitionDescriptor, true);
           }
-          else if (!String.IsNullOrEmpty(index.Filegroup))
-            builder.Append(" ON " + index.Filegroup);
-          else if (index is FullTextIndex) {
-            var ftindex = index as FullTextIndex;
-            builder.Append(" KEY INDEX " + QuoteIdentifier(ftindex.UnderlyingUniqueIndex));
+          else if (!string.IsNullOrEmpty(index.Filegroup)) {
+            _ = output.Append($" ON {index.Filegroup}");
           }
-          return builder.ToString();
-        default:
-          return string.Empty;
+          else if (index is FullTextIndex ftIndex) {
+            _ = output.Append(" KEY INDEX ");
+            TranslateIdentifier(output, ftIndex.UnderlyingUniqueIndex);
+          }
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreatePartitionFunction node)
+    /// <summary>
+    /// Translates <see cref="SqlCreatePartitionFunction"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreatePartitionFunction node)
     {
+      var output = context.Output;
       PartitionFunction pf = node.PartitionFunction;
-      StringBuilder sb = new StringBuilder();
-      sb.Append("CREATE PARTITION FUNCTION " + QuoteIdentifier(pf.DbName));
-      sb.Append(" (" + Translate(pf.DataType) + ")");
-      sb.Append(" AS RANGE ");
-      if (pf.BoundaryType == BoundaryType.Left)
-        sb.Append("LEFT");
-      else
-        sb.Append("RIGHT");
-      sb.Append(" FOR VALUES (");
-      bool first = true;
-      foreach (string value in pf.BoundaryValues) {
+      _ = output.Append("CREATE PARTITION FUNCTION ");
+      TranslateIdentifier(output, pf.DbName);
+      _ = output.AppendOpeningPunctuation(" (")
+        .Append(Translate(pf.DataType))
+        .Append(")")
+        .Append(" AS RANGE ")
+        .Append(pf.BoundaryType == BoundaryType.Left ? "LEFT" : "RIGHT")
+        .AppendOpeningPunctuation(" FOR VALUES (");
+
+      var first = true ;
+      foreach (var value in pf.BoundaryValues) {
         if (first)
           first = false;
         else
-          sb.Append(RowItemDelimiter);
-        TypeCode t = Type.GetTypeCode(value.GetType());
-        if (t == TypeCode.String || t == TypeCode.Char)
-          sb.Append(QuoteString(value));
-        else
-          sb.Append(value);
+          _ = output.Append(RowItemDelimiter);
+        var t = Type.GetTypeCode(value.GetType());
+        if ((t is TypeCode.String or TypeCode.Char)) {
+          TranslateString(output, value);
+        }
+        else {
+          _ = output.Append(value);
+        }
+        first = false;
       }
-      sb.Append(")");
-      return sb.ToString();
+
+      _ = output.Append(")");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreatePartitionScheme node)
+    /// <summary>
+    /// Translates <see cref="SqlCreatePartitionScheme"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreatePartitionScheme node)
     {
-      PartitionSchema ps = node.PartitionSchema;
-      var sb = new StringBuilder();
-      sb.Append("CREATE PARTITION SCHEME " + QuoteIdentifier(ps.DbName));
-      sb.Append(" AS PARTITION " + QuoteIdentifier(ps.PartitionFunction.DbName));
-      if (ps.Filegroups.Count <= 1)
-        sb.Append(" ALL");
-      sb.Append(" TO (");
-      bool first = true;
-      foreach (string filegroup in ps.Filegroups) {
+      var output = context.Output;
+      var ps = node.PartitionSchema;
+      _ = output.Append("CREATE PARTITION SCHEME ");
+      TranslateIdentifier(output, ps.DbName);
+      _ = output.Append(" AS PARTITION ");
+      TranslateIdentifier(output, ps.PartitionFunction.DbName);
+      if (ps.Filegroups.Count <= 1) {
+        _ = output.Append(" ALL");
+      }
+
+      _ = output.Append(" TO (");
+      var first = true;
+      foreach (var filegroup in ps.Filegroups) {
         if (first)
           first = false;
         else
-          sb.Append(RowItemDelimiter);
-        sb.Append(filegroup);
+          _ = output.Append(RowItemDelimiter);
+        _ = output.Append(filegroup);
       }
-      sb.Append(")");
-      return sb.ToString();
+      _ = output.Append(")");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateSchema node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlCreateSchema"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateSchema node, NodeSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case NodeSection.Entry:
+          _ = output.Append("CREATE SCHEMA ");
+          if (!string.IsNullOrEmpty(node.Schema.DbName)) {
+            TranslateIdentifier(output, node.Schema.DbName);
+          }
+          if (node.Schema.Owner != null) {
+            _ = output.Append(" AUTHORIZATION ");
+            TranslateIdentifier(output, node.Schema.Owner);
+          }
+          if (node.Schema.DefaultCharacterSet != null) {
+            _ = output.Append(" DEFAULT CHARACTER SET ");
+            Translate(context, node.Schema.DefaultCharacterSet);
+          }
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCreateSequence"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
     {
       switch (section) {
         case NodeSection.Entry:
-          var sb = new StringBuilder();
-          sb.Append("CREATE SCHEMA ");
-          if (!String.IsNullOrEmpty(node.Schema.DbName))
-            sb.Append(QuoteIdentifier(node.Schema.DbName) + (node.Schema.Owner == null ? "" : " "));
-          if (node.Schema.Owner != null)
-            sb.Append("AUTHORIZATION " + QuoteIdentifier(node.Schema.Owner));
-          if (node.Schema.DefaultCharacterSet != null)
-            sb.Append("DEFAULT CHARACTER SET " + Translate(context, node.Schema.DefaultCharacterSet));
-          return sb.ToString();
-        default:
-          return String.Empty;
+          _ = context.Output.Append("CREATE SEQUENCE ");
+          Translate(context, node.Sequence);
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlCreateTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
-      switch (section) {
-      case NodeSection.Entry:
-        return
-          "CREATE SEQUENCE " + Translate(context, node.Sequence);
-      default:
-        return string.Empty;
-      }
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
-    {
+      var output = context.Output;
       switch (section) {
         case CreateTableSection.Entry: {
-          var sb = new StringBuilder();
-          sb.Append("CREATE ");
-          var temporaryTable = node.Table as TemporaryTable;
-          if (temporaryTable != null) {
-            if (temporaryTable.IsGlobal)
-              sb.Append("GLOBAL ");
-            else
-              sb.Append("LOCAL ");
-            sb.Append("TEMPORARY ");
+          _ = output.Append("CREATE ");
+          if (node.Table is TemporaryTable tempTable) {
+            _ = output.Append(tempTable.IsGlobal ? "GLOBAL TEMPORARY " : "LOCAL TEMPORARY ");
           }
-          sb.Append("TABLE " + Translate(context, node.Table));
-          return sb.ToString();
+          _ = output.Append("TABLE ");
+          Translate(context, node.Table);
+          break;
         }
         case CreateTableSection.TableElementsEntry:
-          return "(";
+          _ = output.AppendOpeningPunctuation("(");
+          break;
         case CreateTableSection.TableElementsExit:
-          return ")";
+          _ = output.AppendOpeningPunctuation(")");
+          break;
         case CreateTableSection.Partition:
-          return Translate(node.Table.PartitionDescriptor, true);
+          Translate(output, node.Table.PartitionDescriptor, true);
+          break;
         case CreateTableSection.Exit: {
-          string result = string.IsNullOrEmpty(node.Table.Filegroup)
-                            ? string.Empty
-                            : " ON " + QuoteIdentifier(node.Table.Filegroup);
-          var temporaryTable = node.Table as TemporaryTable;
-          if (temporaryTable != null) {
-            result += temporaryTable.PreserveRows ? "ON COMMIT PRESERVE ROWS" : "ON COMMIT DELETE ROWS";
+          if (!string.IsNullOrEmpty(node.Table.Filegroup)) {
+            _ = output.Append(" ON ");
+            TranslateIdentifier(output, node.Table.Filegroup);
           }
-          return result;
+          if (node.Table is TemporaryTable tempTable) {
+            _ = output.Append(tempTable.PreserveRows ? " ON COMMIT PRESERVE ROWS" : " ON COMMIT DELETE ROWS");
+          }
+          break;
         }
       }
-      return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    /// <summary>
+    /// Translates <see cref="SequenceDescriptor"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="descriptor">Sequence descriptor to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
-      return TranslateSequenceDescriptorDefault(context, descriptor, section);
+      TranslateSequenceDescriptorDefault(context, descriptor, section);
     }
 
-    protected string TranslateSequenceDescriptorDefault(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    /// <summary>
+    /// Default translation method that is used by <see cref="Translate(SqlCompilerContext, SequenceDescriptor, SequenceDescriptorSection)"/>
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="descriptor">Sequence descriptor to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    protected void TranslateSequenceDescriptorDefault(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case SequenceDescriptorSection.StartValue:
-        if (descriptor.StartValue.HasValue)
-          return "START WITH " + descriptor.StartValue.Value;
-        return string.Empty;
-      case SequenceDescriptorSection.RestartValue:
-        if (descriptor.StartValue.HasValue)
-          return "RESTART WITH " + descriptor.StartValue.Value;
-        return string.Empty;
-      case SequenceDescriptorSection.Increment:
-        if (descriptor.Increment.HasValue)
-          return "INCREMENT BY " + descriptor.Increment.Value;
-        return string.Empty;
-      case SequenceDescriptorSection.MaxValue:
-        if (descriptor.MaxValue.HasValue)
-          return "MAXVALUE " + descriptor.MaxValue.Value;
-        return string.Empty;
-      case SequenceDescriptorSection.MinValue:
-        if (descriptor.MinValue.HasValue)
-          return "MINVALUE " + descriptor.MinValue.Value;
-        return string.Empty;
-      case SequenceDescriptorSection.AlterMaxValue:
-        return descriptor.MaxValue.HasValue ? "MAXVALUE " + descriptor.MaxValue.Value : "NO MAXVALUE";
-      case SequenceDescriptorSection.AlterMinValue:
-        return descriptor.MinValue.HasValue ? "MINVALUE " + descriptor.MinValue.Value : "NO MINVALUE";
-      case SequenceDescriptorSection.IsCyclic:
-        if (descriptor.IsCyclic.HasValue)
-          return descriptor.IsCyclic.Value ? "CYCLE" : "NO CYCLE";
-        return string.Empty;
-      default:
-        return string.Empty;
+        case SequenceDescriptorSection.StartValue when descriptor.StartValue.HasValue:
+          _ = output.Append("START WITH ").Append(descriptor.StartValue.Value);
+          break;
+        case SequenceDescriptorSection.RestartValue when descriptor.StartValue.HasValue:
+          _ = output.Append("RESTART WITH ").Append(descriptor.StartValue.Value);
+          break;
+        case SequenceDescriptorSection.Increment when descriptor.Increment.HasValue:
+          _ = output.Append("INCREMENT BY ").Append(descriptor.Increment.Value);
+          break;
+        case SequenceDescriptorSection.MaxValue when descriptor.MaxValue.HasValue:
+          _ = output.Append("MAXVALUE ").Append(descriptor.MaxValue.Value);
+          break;
+        case SequenceDescriptorSection.MinValue when descriptor.MinValue.HasValue:
+          _ = output.Append("MINVALUE ").Append(descriptor.MinValue.Value);
+          break;
+        case SequenceDescriptorSection.AlterMaxValue:
+          _ = descriptor.MaxValue.HasValue
+            ? output.Append("MAXVALUE ").Append(descriptor.MaxValue.Value)
+            : output.Append("NO MAXVALUE");
+          break;
+        case SequenceDescriptorSection.AlterMinValue:
+          _ = descriptor.MinValue.HasValue
+            ? output.Append("MINVALUE ").Append(descriptor.MinValue.Value)
+            : output.Append("NO MINVALUE");
+          break;
+        case SequenceDescriptorSection.IsCyclic when descriptor.IsCyclic.HasValue:
+          _ = output.Append(descriptor.IsCyclic.Value ? "CYCLE" : "NO CYCLE");
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateTranslation node)
+    /// <summary>
+    /// Translates <see cref="SqlCreateTranslation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateTranslation node)
     {
-      var sb = new StringBuilder();
-      //      sb.Append("CREATE TRANSLATION "+Translate(node.Translation));
-      //      sb.Append(" FOR "+Translate(node.Translation.SourceCharacterSet));
-      //      sb.Append(" TO "+Translate(node.Translation.SourceCharacterSet)+" FROM ");
+      //      var output = context.Output;
+      //      output.Append("CREATE TRANSLATION "+Translate(node.Translation));
+      //      output.Append(" FOR "+Translate(node.Translation.SourceCharacterSet));
+      //      output.Append(" TO "+Translate(node.Translation.SourceCharacterSet)+" FROM ");
       //      if (node.Translation.TranslationSource is IIdentityTranslation)
-      //        sb.Append("IDENTITY");
+      //        output.Append("IDENTITY");
       //      else if (node.Translation.TranslationSource is IExternalTranslation)
-      //        sb.Append("EXTERNAL ("+QuoteString(((IExternalTranslation)node.Translation.TranslationSource).Name)+")");
+      //        output.Append("EXTERNAL ("+QuoteString(((IExternalTranslation)node.Translation.TranslationSource).Name)+")");
       //      else if (node.Translation.TranslationSource is ITranslation)
-      //        sb.Append(Translate((ITranslation)node.Translation.TranslationSource));
-      return sb.ToString();
+      //        output.Append(Translate((ITranslation)node.Translation.TranslationSource));
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateView node, NodeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlCreateView"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCreateView node, NodeSection section)
     {
+      var output = context.Output;
       switch (section) {
         case NodeSection.Entry:
-          var sb = new StringBuilder();
-          sb.Append("CREATE VIEW " + Translate(context, node.View));
+          _ = output.Append("CREATE VIEW ");
+          Translate(context, node.View);
           if (node.View.ViewColumns.Count > 0) {
-            sb.Append(" (");
-            bool first = true;
+            _ = output.Append(" (");
+            var first = true;
             foreach (DataTableColumn c in node.View.ViewColumns) {
               if (first)
                 first = false;
               else
-                sb.Append(ColumnDelimiter);
-              sb.Append(c.DbName);
+                _ = output.Append(ColumnDelimiter);
+              _ = output.Append(c.DbName);
             }
-            sb.Append(")");
+            _ = output.Append(")");
           }
-          sb.Append(" AS");
-          return sb.ToString();
+          _ = output.Append(" AS");
+          break;
         case NodeSection.Exit:
           switch (node.View.CheckOptions) {
             case CheckOptions.Cascaded:
-              return "WITH CASCADED CHECK OPTION";
+              _ = output.Append("WITH CASCADED CHECK OPTION");
+              break;
             case CheckOptions.Local:
-              return "WITH LOCAL CHECK OPTION";
-            default:
-              return string.Empty;
+              _ = output.Append("WITH LOCAL CHECK OPTION");
+              break;
           }
-        default:
-          return string.Empty;
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCursor node)
+    /// <summary>
+    /// Translates <see cref="SqlCursor"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCursor node) => context.Output.Append(node.Name);
+
+    /// <summary>
+    /// Translates <see cref="SqlDeclareCursor"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
-      return node.Name;
+      var output = context.Output;
+      switch (section) {
+        case DeclareCursorSection.Entry:
+          _ = output.Append("DECLARE ").Append(node.Cursor.Name);
+          break;
+        case DeclareCursorSection.Sensivity:
+          if (node.Cursor.Insensitive)
+            _ = output.Append("INSENSITIVE");
+          break;
+        case DeclareCursorSection.Scrollability:
+          if (node.Cursor.Scroll)
+            _ = output.Append("SCROLL");
+          break;
+        case DeclareCursorSection.Cursor:
+          _ = output.Append("CURSOR");
+          break;
+        case DeclareCursorSection.For:
+          _ = output.Append("FOR");
+          break;
+        case DeclareCursorSection.Holdability:
+          _ = output.Append(node.Cursor.WithHold ? "WITH HOLD" : "WITHOUT HOLD");
+          break;
+        case DeclareCursorSection.Returnability:
+          _ = output.Append(node.Cursor.WithReturn ? "WITH RETURN " : "WITHOUT RETURN ");
+          break;
+        case DeclareCursorSection.Updatability:
+          _ = output.Append(node.Cursor.ReadOnly ? "FOR READ ONLY" : "FOR UPDATE");
+          break;
+      }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
+    /// <summary>
+    /// Translates <see cref="SqlDeclareVariable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDeclareVariable node)
+    {
+      _ = context.Output.Append("DECLARE @")
+        .Append(node.Variable.Name)
+        .Append(" AS ")
+        .Append(Translate(node.Variable.Type));
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDefaultValue"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDefaultValue node) => context.Output.Append("DEFAULT");
+
+    /// <summary>
+    /// Translates <see cref="SqlDelete"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
+    {
+      _ = context.Output.Append(section switch {
+        DeleteSection.Entry => "DELETE FROM",
+        DeleteSection.From => "FROM",
+        DeleteSection.Where => "WHERE",
+        DeleteSection.Limit => "LIMIT",
+        _ => string.Empty
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropAssertion"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropAssertion node)
+    {
+      _ = context.Output.Append("DROP ASSERTION ");
+      Translate(context, node.Assertion);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropCharacterSet"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropCharacterSet node)
+    {
+      _ = context.Output.Append("DROP CHARACTER SET ");
+      Translate(context, node.CharacterSet);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropCollation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropCollation node)
+    {
+      _ = context.Output.Append("DROP COLLATION ");
+      Translate(context, node.Collation);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropDomain"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropDomain node)
+    {
+      _ = context.Output.Append("DROP DOMAIN ");
+      Translate(context, node.Domain);
+      _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropIndex"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropIndex node)
+    {
+      var output = context.Output;
+      if (!node.Index.IsFullText) {
+        _ = output.Append("DROP INDEX ");
+        TranslateIdentifier(output, node.Index.DbName);
+        _ = output.Append(" ON ");
+      }
+      else {
+        _ = output.Append("DROP FULLTEXT INDEX ON ");
+      }
+
+      Translate(context, node.Index.DataTable);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropPartitionFunction"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropPartitionFunction node)
+    {
+      _ = context.Output.Append("DROP PARTITION FUNCTION ");
+      TranslateIdentifier(context.Output, node.PartitionFunction.DbName);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropPartitionScheme"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropPartitionScheme node)
+    {
+      _ = context.Output.Append("DROP PARTITION SCHEME ");
+      TranslateIdentifier(context.Output, node.PartitionSchema.DbName);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropSchema"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropSchema node)
+    {
+      var output = context.Output;
+      _ = output.Append("DROP SCHEMA ");
+      TranslateIdentifier(output, node.Schema.DbName);
+      _ = output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropSequence"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropSequence node)
+    {
+      _ = context.Output.Append("DROP SEQUENCE ");
+      Translate(context, node.Sequence);
+      _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropTable node)
+    {
+      _ = context.Output.Append("DROP TABLE ");
+      Translate(context, node.Table);
+      _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropTranslation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropTranslation node)
+    {
+      _ = context.Output.Append("DROP TRANSLATION ");
+      Translate(context, node.Translation);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDropView"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlDropView node)
+    {
+      _ = context.Output.Append("DROP VIEW ");
+      Translate(context, node.View);
+      _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlFetch"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     {
       switch (section) {
-      case DeclareCursorSection.Entry:
-        return "DECLARE " + node.Cursor.Name;
-      case DeclareCursorSection.Sensivity:
-        return (node.Cursor.Insensitive ? "INSENSITIVE " : string.Empty);
-      case DeclareCursorSection.Scrollability:
-        return (node.Cursor.Scroll ? "SCROLL " : string.Empty);
-      case DeclareCursorSection.Cursor:
-        return "CURSOR ";
-      case DeclareCursorSection.For:
-        return "FOR";
-      case DeclareCursorSection.Holdability:
-        return (node.Cursor.WithHold ? "WITH HOLD " : "WITHOUT HOLD ");
-      case DeclareCursorSection.Returnability:
-        return (node.Cursor.WithReturn ? "WITH RETURN " : "WITHOUT RETURN ");
-      case DeclareCursorSection.Updatability:
-        return (node.Cursor.ReadOnly) ? "FOR READ ONLY" : "FOR UPDATE";
+        case FetchSection.Entry:
+          _ = context.Output.Append("FETCH ")
+            .Append(node.Option.ToString());
+          break;
+        case FetchSection.Targets:
+          _ = context.Output.Append("FROM ")
+            .Append(node.Cursor.Name);
+          if (node.Targets.Count != 0) {
+            _ = context.Output.Append(" INTO");
+          }
+          break;
       }
-      return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlDeclareVariable node)
+    /// <summary>
+    /// Translates <see cref="SqlFunctionCall"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    /// <param name="position">Argument position.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      return "DECLARE @" + node.Variable.Name + " AS " + Translate(node.Variable.Type);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDefaultValue node)
-    {
-      return "DEFAULT";
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
-    {
-      switch (section) {
-      case DeleteSection.Entry:
-        return "DELETE FROM";
-      case DeleteSection.From:
-        return "FROM";
-      case DeleteSection.Where:
-        return "WHERE";
-      case DeleteSection.Limit:
-        return "LIMIT";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropAssertion node)
-    {
-      return "DROP ASSERTION " + Translate(context, node.Assertion);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropCharacterSet node)
-    {
-      return "DROP CHARACTER SET " + Translate(context, node.CharacterSet);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropCollation node)
-    {
-      return "DROP COLLATION " + Translate(context, node.Collation);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropDomain node)
-    {
-      return "DROP DOMAIN " + Translate(context, node.Domain) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropIndex node)
-    {
-      if (!node.Index.IsFullText)
-        return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(context, node.Index.DataTable);
-      else 
-        return "DROP FULLTEXT INDEX ON " + Translate(context, node.Index.DataTable);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropPartitionFunction node)
-    {
-      return "DROP PARTITION FUNCTION " + QuoteIdentifier(node.PartitionFunction.DbName);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropPartitionScheme node)
-    {
-      return "DROP PARTITION SCHEME " + QuoteIdentifier(node.PartitionSchema.DbName);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropSchema node)
-    {
-      return "DROP SCHEMA " + QuoteIdentifier(node.Schema.DbName) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropSequence node)
-    {
-      return "DROP SEQUENCE " + Translate(context, node.Sequence) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropTable node)
-    {
-      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropTranslation node)
-    {
-      return "DROP TRANSLATION " + Translate(context, node.Translation);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlDropView node)
-    {
-      return "DROP VIEW " + Translate(context, node.View) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
-    {
-      switch (section) {
-      case FetchSection.Entry:
-        return "FETCH " + node.Option;
-      case FetchSection.Targets:
-        return "FROM " + node.Cursor.Name + ((node.Targets.Count != 0) ? " INTO" : string.Empty);
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
-    {
+      var output = context.Output;
       switch (section) {
         case FunctionCallSection.Entry:
-          switch(node.FunctionType) {
+          switch (node.FunctionType) {
             case SqlFunctionType.CurrentUser:
             case SqlFunctionType.SessionUser:
             case SqlFunctionType.SystemUser:
             case SqlFunctionType.User:
-              return Translate(node.FunctionType);
+              Translate(output, node.FunctionType);
+              break;
+            case SqlFunctionType.Position when Driver.ServerInfo.StringIndexingBase > 0:
+              _ = output.AppendOpeningPunctuation("(");
+              Translate(output, node.FunctionType);
+              _ = output.AppendOpeningPunctuation("(");
+              break;
+            default:
+              Translate(output, node.FunctionType);
+              _ = output.Append(node.Arguments.Count == 0 ? "()" : "(");
+              break;
           }
-          if (node.FunctionType==SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
-            return "(" + Translate(node.FunctionType) + "(";
-          return (node.Arguments.Count == 0) ? Translate(node.FunctionType) + "()" : Translate(node.FunctionType) + "(";
+          break;
         case FunctionCallSection.ArgumentEntry:
           switch (node.FunctionType) {
-          case SqlFunctionType.Position:
-            return position == 1 ? "IN" : string.Empty;
-          case SqlFunctionType.Substring:
-            switch (position) {
-            case 1:
-              return "FROM";
-            case 2:
-              return "FOR";
-            default:
-              return string.Empty;
-            }
-          default:
-            return string.Empty;
+            case SqlFunctionType.Position when position == 1:
+              _ = output.Append("IN");
+              break;
+            case SqlFunctionType.Substring:
+              switch (position) {
+                case 1:
+                  _ = output.Append("FROM");
+                  break;
+                case 2:
+                  _ = output.Append("FOR");
+                  break;
+              }
+              break;
           }
-        case FunctionCallSection.ArgumentExit:
-          if (node.FunctionType==SqlFunctionType.Substring && position == 1)
-            return Driver.ServerInfo.StringIndexingBase > 0 ? "+ " + Driver.ServerInfo.StringIndexingBase : string.Empty;
+          break;
+        case FunctionCallSection.ArgumentExit when node.FunctionType == SqlFunctionType.Substring
+            && position == 1
+            && Driver.ServerInfo.StringIndexingBase > 0:
+          _ = output.Append("+ ").Append(Driver.ServerInfo.StringIndexingBase);
           break;
         case FunctionCallSection.ArgumentDelimiter:
-          switch(node.FunctionType) {
+          switch (node.FunctionType) {
             case SqlFunctionType.Position:
             case SqlFunctionType.Substring:
-              return String.Empty;
+              break;
             default:
-              return ArgumentDelimiter;
+              _ = output.Append(ArgumentDelimiter);
+              break;
           }
+          break;
         case FunctionCallSection.Exit:
-          if (node.FunctionType==SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0)
-            return
-              ") - " + Driver.ServerInfo.StringIndexingBase + ")";
-          return (node.Arguments.Count != 0) ? ")" : string.Empty;
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
-    {
-      switch (section) {
-      case ExtractSection.Entry:
-        return "EXTRACT(";
-      case ExtractSection.From:
-        return "FROM";
-      case ExtractSection.Exit:
-        return ")";
-      default:
-        return string.Empty;
+          if (node.FunctionType == SqlFunctionType.Position && Driver.ServerInfo.StringIndexingBase > 0) {
+            _ = output.Append(") - ")
+              .Append(Driver.ServerInfo.StringIndexingBase)
+              .Append(")");
+          }
+          else if (node.Arguments.Count != 0) {
+            _ = output.Append(")");
+          }
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlIf node, IfSection section)
+    /// <summary>
+    /// Translates <see cref="SqlExtract"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="extract">Expression to translate</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
     {
-      switch (section) {
-      case IfSection.Entry:
-        return "IF";
-      case IfSection.True:
-        return "BEGIN";
-      case IfSection.False:
-        return "END BEGIN";
-      case IfSection.Exit:
-        return "END";
-      }
-      return string.Empty;
+      _ = context.Output.Append(section switch {
+        ExtractSection.Entry => "EXTRACT(",
+        ExtractSection.From => "FROM",
+        ExtractSection.Exit => ")",
+        _ => string.Empty
+      });
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    /// <summary>
+    /// Translates <see cref="SqlIf"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlIf node, IfSection section)
     {
+      _ = context.Output.Append(section switch {
+        IfSection.Entry => "IF",
+        IfSection.True => "BEGIN",
+        IfSection.False => "END BEGIN",
+        IfSection.Exit => "END",
+        _ => string.Empty
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlInsert"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    {
+      var output = context.Output;
       switch (section) {
         case InsertSection.Entry:
-          return "INSERT INTO";
-        case InsertSection.ColumnsEntry:
-          return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
-        case InsertSection.ColumnsExit:
-          return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
+          _ = output.Append("INSERT INTO");
+          break;
+        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+          _ = output.AppendOpeningPunctuation("(");
+          break;
+        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+          _ = output.Append(")");
+          break;
         case InsertSection.From:
-          return "FROM";
+          _ = output.Append("FROM");
+          break;
         case InsertSection.ValuesEntry:
-          return "VALUES (";
+          _ = output.AppendOpeningPunctuation("VALUES (");
+          break;
         case InsertSection.ValuesExit:
-          return ")";
+          _ = output.Append(")");
+          break;
         case InsertSection.DefaultValues:
-          return "DEFAULT VALUES";
+          _ = output.Append("DEFAULT VALUES");
+          break;
       }
-      return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
+    /// <summary>
+    /// Translates <see cref="SqlJoinExpression"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
+      var output = context.Output;
       var traversalPath = context.GetTraversalPath().Skip(1);
-      var explicitJoinOrder =
-        Driver.ServerInfo.Query.Features.Supports(QueryFeatures.ExplicitJoinOrder)
+      var explicitJoinOrder = supportsExplicitJoinOrder
         && traversalPath.FirstOrDefault() is SqlJoinExpression;
+
       switch (section) {
-      case JoinSection.Entry:
-        return explicitJoinOrder ? "(" : string.Empty;
-      case JoinSection.Specification:
-          bool isNatural = node.Expression.IsNullReference()
-            && node.JoinType!=SqlJoinType.CrossJoin
-            && node.JoinType!=SqlJoinType.UnionJoin;
-          return (isNatural ? "NATURAL " : string.Empty) + Translate(node.JoinType) + " JOIN";
-      case JoinSection.Condition:
-        return
-          node.JoinType==SqlJoinType.UsingJoin ? "USING" : "ON";
-      case JoinSection.Exit:
-        return explicitJoinOrder ? ")" : string.Empty;
+        case JoinSection.Entry when explicitJoinOrder:
+          _ = output.Append("(");
+          break;
+        case JoinSection.Specification:
+          var isNatural = node.Expression is null
+            && node.JoinType != SqlJoinType.CrossJoin
+            && node.JoinType != SqlJoinType.UnionJoin;
+          if (isNatural) {
+            _ = output.Append("NATURAL ");
+          }
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
+          break;
+        case JoinSection.Condition:
+          _ = output.Append(node.JoinType == SqlJoinType.UsingJoin ? "USING" : "ON");
+          break;
+        case JoinSection.Exit when explicitJoinOrder:
+          _ = output.Append(")");
+          break;
       }
-      return string.Empty;
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
+    /// <summary>
+    /// Translates <see cref="SqlLike"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case LikeSection.Entry:
-        return "(";
-      case LikeSection.Exit:
-        return ")";
-      case LikeSection.Like:
-        return node.Not ? "NOT LIKE" : "LIKE";
-      case LikeSection.Escape:
-        return "ESCAPE";
-      default:
-        return string.Empty;
+        case LikeSection.Entry:
+          _ = output.Append("(");
+          break;
+        case LikeSection.Exit:
+          _ = output.AppendClosingPunctuation(")");
+          break;
+        case LikeSection.Like:
+          _ = output.Append(node.Not ? "NOT LIKE" : "LIKE");
+          break;
+        case LikeSection.Escape:
+          _ = output.Append("ESCAPE");
+          break;
       }
     }
-    
-    public virtual string Translate(SqlCompilerContext context, object literalValue)
+
+    /// <summary>
+    /// Translates literal values like numbers, string, char, TimeSpan, DateTime values, etc.
+    /// and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="literalValue">Value to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, object literalValue)
     {
+      var output = context.Output;
       var literalType = literalValue.GetType();
       switch (Type.GetTypeCode(literalType)) {
-      case TypeCode.Char:
-      case TypeCode.String:
-        return QuoteString(literalValue.ToString());
-      case TypeCode.DateTime:
-        return ((DateTime) literalValue).ToString(DateTimeFormatString, DateTimeFormat);
-      case TypeCode.Single:
-        return ((float) literalValue).ToString(FloatFormatString, FloatNumberFormat);
-      case TypeCode.Double:
-        return ((double) literalValue).ToString(DoubleFormatString, DoubleNumberFormat);
-      case TypeCode.Byte:
-      case TypeCode.SByte:
-      case TypeCode.Int16:
-      case TypeCode.UInt16:
-      case TypeCode.Int32:
-      case TypeCode.UInt32:
-      case TypeCode.Int64:
-      case TypeCode.UInt64:
-      case TypeCode.Decimal:
-        return Convert.ToString(literalValue, IntegerNumberFormat);
+        case TypeCode.Char:
+        case TypeCode.String:
+          TranslateString(output, literalValue.ToString());
+          return;
+        case TypeCode.DateTime:
+          _ = output.Append(((DateTime) literalValue).ToString(DateTimeFormatString, DateTimeFormat));
+          return;
+        case TypeCode.Single:
+          _ = output.Append(((float) literalValue).ToString(FloatFormatString, FloatNumberFormat));
+          return;
+        case TypeCode.Double:
+          _ = output.Append(((double) literalValue).ToString(DoubleFormatString, DoubleNumberFormat));
+          return;
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.Int16:
+        case TypeCode.UInt16:
+        case TypeCode.Int32:
+        case TypeCode.UInt32:
+        case TypeCode.Int64:
+        case TypeCode.UInt64:
+        case TypeCode.Decimal:
+          _ = output.Append(Convert.ToString(literalValue, IntegerNumberFormat));
+          return;
       }
-      if (literalType == WellKnownTypes.TimeSpan)
-        return SqlHelper.TimeSpanToString((TimeSpan) literalValue, TimeSpanFormatString);
-      if (literalType==WellKnownTypes.Guid || literalType==WellKnownTypes.ByteArray)
-        throw new NotSupportedException(string.Format(
-          Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-      return literalValue.ToString();
+      switch (literalValue) {
+        case TimeSpan timeSpan:
+          _ = output.Append(SqlHelper.TimeSpanToString(timeSpan, TimeSpanFormatString));
+          break;
+        case Guid:
+        case byte[]:
+          throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+        default:
+          _ = output.Append(literalValue.ToString());
+          break;
+      }
     }
-    
-    public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
+
+    /// <summary>
+    /// Translates <see cref="SqlMatch"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
-      case MatchSection.Specification:
-        return " MATCH " + ((node.Unique) ? "UNIQUE " : string.Empty) + Translate(node.MatchType);
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlNative node)
-    {
-      return node.Value;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
-    {
-      switch(section) {
-      case NodeSection.Entry:
-        return "NEXT VALUE FOR ";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlNull node)
-    {
-      return "NULL";
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlOpenCursor node)
-    {
-      return "OPEN " + node.Cursor.Name;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Exit:
-        return (node.Ascending) ? "ASC" : "DESC";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlQueryExpression node, QueryExpressionSection section)
-    {
-      switch(section) {
-      case QueryExpressionSection.All:
-        return node.All ? " ALL" : string.Empty;
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
-    {
-      switch (section) {
-      case TableSection.Entry:
-        return node.Query is SqlFreeTextTable || node.Query is  SqlContainsTable ? String.Empty : "(";
-      case TableSection.Exit:
-        return node.Query is SqlFreeTextTable || node.Query is  SqlContainsTable ? String.Empty : ")";
-      case TableSection.AliasDeclaration:
-          string alias = context.TableNameProvider.GetName(node);
-        return (string.IsNullOrEmpty(alias)) ? string.Empty : QuoteIdentifier(alias);
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlRow node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "(";
-      case NodeSection.Exit:
-        return ")";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlRowNumber node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "ROW_NUMBER() OVER(ORDER BY";
-      case NodeSection.Exit:
-        return ")";
-      default:
-        throw new ArgumentOutOfRangeException("section");
-      }
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlRenameTable node)
-    {
-      return string.Format("ALTER TABLE {0} RENAME TO {1}", Translate(context, node.Table), QuoteIdentifier(node.NewName));
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      switch (section) {
-      case SelectSection.Entry:
-        return node.Distinct ? "SELECT DISTINCT" : "SELECT";
-      case SelectSection.From:
-        return "FROM";
-      case SelectSection.Where:
-        return "WHERE";
-      case SelectSection.GroupBy:
-        return "GROUP BY";
-      case SelectSection.Having:
-        return "HAVING";
-      case SelectSection.OrderBy:
-        return "ORDER BY";
-      case SelectSection.Limit:
-        return "LIMIT";
-      case SelectSection.Offset:
-        return "OFFSET";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlStatementBlock node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "BEGIN";
-      case NodeSection.Exit:
-        return "End";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlSubQuery node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        return "(";
-      case NodeSection.Exit:
-        return ")";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
-    {
-      return QuoteIdentifier(context.TableNameProvider.GetName(node));
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
-    {
-      if ((context.NamingOptions & SqlCompilerNamingOptions.TableQualifiedColumns) == 0)
-        return (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
-      else
-        return
-          Translate(context, node.SqlTable, NodeSection.Entry) + "." +
-          (((object)node == (object)node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name));
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
-    {
-      switch (section) {
-      case TableSection.Entry:
-        return Translate(context, node.DataTable);
-      case TableSection.AliasDeclaration:
-          string alias = context.TableNameProvider.GetName(node);
-        return (alias != node.DataTable.DbName) ? " " + QuoteIdentifier(alias) : string.Empty;
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
-    {
-      switch (section) {
-      case TrimSection.Entry:
-        return "TRIM(";
-      case TrimSection.From:
-        return "FROM";
-      case TrimSection.Exit:
-        return ")";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
-    {
-      var omitParenthesis =
-        node.NodeType==SqlNodeType.Exists
-        || node.NodeType==SqlNodeType.All
-        || node.NodeType==SqlNodeType.Some
-        || node.NodeType==SqlNodeType.Any;
-
-      var isNullCheck = node.NodeType==SqlNodeType.IsNull || node.NodeType==SqlNodeType.IsNotNull;
-      var result = string.Empty;
-
-      switch (section) {
-      case NodeSection.Entry:
-        if (!omitParenthesis)
-          result += "(";
-        if (!isNullCheck)
-          result += Translate(node.NodeType);
-        break;
-      case NodeSection.Exit:
-        if (isNullCheck)
-          result += Translate(node.NodeType);
-        if (!omitParenthesis)
-          result += ")";
-        break;
-      }
-
-      return result;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-      case UpdateSection.Entry:
-        return "UPDATE";
-      case UpdateSection.Set:
-        return "SET";
-      case UpdateSection.From:
-        return "FROM";
-      case UpdateSection.Where:
-        return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
-      case UpdateSection.Limit:
-        return "LIMIT";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlUserColumn node, NodeSection section)
-    {
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
-    {
-      switch (section) {
-      case FunctionCallSection.Entry:
-        return node.Name + "(";
-      case FunctionCallSection.Exit:
-        return ")";
-      }
-      return Translate(context, node as SqlFunctionCall, section, position);
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlVariable node)
-    {
-      return "@" + node.Name;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
-    {
-      switch (section) {
-      case WhileSection.Entry:
-        return "WHILE (";
-      case WhileSection.Statement:
-        return ") BEGIN";
-      case WhileSection.Exit:
-        return "END";
-      }
-      return string.Empty;
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlCommand node)
-    {
-      switch (node.CommandType) {
-      case SqlCommandType.SetConstraintsAllDeferred:
-        return "SET CONSTRAINTS ALL DEFERRED";
-      case SqlCommandType.SetConstraintsAllImmediate:
-        return "SET CONSTRAINTS ALL IMMEDIATE";
-      default:
-        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, node.CommandType));
-      }
-    }
-
-    public virtual string Translate(SqlNodeType type)
-    {
-      switch (type) {
-      case SqlNodeType.All:
-        return "ALL";
-      case SqlNodeType.Any:
-        return "ANY";
-      case SqlNodeType.Some:
-        return "SOME";
-      case SqlNodeType.Exists:
-        return "EXISTS";
-      case SqlNodeType.BitAnd:
-        return "&";
-      case SqlNodeType.BitNot:
-        return "~";
-      case SqlNodeType.BitOr:
-        return "|";
-      case SqlNodeType.BitXor:
-        return "^";
-      case SqlNodeType.In:
-        return "IN";
-      case SqlNodeType.Between:
-        return "BETWEEN";
-      case SqlNodeType.And:
-        return "AND";
-      case SqlNodeType.Or:
-        return "OR";
-      case SqlNodeType.IsNull:
-        return "IS NULL";
-      case SqlNodeType.IsNotNull:
-        return "IS NOT NULL";
-      case SqlNodeType.Not:
-        return "NOT";
-      case SqlNodeType.NotBetween:
-        return "NOT BETWEEN";
-      case SqlNodeType.NotIn:
-        return "NOT IN";
-      case SqlNodeType.GreaterThan:
-        return ">";
-      case SqlNodeType.GreaterThanOrEquals:
-        return ">=";
-      case SqlNodeType.LessThan:
-        return "<";
-      case SqlNodeType.LessThanOrEquals:
-        return "<=";
-      case SqlNodeType.Equals:
-      case SqlNodeType.Assign:
-        return "=";
-      case SqlNodeType.NotEquals:
-        return "<>";
-      case SqlNodeType.Add:
-        return "+";
-      case SqlNodeType.Subtract:
-      case SqlNodeType.Negate:
-        return "-";
-      case SqlNodeType.Multiply:
-        return "*";
-      case SqlNodeType.Modulo:
-        return "%";
-      case SqlNodeType.Divide:
-        return "/";
-      case SqlNodeType.Avg:
-        return "AVG";
-      case SqlNodeType.Count:
-        return "COUNT";
-      case SqlNodeType.Max:
-        return "MAX";
-      case SqlNodeType.Min:
-        return "MIN";
-      case SqlNodeType.Sum:
-        return "SUM";
-      case SqlNodeType.Concat:
-        return "||";
-      case SqlNodeType.Unique:
-        return "UNIQUE";
-      case SqlNodeType.Union:
-        return "UNION";
-      case SqlNodeType.Intersect:
-        return "INTERSECT";
-      case SqlNodeType.Except:
-        return "EXCEPT";
-      case SqlNodeType.Overlaps:
-        return "OVERLAPS";
-      case SqlNodeType.RawConcat:
-        return string.Empty;
-      default:
-        throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
-      }
-    }
-
-    public virtual string Translate(SqlJoinType type)
-    {
-      switch (type) {
-      case SqlJoinType.CrossJoin:
-        return "CROSS";
-      case SqlJoinType.FullOuterJoin:
-        return "FULL OUTER";
-      case SqlJoinType.InnerJoin:
-        return "INNER";
-      case SqlJoinType.LeftOuterJoin:
-        return "LEFT OUTER";
-      case SqlJoinType.UnionJoin:
-        return "UNION";
-      case SqlJoinType.RightOuterJoin:
-        return "RIGHT OUTER";
-      case SqlJoinType.CrossApply:
-      case SqlJoinType.LeftOuterApply:
-        throw SqlHelper.NotSupported(QueryFeatures.CrossApply);
-      default:
-        return string.Empty;
-      }
-    }
-
-    public virtual string Translate(SqlMatchType type)
-    {
-      switch (type) {
-      case SqlMatchType.Full:
-        return "FULL";
-      case SqlMatchType.Partial:
-        return "PARTIAL";
-      default:
-        return string.Empty;
-      }
-    }
-
-    private string Translate(PartitionDescriptor partitionDescriptor, bool withOn)
-    {
-      if (partitionDescriptor.PartitionSchema != null)
-        return
-          (withOn ? "ON " : "") + QuoteIdentifier(partitionDescriptor.PartitionSchema.DbName) + " (" +
-          QuoteIdentifier(partitionDescriptor.Column.DbName) + ")";
-      else {
-        StringBuilder sb = new StringBuilder();
-        sb.Append("PARTITION BY ");
-        switch (partitionDescriptor.PartitionMethod) {
-          case PartitionMethod.Hash:
-            sb.Append("HASH");
-            break;
-          case PartitionMethod.List:
-            sb.Append("LIST");
-            break;
-          case PartitionMethod.Range:
-            sb.Append("RANGE");
-            break;
-        }
-        sb.Append(" (" + QuoteIdentifier(partitionDescriptor.Column.DbName) + ")");
-        if (partitionDescriptor.Partitions == null)
-          sb.Append(" PARTITIONS " + partitionDescriptor.PartitionAmount);
-        else {
-          sb.Append(" (");
-          bool first = true;
-          switch (partitionDescriptor.PartitionMethod) {
-            case PartitionMethod.Hash:
-              foreach (HashPartition p in partitionDescriptor.Partitions) {
-                if (first)
-                  first = false;
-                else
-                  sb.Append(ColumnDelimiter);
-                sb.Append("PARTITION " + QuoteIdentifier(p.DbName) +
-                          (String.IsNullOrEmpty(p.Filegroup) ? "" : " TABLESPACE " + p.Filegroup));
-              }
-              break;
-            case PartitionMethod.List:
-              foreach (ListPartition p in partitionDescriptor.Partitions) {
-                if (first)
-                  first = false;
-                else
-                  sb.Append(ColumnDelimiter);
-                sb.Append("PARTITION " + QuoteIdentifier(p.DbName) + " VALUES (");
-                bool firstValue = true;
-                foreach (string v in p.Values) {
-                  if (firstValue)
-                    firstValue = false;
-                  else
-                    sb.Append(RowItemDelimiter);
-                  TypeCode t = Type.GetTypeCode(v.GetType());
-                  if (t == TypeCode.String || t == TypeCode.Char)
-                    sb.Append(QuoteString(v));
-                  else
-                    sb.Append(v);
-                }
-                sb.Append(")");
-                if (!String.IsNullOrEmpty(p.Filegroup))
-                  sb.Append(" TABLESPACE " + p.Filegroup);
-              }
-              break;
-            case PartitionMethod.Range:
-              foreach (RangePartition p in partitionDescriptor.Partitions) {
-                if (first)
-                  first = false;
-                else
-                  sb.Append(ColumnDelimiter);
-                sb.Append("PARTITION " + QuoteIdentifier(p.DbName) + " VALUES LESS THAN (");
-                TypeCode t = Type.GetTypeCode(p.Boundary.GetType());
-                if (t == TypeCode.String || t == TypeCode.Char)
-                  sb.Append(QuoteString(p.Boundary));
-                else
-                  sb.Append(p.Boundary);
-                sb.Append(")");
-                if (!String.IsNullOrEmpty(p.Filegroup))
-                  sb.Append(" TABLESPACE " + p.Filegroup);
-              }
-              break;
+        case MatchSection.Specification:
+          var output = context.Output;
+          _ = output.Append(" MATCH ");
+          if (node.Unique) {
+            _ = output.Append("UNIQUE ");
           }
-          sb.Append(")");
-        }
-        return sb.ToString();
+          Translate(output, node.MatchType);
+          break;
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SchemaNode node)
+    /// <summary>
+    /// Translates <see cref="SqlNative"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlNative node) => context.Output.Append(node.Value);
+
+    /// <summary>
+    /// Translates <see cref="SqlNextValue"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
-      var schemaQualified = node.Schema!=null
-        && Driver.ServerInfo.Query.Features.Supports(QueryFeatures.MultischemaQueries);
+      switch (section) {
+        case NodeSection.Entry:
+          _ = context.Output.Append("NEXT VALUE FOR ");
+          break;
+      }
+    }
 
-      if (!schemaQualified)
-        return QuoteIdentifier(node.DbName);
+    /// <summary>
+    /// Translates <see cref="SqlNull"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlNull node) =>
+      context.Output.Append("NULL");
 
-      var dbQualified = node.Schema.Catalog!=null
+    /// <summary>
+    /// Translates <see cref="SqlOpenCursor"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlOpenCursor node) =>
+      context.Output.Append("OPEN ").Append(node.Cursor.Name);
+
+    /// <summary>
+    /// Translates <see cref="SqlOrder"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Exit:
+          TranslateSortOrder(context.Output, node.Ascending);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlQueryExpression"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlQueryExpression node, QueryExpressionSection section)
+    {
+      switch (section) {
+        case QueryExpressionSection.All when node.All:
+          _ = context.Output.Append(" ALL");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlQueryRef"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
+    {
+      switch (section) {
+        case TableSection.Entry when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
+          _ = context.Output.AppendOpeningPunctuation("(");
+          break;
+        case TableSection.Exit when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
+          _ = context.Output.Append(")");
+          break;
+        case TableSection.AliasDeclaration:
+          var alias = context.TableNameProvider.GetName(node);
+          if (!string.IsNullOrEmpty(alias)) {
+            TranslateIdentifier(context.Output, alias);
+          }
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlRow"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlRow node, NodeSection section)
+    {
+      _ = section switch {
+        NodeSection.Entry => context.Output.AppendOpeningPunctuation("("),
+        NodeSection.Exit => context.Output.AppendClosingPunctuation(")"),
+        _ => throw new ArgumentOutOfRangeException(nameof(section))
+      };
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlRowNumber"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlRowNumber node, NodeSection section)
+    {
+      _ = section switch {
+        NodeSection.Entry => context.Output.Append("ROW_NUMBER() OVER(ORDER BY"),
+        NodeSection.Exit => context.Output.Append(")"),
+        _ => throw new ArgumentOutOfRangeException(nameof(section)),
+      };
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlRenameTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlRenameTable node)
+    {
+      _ = context.Output.Append("ALTER TABLE ");
+      Translate(context, node.Table);
+      _ = context.Output.Append(" RENAME TO ");
+      TranslateIdentifier(context.Output, node.NewName);
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlSelect"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    {
+      _ = context.Output.Append(section switch {
+        SelectSection.Entry => node.Distinct ? "SELECT DISTINCT" : "SELECT",
+        SelectSection.From => "FROM",
+        SelectSection.Where => "WHERE",
+        SelectSection.GroupBy => "GROUP BY",
+        SelectSection.Having => "HAVING",
+        SelectSection.OrderBy => "ORDER BY",
+        SelectSection.Limit => "LIMIT",
+        SelectSection.Offset => "OFFSET",
+        _ => string.Empty
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlStatementBlock"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlStatementBlock node, NodeSection section)
+    {
+      _ = section switch {
+        NodeSection.Entry => context.Output.Append("BEGIN"),
+        NodeSection.Exit => context.Output.Append("END"),
+        _ => throw new ArgumentOutOfRangeException(nameof(section)),
+      };
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlSubQuery"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlSubQuery node, NodeSection section)
+    {
+      _ = section switch {
+        NodeSection.Entry => context.Output.AppendOpeningPunctuation("("),
+        NodeSection.Exit => context.Output.Append(")"),
+        _ => throw new ArgumentOutOfRangeException(nameof(section))
+      };
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTable"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlTable node, NodeSection section) =>
+      TranslateIdentifier(context.Output, context.TableNameProvider.GetName(node));
+
+    /// <summary>
+    /// Translates <see cref="SqlTableColumn"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
+    {
+      var output = context.Output;
+      if ((context.NamingOptions & SqlCompilerNamingOptions.TableQualifiedColumns) != 0) {
+        Translate(context, node.SqlTable, NodeSection.Entry);
+        _ = output.Append(".");
+      }
+      if ((object) node == (object) node.SqlTable.Asterisk) {
+        _ = output.Append(node.Name);
+      }
+      else {
+        TranslateIdentifier(output, node.Name);
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTableRef"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
+    {
+      switch (section) {
+        case TableSection.Entry:
+          Translate(context, node.DataTable);
+          break;
+        case TableSection.AliasDeclaration:
+          var alias = context.TableNameProvider.GetName(node);
+          if (alias != node.DataTable.DbName) {
+            TranslateIdentifier(context.Output, alias);
+          }
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTrim"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
+    {
+      _ = section switch {
+        TrimSection.Entry => context.Output.AppendOpeningPunctuation("TRIM("),
+        TrimSection.From => context.Output.Append("FROM"),
+        TrimSection.Exit => context.Output.Append(")"),
+        _ => throw new ArgumentOutOfRangeException(nameof(section)),
+      };
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlUnary"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
+    {
+      var output = context.Output;
+      var omitParenthesis =
+        node.NodeType is SqlNodeType.Exists or SqlNodeType.All or SqlNodeType.Some or SqlNodeType.Any;
+
+      var isNullCheck = node.NodeType is SqlNodeType.IsNull or SqlNodeType.IsNotNull;
+
+      switch (section) {
+        case NodeSection.Entry:
+          if (!omitParenthesis) {
+            _ = output.AppendOpeningPunctuation("(");
+          }
+          if (!isNullCheck) {
+            Translate(output, node.NodeType);
+          }
+          break;
+        case NodeSection.Exit:
+          if (isNullCheck) {
+            _ = output.AppendSpaceIfNecessary();
+            Translate(output, node.NodeType);
+          }
+
+          if (!omitParenthesis) {
+            _ = output.AppendClosingPunctuation(")");
+          }
+          break;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(section));
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlUpdate"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
+    {
+      _ = context.Output.Append(section switch {
+        UpdateSection.Entry => "UPDATE",
+        UpdateSection.Set => "SET",
+        UpdateSection.From => "FROM",
+        UpdateSection.Where => (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE",
+        UpdateSection.Limit => "LIMIT",
+        _ => string.Empty
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlUserColumn"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlUserColumn node, NodeSection section)
+    {
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlUserFunctionCall"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    /// <param name="position">Argument postion.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlUserFunctionCall node, FunctionCallSection section, int position)
+    {
+      switch (section) {
+        case FunctionCallSection.Entry:
+          _ = context.Output.Append(node.Name).AppendOpeningPunctuation("(");
+          break;
+        case FunctionCallSection.Exit:
+          _ = context.Output.AppendClosingPunctuation(")");
+          break;
+        default:
+          Translate(context, node as SqlFunctionCall, section, position);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlVariable"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Expression to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlVariable node) => context.Output.Append("@").Append(node.Name);
+
+    /// <summary>
+    /// Translates <see cref="SqlWhile"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    /// <param name="section">Particular section to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
+    {
+      switch (section) {
+        case WhileSection.Entry:
+          _ = context.Output.AppendOpeningPunctuation("WHILE (");
+          break;
+        case WhileSection.Statement:
+          _ = context.Output.AppendClosingPunctuation(") BEGIN");
+          break;
+        case WhileSection.Exit:
+          _ = context.Output.Append("END");
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlCommand"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlCommand node)
+    {
+      _ = context.Output.Append(node.CommandType switch {
+        SqlCommandType.SetConstraintsAllDeferred => "SET CONSTRAINTS ALL DEFERRED",
+        SqlCommandType.SetConstraintsAllImmediate => "SET CONSTRAINTS ALL IMMEDIATE",
+        _ => throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, node.CommandType))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SchemaNode"/> node to string.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    /// <returns>Result of translation</returns>
+    /// <exception cref="NotSupportedException"/>
+    public virtual string TranslateToString(SqlCompilerContext context, SchemaNode node) => throw new NotSupportedException();
+
+    /// <summary>
+    /// Translates <see cref="SchemaNode"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Node to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SchemaNode node)
+    {
+      var schemaQualified = node.Schema != null && supportsMultischemaQueries;
+
+      var output = context.Output;
+
+      if (!schemaQualified) {
+        TranslateIdentifier(output, node.DbName);
+        return;
+      }
+
+      var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
       var actualizer = context.SqlNodeActualizer;
 
-      return dbQualified
-        ? QuoteIdentifier(actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal())
-        : QuoteIdentifier(actualizer.Actualize(node.Schema), node.DbName);
-    }
-
-    public virtual string Translate(Collation collation)
-    {
-      return QuoteString(collation.DbName);
-    }
-
-    public virtual string Translate(ReferentialAction action)
-    {
-      switch (action) {
-      case ReferentialAction.Cascade:
-        return "CASCADE";
-      case ReferentialAction.SetDefault:
-        return "SET DEFAULT";
-      case ReferentialAction.SetNull:
-        return "SET NULL";
-      default:
-        return string.Empty;
+      if (dbQualified) {
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+      }
+      else {
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
       }
     }
 
+    /// <summary>
+    /// Translates <see cref="Collation"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="collation">Colation to translate</param>
+    public virtual void Translate(SqlCompilerContext context, Collation collation)
+    {
+      TranslateString(context.Output, collation.DbName);
+    }
+
+    #endregion
+
+    #region Enums and other types that require translation to string
+
+    public virtual void Translate(IOutput output, SqlNodeType type)
+    {
+      _ = output.Append(type switch {
+        SqlNodeType.All => "ALL",
+        SqlNodeType.Any => "ANY",
+        SqlNodeType.Some => "SOME",
+        SqlNodeType.Exists => "EXISTS",
+        SqlNodeType.BitAnd => "&",
+        SqlNodeType.BitNot => "~",
+        SqlNodeType.BitOr => "|",
+        SqlNodeType.BitXor => "^",
+        SqlNodeType.In => "IN",
+        SqlNodeType.Between => "BETWEEN",
+        SqlNodeType.And => "AND",
+        SqlNodeType.Or => "OR",
+        SqlNodeType.IsNull => "IS NULL",
+        SqlNodeType.IsNotNull => "IS NOT NULL",
+        SqlNodeType.Not => "NOT",
+        SqlNodeType.NotBetween => "NOT BETWEEN",
+        SqlNodeType.NotIn => "NOT IN",
+        SqlNodeType.GreaterThan => ">",
+        SqlNodeType.GreaterThanOrEquals => ">=",
+        SqlNodeType.LessThan => "<",
+        SqlNodeType.LessThanOrEquals => "<=",
+        SqlNodeType.Equals or SqlNodeType.Assign => "=",
+        SqlNodeType.NotEquals => "<>",
+        SqlNodeType.Add => "+",
+        SqlNodeType.Subtract or SqlNodeType.Negate => "-",
+        SqlNodeType.Multiply => "*",
+        SqlNodeType.Modulo => "%",
+        SqlNodeType.Divide => "/",
+        SqlNodeType.Avg => "AVG",
+        SqlNodeType.Count => "COUNT",
+        SqlNodeType.Max => "MAX",
+        SqlNodeType.Min => "MIN",
+        SqlNodeType.Sum => "SUM",
+        SqlNodeType.Concat => "||",
+        SqlNodeType.Unique => "UNIQUE",
+        SqlNodeType.Union => "UNION",
+        SqlNodeType.Intersect => "INTERSECT",
+        SqlNodeType.Except => "EXCEPT",
+        SqlNodeType.Overlaps => "OVERLAPS",
+        SqlNodeType.RawConcat => string.Empty,
+        _ => throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlNodeType"/>.
+    /// </summary>
+    /// <param name="type">Enum value to translate.</param>
+    /// <returns>SQL variant of node</returns>
+    public virtual string TranslateToString(SqlNodeType type) =>
+      // only two nodes need to be traslated to string
+      type switch {
+        SqlNodeType.Or => "OR",
+        SqlNodeType.Modulo => "%",
+        _ => throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type))
+      };
+
+    /// <summary>
+    /// Translates <see cref="SqlJoinType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
+    /// <returns>SQL variant of join type.</returns>
+    public virtual void Translate(IOutput output, SqlJoinType type)
+    {
+      _ = output.Append(type switch {
+        SqlJoinType.CrossJoin => "CROSS",
+        SqlJoinType.FullOuterJoin => "FULL OUTER",
+        SqlJoinType.InnerJoin => "INNER",
+        SqlJoinType.LeftOuterJoin => "LEFT OUTER",
+        SqlJoinType.UnionJoin => "UNION",
+        SqlJoinType.RightOuterJoin => "RIGHT OUTER",
+        SqlJoinType.CrossApply or SqlJoinType.LeftOuterApply => throw SqlHelper.NotSupported(QueryFeatures.CrossApply),
+        _ => string.Empty
+      });
+    }
+
+    public virtual void Translate(IOutput output, SqlMatchType type)
+    {
+      _ = output.Append(type switch {
+        SqlMatchType.Full => "FULL",
+        SqlMatchType.Partial => "PARTIAL",
+        _ => string.Empty
+      });
+    }
+
+    public virtual void Translate(IOutput output, ReferentialAction action)
+    {
+      _ = output.Append(action switch {
+        ReferentialAction.Cascade => "CASCADE",
+        ReferentialAction.SetDefault => "SET DEFAULT",
+        ReferentialAction.SetNull => "SET NULL",
+        _ => string.Empty,
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlValueType"/>.
+    /// </summary>
+    /// <param name="type">SQL type representation.</param>
+    /// <returns>Translated SQL type.</returns>
     public virtual string Translate(SqlValueType type)
     {
       if (type.TypeName != null) {
@@ -1602,199 +2108,355 @@ namespace Xtensive.Sql.Compiler
       return typeName;
     }
 
-    public virtual string Translate(SqlFunctionType type)
+    /// <summary>
+    /// Translates <see cref="SqlFunctionType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlFunctionType type)
     {
-      switch (type) {
-      case SqlFunctionType.CharLength:
-      case SqlFunctionType.BinaryLength:
-        return "LENGTH";
-      case SqlFunctionType.Concat:
-        return "CONCAT";
-      case SqlFunctionType.CurrentDate:
-        return "CURRENT_DATE";
-      case SqlFunctionType.CurrentTime:
-        return "CURRENT_TIME";
-      case SqlFunctionType.CurrentTimeStamp:
-        return "CURRENT_TIMESTAMP";
-      case SqlFunctionType.Lower:
-        return "LOWER";
-      case SqlFunctionType.Position:
-        return "POSITION";
-      case SqlFunctionType.Substring:
-        return "SUBSTRING";
-      case SqlFunctionType.Upper:
-        return "UPPER";
-      case SqlFunctionType.Abs:
-        return "ABS";
-      case SqlFunctionType.Acos:
-        return "ACOS";
-      case SqlFunctionType.Asin:
-        return "ASIN";
-      case SqlFunctionType.Atan:
-        return "ATAN";
-      case SqlFunctionType.Atan2:
-        return "ATAN2";
-      case SqlFunctionType.Ceiling:
-        return "CEILING";
-      case SqlFunctionType.Coalesce:
-        return "COALESCE";
-      case SqlFunctionType.Cos:
-        return "COS";
-      case SqlFunctionType.Cot:
-        return "COT";
-      case SqlFunctionType.CurrentUser:
-        return "CURRENT_USER";
-      case SqlFunctionType.Degrees:
-        return "DEGREES";
-      case SqlFunctionType.Exp:
-        return "EXP";
-      case SqlFunctionType.Floor:
-        return "FLOOR";
-      case SqlFunctionType.Log:
-        return "LOG";
-      case SqlFunctionType.Log10:
-        return "LOG10";
-      case SqlFunctionType.NullIf:
-        return "NULLIF";
-      case SqlFunctionType.Pi:
-        return "PI";
-      case SqlFunctionType.Power:
-        return "POWER";
-      case SqlFunctionType.Radians:
-        return "RADIANS";
-      case SqlFunctionType.Rand:
-        return "RAND";
-      case SqlFunctionType.Replace:
-        return "REPLACE";
-      case SqlFunctionType.Round:
-        return "ROUND";
-      case SqlFunctionType.Truncate:
-        return "TRUNCATE";
-      case SqlFunctionType.SessionUser:
-        return "SESSION_USER";
-      case SqlFunctionType.Sign:
-        return "SIGN";
-      case SqlFunctionType.Sin:
-        return "SIN";
-      case SqlFunctionType.Sqrt:
-        return "SQRT";
-      case SqlFunctionType.Square:
-        return "SQUARE";
-      case SqlFunctionType.SystemUser:
-        return "SYSTEM_USER";
-      case SqlFunctionType.Tan:
-        return "TAN";
-      default:
-        throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, type));
-      }
+      _ = output.Append(type switch {
+        SqlFunctionType.CharLength or SqlFunctionType.BinaryLength => "LENGTH",
+        SqlFunctionType.Concat => "CONCAT",
+        SqlFunctionType.CurrentDate => "CURRENT_DATE",
+        SqlFunctionType.CurrentTime => "CURRENT_TIME",
+        SqlFunctionType.CurrentTimeStamp => "CURRENT_TIMESTAMP",
+        SqlFunctionType.Lower => "LOWER",
+        SqlFunctionType.Position => "POSITION",
+        SqlFunctionType.Substring => "SUBSTRING",
+        SqlFunctionType.Upper => "UPPER",
+        SqlFunctionType.Abs => "ABS",
+        SqlFunctionType.Acos => "ACOS",
+        SqlFunctionType.Asin => "ASIN",
+        SqlFunctionType.Atan => "ATAN",
+        SqlFunctionType.Atan2 => "ATAN2",
+        SqlFunctionType.Ceiling => "CEILING",
+        SqlFunctionType.Coalesce => "COALESCE",
+        SqlFunctionType.Cos => "COS",
+        SqlFunctionType.Cot => "COT",
+        SqlFunctionType.CurrentUser => "CURRENT_USER",
+        SqlFunctionType.Degrees => "DEGREES",
+        SqlFunctionType.Exp => "EXP",
+        SqlFunctionType.Floor => "FLOOR",
+        SqlFunctionType.Log => "LOG",
+        SqlFunctionType.Log10 => "LOG10",
+        SqlFunctionType.NullIf => "NULLIF",
+        SqlFunctionType.Pi => "PI",
+        SqlFunctionType.Power => "POWER",
+        SqlFunctionType.Radians => "RADIANS",
+        SqlFunctionType.Rand => "RAND",
+        SqlFunctionType.Replace => "REPLACE",
+        SqlFunctionType.Round => "ROUND",
+        SqlFunctionType.Truncate => "TRUNCATE",
+        SqlFunctionType.SessionUser => "SESSION_USER",
+        SqlFunctionType.Sign => "SIGN",
+        SqlFunctionType.Sin => "SIN",
+        SqlFunctionType.Sqrt => "SQRT",
+        SqlFunctionType.Square => "SQUARE",
+        SqlFunctionType.SystemUser => "SYSTEM_USER",
+        SqlFunctionType.Tan => "TAN",
+        _ => throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, type))
+      });
     }
 
-    public virtual string Translate(SqlTrimType type)
+    /// <summary>
+    /// Translates <see cref="SqlFunctionType"/>.
+    /// </summary>
+    /// <param name="type">Enum value to translate.</param>
+    /// <returns>SQL variant of function.</returns>
+    public virtual string TranslateToString(SqlFunctionType type) =>
+      // most of the cases aren't in use, commented to keep the full list
+      type switch {
+        SqlFunctionType.CharLength or SqlFunctionType.BinaryLength => "LENGTH",
+        //SqlFunctionType.Concat => "CONCAT",
+        //SqlFunctionType.CurrentDate => "CURRENT_DATE",
+        //SqlFunctionType.CurrentTime => "CURRENT_TIME",
+        //SqlFunctionType.CurrentTimeStamp => "CURRENT_TIMESTAMP",
+        //SqlFunctionType.Lower => "LOWER",
+        //SqlFunctionType.Position => "POSITION",
+        //SqlFunctionType.Substring => "SUBSTRING",
+        //SqlFunctionType.Upper => "UPPER",
+        SqlFunctionType.Abs => "ABS",
+        //SqlFunctionType.Acos => "ACOS",
+        //SqlFunctionType.Asin => "ASIN",
+        //SqlFunctionType.Atan => "ATAN",
+        //SqlFunctionType.Atan2 => "ATAN2",
+        //SqlFunctionType.Ceiling => "CEILING",
+        //SqlFunctionType.Coalesce => "COALESCE",
+        //SqlFunctionType.Cos => "COS",
+        //SqlFunctionType.Cot => "COT",
+        SqlFunctionType.CurrentUser => "CURRENT_USER",
+        //SqlFunctionType.Degrees => "DEGREES",
+        //SqlFunctionType.Exp => "EXP",
+        //SqlFunctionType.Floor => "FLOOR",
+        //SqlFunctionType.Log => "LOG",
+        //SqlFunctionType.Log10 => "LOG10",
+        //SqlFunctionType.NullIf => "NULLIF",
+        //SqlFunctionType.Pi => "PI",
+        //SqlFunctionType.Power => "POWER",
+        //SqlFunctionType.Radians => "RADIANS",
+        SqlFunctionType.Rand => "RAND",
+        //SqlFunctionType.Replace => "REPLACE",
+        SqlFunctionType.Round => "ROUND",
+        //SqlFunctionType.Truncate => "TRUNCATE",
+        SqlFunctionType.SessionUser => "SESSION_USER",
+        //SqlFunctionType.Sign => "SIGN",
+        //SqlFunctionType.Sin => "SIN",
+        //SqlFunctionType.Sqrt => "SQRT",
+        //SqlFunctionType.Square => "SQUARE",
+        SqlFunctionType.SystemUser => "SYSTEM_USER",
+        //SqlFunctionType.Tan => "TAN",
+        _ => throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, type))
+      };
+
+    /// <summary>
+    /// Translates <see cref="SqlTrimType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlTrimType type)
     {
-      switch (type) {
-      case SqlTrimType.Leading:
-        return "LEADING";
-      case SqlTrimType.Trailing:
-        return "TRAILING";
-      case SqlTrimType.Both:
-        return "BOTH";
-      default:
-        return string.Empty;
-      }
+      _ = output.Append(type switch {
+        SqlTrimType.Leading => "LEADING",
+        SqlTrimType.Trailing => "TRAILING",
+        SqlTrimType.Both => "BOTH",
+        _ => string.Empty
+      });
     }
 
-    public virtual string Translate(SqlDateTimePart dateTimePart)
+    /// <summary>
+    /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="dateTimePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlDateTimePart dateTimePart)
     {
-      switch (dateTimePart) {
-      case SqlDateTimePart.Year:
-        return "YEAR";
-      case SqlDateTimePart.Month:
-        return "MONTH";
-      case SqlDateTimePart.Day:
-        return "DAY";
-      case SqlDateTimePart.Hour:
-        return "HOUR";
-      case SqlDateTimePart.Minute:
-        return "MINUTE";
-      case SqlDateTimePart.Second:
-        return "SECOND";
-      case SqlDateTimePart.Millisecond:
-        return "MILLISECOND";
-      case SqlDateTimePart.Nanosecond:
-        return "NANOSECOND";
-      case SqlDateTimePart.TimeZoneHour:
-        return "TIMEZONE_HOUR";
-      case SqlDateTimePart.TimeZoneMinute:
-        return "TIMEZONE_MINUTE";
-      case SqlDateTimePart.DayOfYear:
-        return "DAYOFYEAR";
-      case SqlDateTimePart.DayOfWeek:
-        return "DAYOFWEEK";
-      default:
-        throw new ArgumentOutOfRangeException("dateTimePart");
-      }
+      _ = output.Append(dateTimePart switch {
+        SqlDateTimePart.Year => "YEAR",
+        SqlDateTimePart.Month => "MONTH",
+        SqlDateTimePart.Day => "DAY",
+        SqlDateTimePart.Hour => "HOUR",
+        SqlDateTimePart.Minute => "MINUTE",
+        SqlDateTimePart.Second => "SECOND",
+        SqlDateTimePart.Millisecond => "MILLISECOND",
+        SqlDateTimePart.Nanosecond => "NANOSECOND",
+        SqlDateTimePart.TimeZoneHour => "TIMEZONE_HOUR",
+        SqlDateTimePart.TimeZoneMinute => "TIMEZONE_MINUTE",
+        SqlDateTimePart.DayOfYear => "DAYOFYEAR",
+        SqlDateTimePart.DayOfWeek => "DAYOFWEEK",
+        _ => throw new ArgumentOutOfRangeException(nameof(dateTimePart))
+      });
     }
 
-    public virtual string Translate(SqlDateTimeOffsetPart dateTimeOffsetPart)
+    /// <summary>
+    /// Translates <see cref="SqlDateTimeOffsetPart"/> and writes result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="dateTimeOffsetPart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlDateTimeOffsetPart dateTimeOffsetPart)
     {
-      switch (dateTimeOffsetPart) {
-      case SqlDateTimeOffsetPart.Year:
-        return "YEAR";
-      case SqlDateTimeOffsetPart.Month:
-        return "MONTH";
-      case SqlDateTimeOffsetPart.Day:
-        return "DAY";
-      case SqlDateTimeOffsetPart.Hour:
-        return "HOUR";
-      case SqlDateTimeOffsetPart.Minute:
-        return "MINUTE";
-      case SqlDateTimeOffsetPart.Second:
-        return "SECOND";
-      case SqlDateTimeOffsetPart.Millisecond:
-        return "MILLISECOND";
-      case SqlDateTimeOffsetPart.Nanosecond:
-        return "NANOSECOND";
-      case SqlDateTimeOffsetPart.TimeZoneHour:
-        return "TZoffset";
-      case SqlDateTimeOffsetPart.TimeZoneMinute:
-        return "TZoffset";
-      case SqlDateTimeOffsetPart.DayOfYear:
-        return "DAYOFYEAR";
-      case SqlDateTimeOffsetPart.DayOfWeek:
-        return "WEEKDAY";
-      default:
-        throw new ArgumentOutOfRangeException("dateTimeOffsetPart");
-      }
+      _ = output.Append(dateTimeOffsetPart switch {
+        SqlDateTimeOffsetPart.Year => "YEAR",
+        SqlDateTimeOffsetPart.Month => "MONTH",
+        SqlDateTimeOffsetPart.Day => "DAY",
+        SqlDateTimeOffsetPart.Hour => "HOUR",
+        SqlDateTimeOffsetPart.Minute => "MINUTE",
+        SqlDateTimeOffsetPart.Second => "SECOND",
+        SqlDateTimeOffsetPart.Millisecond => "MILLISECOND",
+        SqlDateTimeOffsetPart.Nanosecond => "NANOSECOND",
+        SqlDateTimeOffsetPart.TimeZoneHour => "TZoffset",
+        SqlDateTimeOffsetPart.TimeZoneMinute => "TZoffset",
+        SqlDateTimeOffsetPart.DayOfYear => "DAYOFYEAR",
+        SqlDateTimeOffsetPart.DayOfWeek => "WEEKDAY",
+        _ => throw new ArgumentOutOfRangeException(nameof(dateTimeOffsetPart))
+      });
     }
 
-    public virtual string Translate(SqlIntervalPart intervalPart)
+    /// <summary>
+    /// Translates <see cref="SqlIntervalPart"/> and writes result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="intervalPart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlIntervalPart intervalPart)
     {
-      switch (intervalPart) {
-      case SqlIntervalPart.Day:
-        return "DAY";
-      case SqlIntervalPart.Hour:
-        return "HOUR";
-      case SqlIntervalPart.Minute:
-        return "MINUTE";
-      case SqlIntervalPart.Second:
-        return "SECOND";
-      case SqlIntervalPart.Millisecond:
-        return "MILLISECOND";
-      case SqlIntervalPart.Nanosecond:
-        return "NANOSECOND";
-      default:
-        throw new ArgumentOutOfRangeException("intervalPart");
-      }
+      _ = output.Append(intervalPart switch {
+        SqlIntervalPart.Day => "DAY",
+        SqlIntervalPart.Hour => "HOUR",
+        SqlIntervalPart.Minute => "MINUTE",
+        SqlIntervalPart.Second => "SECOND",
+        SqlIntervalPart.Millisecond => "MILLISECOND",
+        SqlIntervalPart.Nanosecond => "NANOSECOND",
+        _ => throw new ArgumentOutOfRangeException(nameof(intervalPart))
+      });
     }
 
-    public virtual string Translate(SqlLockType lockType)
+    /// <summary>
+    /// Translates <see cref="SqlLockType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="lockType">Enum value to translate.</param>
+    /// <returns>SQL variant of lock.</returns>
+    public virtual void Translate(IOutput output, SqlLockType lockType)
     {
       throw new NotSupportedException(string.Format(Strings.ExLockXIsNotSupported, lockType.ToString(true)));
     }
 
+    /// <summary>
+    /// Translates <see cref="SqlJoinMethod"/>.
+    /// </summary>
+    /// <param name="method">Enum value to translate.</param>
+    /// <returns>SQL variant of method.</returns>
     public virtual string Translate(SqlJoinMethod method)
     {
       return string.Empty;
+    }
+
+    #endregion
+
+    #region Other types that can be written directly to output
+
+    /// <summary>
+    /// Writes accending/descending marks to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">Translation output.</param>
+    /// <param name="ascending">Direction flag.</param>
+    public virtual void TranslateSortOrder(IOutput output, bool ascending) =>
+      _ = output.Append(ascending ? "ASC" : "DESC");
+
+    /// <summary>
+    /// Writes translated string value to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="str">The string.</param>
+    public virtual void TranslateString(IOutput output, string str)
+    {
+      // this is more effecient than SqlHelper.QuoteString()
+      _ = output.AppendLiteral('\'');
+      foreach (var ch in str) {
+        TranslateChar(output, ch);
+      }
+      _ = output.AppendLiteral('\'');
+    }
+
+    /// <summary>
+    /// Writes translated char value to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="ch">The character.</param>
+    protected virtual void TranslateChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\0':
+          break;
+        case '\'':
+          _ = output.AppendLiteral("''");
+          break;
+        default:
+          _ = output.AppendLiteral(ch);
+          break;
+      }
+    }
+
+    /// <summary>
+    /// Translates identifier names (one or several) and writes result to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="name">The identifier.</param>
+    /// <param name="moreNames">Additional names (optional).</param>
+    public void TranslateIdentifier(IOutput output, string name, params string[] moreNames)
+    {
+      if (string.IsNullOrEmpty(name))
+        return;
+
+      var setup = EscapeSetup;
+      _ = output.AppendLiteral(setup.Opener);
+      foreach (var ch in name) {
+        if (ch == setup.Closer) {
+          _ = output.AppendLiteral(setup.EscapeCloser1)
+            .AppendLiteral(setup.EscapeCloser2);
+        }
+        else {
+          _ = output.AppendLiteral(ch);
+        }
+      }
+      _ = output.AppendLiteral(setup.Closer);
+
+      if (moreNames?.Length == 0)
+        return;
+
+      foreach (var aName in moreNames) {
+        if (!string.IsNullOrEmpty(aName)) {
+          _ = output.AppendLiteral(setup.Delimiter)
+            .AppendLiteral(setup.Opener);
+          foreach (var ch in aName) {
+            if (ch == setup.Closer) {
+              _ = output.AppendLiteral(setup.EscapeCloser1)
+                .AppendLiteral(setup.EscapeCloser2);
+            }
+            else {
+              _ = output.AppendLiteral(ch);
+            }
+          }
+          _ = output.AppendLiteral(setup.Closer);
+        }
+      }
+    }
+
+    public void TranslateIdentifier(IOutput output, string name)
+    {
+      if (string.IsNullOrEmpty(name))
+        return;
+
+      var setup = EscapeSetup;
+      _ = output.AppendLiteral(setup.Opener);
+      foreach (var ch in name) {
+        if (ch == setup.Closer) {
+          _ = output.AppendLiteral(setup.EscapeCloser1)
+            .AppendLiteral(setup.EscapeCloser2);
+        }
+        else {
+          _ = output.AppendLiteral(ch);
+        }
+      }
+      _ = output.AppendLiteral(setup.Closer);
+    }
+
+    #endregion
+
+    #region Methods that are used ouside SqlTranslators/SqlCompilers
+
+    /// <summary>
+    /// Builds the batch from specified SQL statements.
+    /// </summary>
+    /// <param name="statements">The statements.</param>
+    /// <returns>String containing the whole batch.</returns>
+    public virtual string BuildBatch(IReadOnlyList<string> statements)
+    {
+      if (statements.Count == 0) {
+        return string.Empty;
+      }
+      var expectedLength = BatchBegin.Length + BatchEnd.Length
+        + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
+        + statements.Sum(statement => statement.Length);
+      var builder = new StringBuilder(expectedLength);
+      _ = builder.Append(BatchBegin);
+      foreach (var statement in statements) {
+        var statementAsSpan = (ReadOnlySpan<char>) statement;
+        var actualStatement = statementAsSpan
+          .Trim()
+          .TryCutPrefix(BatchBegin)
+          .TryCutSuffix(BatchEnd)
+          .TryCutSuffix(NewLine)
+          .TryCutSuffix(BatchItemDelimiter)
+          .Trim();
+        if (actualStatement.Length == 0)
+          continue;
+        _ = builder.Append(actualStatement)
+          .Append(BatchItemDelimiter)
+          .Append(NewLine);
+      }
+      _ = builder.Append(BatchEnd);
+      return builder.ToString();
     }
 
     /// <summary>
@@ -1802,8 +2464,12 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="str">Unquoted string.</param>
     /// <returns>Quoted string.</returns>
+    /// <remarks>
+    /// Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible.
+    /// </remarks>
     public virtual string QuoteString(string str)
     {
+      //Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible
       return SqlHelper.QuoteString(str);
     }
 
@@ -1812,44 +2478,121 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="names">An <see cref="Array"/> of unquoted identifier name parts.</param>
     /// <returns>Quoted identifier name.</returns>
-    public virtual string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithBrackets(names);
-    }
+    /// <remarks>
+    /// Use TranslateIdentifier instead of this method within SqlTranslators/SqlCompilers where possible.
+    /// </remarks>
+    public string QuoteIdentifier(params string[] names) =>
+      //Use TranslateIdentifier instead of this method within SqlTranslators/SqlCompilers where possible
+      SqlHelper.Quote(EscapeSetup, names);
 
-    /// <summary>
-    /// Builds the batch from specified SQL statements.
-    /// </summary>
-    /// <param name="statements">The statements.</param>
-    /// <returns>String containing the whole batch.</returns>
-    public virtual string BuildBatch(string[] statements)
+    #endregion
+
+    private void Translate(IOutput output, PartitionDescriptor partitionDescriptor, bool withOn)
     {
-      if (statements.Length==0)
-        return string.Empty;
-      var expectedLength = BatchBegin.Length + BatchEnd.Length +
-        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);
-      var builder = new StringBuilder(expectedLength);
-      builder.Append(BatchBegin);
-      foreach (var statement in statements) {
-        var actualStatement = statement
-          .TryCutPrefix(BatchBegin)
-          .TryCutSuffix(BatchEnd)
-          .TryCutSuffix(NewLine)
-          .TryCutSuffix(BatchItemDelimiter)
-          .Trim();
-        if (actualStatement.Length==0)
-          continue;
-        builder.Append(actualStatement);
-        builder.Append(BatchItemDelimiter);
-        builder.Append(NewLine);
+      if (partitionDescriptor.PartitionSchema != null) {
+        if (withOn) {
+          _ = output.Append("ON ");
+        }
+        TranslateIdentifier(output, partitionDescriptor.PartitionSchema.DbName);
+        _ = output.Append(" (");
+        TranslateIdentifier(output, partitionDescriptor.Column.DbName);
+        _ = output.Append(")");
       }
-      builder.Append(BatchEnd);
-      return builder.ToString();
-    }
+      else {
+        _ = output.Append("PARTITION BY ");
+        switch (partitionDescriptor.PartitionMethod) {
+          case PartitionMethod.Hash:
+            _ = output.Append("HASH");
+            break;
+          case PartitionMethod.List:
+            _ = output.Append("LIST");
+            break;
+          case PartitionMethod.Range:
+            _ = output.Append("RANGE");
+            break;
+        }
+        _ = output.Append(" (");
+        TranslateIdentifier(output, partitionDescriptor.Column.DbName);
+        _ = output.Append(")");
+        if (partitionDescriptor.Partitions == null) {
+          _ = output.Append(" PARTITIONS " + partitionDescriptor.PartitionAmount);
+        }
+        else {
+          _ = output.Append(" (");
+          var first = true;
+          switch (partitionDescriptor.PartitionMethod) {
+            case PartitionMethod.Hash:
+              foreach (HashPartition p in partitionDescriptor.Partitions) {
+                if (first)
+                  first = false;
+                else
+                  _ = output.Append(ColumnDelimiter);
+                _ = output.Append(" PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                if (!string.IsNullOrEmpty(p.Filegroup)) {
+                  _ = output.Append(" TABLESPACE ")
+                    .Append(p.Filegroup);
+                }
+              }
+              break;
+            case PartitionMethod.List:
+              foreach (ListPartition p in partitionDescriptor.Partitions) {
+                if (first)
+                  first = false;
+                else
+                  _ = output.Append(ColumnDelimiter);
+                _ = output.Append(" PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                _ = output.Append(" VALUES (");
+                var firstValue = true;
+                foreach (var v in p.Values) {
+                  if (firstValue)
+                    firstValue = false;
+                  else
+                    _ = output.Append(RowItemDelimiter);
 
-    public virtual string TranslateSortOrder(bool ascending)
-    {
-      return ascending ? "ASC" : "DESC";
+                  var t = Type.GetTypeCode(v.GetType());
+                  if (t is TypeCode.String or TypeCode.Char) {
+                    TranslateString(output, v);
+                  }
+                  else {
+                    _ = output.Append(v);
+                  }
+                }
+                _ = output.Append(")");
+                if (!string.IsNullOrEmpty(p.Filegroup)) {
+                  _ = output.Append(" TABLESPACE ").Append(p.Filegroup);
+                }
+              }
+              break;
+            case PartitionMethod.Range:
+              foreach (RangePartition p in partitionDescriptor.Partitions) {
+                if (first)
+                  first = false;
+                else
+                  _ = output.Append(ColumnDelimiter);
+                _ = output.Append(" PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                _ = output.Append(" VALUES LESS THAN (");
+
+                var t = Type.GetTypeCode(p.Boundary.GetType());
+                if (t is TypeCode.String or TypeCode.Char) {
+                  TranslateString(output, p.Boundary);
+                }
+                else {
+                  _ = output.Append(p.Boundary);
+                }
+                _ = output.Append(")");
+
+                if (!string.IsNullOrEmpty(p.Filegroup)) {
+                  _ = output.Append(" TABLESPACE " + p.Filegroup);
+                }
+              }
+              break;
+          }
+          _ = output.Append(")");
+        }
+      }
     }
 
     /// <summary>
@@ -1859,6 +2602,12 @@ namespace Xtensive.Sql.Compiler
     protected SqlTranslator(SqlDriver driver)
       : base(driver)
     {
+      var serverInfo = driver.ServerInfo;
+      supportsClusteredIndexes = serverInfo.Index.Features.Supports(IndexFeatures.Clustered);
+
+      var queryFeatures = serverInfo.Query.Features;
+      supportsExplicitJoinOrder = queryFeatures.Supports(QueryFeatures.ExplicitJoinOrder);
+      supportsMultischemaQueries = queryFeatures.Supports(QueryFeatures.MultischemaQueries);
     }
   }
 }

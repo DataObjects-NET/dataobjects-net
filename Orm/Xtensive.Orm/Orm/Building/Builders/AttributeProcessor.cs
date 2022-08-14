@@ -367,7 +367,7 @@ namespace Xtensive.Orm.Building.Builders
       context.Validator.ValidateName(mappingName, rule);
 
       if (Comparer.Equals(node.MappingName, mappingName)) {
-        BuildLog.Warning(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically,
+        BuildLog.Warning(nameof(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically),
           node.MappingName);
       }
       else {
@@ -387,12 +387,10 @@ namespace Xtensive.Orm.Building.Builders
 
         context.Validator.ValidateName(result.First, ValidationRule.Column);
 
-        if (target.ContainsKey(result.First)) {
+        if (!target.TryAdd(result.First, result.Second)) {
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, fieldName));
         }
-
-        target.Add(result.First, result.Second);
       }
     }
 

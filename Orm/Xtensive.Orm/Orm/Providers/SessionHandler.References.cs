@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -29,11 +29,7 @@ namespace Xtensive.Orm.Providers
     {
       if (association.IsPaired)
         return FindReferences(target, association, true);
-      object key = new Pair<object, AssociationInfo>(CachingRegion, association);
-      Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>) p).Second);
-      var pair = (Pair<CompilableProvider, Parameter<Tuple>>) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-      var recordSet = pair.First;
-      var parameter = pair.Second;
+      var (recordSet, parameter) = Session.StorageNode.RefsToEntityQueryCache .GetOrAdd(association, BuildReferencingQuery);
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(parameter, target.Key.Value);
       ExecutableProvider executableProvider = Session.Compile(recordSet);
@@ -94,7 +90,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static Pair<CompilableProvider, Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
+    private static (CompilableProvider, Parameter<Tuple>) BuildReferencingQuery(AssociationInfo association)
     {
       var provider = (CompilableProvider)null;
       var parameter = new Parameter<Tuple>("pTuple");
@@ -104,7 +100,7 @@ namespace Xtensive.Orm.Providers
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>a.Index)
             .ToArray();
@@ -122,7 +118,7 @@ namespace Xtensive.Orm.Providers
           var targetIndex = association.TargetType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>targetIndex.Columns.Count + a.Index)
             .ToArray();
@@ -152,7 +148,7 @@ namespace Xtensive.Orm.Providers
           var targetIndex = association.AuxiliaryType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>targetIndex.Columns.Count + a.Index)
             .ToArray();
@@ -178,7 +174,7 @@ namespace Xtensive.Orm.Providers
           break;
         }
       }
-      return new Pair<CompilableProvider, Parameter<Tuple>>(provider, parameter);
+      return (provider, parameter);
     }
   }
 }

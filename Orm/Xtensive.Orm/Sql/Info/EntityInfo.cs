@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Info
       get { return maxIdentifierLength; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxIdentifierLength = value;
       }
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Info
       get { return allowedDdlStatements; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         allowedDdlStatements = value;
       }
     }

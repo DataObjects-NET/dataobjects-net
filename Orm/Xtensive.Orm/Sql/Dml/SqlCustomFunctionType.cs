@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -9,6 +9,12 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
+  /// <summary>
+  /// Defines custom function type.
+  /// Used to define functions that are ouside of standard SQL functions
+  /// supported by majority of providers. Such functions should be
+  /// handleded by the provider within which they are declared.
+  /// </summary>
   [Serializable]
   public sealed class SqlCustomFunctionType : IEquatable<SqlCustomFunctionType>
   {
@@ -18,7 +24,7 @@ namespace Xtensive.Sql.Dml
 
     public bool Equals(SqlCustomFunctionType other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -27,7 +33,7 @@ namespace Xtensive.Sql.Dml
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

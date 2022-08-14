@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Model
     {
       get { return catalog; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (catalog != value)
           ChangeCatalog(value);
       }
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<Catalog>.UpdatePairedProperty(string property, Catalog value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       catalog = value;
     }
 
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Model
       isNamesReadingDenied = true;
     }
 
-    internal string GetActualName(IDictionary<string, string> nodeNameMap)
+    internal string GetActualName(IReadOnlyDictionary<string, string> nodeNameMap)
     {
       if (!isNamesReadingDenied)
         return Name;
@@ -103,7 +103,7 @@ namespace Xtensive.Sql.Model
       return name;
     }
 
-    internal string GetActualDbName(IDictionary<string, string> nodeNameMap)
+    internal string GetActualDbName(IReadOnlyDictionary<string, string> nodeNameMap)
     {
       if (!isNamesReadingDenied)
         return DbName;

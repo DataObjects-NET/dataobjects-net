@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Reorder fields in '{0}' type.", Hierarchy.Root.Name);
+      return $"Reorder fields in '{Hierarchy.Root.Name}' type.";
     }
 
 

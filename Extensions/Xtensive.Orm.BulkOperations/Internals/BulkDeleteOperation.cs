@@ -51,10 +51,10 @@ namespace Xtensive.Orm.BulkOperations
       }
     }
 
-    private QueryCommand CreateCommand(QueryTranslationResult request)
+    private QueryCommand CreateCommand(in QueryTranslationResult request)
     {
       var delete = SqlDml.Delete(SqlDml.TableRef(PrimaryIndexes[0].Table));
-      Join(delete, (SqlSelect) request.Query);
+      Join(delete, request.Query);
       return ToCommand(delete);
     }
 

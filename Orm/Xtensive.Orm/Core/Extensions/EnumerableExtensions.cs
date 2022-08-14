@@ -29,7 +29,7 @@ namespace Xtensive.Core
     private const int defaultFirstFastCount = 0;
 
     /// <summary>
-    /// Indicates whether enumerable is empty or not 
+    /// Indicates whether enumerable is empty or not
     /// by attempting to cast it to <see cref="ICollection{T}"/> and <see cref="IQueryable{T}"/>.
     /// May return false negative response.
     /// </summary>
@@ -110,7 +110,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Applies the specified <paramref name="action"/> to all the items 
+    /// Applies the specified <paramref name="action"/> to all the items
     /// from the <paramref name="items"/> sequence.
     /// </summary>
     /// <typeparam name="T">Type of the sequence item.</typeparam>
@@ -127,7 +127,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing 
+    /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
     {
@@ -136,7 +136,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Converts the elements of <paramref name="source"/> sequence 
+    /// Converts the elements of <paramref name="source"/> sequence
     /// using specified <paramref name="converter"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
@@ -170,7 +170,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>Comma-delimited string containing string representation 
+    /// <returns>Comma-delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToCommaDelimitedString<TItem>(this IEnumerable<TItem> source)
     {
@@ -216,7 +216,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="source">The sequence to convert.</param>
     /// <param name="separator">The delimiter.</param>
-    /// <returns>Delimited string containing string representation 
+    /// <returns>Delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToDelimitedString(this IEnumerable source, string separator)
     {
@@ -401,28 +401,11 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Safely adds one value to sequence.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">Source sequence.</param>
-    /// <param name="value">Value to add to sequence.</param>
-    /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
-    /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
-    [Obsolete("Use Enumerable.Append method instead.")]
-    public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
-    {
-      source = source ?? EnumerableUtils<T>.Empty;
-      if (!ReferenceEquals(value, null))
-        source = source.Concat(EnumerableUtils.One(value));
-      return source;
-    }
-
-    /// <summary>
     /// Splits the specified <see cref="IEnumerable{T}"/> into batches.
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// <param name="firstFastCount">The count of the source sequence's items
     /// which will be returned without batching.</param>
     /// <param name="initialBatchSize">The initial size of a batch.</param>
     /// <param name="maximalBatchSize">The maximal sized of a batch.</param>
@@ -475,7 +458,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// <param name="firstFastCount">The count of the source sequence's items
     /// which will be returned without batching.</param>
     /// <returns>The source sequence split into batches.</returns>
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount)
@@ -488,11 +471,11 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="beforeAction">The delegate that will be invoked before 
-    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// <param name="beforeAction">The delegate that will be invoked before
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit
     /// the invocation.</param>
-    /// <param name="afterAction">The delegate that will be invoked after 
-    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// <param name="afterAction">The delegate that will be invoked after
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit
     /// the invocation.</param>
     /// <returns>The source sequence.</returns>
     public static IEnumerable<IEnumerable<T>> ApplyBeforeAndAfter<T>(this IEnumerable<IEnumerable<T>> source,
@@ -522,13 +505,13 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="root">The root of the hierarchy.</param>
-    /// <param name="childrenExtractor">The children extractor. It's always executed 
+    /// <param name="childrenExtractor">The children extractor. It's always executed
     /// before a root item will be returned.</param>
-    /// <param name="exitAction">This action is always executed after a root item 
+    /// <param name="exitAction">This action is always executed after a root item
     /// was returned.</param>
-    /// <param name="rootFirst">If set to <see langword="true"/> then a root item 
+    /// <param name="rootFirst">If set to <see langword="true"/> then a root item
     /// will be returned before its children.</param>
-    /// <returns>The <see cref="IEnumerable{T}"/> containing all items in the 
+    /// <returns>The <see cref="IEnumerable{T}"/> containing all items in the
     /// specified hierarchy.</returns>
     public static IEnumerable<TItem> Flatten<TItem>(this IEnumerable<TItem> root,
       Func<TItem, IEnumerable<TItem>> childrenExtractor, Action<TItem> exitAction, bool rootFirst)
@@ -602,36 +585,6 @@ namespace Xtensive.Core
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
       return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
-    }
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <remarks>Multiple active operations are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
-    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source) =>
-      AsAsync(source, CancellationToken.None);
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <remarks>Multiple active operations are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <param name="token">A token to cancel operation.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
-    {
-      if (source is DelayedQuery<T> delayedQuery) {
-        return await delayedQuery.ExecuteAsync(token).ConfigureAwait(false);
-      }
-      return await Task.FromResult(source).ConfigureAwait(false);
     }
   }
 }

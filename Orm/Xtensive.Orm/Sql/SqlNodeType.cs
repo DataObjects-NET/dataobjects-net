@@ -33,6 +33,7 @@ namespace Xtensive.Sql
     Column,
     ColumnRef,
     Command,
+    Comment,
     Concat,
     Conditional,
     Continue,
@@ -111,5 +112,6 @@ namespace Xtensive.Sql
     DeclareVariable,
     While,
     Fragment,
+    Metadata,
   }
 }

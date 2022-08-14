@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -66,7 +67,7 @@ namespace Xtensive.Collections
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public void Set(Type extensionType, object value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(extensionType, "extensionType");
       if (extensionType.IsValueType)
         throw new ArgumentException(string.Format(
@@ -86,7 +87,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       extensions = null;
     }
 
@@ -125,7 +126,7 @@ namespace Xtensive.Collections
     public IEnumerator<Type> GetEnumerator()
     {
       if (extensions==null)
-        return EnumerableUtils<Type>.EmptyEnumerator;
+        return Enumerable.Empty<Type>().GetEnumerator();
       else
         return extensions.Keys.GetEnumerator();
     }
@@ -152,12 +153,13 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       if (source.Count==0)
         return;
-      var sourceLikeMe = source as ExtensionCollection;
-      if (sourceLikeMe!=null)
+      if (source is ExtensionCollection sourceLikeMe) {
         extensions = new Dictionary<Type, object>(sourceLikeMe.extensions);
-      else
+      }
+      else {
         foreach (Type extensionType in source)
           Set(extensionType, source.Get(extensionType));
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -6,14 +6,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Comparison;
 
@@ -77,7 +76,7 @@ namespace Xtensive.Orm
     ISerializable
   {
     private static readonly Regex Pattern = new Regex(
-          @"^(?'proto'[^:]*)://" +
+          @"^(?'proto'[^:]*[^sS])(?'secure'[sS]?)://" +
           @"((?'username'[^:@]*)" +
           @"(:(?'password'[^@]*))?@)?" +
           @"(?'host'[^:/]*)" +
@@ -88,6 +87,7 @@ namespace Xtensive.Orm
 
     private string url = string.Empty;
     private string protocol = string.Empty;
+    private bool secure = false;
     private string host = string.Empty;
     private int    port;
     private string resource = string.Empty;
@@ -114,6 +114,16 @@ namespace Xtensive.Orm
     {
       [DebuggerStepThrough]
       get { return protocol; }
+    }
+
+    /// <summary>
+    /// Gets the security part of the current <see cref="Url"/>
+    /// Scheme with 's' suffix is secure.
+    /// </summary>
+    public bool Secure
+    {
+      [DebuggerStepThrough]
+      get => secure;
     }
 
     /// <summary>
@@ -175,7 +185,7 @@ namespace Xtensive.Orm
     /// <para>The mentioned part of the <see cref="Url"/> is parsed
     /// and represented in a <see cref="Dictionary{String,String}"/> form.</para>
     /// </remarks>
-    public ReadOnlyDictionary<string, string> Params
+    public IReadOnlyDictionary<string, string> Params
     {
       [DebuggerStepThrough]
       get { return parameters; }
@@ -237,6 +247,7 @@ namespace Xtensive.Orm
         info.resource = UrlDecode(result.Result("${resource}"));
         info.host = UrlDecode(result.Result("${host}"));
         info.protocol = UrlDecode(result.Result("${proto}"));
+        info.secure = !string.IsNullOrEmpty(result.Result("${secure}"));
         info.port = @port;
         info.parameters = new ReadOnlyDictionary<string, string>(@params);
       }
@@ -384,7 +395,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

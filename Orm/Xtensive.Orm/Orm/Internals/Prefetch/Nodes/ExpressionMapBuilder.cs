@@ -95,9 +95,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       e = e.StripCasts();
 
-      var isSupported = e.NodeType.In(
-        ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New,
-        ExpressionType.Lambda, ExpressionType.Parameter);
+      var isSupported = e.NodeType is ExpressionType.MemberAccess or ExpressionType.Call or ExpressionType.New
+        or ExpressionType.Lambda or ExpressionType.Parameter;
 
       if (!isSupported)
         throw new NotSupportedException(string.Format(
@@ -116,7 +115,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         && (memberExpression.Member is PropertyInfo);
 
       if (!isInstanceProperty)
-        throw new NotSupportedException(string.Format("Only instance properties are supported"));
+        throw new NotSupportedException("Only instance properties are supported");
     }
 
     private static void ValidateMethodCall(MethodCallExpression e)

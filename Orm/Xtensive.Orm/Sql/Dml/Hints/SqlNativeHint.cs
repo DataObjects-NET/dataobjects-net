@@ -15,14 +15,10 @@ namespace Xtensive.Sql.Dml
     /// <value>The hint text.</value>
     public string HintText { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlNativeHint(HintText);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlNativeHint(HintText);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

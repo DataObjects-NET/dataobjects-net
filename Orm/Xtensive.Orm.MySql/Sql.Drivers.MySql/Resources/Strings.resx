@@ -135,4 +135,7 @@
   <data name="ExUserNameRequired" xml:space="preserve">
     <value>MySQL Username is required.</value>
   </data>
+  <data name="ExVersionXOfMySQLIsNotSupported" xml:space="preserve">
+    <value>Version {0} of MySQL is not supported.</value>
+  </data>
 </root>

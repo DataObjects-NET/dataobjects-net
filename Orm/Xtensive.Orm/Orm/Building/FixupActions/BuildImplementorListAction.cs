@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Build implementor list for '{0}' interface", Type.Name);
+      return $"Build implementor list for '{Type.Name}' interface";
     }
 
     public BuildImplementorListAction(TypeDef type)

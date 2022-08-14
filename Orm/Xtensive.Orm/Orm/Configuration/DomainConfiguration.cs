@@ -116,6 +116,7 @@ namespace Xtensive.Orm.Configuration
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
     private VersioningConvention versioningConvention = new VersioningConvention();
+    private TagsLocation tagsLocation = TagsLocation.Default;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -148,7 +149,7 @@ namespace Xtensive.Orm.Configuration
       get { return name; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         name = value;
       }
@@ -169,7 +170,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInfo; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }
@@ -181,7 +182,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return defaultSchema; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultSchema = value;
       }
     }
@@ -194,7 +195,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return defaultDatabase; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultDatabase = value;
       }
     }
@@ -207,7 +208,7 @@ namespace Xtensive.Orm.Configuration
       get { return upgradeMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeMode = value;
       }
     }
@@ -237,7 +238,7 @@ namespace Xtensive.Orm.Configuration
       get { return namingConvention; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         namingConvention = value;
       }
     }
@@ -251,7 +252,7 @@ namespace Xtensive.Orm.Configuration
       get { return keyCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
       }
@@ -266,7 +267,7 @@ namespace Xtensive.Orm.Configuration
       get { return keyGeneratorCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
       }
@@ -281,7 +282,7 @@ namespace Xtensive.Orm.Configuration
       get { return queryCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
       }
@@ -296,7 +297,7 @@ namespace Xtensive.Orm.Configuration
       get { return recordSetMappingCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
       }
@@ -311,7 +312,7 @@ namespace Xtensive.Orm.Configuration
       get { return foreignKeyMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         foreignKeyMode = value;
       }
     }
@@ -325,7 +326,7 @@ namespace Xtensive.Orm.Configuration
       get { return fullTextChangeTrackingMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fullTextChangeTrackingMode = value;
       }
     }
@@ -341,7 +342,7 @@ namespace Xtensive.Orm.Configuration
       get { return schemaSyncExceptionFormat; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         schemaSyncExceptionFormat = value;
       }
     }
@@ -355,7 +356,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         sessions = value;
       }
     }
@@ -369,7 +370,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingRules = value;
       }
     }
@@ -383,7 +384,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         databases = value;
       }
     }
@@ -397,7 +398,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         keyGenerators = value;
       }
     }
@@ -409,7 +410,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return serviceContainerType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         serviceContainerType = value;
       }
     }
@@ -423,7 +424,7 @@ namespace Xtensive.Orm.Configuration
       get { return includeSqlInExceptions; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         includeSqlInExceptions = value;
       }
     }
@@ -438,7 +439,7 @@ namespace Xtensive.Orm.Configuration
       get { return allowCyclicDatabaseDependencies; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         allowCyclicDatabaseDependencies = value;
       }
     }
@@ -454,7 +455,7 @@ namespace Xtensive.Orm.Configuration
       get { return forcedServerVersion; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         forcedServerVersion = value;
       }
     }
@@ -468,7 +469,7 @@ namespace Xtensive.Orm.Configuration
       get { return buildInParallel; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         buildInParallel = value;
       }
     }
@@ -481,7 +482,7 @@ namespace Xtensive.Orm.Configuration
       get { return ignoreRules; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ignoreRules = value;
       }
     }
@@ -503,7 +504,7 @@ namespace Xtensive.Orm.Configuration
       get { return collation; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         collation = value;
       }
     }
@@ -518,7 +519,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInitializationSql; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInitializationSql = value;
       }
     }
@@ -534,7 +535,7 @@ namespace Xtensive.Orm.Configuration
       get { return multidatabaseKeys; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         multidatabaseKeys = value;
       }
     }
@@ -547,7 +548,7 @@ namespace Xtensive.Orm.Configuration
       get { return options; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         options = value;
       }
     }
@@ -564,7 +565,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return shareStorageSchemaOverNodes; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         shareStorageSchemaOverNodes = value;
       }
     }
@@ -576,7 +577,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return versioningConvention; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         versioningConvention = value;
       }
     }
@@ -588,8 +589,20 @@ namespace Xtensive.Orm.Configuration
     {
       get { return ensureConnectionIsAlive; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ensureConnectionIsAlive = value;
+      }
+    }
+
+    /// <summary>
+    /// Defines where tags will be placed when used within queries.
+    /// </summary>
+    public TagsLocation TagsLocation
+    {
+      get => tagsLocation;
+      set {
+        EnsureNotLocked();
+        tagsLocation = value;
       }
     }
 

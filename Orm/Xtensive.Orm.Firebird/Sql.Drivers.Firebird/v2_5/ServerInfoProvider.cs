@@ -17,9 +17,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     // The limit is 64kB for statement text, 64kB for compiled BLR and 48kB for execution plan.
     private const int MaxTextLength = int.MaxValue;
 
-    private readonly string databaseName;
-    private readonly string defaultSchemaName;
-
     public override EntityInfo GetCollationInfo()
     {
       return null;

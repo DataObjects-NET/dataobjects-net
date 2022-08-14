@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -50,7 +50,7 @@ namespace Xtensive.Orm
   /// {
   ///   [Field, Key]
   ///   public int Id { get; set; }
-  ///   
+  ///
   ///   [Field]
   ///   public string Name { get; set; }
   /// }
@@ -66,6 +66,12 @@ namespace Xtensive.Orm
     ISerializable,
     IDeserializationCallback
   {
+    private static readonly Func<(TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior), Session, ExecutableProvider> ExecutableProviderGenerator = ((TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior) t, Session session) =>
+      session.Compile(t.typeInfo.Indexes.PrimaryIndex.GetQuery()
+        .Seek(context => context.GetValue(keyParameter))
+        .Lock(() => t.lockMode, () => t.lockBehavior)
+        .Select(Array.Empty<int>()));
+
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private readonly bool changeVersionOnSetAttempt;
     private EntityState state;
@@ -234,7 +240,7 @@ namespace Xtensive.Orm
           Key, EntityEventBroker.PropertyChangedEventKey, value);
       }
       remove {
-        Session.EntityEvents.RemoveSubscriber(Key, 
+        Session.EntityEvents.RemoveSubscriber(Key,
           EntityEventBroker.PropertyChangedEventKey, value);
       }
     }
@@ -251,8 +257,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Register the entity in removing queue. Removal operation will be postponed 
-    /// until <see cref="Session.SaveChanges"/> method is called; some query is executed 
+    /// Register the entity in removing queue. Removal operation will be postponed
+    /// until <see cref="Session.SaveChanges"/> method is called; some query is executed
     /// or current transaction is being committed.
     /// </summary>
     public void RemoveLater()
@@ -265,17 +271,7 @@ namespace Xtensive.Orm
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, Key.Value);
-      object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
-      Func<object, object> generator = tripletObj => {
-        var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-        var index = triplet.First.Indexes.PrimaryIndex;
-        var query = index.GetQuery()
-          .Seek(context => context.GetValue(keyParameter))
-          .Lock(() => triplet.Second, () => triplet.Third)
-          .Select();
-        return Session.Compile(query);
-      };
-      var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      var source = Session.StorageNode.EntityLockProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator, Session);
       using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
       recordSetReader.MoveNext();
     }
@@ -288,7 +284,7 @@ namespace Xtensive.Orm
         return;
       switch (identifierType) {
       case EntityIdentifierType.Auto:
-        string identifier = string.Format("#{0}", operations.GetNextIdentifier().ToString("0000"));
+        string identifier = operations.GetNextIdentifier().ToString("\\#0000");
         operations.RegisterEntityIdentifier(Key, identifier);
         break;
       case EntityIdentifierType.None:
@@ -355,7 +351,7 @@ namespace Xtensive.Orm
       bool changed = false;
       try {
         State.IsVersionInfoUpdated = true; // Prevents recursion
-        if (!TypeInfo.HasVersionRoots) 
+        if (!TypeInfo.HasVersionRoots)
           changed = SystemUpdateVersionInfo(changedEntity, changedField);
         else {
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
@@ -490,7 +486,7 @@ namespace Xtensive.Orm
     internal void SystemBeforeRemove(EntityRemoveReason reason)
     {
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
+        OrmLog.Debug(nameof(Strings.LogSessionXRemovingKeyY), Session, Key);
       }
 
       Session.SystemEvents.NotifyEntityRemoving(this, reason);
@@ -537,17 +533,17 @@ namespace Xtensive.Orm
     {
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXMaterializingYKeyZ, Session, GetType().GetShortName(), State.Key);
+        OrmLog.Debug(nameof(Strings.LogSessionXMaterializingYKeyZ), Session, GetType().GetShortName(), State.Key);
       }
 
-      if (Session.IsSystemLogicOnly || materialize) 
+      if (Session.IsSystemLogicOnly || materialize)
         return;
 
       // Not necessity to use
       // Session.Operations.EnableSystemOperationRegistration()
       // here, because there is no higher level system operation
       // for this one, or system op. registration is already enabled.
-      
+
       bool hasKeyGenerator = Session.Domain.KeyGenerators[TypeInfo.Key]!=null;
       if (hasKeyGenerator) {
         Session.SystemEvents.NotifyKeyGenerated(Key);
@@ -625,7 +621,7 @@ namespace Xtensive.Orm
       if (!Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
         EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+        OrmLog.Debug(nameof(Strings.LogSessionXGettingValueKeyYFieldZ), Session, Key, field);
       }
 
       EnsureIsFetched(field);
@@ -677,7 +673,7 @@ namespace Xtensive.Orm
       EnsureNotRemoved();
 
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+        OrmLog.Debug(nameof(Strings.LogSessionXSettingValueKeyYFieldZ), Session, Key, field);
       }
 
       if (field.IsPrimaryKey)
@@ -739,7 +735,7 @@ namespace Xtensive.Orm
     internal override void SystemTupleChange()
     {
       if (PersistenceState!=PersistenceState.New && PersistenceState!=PersistenceState.Modified) {
-        Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line 
+        Session.EnforceChangeRegistrySizeLimit(); // Must be done before the next line
         // to avoid post-first property set flush.
         State.PersistenceState = PersistenceState.Modified;
       }
@@ -826,7 +822,7 @@ namespace Xtensive.Orm
         SystemBeforeInitialize(false);
       }
       catch (Exception error) {
-        InitializationError(GetType(), error); 
+        InitializationError(GetType(), error);
         // GetType() call is correct here: no code will be executed further,
         // if base constructor will fail, but since descendant's constructor is aspected,
         // we must "simulate" its own call of InitializationError method.
@@ -888,7 +884,7 @@ namespace Xtensive.Orm
     /// {
     ///   [Field, KeyField]
     ///   public string ISBN { get; set; }
-    ///   
+    ///
     ///   public Book(string isbn) : base(isbn) { }
     /// }
     /// </code>
@@ -919,7 +915,7 @@ namespace Xtensive.Orm
         SystemBeforeInitialize(false);
       }
       catch (Exception error) {
-        InitializationError(GetType(), error); 
+        InitializationError(GetType(), error);
         // GetType() call is correct here: no code will be executed further,
         // if base constructor will fail, but since descendant's constructor is aspected,
         // we must "simulate" its own call of InitializationError method.
@@ -934,7 +930,7 @@ namespace Xtensive.Orm
     /// <param name="values">The field values that will be used for key building.</param>
     /// <remarks>Use this kind of constructor when you need to explicitly set key for this instance.</remarks>
     /// <example>
-    /// 	<code>
+    ///     <code>
     /// [HierarchyRoot]
     /// public class Book : Entity
     /// {
@@ -962,7 +958,7 @@ namespace Xtensive.Orm
             using (Session.DisableSaveChanges(this)) {
               foreach (var referenceField in references) {
                 var referenceValue = (Entity) GetFieldValue(referenceField);
-                Session.PairSyncManager.ProcessRecursively(null, null, 
+                Session.PairSyncManager.ProcessRecursively(null, null,
                   PairIntegrity.OperationType.Set, referenceField.GetAssociation(referenceValue.TypeInfo), this, referenceValue, null);
               }
             }
@@ -971,7 +967,7 @@ namespace Xtensive.Orm
         SystemBeforeInitialize(false);
       }
       catch (Exception error) {
-        InitializationError(GetType(), error); 
+        InitializationError(GetType(), error);
         // GetType() call is correct here: no code will be executed further,
         // if base constructor will fail, but since descendant's constructor is aspected,
         // we must "simulate" its own call of InitializationError method.

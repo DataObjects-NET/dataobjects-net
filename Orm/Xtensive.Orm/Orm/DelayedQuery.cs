@@ -97,10 +97,7 @@ namespace Xtensive.Orm.Internals
       LifetimeToken = session.GetLifetimeToken();
 
       materializer = translatedQuery.Materializer;
-      parameterContext = new ParameterContext(outerParameterContext);
-      foreach (var (parameter, tuple) in translatedQuery.TupleParameterBindings) {
-        parameterContext.SetValue(parameter, tuple);
-      }
+      parameterContext = new ParameterContext(outerParameterContext, translatedQuery.TupleParameterBindings);
 
       Task = new QueryTask(translatedQuery.DataSource, LifetimeToken, parameterContext);
     }

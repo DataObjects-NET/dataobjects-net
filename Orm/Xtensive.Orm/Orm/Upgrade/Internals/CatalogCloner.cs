@@ -158,7 +158,9 @@ namespace Xtensive.Orm.Upgrade.Internals
         var newView = newSchema.CreateView(sourceView.Name);
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
-        newView.Definition = (SqlNative) sourceView.Definition.Clone();
+        if (sourceView.Definition != null) {
+          newView.Definition = (SqlNative) sourceView.Definition.Clone();
+        }
         CloneViewColumns(newView, sourceView);
         CloneIndexes(newView, sourceView);
       }
@@ -330,9 +332,9 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
 
       //foreign keys are handled by special method
-      var foreignKey = sourceConstraint as ForeignKey;
-      if (foreignKey!=null)
+      if (sourceConstraint is ForeignKey) {
         return;
+      }
 
       var uniqueConstraint = sourceConstraint as UniqueConstraint;
       if (uniqueConstraint!=null) {

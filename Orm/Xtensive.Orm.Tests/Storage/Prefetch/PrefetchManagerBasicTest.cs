@@ -20,6 +20,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
+using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -380,12 +381,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(2, graphContainers.Count);
-        foreach (var container in graphContainers)
+        foreach (var container in graphContainers.Values)
           Assert.IsNull(container.ReferencedEntityContainers);
-        var orderContainer = graphContainers.Where(container => container.Key==orderKey).SingleOrDefault();
-        var employeeContainer = graphContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
+        var orderContainer = graphContainers.Values.Where(container => container.Key==orderKey).SingleOrDefault();
+        var employeeContainer = graphContainers.Values.Where(container => container.Key!=orderKey).SingleOrDefault();
         Assert.IsNotNull(orderContainer);
         Assert.IsNotNull(employeeContainer);
         prefetchManager.ExecuteTasks();
@@ -431,9 +432,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var taskContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var taskContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, taskContainers.Count);
-        Assert.AreEqual(orderKey, taskContainers.Single().Key);
+        Assert.AreEqual(orderKey, taskContainers.Values.Single().Key);
       }
     }
 
@@ -532,7 +533,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       const int instanceCount = 40;
       Key bookKey;
-      Key titleKey;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         Action<Book, int> titlesGenerator = (b, seed) => {
@@ -571,13 +571,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Key publisherKey1;
       Key publisherKey2;
       Key publisherKey3;
-      Key publisherKey4;
 
       Key bookShopKey0;
       Key bookShopKey1;
       Key bookShopKey2;
       Key bookShopKey3;
-      Key bookShopKey4;
 
       TypeInfo bookShopType;
       TypeInfo publisherType;

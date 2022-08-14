@@ -225,16 +225,14 @@ namespace Xtensive.Orm.Providers
       return StripObjectCasts(expression).Type.StripNullable() == type;
     }
 
-    private static bool IsComparisonExpression(Expression expression)
-    {
-      return expression.NodeType.In(
-        ExpressionType.Equal,
-        ExpressionType.NotEqual,
-        ExpressionType.GreaterThan,
-        ExpressionType.LessThan,
-        ExpressionType.GreaterThanOrEqual,
-        ExpressionType.LessThanOrEqual);
-    }
+    private static bool IsComparisonExpression(Expression expression) =>
+      expression.NodeType is 
+        ExpressionType.Equal or
+        ExpressionType.NotEqual or
+        ExpressionType.GreaterThan or
+        ExpressionType.LessThan or
+        ExpressionType.GreaterThanOrEqual or
+        ExpressionType.LessThanOrEqual;
 
     private static Expression StripObjectCasts(Expression expression)
     {

@@ -35,17 +35,17 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
 
     public string FullName
     {
-      get { return string.Format("{0} {1}", FirstName, LastName); }
+      get { return $"{FirstName} {LastName}"; }
     }
 
     public string FullName2
     {
-      get { return string.Format("{0} {1}", FirstName, LastName); }
+      get { return $"{FirstName} {LastName}"; }
     }
 
     public string AddPrefix(string prefix)
     {
-      return string.Format("{0}{1}", prefix, LastName);
+      return $"{prefix}{LastName}";
     }
 
     public Person(Session session)

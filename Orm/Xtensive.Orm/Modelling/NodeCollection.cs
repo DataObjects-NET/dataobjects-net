@@ -5,17 +5,12 @@
 // Created:    2009.03.16
 
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Modelling;
-using Xtensive.Modelling.Comparison;
 
 
 namespace Xtensive.Modelling
@@ -28,8 +23,6 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
-    private static readonly ReadOnlyList<Node> emptyCountable =
-      new ReadOnlyList<Node>(new List<Node>(), false);
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
@@ -90,7 +83,7 @@ namespace Xtensive.Modelling
         if (parentPath.Length==0)
           return EscapedName;
         return string.Concat(
-          parentPath, Node.PathDelimiter, 
+          parentPath, Node.PathDelimiterString,
           EscapedName);
       }
     }
@@ -172,7 +165,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var copy = list.ToArray();
       for (int i = copy.Length - 1; i >= 0; i--)
         copy[i].Remove();
@@ -227,7 +220,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Add(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (node.Index!=list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
@@ -252,15 +245,14 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Remove(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count1 = list.Count;
       int count2 = nameIndex.Count;
       int index = node.Index;
       string name = node.Name;
       try {
         list.RemoveAt(index);
-        if (nameIndex.ContainsKey(name))
-          nameIndex.Remove(name);
+        nameIndex.Remove(name);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Remove, index));
       }
@@ -275,7 +267,7 @@ namespace Xtensive.Modelling
 
     internal void Move(Node node, int newIndex)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count = list.Count;
       int oldIndex = node.Index;
       try {
@@ -305,7 +297,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void RemoveName(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       string name = node.Name;
       if (nameIndex[name]!=node)
         throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", CoreLog.Instance);
@@ -315,22 +307,19 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void AddName(Node node)
     {
-      this.EnsureNotLocked();
-      string name = node.Name;
-      if (nameIndex.ContainsKey(name))
+      EnsureNotLocked();
+      if (!nameIndex.TryAdd(node.Name, node)) {
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
-      nameIndex.Add(name, node);
+      }
     }
 
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void CheckIntegrity()
     {
       foreach (var node in list) {
-        var name = node.Name;
-        if (!nameIndex.ContainsKey(name))
+        if (!nameIndex.TryGetValue(node.Name, out var value) || value != node) {
           throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
-        if (node!=nameIndex[name])
-          throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
+        }
       }
     }
 
@@ -355,7 +344,7 @@ namespace Xtensive.Modelling
       var m = Model;
       string fullName = Path;
       if (m!=null)
-        fullName = string.Concat(m.EscapedName, Node.PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, Node.PathDelimiterString, fullName);
       return string.Format(Strings.NodeInfoFormat, fullName, Count);
     }
 

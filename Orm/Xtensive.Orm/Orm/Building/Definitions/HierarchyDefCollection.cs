@@ -1,20 +1,34 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.01.11
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Building.Definitions
 {
+  public readonly struct HierarchyDefCollectionChangedEventArgs
+  {
+    public HierarchyDef Item { get; }
+
+    public HierarchyDefCollectionChangedEventArgs(HierarchyDef item)
+    {
+      Item = item;
+    }
+  }
+
   /// <summary>
   /// A collection of <see cref="HierarchyDef"/> items.
   /// </summary>
-  public class HierarchyDefCollection : CollectionBase<HierarchyDef>
+  public class HierarchyDefCollection : CollectionBaseSlim<HierarchyDef>
   {
+    public event EventHandler<HierarchyDefCollectionChangedEventArgs> Added;
+    public event EventHandler<HierarchyDefCollectionChangedEventArgs> Removed;
+
     /// <inheritdoc/>
     public override bool Contains(HierarchyDef item)
     {
@@ -53,13 +67,46 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentException"> when item was not found.</exception>
     public HierarchyDef this[Type key]
     {
-      get
-      {
+      get {
         HierarchyDef result = TryGetValue(key);
-        if (result!=null)
+        if (result != null)
           return result;
-          throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
+        throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
       }
+    }
+
+    /// <inheritdoc/>
+    public override void Add(HierarchyDef item)
+    {
+      base.Add(item);
+      Added?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<HierarchyDef> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override bool Remove(HierarchyDef item)
+    {
+      if (base.Remove(item)) {
+        Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+        return true;
+      }
+      return false;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+      foreach (var item in this) {
+        Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+      }
+      base.Clear();
     }
   }
 }

@@ -911,7 +911,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             if (colIndex > 0)
               index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
             else {
-              int z = 7;
               //column index is 0
               //this means that this index column is an expression
               //which is not possible with SqlDom tables
@@ -1252,11 +1251,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
             query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
+              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostrgreSQL translator
           }
           else {
             query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
+              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostgreSQL translator
           }
         }
         query.Append("\n) all_sequences\nORDER BY id");

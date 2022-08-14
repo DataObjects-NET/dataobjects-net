@@ -21,22 +21,15 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlUnary>(expression, "expression");
-      var replacingExpression = (SqlUnary) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlUnary>(expression);
       NodeType = replacingExpression.NodeType;
       Operand = replacingExpression.Operand;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlUnary(NodeType, (SqlExpression) Operand.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlUnary(NodeType, (SqlExpression) Operand.Clone(context));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
