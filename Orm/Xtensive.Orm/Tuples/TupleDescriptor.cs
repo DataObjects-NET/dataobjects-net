@@ -86,11 +86,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(other, this))
-        return true;
-      if (FieldCount!=other.FieldCount)
+      if (FieldCount!=other.FieldCount) {
         return false;
       }
 

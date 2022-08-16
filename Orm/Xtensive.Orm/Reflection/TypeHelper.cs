@@ -58,9 +58,11 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
 
+    private static readonly ConcurrentDictionary<Type, Type[]> UnorderedInterfaces = new();
+
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
 
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = new();
+    private static readonly ConcurrentDictionary<(Type, Type), InterfaceMapping> interfaceMaps = new();
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
 
@@ -713,7 +715,7 @@ namespace Xtensive.Reflection
     /// <param name="targetInterface">The target interface.</param>
     /// <returns>Interface map for the specified interface.</returns>
     public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface) =>
-      InterfaceMaps.GetOrAdd((type, targetInterface), static pair => new InterfaceMapping(pair.Item1.GetInterfaceMap(pair.Item2)));
+      interfaceMaps.GetOrAdd((type, targetInterface), static pair => new InterfaceMapping(pair.Item1.GetInterfaceMap(pair.Item2)));
 
     /// <summary>
     /// Gets the interfaces of the specified type.

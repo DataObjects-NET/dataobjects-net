@@ -188,7 +188,8 @@ namespace Xtensive.Orm.Building.Builders
           typeBuilder.BuildType(typeDef);
         }
       }
-      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), "Fields"))
+      var typeInfoCollection = context.Model.Types;
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), "Fields")) {
         foreach (var typeDef in typeDefs) {
           var typeInfo = typeInfoCollection[typeDef.UnderlyingType];
           typeBuilder.BuildFields(typeDef, typeInfo);

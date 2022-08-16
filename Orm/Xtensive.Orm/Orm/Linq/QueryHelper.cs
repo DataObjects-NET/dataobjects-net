@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq
       if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
       }
-      var indexers = TypeHelper.GetProperties(owner.GetType(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+      var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
       return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);

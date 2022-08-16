@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      var properties = TypeHelper.GetProperties(typeDef.UnderlyingType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
       foreach (var propertyInfo in properties
           .Where(IsFieldAvailable)) {   // Domain builder stage-related filter

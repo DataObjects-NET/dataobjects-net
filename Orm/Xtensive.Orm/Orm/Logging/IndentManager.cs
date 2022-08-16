@@ -21,9 +21,6 @@ namespace Xtensive.Orm.Logging
 
       public void Dispose()
       {
-        if (disposed)
-          return;
-        disposed = true;
         CurrentIndentLengthAsync.Value = oldIndent;
         endAction?.Invoke();
       }
@@ -32,7 +29,6 @@ namespace Xtensive.Orm.Logging
       {
         this.oldIndent = oldIndent;
         this.endAction = endAction;
-        disposed = false;
       }
     }
 
