@@ -50,9 +50,8 @@ namespace Xtensive.Orm.Model
     
     /// <inheritdoc/>
     public ColumnInfoCollection(Node owner, string name)
-      : base(owner, name)
+      : base(owner, name, new Dictionary<string, ColumnInfo>(StringComparer.OrdinalIgnoreCase))
     {
-      NameIndex = new Dictionary<string, ColumnInfo>(StringComparer.OrdinalIgnoreCase);
     }
   }
 }
