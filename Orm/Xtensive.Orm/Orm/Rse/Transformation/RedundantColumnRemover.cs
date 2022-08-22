@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return new Pair<CompilableProvider, List<int>>(selectProvider, requestedMapping);
     }
 
-    protected override Provider VisitRaw(RawProvider provider)
+    protected override CompilableProvider VisitRaw(RawProvider provider)
     {
       var mapping = mappings[provider];
       if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
