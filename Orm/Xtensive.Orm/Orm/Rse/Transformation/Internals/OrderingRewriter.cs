@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Rse.Transformation
       return rewriter.InsertSortProvider(visited);
     }
 
-    protected override Provider Visit(CompilableProvider cp)
+    protected override CompilableProvider Visit(CompilableProvider cp)
     {
       var prevConsumerDescriptor = consumerDescriptor;
       consumerDescriptor = descriptor;
       descriptor = descriptorResolver(cp);
 
       var prevDescriptor = descriptor;
-      var visited = (CompilableProvider)base.Visit(cp);
+      var visited = base.Visit(cp);
       descriptor = prevDescriptor;
       visited = CorrectOrder(visited);
 
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visited;
     }
 
-    protected override Provider VisitSort(SortProvider provider)
+    protected override CompilableProvider VisitSort(SortProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       sortOrder = provider.Order;
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source;
     }
 
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override SelectProvider VisitSelect(SelectProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override AggregateProvider VisitAggregate(AggregateProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -119,37 +119,37 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitIndex(IndexProvider provider)
+    protected override IndexProvider VisitIndex(IndexProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitFreeText(FreeTextProvider provider)
+    protected override FreeTextProvider VisitFreeText(FreeTextProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    protected override ContainsTableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitRaw(RawProvider provider)
+    protected override RawProvider VisitRaw(RawProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitStore(StoreProvider provider)
+    protected override StoreProvider VisitStore(StoreProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitApply(ApplyProvider provider)
+    protected override ApplyProvider VisitApply(ApplyProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;

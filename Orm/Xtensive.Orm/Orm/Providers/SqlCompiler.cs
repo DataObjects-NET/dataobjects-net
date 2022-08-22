@@ -377,11 +377,9 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override SqlProvider VisitStore(StoreProvider provider)
     {
-      var source =
-        provider.Source as ExecutableProvider
-          ?? (provider.Source is RawProvider
-            ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider((RawProvider) provider.Source))
-            : Compile((CompilableProvider) provider.Source));
+      var source = provider.Source is RawProvider rawProvider
+            ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider(rawProvider))
+            : Compile(provider.Source);
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, provider.Name, provider.Header.TupleDescriptor, columnNames);
