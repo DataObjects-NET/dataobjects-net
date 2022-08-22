@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #region Visit methods
 
-    protected override Provider VisitInclude(IncludeProvider provider)
+    protected override CompilableProvider VisitInclude(IncludeProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Rse.Transformation
         provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
 
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       var requiredColumns = mappings[provider];
       var remappedColumns = requiredColumns
@@ -82,31 +82,31 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitFreeText(FreeTextProvider provider)
+    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    protected override ContainsTableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitIndex(IndexProvider provider)
+    protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitSeek(SeekProvider provider)
+    protected override CompilableProvider VisitSeek(SeekProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitFilter(FilterProvider provider)
+    protected override CompilableProvider VisitFilter(FilterProvider provider)
     {
       mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
       var newSourceProvider = VisitCompilable(provider.Source);
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
 
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override CompilableProvider VisitJoin(JoinProvider provider)
     {
       // split
 
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes.ToArray());
     }
 
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       SplitMappings(provider, out var leftMapping, out var rightMapping);
 
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new PredicateJoinProvider(newLeftProvider, newRightProvider, (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
     }
 
-    protected override Provider VisitSort(SortProvider provider)
+    protected override CompilableProvider VisitSort(SortProvider provider)
     {
       mappings[provider.Source] = Merge(mappings[provider], provider.Order.Keys);
       var source = VisitCompilable(provider.Source);
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source == provider.Source ? provider : new SortProvider(source, order);
     }
 
-    protected override Provider VisitApply(ApplyProvider provider)
+    protected override CompilableProvider VisitApply(ApplyProvider provider)
     {
       // split
 
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       var map = provider.AggregateColumns
         .Select(c => c.SourceIndex)
@@ -272,7 +272,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return new AggregateProvider(source, groupColumnIndexes, columns.ToArray());
     }
 
-    protected override Provider VisitCalculate(CalculateProvider provider)
+    protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       var usedColumns = mappings[provider];
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
 
-    protected override Provider VisitRowNumber(RowNumberProvider provider)
+    protected override CompilableProvider VisitRowNumber(RowNumberProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new RowNumberProvider(newSource, rowNumberColumn.Name);
     }
 
-    protected override Provider VisitStore(StoreProvider provider)
+    protected override StoreProvider VisitStore(StoreProvider provider)
     {
       if (!(provider.Source is CompilableProvider compilableSource)) {
         return provider;
@@ -344,15 +344,15 @@ namespace Xtensive.Orm.Rse.Transformation
         : new StoreProvider(source, provider.Name);
     }
 
-    protected override Provider VisitConcat(ConcatProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitConcat(ConcatProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitExcept(ExceptProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitExcept(ExceptProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitIntersect(IntersectProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitIntersect(IntersectProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitUnion(UnionProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitUnion(UnionProvider provider) => VisitSetOperationProvider(provider);
 
-    private Provider VisitSetOperationProvider(BinaryProvider provider)
+    private CompilableProvider VisitSetOperationProvider(BinaryProvider provider)
     {
       var leftMapping = mappings[provider];
       var rightMapping = mappings[provider];

@@ -20,280 +20,217 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="cp">The <see cref="CompilableProvider"/> to visit.</param>
     /// <returns>Visit result.</returns>
-    protected virtual Provider Visit(CompilableProvider cp)
-    {
-      if (cp==null)
-        return null;
-      Provider result;
-      ProviderType providerType = cp.Type;
-      switch (providerType) {
-        case ProviderType.Index:
-          result = VisitIndex((IndexProvider) cp);
-          break;
-        case ProviderType.Store:
-          result = VisitStore((StoreProvider) cp);
-          break;
-        case ProviderType.Aggregate:
-          result = VisitAggregate((AggregateProvider) cp);
-          break;
-        case ProviderType.Alias:
-          result = VisitAlias((AliasProvider) cp);
-          break;
-        case ProviderType.Calculate:
-          result = VisitCalculate((CalculateProvider) cp);
-          break;
-        case ProviderType.Distinct:
-          result = VisitDistinct((DistinctProvider) cp);
-          break;
-        case ProviderType.Filter:
-          result = VisitFilter((FilterProvider) cp);
-          break;
-        case ProviderType.Join:
-          result = VisitJoin((JoinProvider) cp);
-          break;
-        case ProviderType.Sort:
-          result = VisitSort((SortProvider) cp);
-          break;
-        case ProviderType.Raw:
-          result = VisitRaw((RawProvider) cp);
-          break;
-        case ProviderType.Seek:
-          result = VisitSeek((SeekProvider) cp);
-          break;
-        case ProviderType.Select:
-          result = VisitSelect((SelectProvider) cp);
-          break;
-        case ProviderType.Tag:
-          result = VisitTag((TagProvider) cp);
-          break;
-        case ProviderType.Skip:
-          result = VisitSkip((SkipProvider) cp);
-          break;
-        case ProviderType.Take:
-          result = VisitTake((TakeProvider) cp);
-          break;
-        case ProviderType.Paging:
-          result = VisitPaging((PagingProvider)cp);
-          break;
-        case ProviderType.RowNumber:
-          result = VisitRowNumber((RowNumberProvider)cp);
-          break;
-        case ProviderType.Apply:
-          result = VisitApply((ApplyProvider)cp);
-          break;
-        case ProviderType.Existence:
-          result = VisitExistence((ExistenceProvider)cp);
-          break;
-        case ProviderType.PredicateJoin:
-          result = VisitPredicateJoin((PredicateJoinProvider)cp);
-          break;
-        case ProviderType.Intersect:
-          result = VisitIntersect((IntersectProvider)cp);
-          break;
-        case ProviderType.Except:
-          result = VisitExcept((ExceptProvider)cp);
-          break;
-        case ProviderType.Concat:
-          result = VisitConcat((ConcatProvider)cp);
-          break;
-        case ProviderType.Union:
-          result = VisitUnion((UnionProvider)cp);
-          break;
-        case ProviderType.Lock:
-          result = VisitLock((LockProvider) cp);
-          break;
-        case ProviderType.Include:
-          result = VisitInclude((IncludeProvider) cp);
-          break;
-        case ProviderType.FreeText:
-          result = VisitFreeText((FreeTextProvider) cp);
-          break;
-        case ProviderType.ContainsTable:
-          result = VisitContainsTable((ContainsTableProvider) cp);
-          break;
-        case ProviderType.Void:
-          throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-      return result;
-    }
+    protected virtual CompilableProvider Visit(CompilableProvider cp) =>
+      cp == null
+        ? null
+        : cp.Type switch {
+          ProviderType.Index => VisitIndex((IndexProvider) cp),
+          ProviderType.Store => VisitStore((StoreProvider) cp),
+          ProviderType.Aggregate => VisitAggregate((AggregateProvider) cp),
+          ProviderType.Alias => VisitAlias((AliasProvider) cp),
+          ProviderType.Calculate => VisitCalculate((CalculateProvider) cp),
+          ProviderType.Distinct => VisitDistinct((DistinctProvider) cp),
+          ProviderType.Filter => VisitFilter((FilterProvider) cp),
+          ProviderType.Join => VisitJoin((JoinProvider) cp),
+          ProviderType.Sort => VisitSort((SortProvider) cp),
+          ProviderType.Raw => VisitRaw((RawProvider) cp),
+          ProviderType.Seek => VisitSeek((SeekProvider) cp),
+          ProviderType.Select => VisitSelect((SelectProvider) cp),
+          ProviderType.Tag => VisitTag((TagProvider) cp),
+          ProviderType.Skip => VisitSkip((SkipProvider) cp),
+          ProviderType.Take => VisitTake((TakeProvider) cp),
+          ProviderType.Paging => VisitPaging((PagingProvider)cp),
+          ProviderType.RowNumber => VisitRowNumber((RowNumberProvider)cp),
+          ProviderType.Apply => VisitApply((ApplyProvider)cp),
+          ProviderType.Existence => VisitExistence((ExistenceProvider)cp),
+          ProviderType.PredicateJoin => VisitPredicateJoin((PredicateJoinProvider)cp),
+          ProviderType.Intersect => VisitIntersect((IntersectProvider)cp),
+          ProviderType.Except => VisitExcept((ExceptProvider)cp),
+          ProviderType.Concat => VisitConcat((ConcatProvider)cp),
+          ProviderType.Union => VisitUnion((UnionProvider)cp),
+          ProviderType.Lock => VisitLock((LockProvider) cp),
+          ProviderType.Include => VisitInclude((IncludeProvider) cp),
+          ProviderType.FreeText => VisitFreeText((FreeTextProvider) cp),
+          ProviderType.ContainsTable => VisitContainsTable((ContainsTableProvider) cp),
+          ProviderType.Void => throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported),
+          _ => throw new ArgumentOutOfRangeException()
+        };
 
     /// <summary>
     /// Visits <see cref="PredicateJoinProvider"/>.
     /// </summary>
     /// <param name="provider">Predicate join provider.</param>
-    protected abstract Provider VisitPredicateJoin(PredicateJoinProvider provider);
+    protected abstract CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider);
 
     /// <summary>
     /// Visits <see cref="ExistenceProvider"/>.
     /// </summary>
     /// <param name="provider">Existence provider.</param>
-    protected abstract Provider VisitExistence(ExistenceProvider provider);
+    protected abstract CompilableProvider VisitExistence(ExistenceProvider provider);
 
     /// <summary>
     /// Visits <see cref="ApplyProvider"/>.
     /// </summary>
     /// <param name="provider">Apply provider.</param>
-    protected abstract Provider VisitApply(ApplyProvider provider);
+    protected abstract CompilableProvider VisitApply(ApplyProvider provider);
 
     /// <summary>
     /// Visits <see cref="RowNumberProvider"/>.
     /// </summary>
     /// <param name="provider">Row number provider.</param>
-    protected abstract Provider VisitRowNumber(RowNumberProvider provider);
+    protected abstract CompilableProvider VisitRowNumber(RowNumberProvider provider);
 
     /// <summary>
     /// Visits <see cref="TakeProvider"/>.
     /// </summary>
     /// <param name="provider">Take provider.</param>
-    protected abstract Provider VisitTake(TakeProvider provider);
+    protected abstract CompilableProvider VisitTake(TakeProvider provider);
 
     /// <summary>
     /// Visits <see cref="SkipProvider"/>.
     /// </summary>
     /// <param name="provider">Skip provider.</param>
-    protected abstract Provider VisitSkip(SkipProvider provider);
+    protected abstract CompilableProvider VisitSkip(SkipProvider provider);
 
     /// <summary>
     /// Visits <see cref="PagingProvider"/>.
     /// </summary>
     /// <param name="provider">Paging provider.</param>
-    protected abstract Provider VisitPaging(PagingProvider provider);
+    protected abstract CompilableProvider VisitPaging(PagingProvider provider);
 
     /// <summary>
     /// Visits <see cref="SelectProvider"/>.
     /// </summary>
     /// <param name="provider">Select provider.</param>
-    protected abstract Provider VisitSelect(SelectProvider provider);
+    protected abstract CompilableProvider VisitSelect(SelectProvider provider);
 
     /// <summary>
     /// Visits <see cref="TagProvider"/>.
     /// </summary>
     /// <param name="provider">Tag provider.</param>
-    protected abstract Provider VisitTag(TagProvider provider);
+    protected abstract CompilableProvider VisitTag(TagProvider provider);
 
     /// <summary>
     /// Visits <see cref="SeekProvider"/>.
     /// </summary>
     /// <param name="provider">Seek provider.</param>
-    protected abstract Provider VisitSeek(SeekProvider provider);
+    protected abstract CompilableProvider VisitSeek(SeekProvider provider);
 
     /// <summary>
     /// Visits <see cref="RawProvider"/>.
     /// </summary>
     /// <param name="provider">Raw provider.</param>
-    protected abstract Provider VisitRaw(RawProvider provider);
+    protected abstract CompilableProvider VisitRaw(RawProvider provider);
 
     /// <summary>
     /// Visits <see cref="SortProvider"/>.
     /// </summary>
     /// <param name="provider">Sort provider.</param>
-    protected abstract Provider VisitSort(SortProvider provider);
+    protected abstract CompilableProvider VisitSort(SortProvider provider);
 
     /// <summary>
     /// Visits <see cref="JoinProvider"/>.
     /// </summary>
     /// <param name="provider">Join provider.</param>
-    protected abstract Provider VisitJoin(JoinProvider provider);
+    protected abstract CompilableProvider VisitJoin(JoinProvider provider);
 
     /// <summary>
     /// Visits <see cref="FilterProvider"/>.
     /// </summary>
     /// <param name="provider">Filter provider.</param>
-    protected abstract Provider VisitFilter(FilterProvider provider);
+    protected abstract CompilableProvider VisitFilter(FilterProvider provider);
 
     /// <summary>
     /// Visits <see cref="DistinctProvider"/>.
     /// </summary>
     /// <param name="provider">Distinct provider.</param>
-    protected abstract Provider VisitDistinct(DistinctProvider provider);
+    protected abstract CompilableProvider VisitDistinct(DistinctProvider provider);
 
     /// <summary>
     /// Visits <see cref="CalculateProvider"/>.
     /// </summary>
     /// <param name="provider">Calculate provider.</param>
-    protected abstract Provider VisitCalculate(CalculateProvider provider);
+    protected abstract CompilableProvider VisitCalculate(CalculateProvider provider);
 
     /// <summary>
     /// Visits <see cref="AliasProvider"/>.
     /// </summary>
     /// <param name="provider">Alias provider.</param>
-    protected abstract Provider VisitAlias(AliasProvider provider);
+    protected abstract CompilableProvider VisitAlias(AliasProvider provider);
 
     /// <summary>
     /// Visits <see cref="AggregateProvider"/>.
     /// </summary>
     /// <param name="provider">Aggregate provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitAggregate(AggregateProvider provider);
+    protected abstract CompilableProvider VisitAggregate(AggregateProvider provider);
 
     /// <summary>
     /// Visits <see cref="StoreProvider"/>.
     /// </summary>
     /// <param name="provider">Store provider.</param>
-    protected abstract Provider VisitStore(StoreProvider provider);
+    protected abstract CompilableProvider VisitStore(StoreProvider provider);
 
     /// <summary>
     /// Visits <see cref="IndexProvider"/>.
     /// </summary>
     /// <param name="provider">Index provider.</param>
-    protected abstract Provider VisitIndex(IndexProvider provider);
+    protected abstract CompilableProvider VisitIndex(IndexProvider provider);
 
     /// <summary>
     /// Visits the <see cref="IntersectProvider"/>.
     /// </summary>
     /// <param name="provider">Intersect provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitIntersect(IntersectProvider provider);
+    protected abstract CompilableProvider VisitIntersect(IntersectProvider provider);
 
     /// <summary>
     /// Visits the <see cref="ExceptProvider"/>.
     /// </summary>
     /// <param name="provider">Except provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitExcept(ExceptProvider provider);
+    protected abstract CompilableProvider VisitExcept(ExceptProvider provider);
 
     /// <summary>
     /// Visits the <see cref="ConcatProvider"/>.
     /// </summary>
     /// <param name="provider">Concat provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitConcat(ConcatProvider provider);
+    protected abstract CompilableProvider VisitConcat(ConcatProvider provider);
 
     /// <summary>
     /// Visits the <see cref="UnionProvider"/>.
     /// </summary>
     /// <param name="provider">Union provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitUnion(UnionProvider provider);
+    protected abstract CompilableProvider VisitUnion(UnionProvider provider);
 
     /// <summary>
     /// Visits the <see cref="LockProvider"/>.
     /// </summary>
     /// <param name="provider">Lock provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitLock(LockProvider provider);
+    protected abstract CompilableProvider VisitLock(LockProvider provider);
 
     /// <summary>
     /// Visits the <see cref="IncludeProvider"/>.
     /// </summary>
     /// <param name="provider">Include provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitInclude(IncludeProvider provider);
+    protected abstract CompilableProvider VisitInclude(IncludeProvider provider);
 
     /// <summary>
     /// Visits the <see cref="FreeTextProvider"/>.
     /// </summary>
     /// <param name="provider">FreeText provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitFreeText(FreeTextProvider provider);
+    protected abstract CompilableProvider VisitFreeText(FreeTextProvider provider);
 
     /// <summary>
     /// Visits the <see cref="FreeTextProvider"/>.
     /// </summary>
     /// <param name="provider">SearchCondition provider.</param>
     /// <returns></returns>
-    protected abstract Provider VisitContainsTable(ContainsTableProvider provider);
+    protected abstract CompilableProvider VisitContainsTable(ContainsTableProvider provider);
   }
 }
