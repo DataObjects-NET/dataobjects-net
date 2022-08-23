@@ -8,7 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Core
 {
@@ -119,5 +119,25 @@ namespace Xtensive.Core
       if (index < 0 || index >= list.Count)
         throw new IndexOutOfRangeException(Strings.ExIndexOutOfRange);
     }
+
+#if DO_SAFE_COLLECTION_WRAPPER
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this List<T> list) => list.AsReadOnly();
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this IReadOnlyList<T> list) => new ReadOnlyCollection(list);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this T[] array) => Array.AsReadOnly(array);
+#else
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this List<T> list) => list;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this IReadOnlyList<T> list) => list;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this T[] array) => array;
+#endif
   }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
@@ -17,7 +18,7 @@ namespace Xtensive.Linq
   /// </summary>
   public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
-    protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+    protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
       bool isChanged = false;
       var results = new List<Expression>(expressions.Count);
@@ -27,7 +28,7 @@ namespace Xtensive.Linq
         results.Add(p);
         isChanged |= !ReferenceEquals(expression, p);
       }
-      return isChanged ? results.AsReadOnly() : expressions;
+      return isChanged ? results.AsSafeWrapper() : expressions;
     }
 
     /// <summary>
@@ -37,8 +38,8 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {
-      ReadOnlyCollection<Expression> arguments = VisitExpressionList(initializer.Arguments);
-      if (arguments!=initializer.Arguments) {
+      var arguments = VisitExpressionList(initializer.Arguments);
+      if (arguments != initializer.Arguments) {
         return Expression.ElementInit(initializer.AddMethod, arguments);
       }
       return initializer;
@@ -49,7 +50,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original element initializer list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual ReadOnlyCollection<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
+    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
     {
       var results = new List<ElementInit>();
       bool isChanged = false;
@@ -59,7 +60,7 @@ namespace Xtensive.Linq
         results.Add(p);
         isChanged |= !ReferenceEquals(originalIntializer, p);
       }
-      return isChanged ? results.AsReadOnly() : original;
+      return isChanged ? results.AsSafeWrapper() : original;
     }
 
     /// <inheritdoc/>
@@ -246,7 +247,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original binding list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual ReadOnlyCollection<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
     {
       var results = new List<MemberBinding>();
       bool isChanged = false;
@@ -256,7 +257,7 @@ namespace Xtensive.Linq
         results.Add(p);
         isChanged |= !ReferenceEquals(originalBinding, p);
       }
-      return isChanged ? results.AsReadOnly() : original;
+      return isChanged ? results.AsSafeWrapper() : original;
     }
 
     protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -32,12 +32,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    private IList<FieldInfo> fields;
+    private IReadOnlyList<FieldInfo> fields;
 
     /// <summary>
     /// Fields used in <see cref="Expression"/>.
     /// </summary>
-    public IList<FieldInfo> Fields
+    public IReadOnlyList<FieldInfo> Fields
     {
       get { return fields; }
       set
@@ -56,7 +56,6 @@ namespace Xtensive.Orm.Model
         throw Exceptions.NotInitialized("Expression");
       if (Fields==null)
         throw Exceptions.NotInitialized("Fields");
-      fields = fields.ToList().AsReadOnly();
       base.Lock(recursive);
     }
   }

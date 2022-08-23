@@ -27,13 +27,13 @@ namespace Xtensive.Orm.Rse.Transformation
         && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == WellKnownTypes.FuncOfTArgTResultType)
       .CachedMakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
-    protected override Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
+    protected override (CompilableProvider, List<int>) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
     {
       var currentMapping = mappings[applyProvider.Right];
       if (currentMapping.SequenceEqual(requestedMapping))
         return base.OverrideRightApplySource(applyProvider, provider, requestedMapping);
       var selectProvider = new SelectProvider(provider, requestedMapping.ToArray());
-      return new Pair<CompilableProvider, List<int>>(selectProvider, requestedMapping);
+      return (selectProvider, requestedMapping);
     }
 
     protected override Provider VisitRaw(RawProvider provider)

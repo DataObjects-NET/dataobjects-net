@@ -35,11 +35,11 @@ namespace Xtensive.Orm.Model
     private readonly IndexInfo declaringIndex;
     private double fillFactor;
     private string shortName;
-    private ReadOnlyCollection<ColumnInfo> columns;
+    private IReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
-    private IList<TypeInfo> filterByTypes;
-    private IList<int> selectColumns;
+    private IReadOnlyList<TypeInfo> filterByTypes;
+    private IReadOnlyList<int> selectColumns;
     private List<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
     private PartialIndexFilterInfo filter;
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the types for <see cref="IndexAttributes.Filtered"/> index.
     /// </summary>
-    public IList<TypeInfo> FilterByTypes
+    public IReadOnlyList<TypeInfo> FilterByTypes
     {
       get { return filterByTypes; }
       set
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the column indexes for <see cref="IndexAttributes.View"/> index.
     /// </summary>
-    public IList<int> SelectColumns
+    public IReadOnlyList<int> SelectColumns
     {
       get { return selectColumns; }
       set
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Model
       var lazy = new List<int>();
       var regular = new List<int>();
 
-      for (int i = 0; i < columns.Count; i++) {
+      for (int i = 0, count = columns.Count; i < count; i++) {
         var item = columns[i];
         if (item.IsPrimaryKey || item.IsSystem)
           system.Add(i);
@@ -392,7 +392,7 @@ namespace Xtensive.Orm.Model
     {
       var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
       result.AddRange(valueColumns);
-      columns = result.AsReadOnly();
+      columns = result.AsSafeWrapper();
     }
 
 

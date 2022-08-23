@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets of <see cref="IPropertyValidator"/> instances associated with this field.
     /// </summary>
-    public IList<IPropertyValidator> Validators { get; private set; }
+    public List<IPropertyValidator> Validators { get; } = new();
 
     internal bool IsDeclaredAsNullable
     {
@@ -325,7 +325,6 @@ namespace Xtensive.Orm.Building.Definitions
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
-      Validators = new List<IPropertyValidator>();
 
       // Nullable<T>
       if (valueType.IsNullable()) {

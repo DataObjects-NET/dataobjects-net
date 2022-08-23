@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = newMappings;
       return source == provider.Source
         ? provider
-        : new SelectProvider(source, indexColumns.ToArray());
+        : new SelectProvider(source, indexColumns);
     }
 
     /// <inheritdoc/>
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       // split
 
-      SplitMappings(provider, out var leftMapping, out var rightMapping);
+      var (leftMapping, rightMapping) = SplitMappings(provider);
 
       leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.First));
       rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Second));
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      SplitMappings(provider, out var leftMapping, out var rightMapping);
+      var (leftMapping, rightMapping) = SplitMappings(provider);
 
       leftMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
         provider.Predicate.Parameters[0]));
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       // split
 
-      SplitMappings(provider, out var leftMapping, out var rightMapping);
+      var (leftMapping, rightMapping) = SplitMappings(provider);
 
       var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<int>();
@@ -217,12 +217,12 @@ namespace Xtensive.Orm.Rse.Transformation
       _ = outerColumnUsages.Remove(applyParameter);
 
       var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
-      if (pair.First == null) {
+      if (pair.compilableProvider == null) {
         rightMapping = mappings[provider.Right];
       }
       else {
-        newRightProvider = pair.First;
-        rightMapping = pair.Second;
+        newRightProvider = pair.compilableProvider;
+        rightMapping = pair.mapping;
       }
       RestoreMappings(oldMappings);
 
@@ -400,9 +400,8 @@ namespace Xtensive.Orm.Rse.Transformation
       return new SelectProvider(provider, columns);
     }
 
-    protected virtual Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider,
-      CompilableProvider provider, List<int> requestedMapping) =>
-      new Pair<CompilableProvider, List<int>>(provider, requestedMapping);
+    protected virtual (CompilableProvider compilableProvider, List<int> mapping) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping) =>
+      (provider, requestedMapping);
 
     #endregion
 
@@ -441,20 +440,21 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private void SplitMappings(BinaryProvider provider, out List<int> leftMapping, out List<int> rightMapping)
+    private (List<int> leftMapping, List<int> rightMapping) SplitMappings(BinaryProvider provider)
     {
       var binaryMapping = mappings[provider];
-      leftMapping = new List<int>(binaryMapping.Count);
+      var leftMapping = new List<int>(binaryMapping.Count);
       var leftCount = provider.Left.Header.Length;
       var index = 0;
       while (index < binaryMapping.Count && binaryMapping[index] < leftCount) {
         leftMapping.Add(binaryMapping[index]);
         index++;
       }
-      rightMapping = new List<int>(binaryMapping.Count - index);
+      var rightMapping = new List<int>(binaryMapping.Count - index);
       for (var i = index; i < binaryMapping.Count; i++) {
         rightMapping.Add(binaryMapping[i] - leftCount);
       }
+      return (leftMapping, rightMapping);
     }
 
     private void RegisterOuterMapping(ApplyParameter parameter, int value)
@@ -508,7 +508,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private Dictionary<Provider, List<int>> ReplaceMappings(Provider firstNewKey, List<int> firstNewValue)
     {
       var oldMappings = mappings;
-      mappings = new Dictionary<Provider, List<int>> {{firstNewKey, firstNewValue}};
+      mappings = new() { { firstNewKey, firstNewValue } };
       return oldMappings;
     }
 

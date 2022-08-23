@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
 {
@@ -39,7 +40,7 @@ namespace Xtensive.Orm.Model
       get {
         return IsLocked 
           ? realPrimaryIndexes
-          : FindRealPrimaryIndexes(PrimaryIndex).AsReadOnly();
+          : FindRealPrimaryIndexes(PrimaryIndex).AsSafeWrapper();
       }
     }
 
@@ -76,8 +77,8 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
       primaryIndex = FindPrimaryIndex();
-      realPrimaryIndexes = FindRealPrimaryIndexes(primaryIndex).AsReadOnly();
-      indexesContainingAllData = FindIndexesContainingAllData().AsReadOnly();
+      realPrimaryIndexes = FindRealPrimaryIndexes(primaryIndex).AsSafeWrapper();
+      indexesContainingAllData = FindIndexesContainingAllData().AsSafeWrapper();
     }
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
@@ -118,7 +119,7 @@ namespace Xtensive.Orm.Model
     {
       return IsLocked
         ? indexesContainingAllData
-        : FindIndexesContainingAllData().AsReadOnly();
+        : FindIndexesContainingAllData().AsSafeWrapper();
     }
 
     private List<IndexInfo> FindIndexesContainingAllData()

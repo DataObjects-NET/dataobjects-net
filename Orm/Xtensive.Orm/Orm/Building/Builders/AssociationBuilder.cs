@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Builders
         fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
-      field.Associations.Add(association);
+      field.AddAssociation(association);
 
       if (!fieldDef.PairTo.IsNullOrEmpty())
         context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Building.Builders
         .Where(a => a.TargetType == association.TargetType)
         .ToList();
       foreach (var toRemove in associationsToRemove)
-        field.Associations.Remove(toRemove);
-      field.Associations.Add(association);
+        field.RemoveAssociation(toRemove);
+      field.AddAssociation(association);
 
       var pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
       if (pairTo.First!=null)
@@ -86,9 +86,9 @@ namespace Xtensive.Orm.Building.Builders
           .Where(a => a.TargetType == association.TargetType)
           .ToList();
         foreach (var toRemove in associationsToRemove)
-          field.Associations.Remove(toRemove);
+          field.RemoveAssociation(toRemove);
 
-        field.Associations.Add(association);
+        field.AddAssociation(association);
       }
     }
 

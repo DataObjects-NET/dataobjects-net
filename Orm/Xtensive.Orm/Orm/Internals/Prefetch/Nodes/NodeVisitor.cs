@@ -4,7 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2011.01.14
 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -17,7 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return node.Accept(this);
     }
 
-    public virtual ReadOnlyCollection<BaseFieldNode> VisitNodeList(ReadOnlyCollection<BaseFieldNode> nodes)
+    public virtual IReadOnlyList<BaseFieldNode> VisitNodeList(IReadOnlyList<BaseFieldNode> nodes)
     {
       BaseFieldNode[] list = null;
       var index = 0;
@@ -35,9 +37,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
         index++;
       }
-      return list==null
-        ? nodes
-        : new ReadOnlyCollection<BaseFieldNode>(list);
+      return list?.AsSafeWrapper() ?? nodes;
     }
 
     public virtual Node VisitKeyExtractorNode<T>(KeyExtractorNode<T> keyExtractorNode)

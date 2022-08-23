@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyList<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;
@@ -52,14 +53,14 @@ namespace Xtensive.Orm.Providers
         }
         var batchRequest = CreatePersistRequest(batch, bindings, node.Configuration);
         batchRequest.Prepare();
-        return new List<PersistRequest> {batchRequest}.AsReadOnly();
+        return new List<PersistRequest> { batchRequest }.AsSafeWrapper();
       }
 
       foreach (var item in result) {
         item.Prepare();
       }
 
-      return result.AsReadOnly();
+      return result.AsSafeWrapper();
     }
 
     protected virtual List<PersistRequest> BuildInsertRequest(PersistRequestBuilderContext context)

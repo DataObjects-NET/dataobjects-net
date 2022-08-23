@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 
 namespace Xtensive.Orm.Model
@@ -14,22 +15,22 @@ namespace Xtensive.Orm.Model
   /// A map of useful column indexes.
   /// </summary>
   [Serializable]
-  public sealed class ColumnIndexMap
+  public readonly struct ColumnIndexMap
   {
     /// <summary>
     /// Gets or sets positions of system columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IList<int> System { get; private set; }
+    public IReadOnlyList<int> System { get; }
 
     /// <summary>
     /// Gets or sets positions of lazy load columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IList<int> LazyLoad { get; private set; }
+    public IReadOnlyList<int> LazyLoad { get; }
 
     /// <summary>
     /// Gets or sets positions of regular columns (not system and not lazy load) within <see cref="IndexInfo"/>.
     /// </summary>
-    public IList<int> Regular { get; private set; }
+    public IReadOnlyList<int> Regular { get; }
 
 
     // Constructors
@@ -40,11 +41,11 @@ namespace Xtensive.Orm.Model
     /// <param name="system">The system columns.</param>
     /// <param name="lazyLoad">The regular columns.</param>
     /// <param name="regular">The lazy load columns.</param>
-    public ColumnIndexMap(List<int> system, List<int> regular, List<int> lazyLoad)
+    public ColumnIndexMap(IReadOnlyList<int> system, IReadOnlyList<int> regular, IReadOnlyList<int> lazyLoad)
     {
-      System = system.AsReadOnly();
-      LazyLoad = lazyLoad.AsReadOnly();
-      Regular = regular.AsReadOnly();
+      System = system.AsSafeWrapper();
+      LazyLoad = lazyLoad.AsSafeWrapper();
+      Regular = regular.AsSafeWrapper();
     }
   }
 }

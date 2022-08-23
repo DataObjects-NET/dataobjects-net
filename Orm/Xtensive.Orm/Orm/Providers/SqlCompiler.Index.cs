@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Providers
       if (discriminatorMap != null) {
         var discriminatorColumnIndex = 0;
         var discriminatorColumnInfo = discriminatorMap.Column;
-        var underlyingColumns = underlyingIndex.Columns; 
+        var underlyingColumns = underlyingIndex.Columns;
         for (var columnCount = underlyingColumns.Count; discriminatorColumnIndex < columnCount; discriminatorColumnIndex++) {
           var column = underlyingColumns[discriminatorColumnIndex];
           if (column.Equals(discriminatorColumnInfo)) {

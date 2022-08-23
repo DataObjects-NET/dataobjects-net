@@ -72,7 +72,7 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; }
     internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; }
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PersistRequest>> PersistRequestCache { get; } = new();
 
     /// <inheritdoc/>
     public Session OpenSession() =>
@@ -127,7 +127,6 @@ namespace Xtensive.Orm
       EntitySetTypeStateCache = new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
       RefsToEntityQueryCache = new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
 
       this.domain = domain;
       Configuration = configuration;
