@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -93,11 +93,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private ICollection<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
+    private IReadOnlyList<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
     {
       var cache = node.PersistRequestCache;
-      ICollection<PersistRequest> result;
-      if (cache.TryGetValue(task, out result))
+      if (cache.TryGetValue(task, out var result))
         return result;
       result = requestBuilder.Build(node, task);
       return cache.TryAdd(task, result) ? result : cache[task];

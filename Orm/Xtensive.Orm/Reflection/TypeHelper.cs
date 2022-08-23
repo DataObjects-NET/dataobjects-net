@@ -703,8 +703,8 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="types">The types to sort.</param>
     /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
-    public static List<Type> OrderByInheritance(this IEnumerable<Type> types) =>
-      TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
+    public static IEnumerable<Type> OrderByInheritance(this IEnumerable<Type> types) =>
+      TopologicalSorter.Sort(types, static (t1, t2) => t1.IsAssignableFrom(t2));
 
     /// <summary>
     /// Fast analogue of <see cref="Type.GetInterfaceMap"/>.
@@ -723,7 +723,7 @@ namespace Xtensive.Reflection
     /// <param name="type">The type to get the interfaces of.</param>
     [Obsolete("Use GetInterfacesOrderByInheritance instead")]
     public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the interfaces of the specified type.
@@ -731,7 +731,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
     public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the sequence of type itself, all its base types and interfaces.

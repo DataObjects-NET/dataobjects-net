@@ -10,7 +10,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Core;
 
-
 namespace Xtensive.Sorting
 {
   /// <summary>
@@ -22,9 +21,9 @@ namespace Xtensive.Sorting
   public class Node<TNodeItem, TConnectionItem>
   {
     private List<NodeConnection<TNodeItem, TConnectionItem>> incomingConnections;
-    private ReadOnlyCollection<NodeConnection<TNodeItem, TConnectionItem>> incomingConnectionsReadOnlyList;
+    private IReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> incomingConnectionsReadOnlyList;
     private List<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnections;
-    private ReadOnlyCollection<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnectionsReadOnlyList;
+    private IReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>> outgoingConnectionsReadOnlyList;
 
     /// <summary>
     /// Gets node item.
@@ -166,18 +165,14 @@ namespace Xtensive.Sorting
 
     private void EnsureIncomingConnections()
     {
-      if (incomingConnectionsReadOnlyList==null) {
-        incomingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
-        incomingConnectionsReadOnlyList = incomingConnections.AsReadOnly();
-      }
+      incomingConnectionsReadOnlyList ??=
+        (incomingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>()).AsSafeWrapper();
     }
 
     private void EnsureOutgoingConnections()
     {
-      if (outgoingConnectionsReadOnlyList==null) {
-        outgoingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
-        outgoingConnectionsReadOnlyList = outgoingConnections.AsReadOnly();
-      }
+      outgoingConnectionsReadOnlyList ??=
+        (outgoingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>()).AsSafeWrapper();
     }
 
     // Constructors

@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets <see cref="IObjectValidator"/> instances associated with this type.
     /// </summary>
-    public IList<IObjectValidator> Validators { get; private set; }
+    public List<IObjectValidator> Validators { get; } = new();
 
     /// <summary>
     /// Gets or sets the type discriminator value.
@@ -225,8 +225,6 @@ namespace Xtensive.Orm.Building.Definitions
       implementors = IsInterface
         ? new NodeCollection<TypeDef>(this, "Implementors")
         : NodeCollection<TypeDef>.Empty;
-
-      Validators = new List<IObjectValidator>();
     }
   }
 }

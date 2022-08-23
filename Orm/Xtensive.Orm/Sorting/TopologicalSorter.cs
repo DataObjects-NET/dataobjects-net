@@ -29,7 +29,7 @@ namespace Xtensive.Sorting
     /// Sorting result, if there were no loops;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static List<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector)
+    public static IEnumerable<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector)
     {
       List<Node<TNodeItem, object>> loops;
       return Sort(items, connector, out loops);
@@ -48,7 +48,7 @@ namespace Xtensive.Sorting
     /// otherwise, <see langword="null"/>.
     /// In this case <paramref name="loops"/> will contain only the loop edges.
     /// </returns>
-    public static List<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector, out List<Node<TNodeItem, object>> loops)
+    public static IEnumerable<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector, out List<Node<TNodeItem, object>> loops)
     {
       ArgumentValidator.EnsureArgumentNotNull(items, "items");
       ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
@@ -101,7 +101,7 @@ namespace Xtensive.Sorting
     /// <returns>Sorting result, if there were no loops;
     /// otherwise, <see langword="null" />. 
     /// In this case <paramref name="nodes"/> will contain only the loop edges.</returns>
-    public static List<TNodeItem> Sort<TNodeItem, TConnectionItem>(List<Node<TNodeItem, TConnectionItem>> nodes, out List<Node<TNodeItem, TConnectionItem>> loops)
+    public static IEnumerable<TNodeItem> Sort<TNodeItem, TConnectionItem>(List<Node<TNodeItem, TConnectionItem>> nodes, out List<Node<TNodeItem, TConnectionItem>> loops)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
       var head = new Queue<TNodeItem>();
@@ -136,7 +136,7 @@ namespace Xtensive.Sorting
           nodeList.Remove(nodeToRemove);
       }
       loops = null;
-      return head.Concat(tail.Reverse()).ToList();
+      return head.Concat(tail.Reverse());
     }
 
 

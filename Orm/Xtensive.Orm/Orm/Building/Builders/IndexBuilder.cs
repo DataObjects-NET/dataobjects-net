@@ -533,7 +533,7 @@ namespace Xtensive.Orm.Building.Builders
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
       var result = new IndexInfo(reflectedType, attributes, indexToFilter, Array.Empty<IndexInfo>()) {
-        FilterByTypes = filterByTypes.ToList().AsReadOnly()
+        FilterByTypes = filterByTypes.ToList().AsSafeWrapper()
       };
 
       // Adding key columns
@@ -760,7 +760,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       result.ValueColumns.AddRange(valueColumns);
-      result.SelectColumns = columnMap.AsReadOnly();
+      result.SelectColumns = columnMap.AsSafeWrapper();
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 

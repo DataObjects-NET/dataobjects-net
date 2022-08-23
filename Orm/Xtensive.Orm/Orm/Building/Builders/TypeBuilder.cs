@@ -39,6 +39,11 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeDef.UnderlyingType.GetShortName())) {
 
+        var validators = typeDef.Validators;
+        if (typeDef.IsEntity && DeclaresOnValidate(typeDef.UnderlyingType)) {
+          validators.Add(new EntityValidator());
+        }
+
         var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
           UnderlyingType = typeDef.UnderlyingType,
           Name = typeDef.Name,
@@ -46,12 +51,8 @@ namespace Xtensive.Orm.Building.Builders
           MappingDatabase = typeDef.MappingDatabase,
           MappingSchema = typeDef.MappingSchema,
           HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof(IHasVersionRoots)),
-          Validators = typeDef.Validators,
+          Validators = validators,
         };
-
-        if (typeInfo.IsEntity && DeclaresOnValidate(typeInfo.UnderlyingType)) {
-          typeInfo.Validators.Add(new EntityValidator());
-        }
 
         if (typeDef.StaticTypeId != null) {
           typeInfo.TypeId = typeDef.StaticTypeId.Value;
@@ -232,6 +233,16 @@ namespace Xtensive.Orm.Building.Builders
     {
       BuildLog.Info(nameof(Strings.LogBuildingDeclaredFieldXY), type.Name, fieldDef.Name);
 
+      var validators = fieldDef.Validators;
+
+      if (fieldDef.IsStructure && DeclaresOnValidate(fieldDef.ValueType)) {
+        validators.Add(new StructureFieldValidator());
+      }
+
+      if (fieldDef.IsEntitySet && DeclaresOnValidate(fieldDef.ValueType)) {
+        validators.Add(new EntitySetFieldValidator());
+      }
+
       var fieldInfo = new FieldInfo(type, fieldDef.Attributes) {
         UnderlyingProperty = fieldDef.UnderlyingProperty,
         Name = fieldDef.Name,
@@ -242,16 +253,8 @@ namespace Xtensive.Orm.Building.Builders
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
         Precision = fieldDef.Precision,
-        Validators = fieldDef.Validators,
+        Validators = validators,
       };
-
-      if (fieldInfo.IsStructure && DeclaresOnValidate(fieldInfo.ValueType)) {
-        fieldInfo.Validators.Add(new StructureFieldValidator());
-      }
-
-      if (fieldInfo.IsEntitySet && DeclaresOnValidate(fieldInfo.ValueType)) {
-        fieldInfo.Validators.Add(new EntitySetFieldValidator());
-      }
 
       type.Fields.Add(fieldInfo);
 

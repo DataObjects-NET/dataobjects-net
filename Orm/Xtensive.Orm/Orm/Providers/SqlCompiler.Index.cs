@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Providers
       SqlExpression filter = null;
       var type = index.ReflectedType;
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
-      var filterByTypes = index.FilterByTypes.ToList();
+      var filterByTypes = index.FilterByTypes;
       var filterByTypesCount = filterByTypes.Count;
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
         var columnType = discriminatorMap.Column.ValueType;

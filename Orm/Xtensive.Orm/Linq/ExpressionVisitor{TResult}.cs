@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Xtensive.Reflection;
+using Xtensive.Core;
 
 
 
@@ -139,14 +140,14 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="expressions">The expression list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual ReadOnlyCollection<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+    protected virtual IReadOnlyList<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
       var results = new List<TResult>(expressions.Count);
       for (int i = 0, n = expressions.Count; i < n; i++) {
         var p = Visit(expressions[i]);
         results.Add(p);
       }
-      return results.AsReadOnly();
+      return results.AsSafeWrapper();
     }
 
     /// <summary>

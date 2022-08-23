@@ -90,9 +90,8 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count == 0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
-        var usedColumnsArray = usedColumns.ToArray();
-        var resultProvider = new SelectProvider(originProvider, usedColumnsArray);
-        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumnsArray);
+        var resultProvider = new SelectProvider(originProvider, usedColumns);
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns);
         var result = origin.Apply(itemProjector);
         return result;
       }

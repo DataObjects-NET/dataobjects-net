@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
                 List<Node<int, int>> removedEdges;
                 var result = TopologicalSorter.Sort(nodes, out removedEdges);
                 if (!allowLoops)
-                    Assert.AreEqual(nodeCount, result.Count);
+                    Assert.AreEqual(nodeCount, result.Count());
             }
             GC.GetTotalMemory(true);
         }
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
         private void TestSort<T>(T[] data, Predicate<T, T> connector, T[] expected, T[] loops)
         {
             List<Node<T, object>> actualLoopNodes;
-            List<T> actual = TopologicalSorter.Sort(data, connector, out actualLoopNodes);
+            List<T> actual = TopologicalSorter.Sort(data, connector, out actualLoopNodes).ToList();
             T[] actualLoops = null;
             if (actualLoopNodes != null)
                 actualLoops = actualLoopNodes

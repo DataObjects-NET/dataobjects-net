@@ -10,6 +10,7 @@ using System.Reflection;
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
 using System.Linq;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Reflection
 {
@@ -50,8 +51,8 @@ namespace Xtensive.Reflection
     {
       TargetType = source.TargetType;
       InterfaceType = source.InterfaceType;
-      TargetMethods = Array.AsReadOnly(source.TargetMethods);
-      InterfaceMethods = Array.AsReadOnly(source.InterfaceMethods);
+      TargetMethods = source.TargetMethods.AsSafeWrapper();
+      InterfaceMethods = source.InterfaceMethods.AsSafeWrapper();
     }
   }
 }

@@ -62,12 +62,12 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets all available <see cref="IModule"/> implementations.
     /// </summary>
-    public ICollection<IModule> Modules { get; private set; }
+    public IReadOnlyList<IModule> Modules { get; }
 
     /// <summary>
     /// Gets all available <see cref="IModule2"/> implementations.
     /// </summary>
-    public ICollection<IModule2> Modules2 { get; private set; }
+    public IReadOnlyList<IModule2> Modules2 { get; }
 
     internal ModelDefBuilder ModelDefBuilder { get; set; }
 
@@ -85,8 +85,8 @@ namespace Xtensive.Orm.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
 
-      Modules = BuilderConfiguration.Services.Modules.ToList().AsReadOnly();
-      Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
+      Modules = BuilderConfiguration.Services.Modules.AsSafeWrapper();
+      Modules2 = Modules.OfType<IModule2>().ToList().AsSafeWrapper();
       Validator = new Validator(builderConfiguration.Services.ProviderInfo.SupportedTypes);
       DefaultSchemaInfo = builderConfiguration.DefaultSchemaInfo;
     }

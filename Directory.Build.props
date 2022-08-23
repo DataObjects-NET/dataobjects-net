@@ -132,5 +132,6 @@
 
     <!-- setting env var or property 'DO_DATEONLY=false' disables DO_DATEONLY feature -->
     <DefineConstants Condition="$(TargetFramework)!='net5.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
+    <DefineConstants Condition="'$(DO_SAFE_COLLECTION_WRAPPER)'=='true'">$(DefineConstants);DO_SAFE_COLLECTION_WRAPPER</DefineConstants>
   </PropertyGroup>
 </Project>

@@ -52,7 +52,6 @@ namespace Xtensive.Orm.Model
     private IReadOnlyList<AssociationInfo> removalSequence;
     private IReadOnlyList<FieldInfo> versionFields;
     private IReadOnlyList<ColumnInfo> versionColumns;
-    private IList<IObjectValidator> validators;
     private Type underlyingType;
     private HierarchyInfo hierarchy;
     private int typeId = NoTypeId;
@@ -504,14 +503,7 @@ namespace Xtensive.Orm.Model
     /// Gets <see cref="IObjectValidator"/> instances
     /// associated with this type.
     /// </summary>
-    public IList<IObjectValidator> Validators
-    {
-      get { return validators; }
-      internal set {
-        EnsureNotLocked();
-        validators = value;
-      }
-    }
+    public IReadOnlyList<IObjectValidator> Validators { get; init; }
 
     /// <summary>
     /// Gets value indicating if this type has validators (including field validators).
@@ -565,7 +557,7 @@ namespace Xtensive.Orm.Model
         if (!IsLocked) {
           return result;
         }
-        targetAssociations = result.ToList().AsReadOnly();
+        targetAssociations = result.ToList().AsSafeWrapper();
       }
       return targetAssociations;
     }
@@ -580,7 +572,7 @@ namespace Xtensive.Orm.Model
         if (!IsLocked) {
           return result;
         }
-        ownerAssociations = result.ToList().AsReadOnly();
+        ownerAssociations = result.ToList().AsSafeWrapper();
       }
       return ownerAssociations;
     }
@@ -694,7 +686,7 @@ namespace Xtensive.Orm.Model
         }
       }
 
-      HasValidators = validators.Count > 0 || fields.Any(f => f.HasValidators);
+      HasValidators = Validators.Count > 0 || fields.Any(static f => f.HasValidators);
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)
@@ -753,7 +745,7 @@ namespace Xtensive.Orm.Model
 
       var sortedRemovalSequence = sequence.Where(a => a.Ancestors.Count > 0).ToList();
       if (sortedRemovalSequence.Count == 0) {
-        removalSequence = sequence.AsReadOnly();
+        removalSequence = sequence.AsSafeWrapper();
       }
       else {
         var sequenceSize = sequence.Count;
@@ -761,7 +753,7 @@ namespace Xtensive.Orm.Model
           sortedRemovalSequence.Capacity = sequenceSize;
         }
         sortedRemovalSequence.AddRange(sequence.Where(a => a.Ancestors.Count == 0));
-        removalSequence = sortedRemovalSequence.AsReadOnly();
+        removalSequence = sortedRemovalSequence.AsSafeWrapper();
       }
     }
 
@@ -781,8 +773,6 @@ namespace Xtensive.Orm.Model
 
       if (!recursive)
         return;
-
-      validators = Array.AsReadOnly(validators.ToArray());
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);

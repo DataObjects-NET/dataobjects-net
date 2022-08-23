@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
 {
@@ -47,7 +48,7 @@ namespace Xtensive.Orm.Model
       Key.UpdateState();
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.RecursiveDescendants);
-      Types = list.AsReadOnly();
+      Types = list.AsSafeWrapper();
       if (Types.Count == 1)
         InheritanceSchema = InheritanceSchema.ConcreteTable;
       if (TypeDiscriminatorMap != null)
