@@ -149,28 +149,6 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets the direct implementors of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
-    [Obsolete("Use Implementors/RecursiveImplementors properties instead")]
-    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? RecursiveImplementors : Implementors;
-
-    /// <summary>
-    /// Gets the persistent interfaces this instance implements.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
-    [Obsolete("Use Interfaces/RecursiveInterfaces properties instead")]
-    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? RecursiveInterfaces : Interfaces;
-
-    /// <summary>
-    /// Gets descendants of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
-    /// <returns></returns>
-    [Obsolete("Use Descendants/RecursiveDescendants properties instead")]
-    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? RecursiveDescendants : Descendants;
-
-    /// <summary>
     /// Gets the ancestors recursively. Root-to-inheritor order.
     /// </summary>
     /// <returns>The ancestor</returns>
@@ -519,6 +497,28 @@ namespace Xtensive.Orm.Model
     public bool HasValidators { get; private set; }
 
     internal FieldAccessorProvider Accessors { get; private set; }
+
+    /// <summary>
+    /// Gets the direct implementors of this instance.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
+    [Obsolete("Use Implementors/RecursiveImplementors properties instead")]
+    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? RecursiveImplementors : Implementors;
+
+    /// <summary>
+    /// Gets the persistent interfaces this instance implements.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
+    [Obsolete("Use Interfaces/RecursiveInterfaces properties instead")]
+    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? RecursiveInterfaces : Interfaces;
+
+    /// <summary>
+    /// Gets descendants of this instance.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
+    /// <returns></returns>
+    [Obsolete("Use Descendants/RecursiveDescendants properties instead")]
+    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? RecursiveDescendants : Descendants;
 
     /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
