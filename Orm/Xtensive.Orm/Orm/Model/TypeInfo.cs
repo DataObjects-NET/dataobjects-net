@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public const int MinTypeId = 100;
 
-    private static readonly IReadOnlySet<TypeInfo> EmptyTypes = new HashSet<TypeInfo>();
+    private static readonly IReadOnlySet<TypeInfo> EmptyTypes = ImmutableHashSet<TypeInfo>.Empty;
 
     private readonly ColumnInfoCollection columns;
     private readonly FieldMap fieldMap;
