@@ -167,6 +167,90 @@ namespace Xtensive.Orm.Model
       return fullNameTable.TryGetValue(fullName, out result) ? result : null;
     }
 
+
+    /// <summary>
+    /// Finds the ancestor of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search ancestor for.</param>
+    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or 
+    /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Ancestor")]
+    public TypeInfo FindAncestor(TypeInfo item) => item.Ancestor;
+
+    /// <summary>
+    /// Finds the set of direct descendants of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search descendants for.</param>
+    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Descendants")]
+    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item) => item.Descendants;
+
+    /// <summary>
+    /// Finds the set of descendants of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search descendants for.</param>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
+    /// <returns>
+    ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Descendants/.RecursiveDescendants")]
+    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive) =>
+      recursive ? item.RecursiveDescendants : item.Descendants;
+
+    /// <summary>
+    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
+    /// </summary>
+    /// <param name="item">The type to search interfaces for.</param>
+    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Interfaces")]
+    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item) => item.Interfaces;
+
+    /// <summary>
+    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
+    /// </summary>
+    /// <param name="item">The type to search interfaces for.</param>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
+    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Interfaces/.RecursiveInterfaces")]
+    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive) =>
+      recursive ? item.RecursiveInterfaces : item.Interfaces;
+
+    /// <summary>
+    /// Finds the set of direct implementors of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search implementors for.</param>
+    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Implementors")]
+    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item) => item.Implementors;
+
+    /// <summary>
+    /// Finds the set of implementors of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search implementors for.</param>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested implementors will be returned.</param>
+    /// <returns>
+    ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.Implementors/.RecursiveImplementors")]
+    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive) =>
+      recursive ? item.RecursiveImplementors : item.Implementors;
+
+    /// <summary>
+    /// Finds the root of the specified <paramref name="item"/>.
+    /// </summary>
+    /// <param name="item">The type to search root for.</param>
+    /// <returns><see cref="TypeInfo"/> instance that is root of specified <paramref name="item"/>.</returns>
+    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
+    [Obsolete("Use TypeInfo.GetRoot()")]
+    public TypeInfo FindRoot(TypeInfo item) => item.GetRoot();
+
     /// <summary>
     /// Finds the ancestor of the specified <paramref name="type"/>.
     /// </summary>
