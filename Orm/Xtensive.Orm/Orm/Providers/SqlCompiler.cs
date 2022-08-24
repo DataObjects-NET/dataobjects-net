@@ -331,7 +331,7 @@ namespace Xtensive.Orm.Providers
     {
       var compiledSource = Compile(provider.Source);
 
-      var query = ExtractSqlSelect(provider, compiledSource);
+      var query = compiledSource.Request.Statement;
       query.Comment = SqlComment.Join(query.Comment, new SqlComment(provider.Tag));
       
       return CreateProvider(query, provider, compiledSource);
