@@ -67,7 +67,11 @@ namespace Xtensive.Orm.Model
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
 
-    public TypeInfo Ancestor { get; internal set; }
+    private TypeInfo ancestor;
+    public TypeInfo Ancestor {
+      get => ancestor;
+      internal set => ancestor = ancestor == null ? value : throw Exceptions.AlreadyInitialized(nameof(Ancestor));
+    }
 
     /// <summary>
     /// Gets the ancestors recursively. Inheritor-to-root order.
