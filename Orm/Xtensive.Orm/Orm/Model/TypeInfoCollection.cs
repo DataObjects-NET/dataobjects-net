@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Model
     /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Descendants")]
-    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item) => item.Descendants;
+    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item) => item.DirectDescendants;
 
     /// <summary>
     /// Finds the set of descendants of the specified <paramref name="item"/>.
@@ -198,7 +198,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Descendants/.RecursiveDescendants")]
     public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive) =>
-      recursive ? item.RecursiveDescendants : item.Descendants;
+      recursive ? item.AllDescendants : item.DirectDescendants;
 
     /// <summary>
     /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Model
     /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Interfaces")]
-    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item) => item.Interfaces;
+    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item) => item.DirectInterfaces;
 
     /// <summary>
     /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Interfaces/.RecursiveInterfaces")]
     public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive) =>
-      recursive ? item.RecursiveInterfaces : item.Interfaces;
+      recursive ? item.AllInterfaces : item.DirectInterfaces;
 
     /// <summary>
     /// Finds the set of direct implementors of the specified <paramref name="item"/>.
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Model
     /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Implementors")]
-    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item) => item.Implementors;
+    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item) => item.DirectImplementors;
 
     /// <summary>
     /// Finds the set of implementors of the specified <paramref name="item"/>.
@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     [Obsolete("Use TypeInfo.Implementors/.RecursiveImplementors")]
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive) =>
-      recursive ? item.RecursiveImplementors : item.Implementors;
+      recursive ? item.AllImplementors : item.DirectImplementors;
 
     /// <summary>
     /// Finds the root of the specified <paramref name="item"/>.

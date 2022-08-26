@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Builders
       var root = type.Hierarchy.Root;
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var ancestors = type.Ancestors;
-      var interfaces = type.Interfaces;
+      var interfaces = type.DirectInterfaces;
       
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
@@ -80,14 +80,14 @@ namespace Xtensive.Orm.Building.Builders
         }
 
       // Build indexes for descendants
-      foreach (var descendant in type.Descendants)
+      foreach (var descendant in type.DirectDescendants)
         BuildClassTableIndexes(descendant);
 
       // Import inherited indexes
       var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
       if (untypedIndexes.Contains(primaryIndex) && primaryIndex.ReflectedType == root)
         primaryIndex = type.Indexes.Single(i => i.DeclaringIndex == primaryIndex.DeclaringIndex && i.IsTyped);
-      var filterByTypes = type.RecursiveDescendants.Append(type).ToList();
+      var filterByTypes = type.AllDescendants.Append(type).ToList();
 
       // Build virtual primary index
       if (ancestors.Count > 0) {
