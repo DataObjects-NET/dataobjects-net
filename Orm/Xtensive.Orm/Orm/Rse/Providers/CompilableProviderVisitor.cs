@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
   /// </summary>
   [Serializable]
-  public class CompilableProviderVisitor : ProviderVisitor
+  public class CompilableProviderVisitor : ProviderVisitor<CompilableProvider>
   {
     protected Func<Provider, Expression, Expression> translate;
 
