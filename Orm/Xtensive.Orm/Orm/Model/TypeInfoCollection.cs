@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Model
     /// <param name="item">The type to search interfaces for.</param>
     /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    [Obsolete("Use TypeInfo.Interfaces")]
+    [Obsolete("Use TypeInfo.DirectInterfaces")]
     public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item) => item.DirectInterfaces;
 
     /// <summary>
