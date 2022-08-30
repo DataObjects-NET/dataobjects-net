@@ -280,19 +280,14 @@ namespace Xtensive.Orm.Model
     /// <returns><see cref="IEnumerable{TItem}"/> that contains all found instances.</returns>
     public IEnumerable<TypeInfo> Find(TypeAttributes criteria) => Find(criteria, MatchType.Partial);
 
-    public IEnumerable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
-    {
-      if (criteria == TypeAttributes.None)
-        return Array.Empty<TypeInfo>();
-      switch (matchType) {
-        case MatchType.Partial:
-          return this.Where(f => (f.Attributes & criteria) > 0);
-        case MatchType.Full:
-          return this.Where(f => (f.Attributes & criteria) == criteria);
-        default:
-          return this.Where(f => (f.Attributes & criteria) == 0);
-      }
-    }
+    public IEnumerable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType) =>
+      criteria == TypeAttributes.None
+        ? Array.Empty<TypeInfo>()
+        : matchType switch {
+          MatchType.Partial => this.Where(f => (f.Attributes & criteria) > 0),
+          MatchType.Full => this.Where(f => (f.Attributes & criteria) == criteria),
+          _ => this.Where(f => (f.Attributes & criteria) == 0)
+        };
 
     #endregion
 
