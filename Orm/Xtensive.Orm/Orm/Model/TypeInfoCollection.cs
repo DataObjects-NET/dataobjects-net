@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Model
     /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
     /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    [Obsolete("Use TypeInfo.Interfaces/.RecursiveInterfaces")]
+    [Obsolete("Use TypeInfo.DirectInterfaces/.AllInterfaces ")]
     public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive) =>
       recursive ? item.AllInterfaces : item.DirectInterfaces;
 
