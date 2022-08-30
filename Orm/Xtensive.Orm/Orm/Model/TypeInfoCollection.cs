@@ -248,8 +248,8 @@ namespace Xtensive.Orm.Model
     /// <param name="item">The type to search root for.</param>
     /// <returns><see cref="TypeInfo"/> instance that is root of specified <paramref name="item"/>.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    [Obsolete("Use TypeInfo.GetRoot()")]
-    public TypeInfo FindRoot(TypeInfo item) => item.GetRoot();
+    [Obsolete("Use TypeInfo.Root")]
+    public TypeInfo FindRoot(TypeInfo item) => item.Root;
 
     /// <summary>
     /// Finds the ancestor of the specified <paramref name="type"/>.
