@@ -651,14 +651,14 @@ namespace Xtensive.Orm.Model
     /// Gets the version field sequence.
     /// </summary>
     /// <returns>The version field sequence.</returns>
-    public IEnumerable<FieldInfo> GetVersionFields()
+    public IReadOnlyList<FieldInfo> GetVersionFields()
     {
       if (versionFields == null) {
-        var result = InnerGetVersionFields();
+        var result = InnerGetVersionFields().ToList();
         if (!IsLocked) {
           return result;
         }
-        versionFields = result.ToList();
+        versionFields = result;
       }
       return versionFields;
     }
@@ -684,14 +684,14 @@ namespace Xtensive.Orm.Model
     /// Gets the version columns.
     /// </summary>
     /// <returns>The version columns.</returns>
-    public IEnumerable<ColumnInfo> GetVersionColumns()
+    public IReadOnlyList<ColumnInfo> GetVersionColumns()
     {
       if (versionColumns == null) {
-        var result = InnerGetVersionColumns();
+        var result = InnerGetVersionColumns().ToList();
         if (!IsLocked) {
           return result;
         }
-        versionColumns = result.ToList();
+        versionColumns = result;
       }
       return versionColumns;
     }
