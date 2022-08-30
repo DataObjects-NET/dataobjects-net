@@ -623,14 +623,14 @@ namespace Xtensive.Orm.Model
     /// Gets the version columns.
     /// </summary>
     /// <returns>The version columns.</returns>
-    public IEnumerable<ColumnInfo> GetVersionColumns()
+    public IReadOnlyList<ColumnInfo> GetVersionColumns()
     {
       if (versionColumns == null) {
-        var result = InnerGetVersionColumns();
+        var result = InnerGetVersionColumns().ToList();
         if (!IsLocked) {
           return result;
         }
-        versionColumns = result.ToList();
+        versionColumns = result;
       }
       return versionColumns;
     }
@@ -855,7 +855,7 @@ namespace Xtensive.Orm.Model
     private void BuildVersionExtractor()
     {
       // Building version tuple extractor
-      var versionColumns = GetVersionColumns().ToList();
+      var versionColumns = GetVersionColumns();
       var versionColumnsCount = versionColumns?.Count ?? 0;
       if (versionColumns == null || versionColumnsCount == 0) {
         VersionExtractor = null;
