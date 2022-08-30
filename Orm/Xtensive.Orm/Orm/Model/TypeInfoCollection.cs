@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Model
     ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    [Obsolete("Use TypeInfo.Implementors/.RecursiveImplementors")]
+    [Obsolete("Use TypeInfo.DirectImplementors/.AllImplementors ")]
     public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive) =>
       recursive ? item.AllImplementors : item.DirectImplementors;
 
