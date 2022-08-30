@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Model
     ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.
     /// </returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    [Obsolete("Use TypeInfo.Descendants/.RecursiveDescendants")]
+    [Obsolete("Use TypeInfo.DirectDescendants/.AllDescendants")]
     public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive) =>
       recursive ? item.AllDescendants : item.DirectDescendants;
 
