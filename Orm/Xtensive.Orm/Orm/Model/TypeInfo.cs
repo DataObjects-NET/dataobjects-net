@@ -687,7 +687,10 @@ namespace Xtensive.Orm.Model
     public IReadOnlyList<ColumnInfo> GetVersionColumns()
     {
       if (versionColumns == null) {
-        var result = InnerGetVersionColumns().ToList();
+        var result = InnerGetVersionFields()
+          .SelectMany(f => f.Columns)
+          .OrderBy(c => c.Field.MappingInfo.Offset)
+          .ToList();
         if (!IsLocked) {
           return result;
         }
@@ -695,11 +698,6 @@ namespace Xtensive.Orm.Model
       }
       return versionColumns;
     }
-
-    private IEnumerable<ColumnInfo> InnerGetVersionColumns() =>
-      InnerGetVersionFields()
-        .SelectMany(f => f.Columns)
-        .OrderBy(c => c.Field.MappingInfo.Offset);
 
     /// <inheritdoc/>
     public override void UpdateState()
