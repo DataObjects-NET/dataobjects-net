@@ -938,7 +938,7 @@ namespace Xtensive.Orm.Model
     private void BuildVersionExtractor()
     {
       // Building version tuple extractor
-      var versionColumns = GetVersionColumns().ToList();
+      var versionColumns = GetVersionColumns();
       var versionColumnsCount = versionColumns?.Count ?? 0;
       if (versionColumns == null || versionColumnsCount == 0) {
         VersionExtractor = null;
