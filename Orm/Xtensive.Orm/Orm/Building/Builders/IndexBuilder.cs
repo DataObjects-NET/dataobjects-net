@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
           context.Model.RealIndexes.Add(index);
       }
 
-      var interfaces = @interface.GetInterfaces();
+      var interfaces = @interface.DirectInterfaces;
       foreach (var typeInfo in interfaces)
         CreateInterfaceIndexes(typeInfo, processedInterfaces);
 
@@ -100,11 +100,11 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildInterfaceIndexes()
     {
       foreach (var @interface in context.Model.Types.Find(TypeAttributes.Interface)) {
-        var implementors = @interface.GetImplementors(false).ToList();
+        var implementors = @interface.DirectImplementors;
 
         // Building primary indexes
-        if (implementors.Count==1) {
-          var primaryIndex = implementors[0].Indexes.PrimaryIndex;
+        if (implementors.Count == 1) {
+          var primaryIndex = implementors.First().Indexes.PrimaryIndex;
           var indexView = BuildViewIndex(@interface, primaryIndex);
           @interface.Indexes.Add(indexView);
         }
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Building.Builders
                       foreach (var foundField in foundFields)
                         interfaceFields.Remove(foundField);
                     }
-                    type = type.GetAncestor();
+                    type = type.Ancestor;
                   }
                   var filterByTypes = new List<TypeInfo>();
                   if (!implementor.IsAbstract)
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Building.Builders
               }
               case InheritanceSchema.ConcreteTable: {
                 var grouping = hierarchy;
-                var allImplementors = @interface.GetImplementors(true)
+                var allImplementors = @interface.AllImplementors
                   .Where(t => t.Hierarchy == grouping.Key && !t.IsAbstract)
                   .ToList();
                 var primaryIndexes = allImplementors
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Building.Builders
                   var filterByTypes = new List<TypeInfo>();
                   if (!implementor.IsAbstract)
                     filterByTypes.Add(implementor);
-                  var subHierarchyNodeCount = implementor.GetDescendants(true).Count() + filterByTypes.Count;
+                  var subHierarchyNodeCount = implementor.AllDescendants.Count() + filterByTypes.Count;
                   filterByTypes.AddRange(GatherDescendants(implementor, hierarchyImplementors));
                   if (filterByTypes.Count != subHierarchyNodeCount)
                     index = BuildFilterIndex(implementor, index, filterByTypes);
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Building.Builders
                 break;
               }
               case InheritanceSchema.ConcreteTable: {
-                var indexes = @interface.GetImplementors(true)
+                var indexes = @interface.AllImplementors
                   .Where(t => t.Hierarchy == grouping.Key)
                   .Select(t => (Index: t.Indexes.Single(i => i.DeclaringIndex == localIndex.DeclaringIndex && !i.IsVirtual), Type: t))
                   .Select(p => untypedIndexes.Contains(p.Index)
@@ -349,41 +349,31 @@ namespace Xtensive.Orm.Building.Builders
 
       // Adding value columns
       if (indexDef.IsPrimary) {
-        IEnumerable<TypeInfo> types;
-        if (typeInfo.IsInterface)
-          types = typeInfo.GetInterfaces().Union(new[] { typeInfo });
-        else {
-          var root = typeInfo.Hierarchy.Root;
-          var schema = typeInfo.Hierarchy.InheritanceSchema;
-          switch (schema) {
-            case InheritanceSchema.SingleTable:
-              types = new[] {typeInfo}.Union(root.GetDescendants(true));
-              break;
-            case InheritanceSchema.ConcreteTable:
-              types = typeInfo.GetAncestors().Union(new[] {typeInfo});
-              break;
-            default:
-              types = new[] {typeInfo};
-              break;
-          }
-        }
+        var typeInfoAsArray = new[] { typeInfo };
+        var types = typeInfo.IsInterface
+          ? typeInfo.DirectInterfaces.Union(typeInfoAsArray)
+          : typeInfo.Hierarchy.InheritanceSchema switch {
+            InheritanceSchema.SingleTable => typeInfoAsArray.Concat(typeInfo.Hierarchy.Root.AllDescendants.Except(typeInfoAsArray)), // Order does matter. typeInfo must be first.
+            InheritanceSchema.ConcreteTable => typeInfo.Ancestors.Union(typeInfoAsArray),
+            _ => typeInfoAsArray
+          };
 
-        var columns = new List<ColumnInfo>();
-        columns.AddRange(result.IncludedColumns);
-        columns.AddRange(types.SelectMany(t => t.Columns
-          .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
-          .Where(c => skipTypeId ? !(c.Field.IsTypeId && c.IsSystem) : true)));
+        var columns = result.IncludedColumns
+          .Concat(types.SelectMany(t => t.Columns
+            .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
+            .Where(c => !skipTypeId || !(c.Field.IsTypeId && c.IsSystem)))
+          );
 
         // There might be difference in columns order of type and columns list
         // so we have to reorder them in correct sequence.
         if (typeInfo.IsInterface) {
-          var indexedColumns = columns.Select((column, i) => (i, j: typeInfo.Columns.IndexOf(column), column)).ToList();
+          var indexedColumns = columns.Select((column, i) => (i, j: typeInfo.Columns.IndexOf(column), column));
           var orderedColumns = indexedColumns.OrderBy(el => el.j).Select(el => el.column).Distinct();
           result.ValueColumns.AddRange(GatherValueColumns(orderedColumns));
         }
-        else 
+        else {
           result.ValueColumns.AddRange(GatherValueColumns(columns));
-        
+        }
       }
       else {
         foreach (var column in typeInfo.Columns.Where(c => c.IsPrimaryKey)) {
@@ -590,11 +580,11 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Adding value columns
-      var typeOrder = reflectedType.GetAncestors()
+      var typeOrder = reflectedType.Ancestors
         .Append(reflectedType)
         .Select((t, i) => (Type: t, Index: i))
         .ToDictionary(a => a.Type, a => a.Index);
-      var types = reflectedType.GetAncestors().ToHashSet();
+      var types = reflectedType.Ancestors.ToHashSet();
       types.Add(reflectedType);
 
       var valueColumnMap = new List<List<int>>();
@@ -617,7 +607,7 @@ namespace Xtensive.Orm.Building.Builders
                 skip = ancestorField.IsDeclared;
               if (skip)
                 break;
-              ancestor = ancestor.GetAncestor();
+              ancestor = ancestor.Ancestor;
             }
             if (skip)
               continue;
@@ -709,10 +699,10 @@ namespace Xtensive.Orm.Building.Builders
 
       // Adding value columns
       var types = (reflectedType.IsInterface
-        ? indexToApplyView.ReflectedType.GetAncestors().Append(indexToApplyView.ReflectedType)
-        : reflectedType.GetAncestors().Append(reflectedType)).ToHashSet();
+        ? indexToApplyView.ReflectedType.Ancestors.Append(indexToApplyView.ReflectedType)
+        : reflectedType.Ancestors.Append(reflectedType)).ToHashSet();
       var interfaces = (reflectedType.IsInterface
-        ? reflectedType.GetInterfaces(true).Append(reflectedType)
+        ? reflectedType.AllInterfaces.Append(reflectedType)
         : Enumerable.Empty<TypeInfo>()).ToHashSet();
 
       var indexReflectedType = indexToApplyView.ReflectedType;
@@ -747,7 +737,7 @@ namespace Xtensive.Orm.Building.Builders
                 skip = ancestorField.IsDeclared;
               if (skip)
                 break;
-              ancestor = ancestor.GetAncestor();
+              ancestor = ancestor.Ancestor;
             }
             if (skip)
               continue;
@@ -784,7 +774,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static IEnumerable<TypeInfo> GatherDescendants(TypeInfo type, ICollection<TypeInfo> hierarchyImplementors)
     {
-      return type.GetDescendants(true).Where(t => !t.IsAbstract).Except(hierarchyImplementors);
+      return type.AllDescendants.Where(t => !t.IsAbstract).Except(hierarchyImplementors);
     }
 
     private IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
@@ -898,7 +888,7 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildAffectedIndexesForMaterializedInterface(TypeInfo typeInfo)
     {
       var primaryIndex = typeInfo.Indexes.PrimaryIndex;
-      foreach (var descendant in typeInfo.GetDescendants(true).Where(t => t.IsEntity).Distinct()) {
+      foreach (var descendant in typeInfo.AllDescendants.Where(t => t.IsEntity).Distinct()) {
         descendant.AffectedIndexes.Add(primaryIndex);
         foreach (var indexInfo in typeInfo.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           var descendantIndex = descendant.Indexes.Where(i => i.DeclaringIndex==indexInfo.DeclaringIndex).FirstOrDefault();
@@ -918,25 +908,21 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ProcessAncestors(TypeInfo typeInfo, Action<TypeInfo> ancestorProcessor)
     {
-      
       var root = typeInfo.Hierarchy.Root;
-      if (root==typeInfo)
+      if (root == typeInfo) {
         return;
-      var ancestor = context.Model.Types.FindAncestor(typeInfo);
-      if (ancestor==null)
-        return;
-      do {
+      }
+      foreach (var ancestor in typeInfo.AncestorChain) {
         ancestorProcessor.Invoke(ancestor);
-        if (ancestor==root)
+        if (ancestor == root) {
           break;
-        ancestor = context.Model.Types.FindAncestor(ancestor);
-      } while (ancestor!=null);
+        }
+      }
     }
 
     private void BuildFiltersForPartialIndexes()
     {
-      
-      foreach (var index in context.Model.RealIndexes.Where(index => index.FilterExpression!=null))
+      foreach (var index in context.Model.RealIndexes.Where(index => index.FilterExpression != null))
         PartialIndexFilterBuilder.BuildFilter(index);
     }
 
