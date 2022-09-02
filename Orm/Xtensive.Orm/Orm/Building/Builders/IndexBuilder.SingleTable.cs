@@ -12,14 +12,13 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  partial class IndexBuilder
+  internal partial class IndexBuilder
   {
     private void BuildSingleTableIndexes(TypeInfo type)
     {
-      if (type.Indexes.Count > 0)
+      if (type.Indexes.Count > 0 || type.IsStructure) {
         return;
-      if (type.IsStructure)
-        return;
+      }
 
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
@@ -33,52 +32,60 @@ namespace Xtensive.Orm.Building.Builders
         // and if they have some indexes then IndexDef.IsInherited of them will be true and it's truth actually,
         // but fields inherited from removed entities will have FieldInfo.IsInherited = false.
         // So, if we check only IndexDef.IsInherited then some indexes will be ignored.
-        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf => type.Fields[kf.Key]).Any(f => f.IsInherited))
+        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf => type.Fields[kf.Key]).Any(f => f.IsInherited)) {
           continue;
+        }
+
         var declaredIndex = BuildIndex(type, indexDescriptor, false);
         root.Indexes.Add(declaredIndex);
         context.Model.RealIndexes.Add(declaredIndex);
       }
 
-      var parent = type.GetAncestor();
+      var parent = type.Ancestor;
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.GetInterfaces()) {
-        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-          if (root.Indexes.Any(i => i.DeclaringIndex == interfaceIndex.DeclaringIndex && i.ReflectedType == type))
+      foreach (var @interface in type.DirectInterfaces) {
+        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+          if (root.Indexes.Any(i => i.DeclaringIndex == interfaceIndex.DeclaringIndex && i.ReflectedType == type)) {
             continue;
+          }
+
           var index = BuildInheritedIndex(type, interfaceIndex, false);
           root.Indexes.Add(index);
           context.Model.RealIndexes.Add(index);
         }
       }
 
-      var types = type.GetAncestors().ToHashSet();
-      types.Add(type);
+      var types = type.Ancestors.ToHashSet();
+      _ = types.Add(type);
 
       // Build typed indexes
-      foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {
-        if (!types.Contains(realIndex.ReflectedType))
+      foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real).ToChainedBuffer()) {
+        if (!types.Contains(realIndex.ReflectedType)) {
           continue;
-        if (!untypedIndexes.Contains(realIndex))
+        }
+        if (!untypedIndexes.Contains(realIndex)) {
           continue;
-        if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.ReflectedType == type && i.IsTyped))
+        }
+        if (root.Indexes.Any(i => i.DeclaringIndex == realIndex.DeclaringIndex && i.ReflectedType == type && i.IsTyped)) {
           continue;
+        }
         var typedIndex = BuildTypedIndex(type, realIndex);
         root.Indexes.Add(typedIndex);
       }
 
       // Build indexes for descendants
-      var directDescendants = type.GetDescendants().ToList();
-      foreach (var descendant in directDescendants)
+      foreach (var descendant in type.DirectDescendants) {
         BuildSingleTableIndexes(descendant);
+      }
 
-      if (type == root) return;
-      var descendants = type.GetDescendants(true).ToList();
+      if (type == root) {
+        return;
+      }
+      var descendants = type.AllDescendants;
 
-      var primaryIndexFilterTypes = new List<TypeInfo>();
-      if (!type.IsAbstract)
-        primaryIndexFilterTypes.Add(type);
-      primaryIndexFilterTypes.AddRange(descendants);
+      var primaryIndexFilterTypes = !type.IsAbstract
+        ? descendants.Prepend(type)
+        : descendants;
       
       // Import inherited indexes
       var ancestorIndexes = root.Indexes
@@ -87,19 +94,22 @@ namespace Xtensive.Orm.Building.Builders
         .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
           : i)
-        .ToList();
+        .ToChainedBuffer();
       foreach (var ancestorIndex in ancestorIndexes) {
         if (type.Indexes.Any(i => 
             i.DeclaringIndex == ancestorIndex.DeclaringIndex &&
             i.ReflectedType == type && 
-            i.IsVirtual))
+            i.IsVirtual)) {
           continue;
+        }
+
         if (ancestorIndex.DeclaringType.IsInterface) {
           var filteredDescendants = descendants
-            .Where(t => !t.IsAbstract && !t.GetInterfaces().Contains(ancestorIndex.DeclaringType));
+            .Where(t => !t.IsAbstract && !t.DirectInterfaces.Contains(ancestorIndex.DeclaringType));
           var filterByTypes = new List<TypeInfo>();
-          if (!type.IsAbstract)
+          if (!type.IsAbstract) {
             filterByTypes.Add(type);
+          }
           filterByTypes.AddRange(filterByTypes);
           var filterIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
           var indexView = BuildViewIndex(type, filterIndex);

@@ -23,10 +23,8 @@ namespace Xtensive.Orm.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type)
     {
-      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
-      candidates.UnionWith(type.GetInterfaces(true));
-      candidates.Add(type);
-      return this.Where(a => (candidates.Contains(a.TargetType) || candidates.Contains(a.OwnerType)));
+      var candidates = type.TypeWithAncestorsAndInterfaces;
+      return this.Where(a => candidates.Contains(a.TargetType) || candidates.Contains(a.OwnerType));
     }
 
     /// <summary>
@@ -37,12 +35,12 @@ namespace Xtensive.Orm.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type, bool target)
     {
-      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
-      candidates.UnionWith(type.GetInterfaces(true));
-      candidates.Add(type);
+      var candidates = type.TypeWithAncestorsAndInterfaces;
 
-      var filter = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
-      return this.Where(a => candidates.Contains(filter(a)));
+      Func<AssociationInfo, bool> filter = target
+        ? a => candidates.Contains(a.TargetType)
+        : a => candidates.Contains(a.OwnerType);
+      return this.Where(filter);
     }
 
 
