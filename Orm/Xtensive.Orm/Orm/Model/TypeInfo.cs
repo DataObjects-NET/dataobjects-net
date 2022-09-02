@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
@@ -66,7 +67,42 @@ namespace Xtensive.Orm.Model
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
 
-    public TypeInfo Ancestor { get; internal set; }
+    private TypeInfo ancestor;
+
+    private IReadOnlyList<TypeInfo> ancestors;
+
+    private HashSet<TypeInfo> directDescendants;
+    private IReadOnlySet<TypeInfo> allDescendants;
+    private HashSet<TypeInfo> directInterfaces;
+    private IReadOnlyList<TypeInfo> allInterfaces;
+    private HashSet<TypeInfo> directImplementors;
+    private IReadOnlyList<TypeInfo> allImplementors;
+
+    #region Hierarchical structure properties
+
+    /// <summary>
+    /// Gets the ancestor.
+    /// </summary>
+    public TypeInfo Ancestor
+    {
+      get { return ancestor; }
+      internal set {
+        if (ancestor != null)
+          throw Exceptions.AlreadyInitialized(nameof(Ancestor));
+        ancestor = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets the root of the hierarchy.
+    /// </summary>
+    [CanBeNull]
+    public TypeInfo Root =>
+      IsInterface || IsStructure
+        ? null
+        : IsLocked
+          ? Hierarchy.Root
+          : Ancestors.FirstOrDefault() ?? this;
 
     /// <summary>
     /// Gets the ancestors recursively. Inheritor-to-root order.
@@ -81,100 +117,62 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    private IReadOnlyList<TypeInfo> ancestors;
-
     /// <summary>
     /// Gets the ancestors recursively. Root-to-inheritor order. Reverse of AncestorChain.
     /// </summary>
     /// <returns>The ancestor</returns>
     public IReadOnlyList<TypeInfo> Ancestors => ancestors ??= AncestorChain.Reverse().ToList();
 
-    private HashSet<TypeInfo> descendants;
-    public IReadOnlySet<TypeInfo> Descendants => descendants ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectDescendants => directDescendants ?? EmptyTypes;
 
-    private IReadOnlySet<TypeInfo> recursiveDescendants;
-    public IReadOnlySet<TypeInfo> RecursiveDescendants
+    public IReadOnlySet<TypeInfo> AllDescendants
     {
       get {
-        if (recursiveDescendants == null) {
-          if (Descendants.Count == 0) {
-            recursiveDescendants = Descendants;
+        if (allDescendants == null) {
+          if (DirectDescendants.Count == 0) {
+            allDescendants = DirectDescendants;
           }
           else {
-            var set = new HashSet<TypeInfo>(Descendants);
-            set.UnionWith(Descendants.SelectMany(static o => o.RecursiveDescendants));
-            recursiveDescendants = set;
+            var set = new HashSet<TypeInfo>(DirectDescendants);
+            set.UnionWith(DirectDescendants.SelectMany(static o => o.AllDescendants));
+            allDescendants = set;
           }
         }
-        return recursiveDescendants;
+        return allDescendants;
       }
     }
 
-    private HashSet<TypeInfo> interfaces;
-    public IReadOnlySet<TypeInfo> Interfaces => interfaces ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectInterfaces => directInterfaces ?? EmptyTypes;
 
-    private IReadOnlyList<TypeInfo> recursiveInterfaces;
-    public IReadOnlyList<TypeInfo> RecursiveInterfaces =>
-      recursiveInterfaces ??= (IsInterface ? Interfaces : Interfaces.Concat(AncestorChain.SelectMany(static o => o.Interfaces))).ToList();
-
-    private HashSet<TypeInfo> implementors;
+    public IReadOnlyList<TypeInfo> AllInterfaces =>
+      allInterfaces ??= (IsInterface ? DirectInterfaces : DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces))).ToList();
 
     /// <summary>
     /// Gets the direct implementors of this instance.
     /// </summary>
-    public IReadOnlySet<TypeInfo> Implementors => implementors ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectImplementors => directImplementors ?? EmptyTypes;
 
-    private IReadOnlyList<TypeInfo> recursiveImplementors;
-    public IReadOnlyList<TypeInfo> RecursiveImplementors
+    public IReadOnlyList<TypeInfo> AllImplementors
     {
       get {
-        if (recursiveImplementors == null) {
-          if (Implementors.Count == 0) {
-            recursiveImplementors = Array.Empty<TypeInfo>();
+        if (allImplementors == null) {
+          if (DirectImplementors.Count == 0) {
+            allImplementors = Array.Empty<TypeInfo>();
           }
           else {
-            var list = new List<TypeInfo>(Implementors.Count);
-            foreach (var item in Implementors) {
+            var list = new List<TypeInfo>(DirectImplementors.Count);
+            foreach (var item in DirectImplementors) {
               list.Add(item);
               if (!item.IsInterface) {
-                list.AddRange(item.RecursiveDescendants);
+                list.AddRange(item.AllDescendants);
               }
             }
-            recursiveImplementors = list;
+            allImplementors = list;
           }
         }
-        return recursiveImplementors;
+        return allImplementors;
       }
     }
-
-    /// <summary>
-    /// Gets the direct implementors of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
-    [Obsolete("Use Implementors/RecursiveImplementors properties instead")]
-    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? RecursiveImplementors : Implementors;
-
-    /// <summary>
-    /// Gets the persistent interfaces this instance implements.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
-    [Obsolete("Use Interfaces/RecursiveInterfaces properties instead")]
-    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? RecursiveInterfaces : Interfaces;
-
-    /// <summary>
-    /// Gets descendants of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
-    /// <returns></returns>
-    [Obsolete("Use Descendants/RecursiveDescendants properties instead")]
-    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? RecursiveDescendants : Descendants;
-
-    /// <summary>
-    /// Gets the ancestors recursively. Root-to-inheritor order.
-    /// </summary>
-    /// <returns>The ancestor</returns>
-    [Obsolete("Use Ancestors property instead")]
-    public IReadOnlyList<TypeInfo> GetAncestors() => Ancestors;
 
     private IReadOnlySet<TypeInfo> typeWithAncestorsAndInterfaces;
     public IReadOnlySet<TypeInfo> TypeWithAncestorsAndInterfaces
@@ -182,13 +180,15 @@ namespace Xtensive.Orm.Model
       get {
         if (typeWithAncestorsAndInterfaces == null) {
           var candidates = new HashSet<TypeInfo>(Ancestors);
-          candidates.UnionWith(RecursiveInterfaces);
+          candidates.UnionWith(AllInterfaces);
           candidates.Add(this);
           typeWithAncestorsAndInterfaces = candidates;
         }
         return typeWithAncestorsAndInterfaces;
       }
     }
+
+    #endregion
 
     #region IsXxx properties
 
@@ -543,12 +543,42 @@ namespace Xtensive.Orm.Model
     }
 
 
+    /// <summary>
+    /// Gets the direct implementors of this instance.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
+    [Obsolete("Use DirectImplementors/AllImplementors properties instead")]
+    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? AllImplementors : DirectImplementors;
+
+    /// <summary>
+    /// Gets the persistent interfaces this instance implements.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
+    [Obsolete("Use DirectInterfaces/AllInterfaces properties instead")]
+    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? AllInterfaces : DirectInterfaces;
+
+    /// <summary>
+    /// Gets descendants of this instance.
+    /// </summary>
+    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
+    /// <returns></returns>
+    [Obsolete("Use DirectDescendants/AllDescendants properties instead")]
+    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? AllDescendants : DirectDescendants;
+
+    /// <summary>
+    /// Gets the ancestors recursively. Root-to-inheritor order.
+    /// </summary>
+    /// <returns>The ancestor</returns>
+    [Obsolete("Use Ancestors property instead")]
+    public IReadOnlyList<TypeInfo> GetAncestors() => Ancestors.ToList();
+
+    /// <summary>
+    /// Gets the root of the hierarchy.
     /// </summary>
     /// <returns>The hierarchy root.</returns>
-    public TypeInfo GetRoot() =>
-      IsInterface || IsStructure
-        ? null
-        : (Ancestors.FirstOrDefault() ?? this);
+    [Obsolete("Use Root property instead")]
+    [CanBeNull]
+    public TypeInfo GetRoot() => Root;
 
     public IEnumerable<AssociationInfo> GetTargetAssociations()
     {
@@ -590,14 +620,14 @@ namespace Xtensive.Orm.Model
     /// Gets the version field sequence.
     /// </summary>
     /// <returns>The version field sequence.</returns>
-    public IEnumerable<FieldInfo> GetVersionFields()
+    public IReadOnlyList<FieldInfo> GetVersionFields()
     {
       if (versionFields == null) {
-        var result = InnerGetVersionFields();
+        var result = InnerGetVersionFields().ToList();
         if (!IsLocked) {
           return result;
         }
-        versionFields = result.ToList();
+        versionFields = result.AsReadOnly();
       }
       return versionFields;
     }
@@ -623,22 +653,20 @@ namespace Xtensive.Orm.Model
     /// Gets the version columns.
     /// </summary>
     /// <returns>The version columns.</returns>
-    public IEnumerable<ColumnInfo> GetVersionColumns()
+    public IReadOnlyList<ColumnInfo> GetVersionColumns()
     {
       if (versionColumns == null) {
-        var result = InnerGetVersionColumns();
+        var result = InnerGetVersionFields()
+          .SelectMany(f => f.Columns)
+          .OrderBy(c => c.Field.MappingInfo.Offset)
+          .ToList();
         if (!IsLocked) {
           return result;
         }
-        versionColumns = result.ToList();
+        versionColumns = result.AsReadOnly();
       }
       return versionColumns;
     }
-
-    private IEnumerable<ColumnInfo> InnerGetVersionColumns() =>
-      InnerGetVersionFields()
-        .SelectMany(f => f.Columns)
-        .OrderBy(c => c.Field.MappingInfo.Offset);
 
     /// <inheritdoc/>
     public override void UpdateState()
@@ -679,7 +707,7 @@ namespace Xtensive.Orm.Model
         // Collect mapping information from the first implementor (if any)
         // We'll check that all implementors are mapped to the same database later.
         // MappingSchema is not important: it's copied for consistency.
-        var firstImplementor = Implementors.FirstOrDefault();
+        var firstImplementor = DirectImplementors.FirstOrDefault();
         if (firstImplementor != null) {
           MappingDatabase = firstImplementor.MappingDatabase;
           MappingSchema = firstImplementor.MappingSchema;
@@ -785,11 +813,11 @@ namespace Xtensive.Orm.Model
 
     private KeyInfo GetKey() =>
       Hierarchy != null ? Hierarchy.Key
-        : IsInterface ? Implementors.First().Hierarchy.Key
+        : IsInterface ? DirectImplementors.First().Hierarchy.Key
         : null;
 
     private bool GetIsLeaf() =>
-      IsEntity && Descendants.Count == 0;
+      IsEntity && DirectDescendants.Count == 0;
 
     private void CreateTupleDescriptor()
     {
@@ -888,13 +916,13 @@ namespace Xtensive.Orm.Model
     }
 
     internal void AddDescendant(TypeInfo descendant) =>
-         (descendants ??= new()).Add(descendant);
+      (directDescendants ??= new()).Add(descendant);
 
     internal void AddInterface(TypeInfo iface) =>
-      (interfaces ??= new()).Add(iface);
+      (directInterfaces ??= new()).Add(iface);
 
     internal void AddImplementor(TypeInfo implementor) =>
-      (implementors ??= new()).Add(implementor);
+      (directImplementors ??= new()).Add(implementor);
 
     // Constructors
 

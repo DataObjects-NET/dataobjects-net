@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       var realType = state.Key.TypeInfo;
       Assert.IsTrue(realType.Equals(type) 
         || realType.Ancestors.Contains(type) 
-        || (type.IsInterface && realType.RecursiveInterfaces.Contains(type)));
+        || (type.IsInterface && realType.AllInterfaces.Contains(type)));
       var tuple = state.Tuple;
       Assert.IsNotNull(tuple);
       foreach (var field in type.Fields) {

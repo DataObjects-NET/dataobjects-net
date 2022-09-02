@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Providers
       var atRootPolicy = false;
 
       if (table==null) {
-        table = Mapping[index.ReflectedType.GetRoot()];
+        table = Mapping[index.ReflectedType.Root];
         atRootPolicy = true;
       }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Providers
         }
       }
       else {
-        var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
+        var root = index.ReflectedType.Root.AffectedIndexes.First(i => i.IsPrimary);
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
         foreach (var c in indexColumns) {
           queryColumns.Add(tableRef[lookup[c.Field]]);

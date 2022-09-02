@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.RecursiveInterfaces) {
+      foreach (var @interface in type.AllInterfaces) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex != parentIndex) 
             continue;
@@ -75,11 +75,11 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build indexes for descendants
-      foreach (var descendant in type.Descendants)
+      foreach (var descendant in type.DirectDescendants)
         BuildConcreteTableIndexes(descendant);
 
       var ancestors = type.Ancestors;
-      var descendants = type.RecursiveDescendants;
+      var descendants = type.AllDescendants;
 
       // Build primary virtual union index
       if (descendants.Count > 0) {
