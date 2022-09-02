@@ -38,37 +38,29 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get {
-        return IsLocked 
+        return IsLocked
           ? realPrimaryIndexes
           : FindRealPrimaryIndexes(PrimaryIndex).AsSafeWrapper();
       }
     }
 
-    public IndexInfo FindFirst(IndexAttributes indexAttributes)
-    {
-      var result = Find(indexAttributes);
-      if (result.Any()) {
-        var enumerator = result.GetEnumerator();
-        enumerator.MoveNext();
-        return enumerator.Current;
-      }
-      return null;
-    }
+    public IndexInfo FindFirst(IndexAttributes indexAttributes) =>
+      Find(indexAttributes).FirstOrDefault();
 
     [DebuggerStepThrough]
     public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
     {
-      var names = new List<string> {fieldName};
-      names.AddRange(fieldNames);
+      var names = (fieldNames ?? Array.Empty<string>()).Prepend(fieldName);
 
       var fields = new List<FieldInfo>();
       foreach (var name in names) {
-        FieldInfo field;
-        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out field))
+        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out var field)) {
           fields.Add(field);
+        }
       }
-      if (fields.Count==0)
+      if (fields.Count == 0) {
         return null;
+      }
 
       return GetIndex(fields);
     }
@@ -135,7 +127,7 @@ namespace Xtensive.Orm.Model
       var result = new List<IndexInfo>(Count);
       var virtualIndexes = this.Where(index => index.IsVirtual);
       result.AddRange(virtualIndexes);
-      var realIndexes = from index in this where !index.IsVirtual 
+      var realIndexes = from index in this where !index.IsVirtual
                           && (index.Attributes & IndexAttributes.Abstract) == 0
                           && result.Count(virtualIndex => virtualIndex.UnderlyingIndexes.Contains(index)) == 0
                         select index;

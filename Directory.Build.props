@@ -39,18 +39,7 @@
 
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
-  </PropertyGroup>
-
-  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
-    <!-- hard binding to net6, no property and env variable allowed -->
     <TargetFrameworks>net6.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <!-- Debug-NET5, Release-NET5 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET5')) == 'true'">
-    <!-- hard binding to net5, no property and env variable allowed-->
-    <TargetFrameworks>net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
@@ -58,11 +47,13 @@
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0;net5.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
+   <DebugSymbols>true</DebugSymbols>
+   <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true'">

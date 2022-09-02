@@ -68,16 +68,16 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// 	Initializes a new instance of this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="root">The hierarchy root.</param>
     /// <param name="key">The key info.</param>
     /// <param name="inheritanceSchema">The inheritance schema.</param>
     /// <param name="typeDiscriminatorMap">The type discriminator map.</param>
     public HierarchyInfo(
-      TypeInfo root, 
-      KeyInfo key, 
-      InheritanceSchema inheritanceSchema, 
+      TypeInfo root,
+      KeyInfo key,
+      InheritanceSchema inheritanceSchema,
       TypeDiscriminatorMap typeDiscriminatorMap)
     {
       Root = root;

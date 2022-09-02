@@ -21,33 +21,22 @@ namespace Xtensive.Orm.Model
   {
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
-    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria)
-    {
-      return Find(criteria, MatchType.Partial);
-    }
+    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria) => Find(criteria, MatchType.Partial);
 
-    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
-    {
-      // We don't have any instance that has attributes == FieldAttributes.None
-      if (criteria == ColumnAttributes.None)
-        return Array.Empty<ColumnInfo>();
-
-      switch (matchType) {
-        case MatchType.Partial:
-          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
-        case MatchType.Full:
-          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
-        case MatchType.None:
-        default:
-          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
-      }
-    }
+    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType) =>
+      criteria == ColumnAttributes.None
+        ? Array.Empty<ColumnInfo>()   // We don't have any instance that has attributes == FieldAttributes.None
+        : matchType switch {
+          MatchType.Partial => this.Where(f => (f.Attributes & criteria) > 0),
+          MatchType.Full => this.Where(f => (f.Attributes & criteria) == criteria),
+          _ => this.Where(f => (f.Attributes & criteria) == 0)
+        };
 
     #endregion
 
-    
+
     // Constructors
-    
+
     /// <inheritdoc/>
     public ColumnInfoCollection(Node owner, string name)
       : base(owner, name, new Dictionary<string, ColumnInfo>(StringComparer.OrdinalIgnoreCase))

@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Linq
 
         var typeInfos = type.AllDescendants.ToHashSet();
         typeInfos.UnionWith(type.AllImplementors);
-        typeInfos.Add(type);
+        _ = typeInfos.Add(type);
         Expression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
 
         // Cast 'o.TypeId' to TypeInfo to be compatible with TypeInfo literals
@@ -511,7 +511,7 @@ namespace Xtensive.Orm.Linq
               return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           }
         }
-            
+
 
         // Process local collections
         if (mc.Object.IsLocalCollection(context)) {
