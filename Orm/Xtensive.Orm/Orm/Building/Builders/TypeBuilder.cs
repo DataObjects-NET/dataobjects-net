@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Building.Builders
           MappingName = typeDef.MappingName,
           MappingDatabase = typeDef.MappingDatabase,
           MappingSchema = typeDef.MappingSchema,
-          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof(IHasVersionRoots)),
+          HasVersionRoots = typeDef.UnderlyingType.GetInterfacesOrderByInheritance().Any(type => type == typeof(IHasVersionRoots)),
           Validators = validators,
         };
 

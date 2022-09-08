@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Reflection
 {
@@ -37,26 +38,24 @@ namespace Xtensive.Reflection
 
     private static Type FindIEnumerable(Type sequenceType)
     {
-      if (sequenceType == null || sequenceType == WellKnownTypes.String)
+      if (sequenceType == null || sequenceType == WellKnownTypes.String) {
         return null;
-      if (sequenceType.IsArray)
+      }
+      if (sequenceType.IsArray) {
         return WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(sequenceType.GetElementType());
-      if (sequenceType.IsGenericType)
+      }
+      if (sequenceType.IsGenericType) {
         foreach (Type arg in sequenceType.GetGenericArguments()) {
           Type enumerable = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(arg);
           if (enumerable.IsAssignableFrom(sequenceType))
             return enumerable;
         }
-      Type[] interfaces = sequenceType.GetInterfaces();
-      if (interfaces != null && interfaces.Length > 0)
-        foreach (Type @interface in interfaces) {
-          Type enumerable = FindIEnumerable(@interface);
-          if (enumerable != null)
-            return enumerable;
-        }
-      if (sequenceType.BaseType != null && sequenceType.BaseType != WellKnownTypes.Object)
-        return FindIEnumerable(sequenceType.BaseType);
-      return null;
+      }
+      return sequenceType.GetInterfacesOrderByInheritance().Select(FindIEnumerable).FirstOrDefault(o => o != null)
+        ?? (sequenceType.BaseType switch {
+          null => null,
+          var baseType => baseType == WellKnownTypes.Object ? null : FindIEnumerable(baseType)
+        });
     }
   }
 }

@@ -170,8 +170,9 @@ namespace Xtensive.Reflection
       if (member is MethodInfo mi) {
         var iType = mi.DeclaringType.UnderlyingSystemType;
         var map = implementor.GetInterfaceMapFast(iType);
-        for (var i = 0; i < map.InterfaceMethods.Count; i++) {
-          if (mi == map.InterfaceMethods[i]) {
+        var mapInterfaceMethods = map.InterfaceMethods;
+        for (int i = 0, count = mapInterfaceMethods.Count; i < count; i++) {
+          if (mi == mapInterfaceMethods[i]) {
             return map.TargetMethods[i];
           }
         }
@@ -209,17 +210,18 @@ namespace Xtensive.Reflection
         var type = mi.DeclaringType.UnderlyingSystemType;
         var methodInfoType = mi.GetType();
         var isRuntimeMethodInfo = methodInfoType.FullName == WellKnown.RuntimeMethodInfoName;
-        foreach (var iType in type.GetInterfaces()) {
+        foreach (var iType in type.GetInterfacesOrderByInheritance()) {
           var map = type.GetInterfaceMapFast(iType.UnderlyingSystemType);
-          for (var i = 0; i < map.InterfaceMethods.Count; i++) {
+          var mapInterfaceMethods = map.InterfaceMethods;
+          for (int i = 0, count = mapInterfaceMethods.Count; i < count; i++) {
             var tmi = map.TargetMethods[i];
             if (mi == tmi) {
-              return map.InterfaceMethods[i];
+              return mapInterfaceMethods[i];
             }
             var targetMethodInfoType = tmi.GetType();
             if (isRuntimeMethodInfo && methodInfoType == targetMethodInfoType &&
                 mi.MethodHandle.Value == tmi.MethodHandle.Value) {
-              return map.InterfaceMethods[i];
+              return mapInterfaceMethods[i];
             }
           }
         }

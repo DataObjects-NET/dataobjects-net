@@ -56,7 +56,7 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
       new(new TypesEqualityComparer());
 
-    private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
+    private static readonly ConcurrentDictionary<Type, IReadOnlyList<Type>> OrderedInterfaces = new();
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
 
@@ -722,15 +722,14 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
     [Obsolete("Use GetInterfacesOrderByInheritance instead")]
-    public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
+    public static IReadOnlyList<Type> GetInterfaces(this Type type) => GetInterfacesOrderByInheritance(type);
 
     /// <summary>
     /// Gets the interfaces of the specified type.
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
+    public static IReadOnlyList<Type> GetInterfacesOrderByInheritance(this Type type) =>
       OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
@@ -742,7 +741,7 @@ namespace Xtensive.Reflection
     public static Type[] GetCompatibles(this Type type) =>
       OrderedCompatibles.GetOrAdd(type,
         t => {
-          var interfaces = t.GetInterfaces();
+          var interfaces = t.GetInterfacesOrderByInheritance();
           var bases = EnumerableUtils.Unfold(t.BaseType, baseType => baseType.BaseType);
           return bases
             .Concat(interfaces)
@@ -1014,7 +1013,7 @@ namespace Xtensive.Reflection
       }
 
       // We don't use LINQ as we don't want to create a closure here
-      foreach (var implementedInterface in type.GetInterfaces()) {
+      foreach (var implementedInterface in type.GetInterfacesOrderByInheritance()) {
         if ((implementedInterface.MetadataToken ^ metadataToken) == 0
           && ReferenceEquals(implementedInterface.Module, module)) {
           return implementedInterface;
