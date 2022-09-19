@@ -131,14 +131,9 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
         private void TestSort<T>(T[] data, Predicate<T, T> connector, T[] expected, T[] loops)
         {
-            List<Node<T, object>> actualLoopNodes;
-            List<T> actual = TopologicalSorter.Sort(data, connector, out actualLoopNodes).ToList();
-            T[] actualLoops = null;
-            if (actualLoopNodes != null)
-                actualLoops = actualLoopNodes
-                    .Where(n => n.OutgoingConnectionCount != 0)
-                    .Select(n => n.Item)
-                    .ToArray();
+            var (sorted, cycles) = TopologicalSorter.SortWithCycles(data, connector);
+            var actual = sorted.ToList();
+            T[] actualLoops = cycles?.ToArray();
 
             AssertEx.HasSameElements(expected, actual);
             AssertEx.HasSameElements(loops, actualLoops);

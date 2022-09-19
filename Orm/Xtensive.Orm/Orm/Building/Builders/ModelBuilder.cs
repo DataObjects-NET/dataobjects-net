@@ -536,12 +536,12 @@ namespace Xtensive.Orm.Building.Builders
 
     private IEnumerable<TypeDef> GetTypeBuildSequence()
     {
-      List<Node<Node<TypeDef>, object>> loops;
-      var result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
-      if (result==null)
+      var (result, cycles) = TopologicalSorter.SortWithCycles(context.DependencyGraph.Nodes, TypeConnector);
+      if (result == null) {
         throw new DomainBuilderException(string.Format(
           Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
-          loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
+          cycles.Select(o => o.Value.Name).ToCommaDelimitedString()));
+      }
       var dependentTypes = result.Select(n => n.Value);
       var independentTypes = context.ModelDef.Types.Except(dependentTypes);
       return independentTypes.Concat(dependentTypes);
