@@ -45,7 +45,9 @@ namespace Xtensive.Orm.Configuration
     /// <returns><see cref="IgnoreRule"/> construction flow</returns>
     public IIgnoreRuleConstructionFlow IgnoreIndex(string indexName)
     {
-      throw new NotImplementedException();
+      var rule = new IgnoreRule { Index = indexName };
+      Add(rule);
+      return new IgnoreRuleConstructionFlow(rule);
     }
 
     /// <inheritdoc />
