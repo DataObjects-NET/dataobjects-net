@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel4
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
 
     [Field]
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel4
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
 
     [Field]
@@ -262,7 +262,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel5
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
 
     [Field]
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel6
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
 
     [Field]
@@ -304,7 +304,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel7
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
 
     [Field]
@@ -317,7 +317,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel7
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string FirstColumn { get; set; }
   }
 }
@@ -343,6 +343,7 @@ namespace Xtensive.Orm.Tests.Storage
       typeof(ignorablePart.IgnoredTable), typeof(ignorablePart.FieldInjector) };
 
     private readonly bool createConstraintsWithTable = StorageProviderInfo.Instance.Provider == StorageProvider.Sqlite;
+    private readonly bool dropIndexOnKeyColumnDelete = StorageProviderInfo.Instance.Provider== StorageProvider.PostgreSql;
     private readonly SqlDriver sqlDriver = TestSqlDriver.Create(GetConnectionInfo());
 
     private Key changedOrderKey;
@@ -629,6 +630,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void DropIncludedColumnOfIgnoredIndexTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.IncludedColumns);
+
       BuildDomain(DomainUpgradeMode.Recreate, null, model3Types).Dispose();
 
       var schema = GetCatalog().DefaultSchema;
@@ -650,16 +653,25 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomain(DomainUpgradeMode.Recreate, null, model3Types).Dispose();
 
       var schema = GetCatalog().DefaultSchema;
-      var keyColumns = new string[] { "IndexedValue" };
-      var includedColimns = new string[] { "FirstColumn" };
+      var keyColumns = new string[] { "IndexedValue", "FirstColumn" };
 
-      CreateIndex(schema, "MyEntity2", "IX_Ignored_Index", keyColumns, includedColimns);
+      CreateIndex(schema, "MyEntity2", "IX_Ignored_Index", keyColumns, null);
 
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreIndex("IX_Ignored_Index").WhenTable("MyEntity2");
-
-      _ = Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose());
+      if (dropIndexOnKeyColumnDelete) {
+        BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose();
+      }
+      else {
+        if (createConstraintsWithTable) {
+          _ = Assert.Throws<SchemaSynchronizationException>(
+            () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose());
+        }
+        else {
+          _ = Assert.Throws<StorageException>(
+            () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose());
+        }
+      }
     }
 
     [Test]
