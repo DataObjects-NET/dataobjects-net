@@ -2582,4 +2582,7 @@ Error: {1}</value>
   <data name="ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters" xml:space="preserve">
     <value>The given type has no constructor with given parameters or more than one suitable constructor.</value>
   </data>
+  <data name="ExIgnoreRuleIsAlreadyConfiguredForX" xml:space="preserve">
+    <value>Rule is already configured for {0}.</value>
+  </data>
 </root>

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.08.16
 
@@ -19,12 +19,16 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string SchemaElementName = "schema";
     private const string TableElementName = "table";
     private const string ColumnElementName = "column";
+    private const string IndexElementName = "index";
 
     /// <inheritdoc />
-    public override object Identifier
-    {
-      get { return new Tuple<string, string, string, string>(Database ?? string.Empty, Schema ?? string.Empty, Table ?? string.Empty, Column ?? string.Empty); }
-    }
+    public override object Identifier => 
+      new Tuple<string, string, string, string, string>(
+        Database ?? string.Empty,
+        Schema ?? string.Empty,
+        Table ?? string.Empty,
+        Column ?? string.Empty,
+        Index ?? string.Empty);
 
     /// <summary>
     /// <see cref="IgnoreRule.Database" copy="true"/>
@@ -32,8 +36,8 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(DatabaseElementName)]
     public string Database
     {
-      get { return (string)this[DatabaseElementName]; }
-      set { this[DatabaseElementName] = value; }
+      get => (string) this[DatabaseElementName];
+      set => this[DatabaseElementName] = value;
     }
 
     /// <summary>
@@ -42,8 +46,8 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(SchemaElementName)]
     public string Schema
     {
-      get { return (string) this[SchemaElementName]; }
-      set { this[SchemaElementName] = value; }
+      get => (string) this[SchemaElementName];
+      set => this[SchemaElementName] = value;
     }
 
     /// <summary>
@@ -52,8 +56,8 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(TableElementName)]
     public string Table
     {
-      get { return (string) this[TableElementName]; }
-      set { this[TableElementName] = value; }
+      get => (string) this[TableElementName];
+      set => this[TableElementName] = value;
     }
 
     /// <summary>
@@ -62,17 +66,24 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(ColumnElementName)]
     public string Column
     {
-      get { return (string)this[ColumnElementName]; }
-      set { this[ColumnElementName] = value; }
+      get => (string) this[ColumnElementName];
+      set => this[ColumnElementName] = value;
+    }
+
+    /// <summary>
+    /// <see cref="IgnoreRule.Index"/>
+    /// </summary>
+    [ConfigurationProperty(IndexElementName)]
+    public string Index
+    {
+      get => (string) this[IndexElementName];
+      set => this[IndexElementName] = value;
     }
 
     /// <summary>
     /// Converts this instance to corresponding <see cref="IgnoreRule"/>.
     /// </summary>
     /// <returns>Result of conversion.</returns>
-    public IgnoreRule ToNative()
-    {
-      return new IgnoreRule(Database, Schema, Table, Column);
-    }
+    public IgnoreRule ToNative() => new IgnoreRule(Database, Schema, Table, Column, Index);
   }
 }
