@@ -163,13 +163,11 @@
     <xs:sequence>
       <xs:element name="rule" maxOccurs="unbounded">
         <xs:complexType>
-          <xs:choice minOccurs="0">
-            <xs:element name="column" type="xs:string"/>
-            <xs:element name="index" type="xs:string"/>
-          </xs:choice>
           <xs:attribute name="database" type="xs:string" use="optional"/>
           <xs:attribute name="schema" type="xs:string" use="optional"/>
           <xs:attribute name="table" type="xs:string" use="optional"/>
+          <xs:attribute name="column" type="xs:string" use="optional"/>
+          <xs:attribute name="index" type="xs:string" use="optional"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
