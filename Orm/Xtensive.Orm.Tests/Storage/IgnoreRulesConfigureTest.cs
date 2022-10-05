@@ -9,7 +9,7 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class IngoreRulesConfigureTest
+  public class IgnoreRulesConfigureTest
   {
     [Test]
     public void NoColumnOrTableIgnoredTest()
