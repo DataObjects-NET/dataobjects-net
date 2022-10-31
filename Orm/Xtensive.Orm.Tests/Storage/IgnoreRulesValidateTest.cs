@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel1
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string Title { get; set; }
 
     [Field(Length = 13)]
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel3
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string Title { get; set; }
 
     [Field(Length = 13)]
@@ -343,7 +343,7 @@ namespace Xtensive.Orm.Tests.Storage
       typeof(ignorablePart.IgnoredTable), typeof(ignorablePart.FieldInjector) };
 
     private readonly bool createConstraintsWithTable = StorageProviderInfo.Instance.Provider == StorageProvider.Sqlite;
-    private readonly bool dropIndexOnKeyColumnDelete = StorageProviderInfo.Instance.Provider== StorageProvider.PostgreSql;
+    private readonly bool noExceptionOnIndexKeyColumnDrop = StorageProviderInfo.Instance.Provider.In(StorageProvider.PostgreSql, StorageProvider.MySql);
     private readonly SqlDriver sqlDriver = TestSqlDriver.Create(GetConnectionInfo());
 
     private Key changedOrderKey;
@@ -411,7 +411,8 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.That(table.Columns.Any(c => c.Name == "SimpleIgnoredColumn"), Is.True);
       Assert.That(table.Columns.Count(c => c.Name.StartsWith("IgnoreA")), Is.EqualTo(3));
       Assert.That(
-        schema.Tables.Where(t => t.Name.StartsWith("MyEntity")).SelectMany(t => t.Columns).Count(c => c.Name.StartsWith("IgnoreB")),
+        schema.Tables.Where(t => t.Name.StartsWith("MyEntity", StringComparison.OrdinalIgnoreCase))
+          .SelectMany(t => t.Columns).Count(c => c.Name.StartsWith("IgnoreB")),
         Is.EqualTo(6));
 
       if (StorageProviderInfo.Instance.CheckAllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints)) {
@@ -471,7 +472,9 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomain(DomainUpgradeMode.Perform, ingnoreRuleCollection, model1Types).Dispose();
 
       Assert.That(GetCatalog().DefaultSchema.Tables["Book"].Indexes.Any(i => i.Name == "IX_Ignored_Index"), Is.True);
-      Assert.That(GetCatalog().DefaultSchema.Tables["Book"].Indexes.Count(i => i.Name.StartsWith("IX_GIgnored_Index")), Is.EqualTo(2));
+      Assert.That(GetCatalog().DefaultSchema.Tables["Book"].Indexes
+          .Count(i => i.Name.StartsWith("IX_GIgnored_Index", StringComparison.OrdinalIgnoreCase)),
+        Is.EqualTo(2));
     }
 
     [Test]
@@ -659,7 +662,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreIndex("IX_Ignored_Index").WhenTable("MyEntity2");
-      if (dropIndexOnKeyColumnDelete) {
+      if (noExceptionOnIndexKeyColumnDrop) {
         BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose();
       }
       else {
