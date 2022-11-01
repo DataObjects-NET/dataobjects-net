@@ -12,6 +12,8 @@
 [main] SqlCustomFunctionCall and SqlFunctionCall share one base type
 [main] SqlFunctionCall.Arguments property is IReadOnlyList now and parameters can't be changed after instance creation
 [main] Xtensive.Sql.Dml.Extensions.IsNullReference() extension method is marked obsolete, use 'is null' operator instead
+[main] IgnoreRule now has only one public constructor - parameterless
+[main] IgnoreRule supports indexes
 [main] BitFaster.Caching package reference is updated to 1.0.7
 [main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
 [reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
