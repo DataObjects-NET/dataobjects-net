@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public void Invalidate()
     {
-      if (Session.EntityChangeRegistry.GetItems(PersistenceState.New).Any())
+      if (Session.EntityChangeRegistry.GetItems(PersistenceState.New).Count > 0)
         throw new InvalidOperationException(Strings.UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession);
       Session.Invalidate();
     }

@@ -33,10 +33,8 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<EntitySetState> GetItems()
-    {
-      return modifiedEntitySets;
-    }
+    public RegistryItems<EntitySetState> GetItems() =>
+      new RegistryItems<EntitySetState>(modifiedEntitySets);
 
     public void Clear()
     {

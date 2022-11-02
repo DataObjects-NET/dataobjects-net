@@ -16,22 +16,22 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets key of entity that owns the <see cref="ReferenceFieldChangeInfo.Field"/>.
     /// </summary>
-    public Key FieldOwner { get; private set; }
+    public Key FieldOwner { get; }
 
     /// <summary>
     /// Gets value of field which was set.
     /// </summary>
-    public Key FieldValue { get; private set; }
+    public Key FieldValue { get; }
 
     /// <summary>
     /// Gets field which was set.
     /// </summary>
-    public FieldInfo Field { get; private set; }
+    public FieldInfo Field { get; }
 
     /// <summary>
     /// Auxiliary entity which associated with <see cref="EntitySet{T}"/>.
     /// </summary>
-    public Key AuxiliaryEntity { get; private set; }
+    public Key AuxiliaryEntity { get; }
 
     public ReferenceFieldChangeInfo(Key fieldOwner, Key fieldValue, FieldInfo field)
     {
