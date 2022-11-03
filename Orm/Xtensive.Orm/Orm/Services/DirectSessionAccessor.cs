@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Services
     /// An object implementing <see cref="IDisposable"/> which
     /// disposal will restore previous state of
     /// <see cref="Session.Transaction"/> property;
-    /// <see langword="null" />, if <see cref="Session.Transaction"/> 
+    /// <see langword="null" />, if <see cref="Session.Transaction"/>
     /// is already <see langword="null" />.
     /// </returns>
     public IDisposable NullifySessionTransaction()
@@ -76,12 +76,11 @@ namespace Xtensive.Orm.Services
     /// </summary>
     /// <param name="persistenceState">Type of entity change.</param>
     /// <returns><see cref="EntityState"/>s with the specified <paramref name="persistenceState"/>.</returns>
-    public IEnumerable<EntityState> GetChangedEntities(PersistenceState persistenceState) =>
-#if DO_SAFE_COLLECTION_WRAPPER
-      Session.EntityChangeRegistry.GetItems(persistenceState);
-#else
-      Session.EntityChangeRegistry.GetContainer(persistenceState);
-#endif
+    public IEnumerable<EntityState> GetChangedEntities(PersistenceState persistenceState)
+    {
+      return Session.EntityChangeRegistry.GetItems(persistenceState);
+    }
+
 
     // Constructors
 
