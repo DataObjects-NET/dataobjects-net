@@ -715,9 +715,8 @@ namespace Xtensive.Orm.Configuration
     private void ValidateIgnoreConfiguration()
     {
       foreach (var ignoreRule in IgnoreRules) {
-        if (string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column)) {
-          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXMustBeAppliedToColumnOrTable, ignoreRule));
-        }
+        if (string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column) && string.IsNullOrEmpty(ignoreRule.Index))
+          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable, ignoreRule));
       }
     }
 

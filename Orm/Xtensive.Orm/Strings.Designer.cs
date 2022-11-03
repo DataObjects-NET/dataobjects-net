@@ -1957,11 +1957,20 @@ namespace Xtensive {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Rule is already configured for {0}..
+        /// </summary>
+        internal static string ExIgnoreRuleIsAlreadyConfiguredForX {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleIsAlreadyConfiguredForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
         /// </summary>
-        internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {
+        internal static string ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable {
             get {
-                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnOrTable", resourceCulture);
+                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable", resourceCulture);
             }
         }
 
