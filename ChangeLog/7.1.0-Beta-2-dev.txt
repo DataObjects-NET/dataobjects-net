@@ -12,6 +12,9 @@
 [main] SqlCustomFunctionCall and SqlFunctionCall share one base type
 [main] SqlFunctionCall.Arguments property is IReadOnlyList now and parameters can't be changed after instance creation
 [main] Xtensive.Sql.Dml.Extensions.IsNullReference() extension method is marked obsolete, use 'is null' operator instead
+[main] DirectSessionAccessor.GetChangedEntities() result type changed to improve enumeration
+[main] EntityChangeRegistry.GetItems(PersistenceState) changed result type to improve enumeration
+[main] EntitySetChangeRegistry.GetItems() changed result type to improve enumeration
 [main] IgnoreRule now has only one public constructor - parameterless
 [main] IgnoreRule supports indexes
 [main] BitFaster.Caching package reference is updated to 1.0.7
