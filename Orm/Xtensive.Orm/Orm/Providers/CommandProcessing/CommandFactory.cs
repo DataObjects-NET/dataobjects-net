@@ -152,6 +152,11 @@ namespace Xtensive.Orm.Providers
           }
           configuration.DynamicFilterValues.Add(binding, filterValues);
           continue;
+          case QueryParameterBindingType.TypeIdentifier: {
+            var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
+            parameterValue = Session.StorageNode.TypeIdRegistry[Session.Domain.Model.Types[originalTypeId]];
+            break;
+          }
         default:
           throw new ArgumentOutOfRangeException("binding.BindingType");
         }

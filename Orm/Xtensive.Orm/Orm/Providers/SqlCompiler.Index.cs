@@ -41,11 +41,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static readonly ConcurrentDictionary<int, Func<ParameterContext, object>> typeIdParameterAccessorCache =
-      new ConcurrentDictionary<int, Func<ParameterContext, object>>();
-
-    private static readonly Func<int, Func<ParameterContext, object>> AccessorFactory = typeId => _ => typeId;
-
     private TypeMapping int32TypeMapping;
 
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
@@ -259,14 +254,14 @@ namespace Xtensive.Orm.Providers
         }
         else {
           if (filterByTypes.Count == 1) {
-            var binding = CreateQueryParameterBinding(type);
+            var binding = CreateTypeIdentifierBinding(type);
             bindings.Add(binding);
             filter = typeIdColumn == binding.ParameterReference;
           }
           else {
             var typeIdParameters = filterByTypes
               .Select(t => {
-                var binding = CreateQueryParameterBinding(t);
+                var binding = CreateTypeIdentifierBinding(t);
                 bindings.Add(binding);
                 return binding.ParameterReference;
               })
@@ -312,7 +307,7 @@ namespace Xtensive.Orm.Providers
 
       SqlUserColumn typeIdColumn;
       if (useParameterForTypeId) {
-        var binding = CreateQueryParameterBinding(type);
+        var binding = CreateTypeIdentifierBinding(type);
 
         typeIdColumn = SqlDml.Column(binding.ParameterReference);
         bindings.Add(binding);
@@ -363,11 +358,7 @@ namespace Xtensive.Orm.Providers
         : fieldValue;
     }
 
-    private QueryParameterBinding CreateQueryParameterBinding(TypeInfo type) =>
-      new QueryParameterBinding(
-        int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32),
-        typeIdParameterAccessorCache.GetOrAdd(TypeIdRegistry[type], AccessorFactory),
-        QueryParameterBindingType.Regular
-      );
+    private QueryParameterBinding CreateTypeIdentifierBinding(TypeInfo type) =>
+      new QueryTypeIdentifierParameterBinding(type.TypeId, int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32));
   }
 }
