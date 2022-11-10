@@ -11,6 +11,7 @@ namespace Xtensive.Orm.Providers
   public sealed class CompilerConfiguration
   {
     public bool PrepareRequest { get; set; }
+    public bool PreferTypeIdAsParameter { get; set; }
     public IReadOnlyList<string> Tags { get; init; }
 
     internal StorageNode StorageNode { get; set; }

@@ -81,6 +81,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultEnsureConnectionIsAlive = true;
 
+    /// <summary>
+    /// Default <see cref="PreferTypeIdsAsQueryParameters"/> value: <see langword="true" />.
+    /// </summary>
+    public const bool DefaultPreferTypeIdsAsQueryParameters = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -109,6 +114,7 @@ namespace Xtensive.Orm.Configuration
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
+    private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
@@ -591,6 +597,18 @@ namespace Xtensive.Orm.Configuration
       set {
         EnsureNotLocked();
         ensureConnectionIsAlive = value;
+      }
+    }
+
+    /// <summary>
+    /// Makes queries use parameters instead of constant values for persistent type identifiers.
+    /// </summary>
+    public bool PreferTypeIdsAsQueryParameters
+    {
+      get { return preferTypeIdsAsQueryParameters; }
+      set {
+        EnsureNotLocked();
+        preferTypeIdsAsQueryParameters = value;
       }
     }
 

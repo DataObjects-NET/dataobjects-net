@@ -580,7 +580,7 @@ namespace Xtensive.Orm.Providers
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
-      useParameterForTypeId = Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
+      useParameterForTypeId = configuration.PreferTypeIdAsParameter && Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
