@@ -22,13 +22,17 @@ namespace Xtensive.Orm.Tests.Storage
     private readonly Dictionary<Type, int> additionalNode1TypeIds = new();
     private readonly Dictionary<Type, int> additionalNode2TypeIds = new();
 
-    private bool IsMultischema { get; } = StorageProviderInfo.Instance.CheckAllFeaturesSupported(Orm.Providers.ProviderFeatures.Multischema);
-
-    public static IEnumerable<string> NodeIdentifiers {
+    public static IEnumerable<string> NodeIdentifiers
+    {
       get => StorageProviderInfo.Instance.CheckAllFeaturesSupported(Orm.Providers.ProviderFeatures.Multischema)
         ? new[] { WellKnown.DefaultNodeId, AdditionalNode1Name, AdditionalNode2Name }
         : new[] { WellKnown.DefaultNodeId };
-     }
+    }
+
+    private bool IsMultischema { get; } = StorageProviderInfo.Instance.CheckAllFeaturesSupported(Orm.Providers.ProviderFeatures.Multischema);
+
+    [OneTimeSetUp]
+    public void OneTimeSetup() => Require.ProviderIsNot(StorageProvider.Firebird);
 
     protected override DomainConfiguration BuildConfiguration()
     {
