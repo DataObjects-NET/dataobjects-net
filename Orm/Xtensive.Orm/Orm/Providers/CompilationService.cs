@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Providers
       new() {
         StorageNode = session.StorageNode,
         Tags = session.Tags,
-        PreferTypeIdAsParameter = session.Domain.Configuration.PreferTypeIdsAsQueryParameters
+        // prefer constants during upgrade process
+        PreferTypeIdAsParameter = !session.Name.Equals(WellKnown.Sessions.System) && session.Domain.Configuration.PreferTypeIdsAsQueryParameters
       };
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
