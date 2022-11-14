@@ -753,6 +753,7 @@ namespace Xtensive.Orm.Configuration
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
+      preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
     }
 
     /// <summary>
