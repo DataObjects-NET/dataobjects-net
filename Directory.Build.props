@@ -132,6 +132,5 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
     <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);DEBUG</DefineConstants>
-    <DefineConstants Condition="'$(DO_SAFE_COLLECTION_WRAPPER)'!='false'">$(DefineConstants);DO_SAFE_COLLECTION_WRAPPER</DefineConstants>
   </PropertyGroup>
 </Project>
