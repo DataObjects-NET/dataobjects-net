@@ -393,18 +393,18 @@ namespace Xtensive.Orm.Tests.Model
     private static void VerifyModel(Domain domain)
     {
       TypeInfoCollection types = domain.Model.Types;
-      Assert.AreEqual(types.FindAncestor(types[typeof (Person)]), null);
-      Assert.AreEqual(types.FindAncestor(types[typeof (Book)]), null);
-      Assert.AreEqual(types.FindAncestor(types[typeof (BookReview)]), null);
-      Assert.AreEqual(types.FindAncestor(types[typeof (Author)]), types[typeof (Person)]);
+      Assert.AreEqual(types[typeof (Person)].Ancestor, null);
+      Assert.AreEqual(types[typeof (Book)].Ancestor, null);
+      Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
+      Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
 
-      Assert.AreEqual(types[typeof (Person)].GetAncestor(), null);
-      Assert.AreEqual(types[typeof (Book)].GetAncestor(), null);
-      Assert.AreEqual(types[typeof (BookReview)].GetAncestor(), null);
-      Assert.AreEqual(types[typeof (Author)].GetAncestor(), types[typeof (Person)]);
+      Assert.AreEqual(types[typeof (Person)].Ancestor, null);
+      Assert.AreEqual(types[typeof (Book)].Ancestor, null);
+      Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
+      Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
 
-      ICollection<TypeInfo> collection = types.Structures;
-      Assert.IsTrue(collection.Count > 0);
+      var collection = types.Structures;
+      Assert.IsTrue(collection.Any());
       foreach (TypeInfo item in collection) {
         Assert.IsTrue(item.IsStructure);
         Assert.IsFalse(item.IsInterface);
@@ -412,7 +412,7 @@ namespace Xtensive.Orm.Tests.Model
       }
 
       collection = types.Interfaces;
-      Assert.IsFalse(collection.Count > 0);
+      Assert.IsFalse(collection.Any());
       foreach (TypeInfo item in collection) {
         Assert.IsTrue(item.IsInterface);
         Assert.IsFalse(item.IsStructure);
@@ -420,7 +420,7 @@ namespace Xtensive.Orm.Tests.Model
       }
 
       collection = types.Entities;
-      Assert.IsTrue(collection.Count > 0);
+      Assert.IsTrue(collection.Any());
       foreach (TypeInfo item in collection) {
         Assert.IsTrue(item.IsEntity);
         Assert.IsFalse(item.IsInterface);
@@ -555,8 +555,8 @@ namespace Xtensive.Orm.Tests.Model
       Assert.AreEqual(true, typeInfo.Fields["Books"].IsNullable);
       Assert.AreEqual("Books", typeInfo.Fields["Books"].Name);
 
-      Assert.AreEqual(2, typeInfo.Fields.Find(FieldAttributes.Declared).Count);
-      Assert.AreEqual(9, typeInfo.Fields.Find(FieldAttributes.Inherited).Count);
+      Assert.AreEqual(2, typeInfo.Fields.Find(FieldAttributes.Declared).Count());
+      Assert.AreEqual(9, typeInfo.Fields.Find(FieldAttributes.Inherited).Count());
 
       // KeyColumns
       Assert.IsNotNull(typeInfo.Columns["PassportNumber"]);
