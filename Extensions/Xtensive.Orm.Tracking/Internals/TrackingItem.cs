@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tracking
 
     public TrackingItemState State { get; private set; }
 
-    public IReadOnlyList<ChangedValue> ChangedValues => cachedChangedValues ??= CalculateChangedValues().ToList().AsReadOnly();
+    public IReadOnlyList<ChangedValue> ChangedValues => cachedChangedValues ??= CalculateChangedValues();
 
     public void MergeWith(TrackingItem source)
     {
@@ -47,29 +47,33 @@ namespace Xtensive.Orm.Tracking
       State = source.State;
     }
 
-    private IEnumerable<ChangedValue> CalculateChangedValues()
+    private IReadOnlyList<ChangedValue> CalculateChangedValues()
     {
       var originalValues = RawData.Origin;
       var changedValues = RawData.Difference;
 
-      if (State==TrackingItemState.Created) {
+      if (State == TrackingItemState.Created) {
         originalValues = null;
         changedValues = RawData.Origin;
       }
 
-      foreach (var field in Key.TypeInfo.Fields.Where(f => f.Column!=null)) {
+      var changedValuesList = new List<ChangedValue>(Key.TypeInfo.Fields.Count);
+
+      foreach (var field in Key.TypeInfo.Fields.Where(f => f.Column != null)) {
         object origValue = null, changedValue = null;
         int fieldIndex = field.MappingInfo.Offset;
         TupleFieldState fieldState;
-        if (originalValues!=null)
+        if (originalValues != null)
           origValue = originalValues.GetValue(fieldIndex, out fieldState);
-        if (changedValues!=null) {
+        if (changedValues != null) {
           changedValue = changedValues.GetValue(fieldIndex, out fieldState);
           if (!fieldState.IsAvailable())
             continue;
         }
-        yield return new ChangedValue(field, origValue, changedValue);
+        changedValuesList.Add(new ChangedValue(field, origValue, changedValue));
       }
+
+      return changedValuesList.AsReadOnly();
     }
 
     private void MergeWith(Tuple difference)
