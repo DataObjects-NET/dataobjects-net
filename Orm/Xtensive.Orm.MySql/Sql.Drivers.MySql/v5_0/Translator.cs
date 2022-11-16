@@ -215,7 +215,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node) => TranslateIdentifier(context.Output, node.Name);
+    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
+      base.Translate(context, node);
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
