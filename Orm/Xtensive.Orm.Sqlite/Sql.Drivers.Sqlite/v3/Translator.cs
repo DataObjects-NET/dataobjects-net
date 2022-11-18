@@ -306,10 +306,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      _ = context.Output.Append("DROP INDEX ")
-        .Append(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema))
-        .Append(".");
-      TranslateIdentifier(context.Output, node.Index.DbName);
+      _ = context.Output.Append("DROP INDEX ");
+      TranslateIdentifier(context.Output, node.Index.DataTable.Schema.DbName, node.Index.DbName);
     }
 
     /// <inheritdoc/>
