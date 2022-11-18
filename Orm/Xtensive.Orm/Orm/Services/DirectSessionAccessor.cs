@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Services
     /// An object implementing <see cref="IDisposable"/> which
     /// disposal will restore previous state of
     /// <see cref="Session.Transaction"/> property;
-    /// <see langword="null" />, if <see cref="Session.Transaction"/> 
+    /// <see langword="null" />, if <see cref="Session.Transaction"/>
     /// is already <see langword="null" />.
     /// </returns>
     public IDisposable NullifySessionTransaction()
