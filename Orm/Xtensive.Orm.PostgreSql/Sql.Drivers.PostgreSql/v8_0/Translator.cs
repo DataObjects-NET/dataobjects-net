@@ -222,22 +222,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       });
     }
 
+    ///// <inheritdoc/>
+    //public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    //{
+    //  //temporary tables need no schema qualifier
+    //  if (node is TemporaryTable || node.Schema == null) {
+    //    return QuoteIdentifier(new[] { node.Name });
+    //  }
+    //  return QuoteIdentifier(new[] { node.Schema.Name, node.Name });
+    //}
+
     /// <inheritdoc/>
-    public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      //temporary tables need no schema qualifier
-      if (!(node is TemporaryTable) && node.Schema != null) {
-        return context == null
-          ? QuoteIdentifier(new[] { node.Schema.Name, node.Name })
-          : QuoteIdentifier(new[] { context.SqlNodeActualizer.Actualize(node.Schema), node.Name });
-
+      if (node is TemporaryTable) {
+        TranslateIdentifier(context.Output, node.Name);
       }
-      return QuoteIdentifier(new[] { node.Name });
+      else {
+        base.Translate(context, node);
+      }
+      //context.Output.Append(TranslateToString(context, node));
     }
-
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
-      context.Output.Append(TranslateToString(context, node));
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)

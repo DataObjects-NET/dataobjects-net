@@ -1250,15 +1250,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var sequenceMap = context.SequenceMap;
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
-            query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostrgreSQL translator
+            _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
           else {
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostgreSQL translator
+            _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
         }
-        query.Append("\n) all_sequences\nORDER BY id");
+        _ = query.Append("\n) all_sequences\nORDER BY id");
       }
       return SqlDml.Fragment(SqlDml.Native(query.ToString()));
     }
