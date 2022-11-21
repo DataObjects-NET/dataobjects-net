@@ -12,8 +12,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Providers
 {
@@ -248,11 +250,11 @@ namespace Xtensive.Orm.Providers
       }
 
       var upgradeContext = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie);
-      if (upgradeContext!=null) {
-        return driver.Compile(statement, upgradeContext.NodeConfiguration).GetCommandText();
-      }
+      var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : session.StorageNode.Configuration;
 
-      return driver.Compile(statement, session.StorageNode.Configuration).GetCommandText();
+      return driver.Compile(statement, nodeConfiguration)
+        .GetCommandText(
+          new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping()));
     }
 
     private CommandWithDataReader ExecuteReader(DbCommand command, CommandBehavior commandBehavior)

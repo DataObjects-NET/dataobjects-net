@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -29,6 +29,10 @@ namespace Xtensive.Orm.Providers
         ? SequenceQueryCompartment.SameSession
         : compartment;
 
+      var postCompilerConfiguration = (nodeConfiguration != null)
+        ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+        : new SqlPostCompilerConfiguration();
+
       var sqlNext = hasSequences
         ? GetSequenceBasedNextImplementation(generatorNode, increment)
         : GetTableBasedNextImplementation(generatorNode);
@@ -37,18 +41,18 @@ namespace Xtensive.Orm.Providers
       var batch = sqlNext as SqlBatch;
       if (batch == null || hasBatches)
         // There are batches or there is single statement, so we can run this as a single request
-        return new SequenceQuery(Compile(sqlNext, nodeConfiguration).GetCommandText(), actualCompartment);
+        return new SequenceQuery(Compile(sqlNext, nodeConfiguration).GetCommandText(postCompilerConfiguration), actualCompartment);
 
       // No batches, so we must execute this manually
       if (!storesAutoIncrementSettingsInMemory)
         return new SequenceQuery(
-          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
-          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(postCompilerConfiguration),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(postCompilerConfiguration),
           actualCompartment);
       return new SequenceQuery(
-          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
-          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
-          Compile((ISqlCompileUnit)batch[2], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(postCompilerConfiguration),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(postCompilerConfiguration),
+          Compile((ISqlCompileUnit)batch[2], nodeConfiguration).GetCommandText(postCompilerConfiguration),
           actualCompartment);
     }
 
@@ -74,9 +78,13 @@ namespace Xtensive.Orm.Providers
 
     public string BuildCleanUpQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration)
     {
+      var postCompilerConfiguration = (nodeConfiguration != null)
+        ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+        : new SqlPostCompilerConfiguration();
+
       var table = (Table)generatorNode;
       var delete = SqlDml.Delete(SqlDml.TableRef(table));
-      return Compile(delete, nodeConfiguration).GetCommandText();
+      return Compile(delete, nodeConfiguration).GetCommandText(postCompilerConfiguration);
     }
 
 

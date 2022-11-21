@@ -84,17 +84,20 @@ namespace Xtensive.Orm.Providers
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
+        SharedStorageSchema = false,
       };
       return underlyingDriver.Compile(statement, options);
     }
 
+#pragma warning disable IDE0060 // Remove unused parameter
     public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
-      var options = configuration.ShareStorageSchemaOverNodes
-        ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
-        : new SqlCompilerConfiguration();
-      options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
-      options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
+      var options = new SqlCompilerConfiguration {
+        SharedStorageSchema = configuration.ShareStorageSchemaOverNodes,
+        DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        CommentLocation = configuration.TagsLocation.ToCommentLocation()
+      };
       return underlyingDriver.Compile(statement, options);
     }
 
