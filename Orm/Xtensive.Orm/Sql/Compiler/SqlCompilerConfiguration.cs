@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
@@ -35,13 +36,20 @@ namespace Xtensive.Sql.Compiler
     public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
 
     /// <summary>
+    /// Indicated whether storage schema was shared over several storage nodes.
+    /// </summary>
+    public bool SharedStorageSchema { get; init; } = false;
+
+    /// <summary>
     /// Gets database mapping.
     /// </summary>
+    [Obsolete("No longer in use")]
     public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
+    [Obsolete("No longer in use")]
     public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
 
     /// <summary>
@@ -58,11 +66,14 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerConfiguration()
     {
+#pragma warning disable CS0612 // Type or member is obsolete
       SchemaMapping = null;
       DatabaseMapping = null;
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
-    public SqlCompilerConfiguration([NotNull]IDictionary<string, string> databaseMapping, [NotNull]IDictionary<string, string> schemaMapping)
+    [Obsolete]
+    public SqlCompilerConfiguration([NotNull] IDictionary<string, string> databaseMapping, [NotNull] IDictionary<string, string> schemaMapping)
     {
       ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
       ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");

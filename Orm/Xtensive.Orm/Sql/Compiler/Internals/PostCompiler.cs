@@ -47,10 +47,25 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(PlaceholderNode node)
     {
-      string value;
-      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
-        throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
-      result.Append(value);
+      if (node is SchemaNodePlaceholderNode schemaPlaceHolder) {
+        Visit(schemaPlaceHolder);
+      }
+      else {
+        if (!configuration.PlaceholderValues.TryGetValue(node.Id, out var value))
+          throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
+        _ = result.Append(value);
+      }
+    }
+
+    private void Visit(SchemaNodePlaceholderNode node)
+    {
+      var schema = node.SchemaNode.Schema;
+
+      var names = (node.DbQualified)
+        ? new string[] { schema.Catalog.GetActualDbName(configuration.DatabaseMapping), schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName }
+        : new string[] { schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName };
+
+      _ = result.Append(SqlHelper.Quote(node.EscapeSetup, names));
     }
 
     public override void Visit(CycleItemNode node)

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -134,6 +135,9 @@ namespace Xtensive.Sql.Compiler
     public void AppendCycleItem(int index) => Add(new CycleItemNode(index));
 
     public void AppendPlaceholderWithId(object id) => Add(new PlaceholderNode(id));
+
+    public void AppendSchemaNodePlaceholder(SchemaNode schemaNode, SqlHelper.EscapeSetup escapeSetup, bool databaseNameRequired) =>
+      Add(new SchemaNodePlaceholderNode(schemaNode, escapeSetup, databaseNameRequired));
 
     public void AppendIndent()
     {
