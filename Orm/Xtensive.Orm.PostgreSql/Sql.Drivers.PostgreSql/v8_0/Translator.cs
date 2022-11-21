@@ -314,9 +314,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
+      var index = node.Index;
       _ = context.Output.Append("DROP INDEX ");
-      TranslateIdentifier(context.Output,
-        context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
+      TranslateIdentifier(context.Output, index.DataTable.Schema.DbName, index.DbName);
     }
 
     /// <inheritdoc/>
