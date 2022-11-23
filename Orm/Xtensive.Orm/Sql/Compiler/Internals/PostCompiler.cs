@@ -19,6 +19,7 @@ namespace Xtensive.Sql.Compiler
 
     private readonly StringBuilder result;
     private readonly SqlPostCompilerConfiguration configuration;
+    private readonly bool canActualizeQuery;
 
     private string[] currentCycleItem;
 
@@ -59,6 +60,8 @@ namespace Xtensive.Sql.Compiler
 
     private void Visit(SchemaNodePlaceholderNode node)
     {
+      EnsureActualizationPossible();
+
       var schema = node.SchemaNode.Schema;
 
       var names = (node.DbQualified)
@@ -93,6 +96,12 @@ namespace Xtensive.Sql.Compiler
 
     #endregion
 
+    private void EnsureActualizationPossible()
+    {
+      if (!canActualizeQuery) {
+        throw new InvalidOperationException("Query was compiled with SqlCompilerConfiguration.SharedStorageSchema option set to true, it required PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided.");
+      }
+    }
 
     // Constructors
 
@@ -101,6 +110,7 @@ namespace Xtensive.Sql.Compiler
       int capacity = estimatedResultLength + ResultCapacityMargin;
       result = new StringBuilder(capacity < MinimalResultCapacity ? MinimalResultCapacity : capacity);
       this.configuration = configuration;
+      canActualizeQuery = configuration.DatabaseMapping != null && configuration.SchemaMapping != null;
     }
   }
 }

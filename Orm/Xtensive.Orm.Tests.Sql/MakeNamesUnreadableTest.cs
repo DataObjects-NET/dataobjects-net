@@ -366,7 +366,7 @@ namespace Xtensive.Orm.Tests.Sql
       if (IsMultidatabaseSupported) {
         var compilerConfiguration = new SqlCompilerConfiguration() { DatabaseQualifiedObjects = true, SharedStorageSchema = true };
 
-        _ = Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
 
@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Tests.Sql
       if (IsMultischemaSupported) {
         var compilerConfiguration = new SqlCompilerConfiguration() { SharedStorageSchema = true };
 
-        _ = Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
         Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
       else {
         var compilerConfiguration = new SqlCompilerConfiguration() { SharedStorageSchema = true };
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
 
