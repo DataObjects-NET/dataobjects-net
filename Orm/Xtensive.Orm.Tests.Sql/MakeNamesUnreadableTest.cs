@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
       else {
         var compilerConfiguration = new SqlCompilerConfiguration() { SharedStorageSchema = true };
-        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
 
