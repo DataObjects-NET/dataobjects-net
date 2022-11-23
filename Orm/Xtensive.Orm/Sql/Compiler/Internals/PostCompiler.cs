@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Compiler
     private void EnsureActualizationPossible()
     {
       if (!canActualizeQuery) {
-        throw new InvalidOperationException("Query was compiled with SqlCompilerConfiguration.SharedStorageSchema option set to true, it required PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided.");
+        throw new InvalidOperationException(Strings.ExUnableToActualizeSchemaNodeInQuery);
       }
     }
 
