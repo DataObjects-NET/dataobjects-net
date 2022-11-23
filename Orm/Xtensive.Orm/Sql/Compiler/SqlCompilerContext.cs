@@ -151,9 +151,9 @@ namespace Xtensive.Sql.Compiler
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
       Output = new ContainerNode();
-#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS0618, CS0612 // Type or member is obsolete
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
-#pragma warning restore CS0618 // Type or member is obsolete
+#pragma warning restore CS0618, CS0612 // Type or member is obsolete
     }
   }
 }
