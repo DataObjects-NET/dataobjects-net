@@ -1955,7 +1955,8 @@ namespace Xtensive.Sql.Compiler
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
 
-      if (context.SharedStorageSchema) {
+      
+      if (node.Schema.IsNamesReadingDenied) {
         // if schema is shared we use placeholders to translate
         // schema node in PostCompiler
         output.AppendSchemaNodePlaceholder(node, EscapeSetup, dbQualified);

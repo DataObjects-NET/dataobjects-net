@@ -30,8 +30,6 @@ namespace Xtensive.Sql.Compiler
     public SqlNode[] GetTraversalPath() =>
       traversalPath ??= traversalStack.ToArray();
 
-    public bool SharedStorageSchema { get; }
-
     public bool HasOptions(SqlCompilerNamingOptions requiredOptions)
     {
       return (NamingOptions & requiredOptions)==requiredOptions;
@@ -145,8 +143,6 @@ namespace Xtensive.Sql.Compiler
       NamingOptions = SqlCompilerNamingOptions.TableQualifiedColumns | SqlCompilerNamingOptions.TableAliasing;
       if (configuration.DatabaseQualifiedObjects)
         NamingOptions |= SqlCompilerNamingOptions.DatabaseQualifiedObjects;
-
-      SharedStorageSchema = configuration.SharedStorageSchema;
 
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);

@@ -4607,7 +4607,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Query was compiled with SqlCompilerConfiguration.SharedStorageSchema option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
+        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
         /// </summary>
         internal static string ExUnableToActualizeSchemaNodeInQuery {
             get {

@@ -15,18 +15,17 @@ namespace Xtensive.Sql.Model
   public abstract class CatalogNode : Node, IPairedNode<Catalog>
   {
     private Catalog catalog;
-    private bool isNamesReadingDenied = false;
 
     /// <inheritdoc />
     public override string Name
     {
       get {
-        if (!isNamesReadingDenied)
+        if (!IsNamesReadingDenied)
           return base.Name;
         throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
       }
       set {
-        if (!isNamesReadingDenied)
+        if (!IsNamesReadingDenied)
           base.Name = value;
         else
           throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
@@ -37,12 +36,12 @@ namespace Xtensive.Sql.Model
     public override string DbName
     {
       get {
-        if (!isNamesReadingDenied)
+        if (!IsNamesReadingDenied)
           return base.DbName;
         throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
       }
       set {
-        if (!isNamesReadingDenied)
+        if (!IsNamesReadingDenied)
           base.DbName = value;
         else
           throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
@@ -62,6 +61,8 @@ namespace Xtensive.Sql.Model
           ChangeCatalog(value);
       }
     }
+
+    internal bool IsNamesReadingDenied { get; private set; }
 
     /// <summary>
     /// Changes the catalog.
@@ -86,12 +87,12 @@ namespace Xtensive.Sql.Model
 
     internal void MakeNamesUnreadable()
     {
-      isNamesReadingDenied = true;
+      IsNamesReadingDenied = true;
     }
 
     internal string GetActualName(IReadOnlyDictionary<string, string> nodeNameMap)
     {
-      if (!isNamesReadingDenied)
+      if (!IsNamesReadingDenied)
         return Name;
       if (nodeNameMap==null)
         throw new ArgumentNullException("nodeNameMap");
@@ -105,14 +106,13 @@ namespace Xtensive.Sql.Model
 
     internal string GetActualDbName(IReadOnlyDictionary<string, string> nodeNameMap)
     {
-      if (!isNamesReadingDenied)
+      if (!IsNamesReadingDenied)
         return DbName;
       if (nodeNameMap==null)
         throw new ArgumentNullException("nodeNameMap");
 
       var name = GetDbNameInternal();
-      string actualName;
-      if (nodeNameMap.TryGetValue(name, out actualName))
+      if (nodeNameMap.TryGetValue(name, out var actualName))
         return actualName;
       return name;
     }

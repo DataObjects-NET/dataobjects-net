@@ -364,7 +364,7 @@ namespace Xtensive.Orm.Tests.Sql
       var queryText = string.Empty;
 
       if (IsMultidatabaseSupported) {
-        var compilerConfiguration = new SqlCompilerConfiguration() { DatabaseQualifiedObjects = true, SharedStorageSchema = true };
+        var compilerConfiguration = new SqlCompilerConfiguration() { DatabaseQualifiedObjects = true };
 
         _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
 
@@ -383,36 +383,33 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.That(queryText.Contains(DummySchemaName), Is.True);
       }
       if (IsMultischemaSupported) {
-        var compilerConfiguration = new SqlCompilerConfiguration() { SharedStorageSchema = true };
-
-        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
         postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query,compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
         Assert.That(queryText.Contains(DummySchemaName), Is.True);
       }
       else {
-        var compilerConfiguration = new SqlCompilerConfiguration() { SharedStorageSchema = true };
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText());
 
         var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
         postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);

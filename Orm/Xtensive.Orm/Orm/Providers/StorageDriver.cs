@@ -84,7 +84,6 @@ namespace Xtensive.Orm.Providers
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
-        SharedStorageSchema = false,
       };
       return underlyingDriver.Compile(statement, options);
     }
@@ -94,7 +93,6 @@ namespace Xtensive.Orm.Providers
 #pragma warning restore IDE0060 // Remove unused parameter
     {
       var options = new SqlCompilerConfiguration {
-        SharedStorageSchema = configuration.ShareStorageSchemaOverNodes,
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
         CommentLocation = configuration.TagsLocation.ToCommentLocation()
       };

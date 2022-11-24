@@ -36,20 +36,15 @@ namespace Xtensive.Sql.Compiler
     public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
 
     /// <summary>
-    /// Indicated whether storage schema was shared over several storage nodes.
-    /// </summary>
-    public bool SharedStorageSchema { get; init; } = false;
-
-    /// <summary>
     /// Gets database mapping.
     /// </summary>
-    [Obsolete("No longer in use")]
+    [Obsolete("No longer in use. Moved to SqlPostCompilerConfiguration.")]
     public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    [Obsolete("No longer in use")]
+    [Obsolete("No longer in use. Moved to SqlPostCompilerConfiguration.")]
     public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
 
     /// <summary>
