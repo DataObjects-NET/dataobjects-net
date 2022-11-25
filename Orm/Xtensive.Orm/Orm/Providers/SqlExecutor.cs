@@ -252,7 +252,7 @@ namespace Xtensive.Orm.Providers
       var upgradeContext = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie);
       var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : session.StorageNode.Configuration;
 
-      return driver.Compile(statement, nodeConfiguration)
+      return driver.Compile(statement)
         .GetCommandText(
           new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping()));
     }

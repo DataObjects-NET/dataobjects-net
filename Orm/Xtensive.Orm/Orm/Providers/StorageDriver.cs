@@ -88,9 +88,8 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-#pragma warning disable IDE0060 // Remove unused parameter
+    [Obsolete]
     public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,

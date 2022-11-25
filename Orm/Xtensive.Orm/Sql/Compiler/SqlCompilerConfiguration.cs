@@ -61,10 +61,10 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerConfiguration()
     {
-#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
       SchemaMapping = null;
       DatabaseMapping = null;
-#pragma warning restore CS0612 // Type or member is obsolete
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     [Obsolete]
