@@ -45,8 +45,15 @@ namespace Xtensive.Sql.Compiler
     /// Gets the textual representation of SQL DOM statement compilation.
     /// </summary>
     /// <value>The SQL text command.</value>
-    public string GetCommandText() =>
-      GetCommandText(new SqlPostCompilerConfiguration(typeIdRegistry, schemaMapping));
+    public string GetCommandText()
+    {
+      if (resultText != null)
+        return resultText;
+      string result = PostCompiler.Process(resultNodes, new SqlPostCompilerConfiguration(), lastResultLength);
+      lastResultLength = result.Length;
+      return result;
+    }
+
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.

@@ -7,8 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Text;
 using JetBrains.Annotations;
 using Xtensive.Core;
+using Xtensive.Orm;
+using Xtensive.Orm.Model;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -18,6 +22,8 @@ namespace Xtensive.Sql.Compiler
   public sealed class SqlPostCompilerConfiguration
   {
     public HashSet<object> AlternativeBranches { get; private set; } = new HashSet<object>();
+
+    public TypeIdRegistry TypeIdRegistry { get; }
 
     public Dictionary<object, string> PlaceholderValues { get; private set; } = new Dictionary<object, string>();
 

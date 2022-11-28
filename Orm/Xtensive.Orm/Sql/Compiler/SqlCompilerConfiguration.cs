@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Compiler
     }
 
     [Obsolete]
-    public SqlCompilerConfiguration([NotNull] IDictionary<string, string> databaseMapping, [NotNull] IDictionary<string, string> schemaMapping)
+    public SqlCompilerConfiguration([NotNull] IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
     {
       ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
       ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");

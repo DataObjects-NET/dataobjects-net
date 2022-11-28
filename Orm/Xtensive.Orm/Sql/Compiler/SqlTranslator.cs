@@ -1981,6 +1981,7 @@ namespace Xtensive.Sql.Compiler
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
 
+      var setup = EscapeSetup;
 
       if (node.Schema.IsNamesReadingDenied) {
         // if schema is shared we use placeholders to translate

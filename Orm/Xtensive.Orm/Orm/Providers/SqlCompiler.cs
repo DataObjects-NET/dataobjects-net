@@ -39,6 +39,11 @@ namespace Xtensive.Orm.Providers
     protected ModelMapping Mapping { get; private set; }
 
     /// <summary>
+    /// Gets type identifier registry.
+    /// </summary>
+    protected TypeIdRegistry TypeIdRegistry { get; private set; }
+
+    /// <summary>
     /// Gets the SQL domain handler.
     /// </summary>
     protected DomainHandler DomainHandler => Handlers.DomainHandler;

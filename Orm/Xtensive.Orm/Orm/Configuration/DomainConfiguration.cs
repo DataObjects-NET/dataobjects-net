@@ -154,6 +154,11 @@ namespace Xtensive.Orm.Configuration
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private bool shareQueryCacheOverNodes = DefaultShareQueryCacheOverNodes;
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
+    private MappingRuleCollection mappingRules = new();
+    private DatabaseConfigurationCollection databases = new();
+    private KeyGeneratorConfigurationCollection keyGenerators = new();
+    private IgnoreRuleCollection ignoreRules = new();
+    private VersioningConvention versioningConvention = new();
     private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
