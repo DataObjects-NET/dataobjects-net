@@ -141,8 +141,8 @@ namespace Xtensive.Orm.Building.Builders
             typeHasIndexDef = true;
           }
         }
-        if (typeHasIndexDef)
-          foreach (var descendant in type.DirectDescendants)
+        if (typeHasIndexDef) {
+          foreach (var descendant in type.DirectDescendants) {
             processQueue.Enqueue(descendant);
           }
       }
