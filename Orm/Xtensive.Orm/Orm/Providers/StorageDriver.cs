@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -88,13 +88,13 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
+    [Obsolete]
     public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
     {
-      var options = configuration.ShareStorageSchemaOverNodes
-        ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
-        : new SqlCompilerConfiguration();
-      options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
-      options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
+      var options = new SqlCompilerConfiguration {
+        DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        CommentLocation = configuration.TagsLocation.ToCommentLocation()
+      };
       return underlyingDriver.Compile(statement, options);
     }
 

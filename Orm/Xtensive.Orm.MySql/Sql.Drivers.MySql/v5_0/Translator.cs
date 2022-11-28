@@ -215,7 +215,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node) => TranslateIdentifier(context.Output, node.Name);
+    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
+      base.Translate(context, node);
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -578,9 +579,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public virtual void Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
     {
-      string schemaName = action.Column.Table.Schema.DbName;
-      string tableName = action.Column.Table.DbName;
-      string columnName = action.Column.DbName;
+      var column = action.Column;
+      var tableName = column.Table.DbName;
 
       //alter table `actor` change column last_name1 last_name varchar(45)
 
@@ -588,11 +588,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       _ = output.Append("ALTER TABLE ");
       TranslateIdentifier(output, tableName);
       _ = output.Append(" CHANGE COLUMN ");
-      TranslateIdentifier(output, columnName);
+      TranslateIdentifier(output, column.DbName);
       _ = output.AppendSpace();
       TranslateIdentifier(output, action.NewName);
       _ = output.AppendSpace()
-        .Append(Translate(action.Column.DataType));
+        .Append(Translate(column.DataType));
     }
 
     // Constructors

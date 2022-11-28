@@ -7,6 +7,10 @@
 [main] Obsolete Query's members have been removed
 [main] Obsolete members of DelayedScalarQuery<T> have been removed
 [main] Obsolete FieldInfo.IsDynalicallyDefined property's been removed (FieldInfo.IsDynamicallyDefined is still there)
+[main] Changed translation of queries when DomainConfiguration.ShareStorageSchemaOverNodes set to true
+[main] StorageDriver.Compile(ISqlCompileUnit, NodeConfiguration) became obsolete
+[main] SqlNodeActualizer became obsolete
+[main] SqlCompilerConfiguration's DatabaseMapping and SchemaMapping moved to SqlPostCompilerConfiguration
 [main] Some EventArgs inheritors that were sealed classes transformed to read-only structures
 [main] DbCommandEventArgs became read-only structure
 [main] SqlCustomFunctionCall and SqlFunctionCall share one base type
