@@ -20,7 +20,7 @@ namespace Xtensive.Collections
     /// Finds the items from initial collection according to specified filter <paramref name="criteria"/>.
     /// </summary>
     /// <param name="criteria">The object to filter initial collection with.</param>
-    /// <returns><see cref="ICollection{TItem}"/> object.</returns>
+    /// <returns><see cref="IEnumerable{TItem}"/> object.</returns>
     IEnumerable<TItem> Find(TFilter criteria);
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <param name="criteria">The object to filter initial collection with.</param>
     /// <param name="matchType">Type of the match.</param>
-    /// <returns><see cref="ICollection{TItem}"/> object.</returns>
+    /// <returns><see cref="IEnumerable{TItem}"/> object.</returns>
     IEnumerable<TItem> Find(TFilter criteria, MatchType matchType);
   }
 }

@@ -477,8 +477,8 @@ namespace Xtensive.Orm.Building.Builders
     private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
     {
       foreach (var type in typesToRegisterReferences) {
-        var typeImplementors = type.Implementors;
-        var descendantTypes = type.RecursiveDescendants;
+        var typeImplementors = type.DirectImplementors;
+        var descendantTypes = type.AllDescendants;
         if (typeImplementors.Any())
         {
           foreach (var implementor in typeImplementors)

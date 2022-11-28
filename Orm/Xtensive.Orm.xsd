@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <!--
   Copyright (C) 2013 Xtensive LLC.
@@ -32,7 +32,7 @@
                   </xs:all>
                   <xs:attribute name="upgradeMode" type="domainUpgradeMode" default="Default" use="optional"/>
                   <xs:attribute name="foreignKeyMode" type="foreignKeyMode" default="Default" use="optional"/>
-				  <xs:attribute name="fullTextChangeTrackingMode" type="fullTextChangeTrackingMode" default="Default" use="optional"/>
+                  <xs:attribute name="fullTextChangeTrackingMode" type="fullTextChangeTrackingMode" default="Default" use="optional"/>
                   <xs:attribute name="name" type="xs:string" default="" use="optional"/>
                   <xs:attribute name="provider" type="providerEnumeration" default="sqlserver" use="optional"/>
                   <xs:attribute name="connectionString" type="xs:string" default="null" use="optional"/>
@@ -167,6 +167,7 @@
           <xs:attribute name="schema" type="xs:string" use="optional"/>
           <xs:attribute name="table" type="xs:string" use="optional"/>
           <xs:attribute name="column" type="xs:string" use="optional"/>
+          <xs:attribute name="index" type="xs:string" use="optional"/>
         </xs:complexType>
       </xs:element>
     </xs:sequence>
