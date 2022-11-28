@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(SuperGenericCompiler));
 
       var mi = typeof (SuperGenericTarget<string>)
-        .GetMethod("Method",
+        .GetMethodEx("Method",
           BindingFlags.Static | BindingFlags.Public,
           new[] {"T1"},
           new[] {typeof (int), typeof (string), null})

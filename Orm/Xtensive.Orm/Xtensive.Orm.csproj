@@ -2,6 +2,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
@@ -15,12 +16,18 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
-  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
-    <DefineConstants>TRACE</DefineConstants>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release-NET6'" Label="Release">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release-NET5'" Label="Release">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
@@ -39,8 +46,13 @@
       <Visible>false</Visible>
     </Content>
   </ItemGroup>
-  <ItemGroup Label="Packages">
+  <ItemGroup Condition="'$(TargetFramework)'=='net5.0'">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Packages">
     <PackageReference Include="BitFaster.Caching" Version="1.0.7" />
   </ItemGroup>
   <ItemGroup Label="T4 templates">
@@ -104,9 +116,9 @@
 
   <Target Name="IncludeWeaverFiles">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\**">
+      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\$(TargetFramework)\**">
         <Pack>true</Pack>
-        <PackagePath>tools\weaver\</PackagePath>
+        <PackagePath>tools\weaver\$(TargetFramework)</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>

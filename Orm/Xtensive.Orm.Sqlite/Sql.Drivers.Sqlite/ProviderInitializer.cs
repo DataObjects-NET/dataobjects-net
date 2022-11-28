@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.08.21
 
@@ -53,13 +53,17 @@ namespace Xtensive.Sql.Drivers.Sqlite
 
     private static string GetLibraryHash()
     {
-      using (var hashProvider = new SHA1Managed()) {
-        hashProvider.Initialize();
-        using (var stream = GetLibraryStream())
-          hashProvider.ComputeHash(stream);
-        var hash = hashProvider.Hash.Take(8).ToArray();
-        return new StringBuilder().AppendHexArray(hash).ToString();
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
+      // direct creation is more efficient than SHA1.Create()
+      using (var hashProvider = new System.Security.Cryptography.SHA1Managed()) {
+        //hashProvider.Initialize();
+        ReadOnlySpan<byte> hashRaw;
+        using (var stream = GetLibraryStream()) {
+          hashRaw = hashProvider.ComputeHash(stream);
+        }
+        return new StringBuilder().AppendHexArray(hashRaw[..8]).ToString();
       }
+#pragma warning restore SYSLIB0021 // Type or member is obsolete
     }
 
     private static string GetLibraryFileName(string nativeLibraryCacheFolder, string moduleHash)

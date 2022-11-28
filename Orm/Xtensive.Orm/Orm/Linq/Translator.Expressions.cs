@@ -61,10 +61,11 @@ namespace Xtensive.Orm.Linq
       if (memberType==MemberType.Entity
         && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = type.GetDescendants(true)
-          .Union(type.GetImplementors(true))
-          .Union(Enumerable.Repeat(type, 1))
-          .Select(t => context.TypeIdRegistry.GetTypeId(t));
+
+        var typeInfos = type.AllDescendants.ToHashSet();
+        typeInfos.UnionWith(type.AllImplementors);
+        _ = typeInfos.Add(type);
+        var typeIds = typeInfos.Select(context.TypeIdRegistry.GetTypeId);
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
@@ -1650,7 +1651,7 @@ namespace Xtensive.Orm.Linq
     {
       var @interface = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var implementors = context.Model.Types[@interface].GetImplementors(true);
+      var implementors = context.Model.Types[@interface].AllImplementors;
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
@@ -1664,7 +1665,7 @@ namespace Xtensive.Orm.Linq
     {
       var ancestor = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var descendants = context.Model.Types[ancestor].GetDescendants(true);
+      var descendants = context.Model.Types[ancestor].AllDescendants;
       var fields = descendants
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic))
         .Where(f => f != null);
