@@ -1,10 +1,11 @@
 // Copyright (C) 2009-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,19 +27,21 @@ namespace Xtensive.Orm.Providers
     protected readonly struct QueryAndBindings
     {
       public SqlSelect Query { get; }
-      public IReadOnlyList<QueryParameterBinding> Bindings { get; }
+      public List<QueryParameterBinding> Bindings { get; }
 
       public QueryAndBindings(SqlSelect initialQuery)
-        : this(initialQuery, new List<QueryParameterBinding>())
       {
+        Query = initialQuery;
+        Bindings = new List<QueryParameterBinding>();
       }
-
-      public QueryAndBindings(SqlSelect initialQuery, IReadOnlyList<QueryParameterBinding> bindings)
+      public QueryAndBindings(SqlSelect initialQuery, List<QueryParameterBinding> bindings)
       {
         Query = initialQuery;
         Bindings = bindings;
       }
     }
+
+    private TypeMapping int32TypeMapping;
 
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -55,7 +58,7 @@ namespace Xtensive.Orm.Providers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       var queryAndBindings = BuildProviderQuery(index);
-      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings, provider);
+      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings.ToArray(), provider);
     }
 
     protected QueryAndBindings BuildProviderQuery(IndexInfo index)
@@ -119,7 +122,7 @@ namespace Xtensive.Orm.Providers
           ? (ISqlQueryExpression) select.Query
           : result.Union(select.Query);
         if (resultBindings == null) {
-          resultBindings = select.Bindings.ToList();
+          resultBindings = select.Bindings;
         }
         else {
           resultBindings.AddRange(select.Bindings);
@@ -139,28 +142,31 @@ namespace Xtensive.Orm.Providers
       SqlTable rootTable = null;
 
       var keyColumnCount = index.KeyColumns.Count;
-      var underlyingQueries = new QueryAndBindings[index.UnderlyingIndexes.Count];
-      var underlyingIndexes = index.UnderlyingIndexes;
-      var haveVirtualUnderlyingIndexes = false;
-      for (int i = 0, count = underlyingIndexes.Count; i < count; i++) {
-        var underlyingIndex = underlyingIndexes[i];
-        underlyingQueries[i] = BuildProviderQuery(underlyingIndex);
-        haveVirtualUnderlyingIndexes = haveVirtualUnderlyingIndexes || underlyingIndex.IsVirtual;
-      }
+      var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
 
-      var sourceTables = new SqlTable[underlyingQueries.Length];
+      var sourceTables = new List<SqlTable>();
       List<QueryParameterBinding> resultBindings = null;
-
-      for (int i = 0, length = underlyingQueries.Length; i < length; i++) {
-        var item = underlyingQueries[i];
-
-        sourceTables[i] = haveVirtualUnderlyingIndexes ? SqlDml.QueryRef(item.Query) : CreateSourceTable(item);
-
-        if (resultBindings == null) {
-          resultBindings = item.Bindings.ToList();
+      if(index.UnderlyingIndexes.Any(i => i.IsVirtual)) {
+        foreach(var item in underlyingQueries) {
+          sourceTables.Add(SqlDml.QueryRef(item.Query));
+          if (resultBindings == null) {
+            resultBindings = item.Bindings;
+          }
+          else {
+            resultBindings.AddRange(item.Bindings);
+          }
         }
-        else {
-          resultBindings.AddRange(item.Bindings);
+      }
+      else {
+        foreach (var item in underlyingQueries) {
+          var tableRef = (SqlTableRef) item.Query.From;
+          sourceTables.Add(SqlDml.TableRef(tableRef.DataTable, tableRef.Name, item.Query.Columns.Select(c => c.Name)));
+          if (resultBindings == null) {
+            resultBindings = item.Bindings;
+          }
+          else {
+            resultBindings.AddRange(item.Bindings);
+          }
         }
       }
 
@@ -202,18 +208,6 @@ namespace Xtensive.Orm.Providers
       return new QueryAndBindings(query, resultBindings);
     }
 
-    private static SqlTable CreateSourceTable(QueryAndBindings item)
-    {
-      var columns = item.Query.Columns;
-      var columnNames = new string[columns.Count];
-      for (int i = 0, count = columns.Count; i < count; i++) {
-        columnNames[i] = columns[i].Name;
-      }
-
-      return SqlDml.TableRef(((SqlTableRef) item.Query.From).DataTable,
-        ((SqlTableRef) item.Query.From).Name, columnNames);
-    }
-
     private QueryAndBindings BuildFilteredQuery(IndexInfo index)
     {
       var underlyingIndex = index.UnderlyingIndexes[0];
@@ -253,9 +247,29 @@ namespace Xtensive.Orm.Providers
       else {
         var typeIdColumn = baseQuery.Columns[Handlers.Domain.Handlers.NameBuilder.TypeIdColumnName];
 
-        filter = filterByTypesCount == 1
-          ? typeIdColumn == SqlDml.Placeholder(filterByTypes[0])
-          : SqlDml.In(typeIdColumn, SqlDml.Array(filterByTypes.Select(SqlDml.Placeholder)));
+        if (!useParameterForTypeId) {
+          filter = filterByTypes.Count == 1
+            ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
+            : SqlDml.In(typeIdColumn,
+                SqlDml.Array(filterByTypes.Select(t => TypeIdRegistry[t]).ToArray(filterByTypes.Count)));
+        }
+        else {
+          if (filterByTypes.Count == 1) {
+            var binding = CreateTypeIdentifierBinding(type);
+            bindings.Add(binding);
+            filter = typeIdColumn == binding.ParameterReference;
+          }
+          else {
+            var typeIdParameters = filterByTypes
+              .Select(t => {
+                var binding = CreateTypeIdentifierBinding(t);
+                bindings.Add(binding);
+                return binding.ParameterReference;
+              })
+              .ToArray(filterByTypes.Count);
+            filter = SqlDml.In(typeIdColumn, SqlDml.Array(typeIdParameters));
+          }
+        }
       }
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);
@@ -291,13 +305,23 @@ namespace Xtensive.Orm.Providers
         .Select((c, i) => (c.Field, i))
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
-      var typeIdColumn = SqlDml.Column(SqlDml.Placeholder(type));
+
+      SqlUserColumn typeIdColumn;
+      if (useParameterForTypeId) {
+        var binding = CreateTypeIdentifierBinding(type);
+
+        typeIdColumn = SqlDml.Column(binding.ParameterReference);
+        bindings.Add(binding);
+      }
+      else {
+        typeIdColumn = SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type]));
+      }
 
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
         var discriminatorColumnIndex = 0;
         var discriminatorColumnInfo = discriminatorMap.Column;
-        var underlyingColumns = underlyingIndex.Columns; 
+        var underlyingColumns = underlyingIndex.Columns;
         for (var columnCount = underlyingColumns.Count; discriminatorColumnIndex < columnCount; discriminatorColumnIndex++) {
           var column = underlyingColumns[discriminatorColumnIndex];
           if (column.Equals(discriminatorColumnInfo)) {
@@ -308,10 +332,11 @@ namespace Xtensive.Orm.Providers
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.First);
-          _ = sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Placeholder(pair.Second));
+          var typeId = TypeIdRegistry[pair.Second];
+          _ = sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
         }
         if (discriminatorMap.Default != null) {
-          sqlCase.Else = SqlDml.Placeholder(discriminatorMap.Default);
+          sqlCase.Else = SqlDml.Literal(TypeIdRegistry[discriminatorMap.Default]);
         }
 
         typeIdColumn = SqlDml.Column(sqlCase);
@@ -333,5 +358,8 @@ namespace Xtensive.Orm.Providers
         ? Convert.ChangeType(fieldValue, column.ValueType)
         : fieldValue;
     }
+
+    private QueryParameterBinding CreateTypeIdentifierBinding(TypeInfo type) =>
+      new QueryTypeIdentifierParameterBinding(type.TypeId, int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32));
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2017.03.24
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Sql.Model;
 
@@ -12,7 +13,8 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// Applies configured mappings to <see cref="Catalog"/>'s or <see cref="Schema"/>'s name to get actual name.
   /// </summary>
-  public struct SqlNodeActualizer
+  [Obsolete]
+  public sealed class SqlNodeActualizer
   {
     private readonly IReadOnlyDictionary<string, string> databaseMapping;
     private readonly IReadOnlyDictionary<string, string> schemaMapping;

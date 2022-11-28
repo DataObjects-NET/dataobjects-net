@@ -1966,7 +1966,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column, index or table..
         /// </summary>
         internal static string ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable {
             get {
@@ -4605,6 +4605,15 @@ namespace Xtensive {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
+        /// </summary>
+        internal static string ExUnableToActualizeSchemaNodeInQuery {
+            get {
+                return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed..
         /// </summary>

@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2021 Xtensive LLC.
+// Copyright (C) 2014-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -16,8 +16,8 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class TypeIdRegistry : LockableBase
   {
-    private readonly Dictionary<TypeInfo, int> mapping = new Dictionary<TypeInfo, int>();
-    private readonly Dictionary<int, TypeInfo> reverseMapping = new Dictionary<int, TypeInfo>();
+    private readonly Dictionary<TypeInfo, int> mapping = new();
+    private readonly Dictionary<int, TypeInfo> reverseMapping = new();
 
     /// <summary>
     /// Gets collection of registered types.
@@ -36,12 +36,11 @@ namespace Xtensive.Orm.Model
     /// <returns>Type identifier for the specified <paramref name="type"/>.</returns>
     public int this[TypeInfo type]
     {
-      get
-      {
+      get {
         ArgumentValidator.EnsureArgumentNotNull(type, "type");
-        return mapping.TryGetValue(type, out var result)
-          ? result
-          : throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name));
+        return !mapping.TryGetValue(type, out var result)
+          ? throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name))
+          : result;
       }
     }
 
@@ -51,9 +50,9 @@ namespace Xtensive.Orm.Model
     /// <param name="typeId">Type identifier to get type for.</param>
     /// <returns>Type for the specified <paramref name="typeId"/>.</returns>
     public TypeInfo this[int typeId] =>
-      reverseMapping.TryGetValue(typeId, out var result)
-        ? result
-        : throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
+      !reverseMapping.TryGetValue(typeId, out var result)
+        ? throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId))
+        : result;
 
     /// <summary>
     /// Checks if specified <paramref name="type"/> is registered.
@@ -79,9 +78,7 @@ namespace Xtensive.Orm.Model
     public int GetTypeId(TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      return mapping.TryGetValue(type, out var result)
-        ? result
-        : TypeInfo.NoTypeId;
+      return !mapping.TryGetValue(type, out var result) ? TypeInfo.NoTypeId : result;
     }
 
     /// <summary>

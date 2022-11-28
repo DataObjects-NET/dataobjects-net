@@ -123,6 +123,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const TagsLocation DefaultTagLocation = TagsLocation.Default;
 
+    /// <summary>
+    /// Default <see cref="PreferTypeIdsAsQueryParameters"/> value: <see langword="true" />.
+    /// </summary>
+    public const bool DefaultPreferTypeIdsAsQueryParameters = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -149,11 +154,7 @@ namespace Xtensive.Orm.Configuration
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private bool shareQueryCacheOverNodes = DefaultShareQueryCacheOverNodes;
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
-    private MappingRuleCollection mappingRules = new MappingRuleCollection();
-    private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
-    private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
-    private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
-    private VersioningConvention versioningConvention = new VersioningConvention();
+    private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
     private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
     private FullTextChangeTrackingMode fullTextChangeTrackingMode = DefaultFullTextChangeTrackingMode;
@@ -618,6 +619,18 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Makes queries use parameters instead of constant values for persistent type identifiers.
+    /// </summary>
+    public bool PreferTypeIdsAsQueryParameters
+    {
+      get { return preferTypeIdsAsQueryParameters; }
+      set {
+        EnsureNotLocked();
+        preferTypeIdsAsQueryParameters = value;
+      }
+    }
+
+    /// <summary>
     /// Defines where tags will be placed when used within queries.
     /// </summary>
     public TagsLocation TagsLocation
@@ -768,7 +781,7 @@ namespace Xtensive.Orm.Configuration
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       ShareQueryCacheOverNodes = configuration.ShareQueryCacheOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
-      taggingBehavior = configuration.taggingBehavior;
+      preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
     }
 
     /// <summary>

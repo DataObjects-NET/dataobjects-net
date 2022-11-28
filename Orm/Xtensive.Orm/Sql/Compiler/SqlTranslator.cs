@@ -1980,23 +1980,20 @@ namespace Xtensive.Sql.Compiler
 
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
-      var actualizer = context.SqlNodeActualizer;
 
 
-      var setup = EscapeSetup;
-
-      if (dbQualified) {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog));
-        _ = output.AppendLiteral(setup.Delimiter);
-      }
-
-      if (context.ParametrizeSchemaNames) {
-        _ = output.AppendLiteral(setup.Opener);
-        output.AppendPlaceholderWithId(node.Schema);
-        _ = output.AppendLiteral(setup.Closer);
+      if (node.Schema.IsNamesReadingDenied) {
+        // if schema is shared we use placeholders to translate
+        // schema node in PostCompiler
+        output.AppendSchemaNodePlaceholder(node, EscapeSetup, dbQualified);
       }
       else {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema));
+        if (dbQualified) {
+          TranslateIdentifier(output, node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName);
+        }
+        else {
+          TranslateIdentifier(output, node.Schema.DbName, node.DbName);
+        }
       }
       _ = output.AppendLiteral(setup.Delimiter);
 

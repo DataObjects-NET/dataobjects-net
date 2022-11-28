@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
       maxQueryParameterCount = StorageProviderInfo.Instance.Info.MaxQueryParameterCount;
 
-      parametersFitInSingleCommand = Enumerable.Range(1, maxQueryParameterCount - 1).ToArray();
-      parametersDontFitInSingleCommand = Enumerable.Range(1, maxQueryParameterCount + 1).ToArray();
+      parametersFitInSingleCommand = Enumerable.Range(1, maxQueryParameterCount - 1).ToArray(maxQueryParameterCount - 1);
+      parametersDontFitInSingleCommand = Enumerable.Range(1, maxQueryParameterCount + 1).ToArray(maxQueryParameterCount + 1);
     }
 
     [Test]

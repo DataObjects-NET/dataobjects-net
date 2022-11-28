@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Providers
     private readonly HashSet<Column> rootColumns;
     private readonly bool temporaryTablesSupported;
     private readonly bool forceApplyViaReference;
+    private readonly bool useParameterForTypeId;
 
     private bool anyTemporaryTablesRequired;
 
@@ -572,6 +573,7 @@ namespace Xtensive.Orm.Providers
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
+      useParameterForTypeId = configuration.PreferTypeIdAsParameter && Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
