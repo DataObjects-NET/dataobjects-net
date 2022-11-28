@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = WellKnownOrmTypes.FullTextMatchOfT
         .CachedMakeGenericType(expression.EntityExpression.Type)
-        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
+        .GetConstructorEx(BindingFlags.NonPublic | BindingFlags.Instance,
           new object[] {WellKnownTypes.Double, expression.EntityExpression.Type});
 
       return Expression.New(
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
       throw new NotSupportedException(
-        string.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.SourceExpression));
+        string.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.ToString()));
 
     protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {

@@ -26,6 +26,7 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
+    [Obsolete("No longer in use")]
     public SqlNodeActualizer SqlNodeActualizer { get; private set; }
 
     public SqlNode[] GetTraversalPath() =>
@@ -148,8 +149,9 @@ namespace Xtensive.Sql.Compiler
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
       Output = new ContainerNode();
+#pragma warning disable CS0618, CS0612 // Type or member is obsolete
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
-      ParametrizeSchemaNames = configuration.ParametrizeSchemaNames;
+#pragma warning restore CS0618, CS0612 // Type or member is obsolete
     }
   }
 }

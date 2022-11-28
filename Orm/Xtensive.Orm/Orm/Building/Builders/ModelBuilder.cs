@@ -101,9 +101,9 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildModelDefinition()
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.ModelDefinition)) {
         context.ModelDef = new DomainModelDef(modelDefBuilder, context.Validator);
-        using (BuildLog.InfoRegion(Strings.LogDefiningX, Strings.Types))
+        using (BuildLog.InfoRegion(nameof(Strings.LogDefiningX), Strings.Types))
           modelDefBuilder.ProcessTypes();
       }
     }
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ApplyCustomDefinitions()
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions))
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.CustomDefinitions))
       using (new BuildingScope(context)) { // Activate context for compatibility with previous versions
         foreach (var module in context.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildModel()
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.ActualModel)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.ActualModel)) {
         context.Model = new DomainModel();
         BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
@@ -184,13 +184,13 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildTypes(IEnumerable<TypeDef> typeDefs)
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Types)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Types)) {
         // Building types, system fields and hierarchies
         foreach (var typeDef in typeDefs) {
           typeBuilder.BuildType(typeDef);
         }
       }
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, "Fields"))
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), "Fields"))
         foreach (var typeDef in typeDefs) {
           var typeInfo = context.Model.Types[typeDef.UnderlyingType];
           typeBuilder.BuildFields(typeDef, typeInfo);
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Building.Builders
             }
           }
           if (refField.IsInherited) {
-            var ancestor = typeInfo.GetAncestor();
+            var ancestor = typeInfo.Ancestor;
             var field = ancestor.Fields[refField.Name];
             inheritedAssociations.AddRange(field.Associations);
             parentIsPaired |= context.PairedAssociations.Any(pa => field.Associations.Contains(pa.First));
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildAssociations()
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Associations)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Associations)) {
         PreprocessAssociations();
         foreach (var pair in context.PairedAssociations) {
           if (context.DiscardedAssociations.Contains(pair.First))
@@ -477,8 +477,8 @@ namespace Xtensive.Orm.Building.Builders
     private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
     {
       foreach (var type in typesToRegisterReferences) {
-        var typeImplementors = type.GetImplementors();
-        var descendantTypes = type.GetDescendants(true);
+        var typeImplementors = type.DirectImplementors;
+        var descendantTypes = type.AllDescendants;
         if (typeImplementors.Any())
         {
           foreach (var implementor in typeImplementors)

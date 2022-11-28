@@ -9,6 +9,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
@@ -142,9 +143,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.FunctionCall("TRUNCATE", argument, SqlDml.Literal(0)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Concat:
-          var exprs = new SqlExpression[node.Arguments.Count];
-          node.Arguments.CopyTo(exprs, 0);
-          Visit(SqlDml.Concat(exprs));
+          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
@@ -190,12 +189,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     protected override void VisitSelectLimitOffset(SqlSelect node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
       }
-      if (!node.Offset.IsNullReference()) {
-        if (node.Limit.IsNullReference()) {
+      if (node.Offset is not null) {
+        if (node.Limit is null) {
           AppendTranslated(node, SelectSection.Limit);
           _ = context.Output.Append(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
         }

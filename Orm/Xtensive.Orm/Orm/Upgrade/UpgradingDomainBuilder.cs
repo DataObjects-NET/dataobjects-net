@@ -552,7 +552,7 @@ namespace Xtensive.Orm.Upgrade
           context.SchemaHints.Add(schemaHint);
         }
         catch (Exception error) {
-          UpgradeLog.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+          UpgradeLog.Warning(nameof(Strings.LogFailedToAddSchemaHintXErrorY), schemaHint, error);
         }
       }
     }
@@ -560,7 +560,7 @@ namespace Xtensive.Orm.Upgrade
     private void SynchronizeSchema(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -570,7 +570,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -590,9 +590,9 @@ namespace Xtensive.Orm.Upgrade
         var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         OnSchemaReady();
@@ -605,7 +605,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;
@@ -645,7 +645,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task SynchronizeSchemaAsync(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode, CancellationToken token)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -655,7 +655,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -675,9 +675,9 @@ namespace Xtensive.Orm.Upgrade
         var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         await OnSchemaReadyAsync(token).ConfigureAwait(false);
@@ -690,7 +690,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;

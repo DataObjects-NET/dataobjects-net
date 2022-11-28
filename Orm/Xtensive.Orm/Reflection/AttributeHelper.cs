@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using AttributesKey = System.ValueTuple<System.Reflection.MemberInfo, System.Type, Xtensive.Reflection.AttributeSearchOptions>;
 using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;
+using Xtensive.Core;
 
 namespace Xtensive.Reflection
 {
@@ -71,42 +72,60 @@ namespace Xtensive.Reflection
     private static IReadOnlyList<Attribute> GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
       attributesByMemberInfoAndSearchOptions.GetOrAdd(
         new AttributesKey(member, attributeType, options),
-        t => ExtractAttributes(t).ToArray()
+        t => ExtractAttributes(t, out var count).ToArray(count)
       );
 
-    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    private static IEnumerable<Attribute> GetAttributes(this MemberInfo member, Type attributeType, out int count)
     {
       var attrObjects = member.GetCustomAttributes(attributeType, false);
-      var attrs = new Attribute[attrObjects.Length];
-      for (int i = attrObjects.Length; i-- > 0;) {
-        attrs[i] = (Attribute) attrObjects[i];
-      }
-      return attrs;
+      count = attrObjects.Length;
+      return (count == 0)
+        ? Array.Empty<Attribute>()
+        : attrObjects.Cast<Attribute>();
     }
 
-    private static IEnumerable<Attribute> ExtractAttributes((MemberInfo member, Type attributeType, AttributeSearchOptions options) t) {
+    private static IEnumerable<Attribute> ExtractAttributes((MemberInfo member, Type attributeType, AttributeSearchOptions options) t, out int count)
+    {
       (var member, var attributeType, var options) = t;
 
-      var attributes = member.GetCustomAttributes(attributeType, false).Cast<Attribute>().ToList();
-      if (options == AttributeSearchOptions.InheritNone)
-        return attributes;
-      if (attributes.Count == 0) {
+      var customAttributesRaw = member.GetCustomAttributes(attributeType, false);
+      count = customAttributesRaw.Length;
+
+      if (options == AttributeSearchOptions.InheritNone) {
+        return (customAttributesRaw.Length == 0)
+          ? Array.Empty<Attribute>()
+          : customAttributesRaw.Cast<Attribute>();
+      }
+
+      IEnumerable<Attribute> attributes;
+      if (customAttributesRaw.Length == 0) {
+        attributes = Enumerable.Empty<Attribute>();
         if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent) != 0
             && member is MethodInfo m
             && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is MemberInfo poe) {
-          attributes = poe.GetAttributes(attributeType).ToList();
+          var poeAttributes = poe.GetAttributes(attributeType, out var count1);
+          count = count1;
+          attributes = poeAttributes;
         }
         if ((options & AttributeSearchOptions.InheritFromBase) != 0
-            && (options & AttributeSearchOptions.InheritFromAllBase) == 0
+            && (options & AttributeSearchOptions.InheritRecursively) == 0
             && member.GetBaseMember() is MemberInfo bm) {
-          attributes.AddRange(GetAttributes(bm, attributeType, options));
+          var inheritedAttributes = GetAttributes(bm, attributeType, options);
+          count += inheritedAttributes.Count;
+          attributes = attributes.Concat(inheritedAttributes);
+          return attributes;
         }
       }
+      else {
+        attributes = customAttributesRaw.Cast<Attribute>();
+      }
 
-      if ((options & AttributeSearchOptions.InheritFromAllBase) != 0
+      if ((options & AttributeSearchOptions.InheritFromAllBase) == AttributeSearchOptions.InheritFromAllBase
           && member.DeclaringType != WellKnownTypes.Object
           && member.GetBaseMember() is MemberInfo bm2) {
-        attributes.AddRange(GetAttributes(bm2, attributeType, options));
+        var inheritedAttributes = GetAttributes(bm2, attributeType, options);
+        count += inheritedAttributes.Count;
+        attributes = attributes.Concat(inheritedAttributes);
       }
 
       return attributes;

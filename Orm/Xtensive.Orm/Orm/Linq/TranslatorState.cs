@@ -133,14 +133,14 @@ namespace Xtensive.Orm.Linq
     public TranslatorState(in TranslatorState currentState)
     {
       this = currentState;
-    }      
+    }
   }
 }
 
-#if !NET5_0_OR_GREATER
-// Workaround of error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
-namespace System.Runtime.CompilerServices
-{
-  internal static class IsExternalInit { }
-}
-#endif
+//#if !NET5_0_OR_GREATER
+//// Workaround of error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
+//namespace System.Runtime.CompilerServices
+//{
+//  internal static class IsExternalInit { }
+//}
+//#endif

@@ -1,64 +1,58 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Tracking
 {
-  internal sealed class TrackingStackFrame : IEnumerable<TrackingItem>
+  internal readonly struct TrackingStackFrame : IEnumerable<TrackingItem>
   {
-    private readonly Dictionary<Key, TrackingItem> items = new Dictionary<Key, TrackingItem>();
+    private readonly Dictionary<Key, TrackingItem> items;
 
-    public int Count { get { return items.Count; } }
+    public int Count => items.Count;
 
     public void Register(TrackingItem item)
     {
-      if (item==null)
-        throw new ArgumentNullException("item");
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      TrackingItem existing;
-      if (items.TryGetValue(item.Key, out existing)) {
-        if (item==existing)
-          return;
-
-        existing.MergeWith(item);
-        return;
+      var key = item.Key;
+      if (!items.TryGetValue(key, out var existing)) {
+        items.Add(key, item);
       }
-      items.Add(item.Key, item);
+      else if (item != existing) {
+        existing.MergeWith(item);
+      }
     }
 
-    public void Clear()
-    {
-      items.Clear();
-    }
+    public void Clear() => items.Clear();
 
     public void MergeWith(TrackingStackFrame source)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
-
       foreach (var sourceItem in source) {
-        TrackingItem target;
-        if (items.TryGetValue(sourceItem.Key, out target))
-          target.MergeWith(sourceItem);
-        else
-          items.Add(sourceItem.Key, sourceItem);
+        var key = sourceItem.Key;
+        if (items.TryGetValue(key, out var existing)) {
+          existing.MergeWith(sourceItem);
+        }
+        else {
+          items.Add(key, sourceItem);
+        }
       }
     }
 
-    public IEnumerator<TrackingItem> GetEnumerator()
-    {
-      return items.Values.GetEnumerator();
-    }
+    public IEnumerator<TrackingItem> GetEnumerator() => items.Values.GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    // parameterless ctor not allowed in C#9
+    //TODO: remove it after moving to C#10
+    public TrackingStackFrame(bool _)
     {
-      return GetEnumerator();
+      items = new();
     }
   }
 }

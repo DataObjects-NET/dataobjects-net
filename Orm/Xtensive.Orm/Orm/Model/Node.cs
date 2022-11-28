@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Model
     {
       get { return name; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ValidateName(value);
         ChangeState("Name", delegate { name = value; });
       }
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public virtual void UpdateState()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
     }
 
     /// <inheritdoc/>

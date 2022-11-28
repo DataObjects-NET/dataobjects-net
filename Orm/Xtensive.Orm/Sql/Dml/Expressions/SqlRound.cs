@@ -19,8 +19,7 @@ namespace Xtensive.Sql.Dml
     
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentIs<SqlRound>(expression, "expression");
-      var replacingExpression = (SqlRound) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRound>(expression);
       Argument = replacingExpression.Argument;
       Length = replacingExpression.Length;
       Type = replacingExpression.Type;
@@ -32,7 +31,7 @@ namespace Xtensive.Sql.Dml
         ? clone
         : context.NodeMapping[this] = new SqlRound(
             (SqlExpression) Argument.Clone(context),
-            Length.IsNullReference() ? null : (SqlExpression) Length.Clone(context),
+            Length is null ? null : (SqlExpression) Length.Clone(context),
             Type, Mode);
 
     public override void AcceptVisitor(ISqlVisitor visitor)

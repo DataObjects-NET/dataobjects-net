@@ -26,9 +26,10 @@ namespace Xtensive.Orm.Providers
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
+    private readonly HashSet<Column> rootColumns;
     private readonly bool temporaryTablesSupported;
-    private readonly HashSet<Column> rootColumns = new HashSet<Column>();
     private readonly bool forceApplyViaReference;
+    private readonly bool useParameterForTypeId;
 
     private bool anyTemporaryTablesRequired;
 
@@ -130,7 +131,7 @@ namespace Xtensive.Orm.Providers
 
       var sourceSelect = source.Request.Statement;
       SqlSelect query;
-      if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
+      if (sourceSelect.Limit is not null || sourceSelect.Offset is not null) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns);
@@ -579,11 +580,14 @@ namespace Xtensive.Orm.Providers
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
+      useParameterForTypeId = configuration.PreferTypeIdAsParameter && Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
 
-      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
+      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
+      }
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
+      rootColumns = new HashSet<Column>();
     }
   }
 }

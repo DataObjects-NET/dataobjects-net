@@ -59,8 +59,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Assert.IsNotNull(i2);
       Assert.AreEqual(2, i2.Columns.Count);
 
-      Assert.IsTrue(!t2.TableColumns["third"].Expression.IsNullReference());
-      Assert.IsTrue(!t2.TableColumns["forth"].Expression.IsNullReference());
+      Assert.IsTrue(t2.TableColumns["third"].Expression is not null);
+      Assert.IsTrue(t2.TableColumns["forth"].Expression is not null);
     }
 
     public override void CreateFilteredIndexTest()

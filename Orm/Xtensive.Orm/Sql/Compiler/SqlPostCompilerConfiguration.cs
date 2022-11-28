@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -6,11 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Xtensive.Orm;
-using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
-using Xtensive.Sql.Model;
+using System.Collections.ObjectModel;
+using JetBrains.Annotations;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -19,13 +17,21 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public sealed class SqlPostCompilerConfiguration
   {
-    public HashSet<object> AlternativeBranches { get; } = new();
+    public HashSet<object> AlternativeBranches { get; private set; } = new HashSet<object>();
 
-    public Dictionary<object, string> PlaceholderValues { get; } = new();
-    public TypeIdRegistry TypeIdRegistry { get; }
-    public IReadOnlyDictionary<string, string> SchemaMapping { get; }
+    public Dictionary<object, string> PlaceholderValues { get; private set; } = new Dictionary<object, string>();
 
-    public Dictionary<object, List<string[]>> DynamicFilterValues { get; } = new();
+    public Dictionary<object, List<string[]>> DynamicFilterValues { get; private set; } = new Dictionary<object, List<string[]>>();
+
+    /// <summary>
+    /// Gets database mapping.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
+
+    /// <summary>
+    /// Gets database mapping.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
 
     internal void AppendPlaceholderValue(StringBuilder sb, PlaceholderNode node)
     {
@@ -58,7 +64,17 @@ namespace Xtensive.Sql.Compiler
 
     public SqlPostCompilerConfiguration(TypeIdRegistry typeIdRegistry, IReadOnlyDictionary<string, string> schemaMapping)
     {
-      TypeIdRegistry = typeIdRegistry;
+      // this prevents wrong query to be executed.
+      SchemaMapping = null;
+      DatabaseMapping = null;
+    }
+
+    public SqlPostCompilerConfiguration([NotNull] IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
+      ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
+
+      DatabaseMapping = databaseMapping;
       SchemaMapping = schemaMapping;
     }
   }

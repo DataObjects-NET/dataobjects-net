@@ -11,14 +11,13 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  partial class IndexBuilder
+  internal partial class IndexBuilder
   {
     private void BuildConcreteTableIndexes(TypeInfo type)
     {
-      if (type.Indexes.Count > 0)
+      if (type.Indexes.Count > 0 || type.IsStructure) {
         return;
-      if (type.IsStructure)
-        return;
+      }
 
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
@@ -31,59 +30,69 @@ namespace Xtensive.Orm.Building.Builders
         // and if they have some indexes then IndexDef.IsInherited of them will be true and it's truth actually,
         // but fields inherited from removed entities will have FieldInfo.IsInherited = false.
         // So, if we check only IndexDef.IsInherited then some indexes will be ignored.
-        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf=> type.Fields[kf.Key]).Any(f=>f.IsInherited))
+        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf=> type.Fields[kf.Key]).Any(f=>f.IsInherited)) {
           continue;
-        var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract); 
+        }
 
+        var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract); 
         type.Indexes.Add(declaredIndex);
-        if (!declaredIndex.IsAbstract)
+        if (!declaredIndex.IsAbstract) {
           context.Model.RealIndexes.Add(declaredIndex);
+        }
       }
 
       // Building primary index for non root entities
-      var parent = type.GetAncestor();
+      var parent = type.Ancestor;
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.IsAbstract);
        
         // Registering built primary index
         type.Indexes.Add(inheritedIndex);
-        if (!inheritedIndex.IsAbstract)
+        if (!inheritedIndex.IsAbstract) {
           context.Model.RealIndexes.Add(inheritedIndex);
+        }
       }
 
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.GetInterfaces(true)) {
-        foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
-          if (parentIndex.DeclaringIndex != parentIndex) 
+      foreach (var @interface in type.AllInterfaces) {
+        foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+          if (parentIndex.DeclaringIndex != parentIndex) {
             continue;
+          }
+
           var index = BuildInheritedIndex(type, parentIndex, type.IsAbstract);
-          if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name))
+          if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name)) {
             continue;
+          }
+
           type.Indexes.Add(index);
-          if (!index.IsAbstract)
+          if (!index.IsAbstract) {
             context.Model.RealIndexes.Add(index);
+          }
         }
       }
 
       // Build typed indexes
-      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real)) {
-        if (!untypedIndexes.Contains(realIndex)) 
+      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real).ToChainedBuffer()) {
+        if (!untypedIndexes.Contains(realIndex)) {
           continue;
+        }
         var typedIndex = BuildTypedIndex(type, realIndex);
         type.Indexes.Add(typedIndex);
       }
 
       // Build indexes for descendants
-      foreach (var descendant in type.GetDescendants())
+      foreach (var descendant in type.DirectDescendants) {
         BuildConcreteTableIndexes(descendant);
+      }
 
-      var ancestors = type.GetAncestors().ToList();
-      var descendants = type.GetDescendants(true).ToList();
+      var ancestors = type.Ancestors;
+      var descendants = type.AllDescendants;
 
       // Build primary virtual union index
       if (descendants.Count > 0) {
-        var indexesToUnion = new List<IndexInfo>(){type.Indexes.PrimaryIndex};
+        var indexesToUnion = new List<IndexInfo>() { type.Indexes.PrimaryIndex };
         foreach (var index in descendants.Select(t => t.Indexes.PrimaryIndex)) {
           var indexView = BuildViewIndex(type, index);
           indexesToUnion.Add(indexView);
@@ -94,34 +103,45 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build inherited secondary indexes
-      foreach (var ancestorIndex in ancestors.SelectMany(ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None))) {
-        if (ancestorIndex.DeclaringIndex != ancestorIndex) 
+      var primaryOrVirtualIndexes = ancestors
+        .SelectMany(
+          ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None).ToChainedBuffer());
+
+      foreach (var ancestorIndex in primaryOrVirtualIndexes) {
+        if (ancestorIndex.DeclaringIndex != ancestorIndex) {
           continue;
+        }
+
         var secondaryIndex = BuildInheritedIndex(type, ancestorIndex, type.IsAbstract);
         type.Indexes.Add(secondaryIndex);
-        if (!secondaryIndex.IsAbstract)
+        if (!secondaryIndex.IsAbstract) {
           context.Model.RealIndexes.Add(secondaryIndex);
+        }
         // Build typed index for secondary one
-        if (!untypedIndexes.Contains(secondaryIndex))
+        if (!untypedIndexes.Contains(secondaryIndex)) {
           continue;
+        }
+
         var typedIndex = BuildTypedIndex(type, secondaryIndex);
         type.Indexes.Add(typedIndex);
       }
 
       // Build virtual secondary indexes
-      if (descendants.Count > 0)
+      if (descendants.Count > 0) {
         foreach (var index in type.Indexes.Where(i => !i.IsPrimary && !i.IsVirtual).ToList()) {
           var isUntyped = untypedIndexes.Contains(index);
           var indexToUnion = isUntyped
             ? type.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)
             : index;
 
-          var indexesToUnion = new List<IndexInfo>() {indexToUnion};
-          indexesToUnion.AddRange(descendants
-            .Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && (isUntyped ? i.IsTyped : !i.IsVirtual))));
+          var indexesToUnion = descendants
+            .Select(t => t.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && (isUntyped ? i.IsTyped : !i.IsVirtual)))
+            .Prepend(indexToUnion);
+
           var virtualSecondaryIndex = BuildUnionIndex(type, indexesToUnion);
           type.Indexes.Add(virtualSecondaryIndex);
         }
+      }
     }
   }
 }

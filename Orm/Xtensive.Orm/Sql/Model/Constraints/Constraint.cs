@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Model
       get { return isDeferrable; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isDeferrable = value;
       }
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Model
       get { return isInitiallyDeferred; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isInitiallyDeferred = value;
       }
     }
@@ -55,7 +55,7 @@ namespace Xtensive.Sql.Model
       get { return condition; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         condition = value;
       }
     }
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Model
       get { return owner; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ChangeOwner(value);
       }
     }
@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<T>.UpdatePairedProperty(string property, T value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       owner = value;
     }
 

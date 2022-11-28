@@ -738,16 +738,12 @@ namespace Xtensive.Sql
 
     public static SqlUserFunctionCall FunctionCall(string name, params SqlExpression[] expressions)
     {
-      Collection<SqlExpression> collection = new Collection<SqlExpression>();
-      for (int i = 0, l = expressions.Length; i<l; i++)
-        collection.Add(expressions[i]);
-      return FunctionCall(name, collection);
+      SqlValidator.EnsureAreSqlRowArguments(expressions);
+      return new SqlUserFunctionCall(name, expressions);
     }
 
-    public static SqlUserFunctionCall FunctionCall(string name)
-    {
-      return FunctionCall(name, new Collection<SqlExpression>());
-    }
+    public static SqlUserFunctionCall FunctionCall(string name) =>
+      new SqlUserFunctionCall(name, System.Array.Empty<SqlExpression>());
 
     public static SqlFunctionCall CurrentUser()
     {
@@ -855,7 +851,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
@@ -865,7 +861,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
     }
@@ -1158,7 +1154,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Rand(SqlExpression seed)
     {
-      if (!seed.IsNullReference()) {
+      if (seed is not null) {
         SqlValidator.EnsureIsArithmeticExpression(seed);
         return new SqlFunctionCall(SqlFunctionType.Rand, seed);
       }
@@ -1384,15 +1380,14 @@ namespace Xtensive.Sql
 
     public static SqlRow Row(params SqlExpression[] expressions)
     {
-      Collection<SqlExpression> collection = new Collection<SqlExpression>();
-      for (int i = 0, l = expressions.Length; i<l; i++)
-        collection.Add(expressions[i]);
+      var collection = new List<SqlExpression>(expressions.Length);
+      collection.AddRange(expressions);
       return Row(collection);
     }
 
     public static SqlRow Row()
     {
-      return Row(new Collection<SqlExpression>());
+      return Row(new List<SqlExpression>());
     }
 
     #endregion
@@ -1541,7 +1536,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsCharacterExpression(operand);
       if (length<0)
         throw new ArgumentException(Strings.ExLengthShouldBeNotNegativeValue, "length");
-      var arguments = new Collection<SqlExpression>();
+      var arguments = new List<SqlExpression>(3);
       arguments.Add(operand);
       arguments.Add(new SqlLiteral<int>(start));
       if (length.HasValue)
@@ -1550,44 +1545,31 @@ namespace Xtensive.Sql
     }
 
     public static SqlFunctionCall Substring(
-      SqlExpression operand, SqlExpression start)
-    {
-      return Substring(operand, start, null);
-    }
-
-    public static SqlFunctionCall Substring(
-      SqlExpression operand, SqlExpression start, SqlExpression length)
+      SqlExpression operand, SqlExpression start, SqlExpression length = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       ArgumentValidator.EnsureArgumentNotNull(start, "start");
       SqlValidator.EnsureIsCharacterExpression(operand);
       SqlValidator.EnsureIsArithmeticExpression(start);
-      if (length != null)
+      if (length != null) {
         SqlValidator.EnsureIsArithmeticExpression(length);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      arguments.Add(start);
-      if (length != null)
-        arguments.Add(length);
-      return new SqlFunctionCall(SqlFunctionType.Substring, arguments);
+        return new SqlFunctionCall(SqlFunctionType.Substring, operand, start, length);
+      }
+      return new SqlFunctionCall(SqlFunctionType.Substring, operand, start);
     }
 
     public static SqlFunctionCall Upper(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.Upper, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Upper, operand);
     }
 
     public static SqlFunctionCall Lower(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.Lower, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Lower, operand);
     }
 
     public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType, string trimCharacters)
@@ -1719,9 +1701,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.BinaryLength, arguments);
+      return new SqlFunctionCall(SqlFunctionType.BinaryLength, operand);
     }
 
     public static SqlFunctionCall CharLength(SqlExpression operand)
@@ -1737,10 +1717,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       SqlValidator.EnsureIsCharacterExpression(pattern);
       SqlValidator.EnsureIsCharacterExpression(source);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(pattern);
-      arguments.Add(source);
-      return new SqlFunctionCall(SqlFunctionType.Position, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Position, pattern, source);
     }
 
     public static SqlFunctionCall Replace(SqlExpression text, SqlExpression from, SqlExpression to)
@@ -1751,11 +1728,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsCharacterExpression(text);
       SqlValidator.EnsureIsCharacterExpression(from);
       SqlValidator.EnsureIsCharacterExpression(to);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(text);
-      arguments.Add(from);
-      arguments.Add(to);
-      return new SqlFunctionCall(SqlFunctionType.Replace, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Replace, text, from, to);
     }
 
     public static SqlCollate Collate(SqlExpression operand, Collation collation)

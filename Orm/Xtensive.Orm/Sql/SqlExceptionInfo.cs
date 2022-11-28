@@ -26,7 +26,7 @@ namespace Xtensive.Sql
     /// </summary>
     public SqlExceptionType Type {
       get { return type; }
-      set { this.EnsureNotLocked(); type = value; }
+      set { EnsureNotLocked(); type = value; }
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ namespace Xtensive.Sql
     /// </summary>
     public string Database {
       get { return database; }
-      set { this.EnsureNotLocked(); database = value; }
+      set { EnsureNotLocked(); database = value; }
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace Xtensive.Sql
     /// </summary>
     public string Table {
       get { return table; }
-      set { this.EnsureNotLocked(); table = value; }
+      set { EnsureNotLocked(); table = value; }
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ namespace Xtensive.Sql
     /// </summary>
     public string Column {
       get { return column; }
-      set { this.EnsureNotLocked(); column = value; }
+      set { EnsureNotLocked(); column = value; }
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ namespace Xtensive.Sql
     /// </summary>
     public string Value {
       get { return value; }
-      set { this.EnsureNotLocked(); this.value = value; }
+      set { EnsureNotLocked(); this.value = value; }
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ namespace Xtensive.Sql
     /// </summary>
     public string Constraint {
       get { return constraint; }
-      set { this.EnsureNotLocked(); constraint = value; }
+      set { EnsureNotLocked(); constraint = value; }
     }
 
     /// <inheritdoc/>

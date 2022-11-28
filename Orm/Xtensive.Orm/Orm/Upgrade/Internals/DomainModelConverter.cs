@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
         if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
+          Dictionary<TypeInfo, int> typeOrder = type.Ancestors
             .Append(type)
             .Select((t, i) => (Type: t, Index: i))
             .ToDictionary(a => a.Type, a => a.Index);
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Upgrade
         if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
         if (association.OwnerType.IsInterface) {
-          foreach (var implementorType in association.OwnerType.GetImplementors().SelectMany(GetForeignKeyOwners)) {
+          foreach (var implementorType in association.OwnerType.DirectImplementors.SelectMany(GetForeignKeyOwners)) {
             var implementorField = implementorType.FieldMap[association.OwnerField];
             ProcessDirectAssociation(implementorType, implementorField, association.TargetType);
           }
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       if (!providerInfo.Supports(ProviderFeatures.FullText)) {
-        UpgradeLog.Warning(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX, fullTextIndex.Name);
+        UpgradeLog.Warning(nameof(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX), fullTextIndex.Name);
         return null;
       }
 
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Upgrade
             typeColumn = table.Columns[fullTextColumn.TypeColumn.Name].Name;
         }
         else
-          UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
+          UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
         new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       
@@ -506,7 +506,7 @@ namespace Xtensive.Orm.Upgrade
         yield break;
       yield return type;
       if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
-        foreach (var descendant in type.GetDescendants(true).Where(descendant => descendant.Indexes.PrimaryIndex != null))
+        foreach (var descendant in type.AllDescendants.Where(descendant => descendant.Indexes.PrimaryIndex != null))
           yield return descendant;
     }
 

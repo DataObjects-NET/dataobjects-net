@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Dml
     internal override object Clone(SqlNodeCloneContext context) =>
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
-        : context.NodeMapping[this] = (Expression.IsNullReference()
+        : context.NodeMapping[this] = (Expression is null
             ? new SqlOrder(Position, Ascending)
             : new SqlOrder((SqlExpression)Expression.Clone(context), Ascending));
 

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2, T3> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -889,7 +889,7 @@ namespace Xtensive.Orm.Tests.Linq
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);
       var result = (await Session.Query.All<Invoice>()
-        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).AsAsync()).ToList();
+        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).ExecuteAsync()).ToList();
       var expected = Invoices
         .Where(invoice => invoice.Commission > localItems.Max(poco => poco.Value2));
 

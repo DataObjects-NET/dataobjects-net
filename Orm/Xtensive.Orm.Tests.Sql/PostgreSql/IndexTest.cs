@@ -49,8 +49,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.IsNotNull(i2);
       Assert.AreEqual(4, i2.Columns.Count);
 
-      Assert.IsTrue(!i2.Columns[2].Expression.IsNullReference());
-      Assert.IsTrue(!i2.Columns[3].Expression.IsNullReference());
+      Assert.IsTrue(i2.Columns[2].Expression is not null);
+      Assert.IsTrue(i2.Columns[3].Expression is not null);
     }
 
   }

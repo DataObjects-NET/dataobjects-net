@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj)) {
+        if (obj is null) {
           return false;
         }
         if (obj.GetType() != typeof (RootContainerCacheKey)) {
@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
       }
 
-      if (type.GetInterfaces(true).Contains(key.TypeReference.Type)
-        || key.TypeReference.Type.GetInterfaces(true).Contains(type)) {
+      if (type.AllInterfaces.Contains(key.TypeReference.Type)
+        || key.TypeReference.Type.AllInterfaces.Contains(type)) {
         return;
       }
 

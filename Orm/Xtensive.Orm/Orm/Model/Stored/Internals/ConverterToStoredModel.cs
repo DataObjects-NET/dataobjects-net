@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Model.Stored
       var declaredFields = source.Fields
         .Where(field => field.IsDeclared && !field.IsNested)
         .ToArray();
-      var sourceAncestor = source.GetAncestor();
+      var sourceAncestor = source.Ancestor;
       string hierarchyRoot = null;
       if (source.Hierarchy!=null && source.Hierarchy.Root==source)
         hierarchyRoot = source.Hierarchy.InheritanceSchema.ToString();

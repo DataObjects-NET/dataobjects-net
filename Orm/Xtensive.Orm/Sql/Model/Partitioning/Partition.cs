@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Model
     {
       get { return partitionDescriptor; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (partitionDescriptor == value)
           return;
         if (partitionDescriptor!=null)
@@ -54,7 +54,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<PartitionDescriptor>.UpdatePairedProperty(string property, PartitionDescriptor value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       partitionDescriptor = value;
     }
 

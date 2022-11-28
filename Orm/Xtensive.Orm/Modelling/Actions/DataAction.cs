@@ -26,7 +26,7 @@ namespace Xtensive.Modelling.Actions
       get { return dataHint; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         dataHint = value;
         Path = dataHint.SourceTablePath;
       }

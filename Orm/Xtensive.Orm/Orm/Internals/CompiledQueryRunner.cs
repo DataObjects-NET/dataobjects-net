@@ -5,6 +5,7 @@
 // Created:    2012.01.27
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,8 +21,6 @@ namespace Xtensive.Orm.Internals
 {
   internal class CompiledQueryRunner
   {
-    private static readonly Func<FieldInfo, bool> FieldIsSimple = fieldInfo => IsSimpleType(fieldInfo.FieldType);
-
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
@@ -111,24 +110,24 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
-      var cacheable = AllocateParameterAndReplacer();
+      AllocateParameterAndReplacer();
 
       var parameterContext = new ParameterContext(outerContext);
       parameterContext.SetValue(queryParameter, queryTarget);
       var scope = new CompiledQueryProcessingScope(
         queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+
       using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
 
       var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null) {
+      if (parameterizedQuery == null && queryTarget != null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      if (cacheable) {
-        PutCachedQuery(parameterizedQuery);
-      }
+      PutQueryToCache(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
@@ -140,7 +139,7 @@ namespace Xtensive.Orm.Internals
         return parameterizedQuery;
       }
 
-      var cacheable = AllocateParameterAndReplacer();
+      AllocateParameterAndReplacer();
       var scope = new CompiledQueryProcessingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
@@ -148,18 +147,17 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      if (cacheable) {
-        PutCachedQuery(parameterizedQuery);
-      }
+      PutQueryToCache(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
-    private bool AllocateParameterAndReplacer()
+    private void AllocateParameterAndReplacer()
     {
       if (queryTarget == null) {
         queryParameter = null;
         queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
-        return true;
+        return;
       }
 
       var closureType = queryTarget.GetType();
@@ -199,31 +197,12 @@ namespace Xtensive.Orm.Internals
         }
         return null;
       });
-
-      return !TypeHelper.IsClosure(closureType)
-        || closureType.GetFields().All(FieldIsSimple);
-    }
-
-    private static bool IsSimpleType(Type type)
-    {
-      var typeInfo = type.GetTypeInfo();
-      if (typeInfo.IsGenericType) {
-        var genericDef = typeInfo.GetGenericTypeDefinition();
-        return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT))
-          && IsSimpleType(typeInfo.GetGenericArguments()[0]);
-      }
-      else if (typeInfo.IsArray) {
-        return IsSimpleType(typeInfo.GetElementType());
-      }
-      else {
-        return typeInfo.IsPrimitive || typeInfo.IsEnum || type == WellKnownTypes.String || type == WellKnownTypes.Decimal;
-      }
     }
 
     private ParameterizedQuery GetCachedQuery() =>
       domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
-    private void PutCachedQuery(ParameterizedQuery parameterizedQuery) =>
+    private void PutQueryToCache(ParameterizedQuery parameterizedQuery) =>
       domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
