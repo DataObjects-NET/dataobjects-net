@@ -224,7 +224,8 @@ namespace Xtensive.Orm.Internals
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
 
-      this.queryKey = domain.Configuration.ShareQueryCacheOverNodes
+      var domainConfig = domain.Configuration;
+      this.queryKey = domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters
         ? queryKey
         : new Pair<object, string>(queryKey, session.StorageNodeId);
     }
