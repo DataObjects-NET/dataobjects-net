@@ -128,9 +128,4 @@
   </ItemGroup>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
-
-  <PropertyGroup>
-    <!-- setting env var or property 'DO_DATEONLY=false' disables DO_DATEONLY feature -->
-    <DefineConstants Condition="$(TargetFramework)=='net6.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
-  </PropertyGroup>
 </Project>
