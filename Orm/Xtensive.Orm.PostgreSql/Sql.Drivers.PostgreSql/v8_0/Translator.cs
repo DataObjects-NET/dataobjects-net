@@ -222,27 +222,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       });
     }
 
-    ///// <inheritdoc/>
-    //public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
-    //{
-    //  //temporary tables need no schema qualifier
-    //  if (node is TemporaryTable || node.Schema == null) {
-    //    return QuoteIdentifier(new[] { node.Name });
-    //  }
-    //  return QuoteIdentifier(new[] { node.Schema.Name, node.Name });
-    //}
+    /// <inheritdoc/>
+    public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    {
+      //temporary tables need no schema qualifier
+      if (!(node is TemporaryTable) && node.Schema != null) {
+        return context == null
+          ? QuoteIdentifier(new[] { node.Schema.Name, node.Name })
+          : QuoteIdentifier(new[] { context.SqlNodeActualizer.Actualize(node.Schema), node.Name });
+
+      }
+      return QuoteIdentifier(new[] { node.Name });
+    }
 
     /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node)
-    {
-      if (node is TemporaryTable) {
-        TranslateIdentifier(context.Output, node.Name);
-      }
-      else {
-        base.Translate(context, node);
-      }
-      //context.Output.Append(TranslateToString(context, node));
-    }
+    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
+      context.Output.Append(TranslateToString(context, node));
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -314,9 +309,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      var index = node.Index;
       _ = context.Output.Append("DROP INDEX ");
-      TranslateIdentifier(context.Output, index.DataTable.Schema.DbName, index.DbName);
+      TranslateIdentifier(context.Output,
+        context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
     }
 
     /// <inheritdoc/>

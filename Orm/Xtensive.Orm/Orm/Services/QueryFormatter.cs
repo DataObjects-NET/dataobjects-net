@@ -69,10 +69,7 @@ namespace Xtensive.Orm.Services
 
     private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
-      var compilerConfiguration = Session.CompilationService.CreateConfiguration(Session);
-      compilerConfiguration.PreferTypeIdAsParameter = false;
-
-      var translatedQuery = Session.Query.Provider.Translate(query.Expression, compilerConfiguration);
+      var translatedQuery = Session.Query.Provider.Translate(query.Expression);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)

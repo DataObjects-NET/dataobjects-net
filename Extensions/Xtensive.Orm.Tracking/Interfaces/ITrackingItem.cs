@@ -32,6 +32,6 @@ namespace Xtensive.Orm.Tracking
     /// <summary>
     /// Gets list of detected changes of field values.
     /// </summary>
-    IReadOnlyList<ChangedValue> ChangedValues { get; }
+    IList<ChangedValue> ChangedValues { get; }
   }
 }

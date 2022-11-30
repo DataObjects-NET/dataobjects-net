@@ -63,8 +63,6 @@
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
-   <DebugSymbols>true</DebugSymbols>
-   <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true'">

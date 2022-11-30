@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2003-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -24,7 +24,6 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
-    [Obsolete("No longer in use")]
     public SqlNodeActualizer SqlNodeActualizer { get; private set; }
 
     public SqlNode[] GetTraversalPath() =>
@@ -147,9 +146,7 @@ namespace Xtensive.Sql.Compiler
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
       Output = new ContainerNode();
-#pragma warning disable CS0618, CS0612 // Type or member is obsolete
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
-#pragma warning restore CS0618, CS0612 // Type or member is obsolete
     }
   }
 }

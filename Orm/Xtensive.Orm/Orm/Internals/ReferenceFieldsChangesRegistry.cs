@@ -1,6 +1,6 @@
-// Copyright (C) 2014-2022 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+﻿// Copyright (C) 2014 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2014.04.07
 
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   internal sealed class ReferenceFieldsChangesRegistry : SessionBound
   {
-    private readonly HashSet<ReferenceFieldChangeInfo> changes = new ();
+    private readonly HashSet<ReferenceFieldChangeInfo> changes = new HashSet<ReferenceFieldChangeInfo>();
 
     /// <summary>
     /// Registrates information about field which value was set.
@@ -51,14 +51,23 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns>All registered items.</returns>
-    public RegistryItems<ReferenceFieldChangeInfo> GetItems() => new(changes);
+    public IEnumerable<ReferenceFieldChangeInfo> GetItems()
+    {
+      return changes;
+    }
 
     /// <summary>
     /// Removes all registered items.
     /// </summary>
-    public void Clear() => changes.Clear();
+    public void Clear()
+    {
+      changes.Clear();
+    }
     
-    private void Register(ReferenceFieldChangeInfo fieldChangeInfo) => changes.Add(fieldChangeInfo);
+    private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
+    {
+      changes.Add(fieldChangeInfo);
+    }
 
     public ReferenceFieldsChangesRegistry(Session session)
       : base(session)

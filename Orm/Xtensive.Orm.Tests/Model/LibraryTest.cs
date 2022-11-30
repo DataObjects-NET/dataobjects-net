@@ -398,11 +398,6 @@ namespace Xtensive.Orm.Tests.Model
       Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
       Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
 
-      Assert.AreEqual(types[typeof (Person)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Book)].Ancestor, null);
-      Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
-
       var collection = types.Structures;
       Assert.IsTrue(collection.Any());
       foreach (TypeInfo item in collection) {

@@ -69,13 +69,12 @@ namespace Xtensive.Orm.Building.Builders
     private void EnsureIntefacesAreImplementedWithinSingleDatabase()
     {
       foreach (var @interface in model.Types.Where(t => t.IsInterface)) {
-        var implementors = @interface.AllImplementors;
-        if (implementors.Count == 0) {
+        var implementors = @interface.RecursiveImplementors;
+        if (implementors.Count==0)
           continue; // shouldn't reach here, but it's safer to do check anyway
-        }
-        var firstImplementor = implementors.First();
+        var firstImplementor = implementors[0];
         foreach (var implementor in implementors.Skip(1))
-          if (firstImplementor.MappingDatabase != implementor.MappingDatabase)
+          if (firstImplementor.MappingDatabase!=implementor.MappingDatabase)
             throw new DomainBuilderException(string.Format(
               Strings.ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ,
               @interface.UnderlyingType.GetShortName(),

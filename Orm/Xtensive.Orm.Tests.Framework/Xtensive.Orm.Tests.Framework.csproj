@@ -2,6 +2,7 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
+    <DefineConstants>TRACE</DefineConstants>
     <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
   </PropertyGroup>
   <PropertyGroup>

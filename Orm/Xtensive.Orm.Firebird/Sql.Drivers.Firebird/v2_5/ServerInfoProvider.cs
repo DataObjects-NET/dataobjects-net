@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -179,13 +179,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-        QueryFeatures.ParameterPrefix |
-        QueryFeatures.ScalarSubquery |
-        QueryFeatures.Paging |
-        QueryFeatures.Limit |
-        QueryFeatures.Offset |
-        QueryFeatures.UpdateLimit |
-        QueryFeatures.DeleteLimit;
+          QueryFeatures.ParameterPrefix |
+            QueryFeatures.ScalarSubquery |
+              QueryFeatures.Paging |
+                QueryFeatures.Limit |
+                  QueryFeatures.Offset |
+                    QueryFeatures.UpdateLimit |
+                      QueryFeatures.DeleteLimit;
       return queryInfo;
     }
 

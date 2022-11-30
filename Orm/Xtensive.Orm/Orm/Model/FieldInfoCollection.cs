@@ -27,14 +27,22 @@ namespace Xtensive.Orm.Model
     public IEnumerable<FieldInfo> Find(FieldAttributes criteria) => Find(criteria, MatchType.Partial);
 
     /// <inheritdoc/>
-    public IEnumerable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType) =>
-      criteria == FieldAttributes.None
-        ? Array.Empty<FieldInfo>()    // We don't have any instance that has attributes == FieldAttributes.None
-        : matchType switch {
-          MatchType.Partial => this.Where(f => (f.Attributes & criteria) > 0),
-          MatchType.Full => this.Where(f => (f.Attributes & criteria) == criteria),
-          _ => this.Where(f => (f.Attributes & criteria) == 0)
-        };
+    public IEnumerable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
+    {
+      // We don't have any instance that has attributes == FieldAttributes.None
+      if (criteria == FieldAttributes.None)
+        return Array.Empty<FieldInfo>();
+
+      switch (matchType) {
+        case MatchType.Partial:
+          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
+        case MatchType.Full:
+          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
+        case MatchType.None:
+        default:
+          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
+      }
+    }
 
     /// <inheritdoc/>
     public override void UpdateState()
