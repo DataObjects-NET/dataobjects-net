@@ -31,6 +31,10 @@ namespace Xtensive.Sql
         WellKnownTypes.DateTime,
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
+#if DO_DATEONLY
+        WellKnownTypes.DateOnly,
+        WellKnownTypes.TimeOnly,
+#endif
         WellKnownTypes.ByteArray,
         WellKnownTypes.Guid
     };

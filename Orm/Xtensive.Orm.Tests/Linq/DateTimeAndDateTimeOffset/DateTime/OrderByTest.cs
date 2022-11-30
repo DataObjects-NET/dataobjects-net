@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -20,6 +20,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
       ExecuteInsideSession(() => {
         OrderByPrivate<DateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
         OrderByPrivate<DateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
+#if DO_DATEONLY
+        OrderByPrivate<DateTimeEntity, DateOnly, long>(c => c.DateOnly, c => c.Id);
+        OrderByPrivate<DateTimeEntity, DateOnly, DateOnly>(c => c.DateOnly, c => c);
+        OrderByPrivate<DateTimeEntity, TimeOnly, long>(c => c.TimeOnly, c => c.Id );
+#endif
       });
     }
 

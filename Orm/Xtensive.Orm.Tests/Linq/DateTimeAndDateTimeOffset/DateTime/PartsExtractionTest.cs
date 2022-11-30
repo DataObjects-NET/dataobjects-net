@@ -37,6 +37,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.Month == WrongDateTime.Month);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Month == WrongMillisecondDateTime.Month);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Month == WrongDateTime.Month);
+#if DO_DATEONLY
+        RunTest<SingleDateTimeEntity>(c => c.DateOnly.Month == FirstDateOnly.Month);
+        RunTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.Month == NullableDateOnly.Month);
+
+        RunWrongTest<SingleDateTimeEntity>(c => c.DateOnly.Month == WrongDateOnly.Month);
+        RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.Month == WrongDateOnly.Month);
+#endif
       });
     }
 
@@ -93,6 +100,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.Second == WrongDateTime.Second);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Second == WrongMillisecondDateTime.Second);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Second == WrongDateTime.Second);
+#if DO_DATEONLY
+        RunTest<SingleDateTimeEntity>(c => c.TimeOnly.Second == FirstTimeOnly.Second);
+
+        RunWrongTest<SingleDateTimeEntity>(c => c.TimeOnly.Second == WrongTimeOnly.Second);
+#endif
       });
     }
 
