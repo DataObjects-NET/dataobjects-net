@@ -73,36 +73,6 @@ namespace Xtensive.Orm.Providers
       return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
-#if DO_DATEONLY
-    [Compiler(typeof(DateOnly), "Year", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyYear(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
-
-    [Compiler(typeof(DateOnly), "Month", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyMonth(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Month, _this));
-
-    [Compiler(typeof(DateOnly), "Day", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyDay(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Day, _this));
-
-    [Compiler(typeof(TimeOnly), "Hour", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyHour(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Hour, _this));
-
-    [Compiler(typeof(TimeOnly), "Minute", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyMinute(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Minute, _this));
-
-    [Compiler(typeof(TimeOnly), "Second", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlySecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Second, _this));
-
-    [Compiler(typeof(TimeOnly), "Millisecond", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
-#endif // DO_DATEONLY
-
     #endregion
 
     #region Constructors
@@ -154,32 +124,6 @@ namespace Xtensive.Orm.Providers
     {
       return DateTimeConstruct(year, month, day, hour, minute, second, millisecond);
     }
-
-#if DO_DATEONLY
-    [Compiler(typeof(DateOnly), null, TargetKind.Constructor)]
-    public static SqlExpression DateOnlyCtor(
-        [Type(typeof(int))] SqlExpression year,
-        [Type(typeof(int))] SqlExpression month,
-        [Type(typeof(int))] SqlExpression day) =>
-      SqlDml.DateOnlyConstruct(year, month, day);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor(
-        [Type(typeof(int))] SqlExpression hour,
-        [Type(typeof(int))] SqlExpression minute,
-        [Type(typeof(int))] SqlExpression second) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, second, 0);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor(
-        [Type(typeof(int))] SqlExpression hour,
-        [Type(typeof(int))] SqlExpression minute) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, 0, 0);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-      new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
-#endif // DO_DATEONLY
 
     #endregion
 
@@ -257,105 +201,6 @@ namespace Xtensive.Orm.Providers
     {
       return SqlDml.DateTimeMinusDateTime(d1, d2);
     }
-
-#if DO_DATEONLY
-    [Compiler(typeof(DateOnly), Operator.Equality, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorEquality(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 == d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.Inequality, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorInequality(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 != d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.GreaterThan, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorGreaterThan(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 > d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.GreaterThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorGreaterThanOrEqual(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 >= d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.LessThan, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorLessThan(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 < d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.LessThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorLessThanOrEqual(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 <= d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.Equality, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyOperatorEquality(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 == d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.Inequality, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyOperatorInequality(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 != d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.GreaterThan, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyyOperatorGreaterThan(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 > d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.GreaterThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyOperatorGreaterThanOrEqual(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 >= d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.LessThan, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyOperatorLessThan(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 < d2;
-    }
-
-    [Compiler(typeof(TimeOnly), Operator.LessThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression TimeOnlyOperatorLessThanOrEqual(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
-    {
-      return d1 <= d2;
-    }
-
-#endif // DO_DATEONLY
 
     #endregion
 
@@ -447,28 +292,5 @@ namespace Xtensive.Orm.Providers
 
       return SqlDml.DateTimeToStringIso(_this);
     }
-
-#if DO_DATEONLY
-    [Compiler(typeof(DateOnly), "AddYears")]
-    public static SqlExpression DateOnlyAddYears(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateTimeAddYears(_this, value);
-
-    [Compiler(typeof(DateOnly), "AddMonths")]
-    public static SqlExpression DateOnlyAddMonths(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateTimeAddMonths(_this, value);
-
-    [Compiler(typeof(DateOnly), "AddDays")]
-    public static SqlExpression DateOnlyAddDays(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateOnlyAddDays(_this, value);
-
-    [Compiler(typeof(TimeOnly), "AddHours")]
-    public static SqlExpression TimeOnlyAddHours(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddHours(_this, value);
-
-    [Compiler(typeof(TimeOnly), "AddMinutes")]
-    public static SqlExpression TimeOnlyAddMinutes(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddMinutes(_this, value);
-
-#endif // DO_DATEONLY
   }
 }
