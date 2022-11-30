@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     [Field]
     public DateTime? NullableDateTime { get; set; }
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     [Field]
     public DateOnly DateOnly { get; set; }
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     [Field]
     public DateTime DateTime { get; set; }
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     [Field]
     public DateOnly DateOnly { get; set; }
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     public DateTimeEntity(DateTime dateTime)
     {
       DateTime = dateTime;
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       DateOnly = DateOnly.FromDateTime(dateTime);
       TimeOnly = TimeOnly.FromDateTime(dateTime);
 #endif

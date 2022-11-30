@@ -178,7 +178,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
         ValueRange.TimeSpan, "interval");
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       dtc.DateOnly = DataTypeInfo.Range(SqlType.Date, commonFeatures, ValueRange.DateOnly, "date");
       dtc.TimeOnly = DataTypeInfo.Range(SqlType.Time, commonFeatures, ValueRange.TimeOnly, "time");
 #endif

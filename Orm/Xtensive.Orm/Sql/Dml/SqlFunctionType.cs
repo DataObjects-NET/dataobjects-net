@@ -64,9 +64,11 @@ namespace Xtensive.Sql.Dml
     DateTimeConstruct,
     DateTimeAddYears,
     DateTimeAddMonths,
+#if NET6_0_OR_GREATER //DO_DATEONLY
     DateOnlyAddDays,
     TimeOnlyAddHours,
     TimeOnlyAddMinutes,
+#endif
     DateTimeTruncate,
     DateTimeToStringIso,
     IntervalConstruct,
@@ -84,7 +86,7 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetToUtcTime,
     DateTimeToDateTimeOffset,
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     DateOnlyConstruct,
     TimeOnlyConstruct,
 #endif

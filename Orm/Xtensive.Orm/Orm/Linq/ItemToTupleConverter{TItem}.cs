@@ -102,8 +102,9 @@ namespace Xtensive.Orm.Linq
         type == WellKnownTypes.String ||
         type == WellKnownTypes.DateTime ||
         type == WellKnownTypes.DateTimeOffset ||
-#if DO_DATEONLY
-        type == WellKnownTypes.DateOnly || type == WellKnownTypes.TimeOnly ||
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        type == WellKnownTypes.DateOnly ||
+        type == WellKnownTypes.TimeOnly ||
 #endif
         type == WellKnownTypes.Guid ||
         type == WellKnownTypes.TimeSpan;

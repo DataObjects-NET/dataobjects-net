@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly DateTime SecondMillisecondDateTime = SecondDateTime.AddMilliseconds(987);
     protected static readonly DateTime WrongMillisecondDateTime = WrongDateTime.AddMilliseconds(654);
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static readonly DateOnly FirstDateOnly = DateOnly.FromDateTime(FirstDateTime);
     protected static readonly DateOnly NullableDateOnly = DateOnly.FromDateTime(SecondDateTime);
     protected static readonly DateOnly WrongDateOnly = DateOnly.FromDateTime(WrongDateTime);
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       new SingleDateTimeEntity {
         DateTime = FirstDateTime,
         MillisecondDateTime = FirstMillisecondDateTime,
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
         DateOnly = DateOnly.FromDateTime(FirstDateTime),
         NullableDateOnly = DateOnly.FromDateTime(NullableDateTime),
         TimeOnly = FirstTimeOnly,

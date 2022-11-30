@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var now = DateTime.UtcNow;
 
       a.Text = updatedText;
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       var dateOnly = DateOnly.FromDateTime(now);
       var timeOnly = TimeOnly.FromDateTime(now);
       a.DateOnly = dateOnly;
@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 
       Assert.That(session.Query.All<model.Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
       Assert.That(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText), Is.Not.Null);
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).DateOnly, dateOnly);
       Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).TimeOnly, timeOnly);
 #endif

@@ -564,7 +564,7 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     public static SqlFunctionCall DateOnlyConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
       ArgumentNullException.ThrowIfNull(year);
@@ -622,6 +622,7 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
     public static SqlFunctionCall DateOnlyAddDays(SqlExpression source, SqlExpression days)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -642,6 +643,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
       return new SqlFunctionCall(SqlFunctionType.TimeOnlyAddMinutes, source, minutes);
     }
+#endif
 
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)
     {

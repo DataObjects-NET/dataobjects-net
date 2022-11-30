@@ -72,7 +72,13 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public abstract string DateTimeFormatString { get; }
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Gets the <see cref="DateOnly"/> format string.
+    /// See <see cref="DateOnly.ToString(string)"/> for details
+    /// </summary>
     public virtual string DateOnlyFormatString => throw new NotImplementedException();
+#endif
 
     /// <summary>
     /// Gets the time span format string.
@@ -80,7 +86,12 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Gets the <see cref="TimeOnly"/> format string.
+    /// </summary>
     public virtual string TimeOnlyFormatString => throw new NotImplementedException();
+#endif
 
     /// <summary>
     /// Gets the parameter prefix.
@@ -1522,7 +1533,7 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
         case DateOnly dateOnly:
           output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;

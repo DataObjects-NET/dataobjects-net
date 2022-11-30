@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
       ExecuteInsideSession(() => {
         OrderByPrivate<DateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
         OrderByPrivate<DateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
         OrderByPrivate<DateTimeEntity, DateOnly, long>(c => c.DateOnly, c => c.Id);
         OrderByPrivate<DateTimeEntity, DateOnly, DateOnly>(c => c.DateOnly, c => c);
         OrderByPrivate<DateTimeEntity, TimeOnly, long>(c => c.TimeOnly, c => c.Id );

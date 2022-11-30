@@ -9,7 +9,7 @@ using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
 {
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
 
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeOnlyCompilers
@@ -194,5 +194,5 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
       //return SqlDml.DateTimeToStringIso(_this);
     }
   }
-#endif // DO_DATEONLY
+#endif
 }

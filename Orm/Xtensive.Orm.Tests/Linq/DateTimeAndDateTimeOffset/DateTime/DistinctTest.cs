@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     public void DistinctByDateTimeTest()
     {
       ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, DateTime>(c => c.DateTime));
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, DateOnly>(c => c.DateOnly));
       ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, TimeOnly>(c => c.TimeOnly));
 #endif

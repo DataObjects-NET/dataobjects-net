@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     [Field]
     public DateTime Date { get; set; }
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
     [Field]
     public DateOnly DateOnly { get; set; }
 #endif
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
         AssertIsCalled(() => { book.Date = new DateTime(1, 2, 3); });
         AssertIsNotCalled(() => { book.Date = new DateTime(1, 2, 3); });
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
         AssertIsCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
         AssertIsNotCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
 #endif

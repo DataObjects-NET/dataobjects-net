@@ -142,8 +142,16 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public DataTypeInfo Interval { get; set; }
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    /// <summary>
+    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.,
+    /// Storage size is 8 to 10 bytes.
+    /// </summary>
     public DataTypeInfo DateOnly { get; set; }
+
+    /// <summary>
+    /// Time data. Values mignt be rounded to some fractions of a second.
+    /// </summary>
     public DataTypeInfo TimeOnly { get; set; }
 #endif
 
@@ -239,7 +247,7 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       yield return DateOnly;
       yield return TimeOnly;
 #endif

@@ -199,6 +199,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
         case SqlFunctionType.DateOnlyAddDays:
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
@@ -208,6 +209,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.TimeOnlyAddMinutes:
           Visit(DateAddMinute(arguments[0], arguments[1]));
           return;
+#endif
         case SqlFunctionType.DateTimeTruncate:
           DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;

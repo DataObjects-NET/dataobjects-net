@@ -421,7 +421,7 @@ namespace Xtensive.Sql
       builder.Add(WellKnownTypes.TimeSpan, mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
       builder.Add(WellKnownTypes.Guid, mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
       builder.Add(WellKnownTypes.ByteArray, mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       builder.Add(WellKnownTypes.DateOnly, mapper.ReadDateOnly, mapper.BindDateOnly, mapper.MapDateOnly);
       builder.Add(WellKnownTypes.TimeOnly, mapper.ReadTimeOnly, mapper.BindTimeOnly, mapper.MapTimeOnly);
 #endif
@@ -450,7 +450,7 @@ namespace Xtensive.Sql
       builder.AddReverse(SqlType.VarBinary, WellKnownTypes.ByteArray);
       builder.AddReverse(SqlType.VarBinaryMax, WellKnownTypes.ByteArray);
       builder.AddReverse(SqlType.Guid, WellKnownTypes.Guid);
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       builder.AddReverse(SqlType.Date, WellKnownTypes.DateOnly);
       builder.AddReverse(SqlType.Time, WellKnownTypes.TimeOnly);
 #endif

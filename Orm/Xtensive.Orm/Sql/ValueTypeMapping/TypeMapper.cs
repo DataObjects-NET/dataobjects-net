@@ -132,6 +132,20 @@ namespace Xtensive.Sql
       parameter.Value = value ?? DBNull.Value;
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public virtual void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? ((DateOnly) value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
+    }
+
+    public virtual void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value != null ? ((TimeOnly) value).ToTimeSpan() : DBNull.Value;
+    }
+#endif
+
     public virtual void BindDateTimeOffset(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTimeOffset;
@@ -209,6 +223,14 @@ namespace Xtensive.Sql
 
     public virtual object ReadDateTime(DbDataReader reader, int index) =>
       reader.GetDateTime(index);
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
+      DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+
+    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
+      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+#endif
 
     public virtual object ReadDateTimeOffset(DbDataReader reader, int index) =>
       (DateTimeOffset) reader.GetValue(index);
@@ -306,6 +328,14 @@ namespace Xtensive.Sql
     public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.DateTime);
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Date);
+
+    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Time);
+#endif
+
     public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.DateTimeOffset);
 
@@ -317,32 +347,6 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale) =>
       ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
-
-#if DO_DATEONLY
-    public virtual void BindDateOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Date;
-      parameter.Value = value != null ? ((DateOnly)value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
-    }
-
-    public virtual void BindTimeOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Time;
-      parameter.Value = value != null ? ((TimeOnly)value).ToTimeSpan() : DBNull.Value;
-    }
-
-    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-      DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
-
-    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
-      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
-
-    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Date);
-
-    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Time);
-#endif // DO_DATEONLY
 
     #endregion
 

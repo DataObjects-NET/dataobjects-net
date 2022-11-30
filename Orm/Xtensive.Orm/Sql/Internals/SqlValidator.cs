@@ -29,12 +29,12 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
-        WellKnownTypes.DateTimeOffset,
-        WellKnownTypes.TimeSpan,
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
         WellKnownTypes.DateOnly,
         WellKnownTypes.TimeOnly,
 #endif
+        WellKnownTypes.DateTimeOffset,
+        WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
         WellKnownTypes.Guid
     };

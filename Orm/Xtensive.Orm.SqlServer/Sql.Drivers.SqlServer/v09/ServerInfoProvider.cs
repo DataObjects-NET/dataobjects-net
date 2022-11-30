@@ -255,7 +255,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         new ValueRange<DateTime>(new DateTime(1753, 1, 1), new DateTime(9999, 12, 31)),
         "datetime", "smalldatetime");
 
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER //DO_DATEONLY
       types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index, new ValueRange<DateOnly>(new DateOnly(1, 1, 1), new DateOnly(9999, 12, 31)), "date");
       types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, new ValueRange<TimeOnly>(TimeOnly.MinValue, TimeOnly.MaxValue), "time");
 #endif
