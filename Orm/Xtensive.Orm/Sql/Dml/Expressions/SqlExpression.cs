@@ -205,6 +205,18 @@ namespace Xtensive.Sql.Dml
       return new SqlLiteral<DateTime>(value);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public static implicit operator SqlExpression(DateOnly value)
+    {
+      return new SqlLiteral<DateOnly>(value);
+    }
+
+    public static implicit operator SqlExpression(TimeOnly value)
+    {
+      return new SqlLiteral<TimeOnly>(value);
+    }
+#endif
+
     public static implicit operator SqlExpression(DateTimeOffset value)
     {
       return new SqlLiteral<DateTimeOffset>(value);
