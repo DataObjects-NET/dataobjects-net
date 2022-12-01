@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
         [Type(typeof(int))] SqlExpression year,
         [Type(typeof(int))] SqlExpression month,
         [Type(typeof(int))] SqlExpression day) =>
-      SqlDml.DateOnlyConstruct(year, month, day);
+      SqlDml.DateConstruct(year, month, day);
 
     #endregion
 
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
 
     [Compiler(typeof(DateOnly), "AddDays")]
     public static SqlExpression DateOnlyAddDays(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateOnlyAddDays(_this, value);
+      SqlDml.DateAddDays(_this, value);
 
     [Compiler(typeof(DateOnly), "ToString")]
     public static SqlExpression DateTimeToStringIso(SqlExpression _this)

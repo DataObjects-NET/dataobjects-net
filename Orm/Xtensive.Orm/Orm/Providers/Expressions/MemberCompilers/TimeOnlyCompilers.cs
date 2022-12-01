@@ -41,17 +41,17 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
         [Type(typeof(int))] SqlExpression hour,
         [Type(typeof(int))] SqlExpression minute,
         [Type(typeof(int))] SqlExpression second) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, second, 0);
+      SqlDml.TimeConstruct(hour, minute, second, 0);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor(
         [Type(typeof(int))] SqlExpression hour,
         [Type(typeof(int))] SqlExpression minute) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, 0, 0);
+      SqlDml.TimeConstruct(hour, minute, 0, 0);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-      new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
+      new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
 
     #endregion
 
@@ -166,11 +166,11 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
 
     [Compiler(typeof(TimeOnly), "AddHours")]
     public static SqlExpression TimeOnlyAddHours(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddHours(_this, value);
+      SqlDml.TimeAddHours(_this, value);
 
     [Compiler(typeof(TimeOnly), "AddMinutes")]
     public static SqlExpression TimeOnlyAddMinutes(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddMinutes(_this, value);
+      SqlDml.TimeAddMinutes(_this, value);
 
     [Compiler(typeof(TimeOnly), "ToString")]
     public static SqlExpression TimeOnlyToStringIso(SqlExpression _this)

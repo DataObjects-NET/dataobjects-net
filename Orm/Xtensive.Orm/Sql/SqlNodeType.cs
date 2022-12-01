@@ -113,5 +113,6 @@ namespace Xtensive.Sql
     While,
     Fragment,
     Metadata,
+    DateMinusDate,
   }
 }

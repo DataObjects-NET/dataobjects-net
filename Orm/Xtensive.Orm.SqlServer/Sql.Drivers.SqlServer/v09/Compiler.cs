@@ -200,13 +200,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
-        case SqlFunctionType.DateOnlyAddDays:
+        case SqlFunctionType.DateAddDays:
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
-        case SqlFunctionType.TimeOnlyAddHours:
+        case SqlFunctionType.TimeAddHours:
           Visit(DateAddHour(arguments[0], arguments[1]));
           return;
-        case SqlFunctionType.TimeOnlyAddMinutes:
+        case SqlFunctionType.TimeAddMinutes:
           Visit(DateAddMinute(arguments[0], arguments[1]));
           return;
 #endif

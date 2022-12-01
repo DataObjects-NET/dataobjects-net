@@ -494,7 +494,7 @@ namespace Xtensive.Sql
 
     #endregion
 
-    # region DateTime functions
+    # region Date and/or Time functions
 
     public static SqlFunctionCall CurrentDate()
     {
@@ -565,7 +565,7 @@ namespace Xtensive.Sql
     }
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
-    public static SqlFunctionCall DateOnlyConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
+    public static SqlFunctionCall DateConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
       ArgumentNullException.ThrowIfNull(year);
       ArgumentNullException.ThrowIfNull(month);
@@ -573,17 +573,17 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(year);
       SqlValidator.EnsureIsArithmeticExpression(month);
       SqlValidator.EnsureIsArithmeticExpression(day);
-      return new SqlFunctionCall(SqlFunctionType.DateOnlyConstruct, year, month, day);
+      return new SqlFunctionCall(SqlFunctionType.DateConstruct, year, month, day);
     }
 
-    public static SqlFunctionCall TimeOnlyConstruct(SqlExpression hours,
+    public static SqlFunctionCall TimeConstruct(SqlExpression hours,
       SqlExpression minutes,
       SqlExpression seconds,
       SqlExpression milliseconds)
     {
       var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
       var ticks = 10_000 * m;
-      return new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
     }
 #endif
 
@@ -608,6 +608,15 @@ namespace Xtensive.Sql
       return new SqlBinary(SqlNodeType.DateTimeMinusDateTime, left, right);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public static SqlBinary DateMinusDate(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.DateMinusDate, left, right);
+    }
+#endif
+
     public static SqlFunctionCall DateTimeAddYears(SqlExpression source, SqlExpression years)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -623,25 +632,39 @@ namespace Xtensive.Sql
     }
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
-    public static SqlFunctionCall DateOnlyAddDays(SqlExpression source, SqlExpression days)
+    public static SqlFunctionCall DateAddYears(SqlExpression source, SqlExpression years)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(years, "years");
+      return new SqlFunctionCall(SqlFunctionType.DateAddYears, source, years);
+    }
+
+    public static SqlFunctionCall DateAddMonths(SqlExpression source, SqlExpression months)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(months, "months");
+      return new SqlFunctionCall(SqlFunctionType.DateAddMonths, source, months);
+    }
+
+    public static SqlFunctionCall DateAddDays(SqlExpression source, SqlExpression days)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(days, "days");
-      return new SqlFunctionCall(SqlFunctionType.DateOnlyAddDays, source, days);
+      return new SqlFunctionCall(SqlFunctionType.DateAddDays, source, days);
     }
 
-    public static SqlFunctionCall TimeOnlyAddHours(SqlExpression source, SqlExpression hours)
+    public static SqlFunctionCall TimeAddHours(SqlExpression source, SqlExpression hours)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(hours, "hours");
-      return new SqlFunctionCall(SqlFunctionType.TimeOnlyAddHours, source, hours);
+      return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
     }
 
-    public static SqlFunctionCall TimeOnlyAddMinutes(SqlExpression source, SqlExpression minutes)
+    public static SqlFunctionCall TimeAddMinutes(SqlExpression source, SqlExpression minutes)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
-      return new SqlFunctionCall(SqlFunctionType.TimeOnlyAddMinutes, source, minutes);
+      return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
     }
 #endif
 

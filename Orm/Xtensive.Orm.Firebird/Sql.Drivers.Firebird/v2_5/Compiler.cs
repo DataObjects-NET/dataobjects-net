@@ -191,7 +191,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
-        case SqlFunctionType.DateOnlyAddDays:
+        case SqlFunctionType.DateAddDays:
           Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
           return;
 #endif
