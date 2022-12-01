@@ -23,6 +23,7 @@
 [main] IgnoreRule supports indexes
 [main] Queries use parameters instead of constant values for type indentifiers within columns list
 [main] Added DomainConfiguration.PreferTypeIdsAsQueryParameters to choose between contants and parameters for TypeIds
+[main] ShareStorageSchemaOverNodes option now includes shared query cache when TypeIds as paremters are prefered
 [main] BitFaster.Caching package reference is updated to 1.0.7
 [main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
 [reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
