@@ -67,21 +67,13 @@ namespace Xtensive.Orm
     private void Persisting(object sender, EventArgs eventArgs)
     {
       var registry = Session.EntityChangeRegistry;
-      //two foreach operators are faster than one concat because of bare hashset enumerator
-      foreach(var state in registry.GetItems(PersistenceState.Modified)) {
-        AddModifiedVersion(state);
-      }
-      foreach (var state in registry.GetItems(PersistenceState.New)) {
-        AddModifiedVersion(state);
-      }
-       
-      removedKeys.AddRange(registry.GetItems(PersistenceState.Removed).Select(s => s.Key));
-
-      void AddModifiedVersion(EntityState state)
-      {
+      var modifiedStates = registry.GetItems(PersistenceState.Modified)
+        .Concat(registry.GetItems(PersistenceState.New));
+      foreach (var state in modifiedStates) {
         var versionTuple = state.Type.VersionExtractor.Apply(TupleTransformType.Tuple, state.Tuple);
-        _ = modifiedVersions.Add(state.Key, new VersionInfo(versionTuple), true);
+        modifiedVersions.Add(state.Key, new VersionInfo(versionTuple), true);
       }
+      removedKeys.AddRange(registry.GetItems(PersistenceState.Removed).Select(s => s.Key));
     }
 
     #endregion

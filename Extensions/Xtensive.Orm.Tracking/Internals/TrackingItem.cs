@@ -1,6 +1,6 @@
-// Copyright (C) 2012-2022 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+﻿// Copyright (C) 2012 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
@@ -16,15 +16,23 @@ namespace Xtensive.Orm.Tracking
   [DebuggerDisplay("{Key}")]
   internal sealed class TrackingItem : ITrackingItem
   {
-    private IReadOnlyList<ChangedValue> cachedChangedValues;
+    private IList<ChangedValue> cachedChangedValues;
 
-    public Key Key { get; }
+    public Key Key { get; private set; }
 
     public DifferentialTuple RawData { get; private set; }
 
     public TrackingItemState State { get; private set; }
 
-    public IReadOnlyList<ChangedValue> ChangedValues => cachedChangedValues ??= CalculateChangedValues();
+    public IList<ChangedValue> ChangedValues
+    {
+      get
+      {
+        if (cachedChangedValues==null)
+          cachedChangedValues = CalculateChangedValues().ToList().AsReadOnly();
+        return cachedChangedValues;
+      }
+    }
 
     public void MergeWith(TrackingItem source)
     {
@@ -47,33 +55,29 @@ namespace Xtensive.Orm.Tracking
       State = source.State;
     }
 
-    private IReadOnlyList<ChangedValue> CalculateChangedValues()
+    private IEnumerable<ChangedValue> CalculateChangedValues()
     {
       var originalValues = RawData.Origin;
       var changedValues = RawData.Difference;
 
-      if (State == TrackingItemState.Created) {
+      if (State==TrackingItemState.Created) {
         originalValues = null;
         changedValues = RawData.Origin;
       }
 
-      var changedValuesList = new List<ChangedValue>(Key.TypeInfo.Fields.Count);
-
-      foreach (var field in Key.TypeInfo.Fields.Where(f => f.Column != null)) {
+      foreach (var field in Key.TypeInfo.Fields.Where(f => f.Column!=null)) {
         object origValue = null, changedValue = null;
         int fieldIndex = field.MappingInfo.Offset;
         TupleFieldState fieldState;
-        if (originalValues != null)
+        if (originalValues!=null)
           origValue = originalValues.GetValue(fieldIndex, out fieldState);
-        if (changedValues != null) {
+        if (changedValues!=null) {
           changedValue = changedValues.GetValue(fieldIndex, out fieldState);
           if (!fieldState.IsAvailable())
             continue;
         }
-        changedValuesList.Add(new ChangedValue(field, origValue, changedValue));
+        yield return new ChangedValue(field, origValue, changedValue);
       }
-
-      return changedValuesList.AsReadOnly();
     }
 
     private void MergeWith(Tuple difference)

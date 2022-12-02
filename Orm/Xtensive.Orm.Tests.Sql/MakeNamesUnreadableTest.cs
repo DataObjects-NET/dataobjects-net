@@ -1,6 +1,6 @@
-// Copyright (C) 2017-2022 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2017.03.24
 
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
@@ -20,8 +21,6 @@ namespace Xtensive.Orm.Tests.Sql
     private const string SchemaName = "dbo";
     private const string DummySchemaName = "DummySchema";
     private const string DummyDatabaseName = "DummyDatabase";
-
-    private readonly Dictionary<string, string> emptyMap = new(0);
 
     [Test]
     public void ReadingNamesTest()
@@ -49,14 +48,14 @@ namespace Xtensive.Orm.Tests.Sql
 
       catalog.MakeNamesUnreadable();
 
-      _ = Assert.Throws<InvalidOperationException>(() => { var catalogName = catalog.Name; });
-      _ = Assert.Throws<InvalidOperationException>(() => { var catalogDbName = catalog.DbName; });
+      Assert.Throws<InvalidOperationException>(() => {var catalogName = catalog.Name;});
+      Assert.Throws<InvalidOperationException>(() => {var catalogDbName = catalog.DbName;});
 
       Assert.DoesNotThrow(() => {var catalogName = catalog.GetNameInternal();});
       Assert.DoesNotThrow(() => {var catalogDbName = catalog.GetDbNameInternal();});
 
-      _ = Assert.Throws<InvalidOperationException>(() => {var schemaName = defaultSchema.Name;});
-      _ = Assert.Throws<InvalidOperationException>(() => {var schemaName = defaultSchema.DbName;});
+      Assert.Throws<InvalidOperationException>(() => {var schemaName = defaultSchema.Name;});
+      Assert.Throws<InvalidOperationException>(() => {var schemaName = defaultSchema.DbName;});
 
       Assert.DoesNotThrow(() => {var schemaName = defaultSchema.GetNameInternal();});
       Assert.DoesNotThrow(() => {var schemaName = defaultSchema.GetDbNameInternal();});
@@ -116,11 +115,11 @@ namespace Xtensive.Orm.Tests.Sql
 
       catalog.MakeNamesUnreadable();
 
-      _ = Assert.Throws<InvalidOperationException>(() => catalog.Name = newCatalogName);
-      _ = Assert.Throws<InvalidOperationException>(() => catalog.DbName = newCatalogDbName);
+      Assert.Throws<InvalidOperationException>(() => catalog.Name = newCatalogName);
+      Assert.Throws<InvalidOperationException>(() => catalog.DbName = newCatalogDbName);
 
-      _ = Assert.Throws<InvalidOperationException>(() => defaultSchema.Name = newSchemaName);
-      _ = Assert.Throws<InvalidOperationException>(() => defaultSchema.DbName = newSchemaDbName);
+      Assert.Throws<InvalidOperationException>(() => defaultSchema.Name = newSchemaName);
+      Assert.Throws<InvalidOperationException>(() => defaultSchema.DbName = newSchemaDbName);
     }
 
     [Test]
@@ -130,8 +129,8 @@ namespace Xtensive.Orm.Tests.Sql
 
       var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
       var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
-      _ = table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
-      _ = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
+      table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       var createTableQuery = SqlDdl.Create(table);
 
       TestQueryNamesReadable(createTableQuery, defaultSchema);
@@ -145,8 +144,8 @@ namespace Xtensive.Orm.Tests.Sql
 
       var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
       var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
-      _ = table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
-      _ = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
+      table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       var createTableQuery = SqlDdl.Create(table);
 
       TestQueryNamesUnreadable(createTableQuery, defaultSchema);
@@ -308,50 +307,51 @@ namespace Xtensive.Orm.Tests.Sql
 
     private void TestQueryNamesReadable(ISqlCompileUnit query, Schema defaultSchema)
     {
-      var queryText = string.Empty;
+      string queryText = string.Empty;
 
-      if (IsMultidatabaseSupported) {
-        var compilerConfiguration = new SqlCompilerConfiguration { DatabaseQualifiedObjects = true };
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+      if (MultidatabaseSupported()) {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = true};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
 
-        compilerConfiguration = new SqlCompilerConfiguration { DatabaseQualifiedObjects = true };
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string> {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap =new Dictionary<string, string> {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = true};
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
         Assert.That(queryText.Contains(DummySchemaName), Is.False);
       }
-      if (IsMultischemaSupported) {
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+      if (MultischemaSupported()) {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string>() { { defaultSchema.GetDbNameInternal(), DummySchemaName } };
+        var databaseMap = new Dictionary<string, string>() { { defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName } };
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) { DatabaseQualifiedObjects = false };
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
         Assert.That(queryText.Contains(DummySchemaName), Is.False);
       }
       else {
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string> {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string> {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) { DatabaseQualifiedObjects = false };
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
@@ -361,38 +361,41 @@ namespace Xtensive.Orm.Tests.Sql
 
     private void TestQueryNamesUnreadable(ISqlCompileUnit query, Schema defaultSchema)
     {
-      var queryText = string.Empty;
+      string queryText = string.Empty;
 
-      if (IsMultidatabaseSupported) {
-        var compilerConfiguration = new SqlCompilerConfiguration() { DatabaseQualifiedObjects = true };
+      if (MultidatabaseSupported()) {
+        Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query).GetCommandText());
 
-        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
-
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        var compilerConfiguration =
+          new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = true};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
 
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string> {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string> {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = true};
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.True);
         Assert.That(queryText.Contains(DummySchemaName), Is.True);
       }
-      if (IsMultischemaSupported) {
-        _ = Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query).GetCommandText());
+      if (MultischemaSupported()) {
+        Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query).GetCommandText());
 
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        var compilerConfiguration =
+          new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string> {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string> {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = false};
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
@@ -401,28 +404,23 @@ namespace Xtensive.Orm.Tests.Sql
       else {
         Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText());
 
-        var postCompilerConfiguration = new SqlPostCompilerConfiguration(emptyMap, emptyMap);
-
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText(postCompilerConfiguration));
+        var compilerConfiguration =
+          new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
 
-        postCompilerConfiguration = new SqlPostCompilerConfiguration(GetDatabaseMap(defaultSchema.Catalog), GetSchemaMap(defaultSchema));
+        var schemaMap = new Dictionary<string, string> {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string> {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = false};
 
-        Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText());
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
         Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
         Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
         Assert.That(queryText.Contains(DummySchemaName), Is.False);
       }
     }
-
-    private static Dictionary<string, string> GetSchemaMap(Schema schema) =>
-      new() { { schema.GetDbNameInternal(), DummySchemaName } };
-
-    private static Dictionary<string, string> GetDatabaseMap(Catalog catalog) =>
-      new() { { catalog.GetDbNameInternal(), DummyDatabaseName } };
-
 
     private Schema GetSchema()
     {
@@ -432,15 +430,34 @@ namespace Xtensive.Orm.Tests.Sql
       var defaultSchema = catalog.DefaultSchema = schema;
       var table = defaultSchema.CreateTable(TableName);
       var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
-      _ = table.CreatePrimaryKey("PK_DenyNamesReadingTest", column);
-      _ = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
+      table.CreatePrimaryKey("PK_DenyNamesReadingTest", column);
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       return defaultSchema;
     }
 
-    private SqlValueType GetServerTypeFor(Type type) =>
-      Driver.TypeMappings.Mappings[type].MapType(255, null, null);
+    private SqlValueType GetServerTypeFor(Type type)
+    {
+      return Driver.TypeMappings.Mappings[type].MapType(255, null, null);
+    }
 
-    private SqlValueType GetServerTypeFor(Type type, int length) =>
-      Driver.TypeMappings.Mappings[type].MapType(length, null, null);
+    private SqlValueType GetServerTypeFor(Type type, int length)
+    {
+      return Driver.TypeMappings.Mappings[type].MapType(length, null, null);
+    }
+
+    private SqlValueType GetServerTypeFor(Type type, int length, int precision, int scale)
+    {
+      return Driver.TypeMappings.Mappings[type].MapType(length, precision, scale);
+    }
+
+    private bool MultidatabaseSupported()
+    {
+      return Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.MultidatabaseQueries);
+    }
+
+    private bool MultischemaSupported()
+    {
+      return Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.MultischemaQueries);
+    }
   }
 }

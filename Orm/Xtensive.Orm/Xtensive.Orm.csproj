@@ -46,13 +46,8 @@
       <Visible>false</Visible>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net5.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-  </ItemGroup>
   <ItemGroup Label="Packages">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="BitFaster.Caching" Version="1.0.7" />
   </ItemGroup>
   <ItemGroup Label="T4 templates">

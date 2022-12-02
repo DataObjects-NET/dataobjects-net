@@ -61,11 +61,12 @@ namespace Xtensive.Orm.Linq
       if (memberType==MemberType.Entity
         && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
+        var typeInfos = type.RecursiveDescendants.ToHashSet();
+        typeInfos.UnionWith(type.RecursiveImplementors);
+        typeInfos.Add(type);
 
-        var typeInfos = type.AllDescendants.ToHashSet();
-        typeInfos.UnionWith(type.AllImplementors);
-        _ = typeInfos.Add(type);
-        var typeIds = typeInfos.Select(context.TypeIdRegistry.GetTypeId);
+        IEnumerable<int> typeIds = typeInfos
+          .Select(t => context.TypeIdRegistry.GetTypeId(t));
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
@@ -1281,9 +1282,7 @@ namespace Xtensive.Orm.Linq
         if (constantExpression.Value==null && constantExpression.Type==WellKnownTypes.Object) {
           var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
           constantExpression = Expression.Constant(null, newConstantExpressionType);
-          return constantExpression
-            .Type
-            .GetProperties()
+          return constantExpression.Type.GetProperties()
             .OrderBy(property => property.Name)
             .Select(p => Expression.MakeMemberAccess(constantExpression, p))
             .Cast<Expression>()
@@ -1291,9 +1290,7 @@ namespace Xtensive.Orm.Linq
         }
       }
 
-      return expression
-        .Type
-        .GetProperties()
+      return expression.Type.GetProperties()
         .OrderBy(property => property.Name)
         .Select(p => Expression.MakeMemberAccess(expression, p))
         .Select(e => (Expression) e)
@@ -1651,7 +1648,7 @@ namespace Xtensive.Orm.Linq
     {
       var @interface = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var implementors = context.Model.Types[@interface].AllImplementors;
+      var implementors = context.Model.Types[@interface].RecursiveImplementors;
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
@@ -1665,7 +1662,7 @@ namespace Xtensive.Orm.Linq
     {
       var ancestor = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var descendants = context.Model.Types[ancestor].AllDescendants;
+      var descendants = context.Model.Types[ancestor].RecursiveDescendants;
       var fields = descendants
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic))
         .Where(f => f != null);

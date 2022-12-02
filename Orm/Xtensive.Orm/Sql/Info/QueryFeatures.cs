@@ -153,11 +153,6 @@ namespace Xtensive.Sql.Info
     CrossApplyForSubqueriesOnly = CrossApply | (1 << 26),
 
     /// <summary>
-    /// Indicates that RDBMS supports SQL parameter in selected columns of SELECT statement.
-    /// </summary>
-    ParameterAsColumn = 1 << 27,
-
-    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

@@ -384,21 +384,30 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      string suffix = string.Empty;
       if (index.IsVirtual) {
-        if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)
-          suffix = ".FILTERED.";
-        else if ((index.Attributes & IndexAttributes.Join)!=IndexAttributes.None)
-          suffix = ".JOIN.";
-        else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
-          suffix = ".UNION.";
-        else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
-          suffix = ".VIEW.";
-        else if ((index.Attributes & IndexAttributes.Typed) != IndexAttributes.None)
-          suffix = ".TYPED.";
-        suffix += type.Name;
+        var sb = new StringBuilder(result, result.Length + 12 + type.Name.Length);
+
+        var indexAttributes = index.Attributes;
+        if (indexAttributes.HasFlag(IndexAttributes.Filtered)) {
+          sb.Append(".FILTERED.");
+        }
+        else if (indexAttributes.HasFlag(IndexAttributes.Join)) {
+          sb.Append(".JOIN.");
+        }
+        else if (indexAttributes.HasFlag(IndexAttributes.Union)) {
+          sb.Append(".UNION.");
+        }
+        else if (indexAttributes.HasFlag(IndexAttributes.View)) {
+          sb.Append(".VIEW.");
+        }
+        else if (indexAttributes.HasFlag(IndexAttributes.Typed)) {
+          sb.Append(".TYPED.");
+        }
+
+        sb.Append(type.Name);
+        result = sb.ToString();
       }
-      return ApplyNamingRules(string.Concat(result, suffix));
+      return ApplyNamingRules(result);
     }
 
     /// <summary>

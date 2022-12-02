@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -72,55 +72,14 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
-    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />
+    /// Default <see cref="EntityVersioningPolicy"/> value;
     /// </summary>
-    public const bool DefaultAllowCyclicDatabaseDependencies = false;
+    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
 
     /// <summary>
     /// Default <see cref="EnsureConnectionIsAlive"/> value: <see langword="true" />.
     /// </summary>
     public const bool DefaultEnsureConnectionIsAlive = true;
-
-    /// <summary>
-    /// Default <see cref="EntityVersioningPolicy"/> value;
-    /// </summary>
-    [Obsolete("Use VersioningConvention.DefaultVersioningPolicy")]
-    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
-
-    /// <summary>
-    /// Default <see cref="UpgradeMode"/> value.
-    /// </summary>
-    public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;
-
-    /// <summary>
-    /// Default <see cref="ForeignKeyMode"/> value.
-    /// </summary>
-    public const ForeignKeyMode DefauktForeignKeyMode = ForeignKeyMode.Default;
-
-    /// <summary>
-    /// Default <see cref="FullTextChangeTrackingMode"/> value.
-    /// </summary>
-    public const FullTextChangeTrackingMode DefaultFullTextChangeTrackingMode = FullTextChangeTrackingMode.Default;
-
-    /// <summary>
-    /// Default <see cref="Options"/> value.
-    /// </summary>
-    public const DomainOptions DefaultDomainOptions = DomainOptions.Default;
-
-    /// <summary>
-    /// Default <see cref="SchemaSyncExceptionFormat"/> value.
-    /// </summary>
-    public const SchemaSyncExceptionFormat DefaultSchemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
-
-    /// <summary>
-    /// Default <see cref="TagsLocation"/> value.
-    /// </summary>
-    public const TagsLocation DefaultTagLocation = TagsLocation.Default;
-    
-    /// <summary>
-    /// Default <see cref="PreferTypeIdsAsQueryParameters"/> value: <see langword="true" />.
-    /// </summary>
-    public const bool DefaultPreferTypeIdsAsQueryParameters = true;
 
     #endregion
 
@@ -131,34 +90,33 @@ namespace Xtensive.Orm.Configuration
     private ConnectionInfo connectionInfo;
     private string defaultSchema = string.Empty;
     private string defaultDatabase = string.Empty;
-    private DomainTypeRegistry types = new(new DomainTypeRegistrationHandler());
-    private LinqExtensionRegistry linqExtensions = new();
-    private SessionConfigurationCollection sessions = new();
-    private MappingRuleCollection mappingRules = new();
-    private DatabaseConfigurationCollection databases = new();
-    private KeyGeneratorConfigurationCollection keyGenerators = new();
-    private IgnoreRuleCollection ignoreRules = new();
-    private NamingConvention namingConvention = new();
-    private VersioningConvention versioningConvention = new();
+    private DomainTypeRegistry types = new DomainTypeRegistry(new DomainTypeRegistrationHandler());
+    private LinqExtensionRegistry linqExtensions = new LinqExtensionRegistry();
+    private NamingConvention namingConvention = new NamingConvention();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
+    private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
+    private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
+    private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
+    private FullTextChangeTrackingMode fullTextChangeTrackingMode = FullTextChangeTrackingMode.Default;
     private Type serviceContainerType;
-    private string forcedServerVersion = string.Empty;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
+    private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
-    private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
-    private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
-    private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
-    private FullTextChangeTrackingMode fullTextChangeTrackingMode = DefaultFullTextChangeTrackingMode;
-    private DomainOptions options = DefaultDomainOptions;
-    private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
-    private TagsLocation tagsLocation = DefaultTagLocation;
+    private DomainOptions options = DomainOptions.Default;
+    private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
+    private MappingRuleCollection mappingRules = new MappingRuleCollection();
+    private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
+    private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
+    private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
+    private VersioningConvention versioningConvention = new VersioningConvention();
+    private TagsLocation tagsLocation = TagsLocation.Default;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -172,12 +130,12 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="NotSupportedException">The property is already defined once.</exception>
     public static string SectionName
     {
-      get => sectionName;
-      set {
+      get { return sectionName; }
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        if (sectionNameIsDefined) {
-          throw Exceptions.AlreadyInitialized(nameof(SectionName));
-        }
+        if (sectionNameIsDefined)
+          throw Exceptions.AlreadyInitialized("SectionName");
         sectionName = value;
         sectionNameIsDefined = true;
       }
@@ -188,8 +146,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string Name
     {
-      get => name;
-      set {
+      get { return name; }
+      set
+      {
         EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         name = value;
@@ -208,8 +167,9 @@ namespace Xtensive.Orm.Configuration
     /// </example>
     public ConnectionInfo ConnectionInfo
     {
-      get => connectionInfo;
-      set {
+      get { return connectionInfo; }
+      set
+      {
         EnsureNotLocked();
         connectionInfo = value;
       }
@@ -220,7 +180,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string DefaultSchema
     {
-      get => defaultSchema;
+      get { return defaultSchema; }
       set {
         EnsureNotLocked();
         defaultSchema = value;
@@ -233,7 +193,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string DefaultDatabase
     {
-      get => defaultDatabase;
+      get { return defaultDatabase; }
       set {
         EnsureNotLocked();
         defaultDatabase = value;
@@ -245,8 +205,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public DomainUpgradeMode UpgradeMode
     {
-      get => upgradeMode;
-      set {
+      get { return upgradeMode; }
+      set
+      {
         EnsureNotLocked();
         upgradeMode = value;
       }
@@ -256,20 +217,27 @@ namespace Xtensive.Orm.Configuration
     /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
     /// registered in the <see cref="Domain"/>.
     /// </summary>
-    public DomainTypeRegistry Types => types;
+    public DomainTypeRegistry Types
+    {
+      get { return types; }
+    }
 
     /// <summary>
     /// Gets the collection of LINQ extensions.
     /// </summary>
-    public LinqExtensionRegistry LinqExtensions => linqExtensions;
+    public LinqExtensionRegistry LinqExtensions
+    {
+      get { return linqExtensions; }
+    }
 
     /// <summary>
     /// Gets or sets the naming convention.
     /// </summary>
     public NamingConvention NamingConvention
     {
-      get => namingConvention;
-      set {
+      get { return namingConvention; }
+      set
+      {
         EnsureNotLocked();
         namingConvention = value;
       }
@@ -281,8 +249,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public int KeyCacheSize
     {
-      get => keyCacheSize;
-      set {
+      get { return keyCacheSize; }
+      set
+      {
         EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
@@ -295,8 +264,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public int KeyGeneratorCacheSize
     {
-      get => keyGeneratorCacheSize;
-      set {
+      get { return keyGeneratorCacheSize; }
+      set
+      {
         EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
@@ -309,8 +279,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public int QueryCacheSize
     {
-      get => queryCacheSize;
-      set {
+      get { return queryCacheSize; }
+      set
+      {
         EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
@@ -323,8 +294,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public int RecordSetMappingCacheSize
     {
-      get => recordSetMappingCacheSize;
-      set {
+      get { return recordSetMappingCacheSize; }
+      set
+      {
         EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
@@ -337,8 +309,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public ForeignKeyMode ForeignKeyMode
     {
-      get => foreignKeyMode;
-      set {
+      get { return foreignKeyMode; }
+      set
+      {
         EnsureNotLocked();
         foreignKeyMode = value;
       }
@@ -350,8 +323,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public FullTextChangeTrackingMode FullTextChangeTrackingMode
     {
-      get => fullTextChangeTrackingMode;
-      set {
+      get { return fullTextChangeTrackingMode; }
+      set
+      {
         EnsureNotLocked();
         fullTextChangeTrackingMode = value;
       }
@@ -365,8 +339,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public SchemaSyncExceptionFormat SchemaSyncExceptionFormat
     {
-      get => schemaSyncExceptionFormat;
-      set {
+      get { return schemaSyncExceptionFormat; }
+      set
+      {
         EnsureNotLocked();
         schemaSyncExceptionFormat = value;
       }
@@ -377,8 +352,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public SessionConfigurationCollection Sessions
     {
-      get => sessions;
-      set {
+      get { return sessions; }
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         EnsureNotLocked();
         sessions = value;
@@ -390,8 +366,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public MappingRuleCollection MappingRules
     {
-      get => mappingRules;
-      set {
+      get { return mappingRules; }
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         EnsureNotLocked();
         mappingRules = value;
@@ -403,8 +380,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public DatabaseConfigurationCollection Databases
     {
-      get => databases;
-      set {
+      get { return databases; }
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         EnsureNotLocked();
         databases = value;
@@ -416,8 +394,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public KeyGeneratorConfigurationCollection KeyGenerators
     {
-      get => keyGenerators;
-      set {
+      get { return keyGenerators; }
+      set
+      {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         EnsureNotLocked();
         keyGenerators = value;
@@ -427,9 +406,9 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
-    public Type ServiceContainerType
+    public Type ServiceContainerType 
     {
-      get => serviceContainerType;
+      get { return serviceContainerType; }
       set {
         EnsureNotLocked();
         serviceContainerType = value;
@@ -442,8 +421,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IncludeSqlInExceptions
     {
-      get => includeSqlInExceptions;
-      set {
+      get { return includeSqlInExceptions; }
+      set
+      {
         EnsureNotLocked();
         includeSqlInExceptions = value;
       }
@@ -456,8 +436,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool AllowCyclicDatabaseDependencies
     {
-      get => allowCyclicDatabaseDependencies;
-      set {
+      get { return allowCyclicDatabaseDependencies; }
+      set
+      {
         EnsureNotLocked();
         allowCyclicDatabaseDependencies = value;
       }
@@ -471,8 +452,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string ForcedServerVersion
     {
-      get => forcedServerVersion;
-      set {
+      get { return forcedServerVersion; }
+      set
+      {
         EnsureNotLocked();
         forcedServerVersion = value;
       }
@@ -484,8 +466,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool BuildInParallel
     {
-      get => buildInParallel;
-      set {
+      get { return buildInParallel; }
+      set
+      {
         EnsureNotLocked();
         buildInParallel = value;
       }
@@ -496,8 +479,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public IgnoreRuleCollection IgnoreRules
     {
-      get => ignoreRules;
-      set {
+      get { return ignoreRules; }
+      set
+      {
         EnsureNotLocked();
         ignoreRules = value;
       }
@@ -517,8 +501,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string Collation
     {
-      get => collation;
-      set {
+      get { return collation; }
+      set
+      {
         EnsureNotLocked();
         collation = value;
       }
@@ -531,8 +516,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public string ConnectionInitializationSql
     {
-      get => connectionInitializationSql;
-      set {
+      get { return connectionInitializationSql; }
+      set
+      {
         EnsureNotLocked();
         connectionInitializationSql = value;
       }
@@ -546,8 +532,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool MultidatabaseKeys
     {
-      get => multidatabaseKeys;
-      set {
+      get { return multidatabaseKeys; }
+      set
+      {
         EnsureNotLocked();
         multidatabaseKeys = value;
       }
@@ -558,8 +545,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public DomainOptions Options
     {
-      get => options;
-      set {
+      get { return options; }
+      set
+      {
         EnsureNotLocked();
         options = value;
       }
@@ -575,7 +563,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool ShareStorageSchemaOverNodes
     {
-      get => shareStorageSchemaOverNodes;
+      get { return shareStorageSchemaOverNodes; }
       set {
         EnsureNotLocked();
         shareStorageSchemaOverNodes = value;
@@ -587,7 +575,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public VersioningConvention VersioningConvention
     {
-      get => versioningConvention;
+      get { return versioningConvention; }
       set {
         EnsureNotLocked();
         versioningConvention = value;
@@ -599,22 +587,10 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool EnsureConnectionIsAlive
     {
-      get => ensureConnectionIsAlive;
+      get { return ensureConnectionIsAlive; }
       set {
         EnsureNotLocked();
         ensureConnectionIsAlive = value;
-      }
-    }
-
-    /// <summary>
-    /// Makes queries use parameters instead of constant values for persistent type identifiers.
-    /// </summary>
-    public bool PreferTypeIdsAsQueryParameters
-    {
-      get { return preferTypeIdsAsQueryParameters; }
-      set {
-        EnsureNotLocked();
-        preferTypeIdsAsQueryParameters = value;
       }
     }
 
@@ -630,16 +606,18 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
-    public bool IsMultidatabase => isMultidatabase ?? GetIsMultidatabase();
+    public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
 
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
-    public bool IsMultischema => isMultischema ?? GetIsMultischema();
+    public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
 
+    
 
     private bool GetIsMultidatabase()
     {
@@ -687,27 +665,28 @@ namespace Xtensive.Orm.Configuration
 
     private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
     {
-      if (multischema && string.IsNullOrEmpty(DefaultSchema)) {
+      if (multischema && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive);
-      }
-
-      if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema))) {
+      
+      if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
-      }
     }
 
     private void ValidateIgnoreConfiguration()
     {
       foreach (var ignoreRule in IgnoreRules) {
-        if (string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column) && string.IsNullOrEmpty(ignoreRule.Index))
-          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable, ignoreRule));
+        if (string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column))
+          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXMustBeAppliedToColumnOrTable, ignoreRule));
       }
     }
 
     /// <inheritdoc/>
-    protected override ConfigurationBase CreateClone() => new DomainConfiguration();
+    protected override ConfigurationBase CreateClone()
+    {
+      return new DomainConfiguration();
+    }
 
     /// <summary>
     /// Copies the properties from the <paramref name="source"/>
@@ -753,14 +732,17 @@ namespace Xtensive.Orm.Configuration
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
-      preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
+      
     }
 
     /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>The clone of this configuration.</returns>
-    public new DomainConfiguration Clone() => (DomainConfiguration) base.Clone();
+    public new DomainConfiguration Clone()
+    {
+      return (DomainConfiguration) base.Clone();
+    }
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -774,7 +756,10 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
     /// is not found in application configuration file, or there is no configuration for
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
-    public static DomainConfiguration Load(string name) => Load(SectionName, name);
+    public static DomainConfiguration Load(string name)
+    {
+      return Load(SectionName, name);
+    }
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -792,10 +777,9 @@ namespace Xtensive.Orm.Configuration
     public static DomainConfiguration Load(string sectionName, string name)
     {
       var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
-      if (section == null) {
+      if (section == null)
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      }
       return LoadConfigurationFromSection(section, name);
     }
 
@@ -813,8 +797,10 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
     /// is not found in application configuration file, or there is no configuration for
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
-    public static DomainConfiguration Load(System.Configuration.Configuration configuration, string name) =>
-      Load(configuration, SectionName, name);
+    public static DomainConfiguration Load(System.Configuration.Configuration configuration, string name)
+    {
+      return Load(configuration, SectionName, name);
+    }
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -834,25 +820,29 @@ namespace Xtensive.Orm.Configuration
     public static DomainConfiguration Load(System.Configuration.Configuration configuration, string sectionName, string name)
     {
       var section = (ConfigurationSection) configuration.GetSection(sectionName);
-      if (section == null) {
+      if (section==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      }
       return LoadConfigurationFromSection(section, name);
     }
 
-    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
+    internal bool Supports(DomainOptions optionsToCheck)
+    {
+      return (options & optionsToCheck)==optionsToCheck;
+    }
 
-    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
+    internal bool Supports(ForeignKeyMode modeToCheck)
+    {
+      return (foreignKeyMode & modeToCheck)==modeToCheck;
+    }
 
 
     private static DomainConfiguration LoadConfigurationFromSection(ConfigurationSection section, string name)
     {
       var domainElement = section.Domains[name];
-      if (domainElement == null) {
+      if (domainElement==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
-      }
       return domainElement.ToNative();
     }
 

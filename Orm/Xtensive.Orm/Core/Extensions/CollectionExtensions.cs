@@ -176,7 +176,7 @@ namespace Xtensive.Core
     /// <exception cref="T:System.ArgumentNullException">
     /// <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.</exception>
     public static List<TResult> SelectToList<TSource, TResult>(
-      this ICollection<TSource> source, Func<TSource, TResult> selector)
+      this IReadOnlyCollection<TSource> source, Func<TSource, TResult> selector)
     {
       return source.Select(selector).ToList(source.Count);
     }

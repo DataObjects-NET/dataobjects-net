@@ -1,6 +1,6 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+// Copyright (C) 2003-2010 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 
 using System;
 using System.Collections.Generic;
@@ -14,6 +14,8 @@ namespace Xtensive.Sql.Model
   [Serializable]
   public class Catalog : Node
   {
+    private bool isNamesReadingDenied = false;
+
     private Schema defaultSchema;
     private PairedNodeCollection<Catalog, Schema> schemas;
     private PairedNodeCollection<Catalog, PartitionFunction> partitionFunctions;
@@ -23,12 +25,12 @@ namespace Xtensive.Sql.Model
     public override string Name
     {
       get {
-        if (!IsNamesReadingDenied)
+        if (!isNamesReadingDenied)
           return base.Name;
         throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
       }
       set {
-        if (!IsNamesReadingDenied)
+        if (!isNamesReadingDenied)
           base.Name = value;
         else
           throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
@@ -39,16 +41,48 @@ namespace Xtensive.Sql.Model
     public override string DbName
     {
       get {
-        if (!IsNamesReadingDenied)
+        if (!isNamesReadingDenied)
           return base.DbName;
         throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
       }
       set {
-        if (!IsNamesReadingDenied)
+        if (!isNamesReadingDenied)
           base.DbName = value;
         else
           throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
       }
+    }
+
+    /// <summary>
+    /// Creates a schema.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <returns></returns>
+    public Schema CreateSchema(string name)
+    {
+      return new Schema(this, name);
+    }
+
+    /// <summary>
+    /// Creates the partition function.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="dataType">Type of the input parameter.</param>
+    /// <param name="boundaryValues">The boundary values.</param>
+    public PartitionFunction CreatePartitionFunction(string name, SqlValueType dataType, params string[] boundaryValues)
+    {
+      return new PartitionFunction(this, name, dataType, boundaryValues);
+    }
+
+    /// <summary>
+    /// Creates the partition schema.
+    /// </summary>
+    /// <param name="name">The name.</param>
+    /// <param name="partitionFunction">The partition function.</param>
+    /// <param name="filegroups">The filegroups.</param>
+    public PartitionSchema CreatePartitionSchema(string name, PartitionFunction partitionFunction, params string[] filegroups)
+    {
+      return new PartitionSchema(this, name, partitionFunction, filegroups);
     }
 
     /// <summary>
@@ -79,7 +113,10 @@ namespace Xtensive.Sql.Model
     /// Gets the schemas.
     /// </summary>
     /// <value>The schemas.</value>
-    public PairedNodeCollection<Catalog, Schema> Schemas => schemas;
+    public PairedNodeCollection<Catalog, Schema> Schemas
+    {
+      get { return schemas; }
+    }
 
     /// <summary>
     /// Gets the partition functions.
@@ -103,40 +140,12 @@ namespace Xtensive.Sql.Model
     {
       get
       {
-        if (partitionSchemas == null)
+        if (partitionSchemas==null)
           partitionSchemas =
             new PairedNodeCollection<Catalog, PartitionSchema>(this, "PartitionSchemas");
         return partitionSchemas;
       }
     }
-
-    internal bool IsNamesReadingDenied { get; private set; }
-
-    /// <summary>
-    /// Creates a schema.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <returns></returns>
-    public Schema CreateSchema(string name) => new(this, name);
-
-    /// <summary>
-    /// Creates the partition function.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="dataType">Type of the input parameter.</param>
-    /// <param name="boundaryValues">The boundary values.</param>
-    public PartitionFunction CreatePartitionFunction(string name, SqlValueType dataType, params string[] boundaryValues) =>
-      new(this, name, dataType, boundaryValues);
-
-    /// <summary>
-    /// Creates the partition schema.
-    /// </summary>
-    /// <param name="name">The name.</param>
-    /// <param name="partitionFunction">The partition function.</param>
-    /// <param name="filegroups">The filegroups.</param>
-    public PartitionSchema CreatePartitionSchema(string name, PartitionFunction partitionFunction, params string[] filegroups) =>
-      new(this, name, partitionFunction, filegroups);
-
 
     #region ILockable Members 
 
@@ -154,32 +163,37 @@ namespace Xtensive.Sql.Model
 
     internal void MakeNamesUnreadable()
     {
-      IsNamesReadingDenied = true;
-      Schemas.ForEach(s => s.MakeNamesUnreadable());
-      PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
-      PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
+      isNamesReadingDenied = true;
+      this.Schemas.ForEach(s => s.MakeNamesUnreadable());
+      this.PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
+      this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
     }
 
     internal string GetActualName(IReadOnlyDictionary<string, string> catalogNameMap)
     {
-      if (!IsNamesReadingDenied)
+      if (!isNamesReadingDenied)
         return Name;
       if (catalogNameMap==null)
         throw new ArgumentNullException("catalogNameMap");
 
       var name = GetNameInternal();
-      return catalogNameMap.TryGetValue(name, out var actualName) ? actualName : name;
+      string actualName;
+      if (catalogNameMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
     }
 
     internal string GetActualDbName(IReadOnlyDictionary<string, string> catalogNameMap)
     {
-      if (!IsNamesReadingDenied)
+      if (!isNamesReadingDenied)
         return DbName;
       if (catalogNameMap==null)
-        throw new ArgumentNullException("Unable to calculate real name for catalog");
-
+        throw new InvalidOperationException("Unable to calculate real name for catalog");
       var name = GetDbNameInternal();
-      return catalogNameMap.TryGetValue(name, out var actualName) ? actualName : name;
+      string actualName;
+      if (catalogNameMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
     }
 
     // Constructors
@@ -198,5 +212,6 @@ namespace Xtensive.Sql.Model
         ? new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.Ordinal)
         : new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.OrdinalIgnoreCase);
     }
+
   }
 }

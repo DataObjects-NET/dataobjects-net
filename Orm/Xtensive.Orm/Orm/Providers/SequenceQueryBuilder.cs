@@ -1,6 +1,6 @@
-// Copyright (C) 2012-2022 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+﻿// Copyright (C) 2012 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.07
 
@@ -29,51 +29,68 @@ namespace Xtensive.Orm.Providers
         ? SequenceQueryCompartment.SameSession
         : compartment;
 
-      var postCompilerConfiguration = GetPostCompilerConfig(nodeConfiguration);
-
       var sqlNext = hasSequences
         ? GetSequenceBasedNextImplementation(generatorNode, increment)
         : GetTableBasedNextImplementation(generatorNode);
 
-      if (sqlNext is not SqlBatch batch || hasBatches) {
+      var requiresSeparateSession = !hasSequences;
+      var batch = sqlNext as SqlBatch;
+      if (batch == null || hasBatches)
         // There are batches or there is single statement, so we can run this as a single request
-        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText(postCompilerConfiguration), actualCompartment);
-      }
-      else {
-        // No batches, so we must execute this manually
-        return !storesAutoIncrementSettingsInMemory
-          ? new SequenceQuery(
-              driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(postCompilerConfiguration),
-              driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(postCompilerConfiguration),
-              actualCompartment)
-          : new SequenceQuery(
-              driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(postCompilerConfiguration),
-              driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(postCompilerConfiguration),
-              driver.Compile((ISqlCompileUnit) batch[2]).GetCommandText(postCompilerConfiguration),
-              actualCompartment);
-      }
+        return new SequenceQuery(Compile(sqlNext, nodeConfiguration).GetCommandText(), actualCompartment);
+
+      // No batches, so we must execute this manually
+      if (!storesAutoIncrementSettingsInMemory)
+        return new SequenceQuery(
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
+          actualCompartment);
+      return new SequenceQuery(
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[2], nodeConfiguration).GetCommandText(),
+          actualCompartment);
     }
 
-    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment, bool forcedSameSessionExecution) =>
-      BuildNextValueQuery(generatorNode, null, increment, forcedSameSessionExecution);
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration, long increment)
+    {
+      return BuildNextValueQuery(generatorNode, nodeConfiguration, increment, false);
+    }
 
-    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment) =>
-      BuildNextValueQuery(generatorNode, null, increment, false);
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment, bool forcedSameSessionExecution)
+    {
+      return BuildNextValueQuery(generatorNode, null, increment, forcedSameSessionExecution);
+    }
 
-    public string BuildCleanUpQuery(SchemaNode generatorNode) =>
-      BuildCleanUpQuery(generatorNode, null);
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment)
+    {
+      return BuildNextValueQuery(generatorNode, null, increment);
+    }
+
+    public string BuildCleanUpQuery(SchemaNode generatorNode)
+    {
+      return BuildCleanUpQuery(generatorNode, null);
+    }
 
     public string BuildCleanUpQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration)
     {
-      var postCompilerConfiguration = GetPostCompilerConfig(nodeConfiguration);
-
-      var table = (Table) generatorNode;
+      var table = (Table)generatorNode;
       var delete = SqlDml.Delete(SqlDml.TableRef(table));
-      return driver.Compile(delete).GetCommandText(postCompilerConfiguration);
+      return Compile(delete, nodeConfiguration).GetCommandText();
     }
 
-    private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment) =>
-      SqlDml.Select(SqlDml.NextValue((Sequence) generatorNode, (int) increment));
+
+    private SqlCompilationResult Compile(ISqlCompileUnit unit, NodeConfiguration nodeConfiguration)
+    {
+      if (nodeConfiguration!=null)
+        return driver.Compile(unit, nodeConfiguration);
+      return driver.Compile(unit);
+    }
+
+    private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment)
+    {
+      return SqlDml.Select(SqlDml.NextValue((Sequence) generatorNode, (int) increment));
+    }
 
     private ISqlCompileUnit GetTableBasedNextImplementation(SchemaNode generatorNode)
     {
@@ -91,26 +108,20 @@ namespace Xtensive.Orm.Providers
       }
 
       var result = SqlDml.Batch();
-      if (storesAutoIncrementSettingsInMemory) {
+      if (storesAutoIncrementSettingsInMemory)
         result.Add(delete);
-      }
       result.Add(insert);
       result.Add(SqlDml.Select(SqlDml.LastAutoGeneratedId()));
       return result;
     }
 
-    private static SqlPostCompilerConfiguration GetPostCompilerConfig(NodeConfiguration nodeConfiguration) =>
-  (nodeConfiguration != null)
-    ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
-    : new SqlPostCompilerConfiguration();
-
     private static TableColumn GetColumn(Table table, string columnName)
     {
       var idColumn = table.TableColumns[columnName];
-      return idColumn == null
-        ? throw new InvalidOperationException(string.Format(
-            Strings.ExColumnXIsNotFoundInTableY, columnName, table.Name))
-        : idColumn;
+      if (idColumn==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExColumnXIsNotFoundInTableY, columnName, table.Name));
+      return idColumn;
     }
 
     public SequenceQueryBuilder(StorageDriver driver)

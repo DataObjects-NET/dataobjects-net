@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       desc = TestDescriptor(desc, new Type[] {typeof(bool?), typeof(bool), typeof(bool?)});
     }
 
-    private TupleDescriptor TestDescriptor(TupleDescriptor theSame, Type[] types)
+    private TupleDescriptor TestDescriptor(TupleDescriptor? theSame, Type[] types)
     {
       var d1 = TupleDescriptor.Create(types);
       var d2 = TupleDescriptor.Create(types);

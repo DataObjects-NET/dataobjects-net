@@ -253,8 +253,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
         QueryFeatures.MultischemaQueries |
-        QueryFeatures.ScalarSubquery |
-        QueryFeatures.ParameterAsColumn;
+        QueryFeatures.ScalarSubquery;
       info.ParameterPrefix = "@";
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;

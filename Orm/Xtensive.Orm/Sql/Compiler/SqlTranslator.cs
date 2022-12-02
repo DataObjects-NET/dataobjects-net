@@ -1954,20 +1954,13 @@ namespace Xtensive.Sql.Compiler
 
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
+      var actualizer = context.SqlNodeActualizer;
 
-      
-      if (node.Schema.IsNamesReadingDenied) {
-        // if schema is shared we use placeholders to translate
-        // schema node in PostCompiler
-        output.AppendSchemaNodePlaceholder(node, EscapeSetup, dbQualified);
+      if (dbQualified) {
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
       }
       else {
-        if (dbQualified) {
-          TranslateIdentifier(output, node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName);
-        }
-        else {
-          TranslateIdentifier(output, node.Schema.DbName, node.DbName);
-        }
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
       }
     }
 

@@ -13,8 +13,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Compiler : SqlCompiler
   {
-    private readonly static Type SqlPlaceholderType = typeof(SqlPlaceholder);
-
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
@@ -33,27 +31,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override void Visit(SqlBinary node)
     {
       var right = node.Right as SqlArray;
-      if (right is not null && (node.NodeType==SqlNodeType.In || node.NodeType==SqlNodeType.NotIn)) {
-        if (right.ItemType == SqlPlaceholderType) {
-          using (context.EnterScope(node)) {
-            AppendTranslatedEntry(node);
-            node.Left.AcceptVisitor(this);
-            translator.Translate(context.Output, node.NodeType);
-            _ = context.Output.AppendOpeningPunctuation("(");
-            var items = right.GetValues();
-            for (var i = 0; i < items.Length - 1; i++) {
-              Visit((SqlPlaceholder) items[i]);
-              _ = context.Output.Append(translator.RowItemDelimiter);
-            }
-            Visit((SqlPlaceholder) items[^1]);
-            _ = context.Output.Append(")");
-            AppendTranslatedExit(node);
-          }
-        }
-        else {
-          var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
-          base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
-        }
+      if (right is not null && (node.NodeType is SqlNodeType.In or SqlNodeType.NotIn)) {
+        var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
+        base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
       }
       else {
         switch (node.NodeType) {

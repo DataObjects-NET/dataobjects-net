@@ -224,12 +224,12 @@ namespace Xtensive.Modelling
       if (node.Index!=list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
-      if (nameIndex.ContainsKey(name))
-        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
       int count = list.Count;
+      if (!nameIndex.TryAdd(name, node)) {
+        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
+      }
       try {
         list.Add(node);
-        nameIndex.Add(name, node);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Add, node.Index));
       }
