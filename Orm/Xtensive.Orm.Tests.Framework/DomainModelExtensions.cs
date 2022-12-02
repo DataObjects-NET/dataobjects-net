@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpDescendants(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Descendants:");
-      var direct = target.Descendants;
-      foreach (TypeInfo descendant in target.RecursiveDescendants) {
+      var direct = target.DirectDescendants;
+      foreach (TypeInfo descendant in target.AllDescendants) {
         if (direct.Contains(descendant))
           WriteLine(indent + 1, descendant.Name + " (direct)");
         else
@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpInterfaces(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Interfaces:");
-      var direct = target.Interfaces;
-      foreach (TypeInfo @interface in target.RecursiveInterfaces) {
+      var direct = target.DirectInterfaces;
+      foreach (TypeInfo @interface in target.AllInterfaces) {
         if (direct.Contains(@interface))
           WriteLine(indent + 1, @interface.Name + " (direct)");
         else
@@ -116,8 +116,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpImplementors(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Implementors:");
-      var direct = target.Implementors;
-      foreach (TypeInfo implementor in target.RecursiveImplementors) {
+      var direct = target.DirectImplementors;
+      foreach (TypeInfo implementor in target.AllImplementors) {
         if (direct.Contains(implementor))
           WriteLine(indent + 1, implementor.Name + " (direct)");
         else
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Tests
           WriteLine(indent, "Ancestor: " + target.Ancestor.Name);
       }
       else if (target.IsInterface) {
-        WriteLine(indent, "Implementors: " + target.Implementors.Select(t => t.Name).ToCommaDelimitedString());
+        WriteLine(indent, "Implementors: " + target.DirectImplementors.Select(t => t.Name).ToCommaDelimitedString());
       }
 
       target.DumpMappingName(indent);

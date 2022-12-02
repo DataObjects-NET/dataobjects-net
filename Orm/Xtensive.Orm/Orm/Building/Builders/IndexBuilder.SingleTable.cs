@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var parent = type.Ancestor;
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.Interfaces) {
+      foreach (var @interface in type.DirectInterfaces) {
         foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (root.Indexes.Any(i => i.DeclaringIndex == interfaceIndex.DeclaringIndex && i.ReflectedType == type))
             continue;
@@ -68,12 +68,12 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build indexes for descendants
-      foreach (var descendant in type.Descendants) {
+      foreach (var descendant in type.DirectDescendants) {
         BuildSingleTableIndexes(descendant);
       }
 
       if (type == root) return;
-      var descendants = type.RecursiveDescendants;
+      var descendants = type.AllDescendants;
 
       var primaryIndexFilterTypes = new List<TypeInfo>();
       if (!type.IsAbstract)
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Building.Builders
           continue;
         if (ancestorIndex.DeclaringType.IsInterface) {
           var filteredDescendants = descendants
-            .Where(t => !t.IsAbstract && !t.Interfaces.Contains(ancestorIndex.DeclaringType));
+            .Where(t => !t.IsAbstract && !t.DirectInterfaces.Contains(ancestorIndex.DeclaringType));
           var filterByTypes = new List<TypeInfo>();
           if (!type.IsAbstract)
             filterByTypes.Add(type);
