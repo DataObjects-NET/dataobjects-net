@@ -807,7 +807,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var reflectedType = index.ReflectedType;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).ToList()
+        ? Enumerable.Range(0, index.KeyColumns.Count).ToList(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(pair => pair.Key)
             .Concat(index.ValueColumns)
@@ -815,7 +815,7 @@ namespace Xtensive.Orm.Building.Builders
             .Where(arg => arg.c.IsPrimaryKey)
             .Select(arg => arg.i)
             .ToList();
-      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList();
+      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count);
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 

@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
       Key.UpdateState();
-      var list = new List<TypeInfo> {Root};
+      var list = new List<TypeInfo>(Root.AllDescendants.Count + 1) {Root};
       list.AddRange(Root.AllDescendants);
       Types = list.AsReadOnly();
       if (Types.Count == 1)
