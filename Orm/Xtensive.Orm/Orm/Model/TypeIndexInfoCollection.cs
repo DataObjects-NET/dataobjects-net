@@ -43,31 +43,23 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    public IndexInfo FindFirst(IndexAttributes indexAttributes)
-    {
-      var result = Find(indexAttributes);
-      if (result.Any()) {
-        var enumerator = result.GetEnumerator();
-        enumerator.MoveNext();
-        return enumerator.Current;
-      }
-      return null;
-    }
+    public IndexInfo FindFirst(IndexAttributes indexAttributes) =>
+      Find(indexAttributes).FirstOrDefault();
 
     [DebuggerStepThrough]
     public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
     {
-      var names = new List<string> {fieldName};
-      names.AddRange(fieldNames);
+      var names = (fieldNames ?? Array.Empty<string>()).Prepend(fieldName);
 
       var fields = new List<FieldInfo>();
       foreach (var name in names) {
-        FieldInfo field;
-        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out field))
+        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out var field)) {
           fields.Add(field);
+        }
       }
-      if (fields.Count==0)
+      if (fields.Count == 0) {
         return null;
+      }
 
       return GetIndex(fields);
     }

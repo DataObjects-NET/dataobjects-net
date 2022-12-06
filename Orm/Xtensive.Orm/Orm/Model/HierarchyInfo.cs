@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
       Key.UpdateState();
-      var list = new List<TypeInfo> {Root};
-      list.AddRange(Root.RecursiveDescendants);
+      var list = new List<TypeInfo>(Root.AllDescendants.Count + 1) {Root};
+      list.AddRange(Root.AllDescendants);
       Types = list.AsReadOnly();
       if (Types.Count == 1)
         InheritanceSchema = InheritanceSchema.ConcreteTable;

@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Building.Builders
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
         var associations = type.GetOwnerAssociations()
-          .Where(a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear);
+          .Where(static a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear);
         var action = new PrefetchActionContainer(type).BuildPrefetchAction(associations);
         if (action != null) {
           domain.PrefetchActionMap.Add(type, action);
@@ -200,11 +200,11 @@ namespace Xtensive.Orm.Building.Builders
 
     private void PreprocessAssociations()
     {
-      foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
+      foreach (var typeInfo in context.Model.Types.Where(static t => t.IsEntity && !t.IsAuxiliary)) {
 
         // pair integrity escalation and consistency check
-        typesWithProcessedInheritedAssociations.Add(typeInfo);
-        var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
+        _ = typesWithProcessedInheritedAssociations.Add(typeInfo);
+        var refFields = typeInfo.Fields.Where(static f => f.IsEntity || f.IsEntitySet).ToList();
         // check for interface fields
         foreach (var refField in refFields) {
           var parentIsPaired = false;
@@ -257,11 +257,16 @@ namespace Xtensive.Orm.Building.Builders
 
           var fieldCopy = refField;
           if (!parentIsPaired)
-            context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
-          Func<AssociationInfo, bool> associationFilter = a => context.PairedAssociations
-            .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
-              && pa.Second == a.OwnerField.Name
-              && a.OwnerType == pa.First.TargetType);
+            _ = context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
+
+          bool associationFilter(AssociationInfo a)
+          {
+            return context.PairedAssociations
+              .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
+                && pa.Second == a.OwnerField.Name
+                && a.OwnerType == pa.First.TargetType);
+          }
+
           var associationsToKeep = refField.IsInterfaceImplementation
             ? refField.Associations
                 .Where(associationFilter)
@@ -477,10 +482,9 @@ namespace Xtensive.Orm.Building.Builders
     private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
     {
       foreach (var type in typesToRegisterReferences) {
-        var typeImplementors = type.Implementors;
-        var descendantTypes = type.RecursiveDescendants;
-        if (typeImplementors.Any())
-        {
+        var typeImplementors = type.DirectImplementors;
+        var descendantTypes = type.AllDescendants;
+        if (typeImplementors.Any()) {
           foreach (var implementor in typeImplementors)
             if (referenceRegistrator.ContainsKey(implementor))
               referenceRegistrator[implementor] += 1;
@@ -500,32 +504,32 @@ namespace Xtensive.Orm.Building.Builders
 
     private void MarkAuxiliaryTypesAsOutboundOnly(IEnumerable<TypeInfo> typesToMark)
     {
-      var auxiliary = typesToMark.Where(el => el.IsAuxiliary);
+      var auxiliary = typesToMark.Where(static el => el.IsAuxiliary);
       foreach (var typeInfo in auxiliary)
         typeInfo.IsOutboundOnly = true;
     }
 
     private void MarkTypesAsInboundOnly(Dictionary<TypeInfo, int> outputRefCountDictionary)
     {
-      foreach (var output in outputRefCountDictionary.Where(el => el.Value==0))
+      foreach (var output in outputRefCountDictionary.Where(static el => el.Value == 0))
         output.Key.IsInboundOnly = true;
     }
 
     private void MarkTypesAsOutboundOnly(Dictionary<TypeInfo, int> inputRefCountDictionary)
     {
-      foreach (var input in inputRefCountDictionary.Where(el => el.Value == 0))
+      foreach (var input in inputRefCountDictionary.Where(static el => el.Value == 0))
         input.Key.IsOutboundOnly = true;
     }
 
     private IEnumerable<AssociationInfo> GetMasterOrNonPairedAssociations(IEnumerable<AssociationInfo> allAssociations)
     {
-      return allAssociations.Where(el => el.IsMaster || !el.IsPaired);
+      return allAssociations.Where(static el => el.IsMaster || !el.IsPaired);
     }
 
     private Dictionary<TypeInfo,int> InitReferencesOfTypesDictionary(TypeInfoCollection allTypes)
     {
       var referencesOfTypeDictionary = new Dictionary<TypeInfo, int>();
-      var entityTypes = allTypes.Where(el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
+      var entityTypes = allTypes.Where(static el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
       foreach (var type in entityTypes) {
         referencesOfTypeDictionary.Add(type,0);
       }
@@ -544,7 +548,7 @@ namespace Xtensive.Orm.Building.Builders
       var dict = nodes.ToDictionary(o => o.Item);
       foreach (var typeNode in typeNodes) {
         var tail = dict[typeNode];
-        foreach (var head in typeNode.OutgoingEdges.Where(static o => o.Weight == EdgeWeight.High).Select(o => o.Head).Distinct()) {
+        foreach (var head in typeNode.OutgoingEdges.Where(static o => o.Weight == EdgeWeight.High).Select(static o => o.Head).Distinct()) {
           if (head != typeNode) {
             dict[head].AddConnection(tail, null);
           }
@@ -560,7 +564,7 @@ namespace Xtensive.Orm.Building.Builders
         ?? throw new DomainBuilderException(string.Format(
             Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
               loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
-      var dependentTypes = result.Select(n => n.Value).ToList();
+      var dependentTypes = result.Select(static n => n.Value).ToList();
       var independentTypes = context.ModelDef.Types.Except(dependentTypes);
       return independentTypes.Concat(dependentTypes);
     }

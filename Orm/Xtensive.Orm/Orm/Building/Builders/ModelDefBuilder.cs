@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
-      foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
+      foreach (var fieldDef in typeDef.Fields.Where(static f => f.UnderlyingProperty != null)) {
         var fullTextAttribute = fieldDef.UnderlyingProperty
           .GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
         if (fullTextAttribute == null) {
@@ -181,8 +181,8 @@ namespace Xtensive.Orm.Building.Builders
     {
       // process indexes which defined directly for type
       var ownIndexesOfType = typeDef.Fields
-        .Where(f => f.IsIndexed)
-        .Select(f => new IndexAttribute(f.Name))
+        .Where(static f => f.IsIndexed)
+        .Select(static f => new IndexAttribute(f.Name))
         .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritNone) ??
           Enumerable.Empty<IndexAttribute>());
 
