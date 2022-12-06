@@ -191,8 +191,7 @@ namespace Xtensive.Orm.Building.Builders
               case InheritanceSchema.ConcreteTable: {
                 var grouping = hierarchy;
                 var allImplementors = @interface.AllImplementors
-                  .Where(t => t.Hierarchy == grouping.Key && !t.IsAbstract)
-                  .ToList();
+                  .Where(t => t.Hierarchy == grouping.Key && !t.IsAbstract);
                 var primaryIndexes = allImplementors
                   .Select(t => (Index: t.Indexes.Single(static i => i.IsPrimary && !i.IsVirtual), Type: t))
                   .Select(p => untypedIndexes.Contains(p.Index)
@@ -580,12 +579,14 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Adding value columns
-      var typeOrder = reflectedType.Ancestors
-        .Append(reflectedType)
-        .Select(static (t, i) => (Type: t, Index: i))
-        .ToDictionary(static a => a.Type, static a => a.Index);
-      var types = reflectedType.Ancestors.ToHashSet();
-      types.Add(reflectedType);
+      var typeOrder = new Dictionary<TypeInfo, int>(reflectedType.Ancestors.Count + 1);
+      var types = new HashSet<TypeInfo>(reflectedType.Ancestors.Count + 1);
+
+      var indx = 0;
+      foreach (var t in reflectedType.Ancestors.Append(reflectedType)) {
+        typeOrder.Add(t, indx++);
+        _ = types.Add(t);
+      }
 
       var valueColumnMap = new List<List<int>>();
       foreach (var index in indexesToJoin) {
@@ -618,13 +619,11 @@ namespace Xtensive.Orm.Building.Builders
       }
       var orderedIndexes = indexesToJoin
         .Select((index, i) => (index, columns: valueColumnMap[i], i))
-        .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType])
-        .ToList();
+        .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType]);
 
       var columnsToAdd = new List<ColumnInfo>();
       var valueColumnMapping = new List<Pair<int, List<int>>>();
-      for (var i = 0; i < orderedIndexes.Count; i++) {
-        var item = orderedIndexes[i];
+      foreach(var item in orderedIndexes) {
         if (valueColumnMapping.Count == 0)
           item.columns.InsertRange(0, Enumerable.Range(0, result.IncludedColumns.Count));
         foreach (var columnIndex in item.columns) {
@@ -750,7 +749,7 @@ namespace Xtensive.Orm.Building.Builders
       var actualColumnMapping = valueColumns
         .Zip(columnMap, static (column, sourceIndex) => (column, sourceIndex))
         .OrderBy(p => reflectedType.Columns.IndexOf(p.column))
-        .ToList();
+        .ToChainedBuffer();
       valueColumns.Clear();
       columnMap.Clear();
       columnMap.AddRange(Enumerable.Range(0, keyLength));
