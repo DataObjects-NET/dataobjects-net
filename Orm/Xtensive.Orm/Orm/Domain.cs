@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -347,18 +348,30 @@ namespace Xtensive.Orm
         // That would make session accessible for user before
         // connection become opened.
         session = new Session(this, storageNode, configuration, false);
+        ExceptionDispatchInfo exceptionDispatchInfo = null;
         try {
           await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
             .ContinueWith(t => {
-              if (sessionScope != null) {
-                session.AttachToScope(sessionScope);
+              if (t.Status == TaskStatus.RanToCompletion) {
+                if (sessionScope != null) {
+                  session.AttachToScope(sessionScope);
+                }
               }
-            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+              else if (t.Exception is Exception ex) {
+                if (ex is System.AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1) {
+                  ex = aggregateException.InnerExceptions[0];
+                }
+                exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+              }
+            }, TaskContinuationOptions.ExecuteSynchronously)
             .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
           await session.DisposeSafelyAsync().ConfigureAwait(false);
           throw;
+        }
+        finally {
+          exceptionDispatchInfo?.Throw();
         }
       }
       NotifySessionOpen(session);
