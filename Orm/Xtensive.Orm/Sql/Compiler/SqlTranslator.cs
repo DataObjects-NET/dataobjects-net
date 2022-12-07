@@ -1996,9 +1996,6 @@ namespace Xtensive.Sql.Compiler
           TranslateIdentifier(output, node.Schema.DbName, node.DbName);
         }
       }
-      _ = output.AppendLiteral(setup.Delimiter);
-
-      TranslateIdentifier(output, dbQualified ? node.GetDbNameInternal() : node.DbName);
     }
 
     /// <summary>
