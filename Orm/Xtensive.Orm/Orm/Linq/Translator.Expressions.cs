@@ -65,21 +65,17 @@ namespace Xtensive.Orm.Linq
         var typeInfos = type.AllDescendants.ToHashSet();
         typeInfos.UnionWith(type.AllImplementors);
         _ = typeInfos.Add(type);
+        var typeIds = typeInfos.Select(context.TypeIdRegistry.GetTypeId);
         Expression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
-
-        // Cast 'o.TypeId' to TypeInfo to be compatible with TypeInfo literals
-        // The literals are replaced by placeholders in SqlTranslator
-        // The '(o.TypeId as TypeInfo)' replaced by 'mc.GetTypeInfo(o.TypeId)' in ExpressionMaterializer
-        memberExpression = Expression.TypeAs(memberExpression, WellKnownOrmTypes.TypeInfo);
-
         Expression boolExpression = null;
-        foreach (var typeInfo in typeInfos)
+        foreach (int typeId in typeIds) {
           boolExpression = MakeBooleanExpression(
             boolExpression,
             memberExpression,
-            Expression.Constant(typeInfo),
+            Expression.Constant(typeId),
             ExpressionType.Equal,
             ExpressionType.OrElse);
+        }
 
         return Visit(boolExpression);
       }
