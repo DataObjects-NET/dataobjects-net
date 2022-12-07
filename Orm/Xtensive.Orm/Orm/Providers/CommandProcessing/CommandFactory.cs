@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -47,12 +48,18 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
+      var nodeConfiguration = Session.StorageNode.Configuration;
+      var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
+
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
         var tuple = task.Tuple;
         var compilationResult = request.GetCompiledStatement();
-        var configuration = new SqlPostCompilerConfiguration();
+        var configuration = shareStorageNodesOverNodes
+          ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+          : new SqlPostCompilerConfiguration();
+
         var part = new CommandPart();
         
         foreach (var binding in request.ParameterBindings) {
@@ -95,7 +102,14 @@ namespace Xtensive.Orm.Providers
 
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
-      var configuration = new SqlPostCompilerConfiguration();
+      var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
+      var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : Session.StorageNode.Configuration;
+
+      var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
+      var configuration = shareStorageNodesOverNodes
+          ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+          : new SqlPostCompilerConfiguration();
+      ;
       var result = new CommandPart();
 
       foreach (var binding in request.ParameterBindings) {
@@ -152,6 +166,11 @@ namespace Xtensive.Orm.Providers
           }
           configuration.DynamicFilterValues.Add(binding, filterValues);
           continue;
+          case QueryParameterBindingType.TypeIdentifier: {
+            var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
+            parameterValue = Session.StorageNode.TypeIdRegistry[Session.Domain.Model.Types[originalTypeId]];
+            break;
+          }
         default:
           throw new ArgumentOutOfRangeException("binding.BindingType");
         }

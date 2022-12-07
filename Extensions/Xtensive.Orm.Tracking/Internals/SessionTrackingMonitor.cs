@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,19 +15,20 @@ namespace Xtensive.Orm.Tracking
   {
     private readonly Session session;
     private readonly DirectSessionAccessor accessor;
-    private readonly Stack<TrackingStackFrame> stack;
+    private readonly Stack<TrackingStackFrame> stack = new(2);
 
     private void Subscribe()
     {
-      session.Events.Persisting += OnPersisting;
-      session.Events.TransactionOpened += OnOpenTransaction;
-      session.Events.TransactionCommitted += OnCommitTransaction;
-      session.Events.TransactionRollbacked += OnRollbackTransaction;
+      var events = session.Events;
+      events.Persisting += OnPersisting;
+      events.TransactionOpened += OnOpenTransaction;
+      events.TransactionCommitted += OnCommitTransaction;
+      events.TransactionRollbacked += OnRollbackTransaction;
     }
 
     private void OnOpenTransaction(object sender, TransactionEventArgs e)
     {
-      stack.Push(new TrackingStackFrame());
+      stack.Push(new TrackingStackFrame(false));
     }
 
     private void OnCommitTransaction(object sender, TransactionEventArgs e)
@@ -76,16 +77,10 @@ namespace Xtensive.Orm.Tracking
     [ServiceConstructor]
     public SessionTrackingMonitor(Session session, DirectSessionAccessor accessor)
     {
-      if (session==null)
-        throw new ArgumentNullException("session");
-      if (accessor==null)
-        throw new ArgumentNullException("accessor");
+      this.session = session ?? throw new ArgumentNullException(nameof(session));
+      this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
-      this.session = session;
-      this.accessor = accessor;
-
-      stack = new Stack<TrackingStackFrame>();
-      stack.Push(new TrackingStackFrame());
+      stack.Push(new TrackingStackFrame(false));
 
       Subscribe();
     }

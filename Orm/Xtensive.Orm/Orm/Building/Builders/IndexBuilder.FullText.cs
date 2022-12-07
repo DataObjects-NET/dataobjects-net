@@ -15,7 +15,7 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  partial class IndexBuilder
+  partial class IndexBuilder 
   {
     private void BuildFullTextIndexes()
     {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Building.Builders
       var indexesToDefine = hierarchyIndexes.ToList();
       if (indexesToDefine.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
         throw new DomainBuilderException(string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
-      var descendants = root.RecursiveDescendants.Append(root);
+      var descendants = root.AllDescendants.Append(root);
       var indexDef = indexesToDefine[0];
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
@@ -68,7 +68,8 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var fullTextIndexDef in hierarchyIndexes) {
         var type = model.Types[fullTextIndexDef.Type.UnderlyingType];
         types.Add(type);
-        types.UnionWith(type.RecursiveDescendants);
+        foreach (var descendant in type.AllDescendants)
+          types.Add(descendant);
         foreach (var fullTextFieldDef in fullTextIndexDef.Fields) {
           var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
           index.Columns.Add(fullTextColumn);
@@ -109,8 +110,8 @@ namespace Xtensive.Orm.Building.Builders
         typeColumn = field.Column;
       }
       return new FullTextColumnInfo(column) {
-        IsAnalyzed = fullTextFieldDef.IsAnalyzed,
-        Configuration = fullTextFieldDef.Configuration,
+        IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
+        Configuration = fullTextFieldDef.Configuration, 
         TypeColumn = typeColumn
       };
     }
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var model = context.Model;
       var processQueue = new Queue<TypeInfo>();
-      foreach (var type in root.Descendants) {
+      foreach (var type in root.DirectDescendants)
         processQueue.Enqueue(type);
       }
 

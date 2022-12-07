@@ -7,11 +7,22 @@
 [main] Obsolete Query's members have been removed
 [main] Obsolete members of DelayedScalarQuery<T> have been removed
 [main] Obsolete FieldInfo.IsDynalicallyDefined property's been removed (FieldInfo.IsDynamicallyDefined is still there)
+[main] Changed translation of queries when DomainConfiguration.ShareStorageSchemaOverNodes set to true
+[main] StorageDriver.Compile(ISqlCompileUnit, NodeConfiguration) became obsolete
+[main] SqlNodeActualizer became obsolete
+[main] SqlCompilerConfiguration's DatabaseMapping and SchemaMapping moved to SqlPostCompilerConfiguration
 [main] Some EventArgs inheritors that were sealed classes transformed to read-only structures
 [main] DbCommandEventArgs became read-only structure
 [main] SqlCustomFunctionCall and SqlFunctionCall share one base type
 [main] SqlFunctionCall.Arguments property is IReadOnlyList now and parameters can't be changed after instance creation
 [main] Xtensive.Sql.Dml.Extensions.IsNullReference() extension method is marked obsolete, use 'is null' operator instead
+[main] DirectSessionAccessor.GetChangedEntities() result type changed to improve enumeration
+[main] EntityChangeRegistry.GetItems(PersistenceState) changed result type to improve enumeration
+[main] EntitySetChangeRegistry.GetItems() changed result type to improve enumeration
+[main] IgnoreRule now has only one public constructor - parameterless
+[main] IgnoreRule supports indexes
+[main] Queries use parameters instead of constant values for type indentifiers within columns list
+[main] Added DomainConfiguration.PreferTypeIdsAsQueryParameters to choose between contants and parameters for TypeIds
 [main] BitFaster.Caching package reference is updated to 1.0.7
 [main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
 [reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure

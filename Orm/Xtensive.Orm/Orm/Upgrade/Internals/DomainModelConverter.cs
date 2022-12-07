@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Upgrade
         if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
         if (association.OwnerType.IsInterface) {
-          foreach (var implementorType in association.OwnerType.Implementors.SelectMany(GetForeignKeyOwners)) {
+          foreach (var implementorType in association.OwnerType.DirectImplementors.SelectMany(GetForeignKeyOwners)) {
             var implementorField = implementorType.FieldMap[association.OwnerField];
             ProcessDirectAssociation(implementorType, implementorField, association.TargetType);
           }
@@ -506,7 +506,7 @@ namespace Xtensive.Orm.Upgrade
         yield break;
       yield return type;
       if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
-        foreach (var descendant in type.RecursiveDescendants.Where(static descendant => descendant.Indexes.PrimaryIndex != null))
+        foreach (var descendant in type.AllDescendants.Where(descendant => descendant.Indexes.PrimaryIndex != null))
           yield return descendant;
     }
 
