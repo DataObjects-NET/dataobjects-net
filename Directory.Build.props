@@ -39,7 +39,6 @@
 
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
-    <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
@@ -47,7 +46,7 @@
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0;net6.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -65,7 +64,7 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0;net6.0</TargetFrameworks> <!-- fallback to default -->
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
