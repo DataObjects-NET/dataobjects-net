@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -18,6 +19,7 @@ using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
+using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Model
 {
@@ -65,7 +67,7 @@ namespace Xtensive.Orm.Model
     private KeyInfo key;
     private bool hasVersionRoots;
     private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
-    private List<AssociationInfo>              overridenAssociations;
+    private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
  
 
@@ -287,8 +289,7 @@ namespace Xtensive.Orm.Model
     public bool IsOutboundOnly
     {
       get { return isOutboundOnly; }
-      set
-      {
+      set {
         EnsureNotLocked();
         isOutboundOnly = value;
       }
@@ -301,8 +302,7 @@ namespace Xtensive.Orm.Model
     public bool IsInboundOnly
     {
       get { return isInboundOnly; }
-      set
-      {
+      set {
         EnsureNotLocked();
         isInboundOnly = value;
       }
@@ -349,9 +349,8 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return typeId; }
-      set
-      {
-        if (typeId!=NoTypeId)
+      set {
+        if (typeId != NoTypeId)
           throw Exceptions.AlreadyInitialized("TypeId");
         typeId = value;
       }
@@ -364,8 +363,7 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return underlyingType; }
-      set
-      {
+      set {
         EnsureNotLocked();
         underlyingType = value;
       }
@@ -410,8 +408,7 @@ namespace Xtensive.Orm.Model
     public FullTextIndexInfo FullTextIndex
     {
       [DebuggerStepThrough]
-      get
-      {
+      get {
         FullTextIndexInfo fullTextIndexInfo;
         model.FullTextIndexes.TryGetValue(this, out fullTextIndexInfo);
         return fullTextIndexInfo;
@@ -469,7 +466,8 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the type discriminator value.
     /// </summary>
-    public object TypeDiscriminatorValue {
+    public object TypeDiscriminatorValue
+    {
       get { return typeDiscriminatorValue; }
       set {
         EnsureNotLocked();
@@ -505,7 +503,8 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets a value indicating whether this instance has version roots.
     /// </summary>
-    public bool HasVersionRoots {
+    public bool HasVersionRoots
+    {
       [DebuggerStepThrough]
       get { return hasVersionRoots; }
       [DebuggerStepThrough]
@@ -550,7 +549,7 @@ namespace Xtensive.Orm.Model
     public Tuple CreateEntityTuple(Tuple primaryKey, int typeIdValue)
     {
       var result = primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, TuplePrototype);
-      if (typeIdField!=null)
+      if (typeIdField != null)
         result.SetValue(typeIdField.MappingInfo.Offset, typeIdValue);
       return result;
     }
@@ -759,9 +758,9 @@ namespace Xtensive.Orm.Model
 
       overridenAssociations = associations
         .Where(a =>
-          (a.Ancestors.Count > 0 && ((a.OwnerType==this && a.Ancestors.All(an => an.OwnerType!=this) || (a.TargetType==this && a.Ancestors.All(an => an.TargetType!=this))))) ||
-          (a.Reversed!=null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType==this && a.Reversed.Ancestors.All(an => an.OwnerType!=this) || (a.Reversed.TargetType==this && a.Reversed.Ancestors.All(an => an.TargetType!=this)))))))
-        .SelectMany(a => a.Ancestors.Concat(a.Reversed==null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
+          (a.Ancestors.Count > 0 && ((a.OwnerType == this && a.Ancestors.All(an => an.OwnerType != this) || (a.TargetType == this && a.Ancestors.All(an => an.TargetType != this))))) ||
+          (a.Reversed != null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType == this && a.Reversed.Ancestors.All(an => an.OwnerType != this) || (a.Reversed.TargetType == this && a.Reversed.Ancestors.All(an => an.TargetType != this)))))))
+        .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = Ancestor;
       if (ancestor != null && ancestor.overridenAssociations != null) {
@@ -791,12 +790,12 @@ namespace Xtensive.Orm.Model
       //
       var sequence = new List<AssociationInfo>(associations.Count);
       var b = associations.Where(
-        a => (a.OnOwnerRemove==OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
-          (a.OnTargetRemove==OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
-          (a.OnOwnerRemove==OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
-          (a.OnTargetRemove==OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
-          (a.OnOwnerRemove==OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
-          (a.OnTargetRemove==OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+        a => (a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       sequence.AddRange(b);
 
       var sortedRemovalSequence = sequence.Where(a => a.Ancestors.Count > 0).ToList();
@@ -885,7 +884,7 @@ namespace Xtensive.Orm.Model
         nullabilityMap[i++] = column.IsNullable;
 
       // fixing reference fields that are marked as not nullable
-      foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable==false)) {
+      foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable == false)) {
         var segment = field.MappingInfo;
         for (int j = segment.Offset; j < segment.EndOffset; j++) {
           nullabilityMap[j] = true;
@@ -899,7 +898,7 @@ namespace Xtensive.Orm.Model
       // Initializing defaults
       i = 0;
       foreach (var column in Columns) {
-        if (column.DefaultValue!=null) {
+        if (column.DefaultValue != null) {
           try {
             tuple.SetValue(i, column.DefaultValue);
           }
@@ -914,7 +913,7 @@ namespace Xtensive.Orm.Model
       // Aditional initialization for entities
       if (IsEntity) {
         // Setting type discriminator column
-        if (Hierarchy.TypeDiscriminatorMap!=null)
+        if (Hierarchy.TypeDiscriminatorMap != null)
           tuple.SetValue(Hierarchy.TypeDiscriminatorMap.Field.MappingInfo.Offset, typeDiscriminatorValue);
 
         // Building primary key injector

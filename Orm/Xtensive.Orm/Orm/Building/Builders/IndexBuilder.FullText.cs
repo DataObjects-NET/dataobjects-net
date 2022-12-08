@@ -15,7 +15,7 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  partial class IndexBuilder
+  partial class IndexBuilder 
   {
     private void BuildFullTextIndexes()
     {

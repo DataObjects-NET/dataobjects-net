@@ -167,6 +167,7 @@ namespace Xtensive.Orm.Model
       return fullNameTable.TryGetValue(fullName, out result) ? result : null;
     }
 
+
     /// <summary>
     /// Finds the ancestor of the specified <paramref name="item"/>.
     /// </summary>
