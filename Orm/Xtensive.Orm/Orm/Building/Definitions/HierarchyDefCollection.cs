@@ -27,6 +27,9 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   public class HierarchyDefCollection : CollectionBaseSlim<HierarchyDef>
   {
+    private readonly Dictionary<Type, HierarchyDef> hierarchyDefByTypeCache = new();
+    private bool invalidateCache;
+
     public event EventHandler<HierarchyDefCollectionChangedEventArgs> Added;
     public event EventHandler<HierarchyDefCollectionChangedEventArgs> Removed;
 
@@ -43,10 +46,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <param name="key">The key of the value to get.</param>
     /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
     /// if item was not found.</returns>
-    public HierarchyDef TryGetValue(TypeDef key)
-    {
-      return TryGetValue(key.UnderlyingType);
-    }
+    public HierarchyDef TryGetValue(TypeDef key) => TryGetValue(key.UnderlyingType);
 
     /// <summary>
     /// Gets the value associated with the specified key.
@@ -56,9 +56,11 @@ namespace Xtensive.Orm.Building.Definitions
     /// if item was not found.</returns>
     public HierarchyDef TryGetValue(Type key)
     {
-      foreach (HierarchyDef item in this)
-        if (item.Root.UnderlyingType==key)
+      foreach (var item in this) {
+        if (item.Root.UnderlyingType == key) {
           return item;
+        }
+      }
       return null;
     }
 
@@ -67,13 +69,14 @@ namespace Xtensive.Orm.Building.Definitions
     /// </summary>
     /// <exception cref="ArgumentException"> when item was not found.</exception>
     public HierarchyDef this[Type key] =>
-      TryGetValue(key) ?? throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
+      TryGetValue(key) ?? throw new ArgumentException(string.Format(Strings.ExItemByKeyXWasNotFound, key), nameof(key));
 
     /// <inheritdoc/>
     public override void Add(HierarchyDef item)
     {
       base.Add(item);
       Added?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+      invalidateCache = true;
     }
 
     /// <inheritdoc/>
@@ -89,6 +92,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       if (base.Remove(item)) {
         Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+        invalidateCache = true;
         return true;
       }
       return false;
@@ -100,10 +104,9 @@ namespace Xtensive.Orm.Building.Definitions
       foreach (var item in this) {
         Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
       }
+      invalidateCache = true;
       base.Clear();
     }
-
-    private readonly Dictionary<Type, HierarchyDef> hierarchyDefByTypeCache = new();
 
     /// <summary>
     /// Finds the hierarchy.
@@ -115,24 +118,23 @@ namespace Xtensive.Orm.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var itemUnderlyingType = item.UnderlyingType;
 
-      if (!hierarchyDefByTypeCache.TryGetValue(itemUnderlyingType, out var hierarchyDef)) {
-        hierarchyDef = this.FirstOrDefault(hierarchy => hierarchy.Root.UnderlyingType.IsAssignableFrom(itemUnderlyingType));
-        hierarchyDefByTypeCache.Add(itemUnderlyingType, hierarchyDef);
+      HierarchyDef hierarchyDef;
+      if (invalidateCache) {
+        hierarchyDefByTypeCache.Clear();
+        invalidateCache = false;
+
+        FindAndCache(itemUnderlyingType, out hierarchyDef);
+      }
+      else if (!hierarchyDefByTypeCache.TryGetValue(itemUnderlyingType, out hierarchyDef)) {
+        FindAndCache(itemUnderlyingType, out hierarchyDef);
       }
       return hierarchyDef;
-    }
 
-    private void ClearCache(object _, HierarchyDefCollectionChangedEventArgs __)
-    {
-      hierarchyDefByTypeCache.Clear();
+      void FindAndCache(Type underlyingType, out HierarchyDef hierarchyDef1)
+      {
+        hierarchyDef1 = this.FirstOrDefault(hierarchy => hierarchy.Root.UnderlyingType.IsAssignableFrom(underlyingType));
+        hierarchyDefByTypeCache.Add(itemUnderlyingType, hierarchyDef1);
+      }
     }
-
-    public HierarchyDefCollection()
-    {
-      Added += ClearCache;
-      Removed += ClearCache;
-    }
-
-    private void HierarchyDefCollection_Removed(object sender, HierarchyDefCollectionChangedEventArgs e) => throw new NotImplementedException();
   }
 }
