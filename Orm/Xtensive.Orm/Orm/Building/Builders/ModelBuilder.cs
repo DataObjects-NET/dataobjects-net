@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.ActualModel)) {
         context.Model = new DomainModel();
-        BuildTypes(GetTypeBuildSequence().ToList());
+        BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
         FindAndMarkInboundAndOutboundTypes(context);
         IndexBuilder.BuildIndexes(context);
@@ -538,35 +538,38 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Topological sort helpers
 
-    private static List<Node<Node<TypeDef>, object>> PrepareNodesForTopologicalSort(IEnumerable<Node<TypeDef>> typeNodes)
+    private IReadOnlyList<TypeDef> GetTypeBuildSequence()
     {
-      var nodes = new List<Node<Node<TypeDef>, object>>();
-      foreach (var typeNode in typeNodes) {
-        var topoNode = new Node<Node<TypeDef>, object>(typeNode);
-        nodes.Add(topoNode);
-      }
-      var dict = nodes.ToDictionary(o => o.Item);
-      foreach (var typeNode in typeNodes) {
-        var tail = dict[typeNode];
-        foreach (var head in typeNode.OutgoingEdges.Where(static o => o.Weight == EdgeWeight.High).Select(static o => o.Head).Distinct()) {
-          if (head != typeNode) {
-            dict[head].AddConnection(tail, null);
-          }
-        }
-      }
-      return nodes;
-    }
-
-    private IEnumerable<TypeDef> GetTypeBuildSequence()
-    {
-      List<Node<Node<TypeDef>, object>> loops;
-      var result = TopologicalSorter.Sort(PrepareNodesForTopologicalSort(context.DependencyGraph.Nodes), out loops)
+      //.SortToList eliminates resizes (count is known within sorter) which will appear if use Sort().ToList()
+      var result = TopologicalSorter.SortToList(PrepareNodesForTopologicalSort(context.DependencyGraph.Nodes), out var loops)
         ?? throw new DomainBuilderException(string.Format(
             Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
               loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
-      var dependentTypes = result.Select(static n => n.Value).ToList();
+
+      var dependentTypes = result.Select(static n => n.Value);
       var independentTypes = context.ModelDef.Types.Except(dependentTypes);
-      return independentTypes.Concat(dependentTypes);
+
+      return independentTypes.Concat(dependentTypes).ToArray(context.ModelDef.Types.Count);
+
+
+      static List<Node<Node<TypeDef>, object>> PrepareNodesForTopologicalSort(IEnumerable<Node<TypeDef>> typeNodes)
+      {
+        var nodes = new List<Node<Node<TypeDef>, object>>();
+        foreach (var typeNode in typeNodes) {
+          var topoNode = new Node<Node<TypeDef>, object>(typeNode);
+          nodes.Add(topoNode);
+        }
+        var dict = nodes.ToDictionary(o => o.Item);
+        foreach (var typeNode in typeNodes) {
+          var tail = dict[typeNode];
+          foreach (var head in typeNode.OutgoingEdges.Where(static o => o.Weight == EdgeWeight.High).Select(static o => o.Head).Distinct()) {
+            if (head != typeNode) {
+              _ = dict[head].AddConnection(tail, null);
+            }
+          }
+        }
+        return nodes;
+      }
     }
 
     #endregion
