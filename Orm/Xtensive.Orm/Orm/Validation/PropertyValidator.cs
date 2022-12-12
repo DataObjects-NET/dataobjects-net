@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Validation
     public bool ValidateOnlyIfModified
     {
       get => validateOnlyIfModified;
-      set {
+      init {
         if (Domain != null) {
           throw Exceptions.AlreadyInitialized(null);
         }
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Validation
     public bool SkipOnTransactionCommit
     {
       get => skipOnTransactionCommiting;
-      set {
+      init {
         if (Domain != null) {
           throw Exceptions.AlreadyInitialized(null);
         }
