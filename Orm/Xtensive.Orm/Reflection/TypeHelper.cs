@@ -739,7 +739,7 @@ namespace Xtensive.Reflection
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
+    public static Type[] GetInterfacesOrderedByInheritance(this Type type) =>
       OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
