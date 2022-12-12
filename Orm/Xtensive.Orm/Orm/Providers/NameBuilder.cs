@@ -385,27 +385,20 @@ namespace Xtensive.Orm.Providers
       }
 
       if (index.IsVirtual) {
-        var sb = new StringBuilder(result, result.Length + 12 + type.Name.Length);
-
         var indexAttributes = index.Attributes;
-        if (indexAttributes.HasFlag(IndexAttributes.Filtered)) {
-          sb.Append(".FILTERED.");
-        }
-        else if (indexAttributes.HasFlag(IndexAttributes.Join)) {
-          sb.Append(".JOIN.");
-        }
-        else if (indexAttributes.HasFlag(IndexAttributes.Union)) {
-          sb.Append(".UNION.");
-        }
-        else if (indexAttributes.HasFlag(IndexAttributes.View)) {
-          sb.Append(".VIEW.");
-        }
-        else if (indexAttributes.HasFlag(IndexAttributes.Typed)) {
-          sb.Append(".TYPED.");
-        }
 
-        sb.Append(type.Name);
-        result = sb.ToString();
+        var indexNameBeforeRules = indexAttributes.HasFlag(IndexAttributes.Filtered)
+          ? $"{result}.FILTERED.{type.Name}"
+          : indexAttributes.HasFlag(IndexAttributes.Join)
+            ? $"{result}.JOIN.{type.Name}"
+            : indexAttributes.HasFlag(IndexAttributes.Union)
+              ? $"{result}.UNION.{type.Name}"
+              : indexAttributes.HasFlag(IndexAttributes.View)
+                ? $"{result}.VIEW.{type.Name}"
+                : indexAttributes.HasFlag(IndexAttributes.Typed)
+                  ? $"{result}.TYPED.{type.Name}"
+                  : $"{result}{type.Name}";
+        return ApplyNamingRules(indexNameBeforeRules);
       }
       return ApplyNamingRules(result);
     }
