@@ -49,6 +49,7 @@
 [main] IgnoreRule supports indexes
 [main] Queries use parameters instead of constant values for type indentifiers within columns list
 [main] Added DomainConfiguration.PreferTypeIdsAsQueryParameters to choose between contants and parameters for TypeIds
+[main] ShareStorageSchemaOverNodes option now includes shared query cache when TypeIds as paremters are prefered
 [main] Introduced TypeInfo.Ancestor property
 [main] Introduced TypeInfo.DirectDescendants and.AllDescendants properties
 [main] Introduced TypeInfo.DirectInterfaces and.AllInterfaces properties
