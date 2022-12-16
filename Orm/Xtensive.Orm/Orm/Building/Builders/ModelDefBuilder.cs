@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -103,11 +103,7 @@ namespace Xtensive.Orm.Building.Builders
 
         ProcessFullTextIndexes(typeDef);
 
-        var validators = type.GetCustomAttributes(false).OfType<IObjectValidator>();
-        foreach (var validator in validators) {
-          typeDef.Validators.Add(validator);
-        }
-
+        typeDef.Validators.AddRange(type.GetCustomAttributes(WellKnownOrmInterfaces.ObjectValidator, false).Cast<IObjectValidator>());
         return typeDef;
       }
     }
@@ -119,7 +115,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
-      foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
+      foreach (var fieldDef in typeDef.Fields.Where(static f => f.UnderlyingProperty != null)) {
         var fullTextAttribute = fieldDef.UnderlyingProperty
           .GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
         if (fullTextAttribute == null) {
@@ -140,14 +136,10 @@ namespace Xtensive.Orm.Building.Builders
 
     public void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      var properties = typeDef.UnderlyingType.GetProperties(
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-      foreach (var propertyInfo in properties) {
-        // Domain builder stage-related filter
-        if (!IsFieldAvailable(propertyInfo)) {
-          continue;
-        }
+      foreach (var propertyInfo in properties
+          .Where(IsFieldAvailable)) {   // Domain builder stage-related filter
 
         // FieldAttribute presence is required
         var reversedFieldAttributes = GetReversedFieldAttributes<FieldAttribute>(propertyInfo);
@@ -189,8 +181,8 @@ namespace Xtensive.Orm.Building.Builders
     {
       // process indexes which defined directly for type
       var ownIndexesOfType = typeDef.Fields
-        .Where(f => f.IsIndexed)
-        .Select(f => new IndexAttribute(f.Name))
+        .Where(static f => f.IsIndexed)
+        .Select(static f => new IndexAttribute(f.Name))
         .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritNone) ??
           Enumerable.Empty<IndexAttribute>());
 
@@ -327,10 +319,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         // Validators
-        var validators = propertyInfo.GetCustomAttributes(false).OfType<IPropertyValidator>();
-        foreach (var validator in validators) {
-          fieldDef.Validators.Add(validator);
-        }
+        fieldDef.Validators.AddRange(propertyInfo.GetCustomAttributes(WellKnownOrmInterfaces.PropertyValidator, false).Cast<IPropertyValidator>());
       }
 
       return fieldDef;

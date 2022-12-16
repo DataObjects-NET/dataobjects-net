@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Building.Builders
         // and if they have some indexes then IndexDef.IsInherited of them will be true and it's truth actually,
         // but fields inherited from removed entities will have FieldInfo.IsInherited = false.
         // So, if we check only IndexDef.IsInherited then some indexes will be ignored.
-        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf => type.Fields[kf.Key]).Any(f => f.IsInherited)) {
+        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf => type.Fields[kf.Key]).Any(static f => f.IsInherited)) {
           continue;
         }
 
@@ -83,10 +83,11 @@ namespace Xtensive.Orm.Building.Builders
       }
       var descendants = type.AllDescendants;
 
-      var primaryIndexFilterTypes = !type.IsAbstract
-        ? descendants.Prepend(type)
-        : descendants;
-      
+      var primaryIndexFilterTypes = new List<TypeInfo>(type.IsAbstract ? descendants.Count : descendants.Count + 1);
+      if (!type.IsAbstract)
+        primaryIndexFilterTypes.Add(type);
+      primaryIndexFilterTypes.AddRange(descendants);
+
       // Import inherited indexes
       var ancestorIndexes = root.Indexes
         .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Building.Builders
         if (ancestorIndex.DeclaringType.IsInterface) {
           var filteredDescendants = descendants
             .Where(t => !t.IsAbstract && !t.DirectInterfaces.Contains(ancestorIndex.DeclaringType));
-          var filterByTypes = new List<TypeInfo>();
+          var filterByTypes = new List<TypeInfo>(2);
           if (!type.IsAbstract) {
             filterByTypes.Add(type);
           }

@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests
     public static void DumpDescendants(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Descendants:");
-      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.DirectDescendants);
+      var direct = target.DirectDescendants;
       foreach (TypeInfo descendant in target.AllDescendants) {
         if (direct.Contains(descendant))
           WriteLine(indent + 1, descendant.Name + " (direct)");
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests
     public static void DumpImplementors(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Implementors:");
-      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.DirectImplementors);
+      var direct = target.DirectImplementors;
       foreach (TypeInfo implementor in target.AllImplementors) {
         if (direct.Contains(implementor))
           WriteLine(indent + 1, implementor.Name + " (direct)");
