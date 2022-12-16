@@ -55,6 +55,7 @@
 [main] Introduced TypeInfo.DirectImplementors .AllImplementors properties
 [main] BitFaster.Caching package reference is updated to 1.0.7
 [main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
+[main] General performance and memory efficiency improvements
 [reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
 [reprocessing] ExecuteErrorEventArgs (not sealed) became read-only structure
 [tracking] TrackingCompletedEventArgs (sealed) became read-only structure
