@@ -21,9 +21,12 @@ namespace Xtensive.Orm.Providers
   {
     private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
     {
+      var expressionLeft = expression.Left;
+      var expressionRight = expression.Right;
+
       bool isGoodExpression =
-        expression.Left.NodeType==ExpressionType.Call && expression.Right.NodeType==ExpressionType.Constant ||
-        expression.Right.NodeType==ExpressionType.Call && expression.Left.NodeType==ExpressionType.Constant;
+        expressionLeft.NodeType==ExpressionType.Call && expressionRight.NodeType==ExpressionType.Constant ||
+        expressionRight.NodeType==ExpressionType.Call && expressionLeft.NodeType==ExpressionType.Constant;
 
       if (!isGoodExpression)
         return null;
@@ -32,14 +35,14 @@ namespace Xtensive.Orm.Providers
       ConstantExpression constantExpression;
       bool swapped;
 
-      if (expression.Left.NodeType==ExpressionType.Call) {
-        callExpression = (MethodCallExpression) expression.Left;
-        constantExpression = (ConstantExpression) expression.Right;
+      if (expressionLeft.NodeType == ExpressionType.Call) {
+        callExpression = (MethodCallExpression) expressionLeft;
+        constantExpression = (ConstantExpression) expressionRight;
         swapped = false;
       }
       else {
-        callExpression = (MethodCallExpression) expression.Right;
-        constantExpression = (ConstantExpression) expression.Left;
+        callExpression = (MethodCallExpression) expressionRight;
+        constantExpression = (ConstantExpression) expressionLeft;
         swapped = true;
       }
 
@@ -87,8 +90,10 @@ namespace Xtensive.Orm.Providers
         rightComparand = tmp;
       }
 
+      var expressionNodeType = expression.NodeType;
+
       if (constant > 0)
-        switch (expression.NodeType) {
+        switch (expressionNodeType) {
         case ExpressionType.Equal:
         case ExpressionType.GreaterThan:
         case ExpressionType.GreaterThanOrEqual:
@@ -102,7 +107,7 @@ namespace Xtensive.Orm.Providers
         }
 
       if (constant < 0)
-        switch (expression.NodeType) {
+        switch (expressionNodeType) {
         case ExpressionType.NotEqual:
         case ExpressionType.GreaterThan:
         case ExpressionType.GreaterThanOrEqual:
@@ -115,7 +120,7 @@ namespace Xtensive.Orm.Providers
           return null;
         }
 
-      switch (expression.NodeType) {
+      switch (expressionNodeType) {
       case ExpressionType.GreaterThan:
         return SqlDml.GreaterThan(leftComparand, rightComparand);
       case ExpressionType.GreaterThanOrEqual:

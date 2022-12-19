@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public const int MinTypeId = 100;
 
-    private static readonly IReadOnlySet<TypeInfo> EmptyTypes = new HashSet<TypeInfo>();
+    private static readonly ImmutableHashSet<TypeInfo> EmptyTypes = ImmutableHashSet.Create<TypeInfo>();
 
     private readonly ColumnInfoCollection columns;
     private readonly FieldMap fieldMap;
@@ -69,16 +70,16 @@ namespace Xtensive.Orm.Model
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
 
+
     private TypeInfo ancestor;
+    private IReadOnlySet<TypeInfo> ancestors;
 
-    private IReadOnlyList<TypeInfo> ancestors;
-
-    private HashSet<TypeInfo> directDescendants;
+    private ISet<TypeInfo> directDescendants;
     private IReadOnlySet<TypeInfo> allDescendants;
-    private HashSet<TypeInfo> directInterfaces;
-    private IReadOnlyList<TypeInfo> allInterfaces;
-    private HashSet<TypeInfo> directImplementors;
-    private IReadOnlyList<TypeInfo> allImplementors;
+    private ISet<TypeInfo> directInterfaces;
+    private IReadOnlySet<TypeInfo> allInterfaces;
+    private ISet<TypeInfo> directImplementors;
+    private IReadOnlySet<TypeInfo> allImplementors;
     private IReadOnlySet<TypeInfo> typeWithAncestorsAndInterfaces;
 
     #region Hierarchical structure properties
@@ -118,10 +119,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
     /// Gets the ancestors recursively. Root-to-inheritor order. Reverse of AncestorChain.
     /// </summary>
     /// <returns>The ancestor</returns>
-    public IReadOnlyList<TypeInfo> Ancestors => ancestors ??= AncestorChain.Reverse().ToList();
+    public IReadOnlySet<TypeInfo> Ancestors =>
+      ancestors ??= new Collections.ReadOnlyHashSet<TypeInfo>(AncestorChain.Reverse().ToHashSet());
 
     /// <summary>
     /// Gets direct descendants of this instance.
@@ -150,22 +153,35 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    public IReadOnlySet<TypeInfo> DirectInterfaces => directInterfaces ?? EmptyTypes;
+    /// <summary>
+    /// Gets the persistent interfaces this instance implements directly.
+    /// </summary>
+    public IReadOnlySet<TypeInfo> DirectInterfaces =>
+      (IReadOnlySet<TypeInfo>) directInterfaces ?? EmptyTypes;
 
-    public IReadOnlyList<TypeInfo> AllInterfaces =>
-      allInterfaces ??= (IsInterface ? DirectInterfaces : DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces))).ToList();
+    /// <summary>
+    /// Gets all the persistent interfaces (both direct and non-direct) this instance implements.
+    /// </summary>
+    public IReadOnlySet<TypeInfo> AllInterfaces =>
+      allInterfaces ??= (IsInterface
+        ? DirectInterfaces
+        : new Collections.ReadOnlyHashSet<TypeInfo>(DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces)).ToHashSet()));
 
     /// <summary>
     /// Gets the direct implementors of this instance.
     /// </summary>
-    public IReadOnlySet<TypeInfo> DirectImplementors => directImplementors ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectImplementors =>
+      (IReadOnlySet<TypeInfo>) directImplementors ?? EmptyTypes;
 
-    public IReadOnlyList<TypeInfo> AllImplementors
+    /// <summary>
+    /// Gets both direct and non-direct implementors of this instance.
+    /// </summary>
+    public IReadOnlySet<TypeInfo> AllImplementors
     {
       get {
         if (allImplementors == null) {
           if (DirectImplementors.Count == 0) {
-            allImplementors = Array.Empty<TypeInfo>();
+            allImplementors = EmptyTypes;
           }
           else {
             var allSet = new HashSet<TypeInfo>(DirectImplementors.Count);
@@ -176,7 +192,7 @@ namespace Xtensive.Orm.Model
                   _ = allSet.Add(descendant);
               }
             }
-            allImplementors = allSet.ToList();
+            allImplementors = new Collections.ReadOnlyHashSet<TypeInfo>(allSet);
           }
         }
         return allImplementors;
@@ -514,7 +530,7 @@ namespace Xtensive.Orm.Model
     /// Gets <see cref="IObjectValidator"/> instances
     /// associated with this type.
     /// </summary>
-    public IReadOnlyList<IObjectValidator> Validators { get; init; }
+    public IReadOnlyList<IObjectValidator> Validators { get; internal init; }
 
     /// <summary>
     /// Gets value indicating if this type has validators (including field validators).
@@ -725,7 +741,7 @@ namespace Xtensive.Orm.Model
         }
       }
 
-      HasValidators = Validators.Count > 0 || fields.Any(static f => f.HasValidators);
+      HasValidators = Validators.Count > 0 || fields.Any(f => f.HasValidators);
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)
@@ -749,11 +765,13 @@ namespace Xtensive.Orm.Model
         .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = Ancestor;
-      if (ancestor != null && ancestor.overridenAssociations != null)
+      if (ancestor != null && ancestor.overridenAssociations != null) {
         overridenAssociations.AddRange(ancestor.overridenAssociations);
+      }
 
-      foreach (var ancestorAssociation in overridenAssociations)
+      foreach (var ancestorAssociation in overridenAssociations) {
         associations.Remove(ancestorAssociation);
+      }
 
       //
       //Commented action sequence bellow may add dublicates to "sequence".
@@ -812,6 +830,16 @@ namespace Xtensive.Orm.Model
 
       if (!recursive)
         return;
+
+      directDescendants = directDescendants != null
+        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directDescendants)
+        : EmptyTypes;
+      directInterfaces = directInterfaces != null
+        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directInterfaces)
+        : EmptyTypes;
+      directImplementors = directImplementors!=null
+        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directImplementors)
+        : EmptyTypes;
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);

@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Model
     private TupleDescriptor keyTupleDescriptor;
     private IReadOnlyList<TypeInfo> filterByTypes;
     private IReadOnlyList<int> selectColumns;
-    private List<Pair<int, List<int>>> valueColumnsMap;
+    private IReadOnlyList<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
     private PartialIndexFilterInfo filter;
 
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets the underlying indexes for this instance. 
+    /// Gets the underlying indexes for this instance.
     /// </summary>
     public CollectionBaseSlim<IndexInfo> UnderlyingIndexes
     {
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public IReadOnlyList<int> SelectColumns
     {
-      get { return selectColumns; }
+      get => selectColumns;
       set
       {
         EnsureNotLocked();
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    public List<Pair<int, List<int>>> ValueColumnsMap
+    public IReadOnlyList<Pair<int, List<int>>> ValueColumnsMap
     {
       get { return valueColumnsMap; }
       set
@@ -326,10 +326,10 @@ namespace Xtensive.Orm.Model
       base.UpdateState();
       CreateColumns();
       valueColumns.UpdateState();
-      foreach (IndexInfo baseIndex in underlyingIndexes)
+      foreach (IndexInfo baseIndex in underlyingIndexes) {
         baseIndex.UpdateState();
-      if (filter!=null)
-        filter.UpdateState();
+      }
+      filter?.UpdateState();
       CreateTupleDescriptors();
 
       if (!IsPrimary)
@@ -383,14 +383,15 @@ namespace Xtensive.Orm.Model
     private void CreateTupleDescriptors()
     {
       tupleDescriptor = TupleDescriptor.Create(
-        Columns.Select(c => c.ValueType).ToArray(Columns.Count));
+        Columns.Select(static c => c.ValueType).ToArray(Columns.Count));
       keyTupleDescriptor = TupleDescriptor.Create(
-        KeyColumns.Select(c => c.Key.ValueType).ToArray(KeyColumns.Count));
+        KeyColumns.Select(static c => c.Key.ValueType).ToArray(KeyColumns.Count));
     }
 
     private void CreateColumns()
     {
-      var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
+      var result = new List<ColumnInfo>(keyColumns.Count + valueColumns.Count);
+      result.AddRange(keyColumns.Select(static pair => pair.Key));
       result.AddRange(valueColumns);
       columns = result.AsSafeWrapper();
     }
@@ -455,7 +456,7 @@ namespace Xtensive.Orm.Model
       filterExpression = baseIndex.FilterExpression;
       declaringIndex = baseIndex.DeclaringIndex;
       shortName = baseIndex.ShortName;
-      
+
       UnderlyingIndexes.Add(baseIndex);
 
       foreach (IndexInfo info in baseIndexes)

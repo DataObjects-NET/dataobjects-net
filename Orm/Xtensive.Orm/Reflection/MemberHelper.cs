@@ -210,11 +210,12 @@ namespace Xtensive.Reflection
         var type = mi.DeclaringType.UnderlyingSystemType;
         var methodInfoType = mi.GetType();
         var isRuntimeMethodInfo = methodInfoType.FullName == WellKnown.RuntimeMethodInfoName;
-        foreach (var iType in type.GetInterfacesOrderByInheritance()) {
+        foreach (var iType in TypeHelper.GetInterfacesUnordered(type)) {
           var map = type.GetInterfaceMapFast(iType.UnderlyingSystemType);
           var mapInterfaceMethods = map.InterfaceMethods;
-          for (int i = 0, count = mapInterfaceMethods.Count; i < count; i++) {
-            var tmi = map.TargetMethods[i];
+          var targetMethods = map.TargetMethods;
+          for (int i = 0, count = map.InterfaceMethods.Count; i < count; i++) {
+            var tmi = targetMethods[i];
             if (mi == tmi) {
               return mapInterfaceMethods[i];
             }

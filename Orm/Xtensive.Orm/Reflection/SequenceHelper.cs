@@ -51,11 +51,16 @@ namespace Xtensive.Reflection
             return enumerable;
         }
       }
-      return sequenceType.GetInterfacesOrderByInheritance().Select(FindIEnumerable).FirstOrDefault(o => o != null)
-        ?? (sequenceType.BaseType switch {
-          null => null,
-          var baseType => baseType == WellKnownTypes.Object ? null : FindIEnumerable(baseType)
-        });
+      var interfaces = TypeHelper.GetInterfacesUnordered(sequenceType);
+      if (interfaces.Count > 0)
+        foreach (Type @interface in interfaces) {
+          Type enumerable = FindIEnumerable(@interface);
+          if (enumerable != null)
+            return enumerable;
+        }
+      if (sequenceType.BaseType != null && sequenceType.BaseType != WellKnownTypes.Object)
+        return FindIEnumerable(sequenceType.BaseType);
+      return null;
     }
   }
 }

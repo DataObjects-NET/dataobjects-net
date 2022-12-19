@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
 // Created:    2007.07.11
 
@@ -21,32 +21,32 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the <see cref="TypeInfo"/> instances contained in this instance.
     /// </summary>
-    public TypeInfoCollection Types { get; private set; }
+    public TypeInfoCollection Types { get; }
 
     /// <summary>
     /// Gets real indexes contained in this instance.
     /// </summary>
-    public IndexInfoCollection RealIndexes { get; private set; }
+    public IndexInfoCollection RealIndexes { get; }
 
     /// <summary>
     /// Gets full-text indexes contained in this instance.
     /// </summary>
-    public FullTextIndexInfoCollection FullTextIndexes { get; private set; }
+    public FullTextIndexInfoCollection FullTextIndexes { get; }
 
     /// <summary>
     /// Gets the hierarchies.
     /// </summary>
-    public HierarchyInfoCollection Hierarchies { get; private set; }
+    public HierarchyInfoCollection Hierarchies { get; }
 
     /// <summary>
     /// Gets the collection providing information about associations.
     /// </summary>
-    public AssociationInfoCollection Associations { get; private set; }
+    public AssociationInfoCollection Associations { get; }
 
     /// <summary>
     /// Gets the collection providing information about databases.
     /// </summary>
-    public NodeCollection<DatabaseInfo> Databases { get; private set; }
+    public NodeCollection<DatabaseInfo> Databases { get; }
 
     /// <inheritdoc/>
     public override void UpdateState()

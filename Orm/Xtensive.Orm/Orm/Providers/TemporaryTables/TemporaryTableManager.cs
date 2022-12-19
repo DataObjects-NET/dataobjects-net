@@ -163,10 +163,8 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
     }
 
-    private string[] BuildFieldNames(TupleDescriptor source) =>
-      source.Count == 1
-        ? ColumnNames1
-        : Enumerable.Range(0, source.Count)
+    private string[] BuildFieldNames(in TupleDescriptor source) =>
+      Enumerable.Range(0, source.Count)
           .Select(i => string.Format(ColumnNamePattern, i))
           .ToArray();
 

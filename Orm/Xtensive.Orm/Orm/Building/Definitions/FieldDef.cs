@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// </summary>
     public bool IsLazyLoad
     {
-      get { return (attributes & FieldAttributes.LazyLoad) != 0; }
+      get {  return (attributes & FieldAttributes.LazyLoad) != 0; }
       set { attributes = value ? attributes | FieldAttributes.LazyLoad : attributes & ~FieldAttributes.LazyLoad; }
     }
 

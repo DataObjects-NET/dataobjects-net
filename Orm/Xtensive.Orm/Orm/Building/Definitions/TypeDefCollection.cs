@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// Finds the ancestor of the specified <paramref name="item"/>.
     /// </summary>
     /// <param name="item">The type to search ancestor for.</param>
-    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="item"/> or 
+    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="item"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public TypeDef FindAncestor(TypeDef item)
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// Finds the ancestor of the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to search ancestor for.</param>
-    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
+    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeDef FindAncestor(Type type) =>
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      var interfaces = type.GetInterfacesOrderByInheritance();
+      var interfaces = TypeHelper.GetInterfacesUnordered(type);
       return interfaces.Select(TryGetValue).Where(result => result != null);
     }
 
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// Gets the value associated with the specified key.
     /// </summary>
     /// <param name="key">The key of the value to get.</param>
-    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/> 
+    /// <returns>The value associated with the specified <paramref name="key"/> or <see langword="null"/>
     /// if item was not found.</returns>
     public TypeDef TryGetValue(Type key)
     {

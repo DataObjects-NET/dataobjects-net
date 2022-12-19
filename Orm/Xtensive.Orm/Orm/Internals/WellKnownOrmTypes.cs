@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2021 Xtensive LLC.
+// Copyright (C) 2020-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -8,6 +8,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Validation;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
@@ -54,5 +55,7 @@ namespace Xtensive.Orm.Internals
   internal static class WellKnownOrmInterfaces
   {
     public static readonly Type Entity = typeof(IEntity);
+    public static readonly Type ObjectValidator = typeof(IObjectValidator);
+    public static readonly Type PropertyValidator = typeof(IPropertyValidator);
   }
 }
