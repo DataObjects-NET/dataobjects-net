@@ -20,8 +20,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var body = constructor.Body;
       var il = body.GetILProcessor();
-      var originalLastRet = body.Instructions.Reverse().First(i => i != null && i.OpCode.Code == Code.Ret);
-
+      var originalLastRet = body.Instructions.Reverse().FirstOrDefault(i => i != null && i.OpCode.Code == Code.Ret);
       var leavePlaceholder = il.Create(OpCodes.Nop);
 
       var initializeCall = EmitInitializeCall(context, il);
@@ -71,7 +70,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     private void FixCatchLeave(Instruction start, Instruction end, Instruction oldRetTarget, Instruction newTarget)
     {
       var current = start;
-      while (current != end) {
+      while (current != end && current != null) {
         var next = current.Next;
         var code = current.OpCode.Code;
         if ((code == Code.Leave || code == Code.Leave_S) && current.Operand == oldRetTarget) {
