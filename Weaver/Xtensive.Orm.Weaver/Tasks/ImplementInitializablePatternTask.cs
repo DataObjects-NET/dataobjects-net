@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var body = constructor.Body;
       var il = body.GetILProcessor();
+      var originalLastRet = body.Instructions.Reverse().First(i => i != null && i.OpCode.Code == Code.Ret);
+
       var leavePlaceholder = il.Create(OpCodes.Nop);
 
       var initializeCall = EmitInitializeCall(context, il);
@@ -36,6 +38,11 @@ namespace Xtensive.Orm.Weaver.Tasks
       var ret = il.Create(OpCodes.Ret);
       il.Append(ret);
       il.Replace(leavePlaceholder, il.Create(OpCodes.Leave, ret));
+      if (body.ExceptionHandlers.Count != 0) {
+        foreach (var eHandler in body.ExceptionHandlers) {
+          FixCatchLeave(eHandler.HandlerStart, eHandler.HandlerEnd, originalLastRet, initializeCall);
+        }
+      }
 
       body.InitLocals = true;
       var handler = new ExceptionHandler(ExceptionHandlerType.Catch) {
@@ -57,6 +64,19 @@ namespace Xtensive.Orm.Weaver.Tasks
         var next = current.Next;
         if (current.OpCode.Code==Code.Ret)
           il.Replace(current, il.Create(OpCodes.Br, brTarget));
+        current = next;
+      }
+    }
+
+    private void FixCatchLeave(Instruction start, Instruction end, Instruction oldRetTarget, Instruction newTarget)
+    {
+      var current = start;
+      while (current != end) {
+        var next = current.Next;
+        var code = current.OpCode.Code;
+        if ((code == Code.Leave || code == Code.Leave_S) && current.Operand == oldRetTarget) {
+          current.Operand = newTarget;
+        }
         current = next;
       }
     }
