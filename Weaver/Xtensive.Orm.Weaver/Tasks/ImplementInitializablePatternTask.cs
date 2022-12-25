@@ -38,9 +38,10 @@ namespace Xtensive.Orm.Weaver.Tasks
       il.Append(ret);
       il.Replace(leavePlaceholder, il.Create(OpCodes.Leave, ret));
       if (body.ExceptionHandlers.Count != 0) {
-        foreach (var eHandler in body.ExceptionHandlers) {
-          FixCatchLeave(eHandler.HandlerStart, eHandler.HandlerEnd, originalLastRet, initializeCall);
-        }
+        if (originalLastRet != null)
+          foreach (var eHandler in body.ExceptionHandlers) {
+            FixCatchLeave(eHandler.HandlerStart, eHandler.HandlerEnd, originalLastRet, initializeCall);
+          }
       }
 
       body.InitLocals = true;
