@@ -1,0 +1,1 @@
+[weaver] Fixed ctor processing with try...catch where there was broken catch section leaving
