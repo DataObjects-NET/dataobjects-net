@@ -1958,11 +1958,20 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
+        ///   Looks up a localized string similar to Rule is already configured for {0}..
         /// </summary>
-        internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {
+        internal static string ExIgnoreRuleIsAlreadyConfiguredForX {
             get {
-                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnOrTable", resourceCulture);
+                return ResourceManager.GetString("ExIgnoreRuleIsAlreadyConfiguredForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column, index or table..
+        /// </summary>
+        internal static string ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable", resourceCulture);
             }
         }
         
@@ -4594,6 +4603,15 @@ namespace Xtensive {
         internal static string ExTypeXShouldNotBeGeneric {
             get {
                 return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
+        /// </summary>
+        internal static string ExUnableToActualizeSchemaNodeInQuery {
+            get {
+                return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
             }
         }
         

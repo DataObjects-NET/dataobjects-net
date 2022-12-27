@@ -41,9 +41,7 @@ namespace Xtensive.Orm.Providers
     {
       if (compiledStatement!=null)
         return;
-      compiledStatement =(NodeConfiguration!=null)
-        ? driver.Compile(CompileUnit, NodeConfiguration)
-        : driver.Compile(CompileUnit);
+      compiledStatement = driver.Compile(CompileUnit);
       CompileUnit = null;
       Statement = null;
     }

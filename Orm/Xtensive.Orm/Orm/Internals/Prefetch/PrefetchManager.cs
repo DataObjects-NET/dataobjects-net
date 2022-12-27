@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
       }
 
-      if (type.GetInterfaces(true).Contains(key.TypeReference.Type)
-        || key.TypeReference.Type.GetInterfaces(true).Contains(type)) {
+      if (type.AllInterfaces.Contains(key.TypeReference.Type)
+        || key.TypeReference.Type.AllInterfaces.Contains(type)) {
         return;
       }
 

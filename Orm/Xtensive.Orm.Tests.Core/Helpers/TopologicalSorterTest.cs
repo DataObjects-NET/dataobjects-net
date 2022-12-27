@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
             GC.GetTotalMemory(true);
             using (new Measurement("Sorting", nodeCount + connectionCount)) {
                 List<Node<int, int>> removedEdges;
-                var result = TopologicalSorter.Sort(nodes, out removedEdges);
+                var result = TopologicalSorter.SortToList(nodes, out removedEdges);
                 if (!allowLoops)
                     Assert.AreEqual(nodeCount, result.Count);
             }
@@ -75,8 +75,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
             var connection = new NodeConnection<int, string>(node, node, "ConnectionItem");
             connection.BindToNodes();
 
-            List<NodeConnection<int, string>> removedEdges;
-            List<int> result = TopologicalSorter.Sort(EnumerableUtils.One(node), out removedEdges);
+            var result = TopologicalSorter.SortToList(EnumerableUtils.One(node), out var removedEdges);
             Assert.AreEqual(1, result.Count);
             Assert.AreEqual(node.Item, result[0]);
             Assert.AreEqual(1, removedEdges.Count);
@@ -97,8 +96,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
             // Remove edge by edge.
 
-            List<NodeConnection<int, string>> removedEdges;
-            List<int> result = TopologicalSorter.Sort(new[] {node2, node1}, out removedEdges);
+            var result = TopologicalSorter.SortToList(new[] {node2, node1}, out List<NodeConnection<int, string>> removedEdges);
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(node1.Item, result[0]);
             Assert.AreEqual(node2.Item, result[1]);
@@ -111,7 +109,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
             connection12_2.BindToNodes();
             connection21_1.BindToNodes();
 
-            result = TopologicalSorter.Sort(new[] {node2, node1}, out removedEdges, true);
+            result = TopologicalSorter.SortToList(new[] {node2, node1}, out removedEdges, true);
             Assert.AreEqual(2, result.Count);
             Assert.AreEqual(node1.Item, result[1]);
             Assert.AreEqual(node2.Item, result[0]);
@@ -131,8 +129,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
         private void TestSort<T>(T[] data, Predicate<T, T> connector, T[] expected, T[] loops)
         {
-            List<Node<T, object>> actualLoopNodes;
-            List<T> actual = TopologicalSorter.Sort(data, connector, out actualLoopNodes);
+            var actual = TopologicalSorter.SortToList(data, connector, out List<Node<T, object>> actualLoopNodes);
             T[] actualLoops = null;
             if (actualLoopNodes != null)
                 actualLoops = actualLoopNodes
@@ -143,8 +140,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
             AssertEx.HasSameElements(expected, actual);
             AssertEx.HasSameElements(loops, actualLoops);
 
-            List<NodeConnection<T, object>> removedEdges;
-            List<T> sortWithRemove = TopologicalSorter.Sort(data, connector, out removedEdges);
+            var sortWithRemove = TopologicalSorter.SortToList(data, connector, out List<NodeConnection<T, object>> removedEdges);
             Assert.AreEqual(sortWithRemove.Count, data.Length);
             if (loops == null) {
                 Assert.AreEqual(sortWithRemove.Count, actual.Count);
