@@ -450,7 +450,7 @@ namespace Xtensive.Orm.Providers
         rootSelect.Comment = SqlComment.Join(rootSelect.Comment, node.Comment);
         node.Comment = null;
       }
-      
+
       var addOrderBy = hasPaging
         && node.OrderBy.Count==0
         && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
@@ -530,13 +530,6 @@ namespace Xtensive.Orm.Providers
       sqlExpression.AcceptVisitor(this);
     }
 
-    public void VisitNullable(SqlExpression sqlExpression)
-    {
-      if (sqlExpression is not null) {
-        Visit(sqlExpression);
-      }
-    }
-
     public void Visit(SqlStatement sqlStatement)
     {
       sqlStatement.AcceptVisitor(this);
@@ -545,6 +538,13 @@ namespace Xtensive.Orm.Providers
     public void Visit(SqlTable sqlTable)
     {
       sqlTable.AcceptVisitor(this);
+    }
+
+    private void VisitNullable(SqlExpression sqlExpression)
+    {
+      if (sqlExpression is not null) {
+        Visit(sqlExpression);
+      }
     }
 
     private void Visit(ISqlQueryExpression queryExpression)
@@ -567,9 +567,9 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlComment comment)
     {
-      
+
     }
-    
+
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(select, "select");
