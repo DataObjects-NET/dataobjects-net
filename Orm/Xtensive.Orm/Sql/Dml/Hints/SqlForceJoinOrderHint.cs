@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -20,7 +21,7 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlForceJoinOrderHint(t.tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
+        new SqlForceJoinOrderHint(t.tables?.Select(table => (SqlTable) table.Clone()).ToArray(t.tables.Length)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
