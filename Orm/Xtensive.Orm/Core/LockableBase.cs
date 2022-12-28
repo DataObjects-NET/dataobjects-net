@@ -44,16 +44,8 @@ namespace Xtensive.Core
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    protected LockableBase()
-      : this (false)
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
     /// <param name="isLocked">Initial <see cref="IsLocked"/> property value.</param>
-    protected LockableBase(bool isLocked)
+    protected LockableBase(bool isLocked = false)
     {
       IsLocked = isLocked;
     }

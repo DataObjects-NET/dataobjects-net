@@ -1,11 +1,10 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2013.10.04
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -18,13 +17,13 @@ namespace Xtensive.Orm.Tests.Configuration
   [TestFixture]
   public class SchemaTest
   {
-    private const string originalConfigFileName = "Xtensive.Orm.Tests.dll.config";
-    private const string xsdFileName = "Xtensive.Orm.xsd";
-    private const string xsdInLowerCaseFileName = "Test.xsd";
-    private const string configFileName = "Test.config";
-    private const string originalRootElementName = "AppConfigTest";
-    private const string rootElementName = "Xtensive.Orm";
-    private const string configXmlNamespace = "http://dataobjects.net/schemas/appconfig/";
+    private const string OriginalConfigFileName = "Xtensive.Orm.Tests.dll.config";
+    private const string XsdFileName = "Xtensive.Orm.xsd";
+    private const string XsdInLowerCaseFileName = "Test.xsd";
+    private const string ConfigFileName = "Test.config";
+    private const string OriginalRootElementName = "AppConfigTest";
+    private const string RootElementName = "Xtensive.Orm";
+    private const string ConfigXmlNamespace = "http://dataobjects.net/schemas/appconfig/";
     private bool hasErrors;
 
     [Test]
@@ -32,36 +31,32 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       hasErrors = false;
 
-      XElement segmentConfig = XElement.Load(originalConfigFileName).Element(originalRootElementName);
-      Debug.Assert(segmentConfig!=null, "segmentConfig != null");
-      segmentConfig.Name = rootElementName;
+      var segmentConfig = XElement.Load(OriginalConfigFileName).Element(OriginalRootElementName);
+      Debug.Assert(segmentConfig != null, "segmentConfig != null");
+      segmentConfig.Name = RootElementName;
 
-      foreach (XElement element in segmentConfig.DescendantsAndSelf())
-        element.Name = (XNamespace) configXmlNamespace + element.Name.LocalName;
+      foreach (var element in segmentConfig.DescendantsAndSelf()) {
+        element.Name = (XNamespace) ConfigXmlNamespace + element.Name.LocalName;
+      }
 
-      using (StreamWriter segmentConfigWriter = File.CreateText(configFileName))
+      using (var segmentConfigWriter = File.CreateText(ConfigFileName)) {
         segmentConfigWriter.Write(segmentConfig.ToString().ToLower());
+      }
 
       ChangeXsdElementsToLowerCase();
 
       try {
-        XmlReaderSettings schemaSettings = new XmlReaderSettings();
-        schemaSettings.Schemas.Add(configXmlNamespace, xsdInLowerCaseFileName);
+        var schemaSettings = new XmlReaderSettings();
+        _ = schemaSettings.Schemas.Add(ConfigXmlNamespace, XsdInLowerCaseFileName);
         schemaSettings.ValidationType = ValidationType.Schema;
         schemaSettings.ValidationEventHandler += new ValidationEventHandler(ValidationHandler);
 
-        XmlReader configReader = XmlReader.Create(configFileName, schemaSettings);
+        var configReader = XmlReader.Create(ConfigFileName, schemaSettings);
         while (configReader.Read()) {
         }
         configReader.Close();
       }
       catch (XmlException exception) {
-        hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
-        Console.WriteLine("LineNumber = {0}", exception.LineNumber);
-        Console.WriteLine("LinePosition = {0}", exception.LinePosition);
-      }
-      catch (XmlSchemaValidationException exception) {
         hasErrors = true;
         Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
         Console.WriteLine("LineNumber = {0}", exception.LineNumber);
@@ -86,33 +81,39 @@ namespace Xtensive.Orm.Tests.Configuration
         Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
       }
       finally {
-        File.Delete(configFileName);
-        File.Delete(xsdInLowerCaseFileName);
+        File.Delete(ConfigFileName);
+        File.Delete(XsdInLowerCaseFileName);
       }
 
       Assert.IsFalse(hasErrors);
     }
 
-    public void ValidationHandler(object sender, ValidationEventArgs exception)
+    public void ValidationHandler(object sender, ValidationEventArgs validationEventArgs)
     {
       hasErrors = true;
-      Console.WriteLine("({0}) {1}: {2}", exception.Severity, exception.GetType(), exception.Message);
+      var exception = validationEventArgs.Exception;
+      Console.WriteLine($"({validationEventArgs.Severity}) {exception.GetType()}: {validationEventArgs.Message}");
+      Console.WriteLine($"LineNumber = {exception.LineNumber}");
+      Console.WriteLine($"LinePosition = {exception.LinePosition}");
     }
 
     private static void ChangeXsdElementsToLowerCase()
     {
-      var elementsUsedInXsd = new List<string> {"element", "complexType", "attribute", "simpleType", "restriction", "enumeration", "pattern"};
+      var elementsUsedInXsd = new string[] { "element", "complexType", "attribute", "simpleType", "restriction", "enumeration", "pattern" };
 
-      XNamespace namespaceXsd = XNamespace.Get("http://www.w3.org/2001/XMLSchema");
-      XElement xsdWithElementsToLowerCase = XElement.Load(xsdFileName);
+      var namespaceXsd = XNamespace.Get("http://www.w3.org/2001/XMLSchema");
+      var xsdWithElementsToLowerCase = XElement.Load(XsdFileName);
 
-      foreach (var element in elementsUsedInXsd)
-        foreach (var attributes in xsdWithElementsToLowerCase.Descendants(namespaceXsd + element))
-          foreach (var attribute in attributes.Attributes())
+      foreach (var element in elementsUsedInXsd) {
+        foreach (var attributes in xsdWithElementsToLowerCase.Descendants(namespaceXsd + element)) {
+          foreach (var attribute in attributes.Attributes()) {
             attribute.Value = attribute.Value.ToLower();
+          }
+        }
+      }
 
-      using (StreamWriter xElementXsdWriter = File.CreateText(xsdInLowerCaseFileName))
-        xElementXsdWriter.Write(xsdWithElementsToLowerCase);
+      using var xElementXsdWriter = File.CreateText(XsdInLowerCaseFileName);
+      xElementXsdWriter.Write(xsdWithElementsToLowerCase);
     }
   }
 }

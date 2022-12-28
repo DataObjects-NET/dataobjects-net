@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -60,10 +60,7 @@ namespace Xtensive.Orm.Services
     public SqlCompilationResult CompileQuery(ISqlCompileUnit query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
-      var upgradeContext = UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
-      if (upgradeContext!=null)
-        return driver.Compile(query, upgradeContext.NodeConfiguration);
-      return driver.Compile(query, Session.StorageNode.Configuration);
+      return driver.Compile(query);
     }
 
     /// <summary>
