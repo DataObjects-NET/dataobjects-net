@@ -202,6 +202,39 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       Assert.That(Domain.QueryCache.Count, Is.EqualTo(queryCacheSize));
     }
 
+    [Test]
+    public void ReAddNodeWithAnotherSchemaMappingWithCacheCleanTest()
+    {
+      var node = Domain.StorageNodeManager.GetNode(TestNodeId2);
+      var queryCacheSize = Domain.QueryCache.Count;
+
+      using (var session = node.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        _ = session.Query.Execute(SimpleQueryKey, q => q.All<BaseTestEntity>().Where(e => e.BaseName.Contains("B"))).ToList();
+      }
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(queryCacheSize));
+
+      _ = Domain.StorageNodeManager.RemoveNode(TestNodeId2, true);
+      Assert.That(Domain.QueryCache.Count, Is.LessThan(queryCacheSize));
+
+      CustomUpgradeHandler.CurrentNodeId = TestNodeId2;
+      var nodeConfiguration = new NodeConfiguration(TestNodeId2);
+      nodeConfiguration.SchemaMapping.Add(DefaultSchema, Schema2);// uses schema of TestNodeId3
+      nodeConfiguration.UpgradeMode = DomainUpgradeMode.Validate;
+      _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
+
+      node = Domain.StorageNodeManager.GetNode(TestNodeId2);
+
+      using (var session = node.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.Execute(SimpleQueryKey, q => q.All<BaseTestEntity>().Where(e => e.BaseName.Contains("B"))).ToList();
+        foreach (var item in results) {
+          Assert.That(item.BaseOwnerNodeId, Is.Not.EqualTo(node.Id)); // gets result from correct schema but data was added by TestNodeId3
+        }
+      }
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(queryCacheSize));
+    }
+
     private List<BaseTestEntity> ExecuteSimpleQueryCaching(Session session) =>
      session.Query.Execute(SimpleQueryKey, q => q.All<BaseTestEntity>().Where(e => e.BaseName.Contains("B"))).ToList();
   }
