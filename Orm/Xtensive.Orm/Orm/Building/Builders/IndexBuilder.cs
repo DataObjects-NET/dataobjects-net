@@ -787,20 +787,19 @@ namespace Xtensive.Orm.Building.Builders
     private IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
     {
       var nameBuilder = context.NameBuilder;
-      var valueColumns = new ColumnInfoCollection(null, "ValueColumns");
-      foreach (var column in columns) {
-        if (valueColumns.Contains(column.Name)) {
-          if (column.IsSystem)
-            continue;
+      var valueColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      foreach (var column in columns)  {
+        if (valueColumns.Add(column.Name)) {
+          yield return column;
+        }
+        else if (!column.IsSystem) {
           var clone = column.Clone();
           clone.Name = nameBuilder.BuildColumnName(column);
           clone.Field.MappingName = clone.Name;
-          valueColumns.Add(clone);
+          _ = valueColumns.Add(clone.Name);
+          yield return clone;
         }
-        else
-          valueColumns.Add(column);
       }
-      return valueColumns;
     }
 
     private ColumnGroup BuildColumnGroup(IndexInfo index)

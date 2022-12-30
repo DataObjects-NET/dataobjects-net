@@ -1,3 +1,4 @@
+[main] NET6 support
 [main] Obsolete CatalogHelper class has been removed
 [main] Obsolete ReacreateTableHint has been removed
 [main] Obsolete Session.SelectStorageNode() method is removed
@@ -10,6 +11,7 @@
 [main] Changed translation of queries when DomainConfiguration.ShareStorageSchemaOverNodes set to true
 [main] StorageDriver.Compile(ISqlCompileUnit, NodeConfiguration) became obsolete
 [main] SqlNodeActualizer became obsolete
+[main] LockableExtensions.EnsureNotLocked() became obsolete, implementation moved to LockableBase directly
 [main] TypeInfoCollection.FindAncestor method became obsolete, use new TypeInfo.Ancestor property
 [main] TypeInfoCollection.FindDescendants methods became obsolete, use new TypeInfo.DirectDescendants/.AllDescendants properties
 [main] TypeInfoCollection.FindInterfaces methods became obsolete, use new TypeInfo.DirectInterfaces/.AllInterfaces properties
@@ -24,17 +26,18 @@
 [main] PropertyValidator.IsImmediate property has no setter, only init
 [main] PropertyValidator.ValidateOnlyIfModified property has no setter, only init
 [main] PropertyValidator.SkipOnTransactionCommit property has no setter, only init
-[main] RecordSetHeader.OrderTupleDescriptor became nullable to compensate TupleDescriptor's transition to read-only struct
+[main] RecordSetHeader.OrderTupleDescriptor became nullable to compensate TupleDescriptor's transition to read-only structure
 [main] IndexInfo.FilterByTypes changed result type to IReadOnlyList<TypeInfo>
 [main] IndexInfo.SelectColumns changed result type to IReadOnlyList<int>
 [main] IndexInfo.ValueColumnsMap changed result type to IReadOnlyList<Pair<int, List<int>>>
 [main] SqlCompilerConfiguration's DatabaseMapping and SchemaMapping moved to SqlPostCompilerConfiguration
 [main] Some EventArgs inheritors that were sealed classes transformed to read-only structures
 [main] DbCommandEventArgs became read-only structure
+[main] LogEventInfo became read-only structure
 [main] ILockable.Lock() now has default implementation that refers to ILockable.Lock(true)
-[main] TupleDescriptor became read-only struct
-[main] InterfaceMapping became read-only struct
-[main] ColumnIndexMap became read-only struct and properties changed retun type to IReadOnlyList<int>
+[main] TupleDescriptor became read-only structure
+[main] InterfaceMapping became read-only structure
+[main] ColumnIndexMap became read-only structure and properties changed retun type to IReadOnlyList<int>
 [main] TopologicalSorter.Sort() methods return IEnumerable<T>, use .SortToList() if results are needed as collection
 [main] TypeHelper.OrderByInheritance() returns IEnumerable<T> to avoid copying
 [main] TypeHelper.GetInterfaces() became obsolete, GetInterfacesUnordered() and GetInterfacesOrderedByInheritance() introduced
@@ -56,8 +59,11 @@
 [main] Introduced TypeInfo.DirectImplementors .AllImplementors properties
 [main] BitFaster.Caching package reference is updated to 1.0.7
 [main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
+[main] Improved internal logging speed
 [main] General performance and memory efficiency improvements
 [reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
 [reprocessing] ExecuteErrorEventArgs (not sealed) became read-only structure
 [tracking] TrackingCompletedEventArgs (sealed) became read-only structure
+[tracking] ITrackingItem ChangedValues property changed return type to IReadOnlyList<ChangedValue>
+[tracking] ChangedValue became read-only structure
 [Web] Removed Obsolete SessionManager and StartupConfigurationExtension
