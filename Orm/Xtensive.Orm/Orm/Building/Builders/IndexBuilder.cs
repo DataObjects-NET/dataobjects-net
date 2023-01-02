@@ -92,6 +92,7 @@ namespace Xtensive.Orm.Building.Builders
         foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
           var index = BuildInheritedIndex(@interface, parentIndex, false);
           if (@interface.Indexes.Contains(index.Name)) {
+            index.Dispose();
             continue;
           }
 
@@ -169,8 +170,8 @@ namespace Xtensive.Orm.Building.Builders
                   indexesToJoin.Add(filterIndex);
                   indexesToJoin.AddRange(typeIndexes);
 
-                  var indexToApplyView = indexesToJoin.Count > 1 
-                    ? BuildJoinIndex(implementor, indexesToJoin) 
+                  var indexToApplyView = indexesToJoin.Count > 1
+                    ? BuildJoinIndex(implementor, indexesToJoin)
                     : indexesToJoin[0];
                   var indexView = BuildViewIndex(@interface, indexToApplyView);
                   underlyingIndex.UnderlyingIndexes.Add(indexView);
@@ -204,8 +205,10 @@ namespace Xtensive.Orm.Building.Builders
             }
             underlyingIndexes.Add(underlyingIndex);
           }
-          if (underlyingIndexes.Count == 1)
+          if (underlyingIndexes.Count == 1) {
+            index.Dispose();
             index = underlyingIndexes.First();
+          }
           else
             index.UnderlyingIndexes.AddRange(underlyingIndexes);
 
