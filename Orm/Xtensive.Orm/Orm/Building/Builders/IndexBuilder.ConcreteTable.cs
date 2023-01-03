@@ -63,6 +63,7 @@ namespace Xtensive.Orm.Building.Builders
 
           var index = BuildInheritedIndex(type, parentIndex, type.IsAbstract);
           if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name)) {
+            index.Dispose();
             continue;
           }
 
