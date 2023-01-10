@@ -1,0 +1,1 @@
+[postgresql] Dedicated exception when an extracting schema doesn't exist or it belongs to another user
