@@ -1,1 +1,2 @@
+[postgresql] Dedicated exception when an extracting schema doesn't exist or it belongs to another user
 [weaver] Fixed ctor processing with try...catch where there was broken catch section leaving
