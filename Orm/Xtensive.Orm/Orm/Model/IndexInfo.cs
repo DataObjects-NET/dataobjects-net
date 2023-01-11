@@ -27,7 +27,6 @@ namespace Xtensive.Orm.Model
     private ColumnGroup columnGroup;
     private double fillFactor;
     private string shortName;
-    private IReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
     private IReadOnlyList<TypeInfo> filterByTypes;
@@ -77,11 +76,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a collection of all the columns that are included into the index.
     /// </summary>
-    public IReadOnlyList<ColumnInfo> Columns
-    {
-      [DebuggerStepThrough]
-      get => columns;
-    }
+    public IReadOnlyList<ColumnInfo> Columns { [DebuggerStepThrough] get; private set; }
 
     /// <summary>
     /// Gets a collection of columns that are included into the index as index key.
@@ -313,8 +308,8 @@ namespace Xtensive.Orm.Model
       var lazy = new List<int>();
       var regular = new List<int>();
 
-      for (int i = 0, count = columns.Count; i < count; i++) {
-        var item = columns[i];
+      for (int i = 0, count = Columns.Count; i < count; i++) {
+        var item = Columns[i];
         if (item.IsPrimaryKey || item.IsSystem)
           system.Add(i);
         else {
@@ -356,12 +351,8 @@ namespace Xtensive.Orm.Model
 
     private void CreateColumns()
     {
-      var result = new List<ColumnInfo>(KeyColumns.Count + ValueColumns.Count);
-      result.AddRange(KeyColumns.Select(static pair => pair.Key));
-      result.AddRange(ValueColumns);
-      columns = result.AsSafeWrapper();
+      Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray(KeyColumns.Count + ValueColumns.Count).AsSafeWrapper();
     }
-
 
     // Constructors
 
