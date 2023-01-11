@@ -35,7 +35,6 @@ namespace Xtensive.Orm.Model
     private readonly IndexInfo declaringIndex;
     private double fillFactor;
     private string shortName;
-    private ReadOnlyCollection<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
     private IReadOnlyList<TypeInfo> filterByTypes;
@@ -82,12 +81,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a collection of all the columns that are included into the index.
     /// </summary>
-    public IReadOnlyList<ColumnInfo> Columns {
-      [DebuggerStepThrough]
-      get {
-        return columns;
-      }
-    }
+    public IReadOnlyList<ColumnInfo> Columns { [DebuggerStepThrough] get; private set; }
 
     /// <summary>
     /// Gets a collection of columns that are included into the index as index key.
@@ -135,7 +129,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets the underlying indexes for this instance. 
+    /// Gets the underlying indexes for this instance.
     /// </summary>
     public CollectionBaseSlim<IndexInfo> UnderlyingIndexes
     {
@@ -339,8 +333,8 @@ namespace Xtensive.Orm.Model
       var lazy = new List<int>();
       var regular = new List<int>();
 
-      for (int i = 0; i < columns.Count; i++) {
-        var item = columns[i];
+      for (int i = 0, count = Columns.Count; i < count; i++) {
+        var item = Columns[i];
         if (item.IsPrimaryKey || item.IsSystem)
           system.Add(i);
         else {
@@ -390,12 +384,8 @@ namespace Xtensive.Orm.Model
 
     private void CreateColumns()
     {
-      var result = new List<ColumnInfo>(keyColumns.Count + valueColumns.Count);
-      result.AddRange(keyColumns.Select(static pair => pair.Key));
-      result.AddRange(valueColumns);
-      columns = result.AsReadOnly();
+      Columns = Array.AsReadOnly(KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray(KeyColumns.Count + ValueColumns.Count));
     }
-
 
     // Constructors
 
@@ -456,7 +446,7 @@ namespace Xtensive.Orm.Model
       filterExpression = baseIndex.FilterExpression;
       declaringIndex = baseIndex.DeclaringIndex;
       shortName = baseIndex.ShortName;
-      
+
       UnderlyingIndexes.Add(baseIndex);
 
       foreach (IndexInfo info in baseIndexes)
