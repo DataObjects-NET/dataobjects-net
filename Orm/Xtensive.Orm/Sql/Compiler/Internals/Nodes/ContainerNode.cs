@@ -164,7 +164,11 @@ namespace Xtensive.Sql.Compiler
     internal void FlushBuffer()
     {
       if (stringBuilder.Length > 0) {
-        children.Add(new TextNode(stringBuilder.ToString()));
+        var s = stringBuilder.ToString();
+        if (s.Length < 3) {
+          s = string.Intern(s);
+        }
+        children.Add(new TextNode(s));
         lastNodeIsText = true;
         lastChar = stringBuilder[^1];
         _ = stringBuilder.Clear();
