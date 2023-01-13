@@ -189,12 +189,6 @@ namespace Xtensive.Caching
 
     #endregion
 
-    internal IEnumerable<TKey> GetKeysInternal()
-    {
-      foreach (KeyValuePair<TKey, TItem> cachedItem in deque)
-        yield return cachedItem.Key;
-    }
-
 
     // Constructors
 

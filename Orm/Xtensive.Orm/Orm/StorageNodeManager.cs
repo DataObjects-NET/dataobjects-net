@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -60,9 +60,9 @@ namespace Xtensive.Orm
       var removeResult = handlers.StorageNodeRegistry.Remove(nodeId);
 
       if (removeResult && clearQueryCache) {
-        var queryCache = (Caching.LruCache<object, Pair<object, Linq.TranslatedQuery>>) handlers.Domain.QueryCache;
-        foreach (var key in queryCache.GetKeysInternal().Where(k => k is Pair<object, string> p && p.Second == nodeId).ToChainedBuffer()) {
-          queryCache.RemoveKey(key, true);
+        var queryCache = (Caching.FastConcurrentLruCache<object, Pair<object, Linq.ParameterizedQuery>>) handlers.Domain.QueryCache;
+        foreach (var key in queryCache.Keys.Where(k => k is (object _, string keyNodeId) && keyNodeId == nodeId).ToChainedBuffer()) {
+          queryCache.RemoveKey(key);
         }
       }
       return removeResult;
