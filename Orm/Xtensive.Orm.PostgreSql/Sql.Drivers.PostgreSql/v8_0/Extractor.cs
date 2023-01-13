@@ -580,7 +580,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var targetSchemes = context.TargetSchemes;
       if (targetSchemes != null && targetSchemes.Count > 0) {
         var schemesIndexes = catalog.Schemas.Where(sch => targetSchemes.ContainsKey(sch.Name))
-          .Select(sch => context.ReversedSchemaMap[sch]);
+          .Select(sch =>
+            context.ReversedSchemaMap.TryGetValue(sch, out var oid)
+              ? oid
+              : throw new InvalidOperationException(string.Format(Resources.Strings.ExSchemaXDoesNotExistOrBelongsToAnotherUser, sch.Name))
+           );
         select.Where &= SqlDml.In(relationsTable["relnamespace"], CreateOidRow(schemesIndexes));
       }
 
