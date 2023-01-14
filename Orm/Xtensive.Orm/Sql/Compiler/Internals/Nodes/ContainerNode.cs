@@ -153,7 +153,7 @@ namespace Xtensive.Sql.Compiler
     {
       FlushBuffer();
       children.Add(node);
-      lastNodeIsText = node.IsTextNode;
+      lastNodeIsText = node is TextNode;
     }
 
     internal override void AcceptVisitor(NodeVisitor visitor)
