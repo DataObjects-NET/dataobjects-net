@@ -19,7 +19,6 @@ namespace Xtensive.Sql.Compiler
     // Constructor
 
     public TextNode(string text)
-      : base(true)
     {
       Text = text;
     }
