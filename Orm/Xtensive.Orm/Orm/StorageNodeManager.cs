@@ -61,7 +61,7 @@ namespace Xtensive.Orm
 
       if (removeResult && clearQueryCache) {
         var queryCache = (Caching.FastConcurrentLruCache<object, Pair<object, Linq.ParameterizedQuery>>) handlers.Domain.QueryCache;
-        foreach (var key in queryCache.Keys.Where(k => k is (object _, string keyNodeId) && keyNodeId == nodeId).ToChainedBuffer()) {
+        foreach (var key in queryCache.Keys.Where(k => k is Pair<object, string> pair && pair.Second == nodeId).ToChainedBuffer()) {
           queryCache.RemoveKey(key);
         }
       }
