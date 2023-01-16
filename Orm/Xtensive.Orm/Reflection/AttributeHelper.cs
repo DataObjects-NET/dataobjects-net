@@ -12,7 +12,6 @@ using System.Reflection;
 using Xtensive.Core;
 using AttributesKey = System.ValueTuple<System.Reflection.MemberInfo, System.Type, Xtensive.Reflection.AttributeSearchOptions>;
 using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;
-using Xtensive.Core;
 
 namespace Xtensive.Reflection
 {
