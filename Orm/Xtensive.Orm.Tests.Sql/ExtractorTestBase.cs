@@ -37,6 +37,8 @@ namespace Xtensive.Orm.Tests.Sql
     protected bool NonKeyColumnsSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.NonKeyColumns);
     protected bool PartialIndexesSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.Filtered);
     protected bool FulltextIndexesSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.FullText);
+    protected bool SortOrderSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.SortOrder);
+
 
     protected override void TestFixtureSetUp()
     {
@@ -169,18 +171,17 @@ namespace Xtensive.Orm.Tests.Sql
       // Validating.
       var fk1 = (ForeignKey) schema.Tables["A1"].TableConstraints[0];
       Assert.IsNotNull(fk1);
-      Assert.IsTrue(fk1.Columns[0].Name == "b_id");
-      Assert.IsTrue(fk1.ReferencedColumns[0].Name == "b_id");
+      Assert.IsTrue(fk1.Columns[0].Name.Equals("b_id", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk1.ReferencedColumns[0].Name.Equals("b_id", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(fk1.ReferencedColumns.Count == 1);
       Assert.IsTrue(fk1.Columns.Count == 1);
 
       var fk2 = (ForeignKey) schema.Tables["A2"].TableConstraints[0];
       Assert.IsNotNull(fk1);
-      Assert.IsTrue(fk2.Name == "A2_FK");
-      Assert.IsTrue(fk2.Columns[0].Name == "b_id_1");
-      Assert.IsTrue(fk2.ReferencedColumns[0].Name == "b_id_1");
-      Assert.IsTrue(fk2.Columns[1].Name == "b_id_2");
-      Assert.IsTrue(fk2.ReferencedColumns[1].Name == "b_id_2");
+      Assert.IsTrue(fk2.Columns[0].Name.Equals("b_id_1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk2.ReferencedColumns[0].Name.Equals("b_id_1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk2.Columns[1].Name.Equals("b_id_2", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk2.ReferencedColumns[1].Name.Equals("b_id_2", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(fk2.ReferencedColumns.Count == 2);
       Assert.IsTrue(fk2.Columns.Count == 2);
       Assert.IsTrue(fk2.OnDelete == ReferentialAction.Cascade);
@@ -188,13 +189,12 @@ namespace Xtensive.Orm.Tests.Sql
 
       var fk3 = (ForeignKey) schema.Tables["A3"].TableConstraints[0];
       Assert.IsNotNull(fk3);
-      Assert.IsTrue(fk3.Name == "A3_FK");
-      Assert.IsTrue(fk3.Columns[0].Name == "b_id_1");
-      Assert.IsTrue(fk3.ReferencedColumns[0].Name == "b_id_1");
-      Assert.IsTrue(fk3.Columns[1].Name == "b_id_2");
-      Assert.IsTrue(fk3.ReferencedColumns[1].Name == "b_id_2");
-      Assert.IsTrue(fk3.Columns[2].Name == "b_id_3");
-      Assert.IsTrue(fk3.ReferencedColumns[2].Name == "b_id_3");
+      Assert.IsTrue(fk3.Columns[0].Name.Equals("b_id_1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk3.ReferencedColumns[0].Name.Equals("b_id_1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk3.Columns[1].Name.Equals("b_id_2", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk3.ReferencedColumns[1].Name.Equals("b_id_2", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk3.Columns[2].Name.Equals("b_id_3", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(fk3.ReferencedColumns[2].Name.Equals("b_id_3", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(fk3.ReferencedColumns.Count == 3);
       Assert.IsTrue(fk3.Columns.Count == 3);
       Assert.IsTrue(fk3.OnDelete == ReferentialAction.NoAction);
@@ -224,19 +224,37 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.IsTrue(schema.Tables["table1"] != null);
       Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index1_desc_asc"]);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns.Count == 2);
-      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Name == "column1");
-      Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
-      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase));
+      if (SortOrderSupported) {
+        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
+      }
+      else {
+        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
+        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
+      }
+
 
       Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"]);
       Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns.Count == 2);
-      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
-      Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending);
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Name.Equals("column1", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Name.Equals("column2", StringComparison.OrdinalIgnoreCase));
 
-      Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index_with_included_columns"]);
-      Assert.AreEqual(1, schema.Tables["table1"].Indexes["table1_index_with_included_columns"].Columns.Count,
-        "Key columns");
+      if (SortOrderSupported) {
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
+        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending);
+      }
+      else {
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[0].Ascending);
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_u_asc_desc"].Columns[1].Ascending);
+      }
+
       if (NonKeyColumnsSupported) {
+        Assert.IsNotNull(schema.Tables["table1"].Indexes["table1_index_with_included_columns"]);
+        Assert.AreEqual(1, schema.Tables["table1"].Indexes["table1_index_with_included_columns"].Columns.Count,
+          "Key columns");
+      
         Assert.AreEqual(1, schema.Tables["table1"].Indexes["table1_index_with_included_columns"].NonkeyColumns.Count,
           "Included columns");
       }
@@ -319,16 +337,16 @@ namespace Xtensive.Orm.Tests.Sql
       // Validating.
       var uniqueConstraint = (UniqueConstraint) schema.Tables["uniqueConstraintTable"].TableConstraints["A_UNIQUE_1"];
       Assert.IsNotNull(uniqueConstraint);
-      Assert.IsTrue(uniqueConstraint.Columns[0].Name == "col_11");
-      Assert.IsTrue(uniqueConstraint.Columns[1].Name == "col_12");
-      Assert.IsTrue(uniqueConstraint.Columns[2].Name == "col_13");
+      Assert.IsTrue(uniqueConstraint.Columns[0].Name.Equals("col_11", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(uniqueConstraint.Columns[1].Name.Equals("col_12", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(uniqueConstraint.Columns[2].Name.Equals("col_13", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(uniqueConstraint.Columns.Count == 3);
 
       uniqueConstraint = (UniqueConstraint) schema.Tables["uniqueConstraintTable"].TableConstraints["A_UNIQUE_2"];
       Assert.IsNotNull(uniqueConstraint);
-      Assert.IsTrue(uniqueConstraint.Columns[0].Name == "col_21");
-      Assert.IsTrue(uniqueConstraint.Columns[1].Name == "col_22");
-      Assert.IsTrue(uniqueConstraint.Columns[2].Name == "col_23");
+      Assert.IsTrue(uniqueConstraint.Columns[0].Name.Equals("col_21", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(uniqueConstraint.Columns[1].Name.Equals("col_22", StringComparison.OrdinalIgnoreCase));
+      Assert.IsTrue(uniqueConstraint.Columns[2].Name.Equals("col_23", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(uniqueConstraint.Columns.Count == 3);
     }
 
@@ -434,7 +452,23 @@ namespace Xtensive.Orm.Tests.Sql
     {
       if (string.IsNullOrEmpty(sqlQuery))
         return;
-      ExecuteNonQuery(sqlQuery);
+      if(Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.DdlBatches)) {
+        _ = ExecuteNonQuery(sqlQuery);
+      }
+      else {
+        ExecuteQueryLineByLine(sqlQuery);
+      }
+    }
+
+    protected void ExecuteQueryLineByLine(string sqlQuery)
+    {
+      if (string.IsNullOrEmpty(sqlQuery))
+        return;
+      foreach (var q in sqlQuery.Split(';')) {
+        if (string.IsNullOrEmpty(q))
+          continue;
+        _ = ExecuteNonQuery(q);
+      }
     }
 
     protected void RegisterCleanupScript(Func<string> func) => cleanups.Add(func());
