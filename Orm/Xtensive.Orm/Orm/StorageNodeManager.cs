@@ -1,12 +1,15 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
@@ -48,11 +51,23 @@ namespace Xtensive.Orm
     /// Removes node with specified <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
+    /// <param name="clearQueryCache">
+    /// if <see langword="true"/> then cached queries dedicated to the removing node will be removed from cache as well. By default <see langword="false"/>.
+    /// </param>
     /// <returns>True if node was removed, otherwise false.</returns>
-    public bool RemoveNode([NotNull] string nodeId)
+    public bool RemoveNode([NotNull] string nodeId, bool clearQueryCache = false)
     {
-      return handlers.StorageNodeRegistry.Remove(nodeId);
+      var removeResult = handlers.StorageNodeRegistry.Remove(nodeId);
+
+      if (removeResult && clearQueryCache) {
+        var queryCache = (Caching.FastConcurrentLruCache<object, Pair<object, Linq.ParameterizedQuery>>) handlers.Domain.QueryCache;
+        foreach (var key in queryCache.Keys.Where(k => k is Pair<object, string> pair && pair.Second == nodeId).ToChainedBuffer()) {
+          queryCache.RemoveKey(key);
+        }
+      }
+      return removeResult;
     }
+
 
     /// <summary>
     /// Gets node with the specified <paramref name="nodeId"/>
