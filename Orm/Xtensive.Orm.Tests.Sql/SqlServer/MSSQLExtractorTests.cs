@@ -238,10 +238,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public virtual void MSSqlViewsExtractionTest()
     {
-      var createViewsScrypt = GetMSSqlViewsExtractionTestPrepareStript();
+      var createViewsQuery = GetMSSqlViewsExtractionTestPrepareStript();
       RegisterCleanupScript(GetMSSqlViewsExtractionTestCleanUpScript);
 
-      ExecuteQuery(createViewsScrypt);
+      ExecuteQueryLineByLine(createViewsQuery);
 
       var schema = ExtractCatalog().Schemas["role1"];
 
