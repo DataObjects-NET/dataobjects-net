@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
     {
       return
          $"CREATE TABLE {tableName} (column1 integer,  column2 integer);" +
-         $"\n CREATE DESC INDEX {tableName}_index1_desc_asc on {tableName} (column1, column2);" +
+         $"\n CREATE ASC INDEX {tableName}_index1_desc_asc on {tableName} (column1, column2);" +
          $"\n CREATE UNIQUE ASC INDEX {tableName}_index1_u_asc_desc on {tableName} (column1, column2);";
     }
 

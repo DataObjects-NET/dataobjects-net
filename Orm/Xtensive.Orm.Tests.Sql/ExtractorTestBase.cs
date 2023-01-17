@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Sql
   [TestFixture]
   public abstract class ExtractorTestBase : SqlTest
   {
-    protected const int CharLength = 3;
+    protected const int CharLength = 4;
     protected const int VarCharLength = 6;
 
     protected const int BinaryLength = 3;
@@ -54,17 +54,9 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureTearDown()
     {
       if (!IgnoreTests) {
-        if (Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.DdlBatches)) {
-          var cleanupScript = BuildCleanUpScrcipt();
-          ExecuteQuery(cleanupScript);
+        foreach (var query in cleanups) {
+          ExecuteQueryLineByLine(query);
         }
-        else {
-          foreach (var query in cleanups) {
-            ExecuteQuery(query);
-          }
-        }
-
-        ExecuteQuery(CleanUpScript);
       }
 
       base.TestFixtureTearDown();
@@ -82,11 +74,11 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public void SchemaExtractionTest()
     {
-      Require.AllFeaturesSupported(Providers.ProviderFeatures.Multischema);
+      Assert.That(ExtractDefaultSchema(), Is.Not.Null);
 
       var catalog = ExtractCatalog();
-
-      Assert.That(schemasToCheck.All(s => catalog.Schemas[s] != null), Is.True);
+      if (StorageProviderInfo.Instance.CheckAllFeaturesNotSupported(Providers.ProviderFeatures.Multischema))
+        Assert.That(schemasToCheck.All(s => catalog.Schemas[s] != null), Is.True);
     }
 
 
@@ -231,8 +223,8 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
       }
       else {
-        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
-        Assert.IsTrue(!schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[0].Ascending);
+        Assert.IsTrue(schema.Tables["table1"].Indexes["table1_index1_desc_asc"].Columns[1].Ascending);
       }
 
 
