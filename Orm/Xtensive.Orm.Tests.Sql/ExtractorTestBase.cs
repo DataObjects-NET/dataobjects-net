@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Sql
           || sqlType == SqlType.Binary || sqlType == SqlType.VarBinary) {
           Assert.That(tableColumn.DataType.Length, Is.EqualTo(GetExpectedLength(sqlType)));
         }
-        if (sqlType == SqlType.Decimal) {
+        if (sqlType == SqlType.Decimal && StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.Sqlite)) {
           Assert.That(tableColumn.DataType.Precision, Is.EqualTo(DecimalPrecision));
           Assert.That(tableColumn.DataType.Scale, Is.EqualTo(DecimalScale));
         }
@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected virtual string GetPartialIndexExtractionCleanUpScript(string tableName) => null;
 
     [Test]
-    public void TestPartialIndexExtraction()
+    public void PartialIndexExtractionTest()
     {
       Require.AllFeaturesSupported(Providers.ProviderFeatures.PartialIndexes);
 
@@ -308,8 +308,8 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
 
-    protected abstract string GetUniqueConstraintExtractionPrepareScript(string tableName);
-    protected abstract string GetUniqueConstraintExtractionCleanUpScript(string tableName);
+    protected virtual string GetUniqueConstraintExtractionPrepareScript(string tableName) => "";
+    protected virtual string GetUniqueConstraintExtractionCleanUpScript(string tableName) => "";
 
     // Test expects storage variant of following structure
     // CREATE TABLE uniqueConstraintTable (
@@ -320,6 +320,8 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public void UniqueConstraintExtractionTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);
+
       var query = GetUniqueConstraintExtractionPrepareScript("uniqueConstraintTable");
       RegisterCleanupScript(GetUniqueConstraintExtractionCleanUpScript, "uniqueConstraintTable");
       ExecuteQuery(query);
