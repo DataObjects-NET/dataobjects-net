@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected readonly Dictionary<SqlType, string> TypeToColumnName = new();
 
-    protected virtual string CleanUpScript => null;
     protected virtual bool CheckContstraintExtracted => true;
+    protected virtual bool SeqStartEqualsToMin => false;
 
     protected bool IgnoreTests { get; set; } = false;
     protected bool NonKeyColumnsSupported => Driver.ServerInfo.Index.Features.HasFlag(IndexFeatures.NonKeyColumns);
@@ -92,7 +92,6 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var createTableQuery = GetTypesExtractionPrepareScript("dataTypesTestTable");
       RegisterCleanupScript(GetTypesExtractionCleanUpScript, "dataTypesTestTable");
-
       ExecuteQuery(createTableQuery);
 
       var testTable = ExtractDefaultSchema().Tables["dataTypesTestTable"];
@@ -376,6 +375,44 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.IsNotNull(checkConstraint.Condition);
     }
 
+
+    protected virtual string GetCheckSequenceExtractionPrepareScript()
+    {
+      return "CREATE SEQUENCE \"seq1\" START WITH 11 INCREMENT BY 100 MINVALUE 10 MAXVALUE 10000 NO CYCLE;" +
+        "CREATE SEQUENCE \"seq2\" START WITH 110 INCREMENT BY 10 MINVALUE 10 MAXVALUE 100000 CYCLE;";
+    }
+
+    protected virtual string GetCheckSequenceExtractionCleanupScript() => "DROP SEQUENCE \"seq1\"; DROP SEQUENCE \"seq2\"";
+
+    [Test]
+    public void SequenceExtractionTest()
+    {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Sequences);
+
+      var query = GetCheckSequenceExtractionPrepareScript();
+      RegisterCleanupScript(GetCheckSequenceExtractionCleanupScript);
+      ExecuteQuery(query);
+
+      var schema = ExtractDefaultSchema();
+      Assert.That(schema.Sequences["seq1"], Is.Not.Null);
+      var seq1Descriptor = schema.Sequences["seq1"].SequenceDescriptor;
+      Assert.That(seq1Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 11));
+      Assert.That(seq1Descriptor.Increment, Is.EqualTo(100));
+      Assert.That(seq1Descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(seq1Descriptor.MaxValue, Is.EqualTo(10000));
+
+      Assert.That(seq1Descriptor.IsCyclic, Is.False);
+
+      Assert.That(schema.Sequences["seq2"], Is.Not.Null);
+      var seq2Descriptor = schema.Sequences["seq2"].SequenceDescriptor;
+      Assert.That(seq2Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 110));
+      Assert.That(seq2Descriptor.Increment, Is.EqualTo(10));
+      Assert.That(seq2Descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(seq2Descriptor.MaxValue, Is.EqualTo(100000));
+
+      Assert.That(seq2Descriptor.IsCyclic, Is.True);
+    }
+
     private void PopulateTypeToColumnName()
     {
       TypeToColumnName[SqlType.Boolean] = "boolean_column";
@@ -392,6 +429,7 @@ namespace Xtensive.Orm.Tests.Sql
       TypeToColumnName[SqlType.Float] = "float_column";
       TypeToColumnName[SqlType.Double] = "double_column";
 
+      TypeToColumnName[SqlType.Interval] = "interval_column";
       TypeToColumnName[SqlType.DateTime] = "datetime_column";
       TypeToColumnName[SqlType.DateTimeOffset] = "datetimeoffset_column";
 #if NET6_0_OR_GREATER //DO_DATEONLY
