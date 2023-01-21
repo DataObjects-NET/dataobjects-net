@@ -120,6 +120,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                      r.table_name,
                      r.constraint_name,
                      r.delete_rule,
+                     r.update_rule,
                      c.column_name,
                      c.ordinal_position,
                      c.referenced_table_schema,
