@@ -9,7 +9,7 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
-  public class MSSQLExtratorTest : ExtractorTestBase
+  public class MSSQLExtractorTest : ExtractorTestBase
   {
     protected override bool CheckContstraintExtracted => false;
 
