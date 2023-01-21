@@ -229,6 +229,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
       types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index, ValueRange.DateTimeOffset, "datetimeoffset");
 
+#if NET6_0_OR_GREATER
+      types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index, ValueRange.DateOnly, "date");
+      types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, ValueRange.TimeOnly, "time");
+#endif
+
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common | index,
         "varchar", "nvarchar", "nchar", "char", "text", "xml");
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
