@@ -115,12 +115,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected override string GetFulltextIndexExtractionPrepareScript(string tableName)
     {
-      return $"CREATE TABLE {tableName} (Id int NOT NULL," +
-        "\n  Name nvarchar(100) NULL," +
-        "\n  Comments nvarchar(1000) NULL," +
-        $"\n  CONSTRAINT [PK_{tableName}] PRIMARY KEY CLUSTERED (Id)  ON [PRIMARY]);" +
-        $"\n CREATE FULLTEXT INDEX ON {tableName}(Name LANGUAGE 1033, Comments LANGUAGE 1033)" +
-        $"\n   KEY INDEX PK_{tableName} WITH CHANGE_TRACKING AUTO;";
+      return $"CREATE TABLE \"{tableName}\" (\"Id\" integer NOT NULL, \"Name\" varchar(100), \"Comments\" varchar(1000)," +
+        $"  CONSTRAINT \"PK_{tableName}\" PRIMARY KEY (\"Id\"));" +
+        $"CREATE INDEX \"FT_{tableName}\" ON \"{tableName}\" USING gin ((to_tsvector('English'::regconfig, (\"Name\")::text) || to_tsvector('English'::regconfig, (\"Comments\")::text)))";
     }
     protected override string GetFulltextIndexExtractionCleanUpScript(string tableName) => $"drop table \"{tableName}\";";
 

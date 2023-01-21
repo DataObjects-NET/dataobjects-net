@@ -310,11 +310,13 @@ namespace Xtensive.Orm.Tests.Sql
       var ftIndex = (FullTextIndex) schema.Tables["fullTextTestTable"].Indexes.FirstOrDefault(i => i.IsFullText);
       Assert.IsNotNull(ftIndex);
       Assert.That(ftIndex.Columns.Count, Is.EqualTo(2));
+      Assert.That(
+        ftIndex.Columns.All(c => c.Languages.Count == 1 && c.Languages[0].Name.Equals("English", StringComparison.OrdinalIgnoreCase)),
+        Is.True);
       if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer)) {
         Assert.That(ftIndex.FullTextCatalog, Is.Null);
         Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(ChangeTrackingMode.Auto));
         Assert.That(ftIndex.UnderlyingUniqueIndex, Is.EqualTo("PK_fullTextTestTable"));
-        Assert.That(ftIndex.Columns.All(c => c.Languages.Count == 1 && c.Languages[0].Name == "English"), Is.True);
       }
     }
 
