@@ -57,8 +57,10 @@ namespace Xtensive.Sql.Info
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
       this.EnsureNotLocked();
-      if (!IsLocked)
-        sqlTypes.Add(sqlType, dataTypeInfo);
+      sqlTypes.Add(sqlType, dataTypeInfo);
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
+        nativeTypes.Add(nativeType, dataTypeInfo);
+      }
     }
 
     /// <summary>
