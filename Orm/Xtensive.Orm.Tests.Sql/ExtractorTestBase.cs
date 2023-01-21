@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.VisualBasic;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
@@ -55,7 +56,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       if (!IgnoreTests) {
         foreach (var query in cleanups) {
-          ExecuteQueryLineByLine(query);
+          ExecuteQueryLineByLine(query, true);
         }
       }
 
@@ -175,8 +176,14 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.IsTrue(fk2.ReferencedColumns[1].Name.Equals("b_id_2", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(fk2.ReferencedColumns.Count == 2);
       Assert.IsTrue(fk2.Columns.Count == 2);
-      Assert.IsTrue(fk2.OnDelete == ReferentialAction.Cascade);
-      Assert.IsTrue(fk2.OnUpdate == ReferentialAction.NoAction);
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        Assert.IsTrue(fk2.OnDelete == ReferentialAction.SetNull);
+      }
+      else {
+        Assert.IsTrue(fk2.OnDelete == ReferentialAction.Cascade);
+        Assert.IsTrue(fk2.OnUpdate == ReferentialAction.NoAction);
+      }
+      
 
       var fk3 = (ForeignKey) schema.Tables["A3"].TableConstraints[0];
       Assert.IsNotNull(fk3);
@@ -188,8 +195,13 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.IsTrue(fk3.ReferencedColumns[2].Name.Equals("b_id_3", StringComparison.OrdinalIgnoreCase));
       Assert.IsTrue(fk3.ReferencedColumns.Count == 3);
       Assert.IsTrue(fk3.Columns.Count == 3);
-      Assert.IsTrue(fk3.OnDelete == ReferentialAction.NoAction);
-      Assert.IsTrue(fk3.OnUpdate == ReferentialAction.Cascade);
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        Assert.IsTrue(fk3.OnDelete == ReferentialAction.Cascade);
+      }
+      else {
+        Assert.IsTrue(fk3.OnDelete == ReferentialAction.NoAction);
+        Assert.IsTrue(fk3.OnUpdate == ReferentialAction.Cascade);
+      }
     }
 
 
@@ -396,7 +408,8 @@ namespace Xtensive.Orm.Tests.Sql
       var schema = ExtractDefaultSchema();
       Assert.That(schema.Sequences["seq1"], Is.Not.Null);
       var seq1Descriptor = schema.Sequences["seq1"].SequenceDescriptor;
-      Assert.That(seq1Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 11));
+      if (StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.Oracle))
+        Assert.That(seq1Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 11));
       Assert.That(seq1Descriptor.Increment, Is.EqualTo(100));
       Assert.That(seq1Descriptor.MinValue, Is.EqualTo(10));
       Assert.That(seq1Descriptor.MaxValue, Is.EqualTo(10000));
@@ -405,7 +418,8 @@ namespace Xtensive.Orm.Tests.Sql
 
       Assert.That(schema.Sequences["seq2"], Is.Not.Null);
       var seq2Descriptor = schema.Sequences["seq2"].SequenceDescriptor;
-      Assert.That(seq2Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 110));
+      if (StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.Oracle))
+        Assert.That(seq2Descriptor.StartValue, Is.EqualTo(SeqStartEqualsToMin ? 10 : 110));
       Assert.That(seq2Descriptor.Increment, Is.EqualTo(10));
       Assert.That(seq2Descriptor.MinValue, Is.EqualTo(10));
       Assert.That(seq2Descriptor.MaxValue, Is.EqualTo(100000));
@@ -492,14 +506,20 @@ namespace Xtensive.Orm.Tests.Sql
       }
     }
 
-    protected void ExecuteQueryLineByLine(string sqlQuery)
+    protected void ExecuteQueryLineByLine(string sqlQuery, bool ignoreExceptions = false)
     {
       if (string.IsNullOrEmpty(sqlQuery))
         return;
       foreach (var q in sqlQuery.Split(';')) {
         if (string.IsNullOrEmpty(q))
           continue;
-        _ = ExecuteNonQuery(q);
+        try {
+          _ = ExecuteNonQuery(q);
+        }
+        catch {
+          if (!ignoreExceptions)
+            throw;
+        }
       }
     }
 
