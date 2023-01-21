@@ -416,7 +416,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
         state.ForeignKey = state.ReferencingTable.CreateForeignKey(foreignKeyName);
 
-        ReadCascadeAction(state.ForeignKey, reader, 6);
+        ReadForeignKeyActions(state.ForeignKey, reader, 6, 5);
         var referencedSchema = table.Schema; //Schema same as current
         var referencedTable = referencedSchema.Tables[ReadStringOrNull(reader, 2)];
         state.ReferencedTable = referencedTable;
@@ -444,25 +444,29 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       // (rules are taken from sqlite docs)
 
       // (1) If the declared type contains the string "INT" then it is assigned INTEGER affinity.
-      if (typeName.Contains("int")) {
+      if (typeName.Contains("int", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.Int64);
       }
 
       // (2) If the declared type of the column contains any of the strings "CHAR", "CLOB", or "TEXT"
       // then that column has TEXT affinity.
-      if (typeName.Contains("char") || typeName.Contains("clob") || typeName.Contains("text")) {
+      if (typeName.Contains("char", StringComparison.OrdinalIgnoreCase)
+        || typeName.Contains("clob", StringComparison.OrdinalIgnoreCase)
+        || typeName.Contains("text", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.VarCharMax);
       }
 
       // (3) If the declared type for a column contains the string "BLOB"
       // or if no type is specified then the column has affinity NONE.
-      if (typeName.Contains("blob") || typeName==string.Empty) {
+      if (typeName.Contains("blob", StringComparison.OrdinalIgnoreCase) || typeName==string.Empty) {
         return new SqlValueType(SqlType.VarBinaryMax);
       }
 
       // (4) If the declared type for a column contains any of the strings
       // "REAL", "FLOA", or "DOUB" then the column has REAL affinity.
-      if (typeName.Contains("real") || typeName.Contains("floa") || typeName.Contains("doub")) {
+      if (typeName.Contains("real", StringComparison.OrdinalIgnoreCase)
+        || typeName.Contains("floa", StringComparison.OrdinalIgnoreCase)
+        || typeName.Contains("doub", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.Double);
       }
 
@@ -491,19 +495,25 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static int? ReadNullableInt(IDataRecord reader, string column) =>
       Convert.IsDBNull(reader[column]) ? null : (int?) Convert.ToInt32(reader[column]);
 
-    private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
+    private static void ReadForeignKeyActions(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex, int updateRuleIndex)
     {
       var deleteRule = row.GetString(deleteRuleIndex);
-      switch (deleteRule) {
-      case "CASCADE":
-        foreignKey.OnDelete = ReferentialAction.Cascade;
-        return;
-      case "SET NULL":
-        foreignKey.OnDelete = ReferentialAction.SetNull;
-        return;
-      case "NO ACTION":
-        foreignKey.OnDelete = ReferentialAction.NoAction;
-        return;
+      foreignKey.OnDelete = GetEnumAction(deleteRule);
+
+      var updateRule = row.GetString(updateRuleIndex);
+      foreignKey.OnUpdate = GetEnumAction(updateRule);
+
+
+      static ReferentialAction GetEnumAction(in string rawActionName)
+      {
+        return rawActionName switch {
+          "CASCADE" => ReferentialAction.Cascade,
+          "SET NULL" => ReferentialAction.SetNull,
+          "NO ACTION" => ReferentialAction.NoAction,
+          "RESTRICT" => ReferentialAction.NoAction,
+          "SET DEFAULT" => ReferentialAction.SetDefault,
+          _ => throw new ArgumentOutOfRangeException()
+        };
       }
     }
 
