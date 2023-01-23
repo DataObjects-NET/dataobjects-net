@@ -1,8 +1,8 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Alex Groznov
-// Created:    2016.08.01
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
 
 using System;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 {
   public class WhereTest : DateTimeBaseTest
   {
@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     public void DateTimeWhereTest()
     {
       ExecuteInsideSession((s) => {
-        WherePrivate<DateTimeEntity, long>(s, c => c.DateTime == FirstDateTime, c => c.Id);
-        WherePrivate<DateTimeEntity, long>(s, c => c.DateTime.Hour == FirstDateTime.Hour, c => c.Id);
-        WherePrivate<DateTimeEntity, long>(s, c => c.DateTime.Second == FirstDateTime.Second, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.TimeOnly == FirstTimeOnly, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.TimeOnly.Hour == FirstTimeOnly.Hour, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.TimeOnly.Second == FirstTimeOnly.Second, c => c.Id);
       });
     }
 
@@ -29,9 +29,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIsNot(StorageProvider.MySql);
       ExecuteInsideSession((s) => {
-        WherePrivate<MillisecondDateTimeEntity, long>(s, c => c.DateTime == FirstMillisecondDateTime, c => c.Id);
-        WherePrivate<MillisecondDateTimeEntity, long>(s, c => c.DateTime.Hour == FirstMillisecondDateTime.Hour, c => c.Id);
-        WherePrivate<MillisecondDateTimeEntity, long>(s, c => c.DateTime.Millisecond == FirstMillisecondDateTime.Millisecond, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.MillisecondTimeOnly == FirstMillisecondTimeOnly, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.MillisecondTimeOnly.Hour == FirstMillisecondTimeOnly.Hour, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.MillisecondTimeOnly.Millisecond == FirstMillisecondTimeOnly.Millisecond, c => c.Id);
       });
     }
 
@@ -39,10 +39,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     public void NullableDateTimeWhereTest()
     {
       ExecuteInsideSession((s) => {
-        WherePrivate<NullableDateTimeEntity, long>(s, c => c.DateTime == FirstDateTime, c => c.Id);
-        WherePrivate<NullableDateTimeEntity, long>(s, c => c.DateTime == null, c => c.Id);
-        WherePrivate<NullableDateTimeEntity, long>(s, c => c.DateTime.HasValue && c.DateTime.Value.Hour == FirstDateTime.Hour, c => c.Id);
-        WherePrivate<NullableDateTimeEntity, long>(s, c => c.DateTime.HasValue && c.DateTime.Value.Second == FirstDateTime.Second, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.NullableTimeOnly == NullableTimeOnly, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.NullableTimeOnly == null, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.NullableTimeOnly.HasValue && c.NullableTimeOnly.Value.Hour == NullableTimeOnly.Hour, c => c.Id);
+        WherePrivate<TimeOnlyEntity, long>(s, c => c.NullableTimeOnly.HasValue && c.NullableTimeOnly.Value.Second == NullableTimeOnly.Second, c => c.Id);
       });
     }
 
@@ -61,3 +61,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
   }
 }
+#endif

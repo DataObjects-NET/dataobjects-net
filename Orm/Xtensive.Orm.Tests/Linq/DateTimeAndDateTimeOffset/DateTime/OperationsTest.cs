@@ -22,13 +22,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(2));
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-1) == FirstMillisecondDateTime.AddYears(-2));
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(44));
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        RunTest<SingleDateTimeEntity>(c => c.DateOnly.AddYears(1) == FirstDateOnly.AddYears(1));
-        RunTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddYears(33) == NullableDateOnly.AddYears(33));
-
-        RunWrongTest<SingleDateTimeEntity>(c => c.DateOnly.AddYears(1) == FirstDateOnly.AddYears(2));
-        RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddYears(33) == NullableDateOnly.AddYears(44));
-#endif
       });
     }
 
@@ -43,13 +36,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(2));
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-1) == FirstMillisecondDateTime.AddMonths(-2));
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(44));
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        RunTest<SingleDateTimeEntity>(c => c.DateOnly.AddMonths(1) == FirstDateOnly.AddMonths(1));
-        RunTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddMonths(33) == NullableDateOnly.AddMonths(33));
-
-        RunWrongTest<SingleDateTimeEntity>(c => c.DateOnly.AddMonths(1) == FirstDateOnly.AddMonths(2));
-        RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddMonths(33) == NullableDateOnly.AddMonths(44));
-#endif
       });
     }
 
@@ -64,13 +50,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddDays(1) == FirstDateTime.AddDays(2));
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddDays(-1) == FirstMillisecondDateTime.AddDays(-2));
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddDays(33) == NullableDateTime.AddDays(44));
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        RunTest<SingleDateTimeEntity>(c => c.DateOnly.AddDays(1) == FirstDateOnly.AddDays(1));
-        RunTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddDays(33) == NullableDateOnly.AddDays(33));
-
-        RunWrongTest<SingleDateTimeEntity>(c => c.DateOnly.AddDays(1) == FirstDateOnly.AddDays(2));
-        RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateOnly.Value.AddDays(33) == NullableDateOnly.AddDays(44));
-#endif
       });
     }
 
@@ -99,11 +78,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddMinutes(1) == FirstDateTime.AddMinutes(2));
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMinutes(-1) == FirstMillisecondDateTime.AddMinutes(-2));
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMinutes(33) == NullableDateTime.AddMinutes(44));
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        RunTest<SingleDateTimeEntity>(c => c.TimeOnly.AddMinutes(1) == FirstTimeOnly.AddMinutes(1));
-
-        RunWrongTest<SingleDateTimeEntity>(c => c.TimeOnly.AddMinutes(1) == FirstTimeOnly.AddMinutes(2));
-#endif
       });
     }
 
@@ -214,11 +188,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime - SecondDateTime == FirstDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - SecondDateTime == FirstMillisecondDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime - SecondDateTime == NullableDateTime - WrongDateTime);
-
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        RunTest<SingleDateTimeEntity>(c => c.TimeOnly - SecondTimeOnly == FirstTimeOnly - SecondTimeOnly);
-        RunWrongTest<SingleDateTimeEntity>(c => c.TimeOnly - SecondTimeOnly == FirstTimeOnly - WrongTimeOnly);
-#endif
       });
     }
 

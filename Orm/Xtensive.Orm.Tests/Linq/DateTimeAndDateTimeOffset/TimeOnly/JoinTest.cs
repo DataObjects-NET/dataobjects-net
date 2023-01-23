@@ -1,6 +1,8 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
 
 using System;
 using System.Linq;
@@ -8,39 +10,39 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 {
   public class JoinTest : DateTimeBaseTest
   {
     [Test]
-    public void DateTimeJoinTest()
+    public void TimeOnlyJoinTest()
     {
-      ExecuteInsideSession((s) => JoinPrivate<DateTimeEntity, DateTimeEntity, JoinResult<DateTime>, DateTime, long>(s,
-        left => left.DateTime,
-        right => right.DateTime,
-        (left, right) => new JoinResult<DateTime> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.DateTime, RightDateTime = right.DateTime },
+      ExecuteInsideSession((s) => JoinPrivate<TimeOnlyEntity, TimeOnlyEntity, JoinResult<TimeOnly>, TimeOnly, long>(s,
+        left => left.TimeOnly,
+        right => right.TimeOnly,
+        (left, right) => new JoinResult<TimeOnly> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.TimeOnly, RightDateTime = right.TimeOnly },
         c => c.LeftId,
         c => c.RightId));
     }
 
     [Test]
-    public void MillisecondDateTimeJoinTest()
+    public void MillisecondTimeOnlyJoinTest()
     {
-      ExecuteInsideSession((s) => JoinPrivate<MillisecondDateTimeEntity, MillisecondDateTimeEntity, JoinResult<DateTime>, DateTime, long>(s,
-        left => left.DateTime,
-        right => right.DateTime,
-        (left, right) => new JoinResult<DateTime> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.DateTime, RightDateTime = right.DateTime },
+      ExecuteInsideSession((s) => JoinPrivate<TimeOnlyEntity, TimeOnlyEntity, JoinResult<TimeOnly>, TimeOnly, long>(s,
+        left => left.MillisecondTimeOnly,
+        right => right.MillisecondTimeOnly,
+        (left, right) => new JoinResult<TimeOnly> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.MillisecondTimeOnly, RightDateTime = right.MillisecondTimeOnly },
         c => c.LeftId,
         c => c.RightId));
     }
 
     [Test]
-    public void NullableDateTimeJoinTest()
+    public void NullableTimeOnlyJoinTest()
     {
-      ExecuteInsideSession((s) => JoinPrivate<NullableDateTimeEntity, NullableDateTimeEntity, JoinResult<DateTime?>, DateTime?, long>(s,
-        left => left.DateTime,
-        right => right.DateTime,
-        (left, right) => new JoinResult<DateTime?> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.DateTime, RightDateTime = right.DateTime },
+      ExecuteInsideSession((s) => JoinPrivate<TimeOnlyEntity, TimeOnlyEntity, JoinResult<TimeOnly?>, TimeOnly?, long>(s,
+        left => left.NullableTimeOnly,
+        right => right.NullableTimeOnly,
+        (left, right) => new JoinResult<TimeOnly?> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.NullableTimeOnly, RightDateTime = right.NullableTimeOnly },
         c => c.LeftId,
         c => c.RightId));
     }
@@ -76,3 +78,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
   }
 }
+#endif

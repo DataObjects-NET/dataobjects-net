@@ -1,8 +1,8 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Alex Groznov
-// Created:    2016.08.01
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
 
 using System;
 using System.Linq;
@@ -10,39 +10,38 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 {
   public class OrderByTest : DateTimeBaseTest
   {
     [Test]
-    public void DateTimeOrderByTest()
+    public void TimeOnlyOrderByTest()
     {
       ExecuteInsideSession((s) => {
-        OrderByPrivate<DateTimeEntity, DateTime, long>(s, c => c.DateTime, c => c.Id);
-        OrderByPrivate<DateTimeEntity, DateTime, DateTime>(s, c => c.DateTime, c => c);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly, long>(s, c => c.TimeOnly, c => c.Id);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly, TimeOnly>(s, c => c.TimeOnly, c => c);
       });
     }
 
     [Test]
-    public void MillisecondDateTimeOrderByTest()
+    public void MillisecondTimeOnlyOrderByTest()
     {
       ExecuteInsideSession((s) => {
-        OrderByPrivate<MillisecondDateTimeEntity, DateTime, long>(s, c => c.DateTime, c => c.Id);
-        OrderByPrivate<MillisecondDateTimeEntity, DateTime, DateTime>(s, c => c.DateTime, c => c);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly, long>(s, c => c.MillisecondTimeOnly, c => c.Id);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly, TimeOnly>(s, c => c.MillisecondTimeOnly, c => c);
       });
     }
 
     [Test]
-    public void NullableDateTimeOrderByTest()
+    public void NullableTimeOnlyOrderByTest()
     {
       ExecuteInsideSession((s) => {
-        OrderByPrivate<NullableDateTimeEntity, DateTime?, long>(s, c => c.DateTime, c => c.Id);
-        OrderByPrivate<NullableDateTimeEntity, DateTime?, DateTime?>(s, c => c.DateTime, c => c);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly?, long>(s, c => c.NullableTimeOnly, c => c.Id);
+        OrderByPrivate<TimeOnlyEntity, TimeOnly?, TimeOnly?>(s, c => c.NullableTimeOnly, c => c);
       });
     }
 
-    private static void OrderByPrivate<T, TK1, TK2>(Session session,
-      Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression)
+    private static void OrderByPrivate<T, TK1, TK2>(Session session, Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression)
       where T : Entity
     {
       var compiledOrderByExpression = orderByExpression.Compile();
@@ -61,8 +60,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
       Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
     }
 
-    protected static void OrderByPrivate<T1, T2, T3>(Session session,
-      Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
+    protected static void OrderByPrivate<T1, T2, T3>(Session session, Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
       where T1 : Entity
     {
       var compiledOrderByExpression = orderByExpression.Compile();
@@ -82,3 +80,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
   }
 }
+#endif

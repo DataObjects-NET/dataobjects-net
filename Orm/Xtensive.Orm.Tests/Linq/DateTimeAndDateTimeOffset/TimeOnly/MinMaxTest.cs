@@ -1,6 +1,8 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
 
 using System;
 using System.Linq;
@@ -8,26 +10,26 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 {
   public class MinMaxTest : DateTimeBaseTest
   {
     [Test]
-    public void DateTimeMinMaxTest()
+    public void TimeOnlyMinMaxTest()
     {
-      ExecuteInsideSession((s) => MinMaxPrivate<DateTimeEntity, DateTime>(s, c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<TimeOnlyEntity, TimeOnly>(s, c => c.TimeOnly));
     }
 
     [Test]
-    public void MillisecondDateTimeMinMaxTest()
+    public void MillisecondTimeOnlyMinMaxTest()
     {
-      ExecuteInsideSession((s) => MinMaxPrivate<MillisecondDateTimeEntity, DateTime>(s, c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<TimeOnlyEntity, TimeOnly>(s, c => c.MillisecondTimeOnly));
     }
 
     [Test]
-    public void NullableDateTimeMinMaxTest()
+    public void NullableTimeOnlyMinMaxTest()
     {
-      ExecuteInsideSession((s) => MinMaxPrivate<NullableDateTimeEntity, DateTime?>(s, c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<TimeOnlyEntity, TimeOnly?>(s, c => c.NullableTimeOnly));
     }
 
     private static void MinMaxPrivate<T, TK>(Session session, Expression<Func<T, TK>> selectExpression)
@@ -46,3 +48,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
   }
 }
+#endif

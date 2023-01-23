@@ -1,8 +1,8 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Alex Groznov
-// Created:    2016.08.01
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
 
 using System;
 using System.Linq;
@@ -10,21 +10,17 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 {
   public class DistinctTest : DateTimeBaseTest
   {
     [Test]
-    public void DistinctByDateTimeTest() =>
-      ExecuteInsideSession((s) => DistinctPrivate<DateTimeEntity, DateTime>(s,c => c.DateTime));
+    public void DistinctByDateOnlyTest() =>
+      ExecuteInsideSession(static (s) => DistinctPrivate<DateOnlyEntity, DateOnly>(s, c => c.DateOnly));
 
     [Test]
-    public void DistinctByDateTimeWithMillisecondsTest() =>
-      ExecuteInsideSession((s) => DistinctPrivate<MillisecondDateTimeEntity, DateTime>(s, c => c.DateTime));
-
-    [Test]
-    public void DistinctByNullableDateTimeTest() =>
-      ExecuteInsideSession((s) => DistinctPrivate<NullableDateTimeEntity, DateTime?>(s, c => c.DateTime));
+    public void DistinctByNullableDateOnlyTest() =>
+      ExecuteInsideSession(static (s) => DistinctPrivate<DateOnlyEntity, DateOnly?>(s, c => c.NullableDateOnly));
 
     private static void DistinctPrivate<T, TK>(Session session, Expression<Func<T, TK>> selectExpression)
       where T : Entity
@@ -39,3 +35,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
   }
 }
+#endif
