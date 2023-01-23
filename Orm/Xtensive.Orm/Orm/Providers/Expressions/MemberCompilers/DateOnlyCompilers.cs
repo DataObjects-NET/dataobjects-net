@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
 #if NET6_0_OR_GREATER
 
   [CompilerContainer(typeof(SqlExpression))]
-  internal static class DateTimeCompilers
+  internal static class DateOnlyCompilers
   {
     #region Extractors
 
