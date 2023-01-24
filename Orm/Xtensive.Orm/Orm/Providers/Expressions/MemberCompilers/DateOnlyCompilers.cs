@@ -8,7 +8,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
-namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
+namespace Xtensive.Orm.Providers
 {
 #if NET6_0_OR_GREATER
 
@@ -31,24 +31,23 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
 
 
     [Compiler(typeof(DateOnly), "DayOfYear", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDayOfYear(SqlExpression _this)
+    public static SqlExpression DateOnlyDayOfYear(SqlExpression _this)
     {
       return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
     [Compiler(typeof(DateOnly), "DayOfWeek", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeDayOfWeek(SqlExpression _this)
+    public static SqlExpression DateOnlyDayOfWeek(SqlExpression _this)
     {
-      throw new NotImplementedException();
-      //var baseExpression = ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfWeek, _this));
-      //var context = ExpressionTranslationContext.Current;
-      //if (context == null) {
-      //  return baseExpression;
-      //}
-      //if (context.ProviderInfo.ProviderName == WellKnown.Provider.MySql) {
-      //  return baseExpression - 1; //Mysql starts days of week from 1 unlike in .Net.
-      //}
-      //return baseExpression;
+      var baseExpression = ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfWeek, _this));
+      var context = ExpressionTranslationContext.Current;
+      if (context == null) {
+        return baseExpression;
+      }
+      if (context.ProviderInfo.ProviderName == WellKnown.Provider.MySql) {
+        return baseExpression - 1; //Mysql starts days of week from 1 unlike in .Net.
+      }
+      return baseExpression;
     }
 
     #endregion
@@ -129,13 +128,13 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
       SqlDml.DateAddDays(_this, value);
 
     [Compiler(typeof(DateOnly), "ToString")]
-    public static SqlExpression DateTimeToStringIso(SqlExpression _this)
+    public static SqlExpression DateOnlyToStringIso(SqlExpression _this)
     {
       throw new NotSupportedException(Strings.ExDateTimeToStringMethodIsNotSupported);
     }
 
     [Compiler(typeof(DateOnly), "ToString")]
-    public static SqlExpression DateTimeToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
+    public static SqlExpression DateOnlyToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
     {
       throw new NotImplementedException();
       //var stringValue = value as SqlLiteral<string>;
