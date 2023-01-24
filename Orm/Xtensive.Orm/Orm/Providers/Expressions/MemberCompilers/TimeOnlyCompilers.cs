@@ -7,13 +7,15 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
 
-namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
+namespace Xtensive.Orm.Providers
 {
 #if NET6_0_OR_GREATER
 
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeOnlyCompilers
   {
+    private const long NanosecondsPerTick = 100;
+
     #region Extractors
 
     [Compiler(typeof(TimeOnly), "Hour", TargetKind.PropertyGet)]
@@ -31,6 +33,12 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
     [Compiler(typeof(TimeOnly), "Millisecond", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
+
+    [Compiler(typeof(TimeOnly), "Ticks", TargetKind.PropertyGet)]
+    public static SqlExpression TimeOnlyTicks(SqlExpression _this)
+    {
+      throw new NotImplementedException();
+    }
 
     #endregion
 
@@ -56,54 +64,6 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
     #endregion
 
     #region Operators
-
-    [Compiler(typeof(DateOnly), Operator.Equality, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorEquality(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 == d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.Inequality, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorInequality(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 != d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.GreaterThan, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorGreaterThan(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 > d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.GreaterThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorGreaterThanOrEqual(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 >= d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.LessThan, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorLessThan(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 < d2;
-    }
-
-    [Compiler(typeof(DateOnly), Operator.LessThanOrEqual, TargetKind.Operator)]
-    public static SqlExpression DateOnlyOperatorLessThanOrEqual(
-      [Type(typeof(DateOnly))] SqlExpression d1,
-      [Type(typeof(DateOnly))] SqlExpression d2)
-    {
-      return d1 <= d2;
-    }
 
     [Compiler(typeof(TimeOnly), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorEquality(
@@ -154,15 +114,18 @@ namespace Xtensive.Orm.Providers.Expressions.MemberCompilers
     }
 
     [Compiler(typeof(TimeOnly), Operator.Subtraction, TargetKind.Operator)]
-    public static SqlExpression DateTimeOperatorSubtractionDateTime(
-      [Type(typeof(DateTime))] SqlExpression d1,
-      [Type(typeof(DateTime))] SqlExpression d2)
+    public static SqlExpression TimeOnlyOperatorSubtraction(
+      [Type(typeof(TimeOnly))] SqlExpression d1,
+      [Type(typeof(TimeOnly))] SqlExpression d2)
     {
       throw new NotImplementedException();
-      //return SqlDml.DateTimeMinusDateTime(d1, d2);
     }
 
     #endregion
+
+    [Compiler(typeof(TimeOnly), "Add")]
+    public static SqlExpression TimeOnlyAdd(SqlExpression _this, [Type(typeof(TimeSpan))] SqlExpression value) =>
+      throw new NotImplementedException();
 
     [Compiler(typeof(TimeOnly), "AddHours")]
     public static SqlExpression TimeOnlyAddHours(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
