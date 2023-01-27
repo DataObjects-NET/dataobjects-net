@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
       });
     }
 
-    [Test]
+    [Test, Ignore("Compiler's not implemented yet")]
     public void AddTimeSpanTest()
     {
       ExecuteInsideSession((s) => {

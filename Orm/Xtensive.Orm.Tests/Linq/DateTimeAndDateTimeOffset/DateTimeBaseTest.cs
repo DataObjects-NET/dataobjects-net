@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       configuration.Types.Register(typeof(DateTimeEntity));
       configuration.Types.Register(typeof(MillisecondDateTimeEntity));
       configuration.Types.Register(typeof(NullableDateTimeEntity));
+      configuration.Types.Register(typeof(AllPossiblePartsEntity));
 #if NET6_0_OR_GREATER
       configuration.Types.Register(typeof(DateOnlyEntity));
       configuration.Types.Register(typeof(SingleDateOnlyEntity));
@@ -202,6 +203,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       _ = new NullableDateTimeEntity(session) { DateTime = null };
       _ = new NullableDateTimeEntity(session) { DateTime = null };
+
+      _ = AllPossiblePartsEntity.FromDateTime(session, FirstMillisecondDateTime, 321);
     }
   }
 }

@@ -5,6 +5,8 @@
 // Created:    2016.08.01
 
 using System;
+using System.Net.Sockets;
+using Org.BouncyCastle.Crypto.Digests;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 {
@@ -152,6 +154,95 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     }
   }
 
+
+  [HierarchyRoot]
+  public class AllPossiblePartsEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 3000)]
+    public int Year { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 1, Max = 12)]
+    public int Month { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 1, Max = 31)]
+    public int Day { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 23)]
+    public int Hour { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 59)]
+    public int Minute { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 59)]
+    public int Second { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 999)]
+    public int Millisecond { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 999)]
+    public int Microsecond { get; set; }
+
+    [Field]
+    public long Ticks { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = -23, Max = 23)]
+    public int OffsetHour { get; set; }
+
+    [Field]
+    [Validation.RangeConstraint(Min = 0, Max = 59)]
+    public int OffsetMinute { get; set; }
+
+    public static AllPossiblePartsEntity FromDateTime(Session session, DateTime dateTime, int microsecond)
+    {
+      return new AllPossiblePartsEntity(session) {
+        Year = dateTime.Year,
+        Month = dateTime.Month,
+        Day = dateTime.Day,
+        Hour = dateTime.Hour,
+        Minute = dateTime.Minute,
+        Second = dateTime.Second,
+        Millisecond = dateTime.Millisecond,
+        Microsecond = microsecond,
+        OffsetHour = 0,
+        OffsetMinute = 0,
+        Ticks = dateTime.Ticks
+      };
+    }
+
+    public static AllPossiblePartsEntity FromDateTimeOffset(Session session, DateTimeOffset dateTimeOffset, int microsecond)
+    {
+      return new AllPossiblePartsEntity(session) {
+        Year = dateTimeOffset.Year,
+        Month = dateTimeOffset.Month,
+        Day = dateTimeOffset.Day,
+        Hour = dateTimeOffset.Hour,
+        Minute = dateTimeOffset.Minute,
+        Second = dateTimeOffset.Second,
+        Millisecond = dateTimeOffset.Millisecond,
+        Microsecond = microsecond,
+        OffsetHour = dateTimeOffset.Offset.Hours,
+        OffsetMinute = dateTimeOffset.Offset.Minutes,
+        Ticks = dateTimeOffset.Ticks
+      };
+    }
+
+    private AllPossiblePartsEntity(Session session)
+      : base(session)
+    {
+    }
+  }
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
   [HierarchyRoot]
