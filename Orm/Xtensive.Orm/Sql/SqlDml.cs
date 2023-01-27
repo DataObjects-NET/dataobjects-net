@@ -565,6 +565,19 @@ namespace Xtensive.Sql
     }
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
+
+    // SQL Server - DATEFROMPARTS(y, m, d, fractions, precision) https://learn.microsoft.com/en-us/sql/t-sql/functions/datefromparts-transact-sql?view=sql-server-2016
+    // Mysql - MAKEDATE(year, dayofyear), propably. https://dev.mysql.com/doc/refman/5.7/en/date-and-time-functions.html
+    // Oracle - if x is the number of seconds after midnight on January 1, 1970: TO_DATE( '01/01/1970', 'MM/DD/YYYY') + (x / (24 * 60 * 60))
+    //  In the examples above, x can be any number, not necessarily an integer.
+    //https://community.oracle.com/tech/developers/discussion/958492/how-to-convert-integer-to-date
+    // PgSql - some magic with string concatination or by using to_timestampt(ticks-in-some-form::numeric)::time https://stackoverflow.com/questions/26198358/postgresql-cast-numeric-to-date-and-format 
+    //                                                          https://stackoverflow.com/questions/22835874/postgresql-convert-timestamp-to-time-or-retrieve-only-time-from-timestamp-col
+    //   from 9.4 make_date(year, month, day)
+
+    // firebird -  dateadd(second, AmountOfSeconds, cast('00:00:00' as time))
+    // sqlite - probably date(seconds-form-unixepoch, 'unixepoch')
+
     public static SqlFunctionCall DateConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
       ArgumentNullException.ThrowIfNull(year);
@@ -576,14 +589,31 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateConstruct, year, month, day);
     }
 
-    public static SqlFunctionCall TimeConstruct(SqlExpression hours,
-      SqlExpression minutes,
-      SqlExpression seconds,
-      SqlExpression milliseconds)
+    // SQL Server - TIMEFROMPARTS(h, m, s, fractions, precision) https://learn.microsoft.com/en-us/sql/t-sql/functions/timefromparts-transact-sql?view=sql-server-2016
+    // Mysql - addtime (MAKETIME(h, m, s), '00:00:00.<milliseconds>), propably. https://dev.mysql.com/doc/refman/5.7/en/date-and-time-functions.html
+    // Oracle - numtodsinterval(value-in-seconds.milliseconds, 'second') //https://docs.oracle.com/database/121/SQLRF/functions129.htm#SQLRF00682
+    // PgSql - see current impl of DateConstruct for inspiration :)
+    //    from  9.4 there is make_time(h, m,s)
+    // firebird -  dateadd(second, ColAmountOfSeconds, cast('00:00:00' as time))
+    // sqlite - time('00:00:00', '+ NNN.NNNN seconds' //https://codernotes.ru/articles/bazy-dannyh-t-sql/funkcii-daty-i-vremeni-v-sqlite.html
+
+    public static SqlFunctionCall TimeConstruct(SqlExpression hour,
+      SqlExpression minute,
+      SqlExpression second,
+      SqlExpression millisecond)
     {
-      var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
-      var ticks = 10_000 * m;
-      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
+      ArgumentNullException.ThrowIfNull(hour);
+      ArgumentNullException.ThrowIfNull(minute);
+      ArgumentNullException.ThrowIfNull(second);
+      ArgumentNullException.ThrowIfNull(millisecond);
+      SqlValidator.EnsureIsArithmeticExpression(hour);
+      SqlValidator.EnsureIsArithmeticExpression(minute);
+      SqlValidator.EnsureIsArithmeticExpression(second);
+      SqlValidator.EnsureIsArithmeticExpression(millisecond);
+
+      //var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
+      //var ticks = 10_000 * m;
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, hour, minute, second, millisecond);
     }
 #endif
 
