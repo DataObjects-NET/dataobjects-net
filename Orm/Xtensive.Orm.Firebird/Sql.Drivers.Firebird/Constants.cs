@@ -14,5 +14,9 @@ namespace Xtensive.Sql.Drivers.Firebird
 
     // cannot use "FFF" cause it may lead to empty string for fractions part.
     public const string DateTimeFormatString = @"''\'yyyy\.MM\.dd HH\:mm\:ss\.fff\'''";
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public const string DateFormatString = @"''\'yyyy\.MM\.dd\'''";
+    public const string TimeFormatString = @"''\'HH\:mm\:ss\.fff\'''";
+#endif
   }
 }

@@ -201,6 +201,22 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             node.Arguments[1] - 1),
             node.Arguments[2] - 1));
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateConstruct:
+          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
+            node.Arguments[0] - 2001),
+            node.Arguments[1] - 1),
+            node.Arguments[2] - 1));
+          return;
+        case SqlFunctionType.TimeConstruct: {
+          Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
+            node.Arguments[0]),
+            node.Arguments[1]),
+            node.Arguments[2]),
+            node.Arguments[3]));
+          return;
+        }
+#endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(node.Arguments[0]));
           return;

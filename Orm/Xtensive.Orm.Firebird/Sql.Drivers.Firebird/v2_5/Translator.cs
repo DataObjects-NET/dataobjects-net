@@ -19,15 +19,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormatString
-    {
-      get { return Constants.DateTimeFormatString; }
-    }
+    public override string DateTimeFormatString => Constants.DateTimeFormatString;
 
-    public override string TimeSpanFormatString
-    {
-      get { return string.Empty; }
-    }
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public override string DateOnlyFormatString => Constants.DateFormatString;
+    public override string TimeOnlyFormatString => Constants.TimeFormatString;
+#endif
+
+    public override string TimeSpanFormatString => string.Empty;
 
     public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
