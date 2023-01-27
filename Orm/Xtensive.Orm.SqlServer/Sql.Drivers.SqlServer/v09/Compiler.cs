@@ -219,6 +219,24 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             arguments[1] - 1),
             arguments[2] - 1));
           return;
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateConstruct: {
+          Visit(SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1), SqlType.Date));
+          return;
+        }
+        case SqlFunctionType.TimeConstruct: {
+          Visit(SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Literal(new TimeOnly(0, 0, 0)),
+            arguments[0]),
+            arguments[1]),
+            arguments[2]),
+            arguments[3]), SqlType.Time));
+          return;
+        }
+
+#endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(arguments[0]));
           return;
