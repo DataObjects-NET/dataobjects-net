@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
@@ -43,6 +44,13 @@ namespace Xtensive.Orm.Providers
     #endregion
 
     #region Constructors
+    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
+    public static SqlExpression TimeOnlyCtor(
+        [Type(typeof(int))] SqlExpression hour,
+        [Type(typeof(int))] SqlExpression minute,
+        [Type(typeof(int))] SqlExpression second,
+        [Type(typeof(int))] SqlExpression millisecond) =>
+      SqlDml.TimeConstruct(hour, minute, second, millisecond);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor(
@@ -57,9 +65,9 @@ namespace Xtensive.Orm.Providers
         [Type(typeof(int))] SqlExpression minute) =>
       SqlDml.TimeConstruct(hour, minute, 0, 0);
 
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-      new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
+    //[Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
+    //public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
+    //  new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
 
     #endregion
 
@@ -123,10 +131,6 @@ namespace Xtensive.Orm.Providers
 
     #endregion
 
-    [Compiler(typeof(TimeOnly), "Add")]
-    public static SqlExpression TimeOnlyAdd(SqlExpression _this, [Type(typeof(TimeSpan))] SqlExpression value) =>
-      throw new NotImplementedException();
-
     [Compiler(typeof(TimeOnly), "AddHours")]
     public static SqlExpression TimeOnlyAddHours(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
       SqlDml.TimeAddHours(_this, value);
@@ -145,7 +149,6 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression TimeOnlyToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
     {
       throw new NotImplementedException();
-
       //var stringValue = value as SqlLiteral<string>;
 
       //if (stringValue == null)
