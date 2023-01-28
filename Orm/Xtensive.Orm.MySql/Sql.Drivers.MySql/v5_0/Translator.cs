@@ -22,6 +22,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'";
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss\.ffffff\'";
+#endif
 
     public override string TimeSpanFormatString => string.Empty;
 
@@ -106,6 +110,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddYears:
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateConstruct:
+        case SqlFunctionType.TimeConstruct:
+#endif
         case SqlFunctionType.IntervalToMilliseconds:
           return;
         //string
