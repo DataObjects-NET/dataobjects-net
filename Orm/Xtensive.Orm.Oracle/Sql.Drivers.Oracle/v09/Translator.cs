@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -33,6 +33,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 #if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.fffff\'\ DAY(0) TO SECOND(6))";
 #endif
 
     /// <inheritdoc/>

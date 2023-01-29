@@ -88,6 +88,24 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.Date;
+      nativeParameter.Value = value == null
+        ? (object) DBNull.Value
+        : new OracleDate(((DateOnly) value).ToDateTime(TimeOnly.MinValue));
+    }
+
+    public override void BindTimeOnly(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.IntervalDS;
+      nativeParameter.Value = value == null ? (object) DBNull.Value : new OracleIntervalDS(((TimeOnly) value).ToTimeSpan());
+    }
+#endif
+
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;

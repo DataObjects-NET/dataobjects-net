@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
@@ -41,6 +41,15 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.DateTimeConstruct:
         DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
         return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+      case SqlFunctionType.DateConstruct:
+        DateConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.TimeConstruct: {
+        TimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2], node.Arguments[3]).AcceptVisitor(this);
+        return;
+      }
+#endif
       case SqlFunctionType.IntervalAbs:
         SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
         return;
@@ -269,6 +278,22 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         SqlDml.FunctionCall("TO_CHAR", ((years * 100) + months) * 100 + days),
         AnsiString("YYYYMMDD"));
     }
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    private static SqlExpression DateConstruct(SqlExpression years, SqlExpression months, SqlExpression days)
+    {
+      return SqlDml.FunctionCall("TO_DATE",
+        SqlDml.FunctionCall("TO_CHAR", ((years * 100) + months) * 100 + days),
+        AnsiString("YYYYMMDD"));
+    }
+
+    private static SqlExpression TimeConstruct(SqlExpression hours, SqlExpression minutes, SqlExpression seconds, SqlExpression milliseconds)
+    {
+      return SqlDml.FunctionCall("NUMTODSINTERVAL",
+        seconds + (minutes * 60) + (hours * 3600) + (milliseconds / 1000),
+        AnsiString("second"));
+    }
+#endif
 
     private static SqlExpression DateTimeExtractDayOfWeek(SqlExpression dateTime)
     {
