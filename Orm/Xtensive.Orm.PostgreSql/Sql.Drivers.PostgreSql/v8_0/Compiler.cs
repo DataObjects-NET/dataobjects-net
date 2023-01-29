@@ -18,6 +18,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
+
+    private static readonly SqlNative OneHourInterval = SqlDml.Native("interval '1 hour'");
     private static readonly SqlNative OneMinuteInterval = SqlDml.Native("interval '1 minute'");
     private static readonly SqlNative OneSecondInterval = SqlDml.Native("interval '1 second'");
 
@@ -106,6 +108,21 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                          + (OneDayInterval * (node.Arguments[2] - 1));
           newNode.AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateConstruct:
+          (SqlDml.Literal(new DateOnly(2001, 1, 1))
+            + (OneYearInterval * (node.Arguments[0] - 2001))
+            + (OneMonthInterval * (node.Arguments[1] - 1))
+            + (OneDayInterval * (node.Arguments[2] - 1))).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeConstruct: {
+          ((SqlDml.Literal(new TimeOnly(0, 0, 0))
+            + (OneHourInterval * (node.Arguments[0]))
+            + (OneMinuteInterval * (node.Arguments[1]))
+            + (OneSecondInterval * (node.Arguments[2] + (SqlDml.Cast(node.Arguments[3], SqlType.Double) / 1000))))).AcceptVisitor(this);
+          return;
+        }
+#endif
         case SqlFunctionType.DateTimeTruncate:
           (SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0])).AcceptVisitor(this);
           return;

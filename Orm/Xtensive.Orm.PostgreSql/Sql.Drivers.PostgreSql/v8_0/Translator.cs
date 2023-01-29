@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2022 Xtensive LLC.
+// Copyright (C) 2012-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -53,6 +53,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
+#if NET6_0_OR_GREATER //DO_DATEONLY
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"\'yyyyMMdd\''::date'";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"\'HH:mm:ss.ffffff\''::time'";
+#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval";
