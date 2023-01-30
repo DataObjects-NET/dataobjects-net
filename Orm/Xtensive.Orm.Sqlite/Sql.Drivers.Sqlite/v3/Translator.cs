@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -22,6 +22,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'";
+#if NET6_0_OR_GREATER //DO_DATEONLY
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fff\'";
+#endif
 
     public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
 
