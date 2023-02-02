@@ -49,7 +49,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
-      using (Upgrader.Enable(version)) {
+      configuration.Types.Register(typeof(Model.Upgrader));
+      using (Model.Upgrader.Enable(version)) {
         var domain = Domain.Build(configuration);
         return domain;
       }
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
-      using (Upgrader.Enable(version)) {
+      using (Model.Upgrader.Enable(version)) {
         var domain = await Domain.BuildAsync(configuration);
         return domain;
       }
