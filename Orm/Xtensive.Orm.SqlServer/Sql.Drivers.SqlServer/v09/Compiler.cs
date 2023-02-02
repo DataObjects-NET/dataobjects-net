@@ -266,6 +266,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
+#if NET6_0_OR_GREATER
+      if (node.DatePart == SqlDatePart.DayOfWeek) {
+        Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
+        return;
+      }
+#endif
 
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:

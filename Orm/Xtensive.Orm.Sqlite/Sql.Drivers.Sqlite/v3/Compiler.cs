@@ -112,18 +112,25 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void Visit(SqlExtract node)
     {
-      if (node.IntervalPart != SqlIntervalPart.Nothing) {
+      if (node.IsIntervalPart) {
         VisitInterval(node);
         return;
       }
-      if (node.DateTimePart != SqlDateTimePart.Nothing) {
+      if (node.IsDateTimePart) {
         VisitDateTime(node);
         return;
       }
-      if (node.DateTimeOffsetPart != SqlDateTimeOffsetPart.Nothing) {
+      if (node.IsDateTimeOffsetPart) {
         VisitDateTimeOffset(node);
         return;
       }
+#if NET6_0_OR_GREATER //DO_DATEONLY
+      if(node.IsTimePart) {
+        VisitTime(node);
+        return;
+      }
+#endif
+
       base.Visit(node);
     }
 
@@ -332,8 +339,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void VisitDateTime(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.Millisecond) {
-        Visit(CastToLong(DateGetMilliseconds(node.Operand)));
+      if (node.IsMillisecondExtraction) {
+        Visit(CastToLong(DateOrTimeGetMilliseconds(node.Operand)));
+        return;
+      }
+      base.Visit(node);
+    }
+
+    private void VisitTime(SqlExtract node)
+    {
+      if (node.IsMillisecondExtraction) {
+        Visit(CastToLong(DateOrTimeGetMilliseconds(node.Operand)));
         return;
       }
       base.Visit(node);
@@ -454,17 +470,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       SqlDml.FunctionCall("STRFTIME", TimeFormat, date, SqlDml.Concat(seconds, ".", milliseconds, " ", "SECONDS"));
 #endif
 
-    private static SqlExpression DateGetMilliseconds(SqlExpression date) =>
+    private static SqlExpression DateOrTimeGetMilliseconds(SqlExpression date) =>
       CastToLong(SqlDml.FunctionCall("STRFTIME", "%f", date) * MillisecondsPerSecond) -
         CastToLong(SqlDml.FunctionCall("STRFTIME", "%S", date) * MillisecondsPerSecond);
-    
 
     private static SqlExpression DateGetTotalSeconds(SqlExpression date) =>
       SqlDml.FunctionCall("STRFTIME", "%s", date);
 
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2) =>
       (((DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond)
-        + DateGetMilliseconds(date1) - DateGetMilliseconds(date2)) * NanosecondsPerMillisecond;
+        + DateOrTimeGetMilliseconds(date1) - DateOrTimeGetMilliseconds(date2)) * NanosecondsPerMillisecond;
     
 
     private static SqlExpression ServerOffsetAsString()

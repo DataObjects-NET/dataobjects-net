@@ -239,6 +239,13 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
         return;
       }
+#if NET6_0_OR_GREATER //DO_DATEONLY
+      if (node.DatePart == SqlDatePart.DayOfWeek || node.DatePart == SqlDatePart.DayOfYear) {
+        Visit(SqlDml.FunctionCall(node.DatePart.ToString(), node.Operand));
+        return;
+      }
+#endif
+
       base.Visit(node);
     }
 

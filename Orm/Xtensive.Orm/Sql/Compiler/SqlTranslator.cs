@@ -2278,6 +2278,42 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="datePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlDatePart datePart)
+    {
+      _ = output.Append(datePart switch {
+        SqlDatePart.Year => "YEAR",
+        SqlDatePart.Month => "MONTH",
+        SqlDatePart.Day => "DAY",
+        SqlDatePart.DayOfYear => "DAYOFYEAR",
+        SqlDatePart.DayOfWeek => "DAYOFWEEK",
+        _ => throw new ArgumentOutOfRangeException(nameof(datePart))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="timePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlTimePart timePart)
+    {
+      _ = output.Append(timePart switch {
+        SqlTimePart.Hour => "HOUR",
+        SqlTimePart.Minute => "MINUTE",
+        SqlTimePart.Second => "SECOND",
+        SqlTimePart.Millisecond => "MILLISECOND",
+        SqlTimePart.Nanosecond => "NANOSECOND",
+        _ => throw new ArgumentOutOfRangeException(nameof(timePart))
+      });
+    }
+#endif
+
     /// <summary>
     /// Translates <see cref="SqlDateTimeOffsetPart"/> and writes result to the <paramref name="output"/>.
     /// </summary>

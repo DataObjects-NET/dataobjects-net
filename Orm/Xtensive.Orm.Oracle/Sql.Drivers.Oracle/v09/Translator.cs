@@ -116,7 +116,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      if (node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second) {
+      if (node.IsSecondExtraction) {
         switch (section) {
           case ExtractSection.Entry:
             _ = context.Output.Append("TRUNC(EXTRACT(");
@@ -127,7 +127,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         }
       }
 
-      if (node.DateTimePart == SqlDateTimePart.Millisecond || node.IntervalPart == SqlIntervalPart.Millisecond) {
+      if (node.IsMillisecondExtraction) {
         switch (section) {
           case ExtractSection.Entry:
             _ = context.Output.Append("MOD(EXTRACT(");
@@ -357,6 +357,32 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.DayOfWeek:
+        case SqlDatePart.DayOfYear:
+          throw new NotSupportedException();
+        default:
+          base.Translate(output, datePart);
+          break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart timePart)
+    {
+      if (timePart== SqlTimePart.Millisecond) {
+        _ = output.Append("SECOND");
+      }
+      else {
+        base.Translate(output, timePart);
+      }
+    }
+#endif
+
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart part)
     {
@@ -366,7 +392,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       else {
         base.Translate(output, part);
       }
-
     }
 
     /// <inheritdoc/>

@@ -221,6 +221,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       }
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.DayOfYear: _ = output.Append("YEARDAY"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("WEEKDAY"); break;
+        default: base.Translate(output, datePart); break;
+      }
+    }
+#endif
+
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {

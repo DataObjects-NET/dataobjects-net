@@ -602,7 +602,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       var typeName = row.GetString(typeNameIndex).ToUpperInvariant();
-      var columnName = row.GetString(6).ToUpperInvariant();
+      var dataTypeName = row.GetString(6).ToUpperInvariant();
 
       var precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       var scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
@@ -618,7 +618,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.Double);
       }
 
-      if (columnName.Equals("TINYINT(1)", StringComparison.Ordinal)) {
+      if (dataTypeName.Equals("TINYINT(1)", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.Boolean);
       }
 
@@ -654,8 +654,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
 #if NET6_0_OR_GREATER //DO_DATEONLY
       if (typeName.Equals("TIME", StringComparison.Ordinal)) {
-        
-        return new SqlValueType(SqlType.Time);
+        var time_precision = (dataTypeName.Length > 4) ? int.Parse(dataTypeName[5].ToString()) : 0;
+        return new SqlValueType(SqlType.Time, precision);
       }
       else if (typeName.StartsWith("TIME", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too

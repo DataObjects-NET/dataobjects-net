@@ -101,6 +101,31 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(CastToLong(node.Operand));
           return;
       }
+#if NET6_0_OR_GREATER
+      if (((node.IsDatePart && node.DatePart == SqlDatePart.DayOfYear)
+          || (node.IsDateTimePart && node.DateTimePart == SqlDateTimePart.DayOfYear))) {
+        if (!case_SqlDateTimePart_DayOfYear) {
+          case_SqlDateTimePart_DayOfYear = true;
+          Visit(SqlDml.Add(node, SqlDml.Literal(1)));
+          case_SqlDateTimePart_DayOfYear = false;
+        }
+        else {
+          base.Visit(node);
+        }
+        return;
+      }
+      else if (node.IsSecondExtraction) {
+        if (!case_SqlDateTimePart_Second) {
+          case_SqlDateTimePart_Second = true;
+          Visit(SqlDml.Truncate(node));
+          case_SqlDateTimePart_Second = false;
+        }
+        else {
+          base.Visit(node);
+        }
+        return;
+      }
+#else
       switch (node.DateTimePart) {
         case SqlDateTimePart.DayOfYear:
           if (!case_SqlDateTimePart_DayOfYear) {
@@ -123,6 +148,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           }
           return;
       }
+#endif
+
       base.Visit(node);
     }
 
@@ -235,7 +262,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       translator.Translate(context, node, NodeSection.Exit);
     }
 
-    #region Static helpers
+#region Static helpers
 
     protected static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
@@ -301,7 +328,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return SqlDml.Concat(date, SqlDml.Literal("T"), time);
     }
     
-    #endregion
+#endregion
 
     protected internal Compiler(SqlDriver driver)
       : base(driver)

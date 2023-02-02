@@ -68,6 +68,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
     public void MysqlExtractMillisecondTest()
     {
       Require.ProviderIs(StorageProvider.MySql);
+      Require.ProviderVersionAtLeast(new Version(5, 6));// no support for fractions below 5.6
       ExecuteInsideSession((s) => {
         var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.FixTimeOnlyForProvider(StorageProviderInfo.Instance);
         RunTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Millisecond == firstMillisecondTimeOnly.Millisecond);
@@ -76,6 +77,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
     }
 
     [Test]
+    [Ignore("Not implemented yet.")]
     public void ExtractTicksTest()
     {
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);

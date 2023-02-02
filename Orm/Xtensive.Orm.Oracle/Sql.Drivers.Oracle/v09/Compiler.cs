@@ -108,69 +108,77 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override void Visit(SqlExtract node)
     {
       switch (node.DateTimeOffsetPart) {
-      case SqlDateTimeOffsetPart.Day:
-        DateTimeOffsetExtractPart(node.Operand, "DD").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Hour:
-        DateTimeOffsetExtractPart(node.Operand, "HH24").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Millisecond:
-        DateTimeOffsetExtractPart(node.Operand, "FF3").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Nanosecond:
-        DateTimeOffsetExtractPart(node.Operand, "FF9").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Minute:
-        DateTimeOffsetExtractPart(node.Operand, "MI").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Month:
-        DateTimeOffsetExtractPart(node.Operand, "MM").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Second:
-        DateTimeOffsetExtractPart(node.Operand, "SS").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Year:
-        DateTimeOffsetExtractPart(node.Operand, "YYYY").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.TimeZoneHour:
-        DateTimeOffsetExtractPart(node.Operand, "TZH").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.TimeZoneMinute:
-        DateTimeOffsetExtractPart(node.Operand, "TZM").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.DayOfWeek:
-        DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.DayOfYear:
-        DateTimeOffsetExtractPart(node.Operand, "DDD").AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Date:
-        DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.DateTime:
-        DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.LocalDateTime:
-        DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.UtcDateTime:
-        DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimeOffsetPart.Offset:
-        DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
-        return;
+        case SqlDateTimeOffsetPart.Day:
+          DateTimeOffsetExtractPart(node.Operand, "DD").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Hour:
+          DateTimeOffsetExtractPart(node.Operand, "HH24").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Millisecond:
+          DateTimeOffsetExtractPart(node.Operand, "FF3").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Nanosecond:
+          DateTimeOffsetExtractPart(node.Operand, "FF9").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Minute:
+          DateTimeOffsetExtractPart(node.Operand, "MI").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Month:
+          DateTimeOffsetExtractPart(node.Operand, "MM").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Second:
+          DateTimeOffsetExtractPart(node.Operand, "SS").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Year:
+          DateTimeOffsetExtractPart(node.Operand, "YYYY").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.TimeZoneHour:
+          DateTimeOffsetExtractPart(node.Operand, "TZH").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.TimeZoneMinute:
+          DateTimeOffsetExtractPart(node.Operand, "TZM").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.DayOfWeek:
+          DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.DayOfYear:
+          DateTimeOffsetExtractPart(node.Operand, "DDD").AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Date:
+          DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.DateTime:
+          DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.LocalDateTime:
+          DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.UtcDateTime:
+          DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Offset:
+          DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
+          return;
       }
       switch (node.DateTimePart) {
-      case SqlDateTimePart.DayOfYear:
-        DateTimeExtractDayOfYear(node.Operand).AcceptVisitor(this);
-        return;
-      case SqlDateTimePart.DayOfWeek:
-        DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
-        return;
-      default:
-        base.Visit(node);
-        return;
+        case SqlDateTimePart.DayOfYear:
+          DateTimeExtractDayOfYear(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimePart.DayOfWeek:
+          DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
+          return;
       }
+#if NET6_0_OR_GREATER //DO_DATEONLY
+      switch (node.DatePart) {
+        case SqlDatePart.DayOfYear:
+          DateTimeExtractDayOfYear(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDatePart.DayOfWeek:
+          DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
+          return;
+      }
+#endif
+      base.Visit(node);
     }
 
     protected override void VisitSelectFrom(SqlSelect node)

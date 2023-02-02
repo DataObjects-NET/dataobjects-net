@@ -347,6 +347,32 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
+#if NET6_0_OR_GREATER
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlDatePart.Year: _ = output.Append("'%Y'"); break;
+        case SqlDatePart.Month: _ = output.Append("'%m'"); break;
+        case SqlDatePart.Day: _ = output.Append("'%d'"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("'%w'"); break;
+        case SqlDatePart.DayOfYear: _ = output.Append("'%j'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlTimePart.Hour: _ = output.Append("'%H'"); break;
+        case SqlTimePart.Minute: _ = output.Append("'%M'"); break;
+        case SqlTimePart.Second: _ = output.Append("'%S'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+#endif
+
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart intervalPart) => throw SqlHelper.NotSupported(intervalPart.ToString());
 

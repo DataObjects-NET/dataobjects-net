@@ -411,9 +411,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         base.Translate(context, node, section);
         return;
@@ -423,7 +422,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           _ = context.Output.AppendOpeningPunctuation("(extract(");
           break;
         case ExtractSection.Exit:
-          _ = context.Output.Append(isMillisecond ? ") % 1000)" : "))");
+          _ = context.Output.Append(isMillisecond ? ") / 1000)" : "))");
           break;
         default:
           base.Translate(context, node, section);
@@ -518,6 +517,31 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.Day: _ = output.Append("DAY"); break;
+        case SqlDatePart.Year: _ = output.Append("YEAR"); break;
+        case SqlDatePart.Month: _ = output.Append("MONTH"); break;
+        default: base.Translate(output, datePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlTimePart.Millisecond: _ = output.Append("MICROSECOND"); break;
+        case SqlTimePart.Hour: _ = output.Append("HOUR"); break;
+        case SqlTimePart.Minute: _ = output.Append("MINUTE"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+#endif
+
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

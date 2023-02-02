@@ -396,12 +396,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second
-        || node.IntervalPart == SqlIntervalPart.Second
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         base.Translate(context, node, section);
         return;
@@ -832,6 +828,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDateTimePart part)
     {
       switch (part) {
@@ -842,6 +839,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDateTimeOffsetPart part)
     {
       switch (part) {
@@ -854,6 +852,30 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         default: base.Translate(output, part); break;
       }
     }
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart part)
+    {
+      switch (part) {
+        case SqlDatePart.DayOfYear: _ = output.Append("DOY"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("DOW"); break;
+        default: base.Translate(output, part); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart part)
+    {
+      if (part == SqlTimePart.Millisecond) {
+        _ = output.Append("MILLISECONDS");
+      }
+      else {
+        base.Translate(output, part);
+      }
+    }
+
+#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)
