@@ -99,5 +99,6 @@ namespace Xtensive.Sql.Dml
     RoundDecimalToZero,
     RoundDoubleToEven,
     RoundDoubleToZero,
+    //!!! max value is used for array size
   }
 }
