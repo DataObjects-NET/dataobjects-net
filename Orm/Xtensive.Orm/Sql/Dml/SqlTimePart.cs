@@ -1,8 +1,8 @@
-// Copyright (C) 2009-2023 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Denis Krjuchkov
-// Created:    2009.02.25
+
+#if NET6_0_OR_GREATER
 
 using System;
 
@@ -31,11 +31,9 @@ namespace Xtensive.Sql.Dml
   // UtcDateTime    = 15,
   // Offset         = 16,
   // Nothing        = 25,
-
   [Serializable]
-  public enum SqlIntervalPart
+  public enum SqlTimePart
   {
-    Day = 2,
     Hour = 3,
     Minute = 4,
     Second = 5,
@@ -44,3 +42,4 @@ namespace Xtensive.Sql.Dml
     Nothing = 25,
   }
 }
+#endif
