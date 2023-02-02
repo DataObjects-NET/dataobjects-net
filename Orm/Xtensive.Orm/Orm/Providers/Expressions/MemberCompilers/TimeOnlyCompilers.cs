@@ -21,19 +21,19 @@ namespace Xtensive.Orm.Providers
 
     [Compiler(typeof(TimeOnly), "Hour", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyHour(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Hour, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Hour, _this));
 
     [Compiler(typeof(TimeOnly), "Minute", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyMinute(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Minute, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Minute, _this));
 
     [Compiler(typeof(TimeOnly), "Second", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlySecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Second, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Second, _this));
 
     [Compiler(typeof(TimeOnly), "Millisecond", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Millisecond, _this));
 
     [Compiler(typeof(TimeOnly), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyTicks(SqlExpression _this)

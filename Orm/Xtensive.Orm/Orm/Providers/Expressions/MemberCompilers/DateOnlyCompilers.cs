@@ -19,27 +19,27 @@ namespace Xtensive.Orm.Providers
 
     [Compiler(typeof(DateOnly), "Year", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyYear(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDatePart.Year, _this));
 
     [Compiler(typeof(DateOnly), "Month", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyMonth(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Month, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDatePart.Month, _this));
 
     [Compiler(typeof(DateOnly), "Day", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyDay(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Day, _this));
+      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDatePart.Day, _this));
 
 
     [Compiler(typeof(DateOnly), "DayOfYear", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyDayOfYear(SqlExpression _this)
     {
-      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
+      return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDatePart.DayOfYear, _this));
     }
 
     [Compiler(typeof(DateOnly), "DayOfWeek", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyDayOfWeek(SqlExpression _this)
     {
-      var baseExpression = ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfWeek, _this));
+      var baseExpression = ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDatePart.DayOfWeek, _this));
       var context = ExpressionTranslationContext.Current;
       if (context == null) {
         return baseExpression;
@@ -137,15 +137,15 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression DateOnlyToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
     {
       throw new NotImplementedException();
-      //var stringValue = value as SqlLiteral<string>;
+      var stringValue = value as SqlLiteral<string>;
 
-      //if (stringValue == null)
-      //  throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      if (stringValue == null)
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
 
-      //if (!stringValue.Value.Equals("s"))
-      //  throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      if (!stringValue.Value.Equals("s"))
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
 
-      //return SqlDml.DateTimeToStringIso(_this);
+      return SqlDml.DateTimeToStringIso(_this);
     }
   }
 #endif
