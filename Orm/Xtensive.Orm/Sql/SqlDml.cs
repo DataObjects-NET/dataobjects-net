@@ -648,6 +648,22 @@ namespace Xtensive.Sql
       return new SqlBinary(SqlNodeType.DateTimePlusInterval, left, right);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.TimePlusInterval, left, right);
+    }
+
+    public static SqlBinary TimeMinusTime(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
+    }
+#endif
+
     public static SqlBinary DateTimeMinusInterval(SqlExpression left, SqlExpression right)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
@@ -661,15 +677,6 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
       return new SqlBinary(SqlNodeType.DateTimeMinusDateTime, left, right);
     }
-
-#if NET6_0_OR_GREATER //DO_DATEONLY
-    public static SqlBinary DateMinusDate(SqlExpression left, SqlExpression right)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      return new SqlBinary(SqlNodeType.DateMinusDate, left, right);
-    }
-#endif
 
     public static SqlFunctionCall DateTimeAddYears(SqlExpression source, SqlExpression years)
     {

@@ -75,58 +75,58 @@ namespace Xtensive.Orm.Providers
 
     [Compiler(typeof(TimeOnly), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorEquality(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 == d2;
+      return t1 == t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.Inequality, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorInequality(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 != d2;
+      return t1 != t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.GreaterThan, TargetKind.Operator)]
     public static SqlExpression TimeOnlyyOperatorGreaterThan(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 > d2;
+      return t1 > t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.GreaterThanOrEqual, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorGreaterThanOrEqual(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 >= d2;
+      return t1 >= t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.LessThan, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorLessThan(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 < d2;
+      return t1 < t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.LessThanOrEqual, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorLessThanOrEqual(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      return d1 <= d2;
+      return t1 <= t2;
     }
 
     [Compiler(typeof(TimeOnly), Operator.Subtraction, TargetKind.Operator)]
     public static SqlExpression TimeOnlyOperatorSubtraction(
-      [Type(typeof(TimeOnly))] SqlExpression d1,
-      [Type(typeof(TimeOnly))] SqlExpression d2)
+      [Type(typeof(TimeOnly))] SqlExpression t1,
+      [Type(typeof(TimeOnly))] SqlExpression t2)
     {
-      throw new NotImplementedException();
+      return SqlDml.TimeMinusTime(t1, t2);
     }
 
     #endregion
@@ -138,6 +138,10 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeOnly), "AddMinutes")]
     public static SqlExpression TimeOnlyAddMinutes(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
       SqlDml.TimeAddMinutes(_this, value);
+
+    [Compiler(typeof(TimeOnly), "Add")]
+    public static SqlExpression TimeOnlyAdd(SqlExpression _this, [Type(typeof(TimeSpan))] SqlExpression value) =>
+      SqlDml.TimePlusInterval(_this, value);
 
     [Compiler(typeof(TimeOnly), "ToString")]
     public static SqlExpression TimeOnlyToStringIso(SqlExpression _this)

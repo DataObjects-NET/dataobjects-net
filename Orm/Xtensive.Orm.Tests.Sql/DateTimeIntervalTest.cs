@@ -182,18 +182,10 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    public virtual void DateOnlySubtractDateTimeTest()
-    {
-      CheckEquality(
-        SqlDml.DateMinusDate(DefaultDateOnly, SecondDateOnly),
-        DefaultDateTime - SecondDateTime);
-    }
-
-    [Test]
     public virtual void DateOnlyExtractYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Year, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Year, DefaultDateOnly),
         DefaultDateOnly.Year);
     }
 
@@ -201,7 +193,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractMonthTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Month, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Month, DefaultDateOnly),
         DefaultDateOnly.Month);
     }
 
@@ -209,7 +201,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Day, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Day, DefaultDateOnly),
         DefaultDateOnly.Day);
     }
 
@@ -217,7 +209,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayOfWeekTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfWeek, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.DayOfWeek, DefaultDateOnly),
         (int) DefaultDateOnly.DayOfWeek);
     }
 
@@ -225,7 +217,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayOfYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfYear, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.DayOfYear, DefaultDateOnly),
         DefaultDateOnly.DayOfYear);
     }
 
@@ -233,7 +225,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractHourTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Hour, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Hour, DefaultTimeOnly),
         DefaultTimeOnly.Hour);
     }
 
@@ -241,7 +233,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractMinuteTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Minute, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Minute, DefaultTimeOnly),
         DefaultTimeOnly.Minute);
     }
 
@@ -249,7 +241,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractSecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Second, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Second, DefaultTimeOnly),
         DefaultTimeOnly.Second);
     }
 
@@ -257,7 +249,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractMillisecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Millisecond, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Millisecond, DefaultTimeOnly),
         DefaultTimeOnly.Millisecond);
     }
 
@@ -267,6 +259,14 @@ namespace Xtensive.Orm.Tests.Sql
       CheckEquality(
         SqlDml.TimeConstruct(DefaultTimeOnly.Hour, DefaultTimeOnly.Minute, DefaultTimeOnly.Second, DefaultTimeOnly.Millisecond),
         DefaultTimeOnly);
+    }
+
+    [Test]
+    public virtual void TimeOnlySubtractTimeOnlyTest()
+    {
+      CheckEquality(
+        SqlDml.TimeMinusTime(DefaultTimeOnly, SecondTimeOnly),
+        DefaultTimeOnly - SecondTimeOnly);
     }
 #endif
 

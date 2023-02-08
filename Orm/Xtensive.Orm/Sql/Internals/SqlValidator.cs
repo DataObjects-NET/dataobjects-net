@@ -180,6 +180,10 @@ namespace Xtensive.Sql
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+        case SqlNodeType.TimeMinusTime:
+#endif
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

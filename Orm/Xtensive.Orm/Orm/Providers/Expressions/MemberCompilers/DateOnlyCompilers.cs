@@ -117,11 +117,11 @@ namespace Xtensive.Orm.Providers
 
     [Compiler(typeof(DateOnly), "AddYears")]
     public static SqlExpression DateOnlyAddYears(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateTimeAddYears(_this, value);
+      SqlDml.DateAddYears(_this, value);
 
     [Compiler(typeof(DateOnly), "AddMonths")]
     public static SqlExpression DateOnlyAddMonths(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateTimeAddMonths(_this, value);
+      SqlDml.DateAddMonths(_this, value);
 
     [Compiler(typeof(DateOnly), "AddDays")]
     public static SqlExpression DateOnlyAddDays(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>

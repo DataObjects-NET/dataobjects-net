@@ -47,6 +47,10 @@ namespace Xtensive.Sql
     DateTimeOffsetPlusInterval,
     DateTimeOffsetMinusInterval,
     DateTimeOffsetMinusDateTimeOffset,
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    TimePlusInterval,
+    TimeMinusTime,
+#endif
     DeclareCursor,
     DefaultValue,
     Delete,
@@ -113,6 +117,5 @@ namespace Xtensive.Sql
     While,
     Fragment,
     Metadata,
-    DateMinusDate,
   }
 }
