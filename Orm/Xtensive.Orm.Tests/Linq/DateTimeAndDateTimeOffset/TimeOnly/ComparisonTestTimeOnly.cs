@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 
         RunWrongTest<SingleTimeOnlyEntity>(s, c => c.TimeOnly > FirstTimeOnly);
         RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly > FirstMillisecondTimeOnly);
-        RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly < FirstMillisecondTimeOnly.AddMinutes(3));
+        RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly < FirstMillisecondTimeOnly.AddMinutes(-3));
       });
     }
   }

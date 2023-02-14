@@ -11,14 +11,14 @@ using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 {
-  public class DateOnlyToIsoStringTest : DateTimeBaseTest
+  public class DateOnlyToStringTest : DateTimeBaseTest
   {
     [Test]
-    public void ToIsoStringTest()
+    public void ToStringTest()
     {
       ExecuteInsideSession((s) => {
-        RunTest<SingleDateOnlyEntity>(s, c => c.DateOnly.ToString("s") == FirstDateOnly.ToString("s"));
-        RunWrongTest<SingleDateOnlyEntity>(s, c => c.DateOnly.ToString("s") == FirstDateOnly.AddDays(1).ToString("s"));
+        RunTest<SingleDateOnlyEntity>(s, c => c.DateOnly.ToString("o") == FirstDateOnly.ToString("o"));
+        RunWrongTest<SingleDateOnlyEntity>(s, c => c.DateOnly.ToString("o") == FirstDateOnly.AddDays(1).ToString("o"));
       });
     }
   }
