@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -94,6 +94,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimePlusInterval:
+          TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.TimeMinusTime:
+          TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+#endif
         default:
           base.Visit(node);
           return;
@@ -137,13 +145,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
+
       switch (node.FunctionType) {
         case SqlFunctionType.Truncate:
-          var argument = node.Arguments[0];
-          SqlDml.FunctionCall("TRUNCATE", argument, SqlDml.Literal(0)).AcceptVisitor(this);
+          SqlDml.FunctionCall("TRUNCATE", arguments[0], SqlDml.Literal(0)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Concat:
-          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
+          Visit(SqlDml.Concat(arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
@@ -157,44 +166,75 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.Rand)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Square:
-          SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
+          SqlDml.Power(arguments[0], 2).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
-          Visit(CastToLong(node.Arguments[0]));
+          Visit(CastToLong(arguments[0]));
           return;
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(DateTimeAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateTimeAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
-          Visit(DateTimeAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateTimeAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateTimeAddDay(DateTimeAddMonth(DateTimeAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateAddYears:
+          Visit(DateAddYear(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddMonths:
+          Visit(DateAddMonth(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddDays:
+          Visit(DateAddDay(arguments[0], arguments[1]));
+          return;
         case SqlFunctionType.DateConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
+          return;
+        case SqlFunctionType.TimeAddHours:
+          Visit(SqlDml.FunctionCall("TIME", SqlDml.FunctionCall(
+            "DATE_ADD",
+            SqlDml.Literal(new DateTime(2001, 1, 1)),
+            SqlDml.RawConcat(
+              SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.FunctionCall("TIME_TO_SEC", arguments[0]) + arguments[1] * 3600),
+              SqlDml.Native("SECOND")))));
+          return;
+        case SqlFunctionType.TimeAddMinutes:
+          Visit(SqlDml.FunctionCall("TIME",
+            SqlDml.FunctionCall("DATE_ADD",
+              SqlDml.Literal(new DateTime(2001, 1, 1)),
+              SqlDml.RawConcat(
+                SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.FunctionCall("TIME_TO_SEC", arguments[0]) + arguments[1] * 60),
+                SqlDml.Native("SECOND")))));
           return;
         case SqlFunctionType.TimeConstruct:
           Visit(SqlDml.FunctionCall("TIME", TimeAddMillisecond(TimeAddSecond(TimeAddMinute(TimeAddHour(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            node.Arguments[0]),
-            node.Arguments[1]),
-            node.Arguments[2]),
-            node.Arguments[3])));
+            arguments[0]),
+            arguments[1]),
+            arguments[2]),
+            arguments[3])));
+          return;
+        case SqlFunctionType.DateToString:
+          Visit(DateToString(arguments[0]));
+          return;
+        case SqlFunctionType.TimeToString:
+          Visit(TimeToString(arguments[0]));
           return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
-          Visit(DateTimeToStringIso(node.Arguments[0]));
+          Visit(DateTimeToStringIso(arguments[0]));
           return;
       }
 
@@ -204,7 +244,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 #if NET6_0_OR_GREATER //DO_DATEONLY
     public override void Visit(SqlPlaceholder node)
     {
-      if(node.Id is Xtensive.Orm.Providers.QueryParameterBinding qpb && qpb.TypeMapping.Type==typeof(TimeOnly)) {
+      if (node.Id is Xtensive.Orm.Providers.QueryParameterBinding qpb && qpb.TypeMapping.Type == typeof(TimeOnly)) {
         _ = context.Output.Append("TIME(");
         base.Visit(node);
         _ = context.Output.Append(")");
@@ -263,51 +303,81 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
+      SqlDml.Modulo(
+        NanosecondsPerDay + CastToDecimal(SqlDml.FunctionCall("TIME_TO_SEC", time1) - SqlDml.FunctionCall("TIME_TO_SEC", time2), 18, 0) * NanosecondsPerSecond,
+        NanosecondsPerDay);
+
+    protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+    
+      SqlDml.FunctionCall("TIME",
+        SqlDml.FunctionCall(
+          "DATE_ADD",
+          SqlDml.Literal(new DateTime(2001, 1, 1)),
+            SqlDml.RawConcat(
+              SqlDml.RawConcat(SqlDml.Native("INTERVAL "),
+                SqlDml.FunctionCall("TIME_TO_SEC", time) + interval / NanosecondsPerSecond),
+              SqlDml.Native("SECOND"))));
+#endif
+
     #region Static helpers
 
-    private static SqlCast CastToLong(SqlExpression arg) => SqlDml.Cast(arg, SqlType.Int64);
+    protected static SqlCast CastToLong(SqlExpression arg) => SqlDml.Cast(arg, SqlType.Int64);
 
-    private static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale) =>
+    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale) =>
       SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
 
-    private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2) =>
+    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2) =>
       SqlDml.FunctionCall("DATEDIFF", date1, date2);
 
-    private static SqlUserFunctionCall DateTimeDiffMicrosecond(SqlExpression datetime1, SqlExpression datetime2) =>
+    protected static SqlUserFunctionCall DateTimeDiffMicrosecond(SqlExpression datetime1, SqlExpression datetime2) =>
       SqlDml.FunctionCall("TIMESTAMPDIFF", SqlDml.Native("MICROSECOND"), datetime1, datetime2);
 
-    private static SqlUserFunctionCall DateTimeAddYear(SqlExpression datetime, SqlExpression years) =>
+    protected static SqlUserFunctionCall DateTimeDiffSecond(SqlExpression datetime1, SqlExpression datetime2) =>
+      SqlDml.FunctionCall("TIMESTAMPDIFF", SqlDml.Native("SECOND"), datetime1, datetime2);
+
+    protected static SqlUserFunctionCall DateTimeAddYear(SqlExpression datetime, SqlExpression years) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("YEAR"), years, datetime);
 
-    private static SqlUserFunctionCall DateTimeAddMonth(SqlExpression datetime, SqlExpression months) =>
+    protected static SqlUserFunctionCall DateTimeAddMonth(SqlExpression datetime, SqlExpression months) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MONTH"), months, datetime);
 
-    private static SqlUserFunctionCall DateTimeAddDay(SqlExpression datetime, SqlExpression days) =>
+    protected static SqlUserFunctionCall DateTimeAddDay(SqlExpression datetime, SqlExpression days) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("DAY"), days, datetime);
 
-    private static SqlUserFunctionCall DateTimeAddMicrosecond(SqlExpression datetime, SqlExpression microseconds) =>
+    protected static SqlUserFunctionCall DateTimeAddHour(SqlExpression datetime, SqlExpression days) =>
+      SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("HOUR"), days, datetime);
+
+    protected static SqlUserFunctionCall DateTimeAddMicrosecond(SqlExpression datetime, SqlExpression microseconds) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MICROSECOND"), microseconds, datetime);
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
-    private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
+    protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(years, SqlDml.Native("YEAR"))));
 
-    private static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months) =>
+    protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(months, SqlDml.Native("MONTH"))));
-    private static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days) =>
+    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(days, SqlDml.Native("DAY"))));
 
-    private static SqlUserFunctionCall TimeAddHour(SqlExpression time, SqlExpression hours) =>
+    protected static SqlUserFunctionCall TimeAddHour(SqlExpression time, SqlExpression hours) =>
       SqlDml.FunctionCall("DATE_ADD", time, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(hours, SqlDml.Native("HOUR"))));
 
-    private static SqlUserFunctionCall TimeAddMinute(SqlExpression time, SqlExpression minutes) =>
+    protected static SqlUserFunctionCall TimeAddMinute(SqlExpression time, SqlExpression minutes) =>
       SqlDml.FunctionCall("DATE_ADD", time, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(minutes, SqlDml.Native("MINUTE"))));
 
-    private static SqlUserFunctionCall TimeAddSecond(SqlExpression time, SqlExpression seconds) =>
+    protected static SqlUserFunctionCall TimeAddSecond(SqlExpression time, SqlExpression seconds) =>
       SqlDml.FunctionCall("DATE_ADD", time, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(seconds, SqlDml.Native("SECOND"))));
 
-    private static SqlUserFunctionCall TimeAddMillisecond(SqlExpression time, SqlExpression millisecond) =>
+    protected static SqlUserFunctionCall TimeAddMillisecond(SqlExpression time, SqlExpression millisecond) =>
       SqlDml.FunctionCall("DATE_ADD", time, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(millisecond * 1000, SqlDml.Native("MICROSECOND"))));
+
+    protected static SqlUserFunctionCall DateToString(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%Y-%m-%d");
+
+    protected static SqlUserFunctionCall TimeToString(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%H:%i:%s.%f0");
 #endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>

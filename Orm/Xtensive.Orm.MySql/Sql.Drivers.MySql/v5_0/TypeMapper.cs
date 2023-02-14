@@ -129,19 +129,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
-#if NET6_0_OR_GREATER
-    public override object ReadDateOnly(DbDataReader reader, int index)
-    {
-      return reader.GetFieldValue<DateOnly>(index);
-    }
-
-    public override object ReadTimeOnly(DbDataReader reader, int index)
-    {
-      return reader.GetFieldValue<TimeOnly>(index);
-    }
-
-#endif
-
     // Constructors
 
     [SecuritySafeCritical]

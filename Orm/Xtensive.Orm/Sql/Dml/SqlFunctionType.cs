@@ -68,8 +68,10 @@ namespace Xtensive.Sql.Dml
     DateAddYears,
     DateAddMonths,
     DateAddDays,
+    DateToString,
     TimeAddHours,
     TimeAddMinutes,
+    TimeToString,
 #endif
     DateTimeTruncate,
     DateTimeToStringIso,

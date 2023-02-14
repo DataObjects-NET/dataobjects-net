@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -176,6 +176,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.DateTimeMinusDateTime:
           DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimePlusInterval:
+          TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.TimeMinusTime:
+          TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+#endif
         case SqlNodeType.Modulo:
           Visit(SqlDml.FunctionCall(translator.TranslateToString(SqlNodeType.Modulo), node.Left, node.Right));
           return;
@@ -217,11 +225,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
-        case SqlFunctionType.DateAddDays:
-          Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
-          return;
-#endif
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
             node.Arguments[0] - 2001),
@@ -229,20 +232,40 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             node.Arguments[2] - 1));
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateAddYears:
+          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateAddMonths:
+          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateAddDays:
+          Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
+          return;
         case SqlFunctionType.DateConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
             node.Arguments[0] - 2001),
             node.Arguments[1] - 1),
             node.Arguments[2] - 1));
           return;
-        case SqlFunctionType.TimeConstruct: {
+        case SqlFunctionType.TimeAddHours:
+          Visit(DateAddHour(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.TimeAddMinutes:
+          Visit(DateAddMinute(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.TimeConstruct:
           Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
             node.Arguments[0]),
             node.Arguments[1]),
             node.Arguments[2]),
             node.Arguments[3]));
           return;
-        }
+        case SqlFunctionType.DateToString:
+          Visit(DateToString(node.Arguments[0]));
+          return;
+        case SqlFunctionType.TimeToString:
+          Visit(TimeToString(node.Arguments[0]));
+          return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(node.Arguments[0]));
@@ -262,7 +285,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       translator.Translate(context, node, NodeSection.Exit);
     }
 
-#region Static helpers
+    #region Static helpers
 
     protected static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
@@ -272,12 +295,24 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           NanosecondsPerMillisecond);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    protected static SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2)
+    {
+      return SqlDml.Modulo(
+        NanosecondsPerDay + CastToLong(DateDiffMillisecond(time2, time1)) * NanosecondsPerMillisecond,
+        NanosecondsPerDay);
+    }
+#endif
+
     protected static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
       return DateAddMillisecond(
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
+
+    protected static SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+      DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
 
     protected static SqlCast CastToLong(SqlExpression arg) => SqlDml.Cast(arg, SqlType.Int64);
 
@@ -319,6 +354,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected static SqlUserFunctionCall BitNot(SqlExpression operand) =>
       SqlDml.FunctionCall("BIN_NOT", operand);
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    protected static SqlFunctionCall DateToString(SqlExpression date)
+    {
+      return SqlDml.Substring(date, 0, 10);;
+    }
+
+    protected static SqlConcat TimeToString(SqlExpression time)
+    {
+      return SqlDml.Concat(SqlDml.Substring(time, 0, 12), SqlDml.Literal("0000"));
+    }
+#endif
 
     protected static SqlConcat DateTimeToStringIso(SqlExpression dateTime)
     {

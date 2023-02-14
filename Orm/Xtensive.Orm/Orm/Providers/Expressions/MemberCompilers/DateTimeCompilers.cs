@@ -284,11 +284,8 @@ namespace Xtensive.Orm.Providers
     {
       var stringValue = value as SqlLiteral<string>;
 
-      if (stringValue == null)
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
-
-      if (!stringValue.Value.Equals("s"))
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      if (stringValue == null || !stringValue.Value.Equals("s"))
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported);
 
       return SqlDml.DateTimeToStringIso(_this);
     }

@@ -205,8 +205,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.Modulo: _ = output.Append("%"); break;
         case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
         case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimePlusInterval: _ = output.Append("+"); break;
+#endif
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         default: base.Translate(output, type); break;
       };
@@ -874,7 +880,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         base.Translate(output, part);
       }
     }
-
 #endif
 
     /// <inheritdoc/>

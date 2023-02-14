@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -122,6 +122,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.Modulo:
           _ = output.Append("MOD"); break;
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Except:
         case SqlNodeType.Intersect:

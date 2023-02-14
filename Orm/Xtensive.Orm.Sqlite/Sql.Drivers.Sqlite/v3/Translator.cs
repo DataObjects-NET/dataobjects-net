@@ -516,12 +516,18 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       switch (type) {
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+#endif
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-");
           break;
         case SqlNodeType.Overlaps:

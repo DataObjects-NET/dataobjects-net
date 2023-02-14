@@ -130,22 +130,18 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(DateOnly), "ToString")]
     public static SqlExpression DateOnlyToStringIso(SqlExpression _this)
     {
-      throw new NotSupportedException(Strings.ExDateTimeToStringMethodIsNotSupported);
+      throw new NotSupportedException(Strings.ExDateOnlyToStringMethodIsNotSupported);
     }
 
     [Compiler(typeof(DateOnly), "ToString")]
     public static SqlExpression DateOnlyToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
     {
-      throw new NotImplementedException();
       var stringValue = value as SqlLiteral<string>;
 
-      if (stringValue == null)
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      if (stringValue == null || !stringValue.Value.Equals("o", StringComparison.OrdinalIgnoreCase))
+        throw new NotSupportedException(Strings.ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported);
 
-      if (!stringValue.Value.Equals("s"))
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
-
-      return SqlDml.DateTimeToStringIso(_this);
+      return SqlDml.DateToString(_this);
     }
   }
 #endif

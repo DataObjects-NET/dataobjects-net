@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -111,6 +111,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
 #if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateAddYears:
+        case SqlFunctionType.DateAddMonths:
+        case SqlFunctionType.DateAddDays:
         case SqlFunctionType.DateConstruct:
         case SqlFunctionType.TimeConstruct:
 #endif
@@ -166,10 +169,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
        switch (type) {
         case SqlNodeType.Concat: _ = output.Append(","); break;
-        case SqlNodeType.DateTimePlusInterval: _ = output.Append("+");
+        case SqlNodeType.DateTimePlusInterval:
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimePlusInterval:
+#endif
+          _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Equals: _ = output.Append("="); break;
         case SqlNodeType.NotEquals: _ = output.Append("<>"); break;

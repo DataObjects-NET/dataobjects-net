@@ -727,6 +727,18 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
       return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
     }
+
+    public static SqlFunctionCall DateToString(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      return new SqlFunctionCall(SqlFunctionType.DateToString, expression);
+    }
+
+    public static SqlFunctionCall TimeToString(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      return new SqlFunctionCall(SqlFunctionType.TimeToString, expression);
+    }
 #endif
 
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)

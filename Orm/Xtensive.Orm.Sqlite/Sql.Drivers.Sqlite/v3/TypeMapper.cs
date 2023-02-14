@@ -38,13 +38,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override object ReadDateOnly(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
-      return DateOnly.ParseExact(value, DateTimeOffsetFormat, CultureInfo.InvariantCulture);
+      return DateOnly.ParseExact(value, DateFormat, CultureInfo.InvariantCulture);
     }
 
     public override object ReadTimeOnly(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
-      return TimeOnly.ParseExact(value, DateTimeOffsetFormat, CultureInfo.InvariantCulture);
+      return TimeOnly.ParseExact(value, TimeFormat, CultureInfo.InvariantCulture);
     }
 #endif
 

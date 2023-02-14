@@ -16,19 +16,22 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Compiler : SqlCompiler
   {
+    private const long NanosecondsPerMillisecond = 1000000L;
+    private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    private const string DateFormat = "%Y-%m-%d";
+    private const string TimeFormat = "%H:%M:%f";
+    private const string TimeToStringFormat = "%H:%M:%f0000";
+#endif
+    private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
+    private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
+    private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
+
     private static readonly long NanosecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long NanosecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long NanosecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
     private static readonly int StartOffsetIndex = DateTimeOffsetExampleString.IndexOf('+');
-
-    private const long NanosecondsPerMillisecond = 1000000L;
-    private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
-    private const string DateFormat = "%Y-%m-%d";
-    private const string TimeFormat = "%H:%M:%f";
-    private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
-    private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
-    private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
@@ -75,6 +78,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             DateTimeOffsetExtractOffsetAsString(node.Left))
             .AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlNodeType.TimePlusInterval:
+          TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.TimeMinusTime:
+          TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+#endif
         default:
           base.Visit(node);
           return;
@@ -186,6 +197,18 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             arguments[2] - 1).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateAddYears:
+          DateAddYear(arguments[0], arguments[1]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateAddMonths:
+          DateAddMonth(arguments[0], arguments[1]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateAddDays:
+          DateAddDay(arguments[0], arguments[1]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToString:
+          DateToString(node.Arguments[0]).AcceptVisitor(this);
+          return;
         case SqlFunctionType.DateConstruct:
           DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
             arguments[0] - 2001),
@@ -197,6 +220,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             arguments[0]),
             arguments[1]),
             arguments[2], arguments[3]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeAddHours:
+          TimeAddHours(arguments[0], arguments[1]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeAddMinutes:
+          TimeAddMinutes(arguments[0], arguments[1]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToString:
+          TimeToString(node.Arguments[0]).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
@@ -346,6 +378,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       base.Visit(node);
     }
 
+#if NET6_0_OR_GREATER //DO_DATEONLY
     private void VisitTime(SqlExtract node)
     {
       if (node.IsMillisecondExtraction) {
@@ -354,6 +387,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       base.Visit(node);
     }
+#endif
 
     private void VisitDateTimeOffset(SqlExtract node)
     {
@@ -380,7 +414,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           (((DateTimeOffsetExtractOffsetAsTotalNanoseconds(node.Operand)) % NanosecondsPerHour) / (60 * NanosecondsPerSecond)).AcceptVisitor(this);
           return;
       }
-      Visit(SqlDml.Extract(ConvertDateTimeOffsetPartToDateTimePart(node.DateTimeOffsetPart), DateTimeOffsetExtractDateTimeAsString(node.Operand)));
+      Visit(
+        SqlDml.Extract(
+          ConvertDateTimeOffsetPartToDateTimePart(node.DateTimeOffsetPart),
+          DateTimeOffsetExtractDateTimeAsString(node.Operand)));
     }
 
     private static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval) =>
@@ -460,25 +497,53 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static SqlExpression DateAddDay(SqlExpression date, SqlExpression days) =>
       SqlDml.FunctionCall("STRFTIME", DateFormat, date, SqlDml.Concat(days, " ", "DAYS"));
 
-    private static SqlExpression TimeAddHours(SqlExpression date, SqlExpression seconds) =>
-      SqlDml.FunctionCall("STRFTIME", TimeFormat, date, SqlDml.Concat(seconds, " ", "HOURS"));
+    private static SqlExpression TimeAddHours(SqlExpression time, SqlExpression seconds) =>
+      SqlDml.FunctionCall("STRFTIME", TimeFormat, time, SqlDml.Concat(seconds, " ", "HOURS"));
 
-    private static SqlExpression TimeAddMinutes(SqlExpression date, SqlExpression seconds) =>
-      SqlDml.FunctionCall("STRFTIME", TimeFormat, date, SqlDml.Concat(seconds, " ", "MINUTES"));
+    private static SqlExpression TimeAddMinutes(SqlExpression time, SqlExpression seconds) =>
+      SqlDml.FunctionCall("STRFTIME", TimeFormat, time, SqlDml.Concat(seconds, " ", "MINUTES"));
 
-    private static SqlExpression TimeAddSeconds(SqlExpression date, SqlExpression seconds, SqlExpression milliseconds) =>
-      SqlDml.FunctionCall("STRFTIME", TimeFormat, date, SqlDml.Concat(seconds, ".", milliseconds, " ", "SECONDS"));
+    private static SqlExpression TimeAddSeconds(SqlExpression time, SqlExpression seconds, SqlExpression milliseconds) =>
+      SqlDml.FunctionCall("STRFTIME", TimeFormat, time, SqlDml.Concat(seconds, ".", milliseconds, " ", "SECONDS"));
+    private static SqlExpression TimeAddSeconds(SqlExpression time, SqlExpression seconds) =>
+      SqlDml.FunctionCall("STRFTIME", TimeFormat, time, SqlDml.Concat(seconds, " ", "SECONDS"));
+
+    private static SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+      TimeAddSeconds(time, interval / Convert.ToDouble(NanosecondsPerSecond));
+
+    private static SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2)
+    {
+      var hoursInSecs1 = SqlDml.Extract(SqlTimePart.Hour, time1) * 3600;
+      var hoursInSecs2 = SqlDml.Extract(SqlTimePart.Hour, time2) * 3600;
+
+      var minutesInSecs1 = SqlDml.Extract(SqlTimePart.Minute, time1) * 60;
+      var minutesInSecs2 = SqlDml.Extract(SqlTimePart.Minute, time2) * 60;
+
+      var seconds1 = SqlDml.FunctionCall("STRFTIME", "%f", time1);
+      var seconds2 = SqlDml.FunctionCall("STRFTIME", "%f", time2);
+
+      var difference = ((hoursInSecs1 + minutesInSecs1 + seconds1) * NanosecondsPerSecond)
+        - ((hoursInSecs2 + minutesInSecs2 + seconds2) * NanosecondsPerSecond);
+
+      return SqlDml.Modulo(NanosecondsPerDay + difference, NanosecondsPerDay);
+    }
+
+    private static SqlExpression DateToString(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("STRFTIME", DateFormat, dateTime);
+
+    private static SqlExpression TimeToString(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("STRFTIME", TimeToStringFormat, dateTime);
 #endif
 
     private static SqlExpression DateOrTimeGetMilliseconds(SqlExpression date) =>
       CastToLong(SqlDml.FunctionCall("STRFTIME", "%f", date) * MillisecondsPerSecond) -
         CastToLong(SqlDml.FunctionCall("STRFTIME", "%S", date) * MillisecondsPerSecond);
 
-    private static SqlExpression DateGetTotalSeconds(SqlExpression date) =>
+    private static SqlExpression DateOrTimeGetTotalSeconds(SqlExpression date) =>
       SqlDml.FunctionCall("STRFTIME", "%s", date);
 
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2) =>
-      (((DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond)
+      (((DateOrTimeGetTotalSeconds(date1) - DateOrTimeGetTotalSeconds(date2)) * MillisecondsPerSecond)
         + DateOrTimeGetMilliseconds(date1) - DateOrTimeGetMilliseconds(date2)) * NanosecondsPerMillisecond;
     
 
