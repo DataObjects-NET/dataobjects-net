@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Immutable;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -19,7 +18,6 @@ using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
-using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Model
 {
