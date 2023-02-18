@@ -25,7 +25,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Locks the instance recursively.
     /// </summary>
-    void Lock();
+    void Lock() => Lock(true);
 
     /// <summary>
     /// Locks the instance and (possibly) all dependent objects.

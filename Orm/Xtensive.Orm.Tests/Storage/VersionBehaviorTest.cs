@@ -5,6 +5,7 @@
 // Created:    2010.08.05
 
 using System;
+using System.Linq;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
@@ -186,8 +187,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(config);
       var defaultTypeInfo = domain.Model.Types[typeof(Default)];
       var defaultInheritorTypeInfo = domain.Model.Types[typeof(DefaultInheritor)];
-      Assert.AreEqual(3, defaultTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(4, defaultInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(3, defaultTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(4, defaultInheritorTypeInfo.GetVersionColumns().Count());
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -256,10 +257,10 @@ namespace Xtensive.Orm.Tests.Storage
       var anotherManualTypeInfo = domain.Model.Types[typeof(AnotherManual)];
       var manualInheritorTypeInfo = domain.Model.Types[typeof(ManualInheritor)];
       var anotherManualInheritorTypeInfo = domain.Model.Types[typeof(AnotherManualInheritor)];
-      Assert.AreEqual(1, manualTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, anotherManualTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(1, manualInheritorTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, anotherManualInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(1, manualTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(2, anotherManualTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(1, manualInheritorTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(2, anotherManualInheritorTypeInfo.GetVersionColumns().Count());
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -322,8 +323,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(config);
       var autoTypeInfo = domain.Model.Types[typeof(Auto)];
       var autoInheritorTypeInfo = domain.Model.Types[typeof(AutoInheritor)];
-      Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count());
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -400,9 +401,9 @@ namespace Xtensive.Orm.Tests.Storage
       var skipTypeInfo = domain.Model.Types[typeof(Skip)];
       var hasVersionTypeInfo = domain.Model.Types[typeof(HasVersion)];
       var hasSkipVersionTypeInfo = domain.Model.Types[typeof(HasSkipVersion)];
-      Assert.AreEqual(2, skipTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, hasVersionTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, hasSkipVersionTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(2, skipTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(2, hasVersionTypeInfo.GetVersionColumns().Count());
+      Assert.AreEqual(2, hasSkipVersionTypeInfo.GetVersionColumns().Count());
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();

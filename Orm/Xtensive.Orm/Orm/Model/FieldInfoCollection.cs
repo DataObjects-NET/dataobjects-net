@@ -24,28 +24,17 @@ namespace Xtensive.Orm.Model
     internal new static readonly FieldInfoCollection Empty;
 
     /// <inheritdoc/>
-    public ICollection<FieldInfo> Find(FieldAttributes criteria)
-    {
-      return Find(criteria, MatchType.Partial);
-    }
+    public IEnumerable<FieldInfo> Find(FieldAttributes criteria) => Find(criteria, MatchType.Partial);
 
     /// <inheritdoc/>
-    public ICollection<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
-    {
-      // We don't have any instance that has attributes == FieldAttributes.None
-      if (criteria == FieldAttributes.None)
-        return Array.Empty<FieldInfo>();
-
-      switch (matchType) {
-        case MatchType.Partial:
-          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
-        case MatchType.Full:
-          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
-        case MatchType.None:
-        default:
-          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
-      }
-    }
+    public IEnumerable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType) =>
+      criteria == FieldAttributes.None
+        ? Array.Empty<FieldInfo>()    // We don't have any instance that has attributes == FieldAttributes.None
+        : matchType switch {
+          MatchType.Partial => this.Where(f => (f.Attributes & criteria) > 0),
+          MatchType.Full => this.Where(f => (f.Attributes & criteria) == criteria),
+          _ => this.Where(f => (f.Attributes & criteria) == 0)
+        };
 
     /// <inheritdoc/>
     public override void UpdateState()
