@@ -653,9 +653,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.Int64);
       }
 #if NET6_0_OR_GREATER //DO_DATEONLY
-      if (typeName.Equals("TIME", StringComparison.Ordinal)) {
-        var time_precision = (dataTypeName.Length > 4) ? int.Parse(dataTypeName[5].ToString()) : 0;
-        return new SqlValueType(SqlType.Time, precision);
+      if (typeName.Equals("TIME", StringComparison.Ordinal) || typeName.StartsWith("TIME(")) {
+        return new SqlValueType(SqlType.Time);
       }
       else if (typeName.StartsWith("TIME", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too
