@@ -1214,11 +1214,12 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlTruncateTable node)
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
     {
-      return "TRUNCATE TABLE " + Translate(context, node.Table);
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
     }
-    
+
     /// <summary>
     /// Translates <see cref="SqlDropTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
@@ -1254,12 +1255,6 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlDropTable node)
-    {
-      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
-    }
-
-    public virtual string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     /// <summary>
     /// Translates <see cref="SqlFetch"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
@@ -1969,7 +1964,7 @@ namespace Xtensive.Sql.Compiler
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
 
-      
+
       if (node.Schema.IsNamesReadingDenied) {
         // if schema is shared we use placeholders to translate
         // schema node in PostCompiler

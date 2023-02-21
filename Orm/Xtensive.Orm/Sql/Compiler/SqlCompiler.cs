@@ -1109,10 +1109,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDropView node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlTruncateTable node)
-    {
-      context.Output.AppendText(translator.Translate(context, node));
-    }
+    public virtual void Visit(SqlTruncateTable node) => translator.Translate(context, node);
 
     /// <summary>
     /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
@@ -1260,7 +1257,7 @@ namespace Xtensive.Sql.Compiler
         var columns = node.Values.Columns;
         if (columns.Count > 0) {
           using (context.EnterCollectionScope()) {
-            foreach (var item in cplumns) {
+            foreach (var item in columns) {
               AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
@@ -1282,13 +1279,16 @@ namespace Xtensive.Sql.Compiler
             var rowCount = node.Values.ValuesByColumn(columns.First()).Count;
             for (int i = 0; i < rowCount; i++) {
               if (i > 0) {
-                context.Output.AppendText(translator.Translate(context, node, InsertSection.NewRow));
+                translator.Translate(context, node, InsertSection.NewRow);
               }
               using var _ = context.EnterCollectionScope();
+              bool firstColumn = true;
               foreach (var column in columns) {
-                if (!context.IsEmpty) {
-                  context.Output.AppendDelimiter(translator.ColumnDelimiter);
+                if (!firstColumn) {
+                  var __ = context.Output.Append(translator.ColumnDelimiter);
+                  AppendSpaceIfNecessary();
                 }
+                firstColumn = false;
                 var item = node.Values.ValuesByColumn(column)[i];
                 item.AcceptVisitor(this);
               }
