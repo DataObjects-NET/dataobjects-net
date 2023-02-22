@@ -55,8 +55,10 @@ namespace Xtensive.Sql.Info
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
       EnsureNotLocked();
-      if (!IsLocked)
-        sqlTypes.Add(sqlType, dataTypeInfo);
+      sqlTypes.Add(sqlType, dataTypeInfo);
+      foreach(var nativeType in dataTypeInfo.NativeTypes) {
+        nativeTypes.Add(nativeType, dataTypeInfo);
+      }
     }
 
     /// <summary>
@@ -144,8 +146,8 @@ namespace Xtensive.Sql.Info
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
     /// <summary>
-    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.,
-    /// Storage size is 8 to 10 bytes.
+    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
+    /// Can have various ranges in different RDBMSs.
     /// </summary>
     public DataTypeInfo DateOnly { get; set; }
 
