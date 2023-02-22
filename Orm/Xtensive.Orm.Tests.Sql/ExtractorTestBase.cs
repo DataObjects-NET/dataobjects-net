@@ -61,15 +61,6 @@ namespace Xtensive.Orm.Tests.Sql
       }
 
       base.TestFixtureTearDown();
-
-      string BuildCleanUpScrcipt()
-      {
-        var sb = new StringBuilder(cleanups.Select(s => s.Length).Sum());
-        foreach (var s in cleanups) {
-          _ = sb.AppendLine(s);
-        }
-        return sb.ToString();
-      }
     }
 
     [Test]
@@ -78,10 +69,10 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(ExtractDefaultSchema(), Is.Not.Null);
 
       var catalog = ExtractCatalog();
-      if (StorageProviderInfo.Instance.CheckAllFeaturesNotSupported(Providers.ProviderFeatures.Multischema))
+      if (StorageProviderInfo.Instance.CheckAllFeaturesNotSupported(Providers.ProviderFeatures.Multischema)) {
         Assert.That(schemasToCheck.All(s => catalog.Schemas[s] != null), Is.True);
+      }
     }
-
 
     protected abstract string GetTypesExtractionPrepareScript(string tableName);
     protected abstract string GetTypesExtractionCleanUpScript(string tableName);
