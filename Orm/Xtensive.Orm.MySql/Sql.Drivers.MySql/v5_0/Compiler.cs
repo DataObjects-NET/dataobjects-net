@@ -232,6 +232,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.TimeToString:
           Visit(TimeToString(arguments[0]));
           return;
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(arguments[0]));
@@ -244,7 +256,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 #if NET6_0_OR_GREATER //DO_DATEONLY
     public override void Visit(SqlPlaceholder node)
     {
-      if (node.Id is Xtensive.Orm.Providers.QueryParameterBinding qpb && qpb.TypeMapping.Type == typeof(TimeOnly)) {
+      if (node.Id is Orm.Providers.QueryParameterBinding qpb
+        && qpb.BindingType == Orm.Providers.QueryParameterBindingType.Regular
+        && qpb.TypeMapping.Type == typeof(TimeOnly)) {
         _ = context.Output.Append("TIME(");
         base.Visit(node);
         _ = context.Output.Append(")");
@@ -310,7 +324,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         NanosecondsPerDay);
 
     protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
-    
       SqlDml.FunctionCall("TIME",
         SqlDml.FunctionCall(
           "DATE_ADD",
@@ -358,6 +371,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(months, SqlDml.Native("MONTH"))));
+
     protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(days, SqlDml.Native("DAY"))));
 
@@ -378,6 +392,27 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected static SqlUserFunctionCall TimeToString(SqlExpression dateTime) =>
       SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%H:%i:%s.%f0");
+
+    private static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    private static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    private static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    // can't convert via cast, because mysql shots to its head and creates
+    // value that it can't read later. This mimics conversion that occurs
+    // in newer versions (5.6+) and use current date as a source of year,
+    // month and day values :-)
+    private static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.FunctionCall("DATE_ADD",
+        SqlDml.Literal(DateTime.Now.Date),
+        SqlDml.RawConcat(
+          SqlDml.RawConcat(SqlDml.Native("INTERVAL "),
+          SqlDml.FunctionCall("TIME_TO_SEC", time)),
+          SqlDml.Native("SECOND")));
 #endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>

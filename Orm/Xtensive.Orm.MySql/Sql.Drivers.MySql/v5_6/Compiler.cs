@@ -44,6 +44,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
           Visit(MakeTime(arguments[0], arguments[1], arguments[2], arguments[3]));
           return;
         }
+        case SqlFunctionType.TimeToDateTime:
+          Visit(SqlDml.Cast(arguments[0], SqlType.DateTime));
+          return;
         default:
           base.Visit(node);
           return;

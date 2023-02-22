@@ -205,47 +205,49 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
+
       switch (node.FunctionType) {
         case SqlFunctionType.Concat:
-          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
+          Visit(SqlDml.Concat(arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.DateTimeTruncate:
-          Visit(SqlDml.Cast(node.Arguments[0], new SqlValueType("Date")));
+          Visit(SqlDml.Cast(arguments[0], new SqlValueType("Date")));
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
-          Visit(CastToLong(node.Arguments[0]));
+          Visit(CastToLong(arguments[0]));
           return;
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
-          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
 #if NET6_0_OR_GREATER //DO_DATEONLY
         case SqlFunctionType.DateAddYears:
-          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateAddMonths:
-          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateAddDays:
-          Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddDay(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
         case SqlFunctionType.TimeAddHours:
           Visit(DateAddHour(node.Arguments[0], node.Arguments[1]));
@@ -255,20 +257,32 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           return;
         case SqlFunctionType.TimeConstruct:
           Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
-            node.Arguments[0]),
-            node.Arguments[1]),
-            node.Arguments[2]),
-            node.Arguments[3]));
+            arguments[0]),
+            arguments[1]),
+            arguments[2]),
+            arguments[3]));
           return;
         case SqlFunctionType.DateToString:
-          Visit(DateToString(node.Arguments[0]));
+          Visit(DateToString(arguments[0]));
           return;
         case SqlFunctionType.TimeToString:
-          Visit(TimeToString(node.Arguments[0]));
+          Visit(TimeToString(arguments[0]));
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(arguments[0]).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
-          Visit(DateTimeToStringIso(node.Arguments[0]));
+          Visit(DateTimeToStringIso(arguments[0]));
           return;
       }
 
@@ -356,6 +370,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       SqlDml.FunctionCall("BIN_NOT", operand);
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
+    protected static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(time, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    protected static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
     protected static SqlFunctionCall DateToString(SqlExpression date)
     {
       return SqlDml.Substring(date, 0, 10);;

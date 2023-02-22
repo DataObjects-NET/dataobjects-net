@@ -212,7 +212,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
-      return new DateTimeOffset(nativeReader.GetOracleTimeStampTZ(index).Value, nativeReader.GetOracleTimeStampTZ(index).GetTimeZoneOffset());
+      var timeStampTZ = nativeReader.GetOracleTimeStampTZ(index);
+      return new DateTimeOffset(timeStampTZ.Value, timeStampTZ.GetTimeZoneOffset());
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

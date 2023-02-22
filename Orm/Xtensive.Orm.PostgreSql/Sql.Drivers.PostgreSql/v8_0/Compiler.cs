@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const string TimeFormat = "HH24:MI:SS.US0";
 #endif
 
-    private readonly static Type SqlPlaceholderType = typeof(SqlPlaceholder);
+    private static readonly Type SqlPlaceholderType = typeof(SqlPlaceholder);
 
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
@@ -30,6 +30,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static readonly SqlNative OneSecondInterval = SqlDml.Native("interval '1 second'");
 
     private static readonly SqlLiteral ReferenceDateTimeLiteral = SqlDml.Literal(new DateTime(2001, 1, 1));
+    private static readonly SqlLiteral EpochLiteral = SqlDml.Literal(new DateTime(1970, 1, 1));
 #if NET6_0_OR_GREATER //DO_DATEONLY
     private static readonly SqlLiteral ReferenceDateLiteral = SqlDml.Literal(new DateOnly(2001, 1, 1));
     private static readonly SqlLiteral ZeroTimeLiteral = SqlDml.Literal(new TimeOnly(0, 0, 0));
@@ -193,8 +194,37 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           ConstructDateTimeOffset(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeToDateTimeOffset:
-          SqlDml.Cast(node.Arguments[0], SqlType.DateTimeOffset).AcceptVisitor(this);
+          DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
+        case SqlFunctionType.DateTimeOffsetToDateTime:
+          DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToDate:
+          DateTimeOffsetToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTimeOffset:
+          DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToTime:
+          DateTimeOffsetToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTimeOffset:
+          TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+#endif
       }
       base.Visit(node);
     }
@@ -423,6 +453,38 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var intervalExpression = offsetInMinutes * OneMinuteInterval;
       return IntervalToIsoString(intervalExpression, true);
     }
+
+    private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.DateTimeOffset);
+
+    private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+#if NET6_0_OR_GREATER
+
+    private static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    private static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    private static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    private static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(EpochLiteral + time, SqlType.DateTime);
+
+    private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.Date);
+
+    private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTimeOffset);
+
+    private static SqlExpression DateTimeOffsetToTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.Time);
+
+    private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
+      SqlDml.Cast(EpochLiteral + time, SqlType.DateTimeOffset);
+#endif
 
     private string ZoneStringFromParts(int hours, int minutes) =>
       $"{(hours < 0 ? "-" : "+")}{Math.Abs(hours):00}:{Math.Abs(minutes):00}";

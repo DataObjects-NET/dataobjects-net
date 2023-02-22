@@ -132,6 +132,23 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         case SqlFunctionType.DateTimeToDateTimeOffset:
           DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
+        case SqlFunctionType.DateTimeOffsetToDateTime:
+          DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+#if NET6_0_OR_GREATER //DO_DATEONLY
+        case SqlFunctionType.DateToDateTimeOffset:
+          DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTimeOffset:
+          TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToTime:
+          DateTimeOffsetToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToDate:
+          DateTimeOffsetToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+#endif
       }
 
       base.Visit(node);
@@ -200,6 +217,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
           SqlDml.Native(OffsetPart),
           SqlDml.Native("SYSDATETIMEOFFSET()")));
 
+    private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
+      DateTimeToDateTimeOffset(SqlDml.Cast(date, SqlType.DateTime));
+
+    private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
+      DateTimeToDateTimeOffset(SqlDml.Cast(time, SqlType.DateTime));
+
+    private static SqlExpression DateTimeOffsetToTime(SqlExpression dateTimeOffset)=>
+      SqlDml.Cast(dateTimeOffset, SqlType.Time);
+
+    private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.Date);
+#endif
     #endregion
 
     // Constructors
@@ -210,3 +243,5 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     }
   }
 }
+
+

@@ -245,6 +245,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.TimeToString:
           Visit(TimeToString(arguments[0]));
           return;
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
 #endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(arguments[0]));
@@ -588,6 +600,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected static SqlUserFunctionCall DateToString(SqlExpression time) =>
       SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(10)"), time, SqlDml.Native("23"));
+
+    protected static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    protected static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    protected static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(time, SqlType.DateTime);
 #endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>

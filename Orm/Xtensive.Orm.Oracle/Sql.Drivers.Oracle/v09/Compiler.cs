@@ -37,7 +37,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     protected const string SecondIntervalPart = "SECOND";
 
     protected const string ToCharFunctionName = "TO_CHAR";
-    private const string NumToDSIntervalFunctionName = "NUMTODSINTERVAL";
+    protected const string NumToDSIntervalFunctionName = "NUMTODSINTERVAL";
+    protected const string ToDSIntervalFunctionName = "TO_DSINTERVAL";
+    protected const string TimeFormat = "HH24:MI:SS.FF6";
+
     private static readonly SqlExpression SundayNumber = SqlDml.Native(
       "TO_NUMBER(TO_CHAR(TIMESTAMP '2009-07-26 00:00:00.000', 'D'))");
     private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.000000'");
@@ -129,9 +132,38 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         case SqlFunctionType.DateTimeToDateTimeOffset:
           DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
+        case SqlFunctionType.DateTimeOffsetToDateTime:
+          DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
         case SqlFunctionType.DateTimeOffsetToUtcTime:
           DateTimeOffsetToUtcTime(node.Arguments[0]).AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToDate:
+          DateTimeOffsetToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToTime:
+          DateTimeOffsetToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTimeOffset:
+          DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTimeOffset:
+          TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+#endif
         default:
           base.Visit(node);
           return;
@@ -358,9 +390,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       var baseOp = (negateInterval) ? RefTimestamp + time - intervalToAdd
         : RefTimestamp + time + intervalToAdd;
-      var getTimeOnly = SqlDml.FunctionCall(ToCharFunctionName, baseOp, AnsiString("HH24:MI:SS.FF6"));
+      var getTimeOnly = SqlDml.FunctionCall(ToCharFunctionName, baseOp, AnsiString(TimeFormat));
       var pretendZeroDays = (SqlExpression) SqlDml.Concat(AnsiString("0 "), getTimeOnly);
-      var dsInterval = SqlDml.FunctionCall("TO_DSINTERVAL", pretendZeroDays);
+      var dsInterval = SqlDml.FunctionCall(ToDSIntervalFunctionName, pretendZeroDays);
       var castToCorrectInterval = SqlDml.Cast(dsInterval, SqlType.Time);
       return castToCorrectInterval;
     }
@@ -449,8 +481,58 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime) =>
       SqlDml.Cast(dateTime, SqlType.DateTimeOffset);
 
+    private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+
     private static SqlExpression DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset) =>
       SqlDml.RawConcat(dateTimeOffset, SqlDml.Native(" at time zone 'UTC'"));
+
+    private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTimeOffset);
+
+#if NET6_0_OR_GREATER //DO_DATEONLY
+    private static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    private static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    private static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+     SqlDml.Cast(SqlDml.FunctionCall(ToDSIntervalFunctionName,
+        (SqlExpression) SqlDml.Concat(
+          AnsiString("0 "),
+          SqlDml.FunctionCall(ToCharFunctionName,
+            dateTime,
+            AnsiString(TimeFormat)
+            )
+          )
+        ), SqlType.Time);
+
+    private static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(
+        SqlDml.Literal(DateTime.MinValue) + time,
+        SqlType.DateTime);
+
+    private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.Date);
+
+    private static SqlExpression DateTimeOffsetToTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(SqlDml.FunctionCall(ToDSIntervalFunctionName,
+        (SqlExpression)SqlDml.Concat(
+          AnsiString("0 "),
+          SqlDml.FunctionCall(ToCharFunctionName,
+            dateTimeOffset,
+            AnsiString(TimeFormat)
+            )
+          )
+        ), SqlType.Time);
+    //SqlDml.Cast(dateTimeOffset - SqlDml.Cast(dateTimeOffset, SqlType.Date), SqlType.Time);
+
+    private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
+      SqlDml.Cast(
+        SqlDml.Literal(DateTime.MinValue) + time,
+        SqlType.DateTimeOffset);
+#endif
 
     private static SqlExpression AnsiString(string value) => SqlDml.Native("'" + value + "'");
 
