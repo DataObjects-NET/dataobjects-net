@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
 
     /// <inheritdoc/>
-    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fff\'";
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fffffff\'";
 #endif
 
     public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";

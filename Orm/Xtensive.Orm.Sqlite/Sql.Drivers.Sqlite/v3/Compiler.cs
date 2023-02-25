@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
 #if NET6_0_OR_GREATER //DO_DATEONLY
     private const string DateFormat = "%Y-%m-%d";
-    private const string TimeFormat = "%H:%M:%f";
+    private const string TimeFormat = "%H:%M:%f0000";
     private const string TimeToStringFormat = "%H:%M:%f0000";
 #endif
     private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";

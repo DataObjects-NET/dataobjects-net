@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffK";
     private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fffffff";
     private const string DateFormat = "yyyy-MM-dd";
-    private const string TimeFormat = "HH:mm:ss.fff";
+    private const string TimeFormat = "HH:mm:ss.fffffff";
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
