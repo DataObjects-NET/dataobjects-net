@@ -173,21 +173,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DateOnlyToTimeOnlyTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No any error from storage on conversion");
+
       var provider = StorageProviderInfo.Instance.Provider;
 
       if (provider == StorageProvider.PostgreSql) {
         UpgradeAndExpectException<TimeOnlyEntity, SyntaxErrorException>();
       }
-      else if (provider == StorageProvider.Oracle) {
-        UpgradeAndExpectException<TimeOnlyEntity, StorageException>();
-      }
-      else if (provider == StorageProvider.MySql) {
-        UpgradeAndExpectException<TimeOnlyEntity, StorageException>();
-      }
-      else if (provider == StorageProvider.Firebird) {
-        UpgradeAndExpectException<TimeOnlyEntity, StorageException>();
-      }
-      else if (provider == StorageProvider.SqlServer) {
+      else {
         UpgradeAndExpectException<TimeOnlyEntity, StorageException>();
       }
     }
@@ -240,7 +233,11 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void TimeOnlyToDateOnlyTest()
     {
-      if (StorageProviderInfo.Instance.Provider == StorageProvider.PostgreSql) {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No any error from storage on conversion");
+
+      var provider = StorageProviderInfo.Instance.Provider;
+
+      if (provider == StorageProvider.PostgreSql) {
         UpgradeAndExpectException<DateOnlyEntity, SyntaxErrorException>();
       }
       else {
