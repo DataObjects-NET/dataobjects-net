@@ -266,7 +266,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
         "datetime");
       types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index,
-        new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
+        new ValueRange<DateOnly>(new DateOnly(1000, 1, 1), new DateOnly(9999, 12, 31)),
         "date");
       types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, ValueRange.TimeOnly, "time");
 #else
