@@ -322,20 +322,20 @@ namespace Xtensive.Sql
     public virtual void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Date;
-      parameter.Value = value != null ? ((DateOnly)value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
+      parameter.Value = value != null ? (DateOnly)value : DBNull.Value;
     }
 
     public virtual void BindTimeOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Time;
-      parameter.Value = value != null ? ((TimeOnly)value).ToTimeSpan() : DBNull.Value;
+      parameter.Value = value != null ? (TimeOnly)value : DBNull.Value;
     }
 
     public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-      DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+      reader.GetFieldValue<DateOnly>(index);
 
     public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
-      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+      reader.GetFieldValue<TimeOnly>(index);
 
     public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.Date);
