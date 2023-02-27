@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Drivers.Firebird
     public const string DateTimeFormatString = @"''\'yyyy\.MM\.dd HH\:mm\:ss\.fff\'''";
 #if NET6_0_OR_GREATER //DO_DATEONLY
     public const string DateFormatString = @"''\'yyyy\.MM\.dd\'''";
-    public const string TimeFormatString = @"''\'HH\:mm\:ss\.fff\'''";
+    public const string TimeFormatString = @"''\'HH\:mm\:ss\.ffff\'''";
 #endif
   }
 }

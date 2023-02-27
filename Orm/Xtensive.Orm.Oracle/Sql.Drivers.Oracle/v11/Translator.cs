@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
     {
       // we need to explicitly specify maximum interval precision
       return type.Type == SqlType.Interval
-        ? "INTERVAL DAY(6) TO SECOND(6)"
+        ? "INTERVAL DAY(6) TO SECOND(7)"
         : base.Translate(type);
     }
 

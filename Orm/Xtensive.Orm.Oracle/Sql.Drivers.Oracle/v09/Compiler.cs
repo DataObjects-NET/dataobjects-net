@@ -41,11 +41,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     protected const string NumToYMIntervalFunctionName = "NUMTOYMINTERVAL";
 
     protected const string ToDSIntervalFunctionName = "TO_DSINTERVAL";
-    protected const string TimeFormat = "HH24:MI:SS.FF6";
+    protected const string TimeFormat = "HH24:MI:SS.FF7";
 
     private static readonly SqlExpression SundayNumber = SqlDml.Native(
       "TO_NUMBER(TO_CHAR(TIMESTAMP '2009-07-26 00:00:00.000', 'D'))");
-    private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.000000'");
+    private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.0000000'");
 
     public override void Visit(SqlFunctionCall node)
     {

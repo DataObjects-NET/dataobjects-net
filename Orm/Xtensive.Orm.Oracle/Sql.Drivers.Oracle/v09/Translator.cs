@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
 
     /// <inheritdoc/>
-    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.ffffff\'\ DAY(0) TO SECOND(6))";
+    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.fffffff\'\ DAY(0) TO SECOND(7))";
 #endif
 
     /// <inheritdoc/>
@@ -340,7 +340,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return type.Type == SqlType.Interval
         ? "INTERVAL DAY(6) TO SECOND(3)"
         : type.Type == SqlType.Time
-          ? "INTERVAL DAY(0) TO SECOND(6)"
+          ? "INTERVAL DAY(0) TO SECOND(7)"
           : base.Translate(type);
 #else
       // we need to explicitly specify maximum interval precision
