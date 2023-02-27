@@ -38,6 +38,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     protected const string ToCharFunctionName = "TO_CHAR";
     protected const string NumToDSIntervalFunctionName = "NUMTODSINTERVAL";
+    protected const string NumToYMIntervalFunctionName = "NUMTOYMINTERVAL";
+
     protected const string ToDSIntervalFunctionName = "TO_DSINTERVAL";
     protected const string TimeFormat = "HH24:MI:SS.FF6";
 
@@ -357,7 +359,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     }
 
     private static SqlExpression DateTimeAddYMInterval(SqlExpression dateTime, SqlExpression units, in string component) =>
-      dateTime + SqlDml.FunctionCall(NumToDSIntervalFunctionName, units, AnsiString(component));
+      dateTime + SqlDml.FunctionCall(NumToYMIntervalFunctionName, units, AnsiString(component));
 
     private static SqlExpression DateTimeAddDSInterval(SqlExpression dateTime, SqlExpression units, in string component) =>
       dateTime + SqlDml.FunctionCall(NumToDSIntervalFunctionName, units, AnsiString(component));
