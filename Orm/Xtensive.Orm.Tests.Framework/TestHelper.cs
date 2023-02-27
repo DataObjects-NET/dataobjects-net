@@ -70,6 +70,9 @@ namespace Xtensive.Orm.Tests
         case StorageProvider.PostgreSql:
           divider = 10;
           break;
+        case StorageProvider.Oracle:
+          divider = 10;
+          break;
         default:
           divider = null;
           break;
@@ -79,6 +82,17 @@ namespace Xtensive.Orm.Tests
         return origin;
       }
       var ticks = origin.Ticks;
+      if (provider == StorageProvider.Oracle) {
+        var ticks1 = (ticks % divider) >=5 ? ticks - (ticks % divider.Value) + divider.Value
+          : ticks - (ticks % divider.Value);
+        return new DateTime(ticks1);
+      }
+      if (provider == StorageProvider.MySql) {
+        var abc = ((ticks % 10000000) / 1000000);
+        var ticks1 = ((ticks % 10000000) / 1000000) >= 5 ? ticks - (ticks % 10000000) + 10000000
+          : ticks - (ticks % 10000000);
+        return new DateTime(ticks1);
+      }
       var newTicks = ticks - (ticks % divider.Value);
       return new DateTime(newTicks);
     }
