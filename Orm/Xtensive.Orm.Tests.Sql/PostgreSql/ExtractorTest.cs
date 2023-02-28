@@ -1,24 +1,20 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2010.01.23
 
-using System;
-using System.Diagnostics;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.PostgreSql.v8_0;
-using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   public class ExtractorTest: ExtractorTestBase
   {
     protected override bool CheckContstraintExtracted => true;
-    protected override bool SeqStartEqualsToMin => true;
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.PostgreSql);
 
@@ -89,12 +85,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         "  REFERENCES \"B3\" (\"b_id_1\", \"b_id_2\", \"b_id_3\") ON DELETE NO ACTION ON UPDATE CASCADE);";
     }
     protected override string GetForeignKeyExtractionCleanUpScript() =>
-      "drop table \"A1\"" +
-      "\n drop table \"A2\"" +
-      "\n drop table \"A3\"" +
-      "\n drop table \"B1\"" +
-      "\n drop table \"B2\"" +
-      "\n drop table \"B3\"";
+      "drop table \"A1\";" +
+      "\n drop table \"A2\";" +
+      "\n drop table \"A3\";" +
+      "\n drop table \"B1\";" +
+      "\n drop table \"B2\";" +
+      "\n drop table \"B3\";";
 
     protected override string GetIndexExtractionPrepareScript(string tableName)
     {
@@ -172,25 +168,33 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var testTable = defaultSchema.Tables["InteractionLog"];
       var tableColumn = testTable.TableColumns["DateTimeOffset0"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
-      Assert.That(tableColumn.DefaultValue, Is.EqualTo(new SqlNative("'0001-01-01 00:00:00+00:00'::timestamp(0) with time zone")));
+      Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
+      var defaultExpression = (SqlNative) tableColumn.DefaultValue;
+      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(0) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset1"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
-      Assert.That(tableColumn.DefaultValue, Is.EqualTo(new SqlNative("'0001-01-01 00:00:00.0+00:00'::timestamp(1) with time zone")));
+      Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
+      defaultExpression = (SqlNative) tableColumn.DefaultValue;
+      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(1) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset2"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
-      Assert.That(tableColumn.DefaultValue, Is.EqualTo(new SqlNative("'0001-01-01 00:00:00.00+00:00'::timestamp(2) with time zone")));
+      Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
+      defaultExpression = (SqlNative) tableColumn.DefaultValue;
+      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(2) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset3"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
-      Assert.That(tableColumn.DefaultValue, Is.EqualTo(new SqlNative("'0001-01-01 00:00:00.000+00:00'::timestamp(3) with time zone")));
+      Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
+      defaultExpression = (SqlNative) tableColumn.DefaultValue;
+      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(3) with time zone"));
     }
 
 
     protected virtual string GetExpressionIndexExtractorPrepareScript(string tableName)
     {
-      return $"CREATE TABLE \" {tableName} \"(col1 text, col2 text);" +
+      return $"CREATE TABLE \"{tableName}\"(col1 text, col2 text);" +
         $"CREATE INDEX \"{tableName}_indx\" ON \"" + tableName + "\"(col1,col2,(col1||col2));";
     }
 
