@@ -256,9 +256,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 #if NET6_0_OR_GREATER //DO_DATEONLY
     public override void Visit(SqlPlaceholder node)
     {
-      if (node.Id is Orm.Providers.QueryParameterBinding qpb
-        && qpb.BindingType == Orm.Providers.QueryParameterBindingType.Regular
-        && qpb.TypeMapping.Type == typeof(TimeOnly)) {
+      if (node.Id is Orm.Providers.ParameterBinding qpb
+        && qpb.TypeMapping?.Type == typeof(TimeOnly)) {
         _ = context.Output.Append("TIME(");
         base.Visit(node);
         _ = context.Output.Append(")");
