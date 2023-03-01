@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
     }
 
     protected static SqlUserFunctionCall MakeDateTime(SqlExpression year, SqlExpression month, SqlExpression day) =>
-      SqlDml.FunctionCall("MAKE_TIMESTAMP", year, month, day, SqlDml.Literal(0.0), SqlDml.Literal(0.0), SqlDml.Literal(0.0));
+      SqlDml.FunctionCall("MAKE_TIMESTAMP", year, month, day, SqlDml.Literal(0), SqlDml.Literal(0), SqlDml.Literal(0.0));
 
 #if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlUserFunctionCall MakeDate(SqlExpression year, SqlExpression month, SqlExpression day) =>
