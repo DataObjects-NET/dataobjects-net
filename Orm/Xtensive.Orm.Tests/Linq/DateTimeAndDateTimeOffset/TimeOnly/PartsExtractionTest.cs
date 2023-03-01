@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
       Require.ProviderIs(StorageProvider.MySql);
       Require.ProviderVersionAtLeast(new Version(5, 6));// no support for fractions below 5.6
       ExecuteInsideSession((s) => {
-        var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.FixTimeOnlyForProvider(StorageProviderInfo.Instance);
+        var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.AdjustTimeOnlyForCurrentProvider();
         RunTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Millisecond == firstMillisecondTimeOnly.Millisecond);
         RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Second == WrongMillisecondTimeOnly.Millisecond);
       });

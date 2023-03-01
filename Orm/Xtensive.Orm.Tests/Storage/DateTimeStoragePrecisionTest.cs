@@ -89,9 +89,12 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private static TimeOnly GetExpectedValue(in TimeOnly baseTimeOnly) => baseTimeOnly.FixTimeOnlyForProvider(StorageProviderInfo.Instance);
+    private static TimeOnly GetExpectedValue(in TimeOnly baseTimeOnly) => baseTimeOnly.AdjustTimeOnlyForCurrentProvider();
 
 #endif
-    private static DateTime GetExpectedValue(in DateTime baseDateTime) => baseDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+    private static DateTime GetExpectedValue(in DateTime baseDateTime) =>
+      StorageProviderInfo.Instance.Provider == StorageProvider.MySql
+        ? baseDateTime.AdjustDateTime(0, true)
+        : baseDateTime.AdjustDateTimeForCurrentProvider();
   }
 }
