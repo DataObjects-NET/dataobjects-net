@@ -192,14 +192,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
-    public void MysqlMinisDateTimeTest()
+    public void MysqlMinusDateTimeTest()
     {
       Require.ProviderIs(StorageProvider.MySql);
       ExecuteInsideSession(() => {
-        var firstDateTime = FirstDateTime.AdjustDateTimeForCurrentProvider();
-        var firstMillisecondDateTime = FirstMillisecondDateTime.AdjustDateTimeForCurrentProvider();
-        var secondDateTime = SecondDateTime.AdjustDateTimeForCurrentProvider();
-        var nullableDateTime = NullableDateTime.AdjustDateTimeForCurrentProvider();
+        var firstDateTime = FirstDateTime.AdjustDateTime(0);
+        var firstMillisecondDateTime = FirstMillisecondDateTime.AdjustDateTime(0);
+        var secondDateTime = SecondDateTime.AdjustDateTime(0);
+        var nullableDateTime = NullableDateTime.AdjustDateTime(0);
 
         RunTest<SingleDateTimeEntity>(c => c.DateTime - secondDateTime == firstDateTime - secondDateTime);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - secondDateTime == firstMillisecondDateTime - secondDateTime);

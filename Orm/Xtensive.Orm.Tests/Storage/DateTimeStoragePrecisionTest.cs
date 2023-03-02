@@ -92,9 +92,14 @@ namespace Xtensive.Orm.Tests.Storage
     private static TimeOnly GetExpectedValue(in TimeOnly baseTimeOnly) => baseTimeOnly.AdjustTimeOnlyForCurrentProvider();
 
 #endif
-    private static DateTime GetExpectedValue(in DateTime baseDateTime) =>
-      StorageProviderInfo.Instance.Provider == StorageProvider.MySql
+    private static DateTime GetExpectedValue(in DateTime baseDateTime)
+    {
+      var provider = StorageProviderInfo.Instance.Provider;
+      return provider == StorageProvider.MySql
         ? baseDateTime.AdjustDateTime(0, true)
-        : baseDateTime.AdjustDateTimeForCurrentProvider();
+        : provider == StorageProvider.Oracle
+          ? baseDateTime.AdjustDateTime(6, true)
+          : baseDateTime.AdjustDateTimeForCurrentProvider();
+    }
   }
 }

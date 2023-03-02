@@ -67,9 +67,8 @@ namespace Xtensive.Orm.Tests
     /// <param name="origin">The value to adjust.</param>
     /// <param name="providerInfo">Type of provider.</param>
     /// <returns>New value with less resolution if the provider requires it, otherwise, untouched <paramref name="origin"/>.</returns>
-    private static DateTime AdjustDateTimeForProvider(this DateTime origin, StorageProviderInfo providerInfo)
+    public static DateTime AdjustDateTimeForProvider(this DateTime origin, StorageProviderInfo providerInfo)
     {
-      //long? divider;
       var provider = providerInfo.Provider;
       switch (provider) {
         case StorageProvider.MySql:
@@ -81,7 +80,7 @@ namespace Xtensive.Orm.Tests
         case StorageProvider.PostgreSql:
           return AdjustDateTime(origin, 6);
         case StorageProvider.Oracle:
-          return AdjustDateTime(origin, 6, true);
+          return AdjustDateTime(origin, 7);
         default:
           return origin;
       }
@@ -91,11 +90,11 @@ namespace Xtensive.Orm.Tests
     /// Cuts down fractions of <see cref="DateTime"/> value (nanoseconds, milliseconds, etc) to desired value.
     /// </summary>
     /// <param name="origin"></param>
-    /// <param name="desiredFractions">Number of fractional points to keep.</param>
+    /// <param name="desiredFractions">Number of fractional points to keep (from 0 to 7).</param>
     /// <param name="requireRound">Indicates whether value should be rounded after cutting off.</param>
     /// <returns>Result value.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Valid fractions should be between 0 and 7 (7 included).</exception>
-    public static DateTime AdjustDateTime(this DateTime origin, byte desiredFractions = 7, bool requireRound = false)
+    public static DateTime AdjustDateTime(this DateTime origin, byte desiredFractions, bool requireRound = false)
     {
       if (desiredFractions == 7) {
         return origin;
