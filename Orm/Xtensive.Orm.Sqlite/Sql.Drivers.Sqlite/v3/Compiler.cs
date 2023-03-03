@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
   {
     private const long NanosecondsPerMillisecond = 1000000L;
     private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private const string DateFormat = "%Y-%m-%d";
     private const string TimeFormat = "%H:%M:%f0000";
     private const string TimeToStringFormat = "%H:%M:%f0000";
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             DateTimeOffsetExtractOffsetAsString(node.Left))
             .AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
@@ -135,8 +135,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitDateTimeOffset(node);
         return;
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
-      if(node.IsTimePart) {
+#if NET6_0_OR_GREATER
+      if (node.IsTimePart) {
         VisitTime(node);
         return;
       }
@@ -196,7 +196,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             arguments[1] - 1),
             arguments[2] - 1).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           DateAddYear(arguments[0], arguments[1]).AcceptVisitor(this);
           return;
@@ -267,7 +267,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.DateTimeOffsetToDateTime:
           DateTimeOffsetToDateTime(arguments[0]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateTimeToDate:
           DateTimeToDate(arguments[0]).AcceptVisitor(this);
           return;
@@ -412,8 +412,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       base.Visit(node);
     }
-
 #if NET6_0_OR_GREATER //DO_DATEONLY
+
     private void VisitTime(SqlExtract node)
     {
       if (node.IsMillisecondExtraction) {
@@ -528,8 +528,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeAddSeconds(SqlExpression date, SqlExpression seconds) =>
       SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(seconds, " ", "SECONDS"));
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER // DO_DATEONLY
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall("STRFTIME", DateFormat, date, SqlDml.Concat(years, " ", "YEARS"));
 
@@ -610,7 +610,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2) =>
       (((DateOrTimeGetTotalSeconds(date1) - DateOrTimeGetTotalSeconds(date2)) * MillisecondsPerSecond)
         + DateOrTimeGetMilliseconds(date1) - DateOrTimeGetMilliseconds(date2)) * NanosecondsPerMillisecond;
-    
 
     private static SqlExpression ServerOffsetAsString()
     {

@@ -135,7 +135,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         case SqlFunctionType.DateTimeOffsetToDateTime:
           DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateToDateTimeOffset:
           DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
@@ -219,8 +219,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
       DateTimeToDateTimeOffset(SqlDml.Cast(date, SqlType.DateTime));
 
@@ -233,6 +233,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(dateTimeOffset, SqlType.Date);
 #endif
+
     #endregion
 
     // Constructors

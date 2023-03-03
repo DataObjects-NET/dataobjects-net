@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime FDateTime { get; set; }
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     [Field]
     public DateOnly FDateOnly { get; set; }
 
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime? FNDateTime { get; set; }
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     [Field]
     public DateOnly? FNDateOnly { get; set; }
 
@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Tests.Storage
         var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
         var dateTimeMinValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateOnly;
         var dateOnlyMinValue = ((ValueRange<DateOnly>) dataTypeInfo.ValueRange).MinValue;
 
@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
           Assert.AreEqual(dateTimeMinValue, x.FDateTime);
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
           Assert.AreEqual(dateOnlyMinValue, x.FDateOnly);
           Assert.AreEqual(timeOnlyMinValue, x.FTimeOnly);
 #endif
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(null, x.FNBool);
           Assert.AreEqual(null, x.FNByte);
           Assert.AreEqual(null, x.FNDateTime);
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
           Assert.AreEqual(null, x.FNDateOnly);
           Assert.AreEqual(null, x.FNTimeOnly);
 #endif

@@ -50,19 +50,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       switch (node.FunctionType) {
         case SqlFunctionType.DateTimeConstruct:
           Visit(SqlDml.FunctionCall("DATETIME2FROMPARTS", arguments[0], arguments[1], arguments[2], 0, 0, 0, 0, 7));
-          //Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-          //  arguments[0] - 2001),
-          //  arguments[1] - 1),
-          //  arguments[2] - 1));
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct: {
           Visit(SqlDml.FunctionCall("DATEFROMPARTS", arguments[0], arguments[1], arguments[2]));
-
-          //Visit(SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-          //  arguments[0] - 2001),
-          //  arguments[1] - 1),
-          //  arguments[2] - 1), SqlType.Date));
           return;
         }
         case SqlFunctionType.TimeConstruct: {
@@ -70,11 +61,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
           // default precision of time is 7, and if we use raw argument[3] value the result will be .0000xxx,
           // to prevent this and make fractions part valid .xxx0000 we multiply
           Visit(SqlDml.FunctionCall("TIMEFROMPARTS", arguments[0], arguments[1], arguments[2], arguments[3] * 10000, 7));
-          //Visit(SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Literal(new TimeOnly(0, 0, 0)),
-          //  arguments[0]),
-          //  arguments[1]),
-          //  arguments[2]),
-          //  arguments[3]), SqlType.Time));
           return;
         }
 #endif

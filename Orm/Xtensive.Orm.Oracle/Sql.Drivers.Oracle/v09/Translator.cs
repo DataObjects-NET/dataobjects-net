@@ -29,8 +29,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)";
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
 
@@ -365,8 +365,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           break;
       }
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
     {
@@ -427,7 +427,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       switch (type) {
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimePlusInterval:
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
 #endif
           _ = output.Append("+"); break;

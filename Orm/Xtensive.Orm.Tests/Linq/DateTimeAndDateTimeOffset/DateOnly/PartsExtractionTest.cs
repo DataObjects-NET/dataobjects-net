@@ -1,10 +1,8 @@
-// Copyright (C) 2016-2022 Xtensive LLC.
+// Copyright (C) 2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Alex Groznov
-// Created:    2016.08.01
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
 using System;
 using NUnit.Framework;

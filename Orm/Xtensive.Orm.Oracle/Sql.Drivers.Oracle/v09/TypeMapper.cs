@@ -87,8 +87,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.OracleDbType = OracleDbType.Double;
       nativeParameter.Value = value ?? DBNull.Value;
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public override void BindDateOnly(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;

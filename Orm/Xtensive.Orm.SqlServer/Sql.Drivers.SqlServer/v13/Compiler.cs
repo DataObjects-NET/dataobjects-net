@@ -39,11 +39,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
               // so we should handle it by this big formula
               Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Left, binary.Right)));
             }
-            else if (binary.NodeType is SqlNodeType.TimeMinusTime)
+            else if (binary.NodeType is SqlNodeType.TimeMinusTime) {
               //but for time it is OK
               Visit(DateDiffBigMicrosecond(binary.Right, binary.Left));
-            else
+            }
+            else {
               base.Visit(node);
+            }
           }
           else {
             base.Visit(node);

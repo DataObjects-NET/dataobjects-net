@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
   internal class Compiler : SqlCompiler
   {
     private const string DateTimeIsoFormat = "YYYY-MM-DD\"T\"HH24:MI:SS";
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private const string DateFormat = "YYYY-MM-DD";
     private const string TimeFormat = "HH24:MI:SS.US0";
 #endif
@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static readonly SqlLiteral ReferenceDateTimeLiteral = SqlDml.Literal(new DateTime(2001, 1, 1));
     private static readonly SqlLiteral EpochLiteral = SqlDml.Literal(new DateTime(1970, 1, 1));
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private static readonly SqlLiteral ReferenceDateLiteral = SqlDml.Literal(new DateOnly(2001, 1, 1));
     private static readonly SqlLiteral ZeroTimeLiteral = SqlDml.Literal(new TimeOnly(0, 0, 0));
 #endif
@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.DateTimeOffsetPlusInterval:
           (node.Left + node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
           SqlDml.Cast(
             SqlDml.Cast(
@@ -131,20 +131,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                          + (OneDayInterval * (node.Arguments[2] - 1));
           newNode.AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
           (ReferenceDateLiteral
             + (OneYearInterval * (node.Arguments[0] - 2001))
             + (OneMonthInterval * (node.Arguments[1] - 1))
             + (OneDayInterval * (node.Arguments[2] - 1))).AcceptVisitor(this);
           return;
-        case SqlFunctionType.TimeConstruct: {
+        case SqlFunctionType.TimeConstruct:
           ((ZeroTimeLiteral
             + (OneHourInterval * (node.Arguments[0]))
             + (OneMinuteInterval * (node.Arguments[1]))
             + (OneSecondInterval * (node.Arguments[2] + (SqlDml.Cast(node.Arguments[3], SqlType.Double) / 1000))))).AcceptVisitor(this);
           return;
-        }
 #endif
         case SqlFunctionType.DateTimeTruncate:
           (SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0])).AcceptVisitor(this);
@@ -155,7 +154,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.DateTimeAddYears:
           (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
           return;
@@ -199,7 +198,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.DateTimeOffsetToDateTime:
           DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateTimeToDate:
           DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
           return;

@@ -943,7 +943,7 @@ namespace Xtensive.Orm.Upgrade
       if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
         return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
         return SqlDml.DateTimeToDate(sqlTableColumn);
       }
@@ -976,7 +976,7 @@ namespace Xtensive.Orm.Upgrade
       return SqlDml.Cast(sqlTableColumn, newType);
     }
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private static bool IsDateTimeType(in SqlType type)
     {
       return type == SqlType.DateTime

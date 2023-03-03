@@ -361,7 +361,7 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       else if (type == WellKnownTypes.DateOnly) {
         Write("DateOnly.Parse(\"");
         Write(c.Value.ToString());

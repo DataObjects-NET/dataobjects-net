@@ -96,8 +96,8 @@ namespace Xtensive.Sql
     /// Storage size is 8 to 10 bytes.
     /// </summary>
     public static readonly SqlType DateTimeOffset = new SqlType("DateTimeOffset");
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <summary>
     /// Date from January 1, 1753 through December 31, 9999,
     /// Storage size is 3 bytes.

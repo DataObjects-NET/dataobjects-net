@@ -21,8 +21,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
   {
     public override string DateTimeFormatString => Constants.DateTimeFormatString;
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     public override string DateOnlyFormatString => Constants.DateFormatString;
+
     public override string TimeOnlyFormatString => Constants.TimeFormatString;
 #endif
 
@@ -122,7 +123,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.Modulo:
           _ = output.Append("MOD"); break;
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
 #endif
           _ = output.Append("-"); break;
@@ -223,8 +224,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         default: base.Translate(output, dateTimePart); break;
       }
     }
-
 #if NET6_0_OR_GREATER //DO_DATEONLY
+
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
     {

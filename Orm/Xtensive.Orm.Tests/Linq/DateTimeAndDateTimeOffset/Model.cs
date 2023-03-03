@@ -243,8 +243,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
   [HierarchyRoot]
   public class DateOnlyEntity : Entity
   {
@@ -300,6 +300,5 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
-
 #endif
 }

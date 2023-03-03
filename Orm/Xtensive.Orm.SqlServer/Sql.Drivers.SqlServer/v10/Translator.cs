@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fffffff\'' as datetime2)'";
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fffffff\'' as time)'";
 #endif

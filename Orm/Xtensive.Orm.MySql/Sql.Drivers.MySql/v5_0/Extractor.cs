@@ -652,7 +652,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int64);
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       if (typeName.Equals("TIME", StringComparison.Ordinal) || typeName.StartsWith("TIME(")) {
         return new SqlValueType(SqlType.Time);
       }

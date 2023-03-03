@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"\'yyyyMMdd\''::date'";
@@ -205,12 +205,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.Modulo: _ = output.Append("%"); break;
         case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
         case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval: _ = output.Append("+"); break;
 #endif
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
 #endif
           _ = output.Append("-"); break;
@@ -858,8 +858,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         default: base.Translate(output, part); break;
       }
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart part)
     {

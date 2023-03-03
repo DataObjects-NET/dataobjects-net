@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
         case SqlFunctionType.DateTimeConstruct:
           Visit(MakeDateTime(arguments[0], arguments[1], arguments[2]));
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
           Visit(MakeDate(arguments[0], arguments[1], arguments[2]));
           return;
@@ -33,8 +33,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 
     protected static SqlUserFunctionCall MakeDateTime(SqlExpression year, SqlExpression month, SqlExpression day) =>
       SqlDml.FunctionCall("MAKE_TIMESTAMP", year, month, day, SqlDml.Literal(0), SqlDml.Literal(0), SqlDml.Literal(0.0));
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlUserFunctionCall MakeDate(SqlExpression year, SqlExpression month, SqlExpression day) =>
       SqlDml.FunctionCall("MAKE_DATE", year, month, day);
 

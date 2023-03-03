@@ -275,8 +275,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         "datetime", "time");
 #endif
 
-
-
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 255, "char");
       types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar");
 

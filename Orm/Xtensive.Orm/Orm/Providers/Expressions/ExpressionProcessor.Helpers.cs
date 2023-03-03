@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTime);
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
     private static bool IsDateOnlyExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateOnly);

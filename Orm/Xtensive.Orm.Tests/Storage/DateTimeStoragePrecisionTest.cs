@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Storage.DateTimeStoragePrecisionTestModel
 
     [Field]
     public DateTime FDateTime { get; set; }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
     [Field]
     public TimeOnly FTimeOnly { get; set; }
@@ -74,8 +74,8 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(entity.FDateTime, Is.EqualTo(GetExpectedValue(dateTime)));
       }
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     [Test]
     public void TimeOnlyTest()
     {
@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     private static TimeOnly GetExpectedValue(in TimeOnly baseTimeOnly) => baseTimeOnly.AdjustTimeOnlyForCurrentProvider();
-
 #endif
+
     private static DateTime GetExpectedValue(in DateTime baseDateTime)
     {
       var provider = StorageProviderInfo.Instance.Provider;

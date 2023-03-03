@@ -113,8 +113,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       UpgradeAndTestData<DateTimeEntity, DateTime>(expectedValue);
     }
-
 #if NET6_0_OR_GREATER
+
     [Test]
     public void DateTimeToDateOnlyTest()
     {
@@ -414,8 +414,8 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
       _ = hints.Add(ChangeFieldTypeHint.Create<DateTimeEntity>(e => e.ConversionField));
     }
   }
-
 #if NET6_0_OR_GREATER
+
   public class DateTimeToDateOnlyUpgradeHandler : UpgradeHandler
   {
     public override bool CanUpgradeFrom(string oldVersion) => true;
@@ -527,4 +527,3 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
   }
 #endif
 }
-

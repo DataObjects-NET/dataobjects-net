@@ -94,7 +94,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
@@ -187,7 +187,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             arguments[1] - 1),
             arguments[2] - 1));
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
@@ -252,8 +252,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
       base.Visit(node);
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public override void Visit(SqlPlaceholder node)
     {
       if (node.Id is Orm.Providers.ParameterBinding qpb
@@ -292,7 +292,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
         return;
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       if (node.DatePart == SqlDatePart.DayOfWeek || node.DatePart == SqlDatePart.DayOfYear) {
         Visit(SqlDml.FunctionCall(node.DatePart.ToString(), node.Operand));
         return;
@@ -315,8 +315,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         DateTimeAddDay(date, ((interval - (interval % NanosecondsPerDay)) + ((interval % NanosecondsPerDay) > (NanosecondsPerDay / 2) ? 0 : 1)) / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(SqlDml.FunctionCall("TIME_TO_SEC", time1) - SqlDml.FunctionCall("TIME_TO_SEC", time2), 18, 0) * NanosecondsPerSecond,
@@ -363,8 +363,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected static SqlUserFunctionCall DateTimeAddMicrosecond(SqlExpression datetime, SqlExpression microseconds) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MICROSECOND"), microseconds, datetime);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(years, SqlDml.Native("YEAR"))));
 

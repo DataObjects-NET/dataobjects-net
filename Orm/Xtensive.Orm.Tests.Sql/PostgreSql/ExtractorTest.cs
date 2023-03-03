@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Interval]}\" interval NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTime]}\" timestamp NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTimeOffset]}\" timestamptz NULL,");
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Date]}\" date NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Time]}\" time NULL,");
 #endif

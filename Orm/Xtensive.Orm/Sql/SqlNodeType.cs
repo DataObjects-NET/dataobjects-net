@@ -47,7 +47,7 @@ namespace Xtensive.Sql
     DateTimeOffsetPlusInterval,
     DateTimeOffsetMinusInterval,
     DateTimeOffsetMinusDateTimeOffset,
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     TimePlusInterval,
     TimeMinusTime,
 #endif

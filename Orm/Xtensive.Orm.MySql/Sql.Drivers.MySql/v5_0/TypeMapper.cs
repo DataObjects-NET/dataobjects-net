@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]), typeof (DateOnly), typeof(TimeOnly) };
 #else
     private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]) };
@@ -66,8 +66,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       parameter.DbType = DbType.String;
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public override void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Date;

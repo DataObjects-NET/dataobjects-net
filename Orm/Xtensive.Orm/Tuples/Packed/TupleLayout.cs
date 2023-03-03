@@ -46,7 +46,7 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor SingleAccessor = new FloatFieldAccessor();
       private static readonly ValueFieldAccessor DoubleAccessor = new DoubleFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeAccessor = new DateTimeFieldAccessor();
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       private static readonly ValueFieldAccessor DateOnlyAccessor = new DateOnlyFieldAccessor();
       private static readonly ValueFieldAccessor TimeOnlyAccessor = new TimeOnlyFieldAccessor();
 #endif
@@ -78,7 +78,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
             ReferenceEquals(type, WellKnownTypes.DateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeOnly) ? TimeOnlyAccessor :
 #endif
@@ -102,7 +102,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
             ReferenceEquals(type, WellKnownTypes.NullableDateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeOnly) ? TimeOnlyAccessor :
 #endif
