@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Xtensive.Orm.Logging;
 using JetBrains.Annotations;
 
@@ -569,10 +570,8 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
+    public static void Warning(string format, params object[] args) =>
       instance.Warning(format, args);
-    }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
@@ -623,6 +622,4 @@ namespace Xtensive
       instance = manager.GetLog(Name);
     }
   }
-
 }
- 

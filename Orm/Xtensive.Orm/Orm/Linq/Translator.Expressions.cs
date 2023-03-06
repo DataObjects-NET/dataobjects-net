@@ -1281,9 +1281,7 @@ namespace Xtensive.Orm.Linq
         if (constantExpression.Value==null && constantExpression.Type==WellKnownTypes.Object) {
           var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
           constantExpression = Expression.Constant(null, newConstantExpressionType);
-          return constantExpression
-            .Type
-            .GetProperties()
+          return constantExpression.Type.GetProperties()
             .OrderBy(property => property.Name)
             .Select(p => Expression.MakeMemberAccess(constantExpression, p))
             .Cast<Expression>()
@@ -1291,9 +1289,7 @@ namespace Xtensive.Orm.Linq
         }
       }
 
-      return expression
-        .Type
-        .GetProperties()
+      return expression.Type.GetProperties()
         .OrderBy(property => property.Name)
         .Select(p => Expression.MakeMemberAccess(expression, p))
         .Select(e => (Expression) e)

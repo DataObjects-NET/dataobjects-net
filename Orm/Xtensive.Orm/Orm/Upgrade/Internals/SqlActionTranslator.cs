@@ -847,7 +847,7 @@ namespace Xtensive.Orm.Upgrade
             new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
-      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
+      var sortedTables = TopologicalSorter.SortToList(nodes, out edges);
       // TODO: Process removed edges
 
       // Build DML commands

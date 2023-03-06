@@ -22,7 +22,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public TupleDescriptor Descriptor
     {
-      get { return descriptor; }
+      get => descriptor;
       protected set {
         descriptor = value;
         defaultResult = null;
@@ -32,7 +32,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public Tuple DefaultResult {
       get {
-        if (defaultResult==null && descriptor!=null)
+        if (defaultResult == null && descriptor != default)
           defaultResult = Tuple.Create(descriptor).ToReadOnly(TupleTransformType.Tuple);
         return defaultResult;
       }

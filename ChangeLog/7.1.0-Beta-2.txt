@@ -1,0 +1,69 @@
+[main] NET6 support
+[main] Obsolete CatalogHelper class has been removed
+[main] Obsolete ReacreateTableHint has been removed
+[main] Obsolete Session.SelectStorageNode() method is removed
+[main] Obsolete methods from ArrayExtensions, EnumerableExtensions and QueryableExtensions have been removed
+[main] Obsolete DeleteDataHint.PostCopy property has been removed
+[main] Obsolete QueryEndpoint's members have been removed
+[main] Obsolete Query's members have been removed
+[main] Obsolete members of DelayedScalarQuery<T> have been removed
+[main] Obsolete FieldInfo.IsDynalicallyDefined property's been removed (FieldInfo.IsDynamicallyDefined is still there)
+[main] Changed translation of queries when DomainConfiguration.ShareStorageSchemaOverNodes set to true
+[main] StorageDriver.Compile(ISqlCompileUnit, NodeConfiguration) became obsolete
+[main] SqlNodeActualizer became obsolete
+[main] LockableExtensions.EnsureNotLocked() became obsolete, implementation moved to LockableBase directly
+[main] TypeInfoCollection.FindAncestor method became obsolete, use new TypeInfo.Ancestor property
+[main] TypeInfoCollection.FindDescendants methods became obsolete, use new TypeInfo.DirectDescendants/.AllDescendants properties
+[main] TypeInfoCollection.FindInterfaces methods became obsolete, use new TypeInfo.DirectInterfaces/.AllInterfaces properties
+[main] TypeInfoCollection.FindImplementors methods became obsolete, use new TypeInfo.DirectImplementors/.AllImplementors properties
+[main] TypeInfoCollection.FindRoot method became obsolete, use introduced TypeInfo.Root property
+[main] TypeInfo.GetImplementors(bool) became obsolete, use new TypeInfo.DirectImplementors/.AllImplementors properties
+[main] TypeInfo.GetInterfaces(bool) became obsolete, use new TypeInfo.DirectInterfaces/.AllInterfaces properties
+[main] TypeInfo.GetDescendants(bool) became obsolete, use new TypeInfo.DirectDescendants/.AllDescendants properties
+[main] TypeInfo.GetAncestors() became obsolete, use new TypeInfo.Ancestors property
+[main] TypeInfo.GetRoot() became obsolete, use introduced TypeInfo.Root property
+[main] IPropertyValidator.IsImmediate is read-only now
+[main] PropertyValidator.IsImmediate property has no setter, only init
+[main] PropertyValidator.ValidateOnlyIfModified property has no setter, only init
+[main] PropertyValidator.SkipOnTransactionCommit property has no setter, only init
+[main] RecordSetHeader.OrderTupleDescriptor became nullable to compensate TupleDescriptor's transition to read-only structure
+[main] IndexInfo.FilterByTypes changed result type to IReadOnlyList<TypeInfo>
+[main] IndexInfo.SelectColumns changed result type to IReadOnlyList<int>
+[main] IndexInfo.ValueColumnsMap changed result type to IReadOnlyList<Pair<int, List<int>>>
+[main] SqlCompilerConfiguration's DatabaseMapping and SchemaMapping moved to SqlPostCompilerConfiguration
+[main] Some EventArgs inheritors that were sealed classes transformed to read-only structures
+[main] DbCommandEventArgs became read-only structure
+[main] LogEventInfo became read-only structure
+[main] ILockable.Lock() now has default implementation that refers to ILockable.Lock(true)
+[main] TupleDescriptor became read-only structure
+[main] InterfaceMapping became read-only structure
+[main] ColumnIndexMap became read-only structure and properties changed retun type to IReadOnlyList<int>
+[main] TopologicalSorter.Sort() methods return IEnumerable<T>, use .SortToList() if results are needed as collection
+[main] TypeHelper.OrderByInheritance() returns IEnumerable<T> to avoid copying
+[main] TypeHelper.GetInterfaces() became obsolete, GetInterfacesUnordered() and GetInterfacesOrderedByInheritance() introduced
+[main] TypeDef.Validators and FieldDef.Validators properties return List<T>
+[main] SqlCustomFunctionCall and SqlFunctionCall share one base type
+[main] SqlFunctionCall.Arguments property is IReadOnlyList now and parameters can't be changed after instance creation
+[main] Xtensive.Sql.Dml.Extensions.IsNullReference() extension method is marked obsolete, use 'is null' operator instead
+[main] DirectSessionAccessor.GetChangedEntities() result type changed to improve enumeration
+[main] EntityChangeRegistry.GetItems(PersistenceState) changed result type to improve enumeration
+[main] EntitySetChangeRegistry.GetItems() changed result type to improve enumeration
+[main] IgnoreRule now has only one public constructor - parameterless
+[main] IgnoreRule supports indexes
+[main] Queries use parameters instead of constant values for type indentifiers within columns list
+[main] Added DomainConfiguration.PreferTypeIdsAsQueryParameters to choose between contants and parameters for TypeIds
+[main] ShareStorageSchemaOverNodes option now includes shared query cache when TypeIds as paremters are prefered
+[main] Introduced TypeInfo.Ancestor property
+[main] Introduced TypeInfo.DirectDescendants and.AllDescendants properties
+[main] Introduced TypeInfo.DirectInterfaces and.AllInterfaces properties
+[main] Introduced TypeInfo.DirectImplementors .AllImplementors properties
+[main] BitFaster.Caching package reference is updated to 1.0.7
+[main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
+[main] Improved internal logging speed
+[main] General performance and memory efficiency improvements
+[reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
+[reprocessing] ExecuteErrorEventArgs (not sealed) became read-only structure
+[tracking] TrackingCompletedEventArgs (sealed) became read-only structure
+[tracking] ITrackingItem ChangedValues property changed return type to IReadOnlyList<ChangedValue>
+[tracking] ChangedValue became read-only structure
+[Web] Removed Obsolete SessionManager and StartupConfigurationExtension

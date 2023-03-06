@@ -67,9 +67,8 @@ namespace Xtensive.Orm.Building.Builders
       var types = new HashSet<TypeInfo>();
       foreach (var fullTextIndexDef in hierarchyIndexes) {
         var type = model.Types[fullTextIndexDef.Type.UnderlyingType];
-        types.Add(type);
-        foreach (var descendant in type.AllDescendants)
-          types.Add(descendant);
+        _ = types.Add(type);
+        types.UnionWith(type.AllDescendants);
         foreach (var fullTextFieldDef in fullTextIndexDef.Fields) {
           var fullTextColumn = GetFullTextColumn(type, fullTextFieldDef);
           index.Columns.Add(fullTextColumn);
@@ -110,8 +109,8 @@ namespace Xtensive.Orm.Building.Builders
         typeColumn = field.Column;
       }
       return new FullTextColumnInfo(column) {
-        IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
-        Configuration = fullTextFieldDef.Configuration, 
+        IsAnalyzed = fullTextFieldDef.IsAnalyzed,
+        Configuration = fullTextFieldDef.Configuration,
         TypeColumn = typeColumn
       };
     }
@@ -120,8 +119,9 @@ namespace Xtensive.Orm.Building.Builders
     {
       var model = context.Model;
       var processQueue = new Queue<TypeInfo>();
-      foreach (var type in root.DirectDescendants)
+      foreach (var type in root.DirectDescendants) {
         processQueue.Enqueue(type);
+      }
 
       var indexDefs = hierarchyIndexes.ToDictionary(
         ftid => model.Types[ftid.Type.UnderlyingType],
@@ -141,8 +141,9 @@ namespace Xtensive.Orm.Building.Builders
           }
         }
         if (typeHasIndexDef)
-          foreach (var descendant in type.DirectDescendants)
+          foreach (var descendant in type.DirectDescendants) {
             processQueue.Enqueue(descendant);
+          }
       }
       return indexDefs;
     }

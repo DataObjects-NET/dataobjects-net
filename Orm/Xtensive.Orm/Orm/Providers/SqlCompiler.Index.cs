@@ -218,7 +218,8 @@ namespace Xtensive.Orm.Providers
       SqlExpression filter = null;
       var type = index.ReflectedType;
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
-      var filterByTypes = index.FilterByTypes.ToList();
+      var filterByTypes = index.FilterByTypes;
+      var filterByTypesCount = filterByTypes.Count;
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
         var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns
@@ -320,7 +321,7 @@ namespace Xtensive.Orm.Providers
       if (discriminatorMap != null) {
         var discriminatorColumnIndex = 0;
         var discriminatorColumnInfo = discriminatorMap.Column;
-        var underlyingColumns = underlyingIndex.Columns; 
+        var underlyingColumns = underlyingIndex.Columns;
         for (var columnCount = underlyingColumns.Count; discriminatorColumnIndex < columnCount; discriminatorColumnIndex++) {
           var column = underlyingColumns[discriminatorColumnIndex];
           if (column.Equals(discriminatorColumnInfo)) {

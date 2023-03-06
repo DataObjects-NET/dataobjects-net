@@ -54,9 +54,9 @@ namespace Xtensive.Sql.Info
     /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
-      EnsureNotLocked();
+      this.EnsureNotLocked();
       sqlTypes.Add(sqlType, dataTypeInfo);
-      foreach(var nativeType in dataTypeInfo.NativeTypes) {
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
         nativeTypes.Add(nativeType, dataTypeInfo);
       }
     }
