@@ -1,0 +1,1 @@
+[main] Addressed DataTypeCollection.Add method issue of wrong adding storage-specifid types to the collection
