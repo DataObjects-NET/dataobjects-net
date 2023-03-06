@@ -56,9 +56,11 @@ namespace Xtensive.Sql.Info
     /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
-      EnsureNotLocked();
-      if (!IsLocked)
-        sqlTypes.Add(sqlType, dataTypeInfo);
+      this.EnsureNotLocked();
+      sqlTypes.Add(sqlType, dataTypeInfo);
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
+        nativeTypes.Add(nativeType, dataTypeInfo);
+      }
     }
 
     /// <summary>
@@ -112,7 +114,7 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Decimal { get; set; }
 
     /// <summary>
-    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from ï¿½3.40E + 38 through 3.40E + 38. 
     /// Storage size is 4 bytes.
     /// </summary>
     public DataTypeInfo Float { get; set; }
