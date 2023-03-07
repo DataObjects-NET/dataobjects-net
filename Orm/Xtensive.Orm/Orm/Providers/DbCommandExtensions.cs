@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
           case DateTimeOffset dateTimeOffset:
             value = dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
             break;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
           case DateOnly dateOnly:
             value = dateOnly.ToString("yyyy-MM-dd");
             break;

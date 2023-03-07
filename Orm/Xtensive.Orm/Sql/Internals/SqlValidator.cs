@@ -29,7 +29,7 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         WellKnownTypes.DateOnly,
         WellKnownTypes.TimeOnly,
 #endif

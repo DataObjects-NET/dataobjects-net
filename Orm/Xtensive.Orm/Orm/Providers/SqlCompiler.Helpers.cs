@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Providers
         if (columnType == WellKnownTypes.DateTime) {
           return SqlDml.Cast(expression, SqlType.DateTime);
         }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         if (columnType == WellKnownTypes.DateOnly) {
           return SqlDml.Cast(expression, SqlType.Date);
         }
@@ -355,7 +355,7 @@ namespace Xtensive.Orm.Providers
         if (type == WellKnownTypes.DateTime) {
           sqlType = SqlType.DateTime;
         }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         else if (type == WellKnownTypes.DateOnly) {
           sqlType = SqlType.Date;
         }

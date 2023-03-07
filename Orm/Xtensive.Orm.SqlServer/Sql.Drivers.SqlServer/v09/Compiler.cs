@@ -199,7 +199,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
@@ -330,7 +330,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
@@ -481,32 +481,28 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
-
 #if NET6_0_OR_GREATER
+
     /// <summary>
     /// Creates expression that represents addition <paramref name="interval"/> to the given <paramref name="time"/>.
     /// </summary>
     /// <param name="time">Time expression.</param>
     /// <param name="interval">Interval expression to add.</param>
     /// <returns></returns>
-    protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval)
-    {
-      return DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
-    }
+    protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+      DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
 
     /// <summary>
-    /// Creates expression that represents subtraction of two <see cref="DateTime"/> expressions.
+    /// Creates expression that represents subtraction of two <see cref="TimeOnly"/> expressions.
     /// </summary>
     /// <param name="time1">First <see cref="TimeOnly"/> expression.</param>
     /// <param name="time2">Second <see cref="TimeOnly"/> expression.</param>
     /// <returns>Result expression.</returns>
     /// <returns></returns>
-    protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2)
-    {
-      return SqlDml.Modulo(
+    protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
+      SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateDiffMillisecond(time2, time1), 18,0) * NanosecondsPerMillisecond,
         NanosecondsPerDay);
-    }
 #endif
 
     private SqlExpression GenericPad(SqlFunctionCall node)
@@ -593,8 +589,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds) =>
       SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlUserFunctionCall TimeToString(SqlExpression time) =>
       SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(16)"), time, SqlDml.Native("114"));
 

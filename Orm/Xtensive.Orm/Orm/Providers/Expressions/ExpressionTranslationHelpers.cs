@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToDateTime(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateTime);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public static SqlExpression ToDate(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateOnly);
 

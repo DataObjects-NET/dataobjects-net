@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -172,17 +172,15 @@ namespace Xtensive.Orm.Building.Builders
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
         var associations = type.GetOwnerAssociations()
-          .Where(a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear)
-          .ToList();
-        if (associations.Count <= 0)
-          continue;
-        var actionContainer = new PrefetchActionContainer(type, associations);
-        var action = actionContainer.BuildPrefetchAction();
-        domain.PrefetchActionMap.Add(type, action);
+          .Where(static a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear);
+        var action = new PrefetchActionContainer(type).BuildPrefetchAction(associations);
+        if (action != null) {
+          domain.PrefetchActionMap.Add(type, action);
+        }
       }
     }
 
-    private void BuildTypes(IEnumerable<TypeDef> typeDefs)
+    private void BuildTypes(IReadOnlyList<TypeDef> typeDefs)
     {
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Types)) {
         // Building types, system fields and hierarchies
@@ -190,21 +188,23 @@ namespace Xtensive.Orm.Building.Builders
           typeBuilder.BuildType(typeDef);
         }
       }
-      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), "Fields"))
+      var typeInfoCollection = context.Model.Types;
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), "Fields")) {
         foreach (var typeDef in typeDefs) {
-          var typeInfo = context.Model.Types[typeDef.UnderlyingType];
+          var typeInfo = typeInfoCollection[typeDef.UnderlyingType];
           typeBuilder.BuildFields(typeDef, typeInfo);
           typeBuilder.BuildTypeDiscriminatorMap(typeDef, typeInfo);
         }
+      }
     }
 
     private void PreprocessAssociations()
     {
-      foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
+      foreach (var typeInfo in context.Model.Types.Where(static t => t.IsEntity && !t.IsAuxiliary)) {
 
         // pair integrity escalation and consistency check
-        typesWithProcessedInheritedAssociations.Add(typeInfo);
-        var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
+        _ = typesWithProcessedInheritedAssociations.Add(typeInfo);
+        var refFields = typeInfo.Fields.Where(static f => f.IsEntity || f.IsEntitySet).ToList();
         // check for interface fields
         foreach (var refField in refFields) {
           var parentIsPaired = false;
@@ -257,11 +257,16 @@ namespace Xtensive.Orm.Building.Builders
 
           var fieldCopy = refField;
           if (!parentIsPaired)
-            context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
-          Func<AssociationInfo, bool> associationFilter = a => context.PairedAssociations
-            .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
-              && pa.Second == a.OwnerField.Name
-              && a.OwnerType == pa.First.TargetType);
+            _ = context.PairedAssociations.RemoveAll(pa => fieldCopy.Associations.Contains(pa.First));
+
+          bool associationFilter(AssociationInfo a)
+          {
+            return context.PairedAssociations
+              .Any(pa => a.TargetType.UnderlyingType.IsAssignableFrom(pa.First.OwnerType.UnderlyingType)
+                && pa.Second == a.OwnerField.Name
+                && a.OwnerType == pa.First.TargetType);
+          }
+
           var associationsToKeep = refField.IsInterfaceImplementation
             ? refField.Associations
                 .Where(associationFilter)
@@ -479,8 +484,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var type in typesToRegisterReferences) {
         var typeImplementors = type.DirectImplementors;
         var descendantTypes = type.AllDescendants;
-        if (typeImplementors.Any())
-        {
+        if (typeImplementors.Any()) {
           foreach (var implementor in typeImplementors)
             if (referenceRegistrator.ContainsKey(implementor))
               referenceRegistrator[implementor] += 1;
@@ -500,32 +504,32 @@ namespace Xtensive.Orm.Building.Builders
 
     private void MarkAuxiliaryTypesAsOutboundOnly(IEnumerable<TypeInfo> typesToMark)
     {
-      var auxiliary = typesToMark.Where(el => el.IsAuxiliary);
+      var auxiliary = typesToMark.Where(static el => el.IsAuxiliary);
       foreach (var typeInfo in auxiliary)
         typeInfo.IsOutboundOnly = true;
     }
 
     private void MarkTypesAsInboundOnly(Dictionary<TypeInfo, int> outputRefCountDictionary)
     {
-      foreach (var output in outputRefCountDictionary.Where(el => el.Value==0))
+      foreach (var output in outputRefCountDictionary.Where(static el => el.Value == 0))
         output.Key.IsInboundOnly = true;
     }
 
     private void MarkTypesAsOutboundOnly(Dictionary<TypeInfo, int> inputRefCountDictionary)
     {
-      foreach (var input in inputRefCountDictionary.Where(el => el.Value == 0))
+      foreach (var input in inputRefCountDictionary.Where(static el => el.Value == 0))
         input.Key.IsOutboundOnly = true;
     }
 
     private IEnumerable<AssociationInfo> GetMasterOrNonPairedAssociations(IEnumerable<AssociationInfo> allAssociations)
     {
-      return allAssociations.Where(el => el.IsMaster || !el.IsPaired);
+      return allAssociations.Where(static el => el.IsMaster || !el.IsPaired);
     }
 
     private Dictionary<TypeInfo,int> InitReferencesOfTypesDictionary(TypeInfoCollection allTypes)
     {
       var referencesOfTypeDictionary = new Dictionary<TypeInfo, int>();
-      var entityTypes = allTypes.Where(el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
+      var entityTypes = allTypes.Where(static el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
       foreach (var type in entityTypes) {
         referencesOfTypeDictionary.Add(type,0);
       }
@@ -534,25 +538,38 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Topological sort helpers
 
-    private IEnumerable<TypeDef> GetTypeBuildSequence()
+    private IReadOnlyList<TypeDef> GetTypeBuildSequence()
     {
-      List<Node<Node<TypeDef>, object>> loops;
-      var result = TopologicalSorter.Sort(context.DependencyGraph.Nodes, TypeConnector, out loops);
-      if (result==null)
-        throw new DomainBuilderException(string.Format(
-          Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
-          loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
-      var dependentTypes = result.Select(n => n.Value);
-      var independentTypes = context.ModelDef.Types.Except(dependentTypes);
-      return independentTypes.Concat(dependentTypes);
-    }
+      //.SortToList eliminates resizes (count is known within sorter) which will appear if use Sort().ToList()
+      var result = TopologicalSorter.SortToList(PrepareNodesForTopologicalSort(context.DependencyGraph.Nodes), out var loops)
+        ?? throw new DomainBuilderException(string.Format(
+            Strings.ExAtLeastOneLoopHaveBeenFoundInPersistentTypeDependenciesGraphSuspiciousTypesX,
+              loops.Select(node => node.Item.Value.Name).ToCommaDelimitedString()));
 
-    private static bool TypeConnector(Node<TypeDef> first, Node<TypeDef> second)
-    {
-      foreach (var info in second.OutgoingEdges)
-        if (info.Weight==EdgeWeight.High && info.Head==first)
-          return true;
-      return false;
+      var dependentTypes = result.Select(static n => n.Value);
+      var independentTypes = context.ModelDef.Types.Except(dependentTypes);
+
+      return independentTypes.Concat(dependentTypes).ToArray(context.ModelDef.Types.Count);
+
+
+      static List<Node<Node<TypeDef>, object>> PrepareNodesForTopologicalSort(IEnumerable<Node<TypeDef>> typeNodes)
+      {
+        var nodes = new List<Node<Node<TypeDef>, object>>();
+        foreach (var typeNode in typeNodes) {
+          var topoNode = new Node<Node<TypeDef>, object>(typeNode);
+          nodes.Add(topoNode);
+        }
+        var dict = nodes.ToDictionary(o => o.Item);
+        foreach (var typeNode in typeNodes) {
+          var tail = dict[typeNode];
+          foreach (var head in typeNode.OutgoingEdges.Where(static o => o.Weight == EdgeWeight.High).Select(static o => o.Head).Distinct()) {
+            if (head != typeNode) {
+              _ = dict[head].AddConnection(tail, null);
+            }
+          }
+        }
+        return nodes;
+      }
     }
 
     #endregion

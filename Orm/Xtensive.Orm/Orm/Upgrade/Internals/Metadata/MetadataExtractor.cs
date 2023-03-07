@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -26,9 +26,7 @@ namespace Xtensive.Orm.Upgrade
 
     public void ExtractTypes(MetadataSet output, SqlExtractionTask task)
     {
-      var types = new List<TypeMetadata>();
-      ExtractTypes(types, task);
-      output.Types.AddRange(types);
+      output.Types.AddRange(ExtractTypes(task));
     }
 
     public async Task ExtractTypesAsync(MetadataSet output, SqlExtractionTask task, CancellationToken token = default)
@@ -40,9 +38,7 @@ namespace Xtensive.Orm.Upgrade
 
     public void ExtractAssemblies(MetadataSet output, SqlExtractionTask task)
     {
-      var assemblies = new List<AssemblyMetadata>();
-      ExtractAssemblies(assemblies, task);
-      output.Assemblies.AddRange(assemblies);
+      output.Assemblies.AddRange(ExtractAssemblies(task));
     }
 
     public async Task ExtractAssembliesAsync(MetadataSet output, SqlExtractionTask task,
@@ -55,9 +51,7 @@ namespace Xtensive.Orm.Upgrade
 
     public void ExtractExtensions(MetadataSet output, SqlExtractionTask task)
     {
-      var extensions = new List<ExtensionMetadata>();
-      ExtractExtensions(extensions, task);
-      output.Extensions.AddRange(extensions);
+      output.Extensions.AddRange(ExtractExtensions(task));
     }
 
     public async Task ExtractExtensionsAsync(MetadataSet output, SqlExtractionTask task,
@@ -70,10 +64,10 @@ namespace Xtensive.Orm.Upgrade
 
     #region Private / internal methods
 
-    private void ExtractAssemblies(ICollection<AssemblyMetadata> output, SqlExtractionTask task)
+    private IEnumerable<AssemblyMetadata> ExtractAssemblies(SqlExtractionTask task)
     {
       var query = CreateQuery(mapping.Assembly, task, mapping.AssemblyName, mapping.AssemblyVersion);
-      ExecuteQuery(output, query, ParseAssembly);
+      return ExecuteQuery(query, ParseAssembly);
     }
 
     private Task ExtractAssembliesAsync(ICollection<AssemblyMetadata> output, SqlExtractionTask task,
@@ -83,10 +77,10 @@ namespace Xtensive.Orm.Upgrade
       return ExecuteQueryAsync(output, query, ParseAssembly, token);
     }
 
-    private void ExtractTypes(ICollection<TypeMetadata> output, SqlExtractionTask task)
+    private IEnumerable<TypeMetadata> ExtractTypes(SqlExtractionTask task)
     {
       var query = CreateQuery(mapping.Type, task, mapping.TypeId, mapping.TypeName);
-      ExecuteQuery(output, query, ParseType);
+      return ExecuteQuery(query, ParseType);
     }
 
     private Task ExtractTypesAsync(ICollection<TypeMetadata> output, SqlExtractionTask task, CancellationToken token)
@@ -95,10 +89,10 @@ namespace Xtensive.Orm.Upgrade
       return ExecuteQueryAsync(output, query, ParseType, token);
     }
 
-    private void ExtractExtensions(ICollection<ExtensionMetadata> output, SqlExtractionTask task)
+    private IEnumerable<ExtensionMetadata> ExtractExtensions(SqlExtractionTask task)
     {
       var query = CreateQuery(mapping.Extension, task, mapping.ExtensionName, mapping.ExtensionText);
-      ExecuteQuery(output, query, ParseExtension);
+      return ExecuteQuery(query, ParseExtension);
     }
 
     private Task ExtractExtensionsAsync(ICollection<ExtensionMetadata> output, SqlExtractionTask task,
@@ -129,12 +123,11 @@ namespace Xtensive.Orm.Upgrade
       return new TypeMetadata(id, name);
     }
 
-    private void ExecuteQuery<T>(ICollection<T> output, ISqlCompileUnit query, Func<DbDataReader, T> parser)
+    private IEnumerable<T> ExecuteQuery<T>(ISqlCompileUnit query, Func<DbDataReader, T> parser)
     {
       using var command = executor.ExecuteReader(query, CommandBehavior.SequentialAccess);
-      var reader = command.Reader;
-      while (reader.Read()) {
-        output.Add(parser.Invoke(reader));
+      for (var reader = command.Reader; reader.Read();) {
+        yield return parser(reader);
       }
     }
  

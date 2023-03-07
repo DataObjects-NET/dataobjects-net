@@ -847,7 +847,7 @@ namespace Xtensive.Orm.Upgrade
             new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
-      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
+      var sortedTables = TopologicalSorter.SortToList(nodes, out edges);
       // TODO: Process removed edges
 
       // Build DML commands
@@ -943,7 +943,7 @@ namespace Xtensive.Orm.Upgrade
       if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
         return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
         return SqlDml.DateTimeToDate(sqlTableColumn);
       }
@@ -976,7 +976,7 @@ namespace Xtensive.Orm.Upgrade
       return SqlDml.Cast(sqlTableColumn, newType);
     }
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     private static bool IsDateTimeType(in SqlType type)
     {
       return type == SqlType.DateTime

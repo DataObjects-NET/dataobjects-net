@@ -176,7 +176,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.DateTimeMinusDateTime:
           DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
@@ -233,7 +233,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             arguments[1] - 1),
             arguments[2] - 1));
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
@@ -308,8 +308,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         (CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) *
           NanosecondsPerMillisecond);
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2)
     {
       return SqlDml.Modulo(
@@ -368,8 +368,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected static SqlUserFunctionCall BitNot(SqlExpression operand) =>
       SqlDml.FunctionCall("BIN_NOT", operand);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static SqlExpression TimeToDateTime(SqlExpression time) =>
       SqlDml.Cast(time, SqlType.DateTime);
 
@@ -382,15 +382,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     protected static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
       SqlDml.Cast(dateTime, SqlType.Date);
 
-    protected static SqlFunctionCall DateToString(SqlExpression date)
-    {
-      return SqlDml.Substring(date, 0, 10);;
-    }
+    protected static SqlFunctionCall DateToString(SqlExpression date) =>
+      SqlDml.Substring(date, 0, 10);
 
-    protected static SqlConcat TimeToString(SqlExpression time)
-    {
-      return SqlDml.Concat(SqlDml.Substring(time, 0, 12), SqlDml.Literal("0000"));
-    }
+    protected static SqlConcat TimeToString(SqlExpression time) =>
+      SqlDml.Concat(SqlDml.Substring(time, 0, 12), SqlDml.Literal("0000"));
 #endif
 
     protected static SqlConcat DateTimeToStringIso(SqlExpression dateTime)
@@ -400,7 +396,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       return SqlDml.Concat(date, SqlDml.Literal("T"), time);
     }
-    
+
 #endregion
 
     protected internal Compiler(SqlDriver driver)

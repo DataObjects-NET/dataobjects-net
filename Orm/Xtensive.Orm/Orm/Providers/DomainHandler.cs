@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
         typeof (DateTimeOffsetCompilers),
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         typeof (DateOnlyCompilers),
         typeof (TimeOnlyCompilers),
 #endif

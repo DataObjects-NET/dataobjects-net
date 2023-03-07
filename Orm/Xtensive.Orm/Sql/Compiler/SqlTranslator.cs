@@ -1533,7 +1533,7 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case DateOnly dateOnly:
           output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;

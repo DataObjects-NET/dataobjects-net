@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly DateTime FirstMillisecondDateTime = FirstDateTime.AddMilliseconds(321);
     protected static readonly DateTime SecondMillisecondDateTime = SecondDateTime.AddMilliseconds(987);
     protected static readonly DateTime WrongMillisecondDateTime = WrongDateTime.AddMilliseconds(654);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     protected static readonly DateOnly FirstDateOnly = DateOnly.FromDateTime(FirstDateTime);
     protected static readonly DateOnly SecondDateOnly = DateOnly.FromDateTime(SecondDateTime);
     protected static readonly DateOnly NullableDateOnly = DateOnly.FromDateTime(SecondDateTime);
@@ -63,8 +63,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         MillisecondDateTime = FirstMillisecondDateTime,
         NullableDateTime = NullableDateTime
       };
-
 #if NET6_0_OR_GREATER
+
       _ = new SingleDateOnlyEntity(session) {
         DateOnly = FirstDateOnly,
         NullableDateOnly = NullableDateOnly,
@@ -149,7 +149,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         MillisecondTimeOnly = FirstMillisecondTimeOnly.Add(new TimeSpan(0, 0,-5)),
         NullableTimeOnly = NullableTimeOnly.Add(new TimeSpan(0, 0,-5)),
       };
-
 #endif
 
       _ = new DateTimeEntity(session, FirstDateTime);

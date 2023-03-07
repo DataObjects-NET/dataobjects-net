@@ -2,14 +2,13 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
-using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 {

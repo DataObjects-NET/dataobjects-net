@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'";
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
@@ -346,8 +346,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default: base.Translate(output, dateTimePart); break;
       }
     }
-
 #if NET6_0_OR_GREATER
+
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart dateTimePart)
     {

@@ -29,13 +29,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)";
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
 
     /// <inheritdoc/>
-    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.ffffff\'\ DAY(0) TO SECOND(6))";
+    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.fffffff\'\ DAY(0) TO SECOND(7))";
 #endif
 
     /// <inheritdoc/>
@@ -340,7 +340,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return type.Type == SqlType.Interval
         ? "INTERVAL DAY(6) TO SECOND(3)"
         : type.Type == SqlType.Time
-          ? "INTERVAL DAY(0) TO SECOND(6)"
+          ? "INTERVAL DAY(0) TO SECOND(7)"
           : base.Translate(type);
 #else
       // we need to explicitly specify maximum interval precision
@@ -365,8 +365,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           break;
       }
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
     {
@@ -427,7 +427,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       switch (type) {
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimePlusInterval:
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
 #endif
           _ = output.Append("+"); break;

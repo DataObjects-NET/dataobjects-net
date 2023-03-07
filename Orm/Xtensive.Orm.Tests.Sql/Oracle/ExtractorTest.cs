@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Interval]}\" interval day to second NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTime]}\" timestamp NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTimeOffset]}\" TIMESTAMP WITH TIME ZONE NULL,");
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Date]}\" date NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Time]}\" interval day(0) to second NULL,");
 #endif

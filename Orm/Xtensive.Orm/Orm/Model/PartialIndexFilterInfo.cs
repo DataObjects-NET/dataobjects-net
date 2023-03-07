@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -56,7 +56,9 @@ namespace Xtensive.Orm.Model
         throw Exceptions.NotInitialized("Expression");
       if (Fields==null)
         throw Exceptions.NotInitialized("Fields");
-      fields = fields.ToList().AsReadOnly();
+      fields = fields is List<FieldInfo> list
+        ? list.AsReadOnly()
+        : (IList<FieldInfo>) fields.ToList().AsReadOnly();
       base.Lock(recursive);
     }
   }

@@ -33,8 +33,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
     }
-
 #if NET6_0_OR_GREATER
+
     public override object ReadDateOnly(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
@@ -88,8 +88,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var correctValue = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
       parameter.Value = correctValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public override void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;

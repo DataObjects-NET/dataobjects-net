@@ -96,8 +96,8 @@ namespace Xtensive.Orm.Sql.Tests
       Assert.That((int) SqlDateTimePart.DayOfWeek, Is.EqualTo(11));
       Assert.That((int) SqlDateTimePart.Nothing, Is.EqualTo(25));
     }
-
 #if NET6_0_OR_GREATER
+
     [Test]
     public void DatePartsValueTest()
     {

@@ -2,7 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
 
 using System;
 using NUnit.Framework;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
       Require.ProviderIs(StorageProvider.MySql);
       Require.ProviderVersionAtLeast(new Version(5, 6));// no support for fractions below 5.6
       ExecuteInsideSession((s) => {
-        var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.FixTimeOnlyForProvider(StorageProviderInfo.Instance);
+        var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.AdjustTimeOnlyForCurrentProvider();
         RunTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Millisecond == firstMillisecondTimeOnly.Millisecond);
         RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Second == WrongMillisecondTimeOnly.Millisecond);
       });

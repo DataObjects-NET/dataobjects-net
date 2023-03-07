@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
 {
   internal class Compiler : v5_5.Compiler
   {
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
     public override void Visit(SqlBinary node)
     {
       if (node.NodeType == SqlNodeType.TimePlusInterval) {
@@ -31,14 +31,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
             SqlDml.FunctionCall("TIME",
               SqlDml.FunctionCall("ADDTIME",
                 SqlDml.Cast(arguments[0], SqlType.DateTime),
-                arguments[1] * 10000))); // 10000 = 1:00:00 :)
+                arguments[1] * 10000))); // 10000 = 1:00:00
           return;
         case SqlFunctionType.TimeAddMinutes:
           Visit(
             SqlDml.FunctionCall("TIME",
               SqlDml.FunctionCall("ADDTIME",
                 SqlDml.Cast(arguments[0], SqlType.DateTime),
-                arguments[1] * 100))); // 100 = 0:01:00 :)
+                arguments[1] * 100))); // 100 = 0:01:00
           return;
         case SqlFunctionType.TimeConstruct: {
           Visit(MakeTime(arguments[0], arguments[1], arguments[2], arguments[3]));

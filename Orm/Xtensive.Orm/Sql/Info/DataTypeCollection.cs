@@ -54,9 +54,9 @@ namespace Xtensive.Sql.Info
     /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
-      EnsureNotLocked();
+      this.EnsureNotLocked();
       sqlTypes.Add(sqlType, dataTypeInfo);
-      foreach(var nativeType in dataTypeInfo.NativeTypes) {
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
         nativeTypes.Add(nativeType, dataTypeInfo);
       }
     }
@@ -143,8 +143,8 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <summary>
     /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
     /// Can have various ranges in different RDBMSs.
@@ -249,7 +249,7 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       yield return DateOnly;
       yield return TimeOnly;
 #endif

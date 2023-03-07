@@ -131,8 +131,8 @@ namespace Xtensive.Sql
       parameter.DbType = DbType.DateTime;
       parameter.Value = value ?? DBNull.Value;
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public virtual void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Date;
@@ -223,8 +223,8 @@ namespace Xtensive.Sql
 
     public virtual object ReadDateTime(DbDataReader reader, int index) =>
       reader.GetDateTime(index);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public virtual object ReadDateOnly(DbDataReader reader, int index) =>
       reader.GetFieldValue<DateOnly>(index);
 
@@ -327,8 +327,8 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.DateTime);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.Date);
 

@@ -38,12 +38,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     protected const string ToCharFunctionName = "TO_CHAR";
     protected const string NumToDSIntervalFunctionName = "NUMTODSINTERVAL";
+    protected const string NumToYMIntervalFunctionName = "NUMTOYMINTERVAL";
+
     protected const string ToDSIntervalFunctionName = "TO_DSINTERVAL";
-    protected const string TimeFormat = "HH24:MI:SS.FF6";
+    protected const string TimeFormat = "HH24:MI:SS.FF7";
 
     private static readonly SqlExpression SundayNumber = SqlDml.Native(
       "TO_NUMBER(TO_CHAR(TIMESTAMP '2009-07-26 00:00:00.000', 'D'))");
-    private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.000000'");
+    private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.0000000'");
 
     public override void Visit(SqlFunctionCall node)
     {
@@ -66,41 +68,34 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         case SqlFunctionType.DateTimeConstruct:
           DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
           DateConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
           TimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2], node.Arguments[3]).AcceptVisitor(this);
           return;
-        case SqlFunctionType.DateAddYears: {
+        case SqlFunctionType.DateAddYears:
           DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], YearIntervalPart).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.DateAddMonths: {
+        case SqlFunctionType.DateAddMonths:
           DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], MonthIntervalPart).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.DateAddDays: {
+        case SqlFunctionType.DateAddDays:
           DateTimeAddDSInterval(node.Arguments[0], node.Arguments[1], DayIntervalPart).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.TimeAddHours: {
+        case SqlFunctionType.TimeAddHours:
           TimeAddHourOrMinute(node.Arguments[0], node.Arguments[1], true).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.TimeAddMinutes: {
+        case SqlFunctionType.TimeAddMinutes:
           TimeAddHourOrMinute(node.Arguments[0], node.Arguments[1], false).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.DateToString: {
+        case SqlFunctionType.DateToString:
           DateToString(node.Arguments[0]).AcceptVisitor(this);
           return;
-        }
-        case SqlFunctionType.TimeToString: {
+        case SqlFunctionType.TimeToString:
           TimeToString(node.Arguments[0]).AcceptVisitor(this);
           return;
-        }
 #endif
         case SqlFunctionType.IntervalAbs:
           SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
@@ -249,7 +244,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
           return;
       }
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
       switch (node.DatePart) {
         case SqlDatePart.DayOfYear:
           DateTimeExtractDayOfYear(node.Operand).AcceptVisitor(this);
@@ -342,7 +337,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         case SqlNodeType.BitXor:
           BitXor(node.Left, node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER //DO_DATEONLY
+#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
@@ -357,7 +352,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     }
 
     private static SqlExpression DateTimeAddYMInterval(SqlExpression dateTime, SqlExpression units, in string component) =>
-      dateTime + SqlDml.FunctionCall(NumToDSIntervalFunctionName, units, AnsiString(component));
+      dateTime + SqlDml.FunctionCall(NumToYMIntervalFunctionName, units, AnsiString(component));
 
     private static SqlExpression DateTimeAddDSInterval(SqlExpression dateTime, SqlExpression units, in string component) =>
       dateTime + SqlDml.FunctionCall(NumToDSIntervalFunctionName, units, AnsiString(component));
@@ -373,8 +368,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       SqlDml.FunctionCall("TO_TIMESTAMP",
         SqlDml.FunctionCall(ToCharFunctionName, ((years * 100) + months) * 100 + days),
         AnsiString("YYYYMMDD"));
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     private static SqlExpression DateConstruct(SqlExpression years, SqlExpression months, SqlExpression days) =>
       SqlDml.FunctionCall("TO_DATE",
         SqlDml.FunctionCall(ToCharFunctionName, ((years * 100) + months) * 100 + days),
@@ -489,8 +484,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
       SqlDml.Cast(date, SqlType.DateTimeOffset);
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     private static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
       SqlDml.Cast(dateTime, SqlType.Date);
 
@@ -526,7 +521,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
             )
           )
         ), SqlType.Time);
-    //SqlDml.Cast(dateTimeOffset - SqlDml.Cast(dateTimeOffset, SqlType.Date), SqlType.Time);
 
     private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
       SqlDml.Cast(

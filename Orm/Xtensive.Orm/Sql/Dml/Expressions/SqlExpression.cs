@@ -204,8 +204,8 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<DateTime>(value);
     }
+#if NET6_0_OR_GREATER
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     public static implicit operator SqlExpression(DateOnly value)
     {
       return new SqlLiteral<DateOnly>(value);

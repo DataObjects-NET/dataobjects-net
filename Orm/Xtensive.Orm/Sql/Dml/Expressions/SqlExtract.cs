@@ -25,15 +25,15 @@ namespace Xtensive.Sql.Dml
 
     public SqlDateTimePart DateTimePart =>
       typeMarker == DateTimeTypeId ? internalValue.ToDateTimePartFast() : SqlDateTimePart.Nothing;
-
 #if NET6_0_OR_GREATER
+
     public SqlDatePart DatePart =>
       typeMarker == DateTypeId ? internalValue.ToDatePartFast() : SqlDatePart.Nothing;
 
     public SqlTimePart TimePart =>
       typeMarker == TimeTypeId ? internalValue.ToTimePartFast() : SqlTimePart.Nothing;
-
 #endif
+
     public SqlDateTimeOffsetPart DateTimeOffsetPart =>
       typeMarker == DateTimeOffsetTypeId ? internalValue : SqlDateTimeOffsetPart.Nothing;
 
@@ -50,8 +50,8 @@ namespace Xtensive.Sql.Dml
     public bool IsDateTimeOffsetPart => typeMarker == DateTimeOffsetTypeId;
 
     public bool IsDateTimePart => typeMarker == DateTimeTypeId;
-
 #if NET6_0_OR_GREATER
+
     public bool IsDatePart => typeMarker == DateTypeId;
 
     public bool IsTimePart => typeMarker == TimeTypeId;
@@ -120,14 +120,10 @@ namespace Xtensive.Sql.Dml
       internalValue = dateTimeOffsetPart;
       typeMarker = DateTimeOffsetTypeId;
       typeHasTime = true;
-
-      //DateTimePart = SqlDateTimePart.Nothing;
-      //IntervalPart = SqlIntervalPart.Nothing;
-      //DateTimeOffsetPart = dateTimeOffsetPart;
       Operand = operand;
     }
-
 #if NET6_0_OR_GREATER
+
     internal SqlExtract(SqlDatePart datePart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
