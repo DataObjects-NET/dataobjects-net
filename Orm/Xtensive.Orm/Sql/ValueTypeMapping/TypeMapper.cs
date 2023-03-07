@@ -46,12 +46,12 @@ namespace Xtensive.Sql
     public virtual void BindChar(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }
       var _char = (char) value;
-      parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
+      parameter.Value = _char == default(char) ? string.Empty : _char.ToString();
     }
 
     public virtual void BindString(DbParameter parameter, object value)
@@ -155,7 +155,7 @@ namespace Xtensive.Sql
     public virtual void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value!=null) {
+      if (value != null) {
         var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, Int64TimeSpanRange);
         parameter.Value = timeSpan.Ticks * 100;
       }
@@ -226,7 +226,7 @@ namespace Xtensive.Sql
 #if NET6_0_OR_GREATER
 
     public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-      DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+        DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
 
     public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
       TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
@@ -311,9 +311,9 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
-      if (MaxDecimalPrecision==null)
+      if (MaxDecimalPrecision == null)
         return new SqlValueType(SqlType.Decimal);
-      if (precision==null) {
+      if (precision == null) {
         var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
         var resultScale = resultPrecision / 2;
         return new SqlValueType(SqlType.Decimal, resultPrecision, resultScale);
@@ -352,9 +352,9 @@ namespace Xtensive.Sql
 
     protected static SqlValueType ChooseStreamType(SqlType varType, SqlType varMaxType, int? length, int? varTypeMaxLength)
     {
-      if (varTypeMaxLength==null)
+      if (varTypeMaxLength == null)
         return new SqlValueType(varMaxType);
-      if (length==null)
+      if (length == null)
         return new SqlValueType(varType, varTypeMaxLength.Value);
       if (length.Value > varTypeMaxLength.Value)
         return new SqlValueType(varMaxType);
@@ -367,13 +367,13 @@ namespace Xtensive.Sql
     public virtual void Initialize()
     {
       var varchar = Driver.ServerInfo.DataTypes.VarChar;
-      if (varchar!=null)
+      if (varchar != null)
         VarCharMaxLength = varchar.MaxLength;
       var varbinary = Driver.ServerInfo.DataTypes.VarBinary;
-      if (varbinary!=null)
+      if (varbinary != null)
         VarBinaryMaxLength = varbinary.MaxLength;
       var _decimal = Driver.ServerInfo.DataTypes.Decimal;
-      if (_decimal!=null)
+      if (_decimal != null)
         MaxDecimalPrecision = _decimal.MaxPrecision;
     }
 
