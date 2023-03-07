@@ -38,6 +38,7 @@
     <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
 
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
+    <NoWarn>$(NoWarn);CS0618;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
   </PropertyGroup>
 
