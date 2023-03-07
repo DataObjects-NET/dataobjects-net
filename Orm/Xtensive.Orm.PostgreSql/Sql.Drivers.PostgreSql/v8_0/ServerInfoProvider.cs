@@ -90,7 +90,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       info.MaxIdentifierLength = MaxIdentifierLength;
       info.Features = CheckConstraintFeatures.None;
       // TODO: more exactly
-      info.MaxExpressionLength = GetMaxTextLength(); 
+      info.MaxExpressionLength = GetMaxTextLength();
       return info;
     }
 
@@ -156,7 +156,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
         ValueRange.Int16,
         "smallint", "int2");
-      
+
       dtc.Int32 = DataTypeInfo.Range(SqlType.Int32, commonFeatures,
         ValueRange.Int32, "integer", "int4");
 
@@ -168,7 +168,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
         ValueRange.Float, "real", "float4");
-      
+
       dtc.Double = DataTypeInfo.Range(SqlType.Double, commonFeatures,
         ValueRange.Double, "double precision", "float8");
 
@@ -177,8 +177,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
         ValueRange.TimeSpan, "interval");
+#if NET6_0_OR_GREATER
 
-#if DO_DATEONLY
       dtc.DateOnly = DataTypeInfo.Range(SqlType.Date, commonFeatures, ValueRange.DateOnly, "date");
       dtc.TimeOnly = DataTypeInfo.Range(SqlType.Time, commonFeatures, ValueRange.TimeOnly, "time");
 #endif
@@ -251,7 +251,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
         QueryFeatures.FullBooleanExpressionSupport |
-        QueryFeatures.UpdateFrom | 
+        QueryFeatures.UpdateFrom |
         QueryFeatures.Limit |
         QueryFeatures.Offset |
         QueryFeatures.MulticolumnIn |

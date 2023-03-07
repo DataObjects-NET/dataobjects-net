@@ -10,7 +10,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Model.UselessTypeInTheMiddleTestModel;
 using model = Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model;
 
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
@@ -408,7 +407,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var now = DateTime.UtcNow;
 
       a.Text = updatedText;
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
       var dateOnly = DateOnly.FromDateTime(now);
       var timeOnly = TimeOnly.FromDateTime(now);
       a.DateOnly = dateOnly;
@@ -418,7 +417,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 
       Assert.That(session.Query.All<model.Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
       Assert.That(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText), Is.Not.Null);
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
       Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).DateOnly, dateOnly);
       Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).TimeOnly, timeOnly);
 #endif

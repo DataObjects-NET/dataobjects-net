@@ -34,28 +34,26 @@ namespace Xtensive.Tuples.Packed
 
     private static class ValueFieldAccessorResolver
     {
-      private static readonly ValueFieldAccessor
-        BoolAccessor = new BooleanFieldAccessor(),
-        ByteAccessor = new ByteFieldAccessor(),
-        SByteAccessor = new SByteFieldAccessor(),
-        Int16Accessor = new ShortFieldAccessor(),
-        UInt16Accessor = new UShortFieldAccessor(),
-        Int32Accessor = new IntFieldAccessor(),
-        UInt32Accessor = new UIntFieldAccessor(),
-        Int64Accessor = new LongFieldAccessor(),
-        UInt64Accessor = new ULongFieldAccessor(),
-        SingleAccessor = new FloatFieldAccessor(),
-        DoubleAccessor = new DoubleFieldAccessor(),
-        DateTimeAccessor = new DateTimeFieldAccessor(),
-        TimeSpanAccessor = new TimeSpanFieldAccessor(),
-        DecimalAccessor = new DecimalFieldAccessor(),
-        GuidAccessor = new GuidFieldAccessor(),
-        DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor()
-#if DO_DATEONLY
-        , DateOnlyAccessor = new DateOnlyFieldAccessor()
-        , TimeOnlyAccessor = new TimeOnlyFieldAccessor()
+      private static readonly ValueFieldAccessor BoolAccessor = new BooleanFieldAccessor();
+      private static readonly ValueFieldAccessor ByteAccessor = new ByteFieldAccessor();
+      private static readonly ValueFieldAccessor SByteAccessor = new SByteFieldAccessor();
+      private static readonly ValueFieldAccessor Int16Accessor = new ShortFieldAccessor();
+      private static readonly ValueFieldAccessor UInt16Accessor = new UShortFieldAccessor();
+      private static readonly ValueFieldAccessor Int32Accessor = new IntFieldAccessor();
+      private static readonly ValueFieldAccessor UInt32Accessor = new UIntFieldAccessor();
+      private static readonly ValueFieldAccessor Int64Accessor = new LongFieldAccessor();
+      private static readonly ValueFieldAccessor UInt64Accessor = new ULongFieldAccessor();
+      private static readonly ValueFieldAccessor SingleAccessor = new FloatFieldAccessor();
+      private static readonly ValueFieldAccessor DoubleAccessor = new DoubleFieldAccessor();
+      private static readonly ValueFieldAccessor DateTimeAccessor = new DateTimeFieldAccessor();
+#if NET6_0_OR_GREATER
+      private static readonly ValueFieldAccessor DateOnlyAccessor = new DateOnlyFieldAccessor();
+      private static readonly ValueFieldAccessor TimeOnlyAccessor = new TimeOnlyFieldAccessor();
 #endif
-      ;
+      private static readonly ValueFieldAccessor TimeSpanAccessor = new TimeSpanFieldAccessor();
+      private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
+      private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
+      private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
@@ -80,7 +78,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
             ReferenceEquals(type, WellKnownTypes.DateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeOnly) ? TimeOnlyAccessor :
 #endif
@@ -104,7 +102,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
             ReferenceEquals(type, WellKnownTypes.NullableDateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeOnly) ? TimeOnlyAccessor :
 #endif

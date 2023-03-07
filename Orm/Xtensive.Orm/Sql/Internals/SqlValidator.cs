@@ -30,12 +30,12 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
-        WellKnownTypes.DateTimeOffset,
-        WellKnownTypes.TimeSpan,
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
         WellKnownTypes.DateOnly,
         WellKnownTypes.TimeOnly,
 #endif
+        WellKnownTypes.DateTimeOffset,
+        WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
         WellKnownTypes.Guid,
         WellKnownOrmTypes.TypeInfo
@@ -182,6 +182,10 @@ namespace Xtensive.Sql
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+        case SqlNodeType.TimeMinusTime:
+#endif
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;
@@ -241,6 +245,6 @@ namespace Xtensive.Sql
     public static bool IsLiteralTypeSupported(Type type)
     {
       return supportedTypes.Contains(type);
-    }    
+    }
   }
 }

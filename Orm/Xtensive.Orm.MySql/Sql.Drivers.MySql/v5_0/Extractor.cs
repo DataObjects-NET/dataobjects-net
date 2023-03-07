@@ -528,26 +528,27 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  1       table_name,
     //  2       constraint_name,
     //  3       delete_rule,
-    //  4       column_name,
-    //  5       ordinal_position,
-    //  6       referenced_table_schema,
-    //  7       referenced_table_name,
-    //  8       referenced_column_name
+    //  4       update_rule
+    //  5       column_name,
+    //  6       ordinal_position,
+    //  7       referenced_table_schema,
+    //  8       referenced_table_name,
+    //  9       referenced_column_name
     private static void ReadForeignKeyColumnData(DbDataReader reader, ref ForeignKeyReaderState state)
     {
-      var columnIndex = ReadInt(reader, 5);
+      var columnIndex = ReadInt(reader, 6);
       if (columnIndex <= state.LastColumnIndex) {
         var referencingSchema = state.Catalog.Schemas[reader.GetString(0)];
         state.ReferencingTable = referencingSchema.Tables[reader.GetString(1)];
         state.ForeignKey = state.ReferencingTable.CreateForeignKey(reader.GetString(2));
-        ReadCascadeAction(state.ForeignKey, reader, 3);
+        ReadForeignKeyActions(state.ForeignKey, reader, 3, 4);
         var referencedSchema = state.Catalog.Schemas[reader.GetString(0)]; //Schema same as current
-        state.ReferencedTable = referencedSchema.Tables[reader.GetString(7)];
+        state.ReferencedTable = referencedSchema.Tables[reader.GetString(8)];
         state.ForeignKey.ReferencedTable = state.ReferencedTable;
       }
 
-      var referencingColumn = state.ReferencingTable.TableColumns[reader.GetString(4)];
-      var referencedColumn = state.ReferencedTable.TableColumns[reader.GetString(8)];
+      var referencingColumn = state.ReferencingTable.TableColumns[reader.GetString(5)];
+      var referencedColumn = state.ReferencedTable.TableColumns[reader.GetString(9)];
       state.ForeignKey.Columns.Add(referencingColumn);
       state.ForeignKey.ReferencedColumns.Add(referencedColumn);
       state.LastColumnIndex = columnIndex;
@@ -601,7 +602,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       var typeName = row.GetString(typeNameIndex).ToUpperInvariant();
-      var columnName = row.GetString(6).ToUpperInvariant();
+      var dataTypeName = row.GetString(6).ToUpperInvariant();
 
       var precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       var scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
@@ -617,69 +618,84 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.Double);
       }
 
-      if (columnName == "TINYINT(1)") {
+      if (dataTypeName.Equals("TINYINT(1)", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.Boolean);
       }
 
-      if (typeName.StartsWith("TINYINT")) {
+      if (typeName.StartsWith("TINYINT", StringComparison.Ordinal)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int8);
       }
 
-      if (typeName.StartsWith("SMALLINT")) {
+      if (typeName.StartsWith("SMALLINT", StringComparison.Ordinal)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int16);
       }
 
-      if (typeName.StartsWith("MEDIUMINT")) {
+      if (typeName.StartsWith("MEDIUMINT", StringComparison.Ordinal)) {
         // There is not 34bit Int in SqlType
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int32);
       }
 
-      if (typeName.StartsWith("INT")) {
+      if (typeName.StartsWith("INT", StringComparison.Ordinal)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int32);
       }
 
-      if (typeName.StartsWith("BIGINT")) {
+      if (typeName.StartsWith("BIGINT", StringComparison.Ordinal)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int64);
       }
-
-      if (typeName.StartsWith("TIME")) {
+#if NET6_0_OR_GREATER
+      if (typeName.Equals("TIME", StringComparison.Ordinal) || typeName.StartsWith("TIME(")) {
+        return new SqlValueType(SqlType.Time);
+      }
+      else if (typeName.StartsWith("TIME", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too
         return new SqlValueType(SqlType.DateTime);
       }
-      if (typeName.StartsWith("YEAR")) {
+#else
+      if (typeName.StartsWith("TIME", StringComparison.Ordinal)) {
+        // "timestamp precision" is saved as "scale", ignoring too
+        return new SqlValueType(SqlType.DateTime);
+      }
+#endif
+      if (typeName.StartsWith("YEAR", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too
         return new SqlValueType(SqlType.Decimal, 4, 0);
       }
 
-      if (typeName=="LONGTEXT") {
+      if (typeName.Equals("LONGTEXT", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.VarCharMax);
       }
 
-      if (typeName.Contains("TEXT")) {
+      if (typeName.Contains("TEXT", StringComparison.Ordinal)) {
         var length = ReadInt(row, charLengthIndex);
         return new SqlValueType(SqlType.VarCharMax, length);
       }
 
-      if (typeName.Contains("BLOB")) {
+      if (typeName.Contains("BLOB", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.VarBinaryMax);
       }
 
-      if (typeName == "VARBINARY") {
+      if (typeName.Equals("BINARY", StringComparison.Ordinal)) {
         var length = ReadInt(row, charLengthIndex);
+        return new SqlValueType(SqlType.Binary, length);
+      }
+      if (typeName.Equals("VARBINARY", StringComparison.Ordinal)) {
+        var length = ReadInt(row, charLengthIndex);
+        
         return new SqlValueType(SqlType.VarBinary, length);
       }
 
-      if (typeName == "VARCHAR" || typeName == "CHAR") {
+      if (typeName.Equals("VARCHAR", StringComparison.Ordinal)
+        || typeName.Equals("CHAR", StringComparison.Ordinal)) {
         var length = Convert.ToInt32(row[charLengthIndex]);
         var sqlType = typeName.Length==4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
@@ -732,19 +748,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private static string ReadStringOrNull(IDataRecord row, int index) =>
       row.IsDBNull(index) ? null : row.GetString(index);
 
-    private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
+    private static void ReadForeignKeyActions(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex, int updateRuleIndex)
     {
       var deleteRule = row.GetString(deleteRuleIndex);
-      switch (deleteRule) {
-        case "CASCADE":
-          foreignKey.OnDelete = ReferentialAction.Cascade;
-          return;
-        case "SET NULL":
-          foreignKey.OnDelete = ReferentialAction.SetNull;
-          return;
-        case "NO ACTION":
-          foreignKey.OnDelete = ReferentialAction.NoAction;
-          return;
+      foreignKey.OnDelete = GetEnumAction(deleteRule);
+
+      var updateRule = row.GetString(updateRuleIndex);
+      foreignKey.OnUpdate = GetEnumAction(updateRule);
+
+
+      static ReferentialAction GetEnumAction(in string rawActionName)
+      {
+        return rawActionName switch {
+          "CASCADE" => ReferentialAction.Cascade,
+          "SET NULL" => ReferentialAction.SetNull,
+          "NO ACTION" => ReferentialAction.NoAction,
+          "RESTRICT" => ReferentialAction.NoAction,
+          "SET DEFAULT" => ReferentialAction.SetDefault,
+          _ => throw new ArgumentOutOfRangeException()
+        };
       }
     }
 

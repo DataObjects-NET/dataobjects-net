@@ -33,10 +33,10 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToFloat(SqlExpression target) =>
       Cast(target, WellKnownTypes.Single);
-    
+
     public static SqlExpression ToDecimal(SqlExpression target) =>
       Cast(target, WellKnownTypes.Decimal);
-    
+
     public static SqlExpression ToByte(SqlExpression target) =>
       Cast(target, WellKnownTypes.Byte);
 
@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToDateTime(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateTime);
+#if NET6_0_OR_GREATER
 
-#if DO_DATEONLY
     public static SqlExpression ToDate(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateOnly);
 

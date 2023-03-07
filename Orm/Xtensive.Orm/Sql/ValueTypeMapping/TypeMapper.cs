@@ -46,12 +46,12 @@ namespace Xtensive.Sql
     public virtual void BindChar(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }
       var _char = (char) value;
-      parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
+      parameter.Value = _char == default(char) ? string.Empty : _char.ToString();
     }
 
     public virtual void BindString(DbParameter parameter, object value)
@@ -131,6 +131,20 @@ namespace Xtensive.Sql
       parameter.DbType = DbType.DateTime;
       parameter.Value = value ?? DBNull.Value;
     }
+#if NET6_0_OR_GREATER
+
+    public virtual void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? ((DateOnly) value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
+    }
+
+    public virtual void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value != null ? ((TimeOnly) value).ToTimeSpan() : DBNull.Value;
+    }
+#endif
 
     public virtual void BindDateTimeOffset(DbParameter parameter, object value)
     {
@@ -141,7 +155,7 @@ namespace Xtensive.Sql
     public virtual void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value!=null) {
+      if (value != null) {
         var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, Int64TimeSpanRange);
         parameter.Value = timeSpan.Ticks * 100;
       }
@@ -209,6 +223,14 @@ namespace Xtensive.Sql
 
     public virtual object ReadDateTime(DbDataReader reader, int index) =>
       reader.GetDateTime(index);
+#if NET6_0_OR_GREATER
+
+    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
+        DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+
+    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
+      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+#endif
 
     public virtual object ReadDateTimeOffset(DbDataReader reader, int index) =>
       (DateTimeOffset) reader.GetValue(index);
@@ -289,9 +311,9 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
-      if (MaxDecimalPrecision==null)
+      if (MaxDecimalPrecision == null)
         return new SqlValueType(SqlType.Decimal);
-      if (precision==null) {
+      if (precision == null) {
         var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
         var resultScale = resultPrecision / 2;
         return new SqlValueType(SqlType.Decimal, resultPrecision, resultScale);
@@ -306,6 +328,15 @@ namespace Xtensive.Sql
     public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.DateTime);
 
+#if NET6_0_OR_GREATER
+
+    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Date);
+
+    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Time);
+#endif
+
     public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.DateTimeOffset);
 
@@ -318,39 +349,13 @@ namespace Xtensive.Sql
     public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale) =>
       ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
 
-#if DO_DATEONLY
-    public virtual void BindDateOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Date;
-      parameter.Value = value != null ? (DateOnly)value : DBNull.Value;
-    }
-
-    public virtual void BindTimeOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Time;
-      parameter.Value = value != null ? (TimeOnly)value : DBNull.Value;
-    }
-
-    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<DateOnly>(index);
-
-    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<TimeOnly>(index);
-
-    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Date);
-
-    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Time);
-#endif // DO_DATEONLY
-
     #endregion
 
     protected static SqlValueType ChooseStreamType(SqlType varType, SqlType varMaxType, int? length, int? varTypeMaxLength)
     {
-      if (varTypeMaxLength==null)
+      if (varTypeMaxLength == null)
         return new SqlValueType(varMaxType);
-      if (length==null)
+      if (length == null)
         return new SqlValueType(varType, varTypeMaxLength.Value);
       if (length.Value > varTypeMaxLength.Value)
         return new SqlValueType(varMaxType);
@@ -363,13 +368,13 @@ namespace Xtensive.Sql
     public virtual void Initialize()
     {
       var varchar = Driver.ServerInfo.DataTypes.VarChar;
-      if (varchar!=null)
+      if (varchar != null)
         VarCharMaxLength = varchar.MaxLength;
       var varbinary = Driver.ServerInfo.DataTypes.VarBinary;
-      if (varbinary!=null)
+      if (varbinary != null)
         VarBinaryMaxLength = varbinary.MaxLength;
       var _decimal = Driver.ServerInfo.DataTypes.Decimal;
-      if (_decimal!=null)
+      if (_decimal != null)
         MaxDecimalPrecision = _decimal.MaxPrecision;
     }
 

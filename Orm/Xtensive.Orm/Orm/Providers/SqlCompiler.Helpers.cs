@@ -19,7 +19,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  partial class SqlCompiler
   {
     protected SqlProvider CreateProvider(SqlSelect statement,
       CompilableProvider origin, params ExecutableProvider[] sources) =>
@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Providers
         if (columnType == WellKnownTypes.DateTime) {
           return SqlDml.Cast(expression, SqlType.DateTime);
         }
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
         if (columnType == WellKnownTypes.DateOnly) {
           return SqlDml.Cast(expression, SqlType.Date);
         }
@@ -331,29 +331,8 @@ namespace Xtensive.Orm.Providers
         Pair<Column> columnPair;
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == WellKnownTypes.DateTime) {
-            leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
-          }
-
-          if (columnPair.Second.Type == WellKnownTypes.DateTime) {
-            rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
-          }
-
-#if DO_DATEONLY
-          if (columnPair.First.Type == WellKnownTypes.DateOnly) {
-            leftExpression = SqlDml.Cast(leftExpression, SqlType.Date);
-          }
-          else if (columnPair.First.Type == WellKnownTypes.TimeOnly) {
-            leftExpression = SqlDml.Cast(leftExpression, SqlType.Time);
-          }
-
-          if (columnPair.Second.Type == WellKnownTypes.DateOnly) {
-            rightExpression = SqlDml.Cast(rightExpression, SqlType.Date);
-          }
-          else if (columnPair.Second.Type == WellKnownTypes.TimeOnly) {
-            rightExpression = SqlDml.Cast(rightExpression, SqlType.Time);
-          }
-#endif
+          leftExpression = CastToDateTimeVariantIfNeeded(leftExpression, columnPair.First.Type);
+          rightExpression = CastToDateTimeVariantIfNeeded(rightExpression, columnPair.Second.Type);
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
@@ -369,6 +348,28 @@ namespace Xtensive.Orm.Providers
       }
 
       return leftExpression == rightExpression;
+
+      static SqlExpression CastToDateTimeVariantIfNeeded(SqlExpression expression,Type type)
+      {
+        SqlType? sqlType = null;
+        if (type == WellKnownTypes.DateTime) {
+          sqlType = SqlType.DateTime;
+        }
+#if NET6_0_OR_GREATER
+        else if (type == WellKnownTypes.DateOnly) {
+          sqlType = SqlType.Date;
+        }
+        else if(type == WellKnownTypes.TimeOnly) {
+          sqlType = SqlType.Time;
+        }
+#endif
+        if (sqlType == null) {
+          return expression;
+        }
+        else {
+          return SqlDml.Cast(expression, sqlType.Value);
+        }
+      }
     }
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)

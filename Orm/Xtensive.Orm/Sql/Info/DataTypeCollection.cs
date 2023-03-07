@@ -54,9 +54,11 @@ namespace Xtensive.Sql.Info
     /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
-      EnsureNotLocked();
-      if (!IsLocked)
-        sqlTypes.Add(sqlType, dataTypeInfo);
+      this.EnsureNotLocked();
+      sqlTypes.Add(sqlType, dataTypeInfo);
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
+        nativeTypes.Add(nativeType, dataTypeInfo);
+      }
     }
 
     /// <summary>
@@ -110,7 +112,7 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Decimal { get; set; }
 
     /// <summary>
-    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from –3.40E + 38 through 3.40E + 38.
     /// Storage size is 4 bytes.
     /// </summary>
     public DataTypeInfo Float { get; set; }
@@ -122,18 +124,18 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Double { get; set; }
 
     /// <summary>
-    /// Date and time data from January 1, 1753 through December 31, 9999, 
-    /// to an accuracy of one three-hundredth of a second (equivalent to 3.33 
-    /// milliseconds or 0.00333 seconds). Values are rounded to increments 
+    /// Date and time data from January 1, 1753 through December 31, 9999,
+    /// to an accuracy of one three-hundredth of a second (equivalent to 3.33
+    /// milliseconds or 0.00333 seconds). Values are rounded to increments
     /// of .000, .003, or .007 seconds.
-    /// Storage size is 8 bytes. 
+    /// Storage size is 8 bytes.
     /// </summary>
     public DataTypeInfo DateTime { get; set; }
 
     /// <summary>
-    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D., 
+    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D.,
     /// to an accuracy of 100 nanoseconds.
-    /// Storage size is 8 to 10 bytes. 
+    /// Storage size is 8 to 10 bytes.
     /// </summary>
     public DataTypeInfo DateTimeOffset { get; set; }
 
@@ -141,54 +143,62 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
+#if NET6_0_OR_GREATER
 
-#if DO_DATEONLY
+    /// <summary>
+    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
+    /// Can have various ranges in different RDBMSs.
+    /// </summary>
     public DataTypeInfo DateOnly { get; set; }
+
+    /// <summary>
+    /// Time data. Values mignt be rounded to some fractions of a second.
+    /// </summary>
     public DataTypeInfo TimeOnly { get; set; }
 #endif
 
     /// <summary>
-    /// Fixed-length Unicode character data of n characters. 
-    /// n must be a value from 1 through 4,000. Storage size is two times n bytes. 
+    /// Fixed-length Unicode character data of n characters.
+    /// n must be a value from 1 through 4,000. Storage size is two times n bytes.
     /// The SQL-92 synonyms for nchar are national char and national character.
     /// </summary>
     public DataTypeInfo Char { get; set; }
 
     /// <summary>
-    /// Variable-length Unicode character data of n characters. 
-    /// n must be a value from 1 through 4,000. Storage size, in bytes, is two times 
-    /// the number of characters entered. The data entered can be 0 characters in length. 
+    /// Variable-length Unicode character data of n characters.
+    /// n must be a value from 1 through 4,000. Storage size, in bytes, is two times
+    /// the number of characters entered. The data entered can be 0 characters in length.
     /// The SQL-92 synonyms for nvarchar are national char varying and national character varying.
     /// </summary>
     public DataTypeInfo VarChar { get; set; }
 
     /// <summary>
-    /// Variable-length Unicode data with a maximum length of 230 - 1 (1,073,741,823) 
-    /// characters. Storage size, in bytes, is two times the number of characters entered. 
+    /// Variable-length Unicode data with a maximum length of 230 - 1 (1,073,741,823)
+    /// characters. Storage size, in bytes, is two times the number of characters entered.
     /// </summary>
     public DataTypeInfo VarCharMax { get; set; }
 
     /// <summary>
-    /// Fixed-length binary data of n bytes. n must be a value from 1 through 8,000. 
-    /// Storage size is n+4 bytes. 
+    /// Fixed-length binary data of n bytes. n must be a value from 1 through 8,000.
+    /// Storage size is n+4 bytes.
     /// </summary>
     public DataTypeInfo Binary { get; set; }
 
     /// <summary>
-    /// Variable-length binary data of n bytes. n must be a value from 1 through 8,000. 
-    /// Storage size is the actual length of the data entered + 4 bytes, not n bytes. 
-    /// The data entered can be 0 bytes in length. 
+    /// Variable-length binary data of n bytes. n must be a value from 1 through 8,000.
+    /// Storage size is the actual length of the data entered + 4 bytes, not n bytes.
+    /// The data entered can be 0 bytes in length.
     /// The SQL-92 synonym for varbinary is binary varying.
     /// </summary>
     public DataTypeInfo VarBinary { get; set; }
 
     /// <summary>
-    /// Variable-length binary data from 0 through 231-1 (2,147,483,647) bytes. 
+    /// Variable-length binary data from 0 through 231-1 (2,147,483,647) bytes.
     /// </summary>
     public DataTypeInfo VarBinaryMax { get; set; }
 
     /// <summary>
-    /// A globally unique identifier (GUID). 
+    /// A globally unique identifier (GUID).
     /// </summary>
     public DataTypeInfo Guid { get; set; }
 
@@ -239,7 +249,7 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
       yield return DateOnly;
       yield return TimeOnly;
 #endif

@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Providers
       return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), "Year", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyYear(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Providers
       return DateTimeConstruct(year, month, day, hour, minute, second, millisecond);
     }
 
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), null, TargetKind.Constructor)]
     public static SqlExpression DateOnlyCtor(
         [Type(typeof(int))] SqlExpression year,
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateTimeMinusDateTime(d1, d2);
     }
 
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression DateOnlyOperatorEquality(
       [Type(typeof(DateOnly))] SqlExpression d1,
@@ -439,16 +439,13 @@ namespace Xtensive.Orm.Providers
     {
       var stringValue = value as SqlLiteral<string>;
 
-      if (stringValue == null)
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
-
-      if (!stringValue.Value.Equals("s"))
-        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      if (stringValue == null || !stringValue.Value.Equals("s"))
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported);
 
       return SqlDml.DateTimeToStringIso(_this);
     }
 
-#if DO_DATEONLY
+#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), "AddYears")]
     public static SqlExpression DateOnlyAddYears(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
       SqlDml.DateTimeAddYears(_this, value);

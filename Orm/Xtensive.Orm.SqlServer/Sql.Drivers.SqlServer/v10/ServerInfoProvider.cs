@@ -34,8 +34,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         new ValueRange<DateTimeOffset>(new DateTimeOffset(1, 1, 1, 0, 0, 0, 0, new TimeSpan(0)),
           new DateTimeOffset(9999, 12, 31, 0, 0, 0, 0, new TimeSpan(0))),
         "datetimeoffset");
-
-#if DO_DATEONLY
+#if NET6_0_OR_GREATER
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1, 1, 1), new DateTime(9999, 12, 31)),
         "datetime2", "datetime", "smalldatetime");

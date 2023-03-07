@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq
     private readonly bool isKeyConverter;
 
     private Func<TItem, Tuple> converter;
-    
+
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
@@ -102,8 +102,9 @@ namespace Xtensive.Orm.Linq
         type == WellKnownTypes.String ||
         type == WellKnownTypes.DateTime ||
         type == WellKnownTypes.DateTimeOffset ||
-#if DO_DATEONLY
-        type == WellKnownTypes.DateOnly || type == WellKnownTypes.TimeOnly ||
+#if NET6_0_OR_GREATER
+        type == WellKnownTypes.DateOnly ||
+        type == WellKnownTypes.TimeOnly ||
 #endif
         type == WellKnownTypes.Guid ||
         type == WellKnownTypes.TimeSpan;
