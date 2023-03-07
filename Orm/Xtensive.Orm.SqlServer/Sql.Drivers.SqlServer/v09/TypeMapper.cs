@@ -80,6 +80,26 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         : NVarCharMaxLength;
     }
 
+#if NET6_0_OR_GREATER
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? (DateOnly) value : DBNull.Value;
+    }
+
+    public override void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value != null ? (TimeOnly) value : DBNull.Value;
+    }
+
+    public override object ReadDateOnly(DbDataReader reader, int index) =>
+      reader.GetFieldValue<DateOnly>(index);
+
+    public override object ReadTimeOnly(DbDataReader reader, int index) =>
+      reader.GetFieldValue<TimeOnly>(index);
+#endif
+
     public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);

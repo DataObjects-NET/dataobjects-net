@@ -136,13 +136,13 @@ namespace Xtensive.Sql
     public virtual void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Date;
-      parameter.Value = value != null ? (DateOnly) value : DBNull.Value;
+      parameter.Value = value != null ? ((DateOnly) value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
     }
 
     public virtual void BindTimeOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Time;
-      parameter.Value = value != null ? (TimeOnly) value : DBNull.Value;
+      parameter.Value = value != null ? ((TimeOnly) value).ToTimeSpan() : DBNull.Value;
     }
 #endif
 
@@ -226,10 +226,10 @@ namespace Xtensive.Sql
 #if NET6_0_OR_GREATER
 
     public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<DateOnly>(index);
+        DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
 
     public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<TimeOnly>(index);
+      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
 #endif
 
     public virtual object ReadDateTimeOffset(DbDataReader reader, int index) =>
