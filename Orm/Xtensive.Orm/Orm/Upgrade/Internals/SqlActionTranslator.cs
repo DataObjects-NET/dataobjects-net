@@ -912,15 +912,16 @@ namespace Xtensive.Orm.Upgrade
         }
         else {
           var getValue = SqlDml.Case();
-          getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
+          _ = getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
 
-          if (newSqlType.Type==SqlType.DateTimeOffset)
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
-          else if (newSqlType.Type==SqlType.DateTime && providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation))
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, tableRef[tempName]), newSqlType));
-          else
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
-
+          SqlExpression convertExpression;
+          if (IsDateTimeType(newSqlType.Type) || IsDateTimeType(column.DataType.Type)) {
+            convertExpression = GetDataConversion(column.DataType, newSqlType, tableRef[tempName]);
+          }
+          else {
+            convertExpression = SqlDml.Cast(tableRef[tempName], newSqlType);
+          }
+          _ = getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), convertExpression);
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         upgradeOutput.BreakBatch();
@@ -930,6 +931,66 @@ namespace Xtensive.Orm.Upgrade
       // Drop old column
       DropColumn(table.TableColumns[tempName], cleanupOutput);
     }
+
+    private static SqlExpression GetDataConversion(SqlValueType oldType, SqlValueType newType, SqlTableColumn sqlTableColumn)
+    {
+      var oldSqlType = oldType.Type;
+      var newSqlType = newType.Type;
+
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateTimeToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
+      }
+#if NET6_0_OR_GREATER
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeOffsetToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeOffsetToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTime) {
+        return SqlDml.TimeToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.TimeToDateTimeOffset(sqlTableColumn);
+      }
+      //Date -> Time = invalid in most cases.
+      //Time -> Date = invalid in most cases.
+      //let storage throw exception on attempt
+#endif
+
+      return SqlDml.Cast(sqlTableColumn, newType);
+    }
+
+#if NET6_0_OR_GREATER
+    private static bool IsDateTimeType(in SqlType type)
+    {
+      return type == SqlType.DateTime
+        || type == SqlType.DateTimeOffset
+        || type == SqlType.Date
+        || type == SqlType.Time;
+    }
+#else
+    private static bool IsDateTimeType(in SqlType type)
+    {
+      return type == SqlType.DateTime
+        || type == SqlType.DateTimeOffset;
+    }
+#endif
 
     private Table CreateTable(TableInfo tableInfo)
     {

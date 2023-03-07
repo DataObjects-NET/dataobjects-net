@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -150,9 +150,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
       switch (node.FunctionType) {
         case SqlFunctionType.CharLength:
-          (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+          (SqlDml.FunctionCall("DATALENGTH", arguments) / 2).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
@@ -160,10 +161,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.Round:
           // Round should always be called with 2 arguments
-          if (node.Arguments.Count == 1) {
+          if (arguments.Count == 1) {
             Visit(SqlDml.FunctionCall(
               translator.TranslateToString(SqlFunctionType.Round),
-              node.Arguments[0],
+              arguments[0],
               SqlDml.Literal(0)));
             return;
           }
@@ -173,42 +174,92 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           // It's stupid, isn't it?
           Visit(SqlDml.FunctionCall(
             translator.TranslateToString(SqlFunctionType.Round),
-            node.Arguments[0],
+            arguments[0],
             SqlDml.Literal(0),
             SqlDml.Literal(1)));
           return;
         case SqlFunctionType.Substring:
-          if (node.Arguments.Count == 2) {
-            SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1], len);
+          if (arguments.Count == 2) {
+            SqlExpression len = SqlDml.CharLength(arguments[0]);
+            node = SqlDml.Substring(arguments[0], arguments[1], len);
             Visit(node);
             return;
           }
           break;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
-          Visit(CastToLong(node.Arguments[0]));
+          Visit(CastToLong(arguments[0]));
           return;
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
-          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddYear(arguments[0], arguments[1]));
           return;
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateAddYears:
+          Visit(DateAddYear(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddMonths:
+          Visit(DateAddMonth(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddDays:
+          Visit(DateAddDay(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.TimeAddHours:
+          Visit(DateAddHour(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.TimeAddMinutes:
+          Visit(DateAddMinute(arguments[0], arguments[1]));
+          return;
+#endif
         case SqlFunctionType.DateTimeTruncate:
-          DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateConstruct:
+          Visit(SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1), SqlType.Date));
+          return;
+        case SqlFunctionType.TimeConstruct:
+          Visit(SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Literal(new TimeOnly(0, 0, 0)),
+            arguments[0]),
+            arguments[1]),
+            arguments[2]),
+            arguments[3]), SqlType.Time));
+          return;
+        case SqlFunctionType.DateToString:
+          Visit(DateToString(arguments[0]));
+          return;
+        case SqlFunctionType.TimeToString:
+          Visit(TimeToString(arguments[0]));
+          return;
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+#endif
         case SqlFunctionType.DateTimeToStringIso:
-          Visit(DateTimeToStringIso(node.Arguments[0]));
+          Visit(DateTimeToStringIso(arguments[0]));
           return;
       }
 
@@ -236,6 +287,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
+#if NET6_0_OR_GREATER
+      if (node.DatePart == SqlDatePart.DayOfWeek) {
+        Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
+        return;
+      }
+#endif
 
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:
@@ -273,6 +330,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+          TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.TimeMinusTime:
+          TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+#endif
         default:
           base.Visit(node);
           return;
@@ -416,6 +481,29 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
+#if NET6_0_OR_GREATER
+
+    /// <summary>
+    /// Creates expression that represents addition <paramref name="interval"/> to the given <paramref name="time"/>.
+    /// </summary>
+    /// <param name="time">Time expression.</param>
+    /// <param name="interval">Interval expression to add.</param>
+    /// <returns></returns>
+    protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+      DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
+
+    /// <summary>
+    /// Creates expression that represents subtraction of two <see cref="TimeOnly"/> expressions.
+    /// </summary>
+    /// <param name="time1">First <see cref="TimeOnly"/> expression.</param>
+    /// <param name="time2">Second <see cref="TimeOnly"/> expression.</param>
+    /// <returns>Result expression.</returns>
+    /// <returns></returns>
+    protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
+      SqlDml.Modulo(
+        NanosecondsPerDay + CastToDecimal(DateDiffMillisecond(time2, time1), 18,0) * NanosecondsPerMillisecond,
+        NanosecondsPerDay);
+#endif
 
     private SqlExpression GenericPad(SqlFunctionCall node)
     {
@@ -475,6 +563,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2) =>
       SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
 
+    protected static SqlUserFunctionCall DateDiffHour(SqlExpression date1, SqlExpression date2) =>
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(HourPart), date1, date2);
+
     protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2) =>
       SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
 
@@ -498,6 +589,26 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds) =>
       SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
+#if NET6_0_OR_GREATER
+
+    protected static SqlUserFunctionCall TimeToString(SqlExpression time) =>
+      SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(16)"), time, SqlDml.Native("114"));
+
+    protected static SqlUserFunctionCall DateToString(SqlExpression time) =>
+      SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(10)"), time, SqlDml.Native("23"));
+
+    protected static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    protected static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    protected static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(time, SqlType.DateTime);
+#endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>
       SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));

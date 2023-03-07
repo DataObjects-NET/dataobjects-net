@@ -27,8 +27,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[string nativeType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         nativeTypes.TryGetValue(nativeType, out result);
         return result;
@@ -41,8 +40,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[SqlType sqlType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         sqlTypes.TryGetValue(sqlType, out result);
         return result;
@@ -114,7 +112,7 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Decimal { get; set; }
 
     /// <summary>
-    /// Floating point number data from �3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
     /// Storage size is 4 bytes.
     /// </summary>
     public DataTypeInfo Float { get; set; }
@@ -145,6 +143,19 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
+#if NET6_0_OR_GREATER
+
+    /// <summary>
+    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
+    /// Can have various ranges in different RDBMSs.
+    /// </summary>
+    public DataTypeInfo DateOnly { get; set; }
+
+    /// <summary>
+    /// Time data. Values mignt be rounded to some fractions of a second.
+    /// </summary>
+    public DataTypeInfo TimeOnly { get; set; }
+#endif
 
     /// <summary>
     /// Fixed-length Unicode character data of n characters. 
@@ -197,7 +208,7 @@ namespace Xtensive.Sql.Info
       base.Lock(recursive);
 
       foreach (DataTypeInfo item in this) {
-        if (item==null)
+        if (item == null)
           continue;
         sqlTypes[item.Type] = item;
         foreach (var type in item.NativeTypes)
@@ -238,6 +249,10 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
+#if NET6_0_OR_GREATER
+      yield return DateOnly;
+      yield return TimeOnly;
+#endif
       yield break;
     }
 

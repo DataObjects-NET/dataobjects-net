@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -22,6 +22,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'";
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fffffff\'";
+#endif
 
     public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
 
@@ -338,6 +346,32 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default: base.Translate(output, dateTimePart); break;
       }
     }
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlDatePart.Year: _ = output.Append("'%Y'"); break;
+        case SqlDatePart.Month: _ = output.Append("'%m'"); break;
+        case SqlDatePart.Day: _ = output.Append("'%d'"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("'%w'"); break;
+        case SqlDatePart.DayOfYear: _ = output.Append("'%j'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlTimePart.Hour: _ = output.Append("'%H'"); break;
+        case SqlTimePart.Minute: _ = output.Append("'%M'"); break;
+        case SqlTimePart.Second: _ = output.Append("'%S'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart intervalPart) => throw SqlHelper.NotSupported(intervalPart.ToString());
@@ -482,12 +516,18 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       switch (type) {
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+#endif
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-");
           break;
         case SqlNodeType.Overlaps:

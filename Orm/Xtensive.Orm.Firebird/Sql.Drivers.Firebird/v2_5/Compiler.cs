@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -101,6 +101,31 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(CastToLong(node.Operand));
           return;
       }
+#if NET6_0_OR_GREATER
+      if (((node.IsDatePart && node.DatePart == SqlDatePart.DayOfYear)
+          || (node.IsDateTimePart && node.DateTimePart == SqlDateTimePart.DayOfYear))) {
+        if (!case_SqlDateTimePart_DayOfYear) {
+          case_SqlDateTimePart_DayOfYear = true;
+          Visit(SqlDml.Add(node, SqlDml.Literal(1)));
+          case_SqlDateTimePart_DayOfYear = false;
+        }
+        else {
+          base.Visit(node);
+        }
+        return;
+      }
+      else if (node.IsSecondExtraction) {
+        if (!case_SqlDateTimePart_Second) {
+          case_SqlDateTimePart_Second = true;
+          Visit(SqlDml.Truncate(node));
+          case_SqlDateTimePart_Second = false;
+        }
+        else {
+          base.Visit(node);
+        }
+        return;
+      }
+#else
       switch (node.DateTimePart) {
         case SqlDateTimePart.DayOfYear:
           if (!case_SqlDateTimePart_DayOfYear) {
@@ -123,6 +148,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           }
           return;
       }
+#endif
+
       base.Visit(node);
     }
 
@@ -149,6 +176,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.DateTimeMinusDateTime:
           DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
           return;
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+          TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.TimeMinusTime:
+          TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+#endif
         case SqlNodeType.Modulo:
           Visit(SqlDml.FunctionCall(translator.TranslateToString(SqlNodeType.Modulo), node.Left, node.Right));
           return;
@@ -170,34 +205,84 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
+
       switch (node.FunctionType) {
         case SqlFunctionType.Concat:
-          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
+          Visit(SqlDml.Concat(arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.DateTimeTruncate:
-          Visit(SqlDml.Cast(node.Arguments[0], new SqlValueType("Date")));
+          Visit(SqlDml.Cast(arguments[0], new SqlValueType("Date")));
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
-          Visit(CastToLong(node.Arguments[0]));
+          Visit(CastToLong(arguments[0]));
           return;
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
-          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateAddYears:
+          Visit(DateAddYear(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddMonths:
+          Visit(DateAddMonth(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateAddDays:
+          Visit(DateAddDay(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.DateConstruct:
+          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
+          return;
+        case SqlFunctionType.TimeAddHours:
+          Visit(DateAddHour(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.TimeAddMinutes:
+          Visit(DateAddMinute(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.TimeConstruct:
+          Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
+            arguments[0]),
+            arguments[1]),
+            arguments[2]),
+            arguments[3]));
+          return;
+        case SqlFunctionType.DateToString:
+          Visit(DateToString(arguments[0]));
+          return;
+        case SqlFunctionType.TimeToString:
+          Visit(TimeToString(arguments[0]));
+          return;
+        case SqlFunctionType.DateToDateTime:
+          DateToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToDate:
+          DateTimeToDate(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeToTime:
+          DateTimeToTime(arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTime:
+          TimeToDateTime(arguments[0]).AcceptVisitor(this);
+          return;
+#endif
         case SqlFunctionType.DateTimeToStringIso:
-          Visit(DateTimeToStringIso(node.Arguments[0]));
+          Visit(DateTimeToStringIso(arguments[0]));
           return;
       }
 
@@ -223,6 +308,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         (CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) *
           NanosecondsPerMillisecond);
     }
+#if NET6_0_OR_GREATER
+
+    protected static SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2)
+    {
+      return SqlDml.Modulo(
+        NanosecondsPerDay + CastToLong(DateDiffMillisecond(time2, time1)) * NanosecondsPerMillisecond,
+        NanosecondsPerDay);
+    }
+#endif
 
     protected static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
@@ -230,6 +324,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
+
+    protected static SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
+      DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
 
     protected static SqlCast CastToLong(SqlExpression arg) => SqlDml.Cast(arg, SqlType.Int64);
 
@@ -271,6 +368,26 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected static SqlUserFunctionCall BitNot(SqlExpression operand) =>
       SqlDml.FunctionCall("BIN_NOT", operand);
+#if NET6_0_OR_GREATER
+
+    protected static SqlExpression TimeToDateTime(SqlExpression time) =>
+      SqlDml.Cast(time, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToTime(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Time);
+
+    protected static SqlExpression DateToDateTime(SqlExpression date) =>
+      SqlDml.Cast(date, SqlType.DateTime);
+
+    protected static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
+      SqlDml.Cast(dateTime, SqlType.Date);
+
+    protected static SqlFunctionCall DateToString(SqlExpression date) =>
+      SqlDml.Substring(date, 0, 10);
+
+    protected static SqlConcat TimeToString(SqlExpression time) =>
+      SqlDml.Concat(SqlDml.Substring(time, 0, 12), SqlDml.Literal("0000"));
+#endif
 
     protected static SqlConcat DateTimeToStringIso(SqlExpression dateTime)
     {
@@ -279,8 +396,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       return SqlDml.Concat(date, SqlDml.Literal("T"), time);
     }
-    
-    #endregion
+
+#endregion
 
     protected internal Compiler(SqlDriver driver)
       : base(driver)
