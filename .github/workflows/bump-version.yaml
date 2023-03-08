@@ -1,9 +1,10 @@
 name: Bump package version
 on:
   workflow_dispatch:
-    inputs: []
+    inputs:
 jobs:
   bump-version:
+    name: bump-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
