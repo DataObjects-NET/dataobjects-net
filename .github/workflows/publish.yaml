@@ -13,6 +13,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with: { dotnet-version: 7 }
       - name: Create User.Directory.Build.props
-        run: echo >User.Directory.Build.props '<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="latest"><PropertyGroup Label="User defined variables"><DoNugetFeedUserName>nuget-publish-dataobjects</DoNugetFeedUserName><DoNugetFeedPassword>' ${{ secrets.NugetWriteToken }} '</DoNugetFeedPassword><DoNugetFeedUrl>https://pkgs.dev.azure.com/servicetitan-packages/nuget/_packaging/servicetitan-nuget/nuget/v3/index.json</DoNugetFeedUrl></PropertyGroup></Project>' 
+        run: echo >User.Directory.Build.props '<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="latest"><PropertyGroup Label="User defined variables"><DoNugetFeedUserName>nuget-publish-dataobjects</DoNugetFeedUserName><DoNugetFeedPassword>' ${{ secrets.NUGET_FEED_PASSWORD }} '</DoNugetFeedPassword><DoNugetFeedUrl>https://pkgs.dev.azure.com/servicetitan-packages/nuget/_packaging/servicetitan-nuget/nuget/v3/index.json</DoNugetFeedUrl></PropertyGroup></Project>'
       - name: Build & Publish
         run: dotnet build -c Release -v m && dotnet pack -c Release && dotnet build -c Release Publish/NuGetPublish.csproj 
