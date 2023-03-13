@@ -59,9 +59,9 @@ namespace Xtensive.Orm.Providers
         [Type(typeof(int))] SqlExpression minute) =>
       SqlDml.TimeConstruct(hour, minute, 0, 0);
 
-    //[Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    //public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-    //  new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
+    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
+    public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
+      SqlDml.TimeConstruct(ticks);
 
     #endregion
 

@@ -614,9 +614,15 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(second);
       SqlValidator.EnsureIsArithmeticExpression(millisecond);
 
-      //var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
-      //var ticks = 10_000 * m;
       return new SqlFunctionCall(SqlFunctionType.TimeConstruct, hour, minute, second, millisecond);
+    }
+
+    public static SqlFunctionCall TimeConstruct(SqlExpression ticks)
+    {
+      ArgumentNullException.ThrowIfNull(ticks);
+      SqlValidator.EnsureIsArithmeticExpression(ticks);
+
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
     }
 #endif
 
