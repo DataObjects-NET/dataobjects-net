@@ -216,10 +216,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             arguments[2] - 1).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          TimeAddSeconds(TimeAddMinutes(TimeAddHours(SqlDml.Literal(new TimeOnly(0, 0, 0, 0)),
-            arguments[0]),
-            arguments[1]),
-            arguments[2], arguments[3]).AcceptVisitor(this);
+          TimeConstruct(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddHours:
           TimeAddHours(arguments[0], arguments[1]).AcceptVisitor(this);
@@ -538,6 +535,35 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateAddDay(SqlExpression date, SqlExpression days) =>
       SqlDml.FunctionCall("STRFTIME", DateFormat, date, SqlDml.Concat(days, " ", "DAYS"));
+
+    private static SqlExpression TimeConstruct(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, millisecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3];
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = SqlDml.Cast(ticks % 10000000, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+      return TimeAddSeconds(
+        TimeAddMinutes(
+          TimeAddHours(
+            SqlDml.Literal(new TimeOnly(0, 0, 0, 0)),
+            hour),
+          minute),
+        second,
+        millisecond);
+    }
 
     private static SqlExpression TimeAddHours(SqlExpression time, SqlExpression seconds) =>
       SqlDml.FunctionCall("STRFTIME", TimeFormat, time, SqlDml.Concat(seconds, " ", "HOURS"));
