@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.04.02
 
+using System;
+using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 
@@ -44,30 +46,38 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
-    public override void Visit(SqlFunctionCall node)
-    {
-      var arguments = node.Arguments;
-      switch (node.FunctionType) {
-        case SqlFunctionType.DateTimeConstruct:
-          Visit(SqlDml.FunctionCall("DATETIME2FROMPARTS", arguments[0], arguments[1], arguments[2], 0, 0, 0, 0, 7));
-          return;
+    protected override SqlUserFunctionCall ConstructDateTime(IReadOnlyList<SqlExpression> arguments) =>
+      SqlDml.FunctionCall("DATETIME2FROMPARTS", arguments[0], arguments[1], arguments[2], 0, 0, 0, 0, 7);
 #if NET6_0_OR_GREATER
-        case SqlFunctionType.DateConstruct: {
-          Visit(SqlDml.FunctionCall("DATEFROMPARTS", arguments[0], arguments[1], arguments[2]));
-          return;
-        }
-        case SqlFunctionType.TimeConstruct: {
-          // argument[3] * 10000 operation is based on statement that millisaconds use 3 digits
-          // default precision of time is 7, and if we use raw argument[3] value the result will be .0000xxx,
-          // to prevent this and make fractions part valid .xxx0000 we multiply
-          Visit(SqlDml.FunctionCall("TIMEFROMPARTS", arguments[0], arguments[1], arguments[2], arguments[3] * 10000, 7));
-          return;
-        }
-#endif
-      }
 
-      base.Visit(node);
+    protected override SqlUserFunctionCall ConstructDate(IReadOnlyList<SqlExpression> arguments) =>
+      SqlDml.FunctionCall("DATEFROMPARTS", arguments[0], arguments[1], arguments[2]);
+
+    protected override SqlUserFunctionCall ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, millisecond;
+      if (arguments.Count == 4) {
+        // argument[3] * 10000 operation is based on statement that millisaconds use 3 digits
+        // default precision of time is 7, and if we use raw argument[3] value the result will be .0000xxx,
+        // to prevent this and make fractions part valid .xxx0000 we multiply
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3] * 10000;
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = SqlDml.Cast(ticks % 10000000, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+      return SqlDml.FunctionCall("TIMEFROMPARTS", hour, minute, second, millisecond, 7);
     }
+#endif
 
     public Compiler(SqlDriver driver)
       : base(driver)

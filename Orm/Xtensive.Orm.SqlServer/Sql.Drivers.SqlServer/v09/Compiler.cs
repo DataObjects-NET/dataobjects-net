@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -220,24 +220,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
-          Visit(SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1), SqlType.Date));
+          ConstructDate(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          Visit(SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Literal(new TimeOnly(0, 0, 0)),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3]), SqlType.Time));
+          ConstructTime(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -481,14 +471,83 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
+
+    /// <summary>
+    /// Creates expression that represents construction of datetime value
+    /// from arguments (year, month, day).
+    /// </summary>
+    /// <param name="arguments">Expressions representing year, month, and day.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
+        arguments[0] - 2001),
+        arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
 #if NET6_0_OR_GREATER
+
+    /// <summary>
+    /// Creates expression that represents construction of date value
+    /// from arguments (year, month, day).
+    /// </summary>
+    /// <param name="arguments">Expressions representing year, month, and day.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
+        arguments[0] - 2001),
+        arguments[1] - 1),
+        arguments[2] - 1), SqlType.Date);
+    }
+
+    /// <summary>
+    /// Creates expression that represents construction of time value from arguments.
+    /// </summary>
+    /// <param name="arguments">Expressions to construct time from.</param>
+    /// <returns>Result expression.</returns>
+    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, millisecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3];
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = SqlDml.Cast(ticks % 10000000, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      return SqlDml.Cast(
+        DateAddMillisecond(
+          DateAddSecond(
+            DateAddMinute(
+              DateAddHour(
+                SqlDml.Literal(new TimeOnly(0, 0, 0)),
+                hour),
+              minute),
+            second),
+          millisecond),
+        SqlType.Time);
+    }
 
     /// <summary>
     /// Creates expression that represents addition <paramref name="interval"/> to the given <paramref name="time"/>.
     /// </summary>
     /// <param name="time">Time expression.</param>
     /// <param name="interval">Interval expression to add.</param>
-    /// <returns></returns>
+    /// <returns>Result expression.</returns>
     protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
       DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
 
@@ -498,7 +557,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <param name="time1">First <see cref="TimeOnly"/> expression.</param>
     /// <param name="time2">Second <see cref="TimeOnly"/> expression.</param>
     /// <returns>Result expression.</returns>
-    /// <returns></returns>
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateDiffMillisecond(time2, time1), 18,0) * NanosecondsPerMillisecond,
