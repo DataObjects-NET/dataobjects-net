@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Compiler;
@@ -125,24 +126,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          var newNode = ReferenceDateTimeLiteral
-                         + (OneYearInterval * (node.Arguments[0] - 2001))
-                         + (OneMonthInterval * (node.Arguments[1] - 1))
-                         + (OneDayInterval * (node.Arguments[2] - 1));
-          newNode.AcceptVisitor(this);
+          ConstructDateTime(node.Arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
-          (ReferenceDateLiteral
-            + (OneYearInterval * (node.Arguments[0] - 2001))
-            + (OneMonthInterval * (node.Arguments[1] - 1))
-            + (OneDayInterval * (node.Arguments[2] - 1))).AcceptVisitor(this);
+          ConstructDate(node.Arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          ((ZeroTimeLiteral
-            + (OneHourInterval * (node.Arguments[0]))
-            + (OneMinuteInterval * (node.Arguments[1]))
-            + (OneSecondInterval * (node.Arguments[2] + (SqlDml.Cast(node.Arguments[3], SqlType.Double) / 1000))))).AcceptVisitor(this);
+          ConstructTime(node.Arguments).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.DateTimeTruncate:
@@ -397,6 +388,45 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.Visit(node);
     }
 
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return ReferenceDateTimeLiteral
+        + (OneYearInterval * (arguments[0] - 2001))
+        + (OneMonthInterval * (arguments[1] - 1))
+        + (OneDayInterval * (arguments[2] - 1));
+    }
+#if NET6_0_OR_GREATER
+
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return ReferenceDateLiteral
+        + (OneYearInterval * (arguments[0] - 2001))
+        + (OneMonthInterval * (arguments[1] - 1))
+        + (OneDayInterval * (arguments[2] - 1));
+    }
+
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      if (arguments.Count == 4) {
+        return ZeroTimeLiteral
+          + (OneHourInterval * (arguments[0]))
+          + (OneMinuteInterval * (arguments[1]))
+          + (OneSecondInterval * (arguments[2] + (SqlDml.Cast(arguments[3], SqlType.Double) / 1000)));
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        if (SqlHelper.IsTimeSpanTicks(ticks, out var intervalExpr)) {
+          return ZeroTimeLiteral + intervalExpr;
+        }
+        return ZeroTimeLiteral + (ticks / SqlDml.Literal(10000000.0) * OneSecondInterval);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+      
+    }
+#endif
+
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp) =>
       SqlDml.FunctionCall("DATE", timestamp);
 
@@ -514,6 +544,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         hours = (int) totalMinutes / 60;
         minutes = Math.Abs((int)totalMinutes % 60);
         return true;
+      }
+      return false;
+    }
+
+    private bool IsTimeSpanTicks(SqlExpression expressionToCheck, out SqlExpression source)
+    {
+      source = null;
+
+      if (expressionToCheck is SqlCast sqlCast && sqlCast.Type.Type==SqlType.Int64) {
+        var operand = sqlCast.Operand;
+        if (operand is SqlBinary sqlBinary && sqlBinary.NodeType == SqlNodeType.Divide) {
+          var left = sqlBinary.Left;
+          if (left is SqlFunctionCall functionCall && functionCall.FunctionType == SqlFunctionType.IntervalToNanoseconds) {
+            source = functionCall.Arguments[0];
+            return true;
+          }
+        }
       }
       return false;
     }

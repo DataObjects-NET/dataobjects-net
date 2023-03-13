@@ -4,32 +4,29 @@
 // Created by: Alexey Kulakov
 // Created:    2019.09.25
 
+using System;
+using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
   internal class Compiler : v9_1.Compiler
   {
-    public override void Visit(SqlFunctionCall node)
-    {
-      var arguments = node.Arguments;
-      switch (node.FunctionType) {
-        case SqlFunctionType.DateTimeConstruct:
-          Visit(MakeDateTime(arguments[0], arguments[1], arguments[2]));
-          return;
+    protected override SqlUserFunctionCall ConstructDateTime(IReadOnlyList<SqlExpression> arguments) => MakeDateTime(arguments[0], arguments[1], arguments[2]);
 #if NET6_0_OR_GREATER
-        case SqlFunctionType.DateConstruct:
-          Visit(MakeDate(arguments[0], arguments[1], arguments[2]));
-          return;
-        case SqlFunctionType.TimeConstruct:
-          Visit(MakeTime(arguments[0], arguments[1], arguments[2], arguments[3]));
-          return;
-#endif
-        default:
-          base.Visit(node);
-          return;
+
+    protected override SqlUserFunctionCall ConstructDate(IReadOnlyList<SqlExpression> arguments) => MakeDate(arguments[0], arguments[1], arguments[2]);
+
+    protected override SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      if (arguments.Count == 4) {
+        return MakeTime(arguments[0], arguments[1], arguments[2], arguments[3]);
+      }
+      else {
+        return base.ConstructTime(arguments);
       }
     }
+#endif
 
     protected static SqlUserFunctionCall MakeDateTime(SqlExpression year, SqlExpression month, SqlExpression day) =>
       SqlDml.FunctionCall("MAKE_TIMESTAMP", year, month, day, SqlDml.Literal(0), SqlDml.Literal(0), SqlDml.Literal(0.0));
