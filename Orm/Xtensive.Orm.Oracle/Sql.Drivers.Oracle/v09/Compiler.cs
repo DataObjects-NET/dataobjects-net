@@ -11,6 +11,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Oracle.v09
 {
@@ -73,7 +74,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           DateConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          TimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2], node.Arguments[3]).AcceptVisitor(this);
+          TimeConstruct(node.Arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateAddYears:
           DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], YearIntervalPart).AcceptVisitor(this);
@@ -375,6 +376,31 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         SqlDml.FunctionCall(ToCharFunctionName, ((years * 100) + months) * 100 + days),
         AnsiString("YYYYMMDD"));
 
+    private static SqlExpression TimeConstruct(IReadOnlyList<SqlExpression> arguments)
+    {
+      if (arguments.Count == 4) {
+        var hours = arguments[0];
+        var minutes = arguments[1];
+        var seconds = arguments[2];
+        var milliseconds = arguments[3];
+
+        return SqlDml.FunctionCall(NumToDSIntervalFunctionName,
+          seconds + (minutes * 60) + (hours * 3600) + (milliseconds / 1000),
+          AnsiString(SecondIntervalPart));
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        var zeroTime = SqlDml.Literal(new TimeOnly(0, 0, 0, 0));
+        if (!SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval)) {
+          sourceInterval = SqlDml.FunctionCall(NumToDSIntervalFunctionName, ticks / 10000000, AnsiString(SecondIntervalPart));
+        }
+        return SqlDml.Cast(TimeAddInterval(zeroTime, sourceInterval), SqlType.Time); 
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+    }
+
     private static SqlExpression TimeAddHourOrMinute(SqlExpression time, SqlExpression hourOrMinute, bool isHour)
     {
       var intervalLiteral = isHour ? "INTERVAL '1' HOUR" : "INTERVAL '1' MINUTE";
@@ -391,12 +417,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       var castToCorrectInterval = SqlDml.Cast(dsInterval, SqlType.Time);
       return castToCorrectInterval;
     }
-
-    private static SqlExpression TimeConstruct(
-      SqlExpression hours, SqlExpression minutes, SqlExpression seconds, SqlExpression milliseconds) =>
-        SqlDml.FunctionCall(NumToDSIntervalFunctionName,
-          seconds + (minutes * 60) + (hours * 3600) + (milliseconds / 1000),
-          AnsiString(SecondIntervalPart));
 
     private static SqlExpression DateToString(SqlExpression date) =>
       SqlDml.FunctionCall(ToCharFunctionName, date, "YYYY-MM-DD");
