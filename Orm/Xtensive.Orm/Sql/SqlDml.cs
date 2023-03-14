@@ -1134,6 +1134,18 @@ namespace Xtensive.Sql
     {
       return new SqlLiteral<DateTime>(value);
     }
+#if NET6_0_OR_GREATER
+
+    public static SqlLiteral<DateOnly> Literal(DateOnly value)
+    {
+      return new SqlLiteral<DateOnly>(value);
+    }
+
+    public static SqlLiteral<TimeOnly> Literal(TimeOnly value)
+    {
+      return new SqlLiteral<TimeOnly>(value);
+    }
+#endif
 
     public static SqlLiteral<TimeSpan> Literal(TimeSpan value)
     {
