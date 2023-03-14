@@ -548,23 +548,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return false;
     }
 
-    private bool IsTimeSpanTicks(SqlExpression expressionToCheck, out SqlExpression source)
-    {
-      source = null;
-
-      if (expressionToCheck is SqlCast sqlCast && sqlCast.Type.Type==SqlType.Int64) {
-        var operand = sqlCast.Operand;
-        if (operand is SqlBinary sqlBinary && sqlBinary.NodeType == SqlNodeType.Divide) {
-          var left = sqlBinary.Left;
-          if (left is SqlFunctionCall functionCall && functionCall.FunctionType == SqlFunctionType.IntervalToNanoseconds) {
-            source = functionCall.Arguments[0];
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-
     // Constructors
 
     protected internal Compiler(SqlDriver driver)

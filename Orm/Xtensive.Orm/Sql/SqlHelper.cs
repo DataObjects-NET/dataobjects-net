@@ -172,6 +172,31 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Checks if <paramref name="expressionToCheck"/> is indeed a representation of TimeSpan.Ticks
+    /// created by <see cref="Xtensive.Orm.Providers.TimeSpanCompilers.TimeSpanTicks"/>
+    /// </summary>
+    /// <param name="expressionToCheck">Expression to check</param>
+    /// <param name="sourceInterval">Source interval expression</param>
+    /// <returns></returns>
+    public static bool IsTimeSpanTicks(SqlExpression expressionToCheck, out SqlExpression sourceInterval)
+    {
+      sourceInterval = null;
+
+      if (expressionToCheck is SqlCast sqlCast
+        && (sqlCast.Type.Type == SqlType.Int64 || sqlCast.Type.Type == SqlType.Decimal)) {
+        var operand = sqlCast.Operand;
+        if (operand is SqlBinary sqlBinary && sqlBinary.NodeType == SqlNodeType.Divide) {
+          var left = sqlBinary.Left;
+          if (left is SqlFunctionCall functionCall && functionCall.FunctionType == SqlFunctionType.IntervalToNanoseconds) {
+            sourceInterval = functionCall.Arguments[0];
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Converts the specified interval expression to expression
     /// that represents absolute value (duration) of the specified interval.
     /// This is a generic implementation that uses comparison with zero interval.
