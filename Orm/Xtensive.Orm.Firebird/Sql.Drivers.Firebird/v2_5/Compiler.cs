@@ -10,6 +10,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
@@ -228,10 +229,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
@@ -244,10 +242,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDate(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddHours:
           Visit(DateAddHour(node.Arguments[0], node.Arguments[1]));
@@ -256,11 +251,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddMinute(node.Arguments[0], node.Arguments[1]));
           return;
         case SqlFunctionType.TimeConstruct:
-          Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3]));
+          ConstructTime(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -298,6 +289,54 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       translator.Translate(context, node, NodeSection.Entry);
       translator.Translate(context, node, NodeSection.Exit);
     }
+
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+#if NET6_0_OR_GREATER
+
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      if (arguments.Count == 4) {
+        return DateAddMillisecond(
+        DateAddSecond(
+          DateAddMinute(
+            DateAddHour(
+              SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
+              arguments[0]),
+            arguments[1]),
+          arguments[2]),
+        arguments[3]);
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        return TimeAddInterval(
+          SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0, 0)), SqlType.Time),
+          SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval) ? sourceInterval : ticks * 100);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+    }
+#endif
 
     #region Static helpers
 
