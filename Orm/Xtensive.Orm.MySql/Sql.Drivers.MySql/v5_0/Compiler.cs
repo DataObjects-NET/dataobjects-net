@@ -10,6 +10,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
@@ -182,10 +183,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           Visit(DateTimeAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateTimeAddDay(DateTimeAddMonth(DateTimeAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
@@ -198,10 +196,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDate(arguments).AcceptVisitor(this);          
           return;
         case SqlFunctionType.TimeAddHours:
           Visit(SqlDml.FunctionCall("TIME", SqlDml.FunctionCall(
@@ -220,11 +215,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                 SqlDml.Native("SECOND")))));
           return;
         case SqlFunctionType.TimeConstruct:
-          Visit(SqlDml.FunctionCall("TIME", TimeAddMillisecond(TimeAddSecond(TimeAddMinute(TimeAddHour(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3])));
+          ConstructTime(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -302,6 +293,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       base.Visit(node);
     }
 
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateTimeAddDay(
+        DateTimeAddMonth(
+          DateTimeAddYear(
+            SqlDml.Literal(new DateTime(2001, 1, 1)),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return (CastToDecimal(DateDiffDay(date1, date2), 18, 0) * NanosecondsPerDay)
@@ -317,6 +319,48 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 #if NET6_0_OR_GREATER
 
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Literal(new DateOnly(2001, 1, 1)),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, millisecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3];
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = 0; //SqlDml.Cast((ticks % 10000000) / 10, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      return SqlDml.FunctionCall("TIME",
+        TimeAddMillisecond(
+          TimeAddSecond(
+            TimeAddMinute(
+              TimeAddHour(
+                SqlDml.Literal(new DateTime(2001, 1, 1)),
+                hour),
+              minute),
+            second),
+          millisecond));
+    }
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(SqlDml.FunctionCall("TIME_TO_SEC", time1) - SqlDml.FunctionCall("TIME_TO_SEC", time2), 18, 0) * NanosecondsPerSecond,
