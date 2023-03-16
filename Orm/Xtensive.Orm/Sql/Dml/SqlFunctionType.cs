@@ -74,6 +74,7 @@ namespace Xtensive.Sql.Dml
     TimeToString,
     TimeToDateTime,
     TimeToDateTimeOffset,
+    TimeToNanoseconds,
 #endif
 
     DateTimeConstruct,

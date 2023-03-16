@@ -755,6 +755,12 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTime, expression);
     }
 
+    public static SqlExpression TimeToNanoseconds(SqlExpression source)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      return new SqlFunctionCall(SqlFunctionType.TimeToNanoseconds, source);
+    }
+
     public static SqlFunctionCall TimeToDateTimeOffset(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
@@ -783,13 +789,13 @@ namespace Xtensive.Sql
     public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source);
     }
 
     public static SqlFunctionCall IntervalToNanoseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source);
     }
 
     public static SqlFunctionCall IntervalAbs(SqlExpression source)
