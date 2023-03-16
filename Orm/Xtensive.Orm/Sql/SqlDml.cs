@@ -636,15 +636,15 @@ namespace Xtensive.Sql
 
     public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
       return new SqlBinary(SqlNodeType.TimePlusInterval, left, right);
     }
 
     public static SqlBinary TimeMinusTime(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
       return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
     }
 #endif
@@ -680,52 +680,52 @@ namespace Xtensive.Sql
 #if NET6_0_OR_GREATER
     public static SqlFunctionCall DateTimeToTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateTimeToTime, expression);
     }
 
     public static SqlFunctionCall DateAddYears(SqlExpression source, SqlExpression years)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(years, "years");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(years, nameof(years));
       return new SqlFunctionCall(SqlFunctionType.DateAddYears, source, years);
     }
 
     public static SqlFunctionCall DateAddMonths(SqlExpression source, SqlExpression months)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(months, "months");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(months, nameof(months));
       return new SqlFunctionCall(SqlFunctionType.DateAddMonths, source, months);
     }
 
     public static SqlFunctionCall DateAddDays(SqlExpression source, SqlExpression days)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(days, "days");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(days, nameof(days));
       return new SqlFunctionCall(SqlFunctionType.DateAddDays, source, days);
     }
 
     public static SqlFunctionCall DateToString(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToString, expression);
     }
 
     public static SqlFunctionCall DateToDateTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToDateTime, expression);
     }
 
     public static SqlFunctionCall DateTimeToDate(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateTimeToDate, expression);
     }
 
     public static SqlFunctionCall DateToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToDateTimeOffset, expression);
     }
 
@@ -733,25 +733,27 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(hours, "hours");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(hours, nameof(hours));
       return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
     }
 
     public static SqlFunctionCall TimeAddMinutes(SqlExpression source, SqlExpression minutes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(minutes, nameof(minutes));
       return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
     }
 
     public static SqlFunctionCall TimeToString(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToString, expression);
     }
 
     public static SqlFunctionCall TimeToDateTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTime, expression);
     }
 
@@ -763,7 +765,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall TimeToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTimeOffset, expression);
     }
 #endif
@@ -904,13 +906,14 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeOffsetToTime(SqlExpression dateTimeOffset)
     {
-      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToDate(SqlExpression dateTimeOffset)
     {
       ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDate, dateTimeOffset);
     }
 #endif
