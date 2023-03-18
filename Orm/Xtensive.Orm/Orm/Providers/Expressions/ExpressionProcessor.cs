@@ -377,6 +377,8 @@ namespace Xtensive.Orm.Providers
       return SqlDml.LiteralOrContainer(expression.Value);
     }
 
+    protected override SqlExpression VisitDefault(DefaultExpression d) => throw new NotSupportedException();
+
     protected override SqlExpression VisitParameter(ParameterExpression expression)
     {
       throw new NotSupportedException();
