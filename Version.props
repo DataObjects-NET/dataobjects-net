@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-    <DoVersion>7.1.0.76</DoVersion>
+    <DoVersion>7.1.0.77</DoVersion>
     <DoVersionSuffix>servicetitan</DoVersionSuffix>
 </PropertyGroup>
 
