@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -22,6 +22,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'";
+#if NET6_0_OR_GREATER
+
+    public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
+
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss\.ffffff\'";
+#endif
 
     public override string TimeSpanFormatString => string.Empty;
 
@@ -106,6 +112,13 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddYears:
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
+#if NET6_0_OR_GREATER
+        case SqlFunctionType.DateAddYears:
+        case SqlFunctionType.DateAddMonths:
+        case SqlFunctionType.DateAddDays:
+        case SqlFunctionType.DateConstruct:
+        case SqlFunctionType.TimeConstruct:
+#endif
         case SqlFunctionType.IntervalToMilliseconds:
           return;
         //string
@@ -158,10 +171,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
        switch (type) {
         case SqlNodeType.Concat: _ = output.Append(","); break;
-        case SqlNodeType.DateTimePlusInterval: _ = output.Append("+");
+        case SqlNodeType.DateTimePlusInterval:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+#endif
+          _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Equals: _ = output.Append("="); break;
         case SqlNodeType.NotEquals: _ = output.Append("<>"); break;
@@ -215,7 +235,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node) => TranslateIdentifier(context.Output, node.Name);
+    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
+      base.Translate(context, node);
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -402,9 +423,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         base.Translate(context, node, section);
         return;
@@ -414,7 +434,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           _ = context.Output.AppendOpeningPunctuation("(extract(");
           break;
         case ExtractSection.Exit:
-          _ = context.Output.Append(isMillisecond ? ") % 1000)" : "))");
+          _ = context.Output.Append(isMillisecond ? ") / 1000)" : "))");
           break;
         default:
           base.Translate(context, node, section);
@@ -509,6 +529,30 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.Day: _ = output.Append("DAY"); break;
+        case SqlDatePart.Year: _ = output.Append("YEAR"); break;
+        case SqlDatePart.Month: _ = output.Append("MONTH"); break;
+        default: base.Translate(output, datePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlTimePart.Millisecond: _ = output.Append("MICROSECOND"); break;
+        case SqlTimePart.Hour: _ = output.Append("HOUR"); break;
+        case SqlTimePart.Minute: _ = output.Append("MINUTE"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)
@@ -578,9 +622,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public virtual void Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
     {
-      string schemaName = action.Column.Table.Schema.DbName;
-      string tableName = action.Column.Table.DbName;
-      string columnName = action.Column.DbName;
+      var column = action.Column;
+      var tableName = column.Table.DbName;
 
       //alter table `actor` change column last_name1 last_name varchar(45)
 
@@ -588,11 +631,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       _ = output.Append("ALTER TABLE ");
       TranslateIdentifier(output, tableName);
       _ = output.Append(" CHANGE COLUMN ");
-      TranslateIdentifier(output, columnName);
+      TranslateIdentifier(output, column.DbName);
       _ = output.AppendSpace();
       TranslateIdentifier(output, action.NewName);
       _ = output.AppendSpace()
-        .Append(Translate(action.Column.DataType));
+        .Append(Translate(column.DataType));
     }
 
     // Constructors

@@ -57,6 +57,13 @@ namespace Xtensive.Reflection
     public static readonly Type NullableDateTime = typeof(DateTime?);
     public static readonly Type DateTimeOffset = typeof(DateTimeOffset);
     public static readonly Type NullableDateTimeOffset = typeof(DateTimeOffset?);
+#if NET6_0_OR_GREATER
+    public static readonly Type DateOnly = typeof(DateOnly);
+    public static readonly Type TimeOnly = typeof(TimeOnly);
+    public static readonly Type NullableDateOnly = typeof(DateOnly?);
+    public static readonly Type NullableTimeOnly = typeof(TimeOnly?);
+#endif
+
     public static readonly Type Guid = typeof(Guid);
     public static readonly Type NullableGuid = typeof(Guid?);
 

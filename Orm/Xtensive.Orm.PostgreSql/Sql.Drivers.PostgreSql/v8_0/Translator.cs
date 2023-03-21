@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2022 Xtensive LLC.
+// Copyright (C) 2012-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -53,6 +53,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"\'yyyyMMdd\''::date'";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"\'HH:mm:ss.ffffff\''::time'";
+#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval";
@@ -197,8 +205,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.Modulo: _ = output.Append("%"); break;
         case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
         case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval: _ = output.Append("+"); break;
+#endif
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         default: base.Translate(output, type); break;
       };
@@ -222,22 +236,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       });
     }
 
+    ///// <inheritdoc/>
+    //public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    //{
+    //  //temporary tables need no schema qualifier
+    //  if (node is TemporaryTable || node.Schema == null) {
+    //    return QuoteIdentifier(new[] { node.Name });
+    //  }
+    //  return QuoteIdentifier(new[] { node.Schema.Name, node.Name });
+    //}
+
     /// <inheritdoc/>
-    public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      //temporary tables need no schema qualifier
-      if (!(node is TemporaryTable) && node.Schema != null) {
-        return context == null
-          ? QuoteIdentifier(new[] { node.Schema.Name, node.Name })
-          : QuoteIdentifier(new[] { context.SqlNodeActualizer.Actualize(node.Schema), node.Name });
-
+      if (node is TemporaryTable) {
+        TranslateIdentifier(context.Output, node.Name);
       }
-      return QuoteIdentifier(new[] { node.Name });
+      else {
+        base.Translate(context, node);
+      }
+      //context.Output.Append(TranslateToString(context, node));
     }
-
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SchemaNode node) =>
-      context.Output.Append(TranslateToString(context, node));
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -309,9 +328,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
+      var index = node.Index;
       _ = context.Output.Append("DROP INDEX ");
-      TranslateIdentifier(context.Output,
-        context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
+      TranslateIdentifier(context.Output, index.DataTable.Schema.DbName, index.DbName);
     }
 
     /// <inheritdoc/>
@@ -383,12 +402,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second
-        || node.IntervalPart == SqlIntervalPart.Second
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         base.Translate(context, node, section);
         return;
@@ -819,6 +834,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDateTimePart part)
     {
       switch (part) {
@@ -829,6 +845,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDateTimeOffsetPart part)
     {
       switch (part) {
@@ -841,6 +858,29 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         default: base.Translate(output, part); break;
       }
     }
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart part)
+    {
+      switch (part) {
+        case SqlDatePart.DayOfYear: _ = output.Append("DOY"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("DOW"); break;
+        default: base.Translate(output, part); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart part)
+    {
+      if (part == SqlTimePart.Millisecond) {
+        _ = output.Append("MILLISECONDS");
+      }
+      else {
+        base.Translate(output, part);
+      }
+    }
+#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
     {
-      // A hack making expression to look like regular parameter 
+      // A hack making expression to look like regular parameter
       // (ParameterExtractor.IsParameter => true)
       var owner = entitySet.Owner;
       var wrapper = Activator.CreateInstance(

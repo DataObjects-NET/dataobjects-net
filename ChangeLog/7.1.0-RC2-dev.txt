@@ -1,0 +1,1 @@
+[main] Added support for DefaultExpression within Linq queries

@@ -11,7 +11,7 @@ namespace Xtensive.Tuples.Packed
 {
   internal abstract class PackedFieldAccessor
   {
-    public static readonly PackedFieldAccessor[] All = new PackedFieldAccessor[18];
+    public static readonly PackedFieldAccessor[] All = new PackedFieldAccessor[20];
 
     /// <summary>
     /// Getter delegate.
@@ -587,4 +587,32 @@ namespace Xtensive.Tuples.Packed
        : base(GetSize() * 8, 17)
     { }
   }
+#if NET6_0_OR_GREATER
+
+  internal sealed class DateOnlyFieldAccessor : ValueFieldAccessor<DateOnly>
+  {
+    protected override DateOnly Decode(long value) =>
+      DateOnly.FromDayNumber((int)value);
+
+    protected override long Encode(DateOnly value) =>
+      value.DayNumber;
+
+    public DateOnlyFieldAccessor()
+       : base(sizeof(int) * 8, 18)
+    { }
+  }
+
+  internal sealed class TimeOnlyFieldAccessor : ValueFieldAccessor<TimeOnly>
+  {
+    protected override TimeOnly Decode(long value) =>
+      new TimeOnly(value);
+
+    protected override long Encode(TimeOnly value) =>
+      value.Ticks;
+
+    public TimeOnlyFieldAccessor()
+       : base(sizeof(long) * 8, 19)
+    { }
+  }
+#endif
 }

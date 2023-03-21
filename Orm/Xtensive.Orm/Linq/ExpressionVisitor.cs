@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.11.11
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
@@ -94,6 +95,12 @@ namespace Xtensive.Linq
     protected override Expression VisitConstant(ConstantExpression c)
     {
       return c;
+    }
+
+    /// <inheritdoc/>
+    protected override Expression VisitDefault(DefaultExpression d)
+    {
+      return d.ToConstantExpression();
     }
 
     /// <inheritdoc/>

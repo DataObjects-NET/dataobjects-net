@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
     }
 
-    private string[] BuildFieldNames(TupleDescriptor source)
+    private string[] BuildFieldNames(in TupleDescriptor source)
     {
       return Enumerable.Range(0, source.Count)
           .Select(i => string.Format(ColumnNamePattern, i))
