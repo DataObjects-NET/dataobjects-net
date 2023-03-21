@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -213,7 +213,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override BinaryExpression VisitBinary(BinaryExpression b)
     {
       switch (b.NodeType) {
         case ExpressionType.ArrayIndex:
@@ -244,7 +244,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitUnary(UnaryExpression u)
+    protected override UnaryExpression VisitUnary(UnaryExpression u)
     {
       switch (u.NodeType) {
         case ExpressionType.Convert:
@@ -307,7 +307,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitConditional(ConditionalExpression c)
+    protected override ConditionalExpression VisitConditional(ConditionalExpression c)
     {
       Visit(c.Test);
       WriteLine(IndentType.Inner);
@@ -335,7 +335,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitConstant(ConstantExpression c)
+    protected override ConstantExpression VisitConstant(ConstantExpression c)
     {
       var type = c.Type;
       if (type.Name.IndexOf("__DisplayClass", StringComparison.Ordinal) > 0 &&
@@ -400,6 +400,14 @@ namespace Xtensive.Linq
       return c;
     }
 
+    protected override DefaultExpression VisitDefault(DefaultExpression d)
+    {
+      Write("default(");
+      Write(GetTypeName(d.Type));
+      Write(")");
+      return d;
+    }
+
     /// <inheritdoc/>
     protected override ElementInit VisitElementInitializer(ElementInit initializer)
     {
@@ -452,7 +460,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitInvocation(InvocationExpression i)
+    protected override InvocationExpression VisitInvocation(InvocationExpression i)
     {
       Write("Invoke(");
       WriteLine(IndentType.Inner);
@@ -467,7 +475,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitLambda(LambdaExpression l)
+    protected override LambdaExpression VisitLambda(LambdaExpression l)
     {
       if (l.Parameters.Count > 1) {
         Write("(");
@@ -493,7 +501,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitListInit(ListInitExpression li)
+    protected override ListInitExpression VisitListInit(ListInitExpression li)
     {
       Visit(li.NewExpression);
       Write(" {");
@@ -505,7 +513,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override MemberExpression VisitMemberAccess(MemberExpression m)
     {
       Visit(m.Expression);
       Write(".");
@@ -523,7 +531,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMemberInit(MemberInitExpression mi)
+    protected override MemberInitExpression VisitMemberInit(MemberInitExpression mi)
     {
       Visit(mi.NewExpression);
       Write(" {");
@@ -559,7 +567,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMethodCall(MethodCallExpression mc)
+    protected override MethodCallExpression VisitMethodCall(MethodCallExpression mc)
     {
       var arguments = mc.Arguments;
       if (mc.Object != null) {
@@ -584,7 +592,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitNew(NewExpression n)
+    protected override NewExpression VisitNew(NewExpression n)
     {
       Write("new ");
       Write(GetTypeName(n.Type));
@@ -593,7 +601,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitNewArray(NewArrayExpression na)
+    protected override NewArrayExpression VisitNewArray(NewArrayExpression na)
     {
       Write("new ");
       Write(GetTypeName(SequenceHelper.GetElementType(na.Type)));
@@ -602,14 +610,14 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitParameter(ParameterExpression p)
+    protected override ParameterExpression VisitParameter(ParameterExpression p)
     {
       Write(p.Name);
       return p;
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitTypeIs(TypeBinaryExpression tb)
+    protected override TypeBinaryExpression VisitTypeIs(TypeBinaryExpression tb)
     {
       Visit(tb.Expression);
       Write(" is ");

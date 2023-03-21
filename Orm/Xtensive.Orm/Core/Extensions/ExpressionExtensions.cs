@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -12,6 +12,8 @@ using Xtensive.Linq.SerializableExpressions;
 using Xtensive.Linq.SerializableExpressions.Internals;
 
 using System.Linq;
+using Xtensive.Reflection;
+using System.Collections.Concurrent;
 
 namespace Xtensive.Core
 {
@@ -20,6 +22,8 @@ namespace Xtensive.Core
   /// </summary>
   public static class ExpressionExtensions
   {
+    private readonly static ConcurrentDictionary<Type, object> StructDefaultValues = new();
+
     /// <summary>
     /// Formats the <paramref name="expression"/>.
     /// </summary>
@@ -105,10 +109,39 @@ namespace Xtensive.Core
     /// Converts specified <see cref="SerializableExpression"/> to <see cref="Expression"/>.
     /// </summary>
     /// <param name="expression">The expression to convert.</param>
-    /// <returns></returns>
+    /// <returns>Expression that represents given <see cref="SerializableExpression"/>.</returns>
     public static Expression ToExpression(this SerializableExpression expression)
     {
       return new SerializableExpressionToExpressionConverter(expression).Convert();
+    }
+
+    /// <summary>
+    /// Converts <see cref="DefaultExpression"/> to <see cref="ConstantExpression"/>
+    /// with value of default value of type in the <paramref name="defaultExpression"/>.
+    /// </summary>
+    /// <param name="defaultExpression">The expression to convert.</param>
+    /// <returns>Result constant expression.</returns>
+    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression)
+    {
+      var value = GetDefaultValue(defaultExpression);
+
+      return Expression.Constant(value, defaultExpression.Type);
+    }
+
+    /// <summary>
+    /// Gets the value represented by given <see cref="DefaultExpression"/>.
+    /// </summary>
+    /// <param name="defaultExpression">The default value expression.</param>
+    /// <returns>Object value of default value.</returns>
+    public static object GetDefaultValue(this DefaultExpression defaultExpression)
+    {
+      if (defaultExpression.Type.IsValueType) {
+        return StructDefaultValues.GetOrAdd<DefaultExpression>(
+          defaultExpression.Type,
+          (type, expr) => { return ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(); },
+          defaultExpression);
+      }
+      return null;
     }
 
     /// <summary>
