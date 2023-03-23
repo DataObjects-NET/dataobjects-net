@@ -85,7 +85,7 @@ namespace Xtensive.Reflection
       key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
 
     private static readonly ConcurrentDictionary<(Type Type, bool UseShortForm), string> MemoizedTypeNames = new();
-    
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
@@ -826,10 +826,10 @@ namespace Xtensive.Reflection
 
     private static string InnerGetTypeName(this Type type, bool useShortForm) =>
       MemoizedTypeNames.GetOrAdd((type, useShortForm), TypeNameFactory);
-    
+
     private static readonly Func<(Type Type, bool UseShortForm), string> TypeNameFactory = t => {
       var (type, useShortForm) = t;
-      
+
       var result = useShortForm || type.DeclaringType != null // Is nested
         ? type.Name
         : $"{type.Namespace}.{type.Name}";
