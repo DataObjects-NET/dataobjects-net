@@ -573,6 +573,7 @@ namespace Xtensive.Orm.Providers
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       var storageNode = configuration.StorageNode;
       Mapping = storageNode.Mapping;
+      TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
       NodeConfiguration = storageNode.Configuration;
 
       providerInfo = Handlers.ProviderInfo;
