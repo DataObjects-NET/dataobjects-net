@@ -24,11 +24,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     protected const long MillisecondsPerDay = 86400000;
     protected const long MillisecondsPerSecond = 1000L;
 
-    //protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
-    //protected static readonly long NanosecondsPerSecond = 1000000000;
-    //protected static readonly long NanosecondsPerMillisecond = 1000000;
-    //protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    //protected static readonly long MillisecondsPerSecond = 1000L;
     private bool case_SqlDateTimePart_DayOfYear;
     private bool case_SqlDateTimePart_Second;
 
@@ -326,26 +321,35 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
     {
+      SqlExpression hour, minute, second, millisecond;
       if (arguments.Count == 4) {
-        return DateAddMillisecond(
-        DateAddSecond(
-          DateAddMinute(
-            DateAddHour(
-              SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
-              arguments[0]),
-            arguments[1]),
-          arguments[2]),
-        arguments[3]);
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3] * 10;
       }
       else if (arguments.Count == 1) {
         var ticks = arguments[0];
-        return TimeAddInterval(
-          SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0, 0)), SqlType.Time),
-          SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval) ? sourceInterval : ticks * 100);
+        // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+        ticks = SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval) ? sourceInterval / 100 : ticks;
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = SqlDml.Cast((ticks % 10000000) / 1000, SqlType.Int32);
       }
       else {
         throw new InvalidOperationException("Unsupported count of parameters");
       }
+
+      // using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.0000 time
+      // because hours might step over 24 hours and start counting from 0.
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var millisecondString = SqlDml.Cast(millisecond, new SqlValueType(SqlType.VarChar, 4));
+      var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), millisecondString);
+      return SqlDml.Cast(composedTimeString, SqlType.Time);
     }
 
     protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
