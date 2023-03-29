@@ -17,6 +17,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
   internal class Compiler : SqlCompiler
   {
     private const long NanosecondsPerMillisecond = 1000000L;
+    private const long NanosecondsPerDay = 86400000000000;
+    private const long NanosecondsPerHour = 3600000000000;
+    private const long NanosecondsPerMinute = 60000000000;
+    private const long NanosecondsPerSecond = 1000000000;
+    private const long MillisecondsPerSecond = 1000;
+
     private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
 #if NET6_0_OR_GREATER
     private const string DateFormat = "%Y-%m-%d";
@@ -27,10 +33,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
     private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
 
-    private static readonly long NanosecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds * NanosecondsPerMillisecond;
-    private static readonly long NanosecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds * NanosecondsPerMillisecond;
-    private static readonly long NanosecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds * NanosecondsPerMillisecond;
-    private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
     private static readonly int StartOffsetIndex = DateTimeOffsetExampleString.IndexOf('+');
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
@@ -217,6 +219,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           return;
         case SqlFunctionType.TimeConstruct:
           TimeConstruct(arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddHours:
           TimeAddHours(arguments[0], arguments[1]).AcceptVisitor(this);
@@ -563,6 +568,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           minute),
         second,
         millisecond);
+    }
+
+    private static SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
     }
 
     private static SqlExpression TimeAddHours(SqlExpression time, SqlExpression seconds) =>

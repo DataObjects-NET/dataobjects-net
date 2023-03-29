@@ -35,6 +35,10 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Millisecond, _this));
 
+    [Compiler(typeof(TimeOnly), "Ticks", TargetKind.PropertyGet)]
+    public static SqlExpression TimeSpanTicks(SqlExpression _this) =>
+      ExpressionTranslationHelpers.ToLong(SqlDml.TimeToNanoseconds(_this) / NanosecondsPerTick);
+
     #endregion
 
     #region Constructors

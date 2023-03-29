@@ -30,11 +30,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected const string WeekdayPart = "WEEKDAY";
     #endregion
 
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
-    protected static readonly long NanosecondsPerSecond = 1000000000;
-    protected static readonly long NanosecondsPerMillisecond = 1000000;
-    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected const long NanosecondsPerDay = 86400000000000;
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+    protected const long MillisecondsPerDay = 86400000;
+    protected const long MillisecondsPerSecond = 1000L;
+
     protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
 
     /// <inheritdoc/>
@@ -228,6 +231,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.TimeConstruct:
           ConstructTime(arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -540,6 +546,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             second),
           millisecond),
         SqlType.Time);
+    }
+
+    /// <summary>
+    /// Creates expression that represents conversion of time value to nanoseconds.
+    /// </summary>
+    /// <param name="time">Time value to convert.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var n = SqlDml.Extract(SqlTimePart.Nanosecond, time);
+
+      return nPerHour + nPerMinute + nPerSecond + n;
     }
 
     /// <summary>

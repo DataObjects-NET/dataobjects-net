@@ -16,12 +16,20 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class Compiler : SqlCompiler
   {
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
-    protected static readonly long NanosecondsPerSecond = 1000000000;
-    protected static readonly long NanosecondsPerMillisecond = 1000000;
-    protected static readonly long NanosecondsPerMicrosecond = 1000;
-    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected const long NanosecondsPerDay = 86400000000000;
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+    protected const long NanosecondsPerMicrosecond = 1000;
+    protected const long MillisecondsPerDay = 86400000;
+
+    //protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
+    //protected static readonly long NanosecondsPerSecond = 1000000000;
+    //protected static readonly long NanosecondsPerMillisecond = 1000000;
+    //protected static readonly long NanosecondsPerMicrosecond = 1000;
+    //protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
+    //protected static readonly long MillisecondsPerSecond = 1000L;
 
     /// <inheritdoc/>
     public override void Visit(SqlSelect node)
@@ -217,6 +225,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.TimeConstruct:
           ConstructTime(arguments).AcceptVisitor(this);
           return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
+          return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
           return;
@@ -361,6 +372,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             second),
           millisecond));
     }
+
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
+    }
+
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(SqlDml.FunctionCall("TIME_TO_SEC", time1) - SqlDml.FunctionCall("TIME_TO_SEC", time2), 18, 0) * NanosecondsPerSecond,

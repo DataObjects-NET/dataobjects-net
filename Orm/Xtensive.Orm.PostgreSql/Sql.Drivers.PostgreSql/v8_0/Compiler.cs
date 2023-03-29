@@ -20,6 +20,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const string TimeFormat = "HH24:MI:SS.US0";
 #endif
 
+    private const long NanosecondsPerHour = 3600000000000;
+    private const long NanosecondsPerMinute = 60000000000;
+    private const long NanosecondsPerSecond = 1000000000;
+    private const long NanosecondsPerMillisecond = 1000000;
+
     private static readonly Type SqlPlaceholderType = typeof(SqlPlaceholder);
 
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
@@ -134,6 +139,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           return;
         case SqlFunctionType.TimeConstruct:
           ConstructTime(node.Arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.DateTimeTruncate:
@@ -422,8 +430,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       else {
         throw new InvalidOperationException("Unsupported count of parameters");
-      }
-      
+      } 
+    }
+
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
     }
 #endif
 
