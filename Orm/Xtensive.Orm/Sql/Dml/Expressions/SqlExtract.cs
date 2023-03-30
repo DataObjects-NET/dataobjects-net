@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlExtract Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => new SqlExtract(internalValue, typeMarker, (SqlExpression)Operand.Clone(context)));
+      context.GetOrAdd(this, static (t, c) => new SqlExtract(t.internalValue, t.typeMarker, t.Operand.Clone(c)));
         //t.DateTimePart != SqlDateTimePart.Nothing
         //  ? new SqlExtract(t.DateTimePart, t.Operand.Clone(c))
         //  : t.IntervalPart != SqlIntervalPart.Nothing
