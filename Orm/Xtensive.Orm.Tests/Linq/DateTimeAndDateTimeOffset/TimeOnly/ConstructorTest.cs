@@ -108,31 +108,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
     }
 
     [Test]
-    public void MysqlCtorTicksFromIntervalTicks()
-    {
-      Require.ProviderIs(StorageProvider.MySql);
-
-      if (StorageProviderInfo.Instance.Info.StorageVersion <= StorageProviderVersion.MySql55) {
-        ExecuteInsideSession((s) => {
-          var result = s.Query.All<AllPossiblePartsEntity>()
-            .Select(e => new { Entity = e, ConstructedTime = new TimeOnly(e.TimeSpan.Ticks) })
-            .Where(a => a.ConstructedTime == FirstTimeOnly)
-            .OrderBy(a => a.Entity.Id).ToList(3);
-          Assert.That(result.Count, Is.EqualTo(1));
-        });
-      }
-      else {
-        ExecuteInsideSession((s) => {
-          var result = s.Query.All<AllPossiblePartsEntity>()
-            .Select(e => new { Entity = e, ConstructedTime = new TimeOnly(e.TimeSpan.Ticks) })
-            .Where(a => a.ConstructedTime == FirstMillisecondTimeOnly)
-            .OrderBy(a => a.Entity.Id).ToList(3);
-          Assert.That(result.Count, Is.EqualTo(1));
-        });
-      }
-    }
-
-    [Test]
     public void TicksFromColumnsBasedExpression()
     {
       var ticksPerHour = new TimeOnly(1, 0).Ticks;

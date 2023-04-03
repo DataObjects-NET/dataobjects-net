@@ -61,40 +61,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateTimeDiffMicrosecond(time2, time1), 18, 0) * NanosecondsPerMicrosecond,
         NanosecondsPerDay);
-
-    protected override SqlUserFunctionCall ConstructTime(IReadOnlyList<SqlExpression> arguments)
-    {
-      SqlExpression hour, minute, second, millisecond;
-      if (arguments.Count == 4) {
-        hour = arguments[0];
-        minute = arguments[1];
-        second = arguments[2];
-        millisecond = arguments[3];
-      }
-      else if (arguments.Count == 1) {
-        var ticks = arguments[0];
-        if (SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval)) {
-          hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
-          minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
-          second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
-          millisecond = SqlDml.Cast((ticks % 10000000) / 10, SqlType.Int32) / 1000;
-        }
-        else {
-          hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
-          minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
-          second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
-          millisecond = SqlDml.Cast((ticks % 10000000) / 10, SqlType.Int32) / 1000;
-        }
-      }
-      else {
-        throw new InvalidOperationException("Unsupported count of parameters");
-      }
-      return MakeTime(hour, minute, second, millisecond);
-    }
-
-    protected SqlUserFunctionCall MakeTime(
-        SqlExpression hours, SqlExpression minutes, SqlExpression seconds, SqlExpression milliseconds) =>
-      SqlDml.FunctionCall("MAKETIME", hours, minutes, seconds + (milliseconds / 1000));
 #endif
 
     // Constructors

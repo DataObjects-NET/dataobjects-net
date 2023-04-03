@@ -24,13 +24,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     protected const long NanosecondsPerMicrosecond = 1000;
     protected const long MillisecondsPerDay = 86400000;
 
-    //protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
-    //protected static readonly long NanosecondsPerSecond = 1000000000;
-    //protected static readonly long NanosecondsPerMillisecond = 1000000;
-    //protected static readonly long NanosecondsPerMicrosecond = 1000;
-    //protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    //protected static readonly long MillisecondsPerSecond = 1000L;
-
     /// <inheritdoc/>
     public override void Visit(SqlSelect node)
     {
@@ -222,9 +215,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                 SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.FunctionCall("TIME_TO_SEC", arguments[0]) + arguments[1] * 60),
                 SqlDml.Native("SECOND")))));
           return;
-        case SqlFunctionType.TimeConstruct:
-          ConstructTime(arguments).AcceptVisitor(this);
-          return;
         case SqlFunctionType.TimeToNanoseconds:
           TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
@@ -339,38 +329,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             arguments[0] - 2001),
           arguments[1] - 1),
         arguments[2] - 1);
-    }
-
-    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
-    {
-      SqlExpression hour, minute, second, millisecond;
-      if (arguments.Count == 4) {
-        hour = arguments[0];
-        minute = arguments[1];
-        second = arguments[2];
-        millisecond = arguments[3];
-      }
-      else if (arguments.Count == 1) {
-        var ticks = arguments[0];
-        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
-        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
-        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
-        millisecond = 0; //SqlDml.Cast((ticks % 10000000) / 10, SqlType.Int32);
-      }
-      else {
-        throw new InvalidOperationException("Unsupported count of parameters");
-      }
-
-      return SqlDml.FunctionCall("TIME",
-        TimeAddMillisecond(
-          TimeAddSecond(
-            TimeAddMinute(
-              TimeAddHour(
-                SqlDml.Literal(new DateTime(2001, 1, 1)),
-                hour),
-              minute),
-            second),
-          millisecond));
     }
 
     protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
