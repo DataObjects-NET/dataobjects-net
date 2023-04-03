@@ -188,6 +188,37 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
         Assert.That(result.Count, Is.EqualTo(1));
       });
     }
+
+    [Test]
+    public void HourOverflowTest()
+    {
+      Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Sqlite,
+        "These providers don't throw exceptions on hour value overflow but return NULL or Max possible value, so no support for time constructor");
+
+      var ticksPerHour = new TimeOnly(1, 0).Ticks;
+      var testTicks = FirstMillisecondTimeOnly.Hour + ticksPerHour * 25;
+
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => new TimeOnly(testTicks));
+
+      ExecuteInsideSession((s) => {
+        _ = Assert.Throws(GetExceptionType(),
+          () => s.Query.All<AllPossiblePartsEntity>()
+            .Select(e => new {
+              Entity = e,
+              ConstructedTime = new TimeOnly(e.Hour + ticksPerHour * 25)
+            })
+            .Where(a => a.ConstructedTime == FirstMillisecondTimeOnly)
+            .OrderBy(a => a.Entity.Id).Run());
+      });
+
+      static Type GetExceptionType()
+      {
+        return StorageProviderInfo.Instance.Provider switch {
+          StorageProvider.SqlServer => typeof(SyntaxErrorException),
+          _ => typeof(StorageException)
+        };
+      }
+    }
   }
 }
 #endif
