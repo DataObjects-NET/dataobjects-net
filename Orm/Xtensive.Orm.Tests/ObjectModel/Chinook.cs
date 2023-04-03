@@ -25,7 +25,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Key]
     public int AlbumId { get; private set; }
 
+#if DO_FTS
     [FullText("English")]
+#endif
     [Field(Nullable = false, Length = 160)]
     public string Title { get; set; }
 
@@ -224,11 +226,15 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Key]
     public int TrackId { get; private set; }
 
+#if DO_FTS
     [FullText("English")]
+#endif
     [Field(Nullable = false, Length = 200)]
     public string Name { get; set; }
 
+#if DO_FTS
     [FullText("English")]
+#endif
     [Field(Length = 220)]
     public string Composer { get; set; }
 
@@ -286,7 +292,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
   public class Address : Structure
   {
+#if DO_FTS
     [FullText("English")]
+#endif
     [Field(Length = 70)]
     public string StreetAddress { get; set; }
 

@@ -1,0 +1,32 @@
+name: Tests with SQL Server
+on:
+  pull_request:
+    branches: [ master-servicetitan ]
+env:
+  DO_CONFIG_FILE: "/tmp/do-test.cfg"
+  DO_FTS: false
+  DO_TargetFrameworks: net7.0
+  SQL_PASSWD: dbatools.I0
+jobs:
+  test-with-sql:
+    name: SQL tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with: { dotnet-version: 7 }
+      - name: Install a SQL Server suite of tools
+        uses: potatoqualitee/mssqlsuite@v1.7
+        with:
+          install: sqlengine, sqlclient, sqlpackage, localdb
+      - name: Init Test DB
+        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql 
+      - name: Create DO Tests Config file
+        run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
+      - name: Build
+        run: dotnet build -v q Orm.sln
+      - name: Tests
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj
+
+
