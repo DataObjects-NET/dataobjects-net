@@ -14,6 +14,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
 {
   public class ConstructorTest : DateTimeBaseTest
   {
+    protected override void CheckRequirements() => Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Sqlite);
+
     [Test]
     public void CtorHMSM()
     {
