@@ -388,27 +388,46 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private static SqlExpression TimeConstruct(IReadOnlyList<SqlExpression> arguments)
     {
+      SqlExpression hour, minute, second, microsecond;
       if (arguments.Count == 4) {
-        var hours = arguments[0];
-        var minutes = arguments[1];
-        var seconds = arguments[2];
-        var milliseconds = arguments[3];
-
-        return SqlDml.FunctionCall(NumToDSIntervalFunctionName,
-          seconds + (minutes * 60) + (hours * 3600) + (milliseconds / 1000),
-          AnsiString(SecondIntervalPart));
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        microsecond = arguments[3] * 10000;
       }
       else if (arguments.Count == 1) {
         var ticks = arguments[0];
-        var zeroTime = SqlDml.Literal(new TimeOnly(0, 0, 0, 0));
-        if (!SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval)) {
-          sourceInterval = SqlDml.FunctionCall(NumToDSIntervalFunctionName, ticks / 10000000, AnsiString(SecondIntervalPart));
+        if (SqlHelper.IsTimeSpanTicks(ticks, out var sourceExpression)) {
+          // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+          var days = SqlDml.Extract(SqlIntervalPart.Day, sourceExpression);
+          var hours = days * 24 + SqlDml.Extract(SqlIntervalPart.Hour, sourceExpression);
+
+          var hourString1 = SqlDml.Cast(hours, new SqlValueType(SqlType.VarChar, 3));
+          var sourceExpressionAsString = SqlDml.FunctionCall(ToCharFunctionName, sourceExpression);
+          var minuteToSecondsSubstring = SqlDml.Substring(sourceExpressionAsString, SqlDml.FunctionCall("INSTR", sourceExpressionAsString, AnsiString(":")) - 1 , 16);
+          var composedTimeString1 = SqlDml.Concat(AnsiString("0 "), hourString1, minuteToSecondsSubstring);
+          return SqlDml.FunctionCall(ToDSIntervalFunctionName, new[] { composedTimeString1 });
         }
-        return SqlDml.Cast(TimeAddInterval(zeroTime, sourceInterval), SqlType.Time); 
+        else {
+          hour = SqlDml.Cast(ticks / 36000000000, new SqlValueType(SqlType.Decimal, 10, 0));
+          minute = SqlDml.Cast((ticks / 600000000) % 60, new SqlValueType(SqlType.Decimal, 10, 0));
+          second = SqlDml.Cast((ticks / 10000000) % 60, new SqlValueType(SqlType.Decimal, 10, 0));
+          microsecond = SqlDml.Cast(ticks % 10000000, new SqlValueType(SqlType.Decimal, 10, 0));
+        }
       }
       else {
         throw new InvalidOperationException("Unsupported count of parameters");
       }
+
+      // using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.000 time
+      // because hours might step over 24 hours and start counting from 0.
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var composedTimeString = SqlDml.Concat(AnsiString("0 "), hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
+      return SqlDml.FunctionCall(ToDSIntervalFunctionName, new[] { composedTimeString });
     }
 
     private static SqlExpression TimeToNanoseconds(SqlExpression time)
