@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Linq
       var eachEnumerable = typeof (EachExtensions)
         .GetMethods()
         .Single(method => method.GetParameterTypes()
-          .Any(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof(IEnumerable<>)))
+          .Any(type => type.IsGenericType && type.CachedGetGenericTypeDefinition()==typeof(IEnumerable<>)))
         .MakeGenericMethod(typeof (int));
       var eachEnumerableCompiler = provider.GetCompiler(eachEnumerable);
       Assert.AreEqual("EachInEnumerable", eachEnumerableCompiler.Invoke(null, dummy));

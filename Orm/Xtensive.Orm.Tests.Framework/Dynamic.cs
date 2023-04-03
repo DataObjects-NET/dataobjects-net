@@ -1,4 +1,4 @@
-﻿//Copyright (C) Microsoft Corporation.  All rights reserved.
+//Copyright (C) Microsoft Corporation.  All rights reserved.
 
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
+using Xtensive.Reflection;
 
 namespace System.Linq.Dynamic
 {
@@ -1309,7 +1310,7 @@ namespace System.Linq.Dynamic
     {
       while (type != null && type != typeof (object))
       {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == generic) return type;
+        if (type.IsGenericType && type.CachedGetGenericTypeDefinition() == generic) return type;
         if (generic.IsInterface)
         {
           foreach (Type intfType in type.GetInterfaces())
@@ -1417,7 +1418,7 @@ namespace System.Linq.Dynamic
 
     private static bool IsNullableType(Type type)
     {
-      return type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>);
+      return type.IsGenericType && type.CachedGetGenericTypeDefinition() == typeof (Nullable<>);
     }
 
     private static Type GetNonNullableType(Type type)

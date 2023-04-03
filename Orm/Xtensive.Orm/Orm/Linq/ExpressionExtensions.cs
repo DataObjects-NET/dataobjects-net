@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Linq
         if (((ConstantExpression) expression).Value is IQueryable value) {
           var type = value.GetType();
           if (type.IsGenericType) {
-            var definition = type.GetGenericTypeDefinition();
+            var definition = type.CachedGetGenericTypeDefinition();
             return definition != WellKnownInterfaces.QueryableOfT && definition != WellKnownTypes.QueryableOfT;
           }
         }
@@ -134,8 +134,9 @@ namespace Xtensive.Orm.Linq
     }
 
     public static bool IsEntitySet(this Expression expression) =>
-      expression.Type.IsGenericType
-      && expression.Type.GetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetOfT;
+      expression.Type switch {
+        var type => type.IsGenericType && type.CachedGetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetOfT
+      };
 
     public static Expression StripMarkers(this Expression e)
     {

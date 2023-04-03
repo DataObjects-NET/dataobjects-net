@@ -74,9 +74,9 @@ namespace Xtensive.Orm.Linq
       if (owner.NodeType!=ExpressionType.MemberAccess)
         return false;
       var wrapper = ((MemberExpression) owner).Expression;
-      return wrapper.NodeType==ExpressionType.Constant
+      return wrapper.NodeType == ExpressionType.Constant
         && wrapper.Type.IsGenericType
-        && wrapper.Type.GetGenericTypeDefinition()==typeof (OwnerWrapper<>);
+        && wrapper.Type.CachedGetGenericTypeDefinition() == typeof(OwnerWrapper<>);
     }
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)

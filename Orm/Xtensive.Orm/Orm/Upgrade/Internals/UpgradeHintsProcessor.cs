@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       var genericTypeDefLookup = (
         from triplet in genericTypeMapping
-        group triplet by triplet.Item2.GetGenericTypeDefinition()
+        group triplet by triplet.Item2.CachedGetGenericTypeDefinition()
           into g
         select (Definition: g.Key, Instances: g.ToArray())
         ).ToDictionary(g => g.Definition);
@@ -550,7 +550,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       var genericTypes = new ClassifiedCollection<Type, Pair<Type, Type[]>>(pair => new[] { pair.First });
       foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
-        var typeDefinition = typeInfo.UnderlyingType.GetGenericTypeDefinition();
+        var typeDefinition = typeInfo.UnderlyingType.CachedGetGenericTypeDefinition();
         genericTypes.Add(new Pair<Type, Type[]>(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
       }
       return genericTypes;

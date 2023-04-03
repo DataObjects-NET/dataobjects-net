@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Building.Builders
       var underlyingBaseType = type.UnderlyingType.BaseType;
       return underlyingBaseType != null
         && underlyingBaseType.IsGenericType
-        && underlyingBaseType.GetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetItemOfT1T2;
+        && underlyingBaseType.CachedGetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetItemOfT1T2;
     }
 
     private ColumnInfo BuildDeclaredColumn(FieldInfo field)
