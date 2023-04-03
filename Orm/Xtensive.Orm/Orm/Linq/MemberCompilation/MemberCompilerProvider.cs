@@ -313,7 +313,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       var targetType = canonicalMember.ReflectedType;
       if (targetType.IsGenericType) {
-        targetType = targetType.GetGenericTypeDefinition();
+        targetType = targetType.CachedGetGenericTypeDefinition();
         if (canonicalMember is FieldInfo)
           canonicalMember = targetType.GetField(canonicalMember.Name);
         else if (canonicalMember is MethodInfo methodInfo) {

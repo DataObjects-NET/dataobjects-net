@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Linq
 
       var currentIndex = 0;
       var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
-      foreach(var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
+      foreach (var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
         if (targetTypeInfo.Columns.Contains(indexColumn)) {
           indexes.Add(currentIndex);
         }
@@ -393,26 +393,27 @@ namespace Xtensive.Orm.Linq
       var targetProjectionType = WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(targetType);
       return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings,
         projection.ResultAccessMethod);
-//      if (targetType.IsSubclassOf(sourceType)) {
-//        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-//        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-//        offset = recordSet.Header.Columns.Count;
-//        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-//        var keyPairs = keySegment
-//          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-//          .ToArray();
-//        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
-//      }
-//      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
-//      entityExpression.Remap()
-//      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
-//      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
+      //      if (targetType.IsSubclassOf(sourceType)) {
+      //        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
+      //        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      //        offset = recordSet.Header.Columns.Count;
+      //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      //        var keyPairs = keySegment
+      //          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      //          .ToArray();
+      //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      //      }
+      //      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+      //      entityExpression.Remap()
+      //      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
+      //      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (source.IsLocalCollection(context)) {
+      var isLocalCollection = source.IsLocalCollection(context);
+      if (isLocalCollection) {
         match = Visit(match);
       }
 
@@ -425,7 +426,7 @@ namespace Xtensive.Orm.Linq
         }
         else {
           // Collection<Child>.Contains(parent)
-          if (!isRoot && !source.IsLocalCollection(context)) {
+          if (!isRoot && !isLocalCollection) {
             QueryHelper.TryAddConvarianceCast(ref source, match.Type);
           }
         }
@@ -481,7 +482,7 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression projection;
       using (CreateScope(new TranslatorState(State) {
         RequestCalculateExpressions = State.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
-          })) {
+      })) {
         projection = predicate != null ? VisitWhere(source, predicate) : VisitSequence(source);
       }
 
@@ -1285,9 +1286,9 @@ namespace Xtensive.Orm.Linq
           .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
           OuterParameters = outerParameters,
-              Parameters = Array.Empty<ParameterExpression>(),
-              RequestCalculateExpressionsOnce = true
-            })) {
+          Parameters = Array.Empty<ParameterExpression>(),
+          RequestCalculateExpressionsOnce = true
+        })) {
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.StripMarkers().IsGroupingExpression()) {
@@ -1362,8 +1363,8 @@ namespace Xtensive.Orm.Linq
       var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(State) {
         CalculateExpressions = calculateExpressions,
-            RequestCalculateExpressionsOnce = false
-          })) {
+        RequestCalculateExpressionsOnce = false
+      })) {
         return BuildProjection(le);
       }
     }
@@ -1459,8 +1460,8 @@ namespace Xtensive.Orm.Linq
         TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
               ? LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body)
               : State.TypeOfEntityStoredInKey,
-            IncludeAlgorithm = IncludeAlgorithm.Auto
-          })) {
+        IncludeAlgorithm = IncludeAlgorithm.Auto
+      })) {
         visitedSource = VisitSequence(source);
       }
 
@@ -1526,19 +1527,20 @@ namespace Xtensive.Orm.Linq
       var algorithm = IncludeAlgorithm.Auto;
       Expression source = null;
       Expression match = null;
-      switch (mc.Arguments.Count) {
+      var arguments = mc.Arguments;
+      switch (arguments.Count) {
         case 2:
-          source = mc.Arguments[1];
-          match = mc.Arguments[0];
+          source = arguments[1];
+          match = arguments[0];
           if (source.NodeType == ExpressionType.NewArrayInit
               && ((NewArrayExpression) source).Expressions.Count < context.Domain.Configuration.MaxNumberOfConditions) {
             algorithm = IncludeAlgorithm.ComplexCondition;
           }
           break;
         case 3:
-          source = mc.Arguments[2];
-          match = mc.Arguments[0];
-          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
+          source = arguments[2];
+          match = arguments[0];
+          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(arguments[1]).Value;
           break;
         default:
           Exceptions.InternalError(string.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
@@ -1660,7 +1662,7 @@ namespace Xtensive.Orm.Linq
 
       if (sequence.IsLocalCollection(context)) {
         var sequenceType = (sequence.Type.IsGenericType
-          && sequence.Type.GetGenericTypeDefinition() == typeof(Func<>))
+          && sequence.Type.CachedGetGenericTypeDefinition() == typeof(Func<>))
           ? sequence.Type.GetGenericArguments()[0]
           : sequence.Type;
 
@@ -1705,7 +1707,7 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
       Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
-      if (compiledQueryScope!=null) {
+      if (compiledQueryScope != null) {
         var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
@@ -1715,7 +1717,7 @@ namespace Xtensive.Orm.Linq
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
-      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
+      return CreateLocalCollectionProjectionExpression(typeof(TItem), collectionGetter, this, sequence);
     }
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)

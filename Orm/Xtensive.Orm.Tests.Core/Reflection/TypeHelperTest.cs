@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
       sName = t.GetShortName();
       Assert.AreEqual("A<Int32,String>+B<Boolean>", sName);
 
-      t = t.GetGenericTypeDefinition().GetGenericArguments()[2];
+      t = t.CachedGetGenericTypeDefinition().GetGenericArguments()[2];
       fName = t.GetFullName();
       Assert.AreEqual("T3", fName);
       sName = t.GetShortName();

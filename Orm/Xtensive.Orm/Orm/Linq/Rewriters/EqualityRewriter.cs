@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
       var interfaceMember = mc.Method.GetInterfaceMember();
       if (interfaceMember != null) {
-        if (interfaceMember.ReflectedType.IsGenericType && interfaceMember.ReflectedType.GetGenericTypeDefinition() == typeof(IEquatable<>))
+        if (interfaceMember.ReflectedType.IsGenericType && interfaceMember.ReflectedType.CachedGetGenericTypeDefinition() == typeof(IEquatable<>))
           return Expression.Equal(mc.Object, mc.Arguments[0]);
         return base.VisitMethodCall(mc);
       }
