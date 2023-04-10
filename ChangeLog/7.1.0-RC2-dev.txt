@@ -1,0 +1,1 @@
+[main] Support for TimeOnly ctors (time parts and ticks) in Linq, except for SQLite and MySQL providers
