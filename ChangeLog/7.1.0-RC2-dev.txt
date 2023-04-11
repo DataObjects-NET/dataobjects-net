@@ -1,1 +1,2 @@
 [main] Added support for DefaultExpression within Linq queries
+[main] No Session.Activate() in ToTransactional extension, it affects EntitySet<T> enumeration.
