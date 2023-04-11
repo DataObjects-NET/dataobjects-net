@@ -731,8 +731,6 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall TimeAddHours(SqlExpression source, SqlExpression hours)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(hours, "hours");
       ArgumentNullException.ThrowIfNull(source, nameof(source));
       ArgumentNullException.ThrowIfNull(hours, nameof(hours));
       return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
