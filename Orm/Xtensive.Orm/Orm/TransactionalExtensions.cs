@@ -177,7 +177,6 @@ namespace Xtensive.Orm
     /// <returns>"Transactional" version of sequence.</returns>
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session, IsolationLevel isolationLevel)
     {
-      using (session.Activate(true))
       using (var tx = session.OpenAutoTransaction(isolationLevel)) {
         foreach (var item in source)
           yield return item;
