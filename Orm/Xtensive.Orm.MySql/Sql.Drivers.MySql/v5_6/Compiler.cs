@@ -5,6 +5,7 @@
 // Created:    2013.12.30
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_6
@@ -40,10 +41,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
                 SqlDml.Cast(arguments[0], SqlType.DateTime),
                 arguments[1] * 100))); // 100 = 0:01:00
           return;
-        case SqlFunctionType.TimeConstruct: {
-          Visit(MakeTime(arguments[0], arguments[1], arguments[2], arguments[3]));
-          return;
-        }
         case SqlFunctionType.TimeToDateTime:
           Visit(SqlDml.Cast(arguments[0], SqlType.DateTime));
           return;
@@ -53,21 +50,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
       }
     }
 
-    protected override SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval)
+    protected override SqlUserFunctionCall TimeAddInterval(SqlExpression time, SqlExpression interval)
     {
       var timeAsDate = SqlDml.Cast(time, SqlType.DateTime);
       return DateTimeAddMicrosecond(timeAsDate,
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
 
-    protected override SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
+    protected override SqlBinary TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateTimeDiffMicrosecond(time2, time1), 18, 0) * NanosecondsPerMicrosecond,
         NanosecondsPerDay);
-
-    protected SqlUserFunctionCall MakeTime(
-        SqlExpression hours, SqlExpression minutes, SqlExpression seconds, SqlExpression milliseconds) =>
-      SqlDml.FunctionCall("MAKETIME", hours, minutes, seconds + (milliseconds / 1000));
 #endif
 
     // Constructors
