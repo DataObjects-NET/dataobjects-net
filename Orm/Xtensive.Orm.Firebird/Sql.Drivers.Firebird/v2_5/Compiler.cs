@@ -10,16 +10,20 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Compiler : SqlCompiler
   {
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
-    protected static readonly long NanosecondsPerSecond = 1000000000;
-    protected static readonly long NanosecondsPerMillisecond = 1000000;
-    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected const long NanosecondsPerDay = 86400000000000;
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+    protected const long MillisecondsPerDay = 86400000;
+    protected const long MillisecondsPerSecond = 1000L;
+
     private bool case_SqlDateTimePart_DayOfYear;
     private bool case_SqlDateTimePart_Second;
 
@@ -231,10 +235,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
@@ -247,10 +248,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDate(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddHours:
           Visit(DateAddHour(node.Arguments[0], node.Arguments[1]));
@@ -259,11 +257,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Visit(DateAddMinute(node.Arguments[0], node.Arguments[1]));
           return;
         case SqlFunctionType.TimeConstruct:
-          Visit(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Cast(SqlDml.Literal(new TimeOnly(0, 0, 0)), SqlType.Time),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3]));
+          ConstructTime(arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -301,6 +298,73 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       translator.Translate(context, node, NodeSection.Entry);
       translator.Translate(context, node, NodeSection.Exit);
     }
+
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Cast(SqlDml.Literal(new DateTime(2001, 1, 1)), SqlType.DateTime),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+#if NET6_0_OR_GREATER
+
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Cast(SqlDml.Literal(new DateOnly(2001, 1, 1)), SqlType.Date),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, millisecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        millisecond = arguments[3] * 10;
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+        ticks = SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval) ? sourceInterval / 100 : ticks;
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        millisecond = SqlDml.Cast((ticks % 10000000) / 1000, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      // using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.0000 time
+      // because hours might step over 24 hours and start counting from 0.
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var millisecondString = SqlDml.Cast(millisecond, new SqlValueType(SqlType.VarChar, 4));
+      var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), millisecondString);
+      return SqlDml.Cast(composedTimeString, SqlType.Time);
+    }
+
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
+    }
+#endif
 
     #region Static helpers
 

@@ -77,14 +77,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
     }
 
     [Test]
-    [Ignore("Not implemented yet.")]
     public void ExtractTicksTest()
     {
-      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
-
       ExecuteInsideSession((s) => {
-        RunTest<SingleTimeOnlyEntity>(s, c => c.TimeOnly.Ticks == FirstTimeOnly.Ticks);
-        RunWrongTest<SingleTimeOnlyEntity>(s, c => c.TimeOnly.Ticks < FirstTimeOnly.Ticks);
+        var firstMillisecondTimeOnly = FirstMillisecondTimeOnly.AdjustTimeOnlyForCurrentProvider();
+        RunTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Ticks == firstMillisecondTimeOnly.Ticks);
+        RunWrongTest<SingleTimeOnlyEntity>(s, c => c.MillisecondTimeOnly.Ticks < FirstTimeOnly.Ticks);
       });
     }
   }

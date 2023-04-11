@@ -11,6 +11,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Oracle.v09
 {
@@ -43,12 +44,19 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     protected const string ToDSIntervalFunctionName = "TO_DSINTERVAL";
     protected const string TimeFormat = "HH24:MI:SS.FF7";
 
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+
     private static readonly SqlExpression SundayNumber = SqlDml.Native(
       "TO_NUMBER(TO_CHAR(TIMESTAMP '2009-07-26 00:00:00.000', 'D'))");
     private static readonly SqlNative RefTimestamp = SqlDml.Native("timestamp '2009-01-01 00:00:00.0000000'");
 
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
+
       switch (node.FunctionType) {
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
@@ -56,107 +64,110 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           return;
         case SqlFunctionType.DateTimeOffsetAddYears:
         case SqlFunctionType.DateTimeAddYears:
-          DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], YearIntervalPart).AcceptVisitor(this);
+          DateTimeAddYMInterval(arguments[0], arguments[1], YearIntervalPart).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetAddMonths:
         case SqlFunctionType.DateTimeAddMonths:
-          DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], MonthIntervalPart).AcceptVisitor(this);
+          DateTimeAddYMInterval(arguments[0], arguments[1], MonthIntervalPart).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalConstruct:
-          IntervalConstruct(node.Arguments[0]).AcceptVisitor(this);
+          IntervalConstruct(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
+          DateTimeConstruct(arguments[0], arguments[1], arguments[2]).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
-          DateConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
+          DateConstruct(arguments[0], arguments[1], arguments[2]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          TimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2], node.Arguments[3]).AcceptVisitor(this);
+          TimeConstruct(arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateAddYears:
-          DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], YearIntervalPart).AcceptVisitor(this);
+          DateTimeAddYMInterval(arguments[0], arguments[1], YearIntervalPart).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateAddMonths:
-          DateTimeAddYMInterval(node.Arguments[0], node.Arguments[1], MonthIntervalPart).AcceptVisitor(this);
+          DateTimeAddYMInterval(arguments[0], arguments[1], MonthIntervalPart).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateAddDays:
-          DateTimeAddDSInterval(node.Arguments[0], node.Arguments[1], DayIntervalPart).AcceptVisitor(this);
+          DateTimeAddDSInterval(arguments[0], arguments[1], DayIntervalPart).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddHours:
-          TimeAddHourOrMinute(node.Arguments[0], node.Arguments[1], true).AcceptVisitor(this);
+          TimeAddHourOrMinute(arguments[0], arguments[1], true).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeAddMinutes:
-          TimeAddHourOrMinute(node.Arguments[0], node.Arguments[1], false).AcceptVisitor(this);
+          TimeAddHourOrMinute(arguments[0], arguments[1], false).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
-          DateToString(node.Arguments[0]).AcceptVisitor(this);
+          DateToString(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeToString:
-          TimeToString(node.Arguments[0]).AcceptVisitor(this);
+          TimeToString(arguments[0]).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.IntervalAbs:
-          SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
+          SqlHelper.IntervalAbs(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
+          SqlHelper.IntervalToMilliseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalToNanoseconds:
-          SqlHelper.IntervalToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
+          SqlHelper.IntervalToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.Position:
-          Position(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+          Position(arguments[0], arguments[1]).AcceptVisitor(this);
           return;
         case SqlFunctionType.CharLength:
-          SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", node.Arguments[0]), 0).AcceptVisitor(this);
+          SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", arguments[0]), 0).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeToStringIso:
-          DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeToStringIso(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetConstruct:
-          DateTimeOffsetConstruct(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+          DateTimeOffsetConstruct(arguments[0], arguments[1]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetTimeOfDay:
-          DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetTimeOfDay(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetToLocalTime:
-          DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetToLocalTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeToDateTimeOffset:
-          DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeToDateTimeOffset(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetToDateTime:
-          DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetToDateTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetToUtcTime:
-          DateTimeOffsetToUtcTime(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetToUtcTime(arguments[0]).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateTimeToDate:
-          DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeToDate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToDateTime:
-          DateToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          DateToDateTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeToTime:
-          DateTimeToTime(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeToTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeToDateTime:
-          TimeToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          TimeToDateTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetToDate:
-          DateTimeOffsetToDate(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetToDate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeOffsetToTime:
-          DateTimeOffsetToTime(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeOffsetToTime(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToDateTimeOffset:
-          DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          DateToDateTimeOffset(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeToDateTimeOffset:
-          TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          TimeToDateTimeOffset(arguments[0]).AcceptVisitor(this);
           return;
 #endif
         default:
@@ -375,6 +386,60 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         SqlDml.FunctionCall(ToCharFunctionName, ((years * 100) + months) * 100 + days),
         AnsiString("YYYYMMDD"));
 
+    private static SqlExpression TimeConstruct(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, microsecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        microsecond = arguments[3] * 10000;
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        if (SqlHelper.IsTimeSpanTicks(ticks, out var sourceExpression)) {
+          // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+          var days = SqlDml.Extract(SqlIntervalPart.Day, sourceExpression);
+          var hours = days * 24 + SqlDml.Extract(SqlIntervalPart.Hour, sourceExpression);
+
+          var hourString1 = SqlDml.Cast(hours, new SqlValueType(SqlType.VarChar, 3));
+          var sourceExpressionAsString = SqlDml.FunctionCall(ToCharFunctionName, sourceExpression);
+          var minuteToSecondsSubstring = SqlDml.Substring(sourceExpressionAsString, SqlDml.FunctionCall("INSTR", sourceExpressionAsString, AnsiString(":")) - 1 , 16);
+          var composedTimeString1 = SqlDml.Concat(AnsiString("0 "), hourString1, minuteToSecondsSubstring);
+          return SqlDml.FunctionCall(ToDSIntervalFunctionName, new[] { composedTimeString1 });
+        }
+        else {
+          hour = SqlDml.Cast(ticks / 36000000000, new SqlValueType(SqlType.Decimal, 10, 0));
+          minute = SqlDml.Cast((ticks / 600000000) % 60, new SqlValueType(SqlType.Decimal, 10, 0));
+          second = SqlDml.Cast((ticks / 10000000) % 60, new SqlValueType(SqlType.Decimal, 10, 0));
+          microsecond = SqlDml.Cast(ticks % 10000000, new SqlValueType(SqlType.Decimal, 10, 0));
+        }
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      // using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.000 time
+      // because hours might step over 24 hours and start counting from 0.
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var composedTimeString = SqlDml.Concat(AnsiString("0 "), hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
+      return SqlDml.FunctionCall(ToDSIntervalFunctionName, new[] { composedTimeString });
+    }
+
+    private static SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
+    }
+
     private static SqlExpression TimeAddHourOrMinute(SqlExpression time, SqlExpression hourOrMinute, bool isHour)
     {
       var intervalLiteral = isHour ? "INTERVAL '1' HOUR" : "INTERVAL '1' MINUTE";
@@ -391,12 +456,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       var castToCorrectInterval = SqlDml.Cast(dsInterval, SqlType.Time);
       return castToCorrectInterval;
     }
-
-    private static SqlExpression TimeConstruct(
-      SqlExpression hours, SqlExpression minutes, SqlExpression seconds, SqlExpression milliseconds) =>
-        SqlDml.FunctionCall(NumToDSIntervalFunctionName,
-          seconds + (minutes * 60) + (hours * 3600) + (milliseconds / 1000),
-          AnsiString(SecondIntervalPart));
 
     private static SqlExpression DateToString(SqlExpression date) =>
       SqlDml.FunctionCall(ToCharFunctionName, date, "YYYY-MM-DD");

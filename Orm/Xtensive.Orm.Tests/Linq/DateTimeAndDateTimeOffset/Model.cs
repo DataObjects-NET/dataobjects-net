@@ -5,8 +5,6 @@
 // Created:    2016.08.01
 
 using System;
-using System.Net.Sockets;
-using Org.BouncyCastle.Crypto.Digests;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 {
@@ -194,7 +192,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     public int Microsecond { get; set; }
 
     [Field]
-    public long Ticks { get; set; }
+    public long DateTimeTicks { get; set; }
+#if NET6_0_OR_GREATER
+
+    [Field]
+    public long TimeOnlyTicks { get; set; }
+#endif
 
     [Field]
     [Validation.RangeConstraint(Min = -23, Max = 23)]
@@ -203,6 +206,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     [Field]
     [Validation.RangeConstraint(Min = 0, Max = 59)]
     public int OffsetMinute { get; set; }
+
+    [Field]
+    public TimeSpan TimeSpan { get; set; }
 
     public static AllPossiblePartsEntity FromDateTime(Session session, DateTime dateTime, int microsecond)
     {
@@ -217,7 +223,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         Microsecond = microsecond,
         OffsetHour = 0,
         OffsetMinute = 0,
-        Ticks = dateTime.Ticks
+        DateTimeTicks = dateTime.Ticks,
+#if NET6_0_OR_GREATER
+        TimeOnlyTicks = TimeOnly.FromDateTime(dateTime).Ticks,
+        TimeSpan = TimeOnly.FromDateTime(dateTime).ToTimeSpan(),
+#endif
       };
     }
 
@@ -234,7 +244,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         Microsecond = microsecond,
         OffsetHour = dateTimeOffset.Offset.Hours,
         OffsetMinute = dateTimeOffset.Offset.Minutes,
-        Ticks = dateTimeOffset.Ticks
+        DateTimeTicks = dateTimeOffset.Ticks,
+#if NET6_0_OR_GREATER
+        TimeOnlyTicks = TimeOnly.FromDateTime(dateTimeOffset.DateTime).Ticks,
+        TimeSpan = TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToTimeSpan(),
+#endif
       };
     }
 
@@ -288,7 +302,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     public TimeOnly? NullableTimeOnly { get; set; }
 
     public TimeOnlyEntity(Session session)
-      :base(session)
+      : base(session)
     {
     }
   }

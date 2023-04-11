@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using System.Text;
+using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -30,11 +30,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected const string WeekdayPart = "WEEKDAY";
     #endregion
 
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
-    protected static readonly long NanosecondsPerSecond = 1000000000;
-    protected static readonly long NanosecondsPerMillisecond = 1000000;
-    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected const long NanosecondsPerDay = 86400000000000;
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+    protected const long MillisecondsPerDay = 86400000;
+    protected const long MillisecondsPerSecond = 1000L;
+
     protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
 
     /// <inheritdoc/>
@@ -220,24 +223,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
-          Visit(SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1), SqlType.Date));
+          ConstructDate(arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          Visit(SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(SqlDml.Literal(new TimeOnly(0, 0, 0)),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3]), SqlType.Time));
+          ConstructTime(arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -481,14 +477,99 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         DateAddDay(date, interval / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
+
+    /// <summary>
+    /// Creates expression that represents construction of datetime value
+    /// from arguments (year, month, day).
+    /// </summary>
+    /// <param name="arguments">Expressions representing year, month, and day.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
+        arguments[0] - 2001),
+        arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
 #if NET6_0_OR_GREATER
+
+    /// <summary>
+    /// Creates expression that represents construction of date value
+    /// from arguments (year, month, day).
+    /// </summary>
+    /// <param name="arguments">Expressions representing year, month, and day.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return SqlDml.Cast(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
+        arguments[0] - 2001),
+        arguments[1] - 1),
+        arguments[2] - 1), SqlType.Date);
+    }
+
+    /// <summary>
+    /// Creates expression that represents construction of time value from arguments.
+    /// </summary>
+    /// <param name="arguments">Expressions to construct time from.</param>
+    /// <returns>Result expression.</returns>
+    /// <exception cref="NotSupportedException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, microsecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        microsecond = arguments[3] * 10000;
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+        ticks = SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval) ? sourceInterval / 100 : ticks;
+        hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+        minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+        second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+        microsecond = SqlDml.Cast(ticks % 10000000, SqlType.Int32);
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      // Using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.000000 time
+      // because hours might step over 24 hours and start counting from 0.
+      // Starting from v11 built-in function with hour overflow control is used.
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
+      return SqlDml.Cast(composedTimeString, SqlType.Time);
+    }
+
+    /// <summary>
+    /// Creates expression that represents conversion of time value to nanoseconds.
+    /// </summary>
+    /// <param name="time">Time value to convert.</param>
+    /// <returns>Result expression.</returns>
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var n = SqlDml.Extract(SqlTimePart.Nanosecond, time);
+
+      return nPerHour + nPerMinute + nPerSecond + n;
+    }
 
     /// <summary>
     /// Creates expression that represents addition <paramref name="interval"/> to the given <paramref name="time"/>.
     /// </summary>
     /// <param name="time">Time expression.</param>
     /// <param name="interval">Interval expression to add.</param>
-    /// <returns></returns>
+    /// <returns>Result expression.</returns>
     protected virtual SqlExpression TimeAddInterval(SqlExpression time, SqlExpression interval) =>
       DateAddMillisecond(time, (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
 
@@ -498,7 +579,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <param name="time1">First <see cref="TimeOnly"/> expression.</param>
     /// <param name="time2">Second <see cref="TimeOnly"/> expression.</param>
     /// <returns>Result expression.</returns>
-    /// <returns></returns>
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateDiffMillisecond(time2, time1), 18,0) * NanosecondsPerMillisecond,

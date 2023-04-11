@@ -10,17 +10,19 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class Compiler : SqlCompiler
   {
-    protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks * 100;
-    protected static readonly long NanosecondsPerSecond = 1000000000;
-    protected static readonly long NanosecondsPerMillisecond = 1000000;
-    protected static readonly long NanosecondsPerMicrosecond = 1000;
-    protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    protected static readonly long MillisecondsPerSecond = 1000L;
+    protected const long NanosecondsPerDay = 86400000000000;
+    protected const long NanosecondsPerHour = 3600000000000;
+    protected const long NanosecondsPerMinute = 60000000000;
+    protected const long NanosecondsPerSecond = 1000000000;
+    protected const long NanosecondsPerMillisecond = 1000000;
+    protected const long NanosecondsPerMicrosecond = 1000;
+    protected const long MillisecondsPerDay = 86400000;
 
     /// <inheritdoc/>
     public override void Visit(SqlSelect node)
@@ -182,10 +184,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           Visit(DateTimeAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeConstruct:
-          Visit(DateTimeAddDay(DateTimeAddMonth(DateTimeAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDateTime(arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
@@ -198,10 +197,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           Visit(DateAddDay(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateConstruct:
-          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateOnly(2001, 1, 1)),
-            arguments[0] - 2001),
-            arguments[1] - 1),
-            arguments[2] - 1));
+          ConstructDate(arguments).AcceptVisitor(this);          
           return;
         case SqlFunctionType.TimeAddHours:
           Visit(SqlDml.FunctionCall("TIME", SqlDml.FunctionCall(
@@ -219,12 +215,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                 SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.FunctionCall("TIME_TO_SEC", arguments[0]) + arguments[1] * 60),
                 SqlDml.Native("SECOND")))));
           return;
-        case SqlFunctionType.TimeConstruct:
-          Visit(SqlDml.FunctionCall("TIME", TimeAddMillisecond(TimeAddSecond(TimeAddMinute(TimeAddHour(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            arguments[0]),
-            arguments[1]),
-            arguments[2]),
-            arguments[3])));
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateToString:
           Visit(DateToString(arguments[0]));
@@ -302,6 +294,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       base.Visit(node);
     }
 
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateTimeAddDay(
+        DateTimeAddMonth(
+          DateTimeAddYear(
+            SqlDml.Literal(new DateTime(2001, 1, 1)),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return (CastToDecimal(DateDiffDay(date1, date2), 18, 0) * NanosecondsPerDay)
@@ -316,6 +319,27 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
 #if NET6_0_OR_GREATER
+
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return DateAddDay(
+        DateAddMonth(
+          DateAddYear(
+            SqlDml.Literal(new DateOnly(2001, 1, 1)),
+            arguments[0] - 2001),
+          arguments[1] - 1),
+        arguments[2] - 1);
+    }
+
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
+    }
 
     protected virtual SqlExpression TimeSubtractTime(SqlExpression time1, SqlExpression time2) =>
       SqlDml.Modulo(

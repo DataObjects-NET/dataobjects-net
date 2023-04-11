@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -614,9 +614,15 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(second);
       SqlValidator.EnsureIsArithmeticExpression(millisecond);
 
-      //var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
-      //var ticks = 10_000 * m;
       return new SqlFunctionCall(SqlFunctionType.TimeConstruct, hour, minute, second, millisecond);
+    }
+
+    public static SqlFunctionCall TimeConstruct(SqlExpression ticks)
+    {
+      ArgumentNullException.ThrowIfNull(ticks);
+      SqlValidator.EnsureIsArithmeticExpression(ticks);
+
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
     }
 #endif
 
@@ -653,15 +659,15 @@ namespace Xtensive.Sql
 
     public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
       return new SqlBinary(SqlNodeType.TimePlusInterval, left, right);
     }
 
     public static SqlBinary TimeMinusTime(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
       return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
     }
 #endif
@@ -697,84 +703,90 @@ namespace Xtensive.Sql
 #if NET6_0_OR_GREATER
     public static SqlFunctionCall DateTimeToTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateTimeToTime, expression);
     }
 
     public static SqlFunctionCall DateAddYears(SqlExpression source, SqlExpression years)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(years, "years");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(years, nameof(years));
       return new SqlFunctionCall(SqlFunctionType.DateAddYears, source, years);
     }
 
     public static SqlFunctionCall DateAddMonths(SqlExpression source, SqlExpression months)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(months, "months");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(months, nameof(months));
       return new SqlFunctionCall(SqlFunctionType.DateAddMonths, source, months);
     }
 
     public static SqlFunctionCall DateAddDays(SqlExpression source, SqlExpression days)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(days, "days");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(days, nameof(days));
       return new SqlFunctionCall(SqlFunctionType.DateAddDays, source, days);
     }
 
     public static SqlFunctionCall DateToString(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToString, expression);
     }
 
     public static SqlFunctionCall DateToDateTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToDateTime, expression);
     }
 
     public static SqlFunctionCall DateTimeToDate(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateTimeToDate, expression);
     }
 
     public static SqlFunctionCall DateToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.DateToDateTimeOffset, expression);
     }
 
     public static SqlFunctionCall TimeAddHours(SqlExpression source, SqlExpression hours)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(hours, "hours");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(hours, nameof(hours));
       return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
     }
 
     public static SqlFunctionCall TimeAddMinutes(SqlExpression source, SqlExpression minutes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(minutes, nameof(minutes));
       return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
     }
 
     public static SqlFunctionCall TimeToString(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToString, expression);
     }
 
     public static SqlFunctionCall TimeToDateTime(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTime, expression);
+    }
+
+    public static SqlExpression TimeToNanoseconds(SqlExpression source)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      return new SqlFunctionCall(SqlFunctionType.TimeToNanoseconds, source);
     }
 
     public static SqlFunctionCall TimeToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTimeOffset, expression);
     }
 #endif
@@ -915,13 +927,14 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeOffsetToTime(SqlExpression dateTimeOffset)
     {
-      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToDate(SqlExpression dateTimeOffset)
     {
       ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDate, dateTimeOffset);
     }
 #endif
@@ -1151,6 +1164,18 @@ namespace Xtensive.Sql
     {
       return new SqlLiteral<DateTime>(value);
     }
+#if NET6_0_OR_GREATER
+
+    public static SqlLiteral<DateOnly> Literal(DateOnly value)
+    {
+      return new SqlLiteral<DateOnly>(value);
+    }
+
+    public static SqlLiteral<TimeOnly> Literal(TimeOnly value)
+    {
+      return new SqlLiteral<TimeOnly>(value);
+    }
+#endif
 
     public static SqlLiteral<TimeSpan> Literal(TimeSpan value)
     {

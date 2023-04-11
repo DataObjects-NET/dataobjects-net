@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Compiler;
@@ -18,6 +19,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const string DateFormat = "YYYY-MM-DD";
     private const string TimeFormat = "HH24:MI:SS.US0";
 #endif
+
+    private const long NanosecondsPerHour = 3600000000000;
+    private const long NanosecondsPerMinute = 60000000000;
+    private const long NanosecondsPerSecond = 1000000000;
+    private const long NanosecondsPerMillisecond = 1000000;
 
     private static readonly Type SqlPlaceholderType = typeof(SqlPlaceholder);
 
@@ -125,24 +131,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
-          var newNode = ReferenceDateTimeLiteral
-                         + (OneYearInterval * (node.Arguments[0] - 2001))
-                         + (OneMonthInterval * (node.Arguments[1] - 1))
-                         + (OneDayInterval * (node.Arguments[2] - 1));
-          newNode.AcceptVisitor(this);
+          ConstructDateTime(node.Arguments).AcceptVisitor(this);
           return;
 #if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
-          (ReferenceDateLiteral
-            + (OneYearInterval * (node.Arguments[0] - 2001))
-            + (OneMonthInterval * (node.Arguments[1] - 1))
-            + (OneDayInterval * (node.Arguments[2] - 1))).AcceptVisitor(this);
+          ConstructDate(node.Arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.TimeConstruct:
-          ((ZeroTimeLiteral
-            + (OneHourInterval * (node.Arguments[0]))
-            + (OneMinuteInterval * (node.Arguments[1]))
-            + (OneSecondInterval * (node.Arguments[2] + (SqlDml.Cast(node.Arguments[3], SqlType.Double) / 1000))))).AcceptVisitor(this);
+          ConstructTime(node.Arguments).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToNanoseconds:
+          TimeToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
           return;
 #endif
         case SqlFunctionType.DateTimeTruncate:
@@ -396,6 +395,72 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       base.Visit(node);
     }
+
+    protected virtual SqlExpression ConstructDateTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      return ReferenceDateTimeLiteral
+        + (OneYearInterval * (arguments[0] - 2001))
+        + (OneMonthInterval * (arguments[1] - 1))
+        + (OneDayInterval * (arguments[2] - 1));
+    }
+#if NET6_0_OR_GREATER
+
+    protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
+    {
+      return ReferenceDateLiteral
+        + (OneYearInterval * (arguments[0] - 2001))
+        + (OneMonthInterval * (arguments[1] - 1))
+        + (OneDayInterval * (arguments[2] - 1));
+    }
+
+    protected virtual SqlExpression ConstructTime(IReadOnlyList<SqlExpression> arguments)
+    {
+      SqlExpression hour, minute, second, microsecond;
+      if (arguments.Count == 4) {
+        hour = arguments[0];
+        minute = arguments[1];
+        second = arguments[2];
+        microsecond = arguments[3] * 1000;
+      }
+      else if (arguments.Count == 1) {
+        var ticks = arguments[0];
+        if (SqlHelper.IsTimeSpanTicks(ticks, out var sourceInterval)) {
+          // try to optimize and reduce calculations when TimeSpan.Ticks where used for TimeOnly(ticks) ctor
+          return SqlDml.Cast(SqlDml.Cast(sourceInterval, SqlType.VarChar), SqlType.Time);
+        }
+        else {
+          hour = SqlDml.Cast(ticks / 36000000000, SqlType.Int32);
+          minute = SqlDml.Cast((ticks / 600000000) % 60, SqlType.Int32);
+          second = SqlDml.Cast((ticks / 10000000) % 60, SqlType.Int32);
+          microsecond = SqlDml.Cast((ticks % 10000000) / 10, SqlType.Int32);
+        }
+      }
+      else {
+        throw new InvalidOperationException("Unsupported count of parameters");
+      }
+
+      // Using string version of time allows to control hours overflow
+      // we cannot add hours, minutes and other parts to 00:00:00.000000 time
+      // because hours might step over 24 hours and start counting from 0.
+      // Starting from v10 new function is in use, which controlls overflow
+      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
+      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
+      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
+      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
+      return SqlDml.Cast(composedTimeString, SqlType.Time);
+    }
+
+    protected virtual SqlExpression TimeToNanoseconds(SqlExpression time)
+    {
+      var nPerHour = SqlDml.Extract(SqlTimePart.Hour, time) * NanosecondsPerHour;
+      var nPerMinute = SqlDml.Extract(SqlTimePart.Minute, time) * NanosecondsPerMinute;
+      var nPerSecond = SqlDml.Extract(SqlTimePart.Second, time) * NanosecondsPerSecond;
+      var nPerMillisecond = SqlDml.Extract(SqlTimePart.Millisecond, time) * NanosecondsPerMillisecond;
+
+      return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
+    }
+#endif
 
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp) =>
       SqlDml.FunctionCall("DATE", timestamp);
