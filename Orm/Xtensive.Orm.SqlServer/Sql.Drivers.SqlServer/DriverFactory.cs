@@ -44,7 +44,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
       bool isEnglish;
       using (var command = connection.CreateCommand()) {
         command.CommandText = LangIdQuery;
-        isEnglish = command.ExecuteScalar().ToString()=="0";
+        var langId = (short) command.ExecuteScalar();
+        isEnglish = langId == 0 || langId == 23;
       }
 
       var templates = new Dictionary<int, string>();
