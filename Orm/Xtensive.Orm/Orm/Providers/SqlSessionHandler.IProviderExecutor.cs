@@ -90,18 +90,18 @@ namespace Xtensive.Orm.Providers
         return;
       }
       var firstTuple = enumerator.Current;
-      if (firstTuple.Count == 1 && descriptor.LazyLevel1BatchStoreRequest != null && descriptor.LazyLevel2BatchStoreRequest != null) {
+      if (firstTuple.Count == 1 && descriptor is IMultiRecordPersistDescriptor multiRecordPersistDescriptor) {
         var level2Chunk = new List<Tuple>(WellKnown.MultiRowInsertLevel2BatchSize) { firstTuple };
         while (enumerator.MoveNext()) {
           level2Chunk.Add(enumerator.Current);
           if (level2Chunk.Count == WellKnown.MultiRowInsertLevel2BatchSize) {
-            commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyLevel2BatchStoreRequest.Value, level2Chunk));
+            commandProcessor.RegisterTask(new SqlPersistTask(multiRecordPersistDescriptor.LazyLevel2BatchStoreRequest.Value, level2Chunk));
             level2Chunk = new(WellKnown.MultiRowInsertLevel2BatchSize);
           }
         }
         foreach (var level1Chunk in level2Chunk.Chunk(WellKnown.MultiRowInsertLevel1BatchSize)) {
           if (level1Chunk.Length == WellKnown.MultiRowInsertLevel1BatchSize) {
-            commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyLevel1BatchStoreRequest.Value, level1Chunk));
+            commandProcessor.RegisterTask(new SqlPersistTask(multiRecordPersistDescriptor.LazyLevel1BatchStoreRequest.Value, level1Chunk));
           }
           else {
             foreach (var tuple in level1Chunk) {
