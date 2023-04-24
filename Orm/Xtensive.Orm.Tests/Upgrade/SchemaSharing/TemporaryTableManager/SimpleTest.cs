@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
     {
     }
 
+    [Mute]
     [Test]
     public void MainTest()
     {

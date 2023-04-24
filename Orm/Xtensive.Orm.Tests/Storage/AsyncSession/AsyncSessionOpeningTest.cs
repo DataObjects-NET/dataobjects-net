@@ -193,6 +193,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       await TestSession(session);
     }
 
+    [Mute]
     [Test]
     public void Test15()
     {

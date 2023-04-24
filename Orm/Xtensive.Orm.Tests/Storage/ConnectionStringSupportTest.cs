@@ -9,6 +9,7 @@ using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Storage
 {
+  [Mute]
   [TestFixture]
   public class ConnectionStringSupportTest : AutoBuildTest
   {

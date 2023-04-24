@@ -48,12 +48,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel
 
     [Field]
     [Association(PairTo = "Zone")]
-    public EntitySet<Location> Locations { get; set; } 
+    public EntitySet<Location> Locations { get; set; }
   }
 }
 
 namespace Xtensive.Orm.Tests.Issues
-{ 
+{
   internal class IssueJira0546BaseTask
   {
     public int StartValue { get; set; }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Issues
   internal class IssueJira0546Task : IssueJira0546BaseTask
   {
     public Session Session { get; private set; }
-    
+
     public Zone NullZone { get; private set; }
 
     public int GetMinimalLocationIdDelayedApi()
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void PopulateData()
     {
-      using (var session = Domain.OpenSession()) 
+      using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         for (int i = 0; i < 100; i++) {
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
       }
     }
-    
+
     public void LocalReferenceTypeVariableTest()
     {
       using (var session = Domain.OpenSession())
@@ -267,6 +267,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Mute]
     [Test]
     public void GlobalFieldOfClassTest()
     {

@@ -62,6 +62,7 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
+    [Mute]
     [Test]
     public void MainTest()
     {

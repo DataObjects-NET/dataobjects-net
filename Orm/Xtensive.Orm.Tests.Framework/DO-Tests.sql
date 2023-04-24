@@ -26,17 +26,31 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
--- And creating full-text catalogue
-DECLARE @server_directory NVARCHAR(520)
-SELECT @server_directory = SUBSTRING(filename, 1, CHARINDEX(N'DATA\master.mdf', LOWER(filename)) - 1)
-FROM master.dbo.sysaltfiles WHERE dbid = 1 AND fileid = 1
-
-DECLARE @ftdata_directory NVARCHAR(520)
-SELECT @ftdata_directory = @server_directory + N'FTData\'
-
-EXECUTE (N'CREATE FULLTEXT CATALOG [Default]
-IN PATH N''' + @ftdata_directory + N'DO-Tests''
-WITH ACCENT_SENSITIVITY = ON
-AS DEFAULT
-AUTHORIZATION [dbo]')
+CREATE SCHEMA Model1
 GO
+CREATE SCHEMA Model2
+GO
+CREATE SCHEMA Model3
+GO
+CREATE SCHEMA Model4
+GO
+CREATE SCHEMA Model5
+GO
+CREATE SCHEMA Model6
+GO
+CREATE SCHEMA Model7
+GO
+CREATE SCHEMA Model8
+GO
+CREATE SCHEMA Model9
+GO
+CREATE SCHEMA Model10
+GO
+CREATE SCHEMA Model11
+GO
+CREATE SCHEMA Model12
+GO
+
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+GO
+

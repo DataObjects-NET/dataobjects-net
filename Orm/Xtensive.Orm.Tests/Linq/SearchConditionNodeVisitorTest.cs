@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Tests.Linq.SearchConditionNodeTranslationModel
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
+  [Category("FTS")]
   public class SearchConditionNodeVisitorTest : AutoBuildTest
   {
     protected override void CheckRequirements()

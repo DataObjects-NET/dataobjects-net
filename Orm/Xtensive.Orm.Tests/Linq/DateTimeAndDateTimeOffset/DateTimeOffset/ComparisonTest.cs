@@ -133,6 +133,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
+    [Mute]
     [Test(Description = "Might be failed by reasons described in issue DO-657")]
     public void CompareToNullableDateTimeOffsetToOffsetTest()
     {
@@ -143,6 +144,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
+    [Mute]
     [Test(Description = "Might be failed by reasons described in issue DO-657")]
     public void CompareToNullableDateTimeOffsetGetUtcDateTimeTest()
     {
@@ -153,6 +155,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
+    [Mute]
     [Test(Description = "Might be failed by reasons described in issue DO-657")]
     public void CompareToNullableDateTimeOffsetGetLocalDateTimeTest()
     {

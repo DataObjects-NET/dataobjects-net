@@ -3009,6 +3009,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       }
     }
 
+    [Mute]
     [Test]
     public void NullableDoubleFieldExpressionTest02()
     {

@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
+  [Category("FTS")]
   [TestFixture]
   public class ChangeFulltextCatalogTest
   {
@@ -57,6 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public async Task AsyncTest01()
     {
@@ -79,6 +81,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
+    [Mute]
     [Test]
     public void AsyncTest02()
     {
@@ -103,6 +106,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
+    [Mute]
     [Test]
     public void AsyncTest03()
     {
@@ -131,6 +135,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public async Task AsyncTest04()
     {

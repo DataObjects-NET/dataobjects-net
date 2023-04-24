@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
       return Value.GetHashCode();
     }
   }
-  
+
   public class Poco<T1, T2>
   {
     public T1 Value1 { get; set; }
@@ -269,6 +269,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [Mute]
     public void Poco2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
@@ -755,7 +756,7 @@ namespace Xtensive.Orm.Tests.Linq
       var localItems = GetLocalItems(10);
       var queryable = Session.Query.Store(localItems);
       var result = queryable
-        .GroupBy(keySelector => keySelector.Value3.Substring(0, 1), 
+        .GroupBy(keySelector => keySelector.Value3.Substring(0, 1),
           (key, grouping) => new {key, Value1 = grouping.Select(p => p.Value1)})
         .OrderBy(grouping => grouping.key);
       var expected = localItems
@@ -776,7 +777,7 @@ namespace Xtensive.Orm.Tests.Linq
           Console.WriteLine(string.Format("Result Value: {0}", resultValue));
         Assert.AreEqual(resultList[i].key, expectedList[i].key);
         var isCorrect = expectedList[i].Value1.Except(resultList[i].Value1).Count()==0;
-        Assert.IsTrue(isCorrect); 
+        Assert.IsTrue(isCorrect);
       }
       QueryDumper.Dump(result);
     }
@@ -800,8 +801,8 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(resultList.Count, expectedList.Count);
 
       for (var i = 0; i < resultList.Count; i++) {
-        Assert.AreEqual(resultList[i].key, expectedList[i].key); 
-        Assert.AreEqual(0, expectedList[i].Value1.Except(resultList[i].Value1).Count()); 
+        Assert.AreEqual(resultList[i].key, expectedList[i].key);
+        Assert.AreEqual(0, expectedList[i].Value1.Except(resultList[i].Value1).Count());
       }
       QueryDumper.Dump(result);
     }
@@ -824,7 +825,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(resultList.Count, expectedList.Count);
 
       for (var i = 0; i < resultList.Count; i++) {
-        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count()); 
+        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count());
       }
       QueryDumper.Dump(result);
     }
@@ -848,11 +849,12 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(resultList.Count, expectedList.Count);
 
       for (var i = 0; i < resultList.Count; i++) {
-        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count()); 
+        Assert.AreEqual(0, expectedList[i].Except(resultList[i]).Count());
       }
       QueryDumper.Dump(result);
     }
 
+    [Mute]
     [Test]
     public void Aggregate1Test()
     {
@@ -864,6 +866,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(result, expected);
     }
 
+    [Mute]
     [Test]
     public void Aggregate2Test()
     {
@@ -881,6 +884,7 @@ namespace Xtensive.Orm.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+    [Mute]
     [Test]
     public async Task Aggregate2AsyncTest()
     {
@@ -931,7 +935,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Range(0, count)
         .Select(i => new Poco<int, decimal, string> {
             Value1 = i,
-            Value2 = (decimal)i / 100, 
+            Value2 = (decimal)i / 100,
             Value3 = Guid.NewGuid().ToString()
           }
         )

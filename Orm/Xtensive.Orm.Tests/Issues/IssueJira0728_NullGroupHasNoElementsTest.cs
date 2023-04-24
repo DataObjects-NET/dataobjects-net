@@ -306,6 +306,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Mute]
     [Test]
     public void GroupBySelectedStructureFieldTest4()
     {

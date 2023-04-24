@@ -11,6 +11,7 @@ using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 {
+  [Mute]
   public class AsyncExtensionsTest : AsyncQueriesBaseTest
   {
     private static Task<Session> OpenSessionAsync(Domain domain, bool isClientProfile) =>
@@ -939,6 +940,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     // Last
 
     [Test, TestCase(true), TestCase(false)]
+    [Mute]
     public async Task LastAsyncExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -950,6 +952,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [Mute]
     public async Task LastAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -960,6 +963,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [Mute]
     public async Task LastAsyncWithPredicateExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);

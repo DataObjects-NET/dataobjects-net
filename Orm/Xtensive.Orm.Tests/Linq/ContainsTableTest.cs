@@ -15,6 +15,7 @@ using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
+  [Category("FTS")]
   public class ContainsTableTest : ChinookDOModelTest
   {
     protected override void CheckRequirements()

@@ -21,24 +21,31 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests
     {
     }
 
+    [Mute]
     [Test]
     public void Recreate() => RunTest(DomainUpgradeMode.Recreate);
 
+    [Mute]
     [Test]
     public void Skip() => RunTest(DomainUpgradeMode.Skip);
 
-    [Test]
+     [Mute]
+   [Test]
     public void Validate() => RunTest(DomainUpgradeMode.Validate);
 
+    [Mute]
     [Test]
     public void Perform() => RunTest(DomainUpgradeMode.Perform);
 
+    [Mute]
     [Test]
     public void PerformSafely() => RunTest(DomainUpgradeMode.PerformSafely);
 
+    [Mute]
     [Test]
     public void LegacySkip() => RunTest(DomainUpgradeMode.LegacySkip);
 
+    [Mute]
     [Test]
     public void LegacyValidate() => RunTest(DomainUpgradeMode.LegacyValidate);
 

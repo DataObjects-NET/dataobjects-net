@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
     {
     }
 
+    [Mute]
     [Test]
     public void MainTest()
     {

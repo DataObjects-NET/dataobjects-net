@@ -15,6 +15,7 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {
+  [Category("FTS")]
   public class FreeTextTest : ChinookDOModelTest
   {
     protected override void CheckRequirements()

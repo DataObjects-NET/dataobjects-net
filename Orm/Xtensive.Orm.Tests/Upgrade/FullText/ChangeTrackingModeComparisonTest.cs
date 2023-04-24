@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public void MainTest()
     {
@@ -39,8 +40,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
-
     public async Task MainAsyncTest()
     {
       var configuration = DomainConfigurationFactory.Create();

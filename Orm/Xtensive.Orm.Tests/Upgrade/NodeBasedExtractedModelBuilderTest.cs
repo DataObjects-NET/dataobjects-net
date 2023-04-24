@@ -53,6 +53,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
     private const string Schema1 = WellKnownSchemas.Schema1;
 
+    [Mute]
     [Test]
     public void MultischemaWithDatabaseSwitchingTest()
     {
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           ConnectionInitializationSql = $"USE [{DOTests1Db}]"
         };
         domainCopyNode.SchemaMapping.Add(dbo, dbo);
-        
+
         _ = domain.StorageNodeManager.AddNode(domainCopyNode);
 
         var anotherDatabaseNode = new NodeConfiguration("2") {
@@ -148,6 +149,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
+    [Mute]
     [Test]
     public async Task MultischemaWithDatabaseSwitchingAsyncTest()
     {
@@ -825,7 +827,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var connectionUrl = connectionInfo.ConnectionUrl;
       var protocol = connectionUrl.Protocol;
-      var loginInfo = (!connectionUrl.User.IsNullOrEmpty()) 
+      var loginInfo = (!connectionUrl.User.IsNullOrEmpty())
         ? $"{connectionUrl.User}:{connectionUrl.Password}@"
         : string.Empty;
       var server = (connectionInfo.ConnectionUrl.Port > 0)

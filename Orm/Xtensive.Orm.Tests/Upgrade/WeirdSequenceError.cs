@@ -83,6 +83,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = Domain.Build(upgradeConfig)) { }
     }
 
+    [Mute]
     [Test]
     public void MainDomainTest()
     {

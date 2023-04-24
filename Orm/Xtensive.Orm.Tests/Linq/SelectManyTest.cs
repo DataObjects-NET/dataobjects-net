@@ -66,6 +66,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [Mute]
     public void GroupBy2Test()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);

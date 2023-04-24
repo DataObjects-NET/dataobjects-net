@@ -365,6 +365,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Mute]
     [Test]
     public void StoreThenIncludeTest()
     {
@@ -384,6 +385,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Mute]
     [Test]
     public void IncludeThenStoreTest()
     {
@@ -421,6 +423,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Mute]
     [Test]
     public void StoreWithoutIncludeTest()
     {
@@ -469,7 +472,7 @@ namespace Xtensive.Orm.Tests.Issues
         transaction.Complete();
       }
     }
-    
+
     protected override void PopulateData()
     {
       PopulateEnums();

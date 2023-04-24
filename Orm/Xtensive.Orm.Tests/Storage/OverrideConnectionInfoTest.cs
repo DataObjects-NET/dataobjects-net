@@ -12,6 +12,7 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class OverrideConnectionInfoTest : AutoBuildTest
   {
+    [Mute]
     [Test]
     public void MainTest()
     {

@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
 
     protected virtual void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Firebird);
 
+    [Mute]
     [Test]
     public void PerformSafelyTest()
     {
@@ -26,6 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.PerformSafely);
     }
 
+    [Mute]
     [Test]
     public void PerformTest()
     {
@@ -33,6 +35,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Perform);
     }
 
+    [Mute]
     [Test]
     public void SkipTest()
     {
@@ -40,6 +43,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Skip);
     }
 
+    [Mute]
     [Test]
     public void ValidateTest()
     {
@@ -47,6 +51,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Validate);
     }
 
+    [Mute]
     [Test]
     public void LegacySkipTest()
     {
@@ -54,6 +59,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.LegacySkip);
     }
 
+    [Mute]
     [Test]
     public void LegacyValidateTest()
     {

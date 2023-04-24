@@ -16,6 +16,7 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText
 {
+  [Category("FTS")]
   [TestFixture, Category("Upgrade")]
   public class DomainUpgradeFullTextTest
   {

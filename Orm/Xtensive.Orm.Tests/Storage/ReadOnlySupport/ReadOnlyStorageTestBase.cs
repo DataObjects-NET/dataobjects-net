@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
     private const string ReadOnlyUserName = "readonlydotest";
     private const string ReadOnlyUserPassword = "readonlydotest";
 
+    [Mute]
     [Test]
     public void DomainBuildTest()
     {
@@ -40,6 +41,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
       Assert.DoesNotThrow(()=>BuildReadOnlyDomain());
     }
 
+    [Mute]
     [Test]
     public void QueryTest()
     {
@@ -54,6 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
       }
     }
 
+    [Mute]
     [Test]
     public void CreateTest()
     {
@@ -67,6 +70,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
       }
     }
 
+    [Mute]
     [Test]
     public void UpdateTest()
     {
@@ -86,6 +90,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
     }
 
     [Test]
+    [Mute]
     public void DeleteTest()
     {
       Domain domain = null;

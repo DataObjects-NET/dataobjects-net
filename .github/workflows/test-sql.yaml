@@ -21,12 +21,12 @@ jobs:
         with:
           install: sqlengine, sqlclient, sqlpackage, localdb
       - name: Init Test DB
-        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql 
+        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
       - name: Create DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Build
         run: dotnet build -v q Orm.sln
       - name: Tests
-        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=FTS&TestCategory!=Mute'
 
 

@@ -141,6 +141,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
+  [Category("FTS")]
   [TestFixture]
   public class DynamicFullTextCatalogTest
   {

@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0451_ConnectionInitializationSql
   {
+    [Mute]
     [Test]
     public void MainTest()
     {

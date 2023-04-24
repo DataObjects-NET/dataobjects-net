@@ -236,6 +236,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel10
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
 {
   [TestFixture]
+  [Category("FTS")]
   public class FullTextDataTypeColumnUpgradeTest
   {
     [OneTimeSetUp]

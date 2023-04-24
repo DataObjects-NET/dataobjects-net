@@ -65,6 +65,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText.ConversionToStorageModelModel
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText
 {
+  [Category("FTS")]
   [TestFixture]
   public class ConvertionToStorageModelTest
   {
