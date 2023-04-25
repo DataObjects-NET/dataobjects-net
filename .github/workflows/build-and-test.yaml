@@ -8,6 +8,7 @@ jobs:
   build-and-test:
     name: build-and-test
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v2
       - name: Setup .NET
