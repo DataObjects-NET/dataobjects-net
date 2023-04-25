@@ -28,6 +28,15 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
+EXECUTE (N'CREATE FULLTEXT CATALOG [DO-Tests-1_dbo] WITH ACCENT_SENSITIVITY = ON AS DEFAULT AUTHORIZATION [dbo]')
+GO
+
+EXECUTE (N'CREATE FULLTEXT CATALOG [DO-Tests-1_Model1] WITH ACCENT_SENSITIVITY = ON AS DEFAULT AUTHORIZATION [dbo]')
+GO
+
+EXECUTE (N'CREATE FULLTEXT CATALOG [DO-Tests-1_Model2] WITH ACCENT_SENSITIVITY = ON AS DEFAULT AUTHORIZATION [dbo]')
+GO
+
 
 CREATE SCHEMA Model1
 GO
@@ -54,7 +63,11 @@ GO
 CREATE SCHEMA Model12
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -87,6 +100,9 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
+EXECUTE (N'CREATE FULLTEXT CATALOG [DO-Tests-2_Model2] WITH ACCENT_SENSITIVITY = ON AS DEFAULT AUTHORIZATION [dbo]')
+GO
+
 CREATE SCHEMA Model1
 GO
 CREATE SCHEMA Model2
@@ -112,7 +128,11 @@ GO
 CREATE SCHEMA Model12
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -146,7 +166,11 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -179,6 +203,10 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 

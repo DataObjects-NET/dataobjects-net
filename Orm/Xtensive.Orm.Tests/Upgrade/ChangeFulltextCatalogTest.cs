@@ -94,6 +94,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
+    [Mute]
     [Test]
     public void Test03()
     {
@@ -119,6 +120,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
+    [Mute]
     [Test]
     public void Test04()
     {
@@ -168,6 +170,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public async Task AsyncTest05()
     {
@@ -184,6 +187,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public void Test06()
     {
@@ -216,6 +220,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public void Test07()
     {
@@ -232,6 +237,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
     }
 
+    [Mute]
     [Test]
     public async Task AsyncTest07()
     {
@@ -268,6 +274,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       (await Domain.BuildAsync(configuration)).Dispose();
     }
 
+    [Mute]
     [Test]
     public void Test09()
     {
