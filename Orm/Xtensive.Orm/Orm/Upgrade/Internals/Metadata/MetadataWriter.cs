@@ -28,8 +28,6 @@ namespace Xtensive.Orm.Upgrade
     private sealed class Descriptor : IPersistDescriptor
     {
       public Lazy<PersistRequest> LazyStoreRequest { get; set; }
-      public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; }
-      public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; }
       public Lazy<PersistRequest> ClearRequest { get; set; }
     }
 

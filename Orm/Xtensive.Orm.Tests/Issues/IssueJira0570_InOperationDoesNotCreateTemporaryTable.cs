@@ -365,7 +365,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Mute]
     [Test]
     public void StoreThenIncludeTest()
     {
@@ -385,7 +384,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Mute]
     [Test]
     public void IncludeThenStoreTest()
     {
@@ -423,7 +421,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Mute]
     [Test]
     public void StoreWithoutIncludeTest()
     {

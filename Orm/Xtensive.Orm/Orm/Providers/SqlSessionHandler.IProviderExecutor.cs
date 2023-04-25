@@ -85,29 +85,35 @@ namespace Xtensive.Orm.Providers
 
     private void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
-      if (descriptor.LazyLevel1BatchStoreRequest != null && descriptor.LazyLevel2BatchStoreRequest != null) {
-        foreach (var level2Chunk in tuples.Chunk(WellKnown.MultiRowInsertLevel2BatchSize)) {
-          if (level2Chunk.Length == WellKnown.MultiRowInsertLevel2BatchSize) {
-            commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyLevel2BatchStoreRequest.Value, level2Chunk));
+      using var enumerator = tuples.GetEnumerator();
+      if (!enumerator.MoveNext()) {
+        return;
+      }
+      var firstTuple = enumerator.Current;
+      if (firstTuple.Count == 1 && descriptor is IMultiRecordPersistDescriptor multiRecordPersistDescriptor) {
+        var level2Chunk = new List<Tuple>(WellKnown.MultiRowInsertLevel2BatchSize) { firstTuple };
+        while (enumerator.MoveNext()) {
+          level2Chunk.Add(enumerator.Current);
+          if (level2Chunk.Count == WellKnown.MultiRowInsertLevel2BatchSize) {
+            commandProcessor.RegisterTask(new SqlPersistTask(multiRecordPersistDescriptor.LazyLevel2BatchStoreRequest.Value, level2Chunk));
+            level2Chunk = new(WellKnown.MultiRowInsertLevel2BatchSize);
+          }
+        }
+        foreach (var level1Chunk in level2Chunk.Chunk(WellKnown.MultiRowInsertLevel1BatchSize)) {
+          if (level1Chunk.Length == WellKnown.MultiRowInsertLevel1BatchSize) {
+            commandProcessor.RegisterTask(new SqlPersistTask(multiRecordPersistDescriptor.LazyLevel1BatchStoreRequest.Value, level1Chunk));
           }
           else {
-            foreach (var level1Chunk in level2Chunk.Chunk(WellKnown.MultiRowInsertLevel1BatchSize)) {
-              if (level1Chunk.Length == WellKnown.MultiRowInsertLevel1BatchSize) {
-                commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyLevel1BatchStoreRequest.Value, level1Chunk));
-              }
-              else {
-                foreach (var tuple in level1Chunk) {
-                  commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, tuple));
-                }
-              }
+            foreach (var tuple in level1Chunk) {
+              commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, tuple));
             }
           }
         }
       }
       else {
-        foreach (var tuple in tuples) {
-          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, tuple));
-        }
+        do {
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, enumerator.Current));
+        } while (enumerator.MoveNext());
       }
     }
   }
