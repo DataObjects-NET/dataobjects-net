@@ -849,21 +849,23 @@ namespace Xtensive.Reflection
             .ToArray();
         }
 
-        var sb = new StringBuilder().Append(TrimGenericSuffix(result)).Append('<');
+        var sb = new ValueStringBuilder(stackalloc char[4096]);
+        sb.Append(TrimGenericSuffix(result));
+        sb.Append('<');
         char? comma = default;
         foreach (var argument in arguments) {
           if (comma.HasValue) {
-            _ = sb.Append(comma.Value);
+            sb.Append(comma.Value);
           }
 
           if (!type.IsGenericTypeDefinition) {
-            _ = sb.Append(InnerGetTypeName(argument, useShortForm));
+            sb.Append(InnerGetTypeName(argument, useShortForm));
           }
 
           comma = ',';
         }
 
-        _ = sb.Append('>');
+        sb.Append('>');
         result = sb.ToString();
       }
 
