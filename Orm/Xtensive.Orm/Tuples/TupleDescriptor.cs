@@ -136,13 +136,13 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       for (int i = 0; i < FieldCount; i++) {
         if (i > 0)
           sb.Append(", ");
         sb.Append(FieldTypes[i].GetShortName());
       }
-      return string.Format(Strings.TupleDescriptorFormat, sb);
+      return string.Format(Strings.TupleDescriptorFormat, sb.ToString());
     }
 
     #region Create methods (base)

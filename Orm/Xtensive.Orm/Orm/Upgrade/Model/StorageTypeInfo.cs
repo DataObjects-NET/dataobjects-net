@@ -99,11 +99,11 @@ namespace Xtensive.Orm.Upgrade.Model
       if (other.IsTypeUndefined)
         return false;
       var isEqual =
-        other.Type==Type &&
-        other.IsNullable==IsNullable &&
-        other.Scale==Scale &&
-        other.Precision==Precision &&
-        other.Length==Length;
+        other.Type == Type &&
+        other.IsNullable == IsNullable &&
+        other.Scale == Scale &&
+        other.Precision == Precision &&
+        other.Length == Length;
 
       return isEqual;
     }
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Upgrade.Model
     public override int GetHashCode()
     {
       unchecked {
-        int result = (Type!=null ? Type.GetHashCode() : 0);
+        int result = (Type != null ? Type.GetHashCode() : 0);
         result = (result * 397) ^ (IsNullable ? 1 : 0);
         if (Length.HasValue)
           result = (result * 397) ^ Length.Value;
@@ -166,24 +166,31 @@ namespace Xtensive.Orm.Upgrade.Model
       if (IsTypeUndefined)
         return "Type is undefined.";
 
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[256]);
       var type = Type;
       if (type.IsNullable())
         type = type.GetGenericArguments()[0];
       sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Type, type.GetShortName()));
       if (IsNullable)
         sb.Append(Strings.NullableMark);
-      sb.Append(Strings.Comma).Append(string.Format(
-        Strings.PropertyPairFormat, Strings.Length, Length.HasValue ? Length.Value.ToString() : "null"));
-      if (Scale > 0)
-        sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings.Scale, Scale));
-      if (Precision > 0)
-        sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings.Precision, Precision));
-      if (NativeType!=null)
-        sb.Append(Strings.Comma).Append(string.Format(
-          Strings.PropertyPairFormat, Strings.NativeType, NativeType));
+      sb.Append(Strings.Comma);
+      sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Length,
+        Length.HasValue ? Length.Value.ToString() : "null"));
+      if (Scale > 0) {
+        sb.Append(Strings.Comma);
+        sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Scale, Scale));
+      }
+
+      if (Precision > 0) {
+        sb.Append(Strings.Comma);
+        sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Precision, Precision));
+      }
+
+      if (NativeType != null) {
+        sb.Append(Strings.Comma);
+        sb.Append(string.Format(Strings.PropertyPairFormat, Strings.NativeType, NativeType));
+      }
+
       return sb.ToString();
     }
 
