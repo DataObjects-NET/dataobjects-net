@@ -93,9 +93,10 @@ namespace Xtensive.Orm.Internals.Prefetch
           access = map.GetChildren(access)
             .OfType<MemberExpression>()
             .FirstOrDefault();
-          if (access==null)
+          if (access == null) {
             break; // Prefetch of a structure it-self
-          path += "." + access.Member.Name;
+          }
+          path = $"{path}.{access.Member.Name}";
           field = currentEntity.Fields[path];
         } while (field.IsStructure);
       }

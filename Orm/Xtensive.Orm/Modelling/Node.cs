@@ -186,24 +186,26 @@ namespace Xtensive.Modelling
     public string Path {
       [DebuggerStepThrough]
       get {
-        if (cachedPath!=null) {
+        if (cachedPath != null) {
           return cachedPath;
         }
 
-        if (Parent==null) {
+        if (Parent == null) {
           return string.Empty;
         }
 
         var parentPath = Parent.Path;
-        if (parentPath.Length!=0) {
-          parentPath += PathDelimiterString;
+        var sb = new ValueStringBuilder(stackalloc char[128]);
+        if (!string.IsNullOrEmpty(parentPath)) {
+          sb.Append(parentPath);
+          sb.Append(PathDelimiter);
         }
-
-        return string.Concat(
-          parentPath,
-          Nesting.EscapedPropertyName,
-          Nesting.IsNestedToCollection ? PathDelimiterString : null,
-          Nesting.IsNestedToCollection ? EscapedName : null);
+        sb.Append(Nesting.EscapedPropertyName);
+        if (Nesting.IsNestedToCollection) {
+          sb.Append(PathDelimiter);
+          sb.Append(EscapedName);
+        }
+        return sb.ToString();
       }
     }
 
