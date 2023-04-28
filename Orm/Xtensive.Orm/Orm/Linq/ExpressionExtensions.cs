@@ -74,16 +74,19 @@ namespace Xtensive.Orm.Linq
       expression = expression.StripMarkers();
 
       return !expression.IsProjection()
-      && !expression.IsGroupingExpression()
-      && !expression.IsEntitySet()
-      && !expression.IsSubqueryExpression()
-      && expression.Type != WellKnownTypes.String
-      && expression.Type.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
-      && (IsEvaluableCollection(context, expression) || IsForeignQuery(expression));
+             && !expression.IsGroupingExpression()
+             && expression.Type switch {
+               var expressionType => !IsEntitySet(expressionType)
+                                     && !expression.IsSubqueryExpression()
+                                     && expressionType != WellKnownTypes.String
+                                     && expressionType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
+                                     && (IsEvaluableCollection(context, expression, expressionType) ||
+                                         IsForeignQuery(expression))
+             };
     }
 
-    private static bool IsEvaluableCollection(TranslatorContext context, Expression expression) =>
-      !expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
+    private static bool IsEvaluableCollection(TranslatorContext context, Expression expression, Type expressionType) =>
+      !expressionType.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
       && context.Evaluator.CanBeEvaluated(expression);
 
     private static bool IsForeignQuery(Expression expression)
@@ -138,10 +141,9 @@ namespace Xtensive.Orm.Linq
     public static bool IsEntitySetExpression(this Expression strippedMarkerExpression) =>
       (ExtendedExpressionType) strippedMarkerExpression.NodeType == ExtendedExpressionType.EntitySet;
 
-    public static bool IsEntitySet(this Expression expression) =>
-      expression.Type switch {
-        var type => type.IsGenericType && type.CachedGetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetOfT
-      };
+    private static bool IsEntitySet(Type expressionType) => expressionType.IsGenericType(WellKnownOrmTypes.EntitySetOfT);
+
+    public static bool IsEntitySet(this Expression expression) => IsEntitySet(expression.Type);
 
     public static Expression StripMarkers(this Expression e) =>
       e is MarkerExpression marker ? marker.Target : e;

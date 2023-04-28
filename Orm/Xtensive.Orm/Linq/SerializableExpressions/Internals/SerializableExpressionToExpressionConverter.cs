@@ -170,8 +170,9 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     {
       if (n.Constructor == null)
         return Expression.New(n.Type);
-      if (n.Members != null && n.Members.Length > 0)
-        return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), n.Members);
+      var nMembers = n.Members;
+      if (nMembers?.Length > 0)
+        return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), nMembers);
       return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments));
     }
 

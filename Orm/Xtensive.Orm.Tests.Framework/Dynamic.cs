@@ -1310,7 +1310,7 @@ namespace System.Linq.Dynamic
     {
       while (type != null && type != typeof (object))
       {
-        if (type.IsGenericType && type.CachedGetGenericTypeDefinition() == generic) return type;
+        if (type.IsGenericType(generic)) return type;
         if (generic.IsInterface)
         {
           foreach (Type intfType in type.GetInterfaces())
@@ -1416,10 +1416,8 @@ namespace System.Linq.Dynamic
       return false;
     }
 
-    private static bool IsNullableType(Type type)
-    {
-      return type.IsGenericType && type.CachedGetGenericTypeDefinition() == typeof (Nullable<>);
-    }
+    private static bool IsNullableType(Type type) =>
+      type.IsGenericType(typeof (Nullable<>));
 
     private static Type GetNonNullableType(Type type)
     {

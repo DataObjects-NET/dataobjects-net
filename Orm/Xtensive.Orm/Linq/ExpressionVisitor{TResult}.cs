@@ -12,7 +12,6 @@ using Xtensive.Reflection;
 using Xtensive.Core;
 
 
-
 namespace Xtensive.Linq
 {
   /// <summary>
@@ -21,18 +20,15 @@ namespace Xtensive.Linq
   /// <typeparam name="TResult">Type of the visit result.</typeparam>
   public abstract class ExpressionVisitor<TResult>
   {
-    private readonly Dictionary<Expression, TResult> cache = null;
+    private readonly Dictionary<Expression, TResult> cache;
 
     /// <summary>
     /// Gets a value indicating whether this visitor is caching.
     /// When visitor is caching, visit result 
     /// is cached and resolved by internal cache.
     /// </summary>
-    public bool IsCaching
-    {
-      get { return cache!=null; }
-    }
-    
+    public bool IsCaching => cache != null;
+
     /// <summary>
     /// Visits the specified expression.
     /// </summary>
@@ -43,98 +39,60 @@ namespace Xtensive.Linq
     /// </remarks>
     protected virtual TResult Visit(Expression e)
     {
-      if (e==null)
-        return default(TResult);
-
-      TResult result;
-      if (cache!=null) {
-        if (cache.TryGetValue(e, out result))
-          return result;
+      TResult result = default;
+      if (e is null || cache?.TryGetValue(e, out result) == true) {
+        return result;
       }
 
-      switch (e.NodeType) {
-      case ExpressionType.Negate:
-      case ExpressionType.NegateChecked:
-      case ExpressionType.Not:
-      case ExpressionType.Convert:
-      case ExpressionType.ConvertChecked:
-      case ExpressionType.ArrayLength:
-      case ExpressionType.Quote:
-      case ExpressionType.TypeAs:
-        result = VisitUnary((UnaryExpression) e);
-        break;
-      case ExpressionType.Add:
-      case ExpressionType.AddChecked:
-      case ExpressionType.Subtract:
-      case ExpressionType.SubtractChecked:
-      case ExpressionType.Multiply:
-      case ExpressionType.MultiplyChecked:
-      case ExpressionType.Divide:
-      case ExpressionType.Modulo:
-      case ExpressionType.And:
-      case ExpressionType.AndAlso:
-      case ExpressionType.Or:
-      case ExpressionType.OrElse:
-      case ExpressionType.LessThan:
-      case ExpressionType.LessThanOrEqual:
-      case ExpressionType.GreaterThan:
-      case ExpressionType.GreaterThanOrEqual:
-      case ExpressionType.Equal:
-      case ExpressionType.NotEqual:
-      case ExpressionType.Coalesce:
-      case ExpressionType.ArrayIndex:
-      case ExpressionType.RightShift:
-      case ExpressionType.LeftShift:
-      case ExpressionType.ExclusiveOr:
-        result = VisitBinary((BinaryExpression) e);
-        break;
-      case ExpressionType.TypeIs:
-        result = VisitTypeIs((TypeBinaryExpression) e);
-        break;
-      case ExpressionType.Conditional:
-        result = VisitConditional((ConditionalExpression) e);
-        break;
-      case ExpressionType.Constant:
-        result = VisitConstant((ConstantExpression) e);
-        break;
-      case ExpressionType.Default:
-        result = VisitDefault((DefaultExpression) e);
-        break;
-      case ExpressionType.Parameter:
-        result = VisitParameter((ParameterExpression) e);
-        break;
-      case ExpressionType.MemberAccess:
-        result = VisitMemberAccess((MemberExpression) e);
-        break;
-      case ExpressionType.Call:
-        result = VisitMethodCall((MethodCallExpression) e);
-        break;
-      case ExpressionType.Lambda:
-        result = VisitLambda((LambdaExpression) e);
-        break;
-      case ExpressionType.New:
-        result = VisitNew((NewExpression) e);
-        break;
-      case ExpressionType.NewArrayInit:
-      case ExpressionType.NewArrayBounds:
-        result = VisitNewArray((NewArrayExpression) e);
-        break;
-      case ExpressionType.Invoke:
-        result = VisitInvocation((InvocationExpression) e);
-        break;
-      case ExpressionType.MemberInit:
-        result = VisitMemberInit((MemberInitExpression) e);
-        break;
-      case ExpressionType.ListInit:
-        result = VisitListInit((ListInitExpression) e);
-        break;
-      default:
-        result = VisitUnknown(e);
-        break;
-      }
+      result = e.NodeType switch {
+        ExpressionType.Negate
+          or ExpressionType.NegateChecked
+          or ExpressionType.Not
+          or ExpressionType.Convert
+          or ExpressionType.ConvertChecked
+          or ExpressionType.ArrayLength
+          or ExpressionType.Quote
+          or ExpressionType.TypeAs => VisitUnary((UnaryExpression) e),
+        ExpressionType.Add
+          or ExpressionType.AddChecked
+          or ExpressionType.Subtract
+          or ExpressionType.SubtractChecked
+          or ExpressionType.Multiply
+          or ExpressionType.MultiplyChecked
+          or ExpressionType.Divide
+          or ExpressionType.Modulo
+          or ExpressionType.And
+          or ExpressionType.AndAlso
+          or ExpressionType.Or
+          or ExpressionType.OrElse
+          or ExpressionType.LessThan
+          or ExpressionType.LessThanOrEqual
+          or ExpressionType.GreaterThan
+          or ExpressionType.GreaterThanOrEqual
+          or ExpressionType.Equal
+          or ExpressionType.NotEqual
+          or ExpressionType.Coalesce
+          or ExpressionType.ArrayIndex
+          or ExpressionType.RightShift
+          or ExpressionType.LeftShift
+          or ExpressionType.ExclusiveOr => VisitBinary((BinaryExpression) e),
+        ExpressionType.TypeIs => VisitTypeIs((TypeBinaryExpression) e),
+        ExpressionType.Conditional => VisitConditional((ConditionalExpression) e),
+        ExpressionType.Constant => VisitConstant((ConstantExpression) e),
+        ExpressionType.Default => VisitDefault((DefaultExpression) e),
+        ExpressionType.Parameter => VisitParameter((ParameterExpression) e),
+        ExpressionType.MemberAccess => VisitMemberAccess((MemberExpression) e),
+        ExpressionType.Call => VisitMethodCall((MethodCallExpression) e),
+        ExpressionType.Lambda => VisitLambda((LambdaExpression) e),
+        ExpressionType.New => VisitNew((NewExpression) e),
+        ExpressionType.NewArrayInit or ExpressionType.NewArrayBounds => VisitNewArray((NewArrayExpression) e),
+        ExpressionType.Invoke => VisitInvocation((InvocationExpression) e),
+        ExpressionType.MemberInit => VisitMemberInit((MemberInitExpression) e),
+        ExpressionType.ListInit => VisitListInit((ListInitExpression) e),
+        _ => VisitUnknown(e)
+      };
 
-      if (cache!=null)
-        cache[e] = result;
+      cache?.Add(e, result);
       return result;
     }
 
@@ -145,10 +103,10 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual IReadOnlyList<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
-      var results = new List<TResult>(expressions.Count);
-      for (int i = 0, n = expressions.Count; i < n; i++) {
-        var p = Visit(expressions[i]);
-        results.Add(p);
+      var n = expressions.Count;
+      var results = new TResult[n];
+      for (int i = 0; i < n; i++) {
+        results[i] = Visit(expressions[i]);
       }
       return results.AsSafeWrapper();
     }
@@ -179,14 +137,14 @@ namespace Xtensive.Linq
     /// <param name="b">The binary expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitBinary(BinaryExpression b);
-    
+
     /// <summary>
     /// Visits the "type is" expression.
     /// </summary>
     /// <param name="tb">The "type is" expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitTypeIs(TypeBinaryExpression tb);
-    
+
     /// <summary>
     /// Visits the constant expression.
     /// </summary>
@@ -200,28 +158,28 @@ namespace Xtensive.Linq
     /// <param name="d">The default expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitDefault(DefaultExpression d);
-    
+
     /// <summary>
     /// Visits the conditional expression.
     /// </summary>
     /// <param name="c">The conditional expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitConditional(ConditionalExpression c);
-    
+
     /// <summary>
     /// Visits the parameter expression.
     /// </summary>
     /// <param name="p">The parameter expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitParameter(ParameterExpression p);
-    
+
     /// <summary>
     /// Visits the member access expression.
     /// </summary>
     /// <param name="m">The member access expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitMemberAccess(MemberExpression m);
-    
+
     /// <summary>
     /// Visits the method call expression.
     /// </summary>
@@ -249,7 +207,7 @@ namespace Xtensive.Linq
     /// <param name="mi">The member initialization expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitMemberInit(MemberInitExpression mi);
-    
+
     /// <summary>
     /// Visits the list initialization expression.
     /// </summary>
@@ -270,26 +228,17 @@ namespace Xtensive.Linq
     /// <param name="i">The invocation expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitInvocation(InvocationExpression i);
-    
-    // Constructors
 
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    protected ExpressionVisitor()
-      : this(false)
-    {
-    }
+    // Constructors
 
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="isCaching">Indicates whether visit result 
     /// should be cached and resolved by cache when possible.</param>
-    protected ExpressionVisitor(bool isCaching)
+    protected ExpressionVisitor(bool isCaching = false)
     {
-      if (isCaching)
-        cache = new Dictionary<Expression, TResult>();
+      cache = isCaching ? new() : null;
     }
   }
 }

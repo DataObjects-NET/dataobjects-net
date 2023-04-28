@@ -945,31 +945,25 @@ namespace Xtensive.Orm.Linq
       var objectExpression = Visit(ie.Object).StripCasts();
       var argument = Visit(ie.Arguments[0]);
       var evaluatedArgument = (string) ExpressionEvaluator.Evaluate(argument).Value;
-      var entityExpression = objectExpression as EntityExpression;
-      if (entityExpression != null)
-        return entityExpression.Fields.First(field => field.Name == evaluatedArgument);
-
-      var structureExpression = objectExpression as StructureExpression;
-      if (structureExpression != null)
-        return structureExpression.Fields.First(field => field.Name == evaluatedArgument);
-
-      var entityFieldExpression = objectExpression as EntityFieldExpression;
-      if (entityFieldExpression != null)
-        return entityFieldExpression.Fields.First(field => field.Name == evaluatedArgument);
-
-      var structureFieldExpression = objectExpression as StructureFieldExpression;
-      if (structureFieldExpression != null)
-        return structureFieldExpression.Fields.First(field => field.Name == evaluatedArgument);
+      switch (objectExpression) {
+        case EntityExpression entityExpression:
+          return entityExpression.Fields.First(field => field.Name == evaluatedArgument);
+        case StructureExpression structureExpression:
+          return structureExpression.Fields.First(field => field.Name == evaluatedArgument);
+        case EntityFieldExpression entityFieldExpression:
+          return entityFieldExpression.Fields.First(field => field.Name == evaluatedArgument);
+        case StructureFieldExpression structureFieldExpression:
+          return structureFieldExpression.Fields.First(field => field.Name == evaluatedArgument);
+      }
 
       var typeInfo = context.Model.Types[objectExpression.Type];
-      var parameterExpression = objectExpression as ParameterExpression;
       if (objectExpression is ParameterExpression || objectExpression is ConstantExpression) {
         if (typeInfo.IsEntity) {
-          entityExpression = EntityExpression.Create(typeInfo, 0, false);
+          var entityExpression = EntityExpression.Create(typeInfo, 0, false);
           return entityExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
         if (typeInfo.IsStructure) {
-          structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<int>(0, typeInfo.TupleDescriptor.Count));
+          var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<int>(0, typeInfo.TupleDescriptor.Count));
           return structureExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
       }

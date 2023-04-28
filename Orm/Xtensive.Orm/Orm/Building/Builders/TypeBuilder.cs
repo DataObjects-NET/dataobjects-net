@@ -412,17 +412,8 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private static bool IsAuxiliaryType(TypeInfo type)
-    {
-      if (!type.IsEntity) {
-        return false;
-      }
-
-      var underlyingBaseType = type.UnderlyingType.BaseType;
-      return underlyingBaseType != null
-        && underlyingBaseType.IsGenericType
-        && underlyingBaseType.CachedGetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetItemOfT1T2;
-    }
+    private static bool IsAuxiliaryType(TypeInfo type) =>
+      type.IsEntity && type.UnderlyingType.BaseType?.IsGenericType(WellKnownOrmTypes.EntitySetItemOfT1T2) == true;
 
     private ColumnInfo BuildDeclaredColumn(FieldInfo field)
     {

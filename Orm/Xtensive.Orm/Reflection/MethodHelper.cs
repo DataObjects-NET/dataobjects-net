@@ -409,8 +409,7 @@ namespace Xtensive.Reflection
         else if (requiredParameterType != null) {
           isMatch = actualParameterType == requiredParameterType
             || (requiredParameterType.IsGenericTypeDefinition
-               && actualParameterType.IsGenericType
-               && actualParameterType.CachedGetGenericTypeDefinition()==requiredParameterType)
+               && actualParameterType.IsGenericType(requiredParameterType))
             || (requiredParameterType == AnyArrayPlaceholderType && actualParameterType.IsArray);
         }
         else {

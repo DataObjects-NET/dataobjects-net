@@ -286,8 +286,9 @@ namespace Xtensive.Core
     /// <param name="expression">The expression.</param>
     public static Expression StripCasts(this Expression expression)
     {
-      while (expression.NodeType==ExpressionType.Convert || expression.NodeType==ExpressionType.TypeAs)
+      while (expression.NodeType is ExpressionType.Convert or ExpressionType.TypeAs) {
         expression = ((UnaryExpression) expression).Operand;
+      }
       return expression;
     }
 

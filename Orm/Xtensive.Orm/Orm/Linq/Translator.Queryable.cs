@@ -39,18 +39,10 @@ namespace Xtensive.Orm.Linq
 
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
-    protected override Expression VisitConstant(ConstantExpression c)
-    {
-      if (c.Value == null) {
-        return c;
-      }
-
-      if (c.Value is IQueryable rootPoint) {
-        return VisitSequence(rootPoint.Expression);
-      }
-
-      return base.VisitConstant(c);
-    }
+    protected override Expression VisitConstant(ConstantExpression c) =>
+      c.Value is IQueryable rootPoint
+        ? VisitSequence(rootPoint.Expression)
+        : base.VisitConstant(c);
 
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
@@ -1645,26 +1637,20 @@ namespace Xtensive.Orm.Linq
           Strings.ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead);
       }
 
-      if (sequence.GetMemberType() == MemberType.EntitySet) {
-        if (sequence.NodeType == ExpressionType.MemberAccess) {
-          var memberAccess = (MemberExpression) sequence;
-          if (memberAccess.Member is PropertyInfo propertyInfo
-            && memberAccess.Expression != null
-            && context.Model.Types.Contains(memberAccess.Expression.Type)) {
-            var field = context
-              .Model
-              .Types[memberAccess.Expression.Type]
-              .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName(propertyInfo)];
-            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
-          }
-        }
+      if (sequence.GetMemberType() == MemberType.EntitySet
+          && sequence is MemberExpression memberAccess
+          && memberAccess.Member is PropertyInfo propertyInfo
+          && memberAccess.Expression is Expression memberAccessExpression
+          && context.Model.Types.TryGetValue(memberAccessExpression.Type, out var typeInfo)) {
+        var field = typeInfo.Fields[context.Domain.Handlers.NameBuilder.BuildFieldName(propertyInfo)];
+        sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccessExpression, field);
       }
 
       if (sequence.IsLocalCollection(context)) {
-        var sequenceType = (sequence.Type.IsGenericType
-          && sequence.Type.CachedGetGenericTypeDefinition() == typeof(Func<>))
-          ? sequence.Type.GetGenericArguments()[0]
-          : sequence.Type;
+        var sequenceType = sequence.Type;
+        if (sequenceType.IsGenericType(typeof(Func<>))) {
+          sequenceType = sequenceType.GetGenericArguments()[0];
+        }
 
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
         return (ProjectionExpression) VisitLocalCollectionSequenceMethod
@@ -1692,11 +1678,11 @@ namespace Xtensive.Orm.Linq
       }
 
       if (result != null) {
-        var projectorExpression = result.ItemProjector.EnsureEntityIsJoined();
-        if (projectorExpression != result.ItemProjector) {
+        var itemProjector = result.ItemProjector;
+        var projectorExpression = itemProjector.EnsureEntityIsJoined();
+        if (projectorExpression != itemProjector) {
           result = result.Apply(projectorExpression);
         }
-
         return result;
       }
 
@@ -1704,21 +1690,9 @@ namespace Xtensive.Orm.Linq
         string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
     }
 
-    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
-    {
-      Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
-      if (compiledQueryScope != null) {
-        var replacer = compiledQueryScope.QueryParameterReplacer;
-        var replace = replacer.Replace(sequence);
-        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
-        collectionGetter = parameter.CachingCompile();
-      }
-      else {
-        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
-        collectionGetter = parameter.CachingCompile();
-      }
-      return CreateLocalCollectionProjectionExpression(typeof(TItem), collectionGetter, this, sequence);
-    }
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence) =>
+      CreateLocalCollectionProjectionExpression(typeof(TItem), ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
+        compiledQueryScope is not null ? compiledQueryScope.QueryParameterReplacer.Replace(sequence) : sequence).CachingCompile(), this, sequence);
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
     {

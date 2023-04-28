@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Linq
 {
   internal static class QueryHelper
   {
+    private static readonly Type ownerWrapperType = typeof(OwnerWrapper<>);
+
     private sealed class OwnerWrapper<TOwner>
     {
       public TOwner Owner { get; set; }
@@ -66,18 +68,10 @@ namespace Xtensive.Orm.Linq
       return Expression.Call(null, queryAll);
     }
 
-    public static bool IsDirectEntitySetQuery(Expression entitySet)
-    {
-      if (entitySet.NodeType!=ExpressionType.MemberAccess)
-        return false;
-      var owner = ((MemberExpression) entitySet).Expression;
-      if (owner.NodeType!=ExpressionType.MemberAccess)
-        return false;
-      var wrapper = ((MemberExpression) owner).Expression;
-      return wrapper.NodeType == ExpressionType.Constant
-        && wrapper.Type.IsGenericType
-        && wrapper.Type.CachedGetGenericTypeDefinition() == typeof(OwnerWrapper<>);
-    }
+    public static bool IsDirectEntitySetQuery(Expression entitySet) =>
+      ((entitySet as MemberExpression)?.Expression as MemberExpression)?.Expression is Expression wrapper
+      && wrapper.NodeType == ExpressionType.Constant
+      && wrapper.Type.IsGenericType(ownerWrapperType);
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
     {
@@ -98,10 +92,11 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.IsDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
+      var isDynamicallyDefined = field.IsDynamicallyDefined; 
+      if (!isDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
       }
-      if (field.IsDynamicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
+      if (isDynamicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
       }
 

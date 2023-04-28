@@ -96,39 +96,41 @@ namespace Xtensive.Orm.Linq
         return !(cex.Value is IQueryable);
       }
 
-      if (expression.NodeType == ExpressionType.MemberAccess) {
+      var expressionNodeType = expression.NodeType;
+      if (expressionNodeType == ExpressionType.MemberAccess) {
         var ma = (MemberExpression) expression;
-        if (ma.Expression == null) {
+        var maExpression = ma.Expression;
+        if (maExpression == null) {
           return !WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type);
         }
 
-        if (ma.Expression.Type.IsNullable() && ma.Member.Name == "Value") {
+        if (maExpression.Type.IsNullable() && ma.Member.Name == "Value") {
           return false;
         }
 
-        if (ma.Expression.NodeType == ExpressionType.Constant) {
-          var rfi = ma.Member as FieldInfo;
-          if (rfi != null && rfi.FieldType.IsGenericType
-            && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
-            return false;
-          }
+        if (maExpression.NodeType == ExpressionType.Constant
+            && (ma.Member as FieldInfo)?.FieldType is Type fieldType
+            && fieldType.IsGenericType
+            && WellKnownInterfaces.Queryable.IsAssignableFrom(fieldType)) {
+          return false;
         }
       }
 
       if (expression is MethodCallExpression mc) {
         var methodInfo = mc.Method;
-        if (methodInfo.DeclaringType == WellKnownTypes.Enumerable ||
-          methodInfo.DeclaringType == WellKnownTypes.Queryable ||
-          methodInfo.DeclaringType == WellKnownOrmTypes.Query && methodInfo.IsGenericMethod) {
+        var declaringType = methodInfo.DeclaringType;
+        if (declaringType == WellKnownTypes.Enumerable ||
+            declaringType == WellKnownTypes.Queryable ||
+            declaringType == WellKnownOrmTypes.Query && methodInfo.IsGenericMethod) {
           return false;
         }
       }
 
-      if (expression.NodeType == ExpressionType.Convert && expression.Type == WellKnownTypes.Object) {
+      if (expressionNodeType == ExpressionType.Convert && expression.Type == WellKnownTypes.Object) {
         return true;
       }
 
-      return expression.NodeType != ExpressionType.Parameter && expression.NodeType != ExpressionType.Lambda;
+      return !(expressionNodeType is ExpressionType.Parameter or ExpressionType.Lambda);
     }
 
 

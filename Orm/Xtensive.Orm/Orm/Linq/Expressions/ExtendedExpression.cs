@@ -15,15 +15,9 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ExtendedExpressionType ExtendedType { get; private set; }
 
-    public override ExpressionType NodeType
-    {
-      get { return (ExpressionType) ExtendedType; }
-    }
+    public sealed override ExpressionType NodeType => (ExpressionType) ExtendedType;
 
-    public override Type Type
-    {
-      get { return type; }
-    }
+    public override Type Type => type;
 
     // Constructors
 

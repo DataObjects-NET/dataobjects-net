@@ -946,6 +946,9 @@ namespace Xtensive.Reflection
     public static Type CachedGetGenericTypeDefinition(this Type type) =>
       GenericTypeDefinitions?.GetOrAdd(type, static t => t.GetGenericTypeDefinition()) ?? type.GetGenericTypeDefinition();
 
+    public static bool IsGenericType(this Type type, Type other) =>
+      type.IsGenericType && CachedGetGenericTypeDefinition(type) == other;
+
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument) =>
       GenericMethodInstances1.GetOrAdd((genericDefinition, typeArgument), GenericMethodFactory1);
 

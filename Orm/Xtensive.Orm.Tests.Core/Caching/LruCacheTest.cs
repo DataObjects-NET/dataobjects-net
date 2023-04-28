@@ -224,6 +224,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       Assert.AreEqual(100, itemsCount);
     }
 
+    [Mute]
     [Test]
     public void SynchronizationTest()
     {

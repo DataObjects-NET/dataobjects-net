@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -20,29 +21,34 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Method.Name != Xtensive.Reflection.WellKnown.Object.Equals)
+      var mcMethod = mc.Method; 
+      if (mcMethod.Name != Xtensive.Reflection.WellKnown.Object.Equals)
         return base.VisitMethodCall(mc);
 
-      var declaringType = mc.Method.DeclaringType;
+      var declaringType = mcMethod.DeclaringType;
 
-      if (mc.Method.IsStatic) {
-        var parameterTypes = mc.Method.GetParameterTypes();
-        if (mc.Arguments.Count == 2 
+      if (mcMethod.IsStatic) {
+        var parameterTypes = mcMethod.GetParameterTypes();
+        var mcArguments = mc.Arguments; 
+        if (mcArguments.Count == 2 
           && declaringType == parameterTypes[0] 
           && declaringType == parameterTypes[1])
-          return Expression.Equal(mc.Arguments[0], mc.Arguments[1]);
+          return Expression.Equal(mcArguments[0], mcArguments[1]);
         return base.VisitMethodCall(mc);
       }
 
-      var interfaceMember = mc.Method.GetInterfaceMember();
-      if (interfaceMember != null) {
-        if (interfaceMember.ReflectedType.IsGenericType && interfaceMember.ReflectedType.CachedGetGenericTypeDefinition() == typeof(IEquatable<>))
-          return Expression.Equal(mc.Object, mc.Arguments[0]);
-        return base.VisitMethodCall(mc);
+      if (mcMethod.GetInterfaceMember() is MemberInfo interfaceMember) {
+        return interfaceMember.ReflectedType.IsGenericType(typeof(IEquatable<>))
+          ? Expression.Equal(mc.Object, mc.Arguments[0])
+          : base.VisitMethodCall(mc);
       }
 
-      if (declaringType == WellKnownTypes.Object && mc.Arguments.Count == 1)
-        return Expression.Equal(mc.Object, mc.Arguments[0]);
+      if (declaringType == WellKnownTypes.Object) {
+        var mcArguments = mc.Arguments;
+        if (mcArguments.Count == 1) {
+          return Expression.Equal(mc.Object, mcArguments[0]);
+        }
+      }
 
       return base.VisitMethodCall(mc);
     }
