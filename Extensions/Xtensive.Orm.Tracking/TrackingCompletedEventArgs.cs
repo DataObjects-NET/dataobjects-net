@@ -30,8 +30,10 @@ namespace Xtensive.Orm.Tracking
     /// <param name="changes">The changes.</param>
     public TrackingCompletedEventArgs(Session session, IEnumerable<ITrackingItem> changes)
     {
-      Session = session ?? throw new ArgumentNullException("session");
-      Changes = changes ?? throw new ArgumentNullException("changes");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(changes);
+      Session = session;
+      Changes = changes;
     }
   }
 }

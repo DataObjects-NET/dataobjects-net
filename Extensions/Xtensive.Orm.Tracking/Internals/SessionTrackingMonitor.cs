@@ -77,8 +77,10 @@ namespace Xtensive.Orm.Tracking
     [ServiceConstructor]
     public SessionTrackingMonitor(Session session, DirectSessionAccessor accessor)
     {
-      this.session = session ?? throw new ArgumentNullException(nameof(session));
-      this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(accessor);
+      this.session = session;
+      this.accessor = accessor;
 
       stack.Push(new TrackingStackFrame(false));
 

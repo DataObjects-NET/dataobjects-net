@@ -92,10 +92,10 @@ namespace Xtensive.Sql.Model
 
     internal string GetActualName(IReadOnlyDictionary<string, string> nodeNameMap)
     {
-      if (!IsNamesReadingDenied)
+      if (!IsNamesReadingDenied) {
         return Name;
-      if (nodeNameMap==null)
-        throw new ArgumentNullException("nodeNameMap");
+      }
+      ArgumentNullException.ThrowIfNull(nodeNameMap);
 
       var name = GetNameInternal();
       string actualName;
@@ -108,8 +108,7 @@ namespace Xtensive.Sql.Model
     {
       if (!IsNamesReadingDenied)
         return DbName;
-      if (nodeNameMap==null)
-        throw new ArgumentNullException("nodeNameMap");
+      ArgumentNullException.ThrowIfNull(nodeNameMap);
 
       var name = GetDbNameInternal();
       if (nodeNameMap.TryGetValue(name, out var actualName))

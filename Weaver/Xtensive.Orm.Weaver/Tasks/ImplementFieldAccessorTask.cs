@@ -77,11 +77,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, string persistentName)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (property==null)
-        throw new ArgumentNullException("property");
-
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(property);
       this.kind = kind;
       this.type = type;
       this.property = property;

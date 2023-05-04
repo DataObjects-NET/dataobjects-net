@@ -295,9 +295,7 @@ namespace Xtensive.Core
 
     protected AssociateProvider(SerializationInfo info, StreamingContext context)
     {
-      if (info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
+      ArgumentNullException.ThrowIfNull(info);
 
       var constructorParamsExceptThis = (object[]) info.GetValue(nameof(constructorParams), typeof(object[]));
       constructorParams = new object[constructorParamsExceptThis.Length + 1];

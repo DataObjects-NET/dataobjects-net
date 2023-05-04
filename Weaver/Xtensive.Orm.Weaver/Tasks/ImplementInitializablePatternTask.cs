@@ -138,11 +138,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementInitializablePatternTask(TypeDefinition type, MethodDefinition constructor)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (constructor==null)
-        throw new ArgumentNullException("constructor");
-
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(constructor);
       this.type = type;
       this.constructor = constructor;
     }

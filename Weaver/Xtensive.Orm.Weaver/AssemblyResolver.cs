@@ -84,11 +84,8 @@ namespace Xtensive.Orm.Weaver
 
     public AssemblyResolver(IEnumerable<string> referencedAssemblies, MessageLogger logger)
     {
-      if (referencedAssemblies==null)
-        throw new ArgumentNullException("referencedAssemblies");
-      if (logger==null)
-        throw new ArgumentNullException("logger");
-
+      ArgumentNullException.ThrowIfNull(referencedAssemblies);
+      ArgumentNullException.ThrowIfNull(logger);
       this.logger = logger;
 
       foreach (var file in referencedAssemblies) {

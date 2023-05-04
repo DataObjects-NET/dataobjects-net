@@ -164,8 +164,7 @@ namespace Xtensive.Orm.Weaver
 
     public bool Parse(string parameterString)
     {
-      if (parameterString==null)
-        throw new ArgumentNullException("parameterString");
+      ArgumentNullException.ThrowIfNull(parameterString);
       return Parser.Parse(this, parameterString);
     }
 

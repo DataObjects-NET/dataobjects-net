@@ -85,11 +85,8 @@ namespace Xtensive.Orm.Weaver
 
     public PropertyInfo(TypeInfo declaringType, PropertyDefinition definition)
     {
-      if (declaringType==null)
-        throw new ArgumentNullException("declaringType");
-      if (definition==null)
-        throw new ArgumentNullException("definition");
-
+      ArgumentNullException.ThrowIfNull(declaringType);
+      ArgumentNullException.ThrowIfNull(definition);
       DeclaringType = declaringType;
       Definition = definition;
       ImplementedProperties = new List<PropertyInfo>();

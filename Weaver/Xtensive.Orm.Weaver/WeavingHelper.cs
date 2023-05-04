@@ -49,17 +49,14 @@ namespace Xtensive.Orm.Weaver
 
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
     {
-      if (context==null)
-        throw new ArgumentNullException("context");
-      if (target==null)
-        throw new ArgumentNullException("target");
+      ArgumentNullException.ThrowIfNull(context);
+      ArgumentNullException.ThrowIfNull(target);
       target.CustomAttributes.Add(new CustomAttribute(context.References.CompilerGeneratedAttributeConstructor));
     }
 
     public static void EmitLoadArguments(ILProcessor il, int count)
     {
-      if (il==null)
-        throw new ArgumentNullException("il");
+      ArgumentNullException.ThrowIfNull(il);
       if (count > Byte.MaxValue)
         throw new ArgumentOutOfRangeException("count");
 

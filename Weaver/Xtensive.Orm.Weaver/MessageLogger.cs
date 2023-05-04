@@ -76,8 +76,7 @@ namespace Xtensive.Orm.Weaver
 
     public MessageLogger(MessageWriter writer)
     {
-      if (writer==null)
-        throw new ArgumentNullException("writer");
+      ArgumentNullException.ThrowIfNull(writer);
       this.writer = writer;
     }
 

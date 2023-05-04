@@ -38,11 +38,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public RemoveBackingFieldTask(TypeDefinition type, PropertyDefinition property)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-      if (property==null)
-        throw new ArgumentNullException("property");
-
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(property);
       this.type = type;
       this.property = property;
     }

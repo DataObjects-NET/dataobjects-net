@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       public Employee(Company company, string firstName, string lastName)
       {
-        if (company == null) throw new ArgumentNullException("company");
+        ArgumentNullException.ThrowIfNull(company);
 
         Company = company;
         FirstName = firstName;

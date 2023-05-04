@@ -59,8 +59,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeInfo(TypeReference reference, PersistentTypeKind kind)
     {
-      if (reference==null)
-        throw new ArgumentNullException("reference");
+      ArgumentNullException.ThrowIfNull(reference);
 
       Name = reference.Name;
       FullName = reference.FullName;
@@ -71,8 +70,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeInfo(TypeDefinition definition, PersistentTypeKind kind, TypeInfo baseType = null)
     {
-      if (definition==null)
-        throw new ArgumentNullException("definition");
+      ArgumentNullException.ThrowIfNull(definition);
 
       Name = definition.Name;
       FullName = definition.FullName;

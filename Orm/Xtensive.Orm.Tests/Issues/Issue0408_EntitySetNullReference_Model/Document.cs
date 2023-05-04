@@ -54,12 +54,9 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     // DOFIXME : remove this function (one line ... )
     public void CreateNewLinkfromMe(Document destination, LinkSemantic semantic)
     {
-      if (destination == null)
-      {
-        throw new ArgumentNullException("destination");
-      }
-
-      DocumentLink newLink = new DocumentLink { LinkSemantic = semantic, LinkDestination=destination, LinkSource=this};
+      ArgumentNullException.ThrowIfNull(destination);
+      DocumentLink newLink =
+        new DocumentLink { LinkSemantic = semantic, LinkDestination = destination, LinkSource = this };
     }
 
     /// <summary>

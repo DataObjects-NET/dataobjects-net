@@ -164,8 +164,7 @@ namespace Xtensive.Sql.Model
     {
       if (!IsNamesReadingDenied)
         return Name;
-      if (catalogNameMap==null)
-        throw new ArgumentNullException("catalogNameMap");
+      ArgumentNullException.ThrowIfNull(catalogNameMap);
 
       var name = GetNameInternal();
       return catalogNameMap.TryGetValue(name, out var actualName) ? actualName : name;

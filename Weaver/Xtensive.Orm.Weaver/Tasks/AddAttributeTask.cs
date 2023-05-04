@@ -29,10 +29,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public AddAttributeTask(ICustomAttributeProvider target, MethodReference attributeConstructor, params object[] parameters)
     {
-      if (target==null)
-        throw new ArgumentNullException("target");
-      if (attributeConstructor==null)
-        throw new ArgumentNullException("attributeConstructor");
+      ArgumentNullException.ThrowIfNull(target);
+      ArgumentNullException.ThrowIfNull(attributeConstructor);
       if (attributeConstructor.Parameters.Count!=parameters.Length)
         throw new ArgumentException("Invalid number of constructor parameters");
 

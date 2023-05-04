@@ -58,9 +58,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeIdentity(TypeReference type)
     {
-      if (type==null)
-        throw new ArgumentNullException("type");
-
+      ArgumentNullException.ThrowIfNull(type);
       assemblyName = type.Scope.Name;
       typeName = type.FullName;
     }

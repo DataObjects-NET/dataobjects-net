@@ -29,9 +29,13 @@ namespace Xtensive.Core
 #endif
     public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
-      if (value==null) {
+#if NET6_0_OR_GREATER
+      ArgumentNullException.ThrowIfNull(value, parameterName);
+#else      
+      if (value == null) {
         throw new ArgumentNullException(parameterName);
       }
+#endif
     }
 
     /// <summary>
@@ -63,9 +67,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
-      if (value == null) {
-        throw new ArgumentNullException(parameterName);
-      }
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       if (value.Length == 0) {
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
       }
@@ -74,9 +76,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
     {
-      if (value==null) {
-        throw new ArgumentNullException(parameterName);
-      }
+      ArgumentNullException.ThrowIfNull(value, parameterName);
 
       if (value.Length==0) {
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);

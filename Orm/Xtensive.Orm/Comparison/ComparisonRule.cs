@@ -184,9 +184,7 @@ namespace Xtensive.Comparison
 
     private ComparisonRule(SerializationInfo info, StreamingContext context)
     {
-      if (info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
+      ArgumentNullException.ThrowIfNull(info);
       Direction = (Direction) info.GetSByte(nameof(Direction));
       var cultureId = info.GetInt32(nameof(Culture));
       Culture = (cultureId != int.MinValue) ? CultureInfo.GetCultureInfo(cultureId) : null;
@@ -195,9 +193,7 @@ namespace Xtensive.Comparison
     [SecurityCritical]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      if(info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
+      ArgumentNullException.ThrowIfNull(info);
       info.AddValue(nameof(Direction), (sbyte) Direction);
 
       var cultureId = (Culture != null) ? Culture.LCID : int.MinValue;

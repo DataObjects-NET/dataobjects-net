@@ -310,10 +310,8 @@ namespace Xtensive.Core
     /// <param name="escapedChars">Chars to escape.</param>
     public static string Escape(this string source, char escape, char[] escapedChars)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
-      if (escapedChars==null)
-        throw new ArgumentNullException("escapedChars");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(escapedChars);
       var chars = escapedChars.Append(escape);
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       foreach (var c in source) {
@@ -334,8 +332,7 @@ namespace Xtensive.Core
     /// <param name="escape">The escape char.</param>
     public static string Unescape(this string source, char escape)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
+      ArgumentNullException.ThrowIfNull(source);
       var sb = new ValueStringBuilder(source.Length);
       var previousCharIsEscape = false;
       foreach (var c in source) {

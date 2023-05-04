@@ -34,8 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueGithub0150_ClosureProblemModel
 
     public TestOperation(TestWorkOrder wo)
     {
-      if (wo == null)
-        throw new ArgumentNullException(nameof(wo));
+      ArgumentNullException.ThrowIfNull(wo);
       _ = WorkOrders.Add(wo);
     }
   }

@@ -28,16 +28,15 @@ namespace Xtensive.Orm.Tracking
 
     public void MergeWith(TrackingItem source)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
+      ArgumentNullException.ThrowIfNull(source);
 
-      if (State==TrackingItemState.Deleted && source.State==TrackingItemState.Created) {
+      if (State == TrackingItemState.Deleted && source.State == TrackingItemState.Created) {
         State = TrackingItemState.Changed;
         RawData = source.RawData; // TODO: Check whether a clone is required
         return;
       }
 
-      if (State==TrackingItemState.Created && source.State==TrackingItemState.Changed) {
+      if (State == TrackingItemState.Created && source.State == TrackingItemState.Changed) {
         State = TrackingItemState.Created;
         MergeWith(source.RawData.Difference);
         return;
@@ -78,7 +77,7 @@ namespace Xtensive.Orm.Tracking
 
     private void MergeWith(Tuple difference)
     {
-      if (RawData.Difference==null)
+      if (RawData.Difference == null)
         RawData.Difference = difference;
       else
         RawData.Difference.MergeWith(difference, MergeBehavior.PreferDifference);
@@ -86,13 +85,14 @@ namespace Xtensive.Orm.Tracking
 
     public TrackingItem(Key key, TrackingItemState state, DifferentialTuple tuple)
     {
-      if (key==null)
-        throw new ArgumentNullException("key");
-      if (state!=TrackingItemState.Deleted && tuple==null)
-        throw new ArgumentNullException("tuple");
+      ArgumentNullException.ThrowIfNull(key);
+
+      if (state != TrackingItemState.Deleted) {
+        ArgumentNullException.ThrowIfNull(tuple);
+      }
 
       Key = key;
-      if (tuple!=null)
+      if (tuple != null)
         RawData = (DifferentialTuple) tuple.Clone();
       State = state;
     }

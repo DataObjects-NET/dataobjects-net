@@ -21,8 +21,7 @@ namespace Xtensive.Orm.Localization
 
     public static void Initialize(Domain domain)
     {
-      if (domain == null)
-        throw new ArgumentNullException("domain");
+      ArgumentNullException.ThrowIfNull(domain);
       if (domain.Extensions.Get<TypeLocalizationMap>() != null)
         return;
 

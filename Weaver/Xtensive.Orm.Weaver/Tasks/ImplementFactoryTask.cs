@@ -98,11 +98,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public ImplementFactoryTask(TypeDefinition targetType, TypeReference[] signature)
     {
-      if (targetType==null)
-        throw new ArgumentNullException("targetType");
-      if (signature==null)
-        throw new ArgumentNullException("signature");
-
+      ArgumentNullException.ThrowIfNull(targetType);
+      ArgumentNullException.ThrowIfNull(signature);
       this.targetType = targetType;
       this.signature = signature;
     }

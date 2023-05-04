@@ -63,8 +63,7 @@ namespace Xtensive.Sql.Model
     /// <returns><see cref="IndexColumn"/> instance.</returns>
     public IndexColumn CreateIndexColumn(SqlExpression expression, bool ascending)
     {
-      if (expression is null)
-        throw new ArgumentNullException("expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new IndexColumn(this, expression, ascending);
     }
 

@@ -28,8 +28,7 @@ namespace Xtensive.Orm.Tracking
     [ServiceConstructor]
     public DomainTrackingMonitor(Domain domain)
     {
-      if (domain==null)
-        throw new ArgumentNullException("domain");
+      ArgumentNullException.ThrowIfNull(domain);
       domain.SessionOpen += OnOpenSession;
     }
   }
