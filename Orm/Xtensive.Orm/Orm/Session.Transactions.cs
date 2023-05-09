@@ -216,7 +216,7 @@ namespace Xtensive.Orm
     {
       return TransactionScope.VoidScopeInstance;
     }
-    
+
     internal void BeginTransaction(Transaction transaction)
     {
       if (transaction.IsNested) {
@@ -235,7 +235,7 @@ namespace Xtensive.Orm
         await Handler.CreateSavepointAsync(transaction, token).ConfigureAwait(false);
       }
       else {
-        Handler.BeginTransaction(transaction);
+        await Handler.BeginTransactionAsync(transaction, token).ConfigureAwait(false);
       }
     }
 

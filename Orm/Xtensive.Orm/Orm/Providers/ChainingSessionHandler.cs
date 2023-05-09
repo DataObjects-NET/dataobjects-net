@@ -37,10 +37,12 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void BeginTransaction(Transaction transaction)
-    {
+    public override void BeginTransaction(Transaction transaction) =>
       ChainedHandler.BeginTransaction(transaction);
-    }
+
+    /// <inheritdoc/>
+    public override Task BeginTransactionAsync(Transaction transaction, CancellationToken ct) =>
+      ChainedHandler.BeginTransactionAsync(transaction, ct);
 
     /// <inheritdoc/>
     public override void CompletingTransaction(Transaction transaction)

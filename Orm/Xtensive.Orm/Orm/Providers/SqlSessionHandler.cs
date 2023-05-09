@@ -76,8 +76,19 @@ namespace Xtensive.Orm.Providers
     {
       pendingTransaction = transaction;
 
-      if (Session.Configuration.Type!=SessionType.User)
+      if (Session.Configuration.Type != SessionType.User) {
         Prepare();
+      }
+    }
+
+    /// <inheritdoc/>
+    public override async Task BeginTransactionAsync(Transaction transaction, CancellationToken ct)
+    {
+      pendingTransaction = transaction;
+
+      if (Session.Configuration.Type != SessionType.User) {
+        await PrepareAsync(ct).ConfigureAwait(false);
+      }
     }
 
     /// <inheritdoc/>
@@ -182,7 +193,7 @@ namespace Xtensive.Orm.Providers
     }
 
     #endregion
-    
+
     #region Private / internal members
 
     internal Task OpenConnectionAsync(CancellationToken cancellationToken)

@@ -26,6 +26,11 @@ namespace Xtensive.Orm.Providers
     public abstract void BeginTransaction(Transaction transaction);
 
     /// <summary>
+    /// Opens the transaction.
+    /// </summary>
+    public abstract Task BeginTransactionAsync(Transaction transaction, CancellationToken ct);
+
+    /// <summary>
     /// Clears transaction-related caches.
     /// This method is called for non-actual transactions as well.
     /// </summary>    
