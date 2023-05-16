@@ -438,6 +438,56 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public async ValueTask<T> SingleAsync<T>(Key key) where T : class, IEntity =>
+      (T)(object)(await SingleAsync(key));
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public async ValueTask<T> SingleAsync<T>(params object[] keyValues) where T : class, IEntity =>
+      (T)(object)(await SingleAsync(GetKeyByValues<T>(keyValues)));
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// </returns>
+    public async ValueTask<T> SingleOrDefaultAsync<T>(Key key) where T : class, IEntity =>
+      (T)(object)(await SingleOrDefaultAsync(key));
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// </returns>
+    public async ValueTask<T> SingleOrDefaultAsync<T>(params object[] keyValues) where T : class, IEntity =>
+      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>(keyValues)));
+
+    /// <summary>
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The source sequence.</param>
