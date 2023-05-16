@@ -57,7 +57,20 @@ namespace Xtensive.Orm.Providers
       prefetchManager.ExecuteTasks(true);
       return LookupState(key, out var result) ? result : null;
     }
-    
+
+    /// <summary>
+    /// Fetches an <see cref="EntityState"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
+    public override async Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken ct = default)
+    {
+      var type = key.TypeReference.Type;
+      await prefetchManager.PrefetchAsync(key, type, PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type), ct).ConfigureAwait(false);
+      await prefetchManager.ExecuteTasksAsync(true, ct);
+      return LookupState(key, out var result) ? result : null;
+    }
+
     /// <summary>
     /// Fetches the field of an <see cref="Entity"/>.
     /// </summary>

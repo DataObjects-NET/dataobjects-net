@@ -135,10 +135,10 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override EntityState FetchEntityState(Key key)
-    {
-      return ChainedHandler.FetchEntityState(key);
-    }
+    public override EntityState FetchEntityState(Key key) => ChainedHandler.FetchEntityState(key);
+
+    /// <inheritdoc/>
+    public override Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken ct = default) => ChainedHandler.FetchEntityStateAsync(key, ct);
 
     /// <inheritdoc/>
     public override void FetchField(Key key, FieldInfo field)

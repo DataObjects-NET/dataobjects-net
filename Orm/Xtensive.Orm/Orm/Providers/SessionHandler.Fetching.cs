@@ -94,6 +94,13 @@ namespace Xtensive.Orm.Providers
     public abstract EntityState FetchEntityState(Key key);
 
     /// <summary>
+    /// Fetches an <see cref="EntityState"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
+    public abstract Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken ct = default);
+
+    /// <summary>
     /// Fetches the field of an <see cref="Entity"/>.
     /// </summary>
     /// <param name="key">The key.</param>

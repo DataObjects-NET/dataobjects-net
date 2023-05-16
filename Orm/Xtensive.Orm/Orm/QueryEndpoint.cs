@@ -265,12 +265,34 @@ namespace Xtensive.Orm
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
     public Entity Single(Key key)
     {
-      if (key==null)
+      if (key is null) {
         return null;
+      }
       var result = SingleOrDefault(key);
-      if (result==null)
-        throw new KeyNotFoundException(String.Format(
-          Strings.EntityWithKeyXDoesNotExist, key));
+      if (result is null) {
+        ThrowKeyNotFoundException(key);
+      }
+      return result;
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public async ValueTask<Entity> SingleAsync(Key key, CancellationToken ct = default)
+    {
+      if (key is null) {
+        return null;
+      }
+      var result = await SingleOrDefaultAsync(key, ct).ConfigureAwait(false);
+      if (result is null) {
+        ThrowKeyNotFoundException(key);
+      }
       return result;
     }
 
@@ -283,37 +305,73 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    [CanBeNull] public Entity SingleOrDefault(Key key)
+    [CanBeNull]
+    public Entity SingleOrDefault(Key key)
     {
-      if (key==null)
+      if (key == null) {
         return null;
-      Entity result;
-      using (var tx = session.OpenAutoTransaction()) {
-        EntityState state;
-        if (!session.LookupStateInCache(key, out state)) {
-          if (session.IsDebugEventLoggingEnabled) {
-            OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
-          }
+      }
+      using var tx = session.OpenAutoTransaction();
+      EntityState state;
+      if (!session.LookupStateInCache(key, out state)) {
+        if (session.IsDebugEventLoggingEnabled) {
+          OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+        }
 
+        state = session.Handler.FetchEntityState(key);
+      }
+      else if (state.Tuple == null) {
+        var stateKeyType = state.Key.TypeReference.Type.UnderlyingType;
+        var keyType = key.TypeReference.Type.UnderlyingType;
+        if (stateKeyType != keyType && !stateKeyType.IsAssignableFrom(keyType)) {
+          session.RemoveStateFromCache(state.Key, true);
           state = session.Handler.FetchEntityState(key);
         }
-        else if (state.Tuple==null) {
-          var stateKeyType = state.Key.TypeReference.Type.UnderlyingType;
-          var keyType = key.TypeReference.Type.UnderlyingType;
-          if (stateKeyType!=keyType && !stateKeyType.IsAssignableFrom(keyType)) {
-            session.RemoveStateFromCache(state.Key, true);
-            state = session.Handler.FetchEntityState(key);
-          }
-        }
-        if (state==null || state.IsNotAvailableOrMarkedAsRemoved
-          || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType))
-          // No state or Tuple = null or incorrect query type => no data in storage
-          result = null;
-        else
-          result = state.Entity;
-
-        tx.Complete();
       }
+      var result = state == null || state.IsNotAvailableOrMarkedAsRemoved
+          || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)   // No state or Tuple = null or incorrect query type => no data in storage
+        ? null
+        : state.Entity;
+      tx.Complete();
+      return result;
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public async ValueTask<Entity> SingleOrDefaultAsync(Key key, CancellationToken ct = default)
+    {
+      if (key == null) {
+        return null;
+      }
+      using var tx = session.OpenAutoTransaction();
+      EntityState state;
+      if (!session.LookupStateInCache(key, out state)) {
+        if (session.IsDebugEventLoggingEnabled) {
+          OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+        }
+
+        state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwait(false);
+      }
+      else if (state.Tuple == null) {
+        var stateKeyType = state.Key.TypeReference.Type.UnderlyingType;
+        var keyType = key.TypeReference.Type.UnderlyingType;
+        if (stateKeyType != keyType && !stateKeyType.IsAssignableFrom(keyType)) {
+          session.RemoveStateFromCache(state.Key, true);
+          state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwait(false);
+        }
+      }
+      var result = state == null || state.IsNotAvailableOrMarkedAsRemoved
+          || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType)   // No state or Tuple = null or incorrect query type => no data in storage
+        ? null
+        : state.Entity;
+      tx.Complete();
       return result;
     }
 
@@ -860,6 +918,9 @@ namespace Xtensive.Orm
         ? RootBuilder.BuildRootExpression(elementType)
         : Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(elementType));
     }
+
+    private static void ThrowKeyNotFoundException(Key key) =>
+        throw new KeyNotFoundException(String.Format(Strings.EntityWithKeyXDoesNotExist, key));
 
     #endregion
 

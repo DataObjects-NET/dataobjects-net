@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
         .Select(field => new PrefetchFieldDescriptor(field, false, false))
         .ToList()
-        .AsReadOnly();
+        .AsSafeWrapper();
 
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
