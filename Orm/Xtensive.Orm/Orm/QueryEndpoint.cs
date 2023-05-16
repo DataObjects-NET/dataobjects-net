@@ -447,8 +447,8 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public async ValueTask<T> SingleAsync<T>(Key key) where T : class, IEntity =>
-      (T)(object)(await SingleAsync(key));
+    public async ValueTask<T> SingleAsync<T>(Key key, CancellationToken ct) where T : class, IEntity =>
+      (T)(object)(await SingleAsync(key, ct));
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
@@ -460,8 +460,8 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public async ValueTask<T> SingleAsync<T>(params object[] keyValues) where T : class, IEntity =>
-      (T)(object)(await SingleAsync(GetKeyByValues<T>(keyValues)));
+    public async ValueTask<T> SingleAsync<T>(CancellationToken ct, params object[] keyValues) where T : class, IEntity =>
+      (T)(object)(await SingleAsync(GetKeyByValues<T>(keyValues), ct));
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
@@ -472,8 +472,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    public async ValueTask<T> SingleOrDefaultAsync<T>(Key key) where T : class, IEntity =>
-      (T)(object)(await SingleOrDefaultAsync(key));
+    public async ValueTask<T> SingleOrDefaultAsync<T>(Key key, CancellationToken ct) where T : class, IEntity =>
+      (T)(object)(await SingleOrDefaultAsync(key, ct));
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
@@ -484,8 +484,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    public async ValueTask<T> SingleOrDefaultAsync<T>(params object[] keyValues) where T : class, IEntity =>
-      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>(keyValues)));
+    public async ValueTask<T> SingleOrDefaultAsync<T>(CancellationToken ct, params object[] keyValues) where T : class, IEntity =>
+      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>(keyValues), ct));
 
     /// <summary>
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
