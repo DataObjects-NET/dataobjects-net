@@ -27,7 +27,7 @@ namespace Xtensive.Core
 #if NET6_0_OR_GREATER
     [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
 #endif
-    public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
 #if NET6_0_OR_GREATER
       ArgumentNullException.ThrowIfNull(value, parameterName);
@@ -65,16 +65,24 @@ namespace Xtensive.Core
     /// <param name="value">Value to check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
+#if NET7_0_OR_GREATER
+    [Obsolete("Use ArgumentException.ThrowIfNullOrEmpty()")]
+#endif
+    internal static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
+#if NET7_0_OR_GREATER
+      ArgumentException.ThrowIfNullOrEmpty(value, parameterName);
+#else
       ArgumentNullException.ThrowIfNull(value, parameterName);
       if (value.Length == 0) {
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
       }
+#endif
     }
 
+    [Obsolete("Use CommunityToolkit.Diagnostics.Guard.IsNotNullOrWhiteSpace()")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
     {
       ArgumentNullException.ThrowIfNull(value, parameterName);
 
@@ -130,7 +138,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The expected type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsNullOr<T>(object value, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsNullOr<T>(object value, [InvokerParameterName] string parameterName)
     {
       if (value==null)
         return;
@@ -149,7 +157,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsInRange<T>(T value, T lowerBoundary, T upperBoundary, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsInRange<T>(T value, T lowerBoundary, T upperBoundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(lowerBoundary)<0 || value.CompareTo(upperBoundary)>0) {
@@ -166,7 +174,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) > 0)
@@ -184,7 +192,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsGreaterThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsGreaterThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) >= 0)
@@ -202,7 +210,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsLessThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsLessThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) < 0)
@@ -220,7 +228,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIsLessThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentIsLessThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) <= 0)

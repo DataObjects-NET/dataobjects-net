@@ -22,8 +22,8 @@ namespace Xtensive.Orm.Security
     /// <inheritdoc/>
     public IPrincipal Authenticate(IIdentity identity, params object[] args)
     {
-      ArgumentValidator.EnsureArgumentNotNull(identity, "identity");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(identity.Name, "identity.Name");
+      ArgumentNullException.ThrowIfNull(identity);
+      ArgumentException.ThrowIfNullOrEmpty(identity.Name);
 
       return Authenticate(identity.Name, args);
     }
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Security
     /// <inheritdoc/>
     public IPrincipal Authenticate(string name, params object[] args)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
 
       string password = string.Empty;
       if (args != null && args.Length > 0)

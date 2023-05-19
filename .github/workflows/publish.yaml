@@ -2,7 +2,7 @@ name: Publish Nuget Package
 on:
   workflow_dispatch:
 env:
-  DO_TargetFrameworks: net6.0;net7.0
+  DO_TargetFrameworks: net7.0
 jobs:
   build-and-publish:
     name: Build & Publish

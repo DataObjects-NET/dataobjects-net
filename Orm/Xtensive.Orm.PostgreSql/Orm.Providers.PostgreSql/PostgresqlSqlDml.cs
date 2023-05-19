@@ -4,6 +4,7 @@
 // Created by: Alena Mikshina
 // Created:    2014.05.06;
 
+using System;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 
@@ -25,8 +26,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlTypeExtractPoint(SqlExpression operand, SqlExpression pointIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, nameof(operand));
-      ArgumentValidator.EnsureArgumentNotNull(pointIndex, nameof(pointIndex));
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(pointIndex);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint, operand, pointIndex);
     }
 
@@ -36,8 +37,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlTypeOperatorEquality(SqlExpression left, SqlExpression right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality, left, right);
     }
 
@@ -48,8 +49,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPointConstructor(SqlExpression x, SqlExpression y)
     {
-      ArgumentValidator.EnsureArgumentNotNull(x, "x");
-      ArgumentValidator.EnsureArgumentNotNull(y, "y");
+      ArgumentNullException.ThrowIfNull(x);
+      ArgumentNullException.ThrowIfNull(y);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointConstructor, x, y);
     }
 
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPointExtractX(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointExtractX, operand);
     }
 
@@ -67,7 +68,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPointExtractY(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointExtractY, operand);
     }
 
@@ -82,8 +83,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <param name="lowerLeft">An <see cref="SqlExpression"/> for the "point'(x2,y2)'" representing the lower left corner of the box.</param>
     public static SqlExpression NpgsqlBoxConstructor(SqlExpression upperRight, SqlExpression lowerLeft)
     {
-      ArgumentValidator.EnsureArgumentNotNull(upperRight, "upperRight");
-      ArgumentValidator.EnsureArgumentNotNull(lowerLeft, "lowerLeft");
+      ArgumentNullException.ThrowIfNull(upperRight);
+      ArgumentNullException.ThrowIfNull(lowerLeft);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxConstructor, upperRight, lowerLeft);
     }
 
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlBoxExtractHeight(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxExtractHeight, operand);
     }
 
@@ -101,7 +102,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlBoxExtractWidth(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxExtractWidth, operand);
     }
 
@@ -117,8 +118,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <returns></returns>
     public static SqlExpression NpgsqlCircleConstructor(SqlExpression center, SqlExpression radius)
     {
-      ArgumentValidator.EnsureArgumentNotNull(center, "center");
-      ArgumentValidator.EnsureArgumentNotNull(radius, "radius");
+      ArgumentNullException.ThrowIfNull(center);
+      ArgumentNullException.ThrowIfNull(radius);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleConstructor, center, radius);
     }
 
@@ -128,7 +129,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlCircleExtractCenter(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleExtractCenter, operand);
     }
 
@@ -138,7 +139,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleExtractRadius, operand);
     }
 
@@ -153,8 +154,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <param name="end">An <see cref="SqlExpression"/> for the "point'(x2,y2)'" representing ending point of the segment.</param>
     public static SqlExpression NpgsqlLSegConstructor(SqlExpression start, SqlExpression end)
     {
-      ArgumentValidator.EnsureArgumentNotNull(start, "start");
-      ArgumentValidator.EnsureArgumentNotNull(end, "end");
+      ArgumentNullException.ThrowIfNull(start);
+      ArgumentNullException.ThrowIfNull(end);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlLSegConstructor, start, end);
     }
 
@@ -168,7 +169,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPathAndPolygonCount(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonCount, operand);
     }
 
@@ -178,7 +179,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPathAndPolygonOpen(SqlExpression operand)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonOpen, operand);
     }
 
@@ -188,8 +189,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// </summary>
     public static SqlExpression NpgsqlPathAndPolygonContains(SqlExpression operand, SqlExpression point)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      ArgumentValidator.EnsureArgumentNotNull(point, "point");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(point);
       return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonContains, operand, point);
     }
 

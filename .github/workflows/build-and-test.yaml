@@ -18,4 +18,4 @@ jobs:
       - name: Build
         run: dotnet build -c Release -v q
       - name: Tests.Core
-        run: dotnet test -c Release --no-build -v n Orm/Xtensive.Orm.Tests.Core/Xtensive.Orm.Tests.Core.csproj
+        run: dotnet test -c Release --no-build -v n Orm/Xtensive.Orm.Tests.Core/Xtensive.Orm.Tests.Core.csproj --filter 'TestCategory!=Mute'

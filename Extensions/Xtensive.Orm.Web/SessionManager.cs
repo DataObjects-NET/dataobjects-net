@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Web
       {
         if (sessionProvider != null)
           throw Exceptions.AlreadyInitialized("SessionProvider");
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         sessionProvider = value;
       }
     }

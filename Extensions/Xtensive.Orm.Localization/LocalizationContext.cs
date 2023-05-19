@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Localization
     /// <exception cref="ArgumentNullException"/>
     public LocalizationContext(CultureInfo culture, LocalizationPolicy policy)
     {
-      ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
+      ArgumentNullException.ThrowIfNull(culture);
       Culture = culture;
       CultureName = culture.Name;
       Policy = policy;

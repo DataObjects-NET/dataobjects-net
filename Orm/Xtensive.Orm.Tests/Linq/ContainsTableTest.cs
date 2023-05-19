@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -101,6 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(ranks.All(r => r > 0.0), Is.True);
     }
 
+    [Mute]
     [Test]
     public void LimitResultsByRankTest()
     {

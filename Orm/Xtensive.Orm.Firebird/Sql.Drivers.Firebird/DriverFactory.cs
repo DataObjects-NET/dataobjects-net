@@ -81,8 +81,8 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override string BuildConnectionString(UrlInfo connectionUrl)
     {
       SqlHelper.ValidateConnectionUrl(connectionUrl);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl.Resource, "connectionUrl.Resource");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl.Host, "connectionUrl.Host");
+      ArgumentException.ThrowIfNullOrEmpty(connectionUrl.Resource);
+      ArgumentException.ThrowIfNullOrEmpty(connectionUrl.Host);
 
       var builder = new FbConnectionStringBuilder();
 

@@ -94,9 +94,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
 
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(catalogName, nameof(catalogName));
-      ArgumentValidator.EnsureArgumentNotNull(schemaNames, nameof(schemaNames));
-
+      ArgumentException.ThrowIfNullOrEmpty(catalogName);
+      ArgumentNullException.ThrowIfNull(schemaNames);
+      
       var targetSchema = schemaNames.Length > 0 ? schemaNames[0] : null;
       var catalog = new Catalog(catalogName);
       ExtractSchemas(catalog, targetSchema);
@@ -107,8 +107,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
     public override async Task<Catalog> ExtractSchemesAsync(
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(catalogName, nameof(catalogName));
-      ArgumentValidator.EnsureArgumentNotNull(schemaNames, nameof(schemaNames));
+      ArgumentException.ThrowIfNullOrEmpty(catalogName);
+      ArgumentNullException.ThrowIfNull(schemaNames);
 
       var targetSchema = schemaNames.Length > 0 ? schemaNames[0] : null;
       var catalog = new Catalog(catalogName);

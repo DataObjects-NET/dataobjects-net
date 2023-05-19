@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(url.Resource, "url.Resource");
+      ArgumentException.ThrowIfNullOrEmpty(url.Resource);
 
       var builder = new OracleConnectionStringBuilder();
 
