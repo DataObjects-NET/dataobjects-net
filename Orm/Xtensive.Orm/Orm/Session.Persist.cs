@@ -357,9 +357,10 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      var itemsToProcess = EntitySetChangeRegistry.GetItems();
-      foreach (var entitySet in itemsToProcess)
-        action.Invoke(entitySet);
+      if (EntitySetChangeRegistry is not null) {
+        foreach (var entitySet in EntitySetChangeRegistry.GetItems())
+          action.Invoke(entitySet);
+      }
     }
   }
 }

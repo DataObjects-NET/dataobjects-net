@@ -311,8 +311,8 @@ namespace Xtensive.Orm
             if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
-              NonPairedReferencesRegistry.Clear();
-              EntitySetChangeRegistry.Clear();
+              NonPairedReferencesRegistry?.Clear();
+              EntitySetChangeRegistry?.Clear();
             }
             persistingIsFailed = false;
           }
@@ -414,12 +414,18 @@ namespace Xtensive.Orm
 
     private void ClearChangeRegistry()
     {
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+      if (EntityChangeRegistry is null) {
+        return;
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New)) {
         item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
         item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed)) {
         item.PersistenceState = PersistenceState.Synchronized;
+      }
       EntityChangeRegistry.Clear();
     }
 

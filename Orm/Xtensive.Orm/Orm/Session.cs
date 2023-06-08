@@ -89,6 +89,7 @@ namespace Xtensive.Orm
     private readonly Pinner pinner;
 
     private int? commandTimeout;
+    private volatile int isDisposing; // To prevent double-disposing
     private volatile bool isDisposed;
 
     /// <summary>
@@ -121,22 +122,22 @@ namespace Xtensive.Orm
     {
       get {
         return Configuration.Supports(SessionOptions.NonTransactionalEntityStates) &&
-          !Configuration.Supports(SessionOptions.AutoSaveChanges);
+               !Configuration.Supports(SessionOptions.AutoSaveChanges);
       }
     }
 
     /// <summary>
     /// Indicates whether instance is disposed.
     /// </summary>
-    public bool IsDisposed
-    {
-      get => isDisposed;
-    }
+    public bool IsDisposed => isDisposed;
 
     /// <summary>
     /// Indicates whether lazy generation of keys is enabled.
     /// </summary>
-    internal bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
+    internal bool LazyKeyGenerationIsEnabled
+    {
+      get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); }
+    }
 
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
@@ -262,7 +263,8 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
-    internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
+    internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext,
+      CancellationToken token)
     {
       await PersistAsync(PersistReason.Query, token).ConfigureAwait(false);
       _ = await ProcessUserDefinedDelayedQueriesAsync(true, token).ConfigureAwait(false);
@@ -282,7 +284,8 @@ namespace Xtensive.Orm
       if (currentSession.Transaction == null || (allowSwitching && currentSession.allowSwitching)) {
         return;
       }
-      throw new InvalidOperationException(string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
+      throw new InvalidOperationException(
+        string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
     }
 
     private EnumerationContextOptions GetEnumerationContextOptions()
@@ -307,7 +310,7 @@ namespace Xtensive.Orm
 
     private IServiceContainer CreateSystemServices()
     {
-      var registrations = new List<ServiceRegistration>{
+      var registrations = new List<ServiceRegistration> {
         new ServiceRegistration(typeofSession, this),
         new ServiceRegistration(typeofSessionConfiguration, Configuration),
         new ServiceRegistration(typeofSessionHandler, Handler),
@@ -620,7 +623,7 @@ namespace Xtensive.Orm
 
     private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (isDisposed) {
+      if (Interlocked.Exchange(ref isDisposing, 1) == 1) {
         return;
       }
 
@@ -645,14 +648,14 @@ namespace Xtensive.Orm
 
         Domain.ReleaseSingleConnection();
 
-        disposableSet.DisposeSafely();
+        disposableSet?.DisposeSafely();
         disposableSet = null;
 
-        EntityChangeRegistry.Clear();
-        EntitySetChangeRegistry.Clear();
-        EntityStateCache.Clear();
-        ReferenceFieldsChangesRegistry.Clear();
-        NonPairedReferencesRegistry.Clear();
+        EntityChangeRegistry = null;
+        EntitySetChangeRegistry = null;
+        EntityStateCache = null;
+        ReferenceFieldsChangesRegistry = null;
+        NonPairedReferencesRegistry = null;
         Extensions.Clear();
       }
       finally {
