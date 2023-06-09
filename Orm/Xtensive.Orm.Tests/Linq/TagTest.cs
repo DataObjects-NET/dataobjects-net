@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -291,6 +289,36 @@ namespace Xtensive.Orm.Tests.Linq
 
         Assert.IsTrue(CursorCutter(queryString).StartsWith("/*superCoolTag sessionTag evenCoolerTag*/"));
         Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+    
+    [Test]
+    public void TagInSubquery_ShouldNotAffectResult()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var author1 = new Author();
+        author1.Books.Add(new Book() { Name = "something" });
+        author1.Books.Add(new Book() { Name = "something1" });
+
+        var author2 = new Author();
+        author2.Books.Add(new Book() { Name = "something2" });
+
+        tx.Complete();
+      }
+
+      using (var session1 = Domain.OpenSession())
+      using (var tx = session1.OpenTransaction()) {
+        var authors = session1.Query.All<Author>()
+          .Where(author => author.Books.Any(book => book.Name.Equals("something")))
+          .ToArray();
+        
+        var authorsExecutedWithTag = session1.Query.All<Author>()
+          .Where(author => author.Books.Tag("sample tag").Any(book => book.Name.Equals("something")))
+          .ToArray();
+
+        Assert.AreEqual(authors.Length, 1);
+        Assert.AreEqual(authorsExecutedWithTag.Length, 1);
       }
     }
 
