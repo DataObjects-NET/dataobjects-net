@@ -276,8 +276,11 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression visitedSource;
       if (visitedSourceRaw.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
-        var entitySetQuery =
-          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        var entitySetQuery = source is MemberExpression { Expression: { } } memberExpression 
+                             && context.Model.Types.TryGetValue(memberExpression.Expression.Type, out _)
+          ? QueryHelper.CreateEntitySetQuery(memberExpression.Expression, entitySetExpression.Field)
+          : QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        
         visitedSource = (ProjectionExpression) Visit(entitySetQuery);
       }
       else {
