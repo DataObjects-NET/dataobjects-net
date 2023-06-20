@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Upgrade
 
     private sealed class Descriptor : IPersistDescriptor
     {
-      public Lazy<PersistRequest> LazyStoreRequest { get; set; }
-      public Lazy<PersistRequest> ClearRequest { get; set; }
+      public PersistRequest StoreRequest { get; set; }
+      public PersistRequest ClearRequest { get; set; }
     }
 
     private readonly StorageDriver driver;
@@ -101,11 +101,13 @@ namespace Xtensive.Orm.Upgrade
 
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
+      var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
       for (int i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
-        insert.Values.SetValueByColumn(tableRef.Columns[i], binding.ParameterReference);
+        row.Add(tableRef.Columns[i], binding.ParameterReference);
         bindings[i] = binding;
       }
+      insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
       if (deleteTransform!=null)
@@ -118,8 +120,8 @@ namespace Xtensive.Orm.Upgrade
       clearRequest.Prepare();
 
       return new Descriptor {
-        LazyStoreRequest = new Lazy<PersistRequest>(storeRequest),
-        ClearRequest = new Lazy<PersistRequest>(clearRequest)
+        StoreRequest = storeRequest,
+        ClearRequest = clearRequest
       };
     }
 

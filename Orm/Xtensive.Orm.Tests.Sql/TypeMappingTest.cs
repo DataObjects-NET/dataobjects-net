@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.08
 
@@ -46,41 +46,44 @@ namespace Xtensive.Orm.Tests.Sql
       var table = schema.CreateTable(TableName);
       var idColumnType = Driver.TypeMappings[typeof (int)].MapType();
       var idColumn = table.CreateColumn(IdColumnName, idColumnType);
-      table.CreatePrimaryKey("PK_" + TableName, idColumn);
+      _ = table.CreatePrimaryKey("PK_" + TableName, idColumn);
       for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
         var mapping = typeMappings[columnIndex];
         var column = table.CreateColumn(GetColumnName(columnIndex), mapping.MapType());
         column.IsNullable = true;
       }
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
       var tableRef = SqlDml.TableRef(table);
       using (var insertCommand = Connection.CreateCommand()) {
         var insertQuery = SqlDml.Insert(tableRef);
         var idParameter = insertCommand.CreateParameter();
         idParameter.DbType = DbType.Int32;
         idParameter.ParameterName = IdParameterName;
-        insertCommand.Parameters.Add(idParameter);
-        insertQuery.Values.Add(tableRef[IdColumnName], SqlDml.ParameterRef(IdParameterName));
+        _ = insertCommand.Parameters.Add(idParameter);
+
+        var row = new Dictionary<SqlColumn, SqlExpression>(typeMappings.Length + 1);
+        row.Add(tableRef[IdColumnName], SqlDml.ParameterRef(IdParameterName));
         var parameters = new List<DbParameter>();
-        for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
+        for (var columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
           var mapping = typeMappings[columnIndex];
           var parameterName = GetParameterName(columnIndex);
-          SqlExpression parameterExpression = SqlDml.ParameterRef(parameterName);
+          var parameterExpression = (SqlExpression) SqlDml.ParameterRef(parameterName);
           if (mapping.ParameterCastRequired)
             parameterExpression = SqlDml.Cast(parameterExpression, mapping.MapType());
-          insertQuery.Values.Add(tableRef[GetColumnName(columnIndex)], parameterExpression);
+          row.Add(tableRef[GetColumnName(columnIndex)], parameterExpression);
           var parameter = insertCommand.CreateParameter();
           parameter.ParameterName = parameterName;
           parameters.Add(parameter);
-          insertCommand.Parameters.Add(parameter);
+          _ = insertCommand.Parameters.Add(parameter);
         }
+        insertQuery.ValueRows.Add(row);
         var insertQueryText = Driver.Compile(insertQuery).GetCommandText();
         insertCommand.CommandText = insertQueryText;
-        for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
+        for (var rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
           idParameter.Value = rowIndex;
-          for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++)
+          for (var columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++)
             typeMappings[columnIndex].BindValue(parameters[columnIndex], testValues[columnIndex][rowIndex]);
-          insertCommand.ExecuteNonQuery();
+          _ = insertCommand.ExecuteNonQuery();
         }
       }
       var resultQuery = SqlDml.Select(tableRef);

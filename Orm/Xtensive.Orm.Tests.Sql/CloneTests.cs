@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using NUnit.Framework;
 using System;
@@ -598,18 +598,19 @@ namespace Xtensive.Orm.Tests.Sql
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlInsert i = SqlDml.Insert(t);
-      i.Values.SetValueByColumn(t[0], 1);
-      i.Values.SetValueByColumn(t[1], "Anonym");
+      i.AddValueRow(( t[0], 1 ), ( t[1], "Anonym" ));
       i.Hints.Add(SqlDml.FastFirstRowsHint(10));
       SqlInsert iClone = (SqlInsert)i.Clone();
 
       Assert.AreNotEqual(i, iClone);
       Assert.AreNotEqual(i.Into, iClone.Into);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
-      Assert.AreEqual(i.Values.Count, iClone.Values.Count);
-      foreach (var column in i.Values.Columns) {
-        Assert.IsFalse(iClone.Values.ContainsColumn(column));
-        Assert.IsFalse(i.Values.ValuesByColumn(column).Any(v => iClone.Values.ContainsValue(v)));
+      Assert.AreEqual(i.ValueRows.Count, iClone.ValueRows.Count);
+      Assert.AreEqual(i.ValueRows.Columns.Count, iClone.ValueRows.Columns.Count);
+      for(var indx = 0; indx < i.ValueRows.Count; indx++) {
+        var iRow = i.ValueRows[indx];
+        var iClonedRow = iClone.ValueRows[indx];
+        Assert.IsFalse(iRow.SequenceEqual(iClonedRow));
       }
       Assert.AreEqual(i.Hints.Count, iClone.Hints.Count);
     }

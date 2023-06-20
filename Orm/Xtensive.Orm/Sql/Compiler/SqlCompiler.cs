@@ -1254,7 +1254,7 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsEntry);
-        var columns = node.Values.Columns;
+        var columns = node.ValueRows.Columns;
         if (columns.Count > 0) {
           using (context.EnterCollectionScope()) {
             foreach (var item in columns) {
@@ -1265,7 +1265,7 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsExit);
-        if (node.Values.Columns.Count == 0 && node.From == null) {
+        if (node.ValueRows.Count == 0 && node.From == null) {
           AppendTranslated(node, InsertSection.DefaultValues);
         }
         else {
@@ -1276,22 +1276,14 @@ namespace Xtensive.Sql.Compiler
           }
           else {
             AppendTranslated(node, InsertSection.ValuesEntry);
-            var rowCount = node.Values.ValuesByColumn(columns.First()).Count;
-            for (int i = 0; i < rowCount; i++) {
-              if (i > 0) {
-                translator.Translate(context, node, InsertSection.NewRow);
+            bool firstRow = true;
+            foreach (var row in node.ValueRows) {
+              if (!firstRow) {
+                _ = context.Output.Append(translator.ColumnDelimiter);
+                AppendSpaceIfNecessary();
               }
-              using var _ = context.EnterCollectionScope();
-              bool firstColumn = true;
-              foreach (var column in columns) {
-                if (!firstColumn) {
-                  var __ = context.Output.Append(translator.ColumnDelimiter);
-                  AppendSpaceIfNecessary();
-                }
-                firstColumn = false;
-                var item = node.Values.ValuesByColumn(column)[i];
-                item.AcceptVisitor(this);
-              }
+              firstRow = false;
+              row.AcceptVisitor(this);
             }
             AppendTranslated(node, InsertSection.ValuesExit);
           }

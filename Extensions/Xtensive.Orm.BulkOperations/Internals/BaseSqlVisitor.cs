@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -318,10 +319,11 @@ namespace Xtensive.Orm.BulkOperations
     {
       VisitInternal(node.From);
       VisitInternal(node.Into);
-      foreach (var column in node.Values.Columns) {
-        VisitInternal(column);
-        foreach (var value in node.Values.ValuesByColumn(column)) {
-          VisitInternal(value);
+      
+      foreach(var row in node.ValueRows) {
+        foreach(var columnvalue in row.Zip(node.ValueRows.Columns)) {
+          VisitInternal(columnvalue.Second);
+          VisitInternal(columnvalue.First);
         }
       }
     }

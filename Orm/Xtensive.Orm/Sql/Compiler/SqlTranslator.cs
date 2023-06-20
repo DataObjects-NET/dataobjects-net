@@ -1399,26 +1399,26 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Columns.Count > 0:
+        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Columns.Count > 0:
+        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
           _ = output.Append("FROM");
           break;
-        case InsertSection.ValuesEntry:
+        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
           _ = output.AppendOpeningPunctuation("VALUES (");
           break;
-        case InsertSection.ValuesExit:
+        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
+          _ = output.AppendOpeningPunctuation("VALUES ");
+          break;
+        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
           _ = output.Append(")");
           break;
         case InsertSection.DefaultValues:
           _ = output.Append("DEFAULT VALUES");
-          break;
-        case InsertSection.NewRow:
-          _ = output.Append("), (");
           break;
       }
     }

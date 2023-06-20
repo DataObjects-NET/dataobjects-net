@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2003-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -39,24 +39,29 @@ namespace Xtensive.Orm.Providers
     public string DropStatement { get; set; }
 
     /// <summary>
-    /// Gets or sets the persist request used to store batched data in temporary table.
-    /// </summary>
-    public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; set; }
-
-    /// <summary>
-    /// Gets or sets the persist request used to store batched data in temporary table.
-    /// </summary>
-    public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; set; }
-
-    /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> LazyStoreRequest { get; set; }
+    public Lazy<PersistRequest> StoreSingleRecordRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> StoreSmallBatchRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> StoreBigBatchRequest { get; set; }
+
+    /// <summary>
+    /// Gets the persist request used to store data in temporary table.
+    /// </summary>
+    PersistRequest IPersistDescriptor.StoreRequest => StoreSingleRecordRequest.Value;
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public Lazy<PersistRequest> ClearRequest { get; set; }
+    public PersistRequest ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.

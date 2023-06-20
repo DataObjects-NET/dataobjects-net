@@ -5,6 +5,7 @@
 // Created:    2012.03.07
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
@@ -87,7 +88,7 @@ namespace Xtensive.Orm.Providers
 
       if (!hasInsertDefaultValues) {
         var fakeColumn = GetColumn(table, WellKnown.GeneratorFakeColumnName);
-        insert.Values.SetValueByColumn(tableRef[fakeColumn.Name], SqlDml.Null);
+        insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef[fakeColumn.Name], SqlDml.Null } });
       }
 
       var result = SqlDml.Batch();

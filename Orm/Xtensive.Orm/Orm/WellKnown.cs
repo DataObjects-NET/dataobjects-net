@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -89,9 +89,28 @@ namespace Xtensive.Orm
     /// </summary>
     public const int MaxGenericKeyLength = 4;
 
-    public const int MultiRowInsertLevel1BatchSize = 16;
+    /// <summary>
+    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    [Obsolete("Use DefaultNumberOfConditions")]
+    public const int MaxNumberOfConditions = 256;
 
-    public const int MultiRowInsertLevel2BatchSize = 256;
+    /// <summary>
+    /// Default value of maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    public const int DefaultMaxNumberOfConditions = 256;
+
+    /// <summary>
+    /// Number of rows in small multi-row INSERT.
+    /// </summary>
+    public const int MultiRowInsertSmallBatchSize = 16;
+
+    /// <summary>
+    /// Number of rows in big multi-row INSERT.
+    /// </summary>
+    public const int MultiRowInsertBigBatchSize = DefaultMaxNumberOfConditions;
 
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.

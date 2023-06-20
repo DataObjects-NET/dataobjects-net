@@ -467,28 +467,28 @@ namespace Xtensive.Core
     }
 
 #if !NET6_0_OR_GREATER
-        internal static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
-        {
-            using var enumerator = enumerable.GetEnumerator();
-            while (enumerator.MoveNext()) {
-                var chunk = new T[chunkSize];
-                chunk[0] = enumerator.Current;
+    internal static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
+    {
+      using var enumerator = enumerable.GetEnumerator();
+      while (enumerator.MoveNext()) {
+        var chunk = new T[chunkSize];
+        chunk[0] = enumerator.Current;
 
-                var i = 1;
-                for (; i < chunk.Length && enumerator.MoveNext(); i++) {
-                    chunk[i] = enumerator.Current;
-                }
-
-                if (i == chunk.Length) {
-                    yield return chunk;
-                }
-                else {
-                    Array.Resize(ref chunk, i);
-                    yield return chunk;
-                    yield break;
-                }
-            }
+        var i = 1;
+        for (; i < chunk.Length && enumerator.MoveNext(); i++) {
+          chunk[i] = enumerator.Current;
         }
+
+        if (i == chunk.Length) {
+          yield return chunk;
+        }
+        else {
+          Array.Resize(ref chunk, i);
+          yield return chunk;
+          yield break;
+        }
+      }
+    }
 #endif
 
     /// <summary>

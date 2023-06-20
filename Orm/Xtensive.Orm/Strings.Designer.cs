@@ -2832,6 +2832,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included)..
+        /// </summary>
+        internal static string ExMaxNumberOfConditionsShouldBeBetweenXAndY {
+            get {
+                return ResourceManager.GetString("ExMaxNumberOfConditionsShouldBeBetweenXAndY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Measurement is already completed..
         /// </summary>
         internal static string ExMeasurementIsAlreadyCompleted {

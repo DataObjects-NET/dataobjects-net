@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,6 +15,7 @@ using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
 using System.Linq;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
@@ -2703,9 +2704,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       var insert = SqlDml.Insert(unitMeasure);
-      insert.Values.SetValueByColumn(unitMeasure[0], "F2");
-      insert.Values.SetValueByColumn(unitMeasure[1], "Square Feet");
-      insert.Values.SetValueByColumn(unitMeasure[2], SqlDml.CurrentDate());
+      insert.AddValueRow(
+        (unitMeasure[0], "F2"),
+        (unitMeasure[1], "Square Feet"),
+        (unitMeasure[2], SqlDml.CurrentDate())
+      );
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
     }

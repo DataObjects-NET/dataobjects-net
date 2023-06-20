@@ -320,9 +320,9 @@ namespace Xtensive.Orm.Providers
       if (node.Into != null) {
         Visit(node.Into);
       }
-      foreach (var value in node.Values.Columns.SelectMany(column => node.Values.ValuesByColumn(column))) {
+      foreach (var value in node.ValueRows.SelectMany(row => row)) {
         Visit(value);
-      }        
+      }
     }
 
     public void Visit(SqlJoinExpression node)

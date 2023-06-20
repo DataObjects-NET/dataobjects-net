@@ -144,6 +144,7 @@ namespace Xtensive.Orm.Configuration
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
+    private int maxNumberOfConditons = WellKnown.DefaultMaxNumberOfConditions;
     private Type serviceContainerType;
     private string forcedServerVersion = string.Empty;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
@@ -631,6 +632,31 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Maximam number of filtering values in IN clause which are
+    /// to be placed inside a resulted SQL command (as boolean predicate).
+    /// Affects only <see cref="QueryableExtensions.In{T}(T, T[])"/> group of methods with 
+    /// <see cref="IncludeAlgorithm.Auto"/>. If collection of parameters has more items
+    /// than this parameter allows then temporary table will be used to store values.
+    /// Default value is <see cref="WellKnown.DefaultMaxNumberOfConditions"/>
+    /// </summary>
+    /// <remarks>
+    /// Some RDBMSs may have limitations for number of values in IN clause or for
+    /// overall number of parameters of SQL command. Increasing of this paramter may
+    /// cause you less IN clauses within one SQL command for the RDBMSs that limits overall
+    /// parameters count and decreasing it may allow you to have more of them, but it also changes
+    /// limit when temproary table will be chosen to store items.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Current value is not in allowed range of values.</exception>
+    public int MaxNumberOfConditions
+    {
+      get => maxNumberOfConditons;
+      set {
+        EnsureNotLocked();
+        maxNumberOfConditons = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase => isMultidatabase ?? GetIsMultidatabase();
@@ -639,12 +665,6 @@ namespace Xtensive.Orm.Configuration
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
     public bool IsMultischema => isMultischema ?? GetIsMultischema();
-
-    /// <summary>
-    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
-    /// which are to be placed inside a resulted SQL command (as boolean predicate).
-    /// </summary>
-    public int MaxNumberOfConditions { get; set; } = 256;
 
     private bool GetIsMultidatabase()
     {
@@ -711,6 +731,13 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    private void ValidateMaxNumberOfConditions()
+    {
+      if (MaxNumberOfConditions < 2 || MaxNumberOfConditions > 999) {
+        throw new InvalidOperationException(string.Format(Strings.ExMaxNumberOfConditionsShouldBeBetweenXAndY, 2, 999));
+      }
+    }
+
     /// <inheritdoc/>
     protected override ConfigurationBase CreateClone() => new DomainConfiguration();
 
@@ -759,6 +786,7 @@ namespace Xtensive.Orm.Configuration
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
+      maxNumberOfConditons = configuration.MaxNumberOfConditions;
     }
 
     /// <summary>

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Tuples;
@@ -32,7 +33,8 @@ namespace Xtensive.Orm.Providers
     public readonly Tuple Tuple;
 
     /// <summary>
-    /// A tuples that store changed column values for multi-record INSERT
+    /// A tuples that store changed column values for multi-record INSERT.
+    /// <see cref="Tuple"/> should remain <see langword="null" />
     /// </summary>
     public readonly IReadOnlyList<Tuple> Tuples;
 
@@ -51,7 +53,6 @@ namespace Xtensive.Orm.Providers
     {
       processor.ProcessTask(this, context);
     }
-
 
     // Constructors
 

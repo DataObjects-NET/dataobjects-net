@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Providers
     private static readonly string[] ColumnNames1 = new[] { string.Format(ColumnNamePattern, 0) };
 
     private TemporaryTableBackEnd backEnd;
+    private bool useTruncate;
 
     /// <summary>
     /// Gets value indicating whether temporary tables are supported.
@@ -83,33 +84,36 @@ namespace Xtensive.Orm.Providers
       var queryStatement = MakeUpSelectQuery(tableRef, hasColumns);
 
       // insert statements
-
+      var storeRequestBindings = new List<PersistParameterBinding>();
+      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns);
 
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
         QueryStatement = queryStatement,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
-        LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
-        LazyStoreRequest = CreateLazyPersistRequest(1),
-        ClearRequest = new Lazy<PersistRequest>(() => {
-          var request = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null);
-          request.Prepare();
-          return request;
-        })
+
+        StoreSingleRecordRequest = CreateLazyPersistRequest(1),
+        StoreSmallBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertSmallBatchSize),
+        StoreBigBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertBigBatchSize),
+
+        ClearRequest = new PersistRequest(Handlers.StorageDriver, useTruncate ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null),
       };
+
+      result.ClearRequest.Prepare();
 
       return result;
 
-      Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize) =>
-        new Lazy<PersistRequest>(() => {
+      Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize)
+      {
+        return new Lazy<PersistRequest>(() => {
           var bindings = new List<PersistParameterBinding>(batchSize);
           var statement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
           var persistRequest = new PersistRequest(driver, statement, bindings);
           persistRequest.Prepare();
           return persistRequest;
         });
+      }
     }
 
     /// <summary>
@@ -144,7 +148,7 @@ namespace Xtensive.Orm.Providers
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
       var executor = context.Session.Services.Demand<ISqlExecutor>();
-      executor.ExecuteNonQuery(statement);
+      _ = executor.ExecuteNonQuery(statement);
     }
 
     private static TemporaryTableStateRegistry GetRegistry(Session session)
@@ -186,8 +190,9 @@ namespace Xtensive.Orm.Providers
           fieldIndex++;
         }
       }
-      else
-        table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+      else {
+        _ = table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+      }
 
       return table;
     }
@@ -202,25 +207,26 @@ namespace Xtensive.Orm.Providers
       return queryStatement;
     }
 
-    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable, TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
+    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable,
+      TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
     {
       var insertStatement = SqlDml.Insert(temporaryTable);
-      if (hasColumns) {
-        var paramIndex = 0;
-        for (int i = 0; i < rows; ++i) {
-          var fieldIndex = 0;
-          foreach (var column in temporaryTable.Columns) {
-            TypeMapping typeMapping = typeMappings[fieldIndex];
-            var binding = new PersistParameterBinding(typeMapping, paramIndex);
-            insertStatement.Values.Add(column, binding.ParameterReference);
-            storeRequestBindings.Add(binding);
-            fieldIndex++;
-            paramIndex++;
-          }
-        }
+      if (!hasColumns) {
+        insertStatement.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { temporaryTable.Columns[0], SqlDml.Literal(0) } });
+        return insertStatement;
       }
-      else {
-        insertStatement.Values.SetValueByColumn(temporaryTable.Columns[0], SqlDml.Literal(0));
+
+      for (var rowIndex = 0; rowIndex < rows; ++rowIndex) {
+        var fieldIndex = 0;
+        var row = new Dictionary<SqlColumn, SqlExpression>(temporaryTable.Columns.Count);
+        foreach (var column in temporaryTable.Columns) {
+          var typeMapping = typeMappings[fieldIndex];
+          var binding = new PersistParameterBinding(typeMapping, rowIndex, fieldIndex);
+          row.Add(column, binding.ParameterReference);
+          storeRequestBindings.Add(binding);
+          fieldIndex++;
+        }
+        insertStatement.ValueRows.Add(row);
       }
       return insertStatement;
     }
@@ -230,6 +236,7 @@ namespace Xtensive.Orm.Providers
     {
       var providerInfo = Handlers.ProviderInfo;
 
+      useTruncate = providerInfo.Supports(ProviderFeatures.TruncateTable);
       if (providerInfo.Supports(ProviderFeatures.TemporaryTables))
         backEnd = new RealTemporaryTableBackEnd();
       else if (providerInfo.Supports(ProviderFeatures.TemporaryTableEmulation))

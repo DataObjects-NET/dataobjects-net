@@ -1228,7 +1228,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = table.TableColumns[WellKnown.GeneratorFakeColumnName];
-        insert.Values.SetValueByColumn(tableRef[fakeColumn.Name], SqlDml.Null);
+        insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef[fakeColumn.Name], SqlDml.Null } });
       }
 
       var result = SqlDml.Batch();
