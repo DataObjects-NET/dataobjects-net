@@ -7,7 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Sql.Dml;
+using Xtensive.Sql.Dml;#endif
+172
+
 
 namespace Xtensive.Orm.Tests
 {
@@ -168,7 +170,6 @@ namespace Xtensive.Orm.Tests
       var newTicks = ticks - (ticks % divider.Value);
       return new TimeOnly(newTicks);
     }
-#endif
 
     public static void AddValueRow(this SqlInsert insert, in (SqlColumn column, SqlExpression value) first, params (SqlColumn column, SqlExpression value)[] additional)
     {
@@ -180,5 +181,6 @@ namespace Xtensive.Orm.Tests
       }
       insert.ValueRows.Add(row);
     }
+#endif
   }
 }
