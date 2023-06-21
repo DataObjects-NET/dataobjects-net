@@ -261,6 +261,24 @@ namespace Xtensive.Orm.Tests.Sql
           new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(3, 10, 0)),
           null
         };
+#if NET6_0_OR_GREATER
+      if (type == typeof(DateOnly)) {
+        return new object[] {
+            new DateOnly(2005, 5, 5),
+            new DateOnly(1998, 8, 8),
+            new DateOnly(1856, 4, 1),
+            null
+          };
+      }
+      if (type == typeof(TimeOnly)) {
+        return new object[] {
+            new TimeOnly(5, 5, 5),
+            new TimeOnly(8, 8, 8),
+            new TimeOnly(5, 6, 7),
+            null
+          };
+      }
+#endif
       throw new ArgumentOutOfRangeException();
     }
 

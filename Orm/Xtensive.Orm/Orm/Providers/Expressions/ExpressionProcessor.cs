@@ -219,10 +219,21 @@ namespace Xtensive.Orm.Providers
       if (dateTimeEmulation
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
-          && IsComparisonExpression(expression)
-          && (IsDateTimeExpression(expressionLeft) || IsDateTimeExpression(expressionRight))) {
-        left = SqlDml.Cast(left, SqlType.DateTime);
-        right = SqlDml.Cast(right, SqlType.DateTime);
+          && IsComparisonExpression(expression)) {
+        if (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right)) {
+          left = SqlDml.Cast(left, SqlType.DateTime);
+          right = SqlDml.Cast(right, SqlType.DateTime);
+        }
+#if NET6_0_OR_GREATER
+        else if (IsDateOnlyExpression(expression.Left) || IsDateOnlyExpression(expression.Right)) {
+          left = SqlDml.Cast(left, SqlType.Date);
+          right = SqlDml.Cast(right, SqlType.Date);
+        }
+        else if (IsTimeOnlyExpression(expression.Left) || IsDateOnlyExpression(expression.Right)) {
+          left = SqlDml.Cast(left, SqlType.Time);
+          right = SqlDml.Cast(right, SqlType.Time);
+        }
+#endif
       }
 
       //handle SQLite DateTimeOffset comparsion
@@ -365,6 +376,8 @@ namespace Xtensive.Orm.Providers
       }
       return SqlDml.LiteralOrContainer(expression.Value);
     }
+
+    protected override SqlExpression VisitDefault(DefaultExpression d) => throw new NotSupportedException();
 
     protected override SqlExpression VisitParameter(ParameterExpression expression)
     {

@@ -53,12 +53,96 @@ namespace Xtensive.Orm.Tests
     }
 
     /// <summary>
+    /// Cuts down resolution of <see cref="DateTime"/> value if needed, according to current <see cref="StorageProviderInfo.Instance"/>.
+    /// </summary>
+    /// <param name="origin">The value to adjust.</param>
+    /// <returns>New value with less resolution if the provider requires it, otherwise, untouched <paramref name="origin"/>.</returns>
+    public static DateTime AdjustDateTimeForCurrentProvider(this DateTime origin)
+    {
+      var provider = StorageProviderInfo.Instance;
+      return AdjustDateTimeForProvider(origin, provider);
+    }
+
+    /// <summary>
     /// Cuts down resolution of <see cref="DateTime"/> value if needed.
     /// </summary>
-    /// <param name="origin">The value to fix.</param>
-    /// <param name="provider">Type of provider.</param>
-    /// <returns>New value with less resolution if <paramref name="provider"/> requires it or untouched <paramref name="origin"/> if the provider doesn't</returns>
-    public static DateTime FixDateTimeForProvider(this DateTime origin, StorageProviderInfo providerInfo)
+    /// <param name="origin">The value to adjust.</param>
+    /// <param name="providerInfo">Type of provider.</param>
+    /// <returns>New value with less resolution if the provider requires it, otherwise, untouched <paramref name="origin"/>.</returns>
+    public static DateTime AdjustDateTimeForProvider(this DateTime origin, StorageProviderInfo providerInfo)
+    {
+      var provider = providerInfo.Provider;
+      switch (provider) {
+        case StorageProvider.MySql:
+          return providerInfo.Info.StorageVersion < StorageProviderVersion.MySql56
+            ? AdjustDateTime(origin, 0)
+            : AdjustDateTime(origin, 6);
+        case StorageProvider.Firebird:
+          return AdjustDateTime(origin, 4);
+        case StorageProvider.PostgreSql:
+          return AdjustDateTime(origin, 6);
+        case StorageProvider.Oracle:
+          return AdjustDateTime(origin, 7);
+        default:
+          return origin;
+      }
+    }
+
+    /// <summary>
+    /// Cuts down fractions of <see cref="DateTime"/> value (nanoseconds, milliseconds, etc) to desired value.
+    /// </summary>
+    /// <param name="origin"></param>
+    /// <param name="desiredFractions">Number of fractional points to keep (from 0 to 7).</param>
+    /// <param name="requireRound">Indicates whether value should be rounded after cutting off.</param>
+    /// <returns>Result value.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Valid fractions should be between 0 and 7 (7 included).</exception>
+    public static DateTime AdjustDateTime(this DateTime origin, byte desiredFractions, bool requireRound = false)
+    {
+      if (desiredFractions == 7) {
+        return origin;
+      }
+
+      const int baseDivider = 10_000_000; // no fractions
+      var currentDivider = baseDivider / (desiredFractions switch {
+        0 => 1,
+        1 => 10,
+        2 => 100,
+        3 => 1000,
+        4 => 10000,
+        5 => 100000,
+        6 => 1000000,
+        _ => throw new ArgumentOutOfRangeException(nameof(desiredFractions))
+      });
+
+      var ticks = origin.Ticks;
+
+      var newTicks = requireRound
+        ? ((ticks % currentDivider) / (currentDivider / 10)) >= 5
+          ? ticks - (ticks % currentDivider) + currentDivider
+          : ticks - (ticks % currentDivider)
+        : ticks - (ticks % currentDivider);
+      return new DateTime(newTicks);
+    }
+
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Cuts down resolution of <see cref="TimeOnly"/> value if needed, according to current <see cref="StorageProviderInfo.Instance"/>.
+    /// </summary>
+    /// <param name="origin">The value to adjust.</param>
+    /// <returns>New value with less resolution if the provider requires it, otherwise, untouched <paramref name="origin"/>.</returns>
+    public static TimeOnly AdjustTimeOnlyForCurrentProvider(this TimeOnly origin)
+    {
+      var provider = StorageProviderInfo.Instance;
+      return AdjustTimeOnlyForProvider(origin, provider);
+    }
+
+    /// <summary>
+    /// Cuts down resolution of <see cref="TimeOnly"/> value if needed.
+    /// </summary>
+    /// <param name="origin">The value to adjust.</param>
+    /// <param name="providerInfo">Type of provider.</param>
+    /// <returns>New value with less resolution if the provider requires it, otherwise, untouched <paramref name="origin"/>.</returns>
+    public static TimeOnly AdjustTimeOnlyForProvider(this TimeOnly origin, StorageProviderInfo providerInfo)
     {
       long? divider;
       var provider = providerInfo.Provider;
@@ -82,8 +166,9 @@ namespace Xtensive.Orm.Tests
       }
       var ticks = origin.Ticks;
       var newTicks = ticks - (ticks % divider.Value);
-      return new DateTime(newTicks);
+      return new TimeOnly(newTicks);
     }
+#endif
 
     public static void AddValueRow(this SqlInsert insert, in (SqlColumn column, SqlExpression value) first, params (SqlColumn column, SqlExpression value)[] additional)
     {

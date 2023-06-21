@@ -1186,7 +1186,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
             var argumentPosition = 0;
@@ -2088,12 +2088,20 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (node.DateTimePart!= SqlDateTimePart.Nothing) {
+        if (node.IsDateTimePart) {
           translator.Translate(context.Output, node.DateTimePart);
         }
-        else if (node.IntervalPart!= SqlIntervalPart.Nothing) {
+        else if (node.IsIntervalPart) {
           translator.Translate(context.Output, node.IntervalPart);
         }
+#if NET6_0_OR_GREATER
+        else if (node.IsDatePart) {
+          translator.Translate(context.Output, node.DatePart);
+        }
+        else if (node.IsTimePart) {
+          translator.Translate(context.Output, node.TimePart);
+        }
+#endif
         else {
           translator.Translate(context.Output, node.DateTimeOffsetPart);
         }

@@ -2390,7 +2390,7 @@ Error: {1}</value>
   <data name="ExDateTimeToStringMethodIsNotSupported" xml:space="preserve">
     <value>DateTime.ToString() method is not supported, use the DateTime.ToString("s").</value>
   </data>
-  <data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported" xml:space="preserve">
+  <data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
     <value>Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString("s").</value>
   </data>
   <data name="ExChainedBufferRemoveMethodIsNotSupported" xml:space="preserve">
@@ -2587,6 +2587,18 @@ Error: {1}</value>
   </data>
   <data name="ExUnableToActualizeSchemaNodeInQuery" xml:space="preserve">
     <value>Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided.</value>
+  </data>
+  <data name="ExDateOnlyToStringMethodIsNotSupported" xml:space="preserve">
+    <value>DateOnly.ToString() method is not supported, use the DateOnly.ToString("o").</value>
+  </data>
+  <data name="ExTimeOnlyToStringMethodIsNotSupported" xml:space="preserve">
+    <value>TimeOnly.ToString() method is not supported, use the TimeOnly.ToString("o").</value>
+  </data>
+  <data name="ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
+    <value>Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString("s").</value>
+  </data>
+  <data name="ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
+    <value>Translation of TimeOnly.ToString(string) with arbitrary arguments is not supported. Use TimeOnly.ToString("s").</value>
   </data>
   <data name="ExMaxNumberOfConditionsShouldBeBetweenXAndY" xml:space="preserve">
     <value>DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included).</value>
