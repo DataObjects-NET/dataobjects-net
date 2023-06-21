@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Sql.Dml;#endif
-172
+using Xtensive.Sql.Dml;
 
 
 namespace Xtensive.Orm.Tests
