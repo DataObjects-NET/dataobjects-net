@@ -254,10 +254,31 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    public virtual void TimeOnlyConstructTest()
+    public virtual void TimeOnlyConstructTest1()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.MySql);
+
       CheckEquality(
         SqlDml.TimeConstruct(DefaultTimeOnly.Hour, DefaultTimeOnly.Minute, DefaultTimeOnly.Second, DefaultTimeOnly.Millisecond),
+        DefaultTimeOnly);
+    }
+
+    [Test]
+    public virtual void TimeOnlyConstructTest2()
+    {
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.MySql);
+
+      var ticksPerHour = new TimeOnly(1, 0).Ticks;
+      var ticksPerMinute = new TimeOnly(0, 1).Ticks;
+      var ticksPerSecond = new TimeOnly(0, 0, 1).Ticks;
+      var ticksPerMillisecond = new TimeOnly(0, 0, 0, 1).Ticks;
+      var testTicks = ticksPerHour * DefaultTimeOnly.Hour +
+        ticksPerMinute * DefaultTimeOnly.Minute +
+        ticksPerSecond * DefaultTimeOnly.Second +
+        ticksPerMillisecond * DefaultTimeOnly.Millisecond;
+
+      CheckEquality(
+        SqlDml.TimeConstruct(testTicks),
         DefaultTimeOnly);
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2022 Xtensive LLC.
+// Copyright (C) 2017-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -209,8 +209,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
       var insertQuery = SqlDml.Insert(tableRef);
-      insertQuery.Values.Add(tableRef["Id"], 1);
-      insertQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+      insertQuery.AddValueRow((tableRef["Id"], 1), (tableRef["CreationDate"], DateTime.UtcNow));
 
       TestQueryNamesReadable(insertQuery, defaultSchema);
     }
@@ -223,8 +222,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
       var insertQuery = SqlDml.Insert(tableRef);
-      insertQuery.Values.Add(tableRef["Id"], 1);
-      insertQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+      insertQuery.AddValueRow((tableRef["Id"], 1), (tableRef["CreationDate"], DateTime.UtcNow));
 
       TestQueryNamesUnreadable(insertQuery, defaultSchema);
     }

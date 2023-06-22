@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       EntityInfo triggerInfo = new EntityInfo();
       triggerInfo.MaxIdentifierLength = MaxIdentifierLength;
-      triggerInfo.AllowedDdlStatements = DdlStatements.All;
+      triggerInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return triggerInfo;
     }
 
@@ -48,7 +48,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       EntityInfo procedureInfo = new EntityInfo();
       procedureInfo.MaxIdentifierLength = MaxIdentifierLength;
-      procedureInfo.AllowedDdlStatements = DdlStatements.All;
+      procedureInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return procedureInfo;
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       EntityInfo databaseInfo = new EntityInfo();
       databaseInfo.MaxIdentifierLength = MaxIdentifierLength;
-      databaseInfo.AllowedDdlStatements = DdlStatements.All;
+      databaseInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return databaseInfo;
     }
 
@@ -70,7 +70,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       ColumnInfo columnInfo = new ColumnInfo();
       columnInfo.MaxIdentifierLength = MaxIdentifierLength;
       columnInfo.Features = ColumnFeatures.Identity | ColumnFeatures.Computed;
-      columnInfo.AllowedDdlStatements = DdlStatements.All;
+      columnInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return columnInfo;
     }
 
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       EntityInfo viewInfo = new EntityInfo();
       viewInfo.MaxIdentifierLength = MaxIdentifierLength;
-      viewInfo.AllowedDdlStatements = DdlStatements.All;
+      viewInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return viewInfo;
     }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       EntityInfo schemaInfo = new EntityInfo();
       schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
-      schemaInfo.AllowedDdlStatements = DdlStatements.All;
+      schemaInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return schemaInfo;
     }
 
@@ -114,7 +114,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       checkConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
       checkConstraintInfo.MaxExpressionLength = 4000;
       checkConstraintInfo.Features = CheckConstraintFeatures.None;
-      checkConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+      checkConstraintInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return checkConstraintInfo;
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var primaryKeyInfo = new PrimaryKeyConstraintInfo();
       primaryKeyInfo.MaxIdentifierLength = MaxIdentifierLength;
       primaryKeyInfo.Features = PrimaryKeyConstraintFeatures.Clustered;
-      primaryKeyInfo.AllowedDdlStatements = DdlStatements.All;
+      primaryKeyInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return primaryKeyInfo;
     }
 
@@ -132,7 +132,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var uniqueConstraintInfo = new UniqueConstraintInfo();
       uniqueConstraintInfo.MaxIdentifierLength = MaxIdentifierLength;
       uniqueConstraintInfo.Features = UniqueConstraintFeatures.Clustered | UniqueConstraintFeatures.Nullable;
-      uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+      uniqueConstraintInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return uniqueConstraintInfo;
     }
 
@@ -142,7 +142,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       indexInfo.MaxIdentifierLength = MaxIdentifierLength;
       indexInfo.MaxNumberOfColumns = 16;
       indexInfo.MaxLength = 900;
-      indexInfo.AllowedDdlStatements = DdlStatements.All;
+      indexInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       indexInfo.Features =
         IndexFeatures.Clustered |
         IndexFeatures.FillFactor |
@@ -163,7 +163,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         ForeignKeyConstraintActions.Cascade |
         ForeignKeyConstraintActions.SetDefault |
         ForeignKeyConstraintActions.SetNull;
-      referenceConstraintInfo.AllowedDdlStatements = DdlStatements.All;
+      referenceConstraintInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return referenceConstraintInfo;
     }
 

@@ -502,7 +502,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             using (Session.Deactivate()) { // Prevents Session switching check error
               Assert.AreSame(null, Session.Current);
               foreach (var orderDetail in order.Details) {
-                Assert.AreSame(order.Details.Session, Session.Current);
+                Assert.AreSame(order.Details.Session, session);
                 Assert.AreSame(session, orderDetail.Session);
                 Assert.AreSame(session, orderDetail.Order.Session);
                 Assert.AreSame(order, orderDetail.Order);

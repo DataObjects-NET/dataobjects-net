@@ -1,10 +1,11 @@
-// Copyright (C) 2010-2021 Xtensive LLC.
+// Copyright (C) 2010-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -42,13 +43,8 @@ namespace Xtensive.Orm.Providers
       ParameterContext parameterContext)
     {
       Prepare();
-      foreach (var tuple in tuples) {
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      }
-
-      using (var context = new CommandProcessorContext(parameterContext)) {
-        commandProcessor.ExecuteTasks(context);
-      }
+      Store(descriptor, tuples);
+      Execute(parameterContext);
     }
 
     /// <inheritdoc/>
@@ -57,9 +53,7 @@ namespace Xtensive.Orm.Providers
     {
       await PrepareAsync(token).ConfigureAwait(false);
 
-      foreach (var tuple in tuples) {
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      }
+      Store(descriptor, tuples);
 
       using (var context = new CommandProcessorContext(parameterContext)) {
         await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
@@ -70,20 +64,53 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Clear(IPersistDescriptor descriptor, ParameterContext parameterContext)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      using (var context = new CommandProcessorContext(parameterContext))
-        commandProcessor.ExecuteTasks(context);
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
+      Execute(parameterContext);
     }
 
     /// <inheritdoc/>
     void IProviderExecutor.Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      foreach (var tuple in tuples)
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext(new ParameterContext()))
-        commandProcessor.ExecuteTasks(context);
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
+      Store(descriptor, tuples);
+      Execute(new ParameterContext());
+    }
+
+    private void Execute(ParameterContext parameterContext)
+    {
+      using var context = new CommandProcessorContext(parameterContext);
+      commandProcessor.ExecuteTasks(context);
+    }
+
+    private void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
+    {
+      if (descriptor is IMultiRecordPersistDescriptor mDescriptor) {
+        var level2Chunks = tuples.Chunk(WellKnown.MultiRowInsertBigBatchSize).ToList();
+        foreach (var level2Chunk in level2Chunks) {
+          if (level2Chunk.Length == WellKnown.MultiRowInsertBigBatchSize) {
+            commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreBigBatchRequest.Value, level2Chunk));
+          }
+          else {
+            var level1Chunks = level2Chunk.Chunk(WellKnown.MultiRowInsertSmallBatchSize).ToList();
+            foreach (var level1Chunk in level1Chunks) {
+              if (level1Chunk.Length == WellKnown.MultiRowInsertSmallBatchSize) {
+                commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreSmallBatchRequest.Value, level1Chunk));
+              }
+              else {
+                foreach (var tuple in level1Chunk) {
+                  commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreSingleRecordRequest.Value, tuple));
+                }
+              }
+            }
+          }
+        }
+      }
+      else {
+        foreach (var tuple in tuples) {
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+        }
+      }
     }
   }
 }

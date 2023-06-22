@@ -2600,4 +2600,7 @@ Error: {1}</value>
   <data name="ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
     <value>Translation of TimeOnly.ToString(string) with arbitrary arguments is not supported. Use TimeOnly.ToString("s").</value>
   </data>
+  <data name="ExMaxNumberOfConditionsShouldBeBetweenXAndY" xml:space="preserve">
+    <value>DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included).</value>
+  </data>
 </root>

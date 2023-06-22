@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Xtensive LLC.
+// Copyright (C) 2022-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -35,6 +35,10 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlTimePart.Millisecond, _this));
 
+    [Compiler(typeof(TimeOnly), "Ticks", TargetKind.PropertyGet)]
+    public static SqlExpression TimeSpanTicks(SqlExpression _this) =>
+      ExpressionTranslationHelpers.ToLong(SqlDml.TimeToNanoseconds(_this) / NanosecondsPerTick);
+
     #endregion
 
     #region Constructors
@@ -59,9 +63,9 @@ namespace Xtensive.Orm.Providers
         [Type(typeof(int))] SqlExpression minute) =>
       SqlDml.TimeConstruct(hour, minute, 0, 0);
 
-    //[Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    //public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-    //  new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
+    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
+    public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
+      SqlDml.TimeConstruct(ticks);
 
     #endregion
 
