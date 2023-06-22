@@ -54,7 +54,6 @@ namespace Xtensive.Orm.Providers
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
-        var tuple = task.Tuple;
         var compilationResult = request.GetCompiledStatement();
         var configuration = shareStorageNodesOverNodes
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
@@ -202,12 +201,18 @@ namespace Xtensive.Orm.Providers
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-      case PersistParameterBindingType.Regular:
-        return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-      case PersistParameterBindingType.VersionFilter:
-        return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
-      default:
-        throw new ArgumentOutOfRangeException("binding.Source");
+        case PersistParameterBindingType.Regular when task.Tuple!=null:
+          return task.Tuple.GetValueOrDefault(binding.FieldIndex);
+        case PersistParameterBindingType.Regular when task.Tuples!=null: {
+          //tupleSize = task.Tuples[0].Count;
+          //var columnIndex2 = binding.FieldIndex;
+          //tupleIndex = Math.DivRem(binding.FieldIndex, tupleSize, out var columnIndex1);
+          return task.Tuples[binding.RowIndex].GetValueOrDefault(binding.FieldIndex);
+        }
+        case PersistParameterBindingType.VersionFilter:
+          return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+        default:
+          throw new ArgumentOutOfRangeException("binding.Source");
       }
     }
 

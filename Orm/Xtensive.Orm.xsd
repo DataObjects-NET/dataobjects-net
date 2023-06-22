@@ -56,6 +56,8 @@
                   <xs:attribute name="connectionInitializationSql" type="xs:string" use="optional"/>
                   <xs:attribute name="shareStorageSchemaOverNodes" type="xs:boolean" default="false" use="optional"/>
                   <xs:attribute name="ensureConnectionIsAlive" type="xs:boolean" default="true" use="optional"/>
+                  <xs:attribute name="tagLocation" type="tagLocation" default="Default" use="optional"/>
+                  <xs:attribute name="maxNumberOfConditions" type="numberOfConditions" default="256" use="optional"/>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -205,6 +207,13 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="numberOfConditions">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="2"/>
+      <xs:maxExclusive value="999"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="sessionCacheType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Default"/>
@@ -304,12 +313,12 @@
   
   <xs:simpleType name="fullTextChangeTrackingMode">
     <xs:restriction base="xs:string">
-	  <xs:enumeration value="Auto"/>
+      <xs:enumeration value="Auto"/>
       <xs:enumeration value="Manual" />
       <xs:enumeration value="Off"/>
       <xs:enumeration value="OffWithNoPopulation"/>
       <xs:enumeration value="Default"/>
-	</xs:restriction>
+    </xs:restriction>
   </xs:simpleType>
 
   <xs:simpleType name="schemaSyncExceptionFormat">
@@ -325,6 +334,16 @@
       <xs:enumeration value="Optimistic"/>
       <xs:enumeration value="Pessimistic"/>
       <xs:enumeration value="Default"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="tagLocation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Nowhere" />
+      <xs:enumeration value="BeforeStatement" />
+      <xs:enumeration value="WithinStatement" />
+      <xs:enumeration value="AfterStatement" />
+      <xs:enumeration value="Default" />
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

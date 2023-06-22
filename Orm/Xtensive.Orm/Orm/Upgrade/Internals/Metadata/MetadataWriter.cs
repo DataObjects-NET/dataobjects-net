@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -101,11 +101,13 @@ namespace Xtensive.Orm.Upgrade
 
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
+      var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
       for (int i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
-        insert.Values[tableRef.Columns[i]] = binding.ParameterReference;
+        row.Add(tableRef.Columns[i], binding.ParameterReference);
         bindings[i] = binding;
       }
+      insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
       if (deleteTransform!=null)

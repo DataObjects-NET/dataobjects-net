@@ -108,6 +108,7 @@ namespace Xtensive.Sql
     Sum,
     Table,
     Trim,
+    Truncate,
     Union,
     Unique,
     Update,
