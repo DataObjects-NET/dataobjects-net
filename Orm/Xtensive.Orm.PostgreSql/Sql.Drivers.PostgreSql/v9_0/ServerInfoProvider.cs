@@ -10,6 +10,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class ServerInfoProvider : v8_4.ServerInfoProvider
   {
+    public override QueryInfo GetQueryInfo()
+    {
+      var queryInfo = base.GetQueryInfo();
+      queryInfo.MaxQueryParameterCount = 65535;
+      return queryInfo;
+    }
+
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)

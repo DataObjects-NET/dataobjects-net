@@ -201,14 +201,10 @@ namespace Xtensive.Orm.Providers
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-        case PersistParameterBindingType.Regular when task.Tuple!=null:
+        case PersistParameterBindingType.Regular when task.Tuple != null:
           return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-        case PersistParameterBindingType.Regular when task.Tuples!=null: {
-          //tupleSize = task.Tuples[0].Count;
-          //var columnIndex2 = binding.FieldIndex;
-          //tupleIndex = Math.DivRem(binding.FieldIndex, tupleSize, out var columnIndex1);
+        case PersistParameterBindingType.Regular when task.Tuples != null:
           return task.Tuples[binding.RowIndex].GetValueOrDefault(binding.FieldIndex);
-        }
         case PersistParameterBindingType.VersionFilter:
           return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
         default:
