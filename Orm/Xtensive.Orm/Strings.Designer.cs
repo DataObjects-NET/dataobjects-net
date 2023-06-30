@@ -3085,6 +3085,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Nested transaction cannot have timeout.
+        /// </summary>
+        internal static string ExNestedTransactionTimeout {
+            get {
+                return ResourceManager.GetString("ExNestedTransactionTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Comparer.Current is null..
         /// </summary>
         internal static string ExNoCurrentComparer {
@@ -4353,6 +4362,15 @@ namespace Xtensive {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to Transaction is longer than {0}.
+        /// </summary>
+        internal static string ExTransactionTimeout {
+            get {
+                return ResourceManager.GetString("ExTransactionTimeout", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString(&quot;s&quot;)..
         /// </summary>

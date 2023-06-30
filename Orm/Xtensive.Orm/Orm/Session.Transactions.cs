@@ -18,8 +18,6 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
-    private const string SavepointNameFormat = "s{0}";
-
     private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
     private int nextSavepoint;
 
@@ -407,10 +405,7 @@ namespace Xtensive.Orm
       throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
     }
 
-    private string GetNextSavepointName()
-    {
-      return string.Format(SavepointNameFormat, nextSavepoint++);
-    }
+    private string GetNextSavepointName() => $"s{nextSavepoint++}";
 
     private void ClearChangeRegistry()
     {
