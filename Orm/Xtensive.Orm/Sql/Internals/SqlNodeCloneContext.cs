@@ -10,6 +10,7 @@ namespace Xtensive.Sql
   internal readonly struct SqlNodeCloneContext
   {
     private readonly Dictionary<SqlNode, SqlNode> nodeMapping;
+    
     public Dictionary<SqlNode, SqlNode> NodeMapping => nodeMapping;
 
     public T TryGet<T>(T node) where T : SqlNode =>
