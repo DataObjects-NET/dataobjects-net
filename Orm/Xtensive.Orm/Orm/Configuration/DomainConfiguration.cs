@@ -692,6 +692,7 @@ namespace Xtensive.Orm.Configuration
       // because override sequence of Lock() is so broken.
       ValidateMappingConfiguration(multischema, multidatabase);
       ValidateIgnoreConfiguration();
+      ValidateMaxNumberOfConditions();
 
       types.Lock(true);
       sessions.Lock(true);

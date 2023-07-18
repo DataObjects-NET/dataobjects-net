@@ -40,13 +40,7 @@ namespace Xtensive.Sql.Dml
         SqlInsert clone = new SqlInsert();
         clone.Into = t.Into?.Clone(c);
         clone.From = t.From?.Clone(c);
-#pragma warning disable CS0618 // Type or member is obsolete
-        //remove cloning after changing code.
-        foreach (KeyValuePair<SqlColumn, SqlExpression> p in t.Values)
-          clone.Values[(SqlTableColumn) p.Key.Clone(c)] =
-            p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(c);
-#pragma warning restore CS0618 // Type or member is obsolete
-        clone.ValueRows = t.ValueRows.Clone(c);
+        clone.ValueRows = t.ValueRows.Clone(context);
 
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)

@@ -83,10 +83,6 @@ namespace Xtensive.Orm.Providers
       // select statement
       var queryStatement = MakeUpSelectQuery(tableRef, hasColumns);
 
-      // insert statements
-      var storeRequestBindings = new List<PersistParameterBinding>();
-      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns);
-
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
         QueryStatement = queryStatement,

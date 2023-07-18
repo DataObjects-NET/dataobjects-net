@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Providers
       ParameterContext parameterContext)
     {
       Prepare();
-      Store(descriptor, tuples);
-      Execute(parameterContext);
+      StoreInternal(descriptor, tuples);
+      ExecuteInternal(parameterContext, false, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     /// <inheritdoc/>
@@ -53,11 +53,9 @@ namespace Xtensive.Orm.Providers
     {
       await PrepareAsync(token).ConfigureAwait(false);
 
-      Store(descriptor, tuples);
+      StoreInternal(descriptor, tuples);
 
-      using (var context = new CommandProcessorContext(parameterContext)) {
-        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
-      }
+      await ExecuteInternal(parameterContext, true, token);
     }
 
     /// <inheritdoc/>
@@ -65,7 +63,7 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
-      Execute(parameterContext);
+      ExecuteInternal(parameterContext, false, CancellationToken.None).GetAwaiter().GetResult();
     }
 
     /// <inheritdoc/>
@@ -73,17 +71,23 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
-      Store(descriptor, tuples);
-      Execute(new ParameterContext());
+      StoreInternal(descriptor, tuples);
+      ExecuteInternal(new ParameterContext(), false, CancellationToken.None).GetAwaiter().GetResult();
     }
 
-    private void Execute(ParameterContext parameterContext)
+    private async ValueTask ExecuteInternal(ParameterContext parameterContext, bool isAsync, CancellationToken token)
     {
-      using var context = new CommandProcessorContext(parameterContext);
-      commandProcessor.ExecuteTasks(context);
+      using (var context = new CommandProcessorContext(parameterContext)) {
+        if (isAsync) {
+          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+        }
+        else {
+          commandProcessor.ExecuteTasks(context);
+        }
+      }
     }
 
-    private void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
+    private void StoreInternal(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       if (descriptor is IMultiRecordPersistDescriptor mDescriptor) {
         var level2Chunks = tuples.Chunk(WellKnown.MultiRowInsertBigBatchSize).ToList();
