@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -20,6 +21,11 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected CompilableProvider(ProviderType type, params Provider[] sources)
       : base(type, sources)
+    {
+    }
+
+    protected CompilableProvider(ProviderType type)
+      : this(type, Array.Empty<Provider>())
     {
     }
   }

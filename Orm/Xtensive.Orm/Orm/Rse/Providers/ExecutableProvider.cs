@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
-    protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
+    protected ExecutableProvider(CompilableProvider origin, IReadOnlyList<ExecutableProvider> sources)
       : base(origin.Type, sources)
     {
       Origin = origin;
