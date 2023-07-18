@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
         SqlInsert clone = new SqlInsert();
         clone.Into = t.Into?.Clone(c);
         clone.From = t.From?.Clone(c);
-        clone.ValueRows = t.ValueRows.Clone(context);
+        clone.ValueRows = t.ValueRows.Clone(c);
 
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
