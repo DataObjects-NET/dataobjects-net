@@ -41,20 +41,16 @@ namespace Xtensive.Sql.Dml
         return value;
       }
 
-      SqlInsert clone = new SqlInsert();
+      var clone = new SqlInsert();
       clone.Into = (SqlTableRef) Into?.Clone(context);
       clone.From = (SqlSelect) From?.Clone(context);
-#pragma warning disable CS0618 // Type or member is obsolete
-      //remove cloning after changing code.
-      foreach (KeyValuePair<SqlColumn, SqlExpression> p in Values)
-        clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
-#pragma warning restore CS0618 // Type or member is obsolete
       clone.ValueRows = ValueRows.Clone(context);
 
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
+      if (Hints.Count > 0) {
+        foreach (var hint in Hints) {
           clone.Hints.Add((SqlHint) hint.Clone(context));
+        }
+      }
 
       context.NodeMapping[this] = clone;
       return clone;
