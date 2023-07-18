@@ -37,14 +37,16 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlInsert Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
-        SqlInsert clone = new SqlInsert();
-        clone.Into = t.Into?.Clone(c);
-        clone.From = t.From?.Clone(c);
-        clone.ValueRows = t.ValueRows.Clone(c);
+        var clone = new SqlInsert {
+          Into = t.Into?.Clone(c),
+          From = t.From?.Clone(c),
+          ValueRows = t.ValueRows.Clone(c)
+        };
 
-        if (t.Hints.Count > 0)
+        if (t.Hints.Count > 0) {
           foreach (SqlHint hint in t.Hints)
             clone.Hints.Add((SqlHint) hint.Clone(c));
+        }
         return clone;
       });
 
