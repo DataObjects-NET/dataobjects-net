@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Configuration
     private DomainOptions options = DefaultDomainOptions;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
     private TagsLocation tagsLocation = DefaultTagLocation;
-    private TaggingBehavior taggingBehavior = TaggingBehavior.LastTagOverrides;
+    private TaggingBehavior taggingBehavior = TaggingBehavior.Default;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
