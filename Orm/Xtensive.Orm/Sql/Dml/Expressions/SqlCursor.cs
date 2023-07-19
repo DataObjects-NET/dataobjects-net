@@ -168,7 +168,7 @@ namespace Xtensive.Sql.Dml
       throw new NotImplementedException();
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlCursor Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

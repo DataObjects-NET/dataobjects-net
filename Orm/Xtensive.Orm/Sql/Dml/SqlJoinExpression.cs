@@ -34,13 +34,12 @@ namespace Xtensive.Sql.Dml
     /// <value>The expression.</value>
     public SqlExpression Expression { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlJoinExpression(JoinType,
-            Left==null ? null : (SqlTable) Left.Clone(context),
-            Right==null ? null : (SqlTable) Right.Clone(context),
-            Expression==null ? null : (SqlExpression) Expression.Clone(context));
+    internal override SqlJoinExpression Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlJoinExpression(t.JoinType,
+            t.Left?.Clone(c),
+            t.Right?.Clone(c),
+            t.Expression?.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

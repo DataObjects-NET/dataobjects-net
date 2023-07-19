@@ -71,15 +71,13 @@ namespace Xtensive.Sql.Dml
       Operand = replacingExpression.Operand;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlExtract(internalValue, typeMarker, (SqlExpression)Operand.Clone(context));
-          //DateTimePart!=SqlDateTimePart.Nothing
-          //? new SqlExtract(DateTimePart, (SqlExpression) Operand.Clone(context))
-          //: IntervalPart!=SqlIntervalPart.Nothing
-          //  ? new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context))
-          //  : new SqlExtract(DateTimeOffsetPart, (SqlExpression) Operand.Clone(context));
+    internal override SqlExtract Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlExtract(t.internalValue, t.typeMarker, t.Operand.Clone(c)));
+        //t.DateTimePart != SqlDateTimePart.Nothing
+        //  ? new SqlExtract(t.DateTimePart, t.Operand.Clone(c))
+        //  : t.IntervalPart != SqlIntervalPart.Nothing
+        //    ? new SqlExtract(t.IntervalPart, t.Operand.Clone(c))
+        //    : new SqlExtract(t.DateTimeOffsetPart, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -26,10 +26,9 @@ namespace Xtensive.Sql.Dml
       Operand = replacingExpression.Operand;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlUnary(NodeType, (SqlExpression) Operand.Clone(context));
+    internal override SqlUnary Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlUnary(t.NodeType, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

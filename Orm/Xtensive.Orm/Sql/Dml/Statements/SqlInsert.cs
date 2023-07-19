@@ -35,26 +35,20 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlSelect From { get; set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    internal override SqlInsert Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlInsert {
+          Into = t.Into?.Clone(c),
+          From = t.From?.Clone(c),
+          ValueRows = t.ValueRows.Clone(c)
+        };
 
-      var clone = new SqlInsert();
-      clone.Into = (SqlTableRef) Into?.Clone(context);
-      clone.From = (SqlSelect) From?.Clone(context);
-      clone.ValueRows = ValueRows.Clone(context);
-
-      if (Hints.Count > 0) {
-        foreach (var hint in Hints) {
-          clone.Hints.Add((SqlHint) hint.Clone(context));
+        if (t.Hints.Count > 0) {
+          foreach (SqlHint hint in t.Hints)
+            clone.Hints.Add((SqlHint) hint.Clone(c));
         }
-      }
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     // Constructor
 
