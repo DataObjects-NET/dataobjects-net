@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Linq
       ShouldOmitConvertToObject = 1 << 6,
       RequestCalculateExpressions = 1 << 7,
       RequestCalculateExpressionsOnce = 1 << 8,
-      SkipNullableColumnsDetectionInGroupBy = 1 << 9
+      SkipNullableColumnsDetectionInGroupBy = 1 << 9,
+      IsAlreadyTagged = 1 << 10,
     }
 
     internal readonly struct TranslatorScope : IDisposable
@@ -124,6 +125,12 @@ namespace Xtensive.Orm.Linq
     {
       get => GetFlag(TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy);
       init => ModifyFlag(ref flags, TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy, value);
+    }
+
+    public bool IsAlreadyTagged
+    {
+      get => GetFlag(TranslatorStateFlags.IsAlreadyTagged);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.IsAlreadyTagged, value);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

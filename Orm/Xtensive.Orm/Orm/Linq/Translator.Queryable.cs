@@ -35,8 +35,6 @@ namespace Xtensive.Orm.Linq
     private readonly bool tagsEnabled;
     private readonly TaggingBehavior taggingBehavior;
 
-    private bool isAlreadyTagged;
-
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
     protected override Expression VisitConstant(ConstantExpression c)
@@ -275,8 +273,8 @@ namespace Xtensive.Orm.Linq
     private Expression VisitTag(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
-      bool needToTag = tagsEnabled && (taggingBehavior == TaggingBehavior.Default || !isAlreadyTagged);
-      isAlreadyTagged = true;
+      bool needToTag = tagsEnabled && (taggingBehavior == TaggingBehavior.Default || !State.IsAlreadyTagged);
+      State = new(State) { IsAlreadyTagged = true };
 
       var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var visitedSourceRaw = Visit(source);

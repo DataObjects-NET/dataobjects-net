@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var result = projection;
-      if (context.SessionTags != null && (taggingBehavior == TaggingBehavior.Default || !isAlreadyTagged))
+      if (context.SessionTags != null && (taggingBehavior == TaggingBehavior.Default || !State.IsAlreadyTagged))
         result = ApplySessionTags(result, context.SessionTags);
       var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
       result = result.Apply(newItemProjector);
