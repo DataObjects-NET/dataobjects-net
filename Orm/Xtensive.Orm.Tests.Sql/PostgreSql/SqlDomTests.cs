@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -66,95 +66,94 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         ForeignKey fk;
         Index idx;
 
-        Schema sch1 = MyCatalog.CreateSchema("Sch1");
+        var sch1 = MyCatalog.CreateSchema("Sch1");
 
-        Sequence t1_seq = sch1.CreateSequence("T1Seq");
+        var t1_seq = sch1.CreateSequence("T1Seq");
 
-        Table sch1_t1 = sch1.CreateTable("T1");
+        var sch1_t1 = sch1.CreateTable("T1");
 
-        sch1_t1.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+        _ = sch1_t1.CreateColumn("Id", new SqlValueType(SqlType.Int32));
         sch1_t1.TableColumns["Id"].DefaultValue = SqlDml.NextValue(t1_seq);
-
-        sch1_t1.CreateColumn("Char", new SqlValueType(SqlType.Char, 1));
+        _ = sch1_t1.CreateColumn("Char", new SqlValueType(SqlType.Char, 1));
         sch1_t1.TableColumns["Char"].IsNullable = false;
         sch1_t1.TableColumns["Char"].DefaultValue = "'";
-        sch1_t1.CreateColumn("Char?", new SqlValueType(SqlType.Char, 1));
+        _ = sch1_t1.CreateColumn("Char?", new SqlValueType(SqlType.Char, 1));
         sch1_t1.TableColumns["Char?"].IsNullable = true;
-        sch1_t1.CreateColumn("Char7", new SqlValueType(SqlType.Char, 7));
+        _ = sch1_t1.CreateColumn("Char7", new SqlValueType(SqlType.Char, 7));
         sch1_t1.TableColumns["Char7"].IsNullable = false;
         sch1_t1.TableColumns["Char7"].DefaultValue = "Char7";
-        sch1_t1.CreateColumn("Char8?", new SqlValueType(SqlType.Char, 8));
+        _ = sch1_t1.CreateColumn("Char8?", new SqlValueType(SqlType.Char, 8));
         sch1_t1.TableColumns["Char8?"].IsNullable = true;
-        sch1_t1.CreateColumn("Varchar9", new SqlValueType(SqlType.VarChar, 9));
+        _ = sch1_t1.CreateColumn("Varchar9", new SqlValueType(SqlType.VarChar, 9));
         sch1_t1.TableColumns["Varchar9"].IsNullable = false;
         sch1_t1.TableColumns["Varchar9"].DefaultValue = SqlDml.Literal("Varchar9");
-        sch1_t1.CreateColumn("Varchar10?", new SqlValueType(SqlType.VarChar, 10));
+        _ = sch1_t1.CreateColumn("Varchar10?", new SqlValueType(SqlType.VarChar, 10));
         sch1_t1.TableColumns["Varchar10?"].IsNullable = true;
-        sch1_t1.CreateColumn("Text", new SqlValueType(SqlType.VarCharMax));
+        _ = sch1_t1.CreateColumn("Text", new SqlValueType(SqlType.VarCharMax));
         sch1_t1.TableColumns["Text"].IsNullable = false;
         sch1_t1.TableColumns["Text"].DefaultValue = SqlDml.Concat(SqlDml.Literal("Text'"), SqlDml.SessionUser());
-        sch1_t1.CreateColumn("Text?", new SqlValueType(SqlType.VarCharMax));
+        _ = sch1_t1.CreateColumn("Text?", new SqlValueType(SqlType.VarCharMax));
         sch1_t1.TableColumns["Text?"].IsNullable = true;
-        sch1_t1.CreateColumn("Bool", new SqlValueType(SqlType.Boolean));
+        _ = sch1_t1.CreateColumn("Bool", new SqlValueType(SqlType.Boolean));
         sch1_t1.TableColumns["Bool"].IsNullable = false;
         sch1_t1.TableColumns["Bool"].DefaultValue = false; // false;// Sql.Or(Sql.Literal(true), Sql.Literal(false));
-        sch1_t1.CreateColumn("Bool?", new SqlValueType(SqlType.Boolean));
+        _ = sch1_t1.CreateColumn("Bool?", new SqlValueType(SqlType.Boolean));
         sch1_t1.TableColumns["Bool?"].IsNullable = true;
-        sch1_t1.CreateColumn("Int2", new SqlValueType(SqlType.Int16));
+        _ = sch1_t1.CreateColumn("Int2", new SqlValueType(SqlType.Int16));
         sch1_t1.TableColumns["Int2"].IsNullable = false;
         sch1_t1.TableColumns["Int2"].DefaultValue = (SqlDml.Literal(2) + 1) * 7;
-        sch1_t1.CreateColumn("Int2?", new SqlValueType(SqlType.Int16));
+        _ = sch1_t1.CreateColumn("Int2?", new SqlValueType(SqlType.Int16));
         sch1_t1.TableColumns["Int2?"].IsNullable = true;
-        sch1_t1.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
+        _ = sch1_t1.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
         sch1_t1.TableColumns["Int4"].IsNullable = false;
         sch1_t1.TableColumns["Int4"].DefaultValue = 41;
-        sch1_t1.CreateColumn("Int4?", new SqlValueType(SqlType.Int32));
+        _ = sch1_t1.CreateColumn("Int4?", new SqlValueType(SqlType.Int32));
         sch1_t1.TableColumns["Int4?"].IsNullable = true;
-        sch1_t1.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
+        _ = sch1_t1.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
         sch1_t1.TableColumns["Int8"].IsNullable = false;
         sch1_t1.TableColumns["Int8"].DefaultValue = SqlDml.Square(9);
-        sch1_t1.CreateColumn("Int8?", new SqlValueType(SqlType.Int64));
+        _ = sch1_t1.CreateColumn("Int8?", new SqlValueType(SqlType.Int64));
         sch1_t1.TableColumns["Int8?"].IsNullable = true;
-        sch1_t1.CreateColumn("Float4", new SqlValueType(SqlType.Float));
+        _ = sch1_t1.CreateColumn("Float4", new SqlValueType(SqlType.Float));
         sch1_t1.TableColumns["Float4"].IsNullable = false;
         sch1_t1.TableColumns["Float4"].DefaultValue = SqlDml.Pi();
-        sch1_t1.CreateColumn("Float4?", new SqlValueType(SqlType.Float));
+        _ = sch1_t1.CreateColumn("Float4?", new SqlValueType(SqlType.Float));
         sch1_t1.TableColumns["Float4?"].IsNullable = true;
-        sch1_t1.CreateColumn("Float8", new SqlValueType(SqlType.Double));
+        _ = sch1_t1.CreateColumn("Float8", new SqlValueType(SqlType.Double));
         sch1_t1.TableColumns["Float8"].IsNullable = false;
         sch1_t1.TableColumns["Float8"].DefaultValue = SqlDml.Rand(7);
-        sch1_t1.CreateColumn("Float8?", new SqlValueType(SqlType.Double));
+        _ = sch1_t1.CreateColumn("Float8?", new SqlValueType(SqlType.Double));
         sch1_t1.TableColumns["Float8?"].IsNullable = true;
-        sch1_t1.CreateColumn("Decimal28_10", new SqlValueType(SqlType.Decimal, 28, 10));
+        _ = sch1_t1.CreateColumn("Decimal28_10", new SqlValueType(SqlType.Decimal, 28, 10));
         sch1_t1.TableColumns["Decimal28_10"].IsNullable = false;
         sch1_t1.TableColumns["Decimal28_10"].DefaultValue = SqlDml.Tan(SqlDml.Pi() / 4);
-        sch1_t1.CreateColumn("Decimal28_10?", new SqlValueType(SqlType.Decimal, 28, 10));
+        _ = sch1_t1.CreateColumn("Decimal28_10?", new SqlValueType(SqlType.Decimal, 28, 10));
         sch1_t1.TableColumns["Decimal28_10?"].IsNullable = true;
-        sch1_t1.CreateColumn("Decimal50", new SqlValueType(SqlType.Decimal, 50, 0));
+        _ = sch1_t1.CreateColumn("Decimal50", new SqlValueType(SqlType.Decimal, 50, 0));
         sch1_t1.TableColumns["Decimal50"].IsNullable = false;
         sch1_t1.TableColumns["Decimal50"].DefaultValue = SqlDml.Power(3, 20);
-        sch1_t1.CreateColumn("Decimal50?", new SqlValueType(SqlType.Decimal, 50, 0));
+        _ = sch1_t1.CreateColumn("Decimal50?", new SqlValueType(SqlType.Decimal, 50, 0));
         sch1_t1.TableColumns["Decimal50?"].IsNullable = true;
-        sch1_t1.CreateColumn("DateTime", new SqlValueType(SqlType.DateTime));
+        _ = sch1_t1.CreateColumn("DateTime", new SqlValueType(SqlType.DateTime));
         sch1_t1.TableColumns["DateTime"].IsNullable = false;
         sch1_t1.TableColumns["DateTime"].DefaultValue = SqlDml.CurrentDate();
-        sch1_t1.CreateColumn("DateTime?", new SqlValueType(SqlType.DateTime));
+        _ = sch1_t1.CreateColumn("DateTime?", new SqlValueType(SqlType.DateTime));
         sch1_t1.TableColumns["DateTime?"].IsNullable = true;
-        SqlTableRef t1_ref = SqlDml.TableRef(sch1_t1);
+        var t1_ref = SqlDml.TableRef(sch1_t1);
 
-        sch1_t1.CreatePrimaryKey("T1_pk", sch1_t1.TableColumns["Id"]);
+        _ = sch1_t1.CreatePrimaryKey("T1_pk", sch1_t1.TableColumns["Id"]);
 
-        sch1_t1.CreateUniqueConstraint("T1_u1", sch1_t1.TableColumns["Char?"], sch1_t1.TableColumns["Char7"]);
-        sch1_t1.CreateUniqueConstraint("T1_u2", sch1_t1.TableColumns["Text?"]);
-        sch1_t1.CreateUniqueConstraint("T1_u3", sch1_t1.TableColumns["Int8"], sch1_t1.TableColumns["Int4"]);
-        sch1_t1.CreateUniqueConstraint("T1_u4", sch1_t1.TableColumns["Int2"], sch1_t1.TableColumns["Bool"], sch1_t1.TableColumns["Bool?"]);
-        sch1_t1.CreateUniqueConstraint("T1_u5", sch1_t1.TableColumns["DateTime"], sch1_t1.TableColumns["Float8"], sch1_t1.TableColumns["Decimal28_10"], sch1_t1.TableColumns["Float4"]);
+        _ = sch1_t1.CreateUniqueConstraint("T1_u1", sch1_t1.TableColumns["Char?"], sch1_t1.TableColumns["Char7"]);
+        _ = sch1_t1.CreateUniqueConstraint("T1_u2", sch1_t1.TableColumns["Text?"]);
+        _ = sch1_t1.CreateUniqueConstraint("T1_u3", sch1_t1.TableColumns["Int8"], sch1_t1.TableColumns["Int4"]);
+        _ = sch1_t1.CreateUniqueConstraint("T1_u4", sch1_t1.TableColumns["Int2"], sch1_t1.TableColumns["Bool"], sch1_t1.TableColumns["Bool?"]);
+        _ = sch1_t1.CreateUniqueConstraint("T1_u5", sch1_t1.TableColumns["DateTime"], sch1_t1.TableColumns["Float8"], sch1_t1.TableColumns["Decimal28_10"], sch1_t1.TableColumns["Float4"]);
 
-        sch1_t1.CreateCheckConstraint("T1_ch1", t1_ref["Bool?"]);
-        sch1_t1.CreateCheckConstraint("T1_ch2", SqlDml.Between(t1_ref["Int2"], 2, 200));
-        sch1_t1.CreateCheckConstraint("T1_ch3", SqlDml.Between(t1_ref["Int4"], 4, 400));
-        sch1_t1.CreateCheckConstraint("T1_ch4", t1_ref["Int8"] > t1_ref["Int4"]);
-        sch1_t1.CreateCheckConstraint("T1_ch5", t1_ref["Decimal50"] >= t1_ref["Decimal28_10"]);
+        _ = sch1_t1.CreateCheckConstraint("T1_ch1", t1_ref["Bool?"]);
+        _ = sch1_t1.CreateCheckConstraint("T1_ch2", SqlDml.Between(t1_ref["Int2"], 2, 200));
+        _ = sch1_t1.CreateCheckConstraint("T1_ch3", SqlDml.Between(t1_ref["Int4"], 4, 400));
+        _ = sch1_t1.CreateCheckConstraint("T1_ch4", t1_ref["Int8"] > t1_ref["Int4"]);
+        _ = sch1_t1.CreateCheckConstraint("T1_ch5", t1_ref["Decimal50"] >= t1_ref["Decimal28_10"]);
 
         fk = sch1_t1.CreateForeignKey("fk_Int4?_Id");
         fk.Columns.Add(sch1_t1.TableColumns["Int4?"]);
@@ -165,46 +164,46 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         fk.IsDeferrable = false;
 
         idx = sch1_t1.CreateIndex("T1_ix1");
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Decimal50"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Decimal50"]);
 
         idx = sch1_t1.CreateIndex("T1_ix2");
-        idx.CreateIndexColumn(sch1_t1.TableColumns["DateTime"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Int2"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["DateTime"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Int2"]);
         idx.FillFactor = 80;
 
         idx = sch1_t1.CreateIndex("T1_ix3");
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Char7"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Bool"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Float8?"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Char7"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Bool"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Float8?"]);
         idx.IsUnique = true;
 
         idx = sch1_t1.CreateIndex("T1_ix4");
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Varchar10?"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Varchar9"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Char7"]);
-        idx.CreateIndexColumn(sch1_t1.TableColumns["Text?"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Varchar10?"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Varchar9"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Char7"]);
+        _ = idx.CreateIndexColumn(sch1_t1.TableColumns["Text?"]);
 
         {
-          SqlSelect viewdef = SqlDml.Select(t1_ref);
-          foreach (SqlTableColumn tc in t1_ref.Columns) {
+          var viewdef = SqlDml.Select(t1_ref);
+          foreach (var tc in t1_ref.Columns) {
             viewdef.Columns.Add(tc);
           }
-          string cmdText = Driver.Compile(viewdef).GetCommandText();
-          sch1.CreateView("T1View", SqlDml.Native(cmdText));
+          var cmdText = Driver.Compile(viewdef).GetCommandText();
+          _ = sch1.CreateView("T1View", SqlDml.Native(cmdText));
         }
 
         //t2
 
-        Table sch1_t2 = sch1.CreateTable("T2");
+        var sch1_t2 = sch1.CreateTable("T2");
         {
-          sch1_t2.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
+          _ = sch1_t2.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
           sch1_t2.TableColumns["Int8"].IsNullable = false;
           sch1_t2.TableColumns["Int8"].DefaultValue = 0;
-          sch1_t2.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
+          _ = sch1_t2.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
           sch1_t2.TableColumns["Int4"].IsNullable = false;
           sch1_t2.TableColumns["Int4"].DefaultValue = 0;
 
-          SqlTableRef t2_ref = SqlDml.TableRef(sch1_t2);
+          var t2_ref = SqlDml.TableRef(sch1_t2);
 
           fk = sch1_t2.CreateForeignKey("fk_t2_Int8_Int4_t1_Int8_Int4");
           fk.Columns.Add(sch1_t2.TableColumns["Int8"]);
@@ -219,20 +218,20 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         //sch2
 
-        Schema sch2 = MyCatalog.CreateSchema("Sch2");
+        var sch2 = MyCatalog.CreateSchema("Sch2");
         {
           //t3
 
-          Table sch2_t3 = sch2.CreateTable("T3");
+          var sch2_t3 = sch2.CreateTable("T3");
 
-          sch2_t3.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
+          _ = sch2_t3.CreateColumn("Int8", new SqlValueType(SqlType.Int64));
           sch2_t3.TableColumns["Int8"].IsNullable = false;
           sch2_t3.TableColumns["Int8"].DefaultValue = 0;
-          sch2_t3.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
+          _ = sch2_t3.CreateColumn("Int4", new SqlValueType(SqlType.Int32));
           sch2_t3.TableColumns["Int4"].IsNullable = false;
           sch2_t3.TableColumns["Int4"].DefaultValue = 0;
 
-          SqlTableRef t3_ref = SqlDml.TableRef(sch2_t3);
+          var t3_ref = SqlDml.TableRef(sch2_t3);
 
           fk = sch2_t3.CreateForeignKey("fk_t3_Int8_Int4_t1_Int8_Int4");
           fk.Columns.Add(sch2_t3.TableColumns["Int8"]);
@@ -245,9 +244,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           fk.IsDeferrable = false;
 
           //some sequences
-          Sequence sch2_seq1 = sch2.CreateSequence("Seq1");
+          _ = sch2.CreateSequence("Seq1");
 
-          Sequence sch2_seq2 = sch2.CreateSequence("Seq2");
+          var sch2_seq2 = sch2.CreateSequence("Seq2");
           sch2_seq2.SequenceDescriptor.StartValue = 100;
           sch2_seq2.SequenceDescriptor.Increment = 10;
           sch2_seq2.SequenceDescriptor.MinValue = 1;
@@ -915,9 +914,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [OneTimeTearDown]
     public virtual void FixtureTearDown()
     {
-      if (Connection!=null) {
-        if (Connection.State==ConnectionState.Open)
-          Connection.Close();
+      if (Connection != null && Connection.State == ConnectionState.Open) {
+        Connection.Close();
       }
     }
 
@@ -1089,8 +1087,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           var t1 = SqlDml.TableRef(MyCatalog.Schemas["Sch1"].Tables["T1"]);
 
           var insert = SqlDml.Insert(t1);
-          insert.Values.Add(t1["Text?"], SqlDml.Null);
-          insert.Values.Add(t1["Int8"], long.MaxValue);
+          insert.AddValueRow((t1["Text?"], SqlDml.Null), (t1["Int8"], long.MaxValue));
           batch.Add(insert);
 
           //set FK to self
@@ -1607,9 +1604,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         Action<int, SqlExpression, SqlExpression> insert = delegate(int id, SqlExpression expr1, SqlExpression expr2) {
           var ins2 = SqlDml.Insert(tref);
-          ins2.Values.Add(tref["id"], id);
-          ins2.Values.Add(tref["col1"], expr1);
-          ins2.Values.Add(tref["col2"], expr2);
+          ins2.AddValueRow((tref["id"], id), (tref["col1"], expr1), (tref["col2"], expr2));
           batch.Add(ins2);
         };
         //unique part
@@ -1678,24 +1673,22 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       Connection.BeginTransaction();
       try {
-        SqlBatch batch = SqlDml.Batch();
+        var batch = SqlDml.Batch();
 
-        TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("match_pred_test");
+        var t = MyCatalog.DefaultSchema.CreateTemporaryTable("match_pred_test");
         t.PreserveRows = false;
-        t.CreateColumn("id", new SqlValueType(SqlType.Int32));
+        _ = t.CreateColumn("id", new SqlValueType(SqlType.Int32));
         t.CreateColumn("col1", new SqlValueType(SqlType.Int32)).IsNullable = true;
         t.CreateColumn("col2", new SqlValueType(SqlType.Int32)).IsNullable = true;
         batch.Add(SqlDdl.Create(t));
-        SqlTableRef tref = SqlDml.TableRef(t);
+        var tref = SqlDml.TableRef(t);
 
         //fill
         {
           int id = 1;
           Action<SqlExpression, SqlExpression> insert = delegate(SqlExpression expr1, SqlExpression expr2) {
-            SqlInsert ins2 = SqlDml.Insert(tref);
-            ins2.Values.Add(tref["id"], id);
-            ins2.Values.Add(tref["col1"], expr1);
-            ins2.Values.Add(tref["col2"], expr2);
+            var ins2 = SqlDml.Insert(tref);
+            ins2.AddValueRow((tref["id"], id), (tref["col1"], expr1), (tref["col2"], expr2));
             batch.Add(ins2);
             id++;
           };
@@ -1719,13 +1712,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         ExecuteNonQuery(batch);
 
         //query
-        SqlSelect testQuery = SqlDml.Select(tref);
+        var testQuery = SqlDml.Select(tref);
         testQuery.Columns.Add(tref["col1"]);
         testQuery.Columns.Add(tref["col2"]);
 
         Action<SqlExpression, SqlExpression, bool, SqlMatchType> matchTesterExists
           = delegate(SqlExpression col1, SqlExpression col2, bool unique, SqlMatchType matchType) {
-            SqlSelect q = SqlDml.Select();
+            var q = SqlDml.Select();
             q.Columns.Add(1);
             q.Where = SqlDml.Match(SqlDml.Row(col1, col2), SqlDml.SubQuery(testQuery).Query, unique, matchType);
             AssertQueryExists(q);
@@ -1864,8 +1857,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       finally {
         Connection.Rollback();
         var t = MyCatalog.DefaultSchema.Tables["match_pred_test"];
-        if (t!=null)
-          MyCatalog.DefaultSchema.Tables.Remove(t);
+        if (t != null)
+          _ = MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1885,8 +1878,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         void InsertRow(int id, SqlExpression expr1)
         {
           var ins2 = SqlDml.Insert(tref);
-          ins2.Values.Add(tref["id"], id);
-          ins2.Values.Add(tref["col1"], expr1);
+          ins2.AddValueRow((tref["id"], id), (tref["col1"], expr1));
           batch.Add(ins2);
         }
 
@@ -1909,7 +1901,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         //query
 
         {
-          SqlSelect q = SqlDml.Select(tref);
+          var q = SqlDml.Select(tref);
           q.Columns.Add(SqlDml.Count(SqlDml.Asterisk)); //0
           q.Columns.Add(SqlDml.Count(tref["col1"])); //1
           q.Columns.Add(SqlDml.Count(tref["col1"], true)); //2
@@ -1923,7 +1915,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           q.Columns.Add(SqlDml.Avg(tref["col1"], true)); //10 -->decimal
 
 
-          using (DbDataReader dr = ExecuteQuery(q)) {
+          using (var dr = ExecuteQuery(q)) {
             Assert.IsTrue(dr.Read());
 
             //int32-vel nem megy at count()->int64
@@ -1956,7 +1948,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Connection.Rollback();
         var t = MyCatalog.DefaultSchema.Tables["agg_test"];
         if (t != null)
-          MyCatalog.DefaultSchema.Tables.Remove(t);
+          _ = MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -2096,9 +2088,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           void InserfRow(SqlExpression expr1)
           {
             var ins2 = SqlDml.Insert(tref);
-            ins2.Values.Add(tref["id"], id);
-            ins2.Values.Add(tref["dt"], expr1);
-            ins2.Values.Add(tref["bool"], id % 2 == 0);
+            ins2.AddValueRow((tref["id"], id), (tref["dt"], expr1), (tref["bool"], id % 2 == 0));
             batch.Add(ins2);
             id++;
           }

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -15,51 +15,20 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   public abstract class PropertyValidator : Attribute, IPropertyValidator
   {
-    private bool isImmediate;
-    private bool validateOnlyIfModified;
-    private bool skipOnTransactionCommiting;
-
     /// <summary>
     /// Gets or sets value indicating if current validator is immediate.
     /// </summary>
-    public bool IsImmediate
-    {
-      get => isImmediate;
-      set {
-        if (Domain != null) {
-          throw Exceptions.AlreadyInitialized(null);
-        }
-        isImmediate = value;
-      }
-    }
+    public bool IsImmediate { get; init; }
 
     /// <summary>
     /// Gets or sets value indicating wheteher validation should continue only if field value has changed.
     /// </summary>
-    public bool ValidateOnlyIfModified
-    {
-      get => validateOnlyIfModified;
-      set {
-        if (Domain != null) {
-          throw Exceptions.AlreadyInitialized(null);
-        }
-        validateOnlyIfModified = value;
-      }
-    }
+    public bool ValidateOnlyIfModified { get; init; }
 
     /// <summary>
     /// Gets or sets value indicating if current validator should be skipped on a transaction commit.
     /// </summary>
-    public bool SkipOnTransactionCommit
-    {
-      get => skipOnTransactionCommiting;
-      set {
-        if (Domain != null) {
-          throw Exceptions.AlreadyInitialized(null);
-        }
-        skipOnTransactionCommiting = value;
-      }
-    }
+    public bool SkipOnTransactionCommit { get; init; }
 
     /// <summary>
     /// Gets domain this instance is bound to.

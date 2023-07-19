@@ -490,7 +490,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         state.ReferencingTable = state.ReferencingSchema.Tables[reader.GetString(1).Trim()];
         state.ForeignKey = state.ReferencingTable.CreateForeignKey(reader.GetString(2).Trim());
         ReadConstraintProperties(state.ForeignKey, reader, 3, 4);
-        ReadCascadeAction(state.ForeignKey, reader, 5);
+        ReadCascadeAction(state.ForeignKey, reader, 5, 12);
         state.ReferencedTable = state.ReferencedSchema.Tables[reader.GetString(9).Trim()];
         state.ForeignKey.ReferencedTable = state.ReferencedTable;
       }
@@ -618,25 +618,25 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex) == "YES";
     }
 
-    private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
+    private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex, int updateRuleIndex)
     {
       var deleteRule = ReadStringOrNull(row, deleteRuleIndex);
-      switch (deleteRule) {
-        case "CASCADE":
-          foreignKey.OnDelete = ReferentialAction.Cascade;
-          return;
-        case "SET NULL":
-          foreignKey.OnDelete = ReferentialAction.SetNull;
-          return;
-        case "NO ACTION":
-          foreignKey.OnDelete = ReferentialAction.NoAction;
-          return;
-        case "RESTRICT": // behaves like NO ACTION
-          foreignKey.OnDelete = ReferentialAction.NoAction;
-          return;
-        case "SET DEFAULT":
-          foreignKey.OnDelete = ReferentialAction.SetDefault;
-          return;
+      foreignKey.OnDelete = GetRefAction(deleteRule);
+
+      var updateRule = ReadStringOrNull(row, updateRuleIndex);
+      foreignKey.OnUpdate = GetRefAction(updateRule);
+
+
+      static ReferentialAction GetRefAction(in string rawActionName)
+      {
+        return rawActionName switch {
+          "CASCADE" => ReferentialAction.Cascade,
+          "SET NULL" => ReferentialAction.SetNull,
+          "NO ACTION" => ReferentialAction.NoAction,
+          "RESTRICT" => ReferentialAction.NoAction,
+          "SET DEFAULT" => ReferentialAction.SetDefault,
+          _ => throw new ArgumentOutOfRangeException()
+        };
       }
     }
 

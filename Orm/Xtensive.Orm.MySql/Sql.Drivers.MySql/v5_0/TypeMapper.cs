@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -14,7 +14,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+#if NET6_0_OR_GREATER
+    private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]), typeof (DateOnly), typeof(TimeOnly) };
+#else
     private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]) };
+#endif
 
     /// <inheritdoc/>
     public override bool IsParameterCastRequired(Type type)
@@ -62,6 +66,20 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       parameter.DbType = DbType.String;
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
+#if NET6_0_OR_GREATER
+
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value ?? DBNull.Value;
+    }
+
+    public override void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value ?? DBNull.Value;
+    }
+#endif
 
     /// <inheritdoc/>
     public override SqlValueType MapByte(int? length, int? precision, int? scale)

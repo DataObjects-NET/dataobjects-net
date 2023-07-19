@@ -50,8 +50,10 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
     private const string VersioningConventionElementName = "versioningConvention";
     private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
+    private const string PreferTypeIdsAsQueryParametersElementName = "preferTypeIdsAsQueryParameters";
     private const string TagsLocationElementName = "tagsLocation";
     private const string TaggingBehaviorElementName = "taggingBehavior";
+    private const string MaxNumberOfConditionsElementName = "maxNumberOfConditions";
 
 
     /// <inheritdoc/>
@@ -414,6 +416,25 @@ namespace Xtensive.Orm.Configuration.Elements
       set => this[TaggingBehaviorElementName] = value;
     }
 
+    /// <see cref="DomainConfiguration.PreferTypeIdsAsQueryParameters" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(PreferTypeIdsAsQueryParametersElementName, DefaultValue = true)]
+    public bool PreferTypeIdsAsQueryParameters
+    {
+      get { return (bool) this[PreferTypeIdsAsQueryParametersElementName]; }
+      set { this[PreferTypeIdsAsQueryParametersElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.MaxNumberOfConditions" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MaxNumberOfConditionsElementName, DefaultValue = WellKnown.DefaultMaxNumberOfConditions)]
+    public int MaxNumberOfConditions
+    {
+      get { return (int) this[MaxNumberOfConditionsElementName]; }
+      set { this[MaxNumberOfConditionsElementName] = value; }
+    }
+
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
@@ -445,10 +466,12 @@ namespace Xtensive.Orm.Configuration.Elements
         MultidatabaseKeys = MultidatabaseKeys,
         ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
         EnsureConnectionIsAlive = EnsureConnectionIsAlive,
+        PreferTypeIdsAsQueryParameters = PreferTypeIdsAsQueryParameters,
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
         TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
         TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true)
+        MaxNumberOfConditions = MaxNumberOfConditions,
       };
 
       foreach (var element in Types)

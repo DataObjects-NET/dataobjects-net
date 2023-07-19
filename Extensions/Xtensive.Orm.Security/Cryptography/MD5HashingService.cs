@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.05.22
 
@@ -17,10 +17,10 @@ namespace Xtensive.Orm.Security.Cryptography
   public class MD5HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-    protected override HashAlgorithm GetHashAlgorithm()
-    {
-      return new MD5CryptoServiceProvider();
-    }
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
+    // direct creation is more efficient than MD5.Create()
+    protected override HashAlgorithm GetHashAlgorithm() => new MD5CryptoServiceProvider();
+#pragma warning restore SYSLIB0021 // Type or member is obsolete
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MD5HashingService"/> class.

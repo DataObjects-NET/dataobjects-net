@@ -1,0 +1,3 @@
+[main] Added an option to remove cached queries of removing storage node along with the node, default behavior remains the same
+[postgresql] Dedicated exception when the extracting schema doesn't exist or it belongs to another user
+[weaver] Fixed constructor processing with try...catch, catch section now has correct leave

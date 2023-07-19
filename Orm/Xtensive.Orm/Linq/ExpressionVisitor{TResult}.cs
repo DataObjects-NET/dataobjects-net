@@ -96,6 +96,9 @@ namespace Xtensive.Linq
       case ExpressionType.Constant:
         result = VisitConstant((ConstantExpression) e);
         break;
+      case ExpressionType.Default:
+        result = VisitDefault((DefaultExpression) e);
+        break;
       case ExpressionType.Parameter:
         result = VisitParameter((ParameterExpression) e);
         break;
@@ -189,6 +192,13 @@ namespace Xtensive.Linq
     /// <param name="c">The constant expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitConstant(ConstantExpression c);
+
+    /// <summary>
+    /// Visits the default expression.
+    /// </summary>
+    /// <param name="d">The default expression.</param>
+    /// <returns>Visit result.</returns>
+    protected abstract TResult VisitDefault(DefaultExpression d);
     
     /// <summary>
     /// Visits the conditional expression.

@@ -303,8 +303,18 @@ namespace Xtensive.Orm.Providers
       }
 
       var columnType = columns[index].Type;
-      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == WellKnownTypes.DateTime) {
-        return SqlDml.Cast(expression, SqlType.DateTime);
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
+        if (columnType == WellKnownTypes.DateTime) {
+          return SqlDml.Cast(expression, SqlType.DateTime);
+        }
+#if NET6_0_OR_GREATER
+        if (columnType == WellKnownTypes.DateOnly) {
+          return SqlDml.Cast(expression, SqlType.Date);
+        }
+        if (columnType == WellKnownTypes.TimeOnly) {
+          return SqlDml.Cast(expression, SqlType.Time);
+        }
+#endif
       }
 
       if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
@@ -321,13 +331,8 @@ namespace Xtensive.Orm.Providers
         Pair<Column> columnPair;
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == WellKnownTypes.DateTime) {
-            leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
-          }
-
-          if (columnPair.Second.Type == WellKnownTypes.DateTime) {
-            rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
-          }
+          leftExpression = CastToDateTimeVariantIfNeeded(leftExpression, columnPair.First.Type);
+          rightExpression = CastToDateTimeVariantIfNeeded(rightExpression, columnPair.Second.Type);
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
@@ -343,6 +348,28 @@ namespace Xtensive.Orm.Providers
       }
 
       return leftExpression == rightExpression;
+
+      static SqlExpression CastToDateTimeVariantIfNeeded(SqlExpression expression,Type type)
+      {
+        SqlType? sqlType = null;
+        if (type == WellKnownTypes.DateTime) {
+          sqlType = SqlType.DateTime;
+        }
+#if NET6_0_OR_GREATER
+        else if (type == WellKnownTypes.DateOnly) {
+          sqlType = SqlType.Date;
+        }
+        else if(type == WellKnownTypes.TimeOnly) {
+          sqlType = SqlType.Time;
+        }
+#endif
+        if (sqlType == null) {
+          return expression;
+        }
+        else {
+          return SqlDml.Cast(expression, sqlType.Value);
+        }
+      }
     }
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)

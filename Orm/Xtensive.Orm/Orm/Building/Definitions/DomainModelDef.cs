@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Building.Definitions
   public sealed class DomainModelDef : Node
   {
     private readonly ModelDefBuilder builder;
-    private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
     private readonly FullTextIndexDefCollection fullTextIndexes;
     private readonly Validator validator;
@@ -37,7 +36,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets the collection of <see cref="HierarchyDef"/> instances contained in this instance.
     /// </summary>
-    public HierarchyDefCollection Hierarchies { get { return hierarchies; } }
+    public HierarchyDefCollection Hierarchies { get; } = new();
 
     /// <summary>
     /// Gets the collection of <see cref="FullTextIndexDef"/> instances contained in this instance.
@@ -66,34 +65,25 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns><see name="TypeDef"/> instance that is root of specified <paramref name="item"/> or 
     /// <see langword="null"/> if the root is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public TypeDef FindRoot(TypeDef item)
-    {
-      var hierarchy = FindHierarchy(item);
-      return hierarchy!=null ? hierarchy.Root : null;
-    }
+    public TypeDef FindRoot(TypeDef item) => FindHierarchy(item)?.Root;
 
     /// <summary>
     /// Finds the hierarchy.
     /// </summary>
     /// <param name="item">The type to search hierarchy for.</param>
     /// <returns><see cref="HierarchyDef"/> instance or <see langword="null"/> if hierarchy is not found.</returns>
-    public HierarchyDef FindHierarchy(TypeDef item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      return Hierarchies
-        .FirstOrDefault(hierarchy => hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType));
-    }
+    public HierarchyDef FindHierarchy(TypeDef item) => Hierarchies.Find(item);
 
     private void OnTypesCleared(object sender, TypeDefCollectionClearedEventArgs e)
     {
-      hierarchies.Clear();
+      Hierarchies.Clear();
     }
 
     private void OnTypeRemoved(object sender, TypeDefCollectionChangedEventArgs e)
     {
-      HierarchyDef hd = hierarchies.TryGetValue(e.Item);
+      HierarchyDef hd = Hierarchies.TryGetValue(e.Item);
       if (hd != null)
-        hierarchies.Remove(hd);
+        Hierarchies.Remove(hd);
     }
 
     // Constructors
@@ -104,7 +94,6 @@ namespace Xtensive.Orm.Building.Definitions
       this.validator = validator;
 
       types = new TypeDefCollection(this, "Types");
-      hierarchies = new HierarchyDefCollection();
       fullTextIndexes = new FullTextIndexDefCollection();
 
       types.Removed += OnTypeRemoved;

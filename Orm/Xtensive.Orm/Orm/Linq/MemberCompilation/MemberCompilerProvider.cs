@@ -50,9 +50,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
 
-      return compilers.TryGetValue(GetCompilerKey(target), out var compiler)
-        ? compiler
-        : null;
+      return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
 
     public Func<T, T[], T> GetCompiler(MemberInfo target)
@@ -103,14 +101,15 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       foreach (var (targetMember, compiler) in newRegistrations) {
         var key = GetCompilerKey(targetMember);
-        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilers.ContainsKey(key)) {
-          if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
+        if (!compilers.TryAdd(key, compiler)) {
+          switch (conflictHandlingMethod) {
+            case ConflictHandlingMethod.Overwrite:
+              compilers[key] = compiler;
+              break;
+            case ConflictHandlingMethod.ReportError:
+              throw new InvalidOperationException(string.Format(Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
           }
-          continue;
         }
-        compilers[key] = compiler;
       }
     }
 
@@ -237,14 +236,14 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       
       if (!specialCase) {
         if (isCtor)
-          targetMember = targetType.GetConstructor(bindingFlags, parameterTypes);
+          targetMember = targetType.GetConstructorEx(bindingFlags, parameterTypes);
         else if (isField)
           targetMember = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
           targetMember = targetType
-            .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
+            .GetMethodEx(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 
@@ -304,11 +303,10 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     private static CompilerKey GetCompilerKey(MemberInfo member)
     {
       var canonicalMember = member;
-      var sourceProperty = canonicalMember as PropertyInfo;
-      if (sourceProperty!=null) {
+      if (canonicalMember is PropertyInfo sourceProperty) {
         canonicalMember = sourceProperty.GetGetMethod();
         // GetGetMethod returns null in case of non public getter.
-        if (canonicalMember==null) {
+        if (canonicalMember is null) {
           return default;
         }
       }

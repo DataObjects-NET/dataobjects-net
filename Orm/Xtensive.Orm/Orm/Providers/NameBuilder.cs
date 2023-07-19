@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -384,21 +384,23 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      string suffix = string.Empty;
       if (index.IsVirtual) {
-        if ((index.Attributes & IndexAttributes.Filtered)!=IndexAttributes.None)
-          suffix = ".FILTERED.";
-        else if ((index.Attributes & IndexAttributes.Join)!=IndexAttributes.None)
-          suffix = ".JOIN.";
-        else if ((index.Attributes & IndexAttributes.Union)!=IndexAttributes.None)
-          suffix = ".UNION.";
-        else if ((index.Attributes & IndexAttributes.View)!=IndexAttributes.None)
-          suffix = ".VIEW.";
-        else if ((index.Attributes & IndexAttributes.Typed) != IndexAttributes.None)
-          suffix = ".TYPED.";
-        suffix += type.Name;
+        var indexAttributes = index.Attributes;
+
+        var indexNameBeforeRules = indexAttributes.HasFlag(IndexAttributes.Filtered)
+          ? $"{result}.FILTERED.{type.Name}"
+          : indexAttributes.HasFlag(IndexAttributes.Join)
+            ? $"{result}.JOIN.{type.Name}"
+            : indexAttributes.HasFlag(IndexAttributes.Union)
+              ? $"{result}.UNION.{type.Name}"
+              : indexAttributes.HasFlag(IndexAttributes.View)
+                ? $"{result}.VIEW.{type.Name}"
+                : indexAttributes.HasFlag(IndexAttributes.Typed)
+                  ? $"{result}.TYPED.{type.Name}"
+                  : $"{result}{type.Name}";
+        return ApplyNamingRules(indexNameBeforeRules);
       }
-      return ApplyNamingRules(string.Concat(result, suffix));
+      return ApplyNamingRules(result);
     }
 
     /// <summary>
@@ -577,10 +579,12 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     private static string GetHash(string name)
     {
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
       using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
-        byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
+        var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
         return $"H{hash[0]:x2}{hash[1]:x2}{hash[2]:x2}{hash[3]:x2}";
       }
+#pragma warning restore SYSLIB0021 // Type or member is obsolete
     }
 
     private static string FormatKeyGeneratorName(string database, string name)

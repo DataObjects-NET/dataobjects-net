@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -19,15 +19,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormatString
-    {
-      get { return Constants.DateTimeFormatString; }
-    }
+    public override string DateTimeFormatString => Constants.DateTimeFormatString;
 
-    public override string TimeSpanFormatString
-    {
-      get { return string.Empty; }
-    }
+#if NET6_0_OR_GREATER
+    public override string DateOnlyFormatString => Constants.DateFormatString;
+
+    public override string TimeOnlyFormatString => Constants.TimeFormatString;
+#endif
+
+    public override string TimeSpanFormatString => string.Empty;
 
     public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
@@ -123,6 +123,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.Modulo:
           _ = output.Append("MOD"); break;
         case SqlNodeType.DateTimeMinusDateTime:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimeMinusTime:
+#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Except:
         case SqlNodeType.Intersect:
@@ -221,6 +224,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         default: base.Translate(output, dateTimePart); break;
       }
     }
+#if NET6_0_OR_GREATER //DO_DATEONLY
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.DayOfYear: _ = output.Append("YEARDAY"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("WEEKDAY"); break;
+        default: base.Translate(output, datePart); break;
+      }
+    }
+#endif
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
