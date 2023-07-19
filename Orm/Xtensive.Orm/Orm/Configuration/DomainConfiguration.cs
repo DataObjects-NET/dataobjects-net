@@ -798,7 +798,7 @@ namespace Xtensive.Orm.Configuration
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
-      taggingBehavior = configuration.taggingBehavior;
+      TaggingBehavior = configuration.taggingBehavior;
     }
 
     /// <summary>
