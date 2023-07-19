@@ -470,7 +470,7 @@ namespace Xtensive.Orm.Configuration.Elements
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
         TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
-        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true)
+        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true),
         MaxNumberOfConditions = MaxNumberOfConditions,
       };
 
