@@ -1185,7 +1185,7 @@
     <value>Invalid field value, constraint {0} is violated.</value>
   </data>
   <data name="ValueCanNotBeLessThenX" xml:space="preserve">
-    <value>Value can not be less then {0}.</value>
+    <value>Value can not be less than {0}.</value>
   </data>
   <data name="ExErrorsDuringStorageBuild" xml:space="preserve">
     <value>Some errors have been occurred during storage build. See error log for details.</value>
