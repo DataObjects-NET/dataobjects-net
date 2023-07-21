@@ -73,14 +73,12 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override TagProvider VisitTag(TagProvider provider)
+    protected override CompilableProvider VisitTag(TagProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TagProvider(source, provider.Tag);
+      return source == provider.Source ? provider : new TagProvider(source, provider.Tag);
     }
 
     /// <inheritdoc/>
@@ -137,14 +135,12 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override DistinctProvider VisitDistinct(DistinctProvider provider)
+    protected override CompilableProvider VisitDistinct(DistinctProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new DistinctProvider(source);
+      return source == provider.Source ? provider : new DistinctProvider(source);
     }
 
     /// <inheritdoc/>
@@ -179,14 +175,14 @@ namespace Xtensive.Orm.Rse.Providers
 
 
     /// <inheritdoc/>
-    protected override AliasProvider VisitAlias(AliasProvider provider)
+    protected override CompilableProvider VisitAlias(AliasProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new AliasProvider(source, provider.Alias);
+      return source == provider.Source
+        ? provider
+        : new AliasProvider(source, provider.Alias);
     }
 
     /// <inheritdoc/>
@@ -207,17 +203,16 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override StoreProvider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
-      var compilableSource = provider.Source as CompilableProvider;
-      if (compilableSource == null)
+      if (!(provider.Source is CompilableProvider compilableSource))
         return provider;
       OnRecursionEntrance(provider);
       var source = VisitCompilable(compilableSource);
       OnRecursionExit(provider);
-      if (source == compilableSource)
-        return provider;
-      return new StoreProvider(source, provider.Name);
+      return source == compilableSource
+        ? provider
+        : new StoreProvider(source, provider.Name);
     }
 
     /// <inheritdoc/>
@@ -237,7 +232,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override ContainsTableProvider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       OnRecursionEntrance(provider);
       OnRecursionExit(provider);
@@ -257,14 +252,12 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override ExistenceProvider VisitExistence(ExistenceProvider provider)
+    protected override CompilableProvider VisitExistence(ExistenceProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new ExistenceProvider(source, provider.ExistenceColumnName);
+      return source == provider.Source ? provider : new ExistenceProvider(source, provider.ExistenceColumnName);
     }
 
     /// <inheritdoc/>
@@ -328,14 +321,12 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override LockProvider VisitLock(LockProvider provider)
+    protected override CompilableProvider VisitLock(LockProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new LockProvider(source, provider.LockMode, provider.LockBehavior);
+      return source == provider.Source ? provider : new LockProvider(source, provider.LockMode, provider.LockBehavior);
     }
 
     protected override CompilableProvider VisitInclude(IncludeProvider provider)

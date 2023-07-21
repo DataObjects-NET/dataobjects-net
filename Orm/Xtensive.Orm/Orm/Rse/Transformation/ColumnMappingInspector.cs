@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override ContainsTableProvider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new RowNumberProvider(newSource, rowNumberColumn.Name);
     }
 
-    protected override StoreProvider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       if (!(provider.Source is CompilableProvider compilableSource)) {
         return provider;
