@@ -39,15 +39,15 @@ namespace Xtensive.Orm.Rse.Providers
           ProviderType.Tag => VisitTag((TagProvider) cp),
           ProviderType.Skip => VisitSkip((SkipProvider) cp),
           ProviderType.Take => VisitTake((TakeProvider) cp),
-          ProviderType.Paging => VisitPaging((PagingProvider)cp),
-          ProviderType.RowNumber => VisitRowNumber((RowNumberProvider)cp),
-          ProviderType.Apply => VisitApply((ApplyProvider)cp),
-          ProviderType.Existence => VisitExistence((ExistenceProvider)cp),
-          ProviderType.PredicateJoin => VisitPredicateJoin((PredicateJoinProvider)cp),
-          ProviderType.Intersect => VisitIntersect((IntersectProvider)cp),
-          ProviderType.Except => VisitExcept((ExceptProvider)cp),
-          ProviderType.Concat => VisitConcat((ConcatProvider)cp),
-          ProviderType.Union => VisitUnion((UnionProvider)cp),
+          ProviderType.Paging => VisitPaging((PagingProvider) cp),
+          ProviderType.RowNumber => VisitRowNumber((RowNumberProvider) cp),
+          ProviderType.Apply => VisitApply((ApplyProvider) cp),
+          ProviderType.Existence => VisitExistence((ExistenceProvider) cp),
+          ProviderType.PredicateJoin => VisitPredicateJoin((PredicateJoinProvider) cp),
+          ProviderType.Intersect => VisitIntersect((IntersectProvider) cp),
+          ProviderType.Except => VisitExcept((ExceptProvider) cp),
+          ProviderType.Concat => VisitConcat((ConcatProvider) cp),
+          ProviderType.Union => VisitUnion((UnionProvider) cp),
           ProviderType.Lock => VisitLock((LockProvider) cp),
           ProviderType.Include => VisitInclude((IncludeProvider) cp),
           ProviderType.FreeText => VisitFreeText((FreeTextProvider) cp),
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected abstract CompilableProvider VisitFreeText(FreeTextProvider provider);
 
     /// <summary>
-    /// Visits the <see cref="FreeTextProvider"/>.
+    /// Visits the <see cref="ContainsTableProvider"/>.
     /// </summary>
     /// <param name="provider">SearchCondition provider.</param>
     /// <returns></returns>

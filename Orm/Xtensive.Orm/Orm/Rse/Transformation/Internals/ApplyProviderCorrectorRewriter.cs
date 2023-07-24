@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override CompilableProvider VisitSelect(SelectProvider provider)
+    protected override SelectProvider VisitSelect(SelectProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override CompilableProvider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitIntersect(IntersectProvider provider)
+    protected override IntersectProvider VisitIntersect(IntersectProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitExcept(ExceptProvider provider)
+    protected override ExceptProvider VisitExcept(ExceptProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new ConcatProvider(left, right);
     }
 
-    protected override CompilableProvider VisitUnion(UnionProvider provider)
+    protected override UnionProvider VisitUnion(UnionProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return calculateProviderCollector.TryAdd(newProvider) ? source : newProvider;
     }
 
-    protected override CompilableProvider VisitTake(TakeProvider provider)
+    protected override TakeProvider VisitTake(TakeProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitSkip(SkipProvider provider)
+    protected override SkipProvider VisitSkip(SkipProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
