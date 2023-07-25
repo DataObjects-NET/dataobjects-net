@@ -56,9 +56,7 @@ namespace Xtensive.Orm.Model
         throw Exceptions.NotInitialized("Expression");
       if (Fields==null)
         throw Exceptions.NotInitialized("Fields");
-      fields = fields is List<FieldInfo> list
-        ? list.AsReadOnly()
-        : fields.ToList().AsReadOnly();
+      fields = (fields as List<FieldInfo> ?? fields.ToList()).AsReadOnly();
       base.Lock(recursive);
     }
   }
