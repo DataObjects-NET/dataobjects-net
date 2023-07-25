@@ -107,6 +107,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     protected override DomainConfiguration BuildConfiguration()
     {
+      CustomUpgradeHandler.TypeIdPerNode.Clear();
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId2, 200);
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId3, 300);
 

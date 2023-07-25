@@ -85,8 +85,9 @@ namespace Xtensive.Orm.Building
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
 
-      Modules = BuilderConfiguration.Services.Modules.AsSafeWrapper();
-      Modules2 = Modules.OfType<IModule2>().ToList().AsSafeWrapper();
+      
+      Modules = BuilderConfiguration.Services.Modules.ToList(BuilderConfiguration.Services.Modules.Count).AsReadOnly();
+      Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
       Validator = new Validator(builderConfiguration.Services.ProviderInfo.SupportedTypes);
       DefaultSchemaInfo = builderConfiguration.DefaultSchemaInfo;
     }

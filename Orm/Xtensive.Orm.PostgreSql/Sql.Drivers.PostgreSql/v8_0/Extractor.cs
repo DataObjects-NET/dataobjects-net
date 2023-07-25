@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -580,7 +580,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var targetSchemes = context.TargetSchemes;
       if (targetSchemes != null && targetSchemes.Count > 0) {
         var schemesIndexes = catalog.Schemas.Where(sch => targetSchemes.ContainsKey(sch.Name))
-          .Select(sch => context.ReversedSchemaMap[sch]);
+          .Select(sch =>
+            context.ReversedSchemaMap.TryGetValue(sch, out var oid)
+              ? oid
+              : throw new InvalidOperationException(string.Format(Resources.Strings.ExSchemaXDoesNotExistOrBelongsToAnotherUser, sch.Name))
+           );
         select.Where &= SqlDml.In(relationsTable["relnamespace"], CreateOidRow(schemesIndexes));
       }
 
@@ -1250,15 +1254,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var sequenceMap = context.SequenceMap;
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
-            query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostrgreSQL translator
+            _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
           else {
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostgreSQL translator
+            _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
         }
-        query.Append("\n) all_sequences\nORDER BY id");
+        _ = query.Append("\n) all_sequences\nORDER BY id");
       }
       return SqlDml.Fragment(SqlDml.Native(query.ToString()));
     }

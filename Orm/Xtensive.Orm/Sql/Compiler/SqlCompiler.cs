@@ -1109,6 +1109,8 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDropView node) => translator.Translate(context, node);
 
+    public virtual void Visit(SqlTruncateTable node) => translator.Translate(context, node);
+
     /// <summary>
     /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
     /// </summary>
@@ -1184,7 +1186,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
             var argumentPosition = 0;
@@ -1252,9 +1254,10 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsEntry);
-        if (node.Values.Keys.Count > 0) {
+        var columns = node.ValueRows.Columns;
+        if (columns.Count > 0) {
           using (context.EnterCollectionScope()) {
-            foreach (var item in node.Values.Keys) {
+            foreach (var item in columns) {
               AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
@@ -1262,8 +1265,7 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsExit);
-
-        if (node.Values.Keys.Count == 0 && node.From == null) {
+        if (node.ValueRows.Count == 0 && node.From == null) {
           AppendTranslated(node, InsertSection.DefaultValues);
         }
         else {
@@ -1274,11 +1276,14 @@ namespace Xtensive.Sql.Compiler
           }
           else {
             AppendTranslated(node, InsertSection.ValuesEntry);
-            using (context.EnterCollectionScope()) {
-              foreach (var item in node.Values.Values) {
-                AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-                item.AcceptVisitor(this);
+            bool firstRow = true;
+            foreach (var row in node.ValueRows) {
+              if (!firstRow) {
+                _ = context.Output.Append(translator.ColumnDelimiter);
+                AppendSpaceIfNecessary();
               }
+              firstRow = false;
+              row.AcceptVisitor(this);
             }
             AppendTranslated(node, InsertSection.ValuesExit);
           }
@@ -2083,12 +2088,20 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (node.DateTimePart!= SqlDateTimePart.Nothing) {
+        if (node.IsDateTimePart) {
           translator.Translate(context.Output, node.DateTimePart);
         }
-        else if (node.IntervalPart!= SqlIntervalPart.Nothing) {
+        else if (node.IsIntervalPart) {
           translator.Translate(context.Output, node.IntervalPart);
         }
+#if NET6_0_OR_GREATER
+        else if (node.IsDatePart) {
+          translator.Translate(context.Output, node.DatePart);
+        }
+        else if (node.IsTimePart) {
+          translator.Translate(context.Output, node.TimePart);
+        }
+#endif
         else {
           translator.Translate(context.Output, node.DateTimeOffsetPart);
         }

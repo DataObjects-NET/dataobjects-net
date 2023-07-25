@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.09.04
 
@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Model
     /// <param name="regular">The lazy load columns.</param>
     public ColumnIndexMap(IReadOnlyList<int> system, IReadOnlyList<int> regular, IReadOnlyList<int> lazyLoad)
     {
-      System = system.AsSafeWrapper();
-      LazyLoad = lazyLoad.AsSafeWrapper();
-      Regular = regular.AsSafeWrapper();
+      System = system;
+      LazyLoad = lazyLoad;
+      Regular = regular;
     }
   }
 }

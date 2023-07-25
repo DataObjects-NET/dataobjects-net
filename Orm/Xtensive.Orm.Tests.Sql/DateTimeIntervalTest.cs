@@ -15,6 +15,15 @@ namespace Xtensive.Orm.Tests.Sql
   {
     protected static readonly DateTime DefaultDateTime = new DateTime(2001, 2, 3, 4, 5, 6, 334);
     protected static readonly DateTime SecondDateTime = new DateTime(2000, 12, 11, 10, 9, 8, 765);
+#if NET6_0_OR_GREATER
+
+    protected static readonly DateOnly DefaultDateOnly = new DateOnly(2001, 2, 3);
+    protected static readonly DateOnly SecondDateOnly = new DateOnly(2000, 12, 11);
+
+    protected static readonly TimeOnly DefaultTimeOnly = new TimeOnly(4, 5, 6, 334);
+    protected static readonly TimeOnly SecondTimeOnly = new TimeOnly(10, 9, 8, 765);
+#endif
+
     protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 652);
     protected static readonly int AddYearsConst = 5;
     protected static readonly int AddMonthsConst = 15;
@@ -146,6 +155,141 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.Extract(SqlDateTimePart.DayOfYear, DefaultDateTime),
         DefaultDateTime.DayOfYear);
     }
+#if NET6_0_OR_GREATER
+
+    [Test]
+    public virtual void DateOnlyAddYearsTest()
+    {
+      CheckEquality(
+        SqlDml.DateAddYears(DefaultDateOnly, AddYearsConst),
+        DefaultDateOnly.AddYears(AddYearsConst));
+    }
+
+    [Test]
+    public virtual void DateOnlyAddMonthsTest()
+    {
+      CheckEquality(
+        SqlDml.DateAddMonths(DefaultDateOnly, AddMonthsConst),
+        DefaultDateOnly.AddMonths(AddMonthsConst));
+    }
+
+    [Test]
+    public virtual void DateOnlyConstructTest()
+    {
+      CheckEquality(
+        SqlDml.DateConstruct(DefaultDateOnly.Year, DefaultDateOnly.Month, DefaultDateOnly.Day),
+        DefaultDateOnly);
+    }
+
+    [Test]
+    public virtual void DateOnlyExtractYearTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDatePart.Year, DefaultDateOnly),
+        DefaultDateOnly.Year);
+    }
+
+    [Test]
+    public virtual void DateOnlyExtractMonthTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDatePart.Month, DefaultDateOnly),
+        DefaultDateOnly.Month);
+    }
+
+    [Test]
+    public virtual void DateOnlyExtractDayTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDatePart.Day, DefaultDateOnly),
+        DefaultDateOnly.Day);
+    }
+
+    [Test]
+    public virtual void DateOnlyExtractDayOfWeekTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDatePart.DayOfWeek, DefaultDateOnly),
+        (int) DefaultDateOnly.DayOfWeek);
+    }
+
+    [Test]
+    public virtual void DateOnlyExtractDayOfYearTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlDatePart.DayOfYear, DefaultDateOnly),
+        DefaultDateOnly.DayOfYear);
+    }
+
+    [Test]
+    public virtual void TimeOnlyExtractHourTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlTimePart.Hour, DefaultTimeOnly),
+        DefaultTimeOnly.Hour);
+    }
+
+    [Test]
+    public virtual void TimeOnlyExtractMinuteTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlTimePart.Minute, DefaultTimeOnly),
+        DefaultTimeOnly.Minute);
+    }
+
+    [Test]
+    public virtual void TimeOnlyExtractSecondTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlTimePart.Second, DefaultTimeOnly),
+        DefaultTimeOnly.Second);
+    }
+
+    [Test]
+    public virtual void TimeOnlyExtractMillisecondTest()
+    {
+      CheckEquality(
+        SqlDml.Extract(SqlTimePart.Millisecond, DefaultTimeOnly),
+        DefaultTimeOnly.Millisecond);
+    }
+
+    [Test]
+    public virtual void TimeOnlyConstructTest1()
+    {
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.MySql);
+
+      CheckEquality(
+        SqlDml.TimeConstruct(DefaultTimeOnly.Hour, DefaultTimeOnly.Minute, DefaultTimeOnly.Second, DefaultTimeOnly.Millisecond),
+        DefaultTimeOnly);
+    }
+
+    [Test]
+    public virtual void TimeOnlyConstructTest2()
+    {
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.MySql);
+
+      var ticksPerHour = new TimeOnly(1, 0).Ticks;
+      var ticksPerMinute = new TimeOnly(0, 1).Ticks;
+      var ticksPerSecond = new TimeOnly(0, 0, 1).Ticks;
+      var ticksPerMillisecond = new TimeOnly(0, 0, 0, 1).Ticks;
+      var testTicks = ticksPerHour * DefaultTimeOnly.Hour +
+        ticksPerMinute * DefaultTimeOnly.Minute +
+        ticksPerSecond * DefaultTimeOnly.Second +
+        ticksPerMillisecond * DefaultTimeOnly.Millisecond;
+
+      CheckEquality(
+        SqlDml.TimeConstruct(testTicks),
+        DefaultTimeOnly);
+    }
+
+    [Test]
+    public virtual void TimeOnlySubtractTimeOnlyTest()
+    {
+      CheckEquality(
+        SqlDml.TimeMinusTime(DefaultTimeOnly, SecondTimeOnly),
+        DefaultTimeOnly - SecondTimeOnly);
+    }
+#endif
 
     [Test]
     public virtual void IntervalConstructTest()

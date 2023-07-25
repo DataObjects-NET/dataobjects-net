@@ -31,8 +31,9 @@ namespace Xtensive.Orm.Building
 
     private static void InspectAbstractTypes(BuildingContext context)
     {
-      foreach (var typeDef in context.ModelDef.Types.Where(td => td.IsAbstract)) {
-        var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
+      var modelDef = context.ModelDef;
+      foreach (var typeDef in modelDef.Types.Where(td => td.IsAbstract)) {
+        var hierarchyDef = modelDef.FindHierarchy(typeDef);
         if (hierarchyDef != null) {
           var node = context.DependencyGraph.TryGetNode(typeDef);
           if (node == null || node.IncomingEdges.All(e => e.Kind != EdgeKind.Inheritance)) {
@@ -63,7 +64,7 @@ namespace Xtensive.Orm.Building
 
     private static void InspectInterfaces(BuildingContext context)
     {
-      foreach (var interfaceDef in context.ModelDef.Types.Where(t => t.IsInterface)) {
+      foreach (var interfaceDef in context.ModelDef.Types.Where(static t => t.IsInterface)) {
 
         var interfaceNode = context.DependencyGraph.TryGetNode(interfaceDef);
 

@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// </summary>
     public bool IsLazyLoad
     {
-      get { return (attributes & FieldAttributes.LazyLoad) != 0; }
+      get {  return (attributes & FieldAttributes.LazyLoad) != 0; }
       set { attributes = value ? attributes | FieldAttributes.LazyLoad : attributes & ~FieldAttributes.LazyLoad; }
     }
 
@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets of <see cref="IPropertyValidator"/> instances associated with this field.
     /// </summary>
-    public List<IPropertyValidator> Validators { get; } = new();
+    public List<IPropertyValidator> Validators { get; private set; }
 
     internal bool IsDeclaredAsNullable
     {

@@ -47,8 +47,8 @@ namespace Xtensive.Reflection
           if (enumerable.IsAssignableFrom(sequenceType))
             return enumerable;
         }
-      Type[] interfaces = sequenceType.GetInterfaces();
-      if (interfaces != null && interfaces.Length > 0)
+      var interfaces = TypeHelper.GetInterfacesUnordered(sequenceType);
+      if (interfaces.Count > 0)
         foreach (Type @interface in interfaces) {
           Type enumerable = FindIEnumerable(@interface);
           if (enumerable != null)

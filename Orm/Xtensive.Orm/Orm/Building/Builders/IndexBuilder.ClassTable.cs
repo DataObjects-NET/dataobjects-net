@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Building.Builders
         // Skip indef building for inherited fields
         var hasInheritedFields = indexDescriptor.KeyFields
           .Select(kvp => type.Fields[kvp.Key])
-          .Any(f => f.IsInherited);
+          .Any(static f => f.IsInherited);
         if (hasInheritedFields) {
           continue;
         }
@@ -102,8 +102,8 @@ namespace Xtensive.Orm.Building.Builders
       // Build virtual primary index
       if (ancestors.Count > 0) {
         var baseIndexes = new Stack<IndexInfo>();
-        foreach (var ancestor in ancestors.Where(t => t.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))) {
-          var ancestorIndex = ancestor.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
+        foreach (var ancestor in ancestors.Where(t => t.Fields.Any(static f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared))) {
+          var ancestorIndex = ancestor.Indexes.Single(static i => i.IsPrimary && !i.IsVirtual);
           if (untypedIndexes.Contains(ancestorIndex) && ancestorIndex.ReflectedType == root) {
             ancestorIndex = ancestor.Indexes.Single(i => i.DeclaringIndex == ancestorIndex.DeclaringIndex && i.IsTyped);
           }
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Building.Builders
           }
         }
         if (baseIndexes.Count > 0) {
-          if (primaryIndex.ValueColumns.Count > 0 && type.Fields.Any(f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared)) {
+          if (primaryIndex.ValueColumns.Count > 0 && type.Fields.Any(static f => !f.IsPrimaryKey && !f.IsTypeId && f.IsDeclared)) {
             baseIndexes.Push(primaryIndex);
           }
           else {

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -26,12 +26,10 @@ namespace Xtensive.Orm.Building.Definitions
   public sealed class TypeDef : SchemaMappedNode
   {
     private readonly ModelDefBuilder builder;
-    private readonly Type underlyingType;
     private readonly NodeCollection<FieldDef> fields;
     private readonly NodeCollection<IndexDef> indexes;
     private readonly Validator validator;
 
-    private TypeAttributes attributes;
     private NodeCollection<TypeDef> implementors;
   
     /// <summary>
@@ -42,14 +40,14 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
     /// </summary>
-    public bool IsEntity => (attributes & TypeAttributes.Entity) > 0;
+    public bool IsEntity => Attributes.HasFlag(TypeAttributes.Entity);
 
     /// <summary>
     /// Gets a value indicating whether this instance is abstract entity.
     /// </summary>
     public bool IsAbstract
     {
-      get => (attributes & TypeAttributes.Abstract) > 0;
+      get => Attributes.HasFlag(TypeAttributes.Abstract);
       internal set {
         EnsureNotLocked();
         Attributes = value
@@ -61,41 +59,37 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets a value indicating whether this instance is system type.
     /// </summary>
-    public bool IsSystem => (attributes & TypeAttributes.System) > 0;
+    public bool IsSystem => Attributes.HasFlag(TypeAttributes.System);
 
     /// <summary>
     /// Gets a value indicating whether this instance is interface.
     /// </summary>
-    public bool IsInterface => (attributes & TypeAttributes.Interface) > 0;
+    public bool IsInterface => Attributes.HasFlag(TypeAttributes.Interface);
 
     /// <summary>
     /// Gets a value indicating whether this instance is structure.
     /// </summary>
-    public bool IsStructure => (attributes & TypeAttributes.Structure) > 0;
+    public bool IsStructure => Attributes.HasFlag(TypeAttributes.Structure);
 
     /// <summary>
     /// Gets a value indicating whether this instance is generic type definition.
     /// </summary>
-    public bool IsGenericTypeDefinition => (attributes & TypeAttributes.GenericTypeDefinition) > 0;
+    public bool IsGenericTypeDefinition => Attributes.HasFlag(TypeAttributes.GenericTypeDefinition);
 
     /// <summary>
     /// Gets a value indicating whether this instance is automatically registered generic type instance.
     /// </summary>
-    public bool IsAutoGenericInstance => (attributes & TypeAttributes.AutoGenericInstance) > 0;
+    public bool IsAutoGenericInstance => Attributes.HasFlag(TypeAttributes.AutoGenericInstance);
 
     /// <summary>
     /// Gets or sets the underlying system type.
     /// </summary>
-    public Type UnderlyingType => underlyingType;
+    public Type UnderlyingType { get; }
 
     /// <summary>
     /// Gets the attributes.
     /// </summary>
-    public TypeAttributes Attributes
-    {
-      get => attributes;
-      internal set => attributes = value;
-    }
+    public TypeAttributes Attributes { get; internal set; }
 
     /// <summary>
     /// Gets the indexes for this instance.
@@ -119,7 +113,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets <see cref="IObjectValidator"/> instances associated with this type.
     /// </summary>
-    public List<IObjectValidator> Validators { get; } = new();
+    public List<IObjectValidator> Validators { get; private set; }
 
     /// <summary>
     /// Gets or sets the type discriminator value.
@@ -201,7 +195,7 @@ namespace Xtensive.Orm.Building.Definitions
     internal TypeDef(ModelDefBuilder builder, Type type, Validator validator)
     {
       this.builder = builder;
-      underlyingType = type;
+      UnderlyingType = type;
       this.validator = validator;
 
       if (type.IsInterface) {

@@ -15,19 +15,15 @@ namespace Xtensive.Sql.Dml
 
     public List<SqlExpression> Expressions { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-      var clone = new SqlDynamicFilter(Id);
-      foreach (var expression in Expressions) {
-        clone.Expressions.Add((SqlExpression) expression.Clone(context));
-      }
+    internal override SqlDynamicFilter Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlDynamicFilter(t.Id);
+        foreach (var expression in t.Expressions) {
+          clone.Expressions.Add(expression.Clone(c));
+        }
 
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

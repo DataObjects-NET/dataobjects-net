@@ -6,18 +6,18 @@
 
 using System;
 using System.Collections;
-using System.Collections.Immutable;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
-using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Model
 {
@@ -67,9 +67,9 @@ namespace Xtensive.Orm.Model
     private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
+ 
 
     private TypeInfo ancestor;
-
     private IReadOnlySet<TypeInfo> ancestors;
 
     private ISet<TypeInfo> directDescendants;
@@ -527,7 +527,7 @@ namespace Xtensive.Orm.Model
     /// Gets <see cref="IObjectValidator"/> instances
     /// associated with this type.
     /// </summary>
-    public IReadOnlyList<IObjectValidator> Validators { get; init; }
+    public IReadOnlyList<IObjectValidator> Validators { get; internal init; }
 
     /// <summary>
     /// Gets value indicating if this type has validators (including field validators).
@@ -761,11 +761,13 @@ namespace Xtensive.Orm.Model
         .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = Ancestor;
-      if (ancestor != null && ancestor.overridenAssociations != null)
+      if (ancestor != null && ancestor.overridenAssociations != null) {
         overridenAssociations.AddRange(ancestor.overridenAssociations);
+      }
 
-      foreach (var ancestorAssociation in overridenAssociations)
+      foreach (var ancestorAssociation in overridenAssociations) {
         associations.Remove(ancestorAssociation);
+      }
 
       //
       //Commented action sequence bellow may add dublicates to "sequence".

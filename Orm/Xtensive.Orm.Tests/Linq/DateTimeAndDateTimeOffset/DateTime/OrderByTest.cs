@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
@@ -17,40 +17,41 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void DateTimeOrderByTest()
     {
-      ExecuteInsideSession(() => {
-        OrderByPrivate<DateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
-        OrderByPrivate<DateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
+      ExecuteInsideSession((s) => {
+        OrderByPrivate<DateTimeEntity, DateTime, long>(s, c => c.DateTime, c => c.Id);
+        OrderByPrivate<DateTimeEntity, DateTime, DateTime>(s, c => c.DateTime, c => c);
       });
     }
 
     [Test]
     public void MillisecondDateTimeOrderByTest()
     {
-      ExecuteInsideSession(() => {
-        OrderByPrivate<MillisecondDateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
-        OrderByPrivate<MillisecondDateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
+      ExecuteInsideSession((s) => {
+        OrderByPrivate<MillisecondDateTimeEntity, DateTime, long>(s, c => c.DateTime, c => c.Id);
+        OrderByPrivate<MillisecondDateTimeEntity, DateTime, DateTime>(s, c => c.DateTime, c => c);
       });
     }
 
     [Test]
     public void NullableDateTimeOrderByTest()
     {
-      ExecuteInsideSession(() => {
-        OrderByPrivate<NullableDateTimeEntity, DateTime?, long>(c => c.DateTime, c => c.Id);
-        OrderByPrivate<NullableDateTimeEntity, DateTime?, DateTime?>(c => c.DateTime, c => c);
+      ExecuteInsideSession((s) => {
+        OrderByPrivate<NullableDateTimeEntity, DateTime?, long>(s, c => c.DateTime, c => c.Id);
+        OrderByPrivate<NullableDateTimeEntity, DateTime?, DateTime?>(s, c => c.DateTime, c => c);
       });
     }
 
-    private void OrderByPrivate<T, TK1, TK2>(Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression)
+    private static void OrderByPrivate<T, TK1, TK2>(Session session,
+      Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression)
       where T : Entity
     {
       var compiledOrderByExpression = orderByExpression.Compile();
       var compiledThenByExpression = thenByExpression.Compile();
-      var notOrderedLocal = Query.All<T>().ToArray();
+      var notOrderedLocal = session.Query.All<T>().ToArray();
       var orderedLocal = notOrderedLocal.OrderBy(compiledOrderByExpression).ThenBy(compiledThenByExpression);
       var orderedLocalDescending = notOrderedLocal.OrderByDescending(compiledOrderByExpression).ThenBy(compiledThenByExpression);
-      var orderedByServer = Query.All<T>().OrderBy(orderByExpression).ThenBy(thenByExpression);
-      var orderedByServerDescending = Query.All<T>().OrderByDescending(orderByExpression).ThenBy(thenByExpression);
+      var orderedByServer = session.Query.All<T>().OrderBy(orderByExpression).ThenBy(thenByExpression);
+      var orderedByServerDescending = session.Query.All<T>().OrderByDescending(orderByExpression).ThenBy(thenByExpression);
 
       Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
       Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
@@ -60,16 +61,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
       Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
     }
 
-    protected void OrderByPrivate<T1, T2, T3>(Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
+    protected static void OrderByPrivate<T1, T2, T3>(Session session,
+      Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
       where T1 : Entity
     {
       var compiledOrderByExpression = orderByExpression.Compile();
 
-      var notOrderedLocal = Query.All<T1>().Select(selectorExpression).ToArray();
+      var notOrderedLocal = session.Query.All<T1>().Select(selectorExpression).ToArray();
       var orderedLocal = notOrderedLocal.OrderBy(compiledOrderByExpression);
       var orderedLocalDescending = notOrderedLocal.OrderByDescending(compiledOrderByExpression);
-      var orderedByServer = Query.All<T1>().Select(selectorExpression).OrderBy(orderByExpression);
-      var orderedByServerDescending = Query.All<T1>().Select(selectorExpression).OrderByDescending(orderByExpression);
+      var orderedByServer = session.Query.All<T1>().Select(selectorExpression).OrderBy(orderByExpression);
+      var orderedByServerDescending = session.Query.All<T1>().Select(selectorExpression).OrderByDescending(orderByExpression);
 
       Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
       Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -29,6 +29,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)";
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.fffffff\'\ DAY(0) TO SECOND(7))";
+#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))";
@@ -108,7 +116,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      if (node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second) {
+      if (node.IsSecondExtraction) {
         switch (section) {
           case ExtractSection.Entry:
             _ = context.Output.Append("TRUNC(EXTRACT(");
@@ -119,7 +127,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         }
       }
 
-      if (node.DateTimePart == SqlDateTimePart.Millisecond || node.IntervalPart == SqlIntervalPart.Millisecond) {
+      if (node.IsMillisecondExtraction) {
         switch (section) {
           case ExtractSection.Entry:
             _ = context.Output.Append("MOD(EXTRACT(");
@@ -327,10 +335,19 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     /// <inheritdoc/>
     public override string Translate(SqlValueType type)
     {
+#if NET6_0_OR_GREATER
+      // we need to explicitly specify maximum interval precision
+      return type.Type == SqlType.Interval
+        ? "INTERVAL DAY(6) TO SECOND(3)"
+        : type.Type == SqlType.Time
+          ? "INTERVAL DAY(0) TO SECOND(7)"
+          : base.Translate(type);
+#else
       // we need to explicitly specify maximum interval precision
       return type.Type == SqlType.Interval
         ? "INTERVAL DAY(6) TO SECOND(3)"
         : base.Translate(type);
+#endif
     }
 
     /// <inheritdoc/>
@@ -348,6 +365,32 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           break;
       }
     }
+#if NET6_0_OR_GREATER
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart datePart)
+    {
+      switch (datePart) {
+        case SqlDatePart.DayOfWeek:
+        case SqlDatePart.DayOfYear:
+          throw new NotSupportedException();
+        default:
+          base.Translate(output, datePart);
+          break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart timePart)
+    {
+      if (timePart== SqlTimePart.Millisecond) {
+        _ = output.Append("SECOND");
+      }
+      else {
+        base.Translate(output, timePart);
+      }
+    }
+#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart part)
@@ -358,7 +401,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       else {
         base.Translate(output, part);
       }
-
     }
 
     /// <inheritdoc/>
@@ -385,6 +427,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       switch (type) {
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimePlusInterval:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+#endif
           _ = output.Append("+"); break;
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
         case SqlNodeType.DateTimeOffsetMinusInterval:

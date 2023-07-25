@@ -506,7 +506,7 @@ namespace Xtensive.Orm.Upgrade
         yield break;
       yield return type;
       if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
-        foreach (var descendant in type.AllDescendants.Where(descendant => descendant.Indexes.PrimaryIndex != null))
+        foreach (var descendant in type.AllDescendants.Where(static descendant => descendant.Indexes.PrimaryIndex != null))
           yield return descendant;
     }
 

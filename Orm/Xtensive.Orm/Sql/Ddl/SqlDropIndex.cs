@@ -59,10 +59,9 @@ namespace Xtensive.Sql.Ddl
     //  }
     //}
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlDropIndex(index);
+    internal override SqlDropIndex Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlDropIndex(t.index));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
