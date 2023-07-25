@@ -5,6 +5,7 @@
 // Created:    2008.07.02
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples.Transform;
@@ -191,6 +192,13 @@ namespace Xtensive.Orm.Model
       }
 
       throw new InvalidOperationException(Strings.ExCanNotExtractForeignKey);
+    }
+    
+    internal void AddAncestors(IReadOnlyList<AssociationInfo> associations)
+    {
+      if (associations.Count > 0) {
+        Ancestors.AddRange(associations); 
+      }
     }
 
     public override void Lock(bool recursive)

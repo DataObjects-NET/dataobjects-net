@@ -239,7 +239,7 @@ namespace Xtensive.Orm.Building.Builders
               .ToList();
             if (pairedAssociations.Count > 0) {
               foreach (var paired in pairedAssociations) {
-                paired.First.Ancestors.AddRange(interfaceAssociations);
+                paired.First.AddAncestors(interfaceAssociations);
                 if (paired.First.TargetType.IsInterface || typesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
                   AssociationBuilder.BuildReversedAssociation(context, paired.First, paired.Second);
                 else {
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Building.Builders
             var interfaceAssociationsToRemove = interfaceAssociations
               .Where(ia => ia.OwnerType != association.OwnerType)
               .ToList();
-            association.Ancestors.AddRange(interfaceAssociationsToRemove);
+            association.AddAncestors(interfaceAssociationsToRemove);
             foreach (var interfaceAssociation in interfaceAssociationsToRemove)
               interfaceAssociations.Remove(interfaceAssociation);
           }
