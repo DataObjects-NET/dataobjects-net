@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;>>>>>>> master
-57
+using System.Reflection;
 
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
