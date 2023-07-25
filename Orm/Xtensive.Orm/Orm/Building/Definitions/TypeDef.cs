@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets <see cref="IObjectValidator"/> instances associated with this type.
     /// </summary>
-    public List<IObjectValidator> Validators { get; private set; }
+    public List<IObjectValidator> Validators { get; } = new();
 
     /// <summary>
     /// Gets or sets the type discriminator value.

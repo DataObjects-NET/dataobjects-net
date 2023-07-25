@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets of <see cref="IPropertyValidator"/> instances associated with this field.
     /// </summary>
-    public List<IPropertyValidator> Validators { get; private set; }
+    public List<IPropertyValidator> Validators { get; } = new();
 
     internal bool IsDeclaredAsNullable
     {
