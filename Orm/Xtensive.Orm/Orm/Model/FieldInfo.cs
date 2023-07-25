@@ -559,25 +559,22 @@ namespace Xtensive.Orm.Model
         a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
     }
 
-    public IReadOnlyList<AssociationInfo> Associations => (IReadOnlyList<AssociationInfo>)associations ?? Array.Empty<AssociationInfo>();
+    public IReadOnlyList<AssociationInfo> Associations => associations;
 
-    public bool ContainsAssociation(string associationName) => associations?.Contains(associationName) == true;
+    public bool ContainsAssociation(string associationName) => associations.Contains(associationName);
 
     public void AddAssociation(AssociationInfo association) =>
-      EnsureAssociations().Add(association);
+      associations.Add(association);
 
     public void AddAssociations(IReadOnlyList<AssociationInfo> range)
     {
       if (range.Count > 0) {
-        EnsureAssociations().AddRange(range);
+        associations.AddRange(range);
       }
     }
 
     public void RemoveAssociation(AssociationInfo association) =>
-      _ = EnsureAssociations().Remove(association);
-
-    private NodeCollection<AssociationInfo> EnsureAssociations() =>
-      associations ??= new NodeCollection<AssociationInfo>(this, "Associations");
+      _ = associations.Remove(association);
 
     /// <summary>
     /// Gets or sets field's adapter index.
@@ -678,8 +675,7 @@ namespace Xtensive.Orm.Model
       if (!recursive)
         return;
       Fields.Lock(true);
-      if (column != null)
-        column.Lock(true);
+      column?.Lock(true);
       if (Associations.Count > 1) {
         var sorted = associations.Reorder();
         associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
@@ -812,9 +808,8 @@ namespace Xtensive.Orm.Model
       Attributes = attributes;
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
-      Fields = IsEntity || IsStructure
-        ? new FieldInfoCollection(this, "Fields")
-        : FieldInfoCollection.Empty;
+      Fields = IsEntity || IsStructure ? new FieldInfoCollection(this, "Fields") : FieldInfoCollection.Empty;
+      associations = IsEntity || IsEntitySet ? new NodeCollection<AssociationInfo>(this, "Associations") : NodeCollection<AssociationInfo>.Empty;
     }
   }
 }

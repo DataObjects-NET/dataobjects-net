@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Xtensive.Core
@@ -125,7 +126,7 @@ namespace Xtensive.Core
     public static IReadOnlyList<T> AsSafeWrapper<T>(this List<T> list) => list.AsReadOnly();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IReadOnlyList<T> AsSafeWrapper<T>(this IReadOnlyList<T> list) => new ReadOnlyCollection(list);
+    public static IReadOnlyList<T> AsSafeWrapper<T>(this IReadOnlyList<T> list) => Array.AsReadOnly(list.ToArray());
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IReadOnlyList<T> AsSafeWrapper<T>(this T[] array) => Array.AsReadOnly(array);

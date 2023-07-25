@@ -62,10 +62,8 @@ namespace Xtensive.Orm.Model
     /// Gets or sets ancestor association.
     /// </summary>
     /// <value>The ancestor.</value>
-    public NodeCollection<AssociationInfo> Ancestors
-    {
-      get { return ancestors; }
-    }
+    public NodeCollection<AssociationInfo> Ancestors =>
+      ancestors ??= new NodeCollection<AssociationInfo>(this, "Ancestors");
 
     /// <summary>
     /// Gets the underlying index for this instance.
@@ -195,6 +193,17 @@ namespace Xtensive.Orm.Model
       throw new InvalidOperationException(Strings.ExCanNotExtractForeignKey);
     }
 
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      if (!recursive)
+        return;
+      if (ancestors is null || ancestors.Count == 0)
+        ancestors = NodeCollection<AssociationInfo>.Empty;
+      else
+        ancestors.Lock(false);
+    }
+
     /// <inheritdoc/>
     public override void UpdateState()
     {
@@ -245,7 +254,6 @@ namespace Xtensive.Orm.Model
       Multiplicity = multiplicity;
       OnOwnerRemove = onOwnerRemove;
       OnTargetRemove = onTargetRemove;
-      ancestors = new NodeCollection<AssociationInfo>(this, "Ancestors");
     }
   }
 }
