@@ -560,13 +560,6 @@ namespace Xtensive.Orm.Model
 
     public NodeCollection<AssociationInfo> Associations { get; private set; }
 
-    public void AddAssociations(IReadOnlyList<AssociationInfo> range)
-    {
-      if (range.Count > 0) {
-        Associations.AddRange(range);
-      }
-    }
-
     /// <summary>
     /// Gets or sets field's adapter index.
     /// </summary>
@@ -774,7 +767,9 @@ namespace Xtensive.Orm.Model
         DeclaringField = DeclaringField,
         Validators = Validators.Select(v => v.CreateNew()).ToArray(),
       };
-      clone.AddAssociations(Associations);
+      if (Associations.Count > 0) {
+        clone.Associations.AddRange(Associations);
+      }
       return clone;
     }
 

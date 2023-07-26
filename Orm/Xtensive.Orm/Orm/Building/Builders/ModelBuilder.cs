@@ -292,7 +292,9 @@ namespace Xtensive.Orm.Building.Builders
             foreach (var interfaceAssociation in interfaceAssociationsToRemove)
               interfaceAssociations.Remove(interfaceAssociation);
           }
-          refField.AddAssociations(interfaceAssociations);
+          if (interfaceAssociations.Count > 0) {
+            refField.Associations.AddRange(interfaceAssociations);
+          }
           foreach (var association in inheritedAssociations) {
             if (!refField.Associations.Contains(association.Name))
               refField.Associations.Add(association);
