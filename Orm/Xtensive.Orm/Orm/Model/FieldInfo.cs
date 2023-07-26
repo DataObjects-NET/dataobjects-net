@@ -51,7 +51,6 @@ namespace Xtensive.Orm.Model
     private TypeInfo declaringType;
     private FieldInfo parent;
     private ColumnInfo column;
-    private NodeCollection<AssociationInfo> associations;
     private Type itemType;
     private string originalName;
     internal SegmentTransform valueExtractor;
@@ -548,33 +547,25 @@ namespace Xtensive.Orm.Model
         case 0:
           return null;
         case 1:
-          return associations[0];
+          return Associations[0];
       }
 
       var ordered = IsLocked
-        ? associations
-        : associations.Reorder();
+        ? Associations
+        : Associations.Reorder();
 
       return ordered.FirstOrDefault(
         a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
     }
 
-    public IReadOnlyList<AssociationInfo> Associations => associations;
-
-    public bool ContainsAssociation(string associationName) => associations.Contains(associationName);
-
-    public void AddAssociation(AssociationInfo association) =>
-      associations.Add(association);
+    public NodeCollection<AssociationInfo> Associations { get; private set; }
 
     public void AddAssociations(IReadOnlyList<AssociationInfo> range)
     {
       if (range.Count > 0) {
-        associations.AddRange(range);
+        Associations.AddRange(range);
       }
     }
-
-    public void RemoveAssociation(AssociationInfo association) =>
-      _ = associations.Remove(association);
 
     /// <summary>
     /// Gets or sets field's adapter index.
@@ -677,11 +668,11 @@ namespace Xtensive.Orm.Model
       Fields.Lock(true);
       column?.Lock(true);
       if (Associations.Count > 1) {
-        var sorted = associations.Reorder();
-        associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
-        associations.AddRange(sorted);
+        var sorted = Associations.Reorder();
+        Associations = new NodeCollection<AssociationInfo>(Associations.Owner, Associations.Name);
+        Associations.AddRange(sorted);
       }
-      associations?.Lock(false);
+      Associations?.Lock(false);
     }
 
     private void CreateMappingInfo()
@@ -809,7 +800,7 @@ namespace Xtensive.Orm.Model
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
       Fields = IsEntity || IsStructure ? new FieldInfoCollection(this, "Fields") : FieldInfoCollection.Empty;
-      associations = IsEntity || IsEntitySet ? new NodeCollection<AssociationInfo>(this, "Associations") : NodeCollection<AssociationInfo>.Empty;
+      Associations = IsEntity || IsEntitySet ? new NodeCollection<AssociationInfo>(this, "Associations") : NodeCollection<AssociationInfo>.Empty;
     }
   }
 }

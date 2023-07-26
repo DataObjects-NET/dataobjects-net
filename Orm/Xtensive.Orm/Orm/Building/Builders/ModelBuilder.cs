@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Building.Builders
 
           foreach (var association in associationsToRemove) {
             context.Model.Associations.Remove(association);
-            refField.RemoveAssociation(association);
+            refField.Associations.Remove(association);
           }
           foreach (var association in associationsToKeep) {
             var interfaceAssociationsToRemove = interfaceAssociations
@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Building.Builders
           }
           refField.AddAssociations(interfaceAssociations);
           foreach (var association in inheritedAssociations) {
-            if (!refField.ContainsAssociation(association.Name))
-              refField.AddAssociation(association);
+            if (!refField.Associations.Contains(association.Name))
+              refField.Associations.Add(association);
             if (!context.Model.Associations.Contains(association))
               context.Model.Associations.Add(association);
           }
