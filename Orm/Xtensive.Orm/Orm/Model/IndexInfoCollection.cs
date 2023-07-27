@@ -24,10 +24,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="criteria">The criteria.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICollection<IndexInfo> Find(IndexAttributes criteria)
-    {
-      return Find(criteria, MatchType.Full);
-    }
+    public IEnumerable<IndexInfo> Find(IndexAttributes criteria) => Find(criteria, MatchType.Full);
 
     /// <summary>
     /// Finds <see cref="IndexInfo"/> objects by the specified criteria and match type.
@@ -35,21 +32,14 @@ namespace Xtensive.Orm.Model
     /// <param name="criteria">The criteria.</param>
     /// <param name="matchType">Type of the match.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICollection<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
-    {
-      if (criteria == IndexAttributes.None)
-        return Array.Empty<IndexInfo>();
-
-      switch (matchType) {
-        case MatchType.Partial:
-          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
-        case MatchType.Full:
-          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
-        case MatchType.None:
-        default:
-          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
-      }
-    }
+    public IEnumerable<IndexInfo> Find(IndexAttributes criteria, MatchType matchType) =>
+      criteria == IndexAttributes.None
+        ? Array.Empty<IndexInfo>()
+        : matchType switch {
+          MatchType.Partial => this.Where(f => (f.Attributes & criteria) > 0),
+          MatchType.Full => this.Where(f => (f.Attributes & criteria) == criteria),
+          _ => this.Where(f => (f.Attributes & criteria) == 0)
+        };
 
 
     // Constructors

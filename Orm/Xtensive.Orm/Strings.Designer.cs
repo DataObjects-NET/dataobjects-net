@@ -1353,6 +1353,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DateOnly.ToString() method is not supported, use the DateOnly.ToString(&quot;o&quot;)..
+        /// </summary>
+        internal static string ExDateOnlyToStringMethodIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExDateOnlyToStringMethodIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DateTime.ToString() method is not supported, use the DateTime.ToString(&quot;s&quot;)..
         /// </summary>
         internal static string ExDateTimeToStringMethodIsNotSupported {
@@ -1958,11 +1967,20 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
+        ///   Looks up a localized string similar to Rule is already configured for {0}..
         /// </summary>
-        internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {
+        internal static string ExIgnoreRuleIsAlreadyConfiguredForX {
             get {
-                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnOrTable", resourceCulture);
+                return ResourceManager.GetString("ExIgnoreRuleIsAlreadyConfiguredForX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column, index or table..
+        /// </summary>
+        internal static string ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable", resourceCulture);
             }
         }
         
@@ -2819,6 +2837,15 @@ namespace Xtensive {
         internal static string ExMaxItemCountIsN {
             get {
                 return ResourceManager.GetString("ExMaxItemCountIsN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included)..
+        /// </summary>
+        internal static string ExMaxNumberOfConditionsShouldBeBetweenXAndY {
+            get {
+                return ResourceManager.GetString("ExMaxNumberOfConditionsShouldBeBetweenXAndY", resourceCulture);
             }
         }
         
@@ -4291,6 +4318,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TimeOnly.ToString() method is not supported, use the TimeOnly.ToString(&quot;o&quot;)..
+        /// </summary>
+        internal static string ExTimeOnlyToStringMethodIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTimeOnlyToStringMethodIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transaction is not active..
         /// </summary>
         internal static string ExTransactionIsNotActive {
@@ -4318,11 +4354,20 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString(&quot;s&quot;)..
+        /// </summary>
+        internal static string ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString(&quot;s&quot;)..
         /// </summary>
-        internal static string ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported {
+        internal static string ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported {
             get {
-                return ResourceManager.GetString("ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
         
@@ -4341,6 +4386,15 @@ namespace Xtensive {
         internal static string ExTranslationOfLiteralOfTypeXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExTranslationOfLiteralOfTypeXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Translation of TimeOnly.ToString(string) with arbitrary arguments is not supported. Use TimeOnly.ToString(&quot;s&quot;)..
+        /// </summary>
+        internal static string ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
         
@@ -4594,6 +4648,15 @@ namespace Xtensive {
         internal static string ExTypeXShouldNotBeGeneric {
             get {
                 return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
+        /// </summary>
+        internal static string ExUnableToActualizeSchemaNodeInQuery {
+            get {
+                return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
             }
         }
         

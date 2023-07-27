@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Tuples;
@@ -32,6 +33,12 @@ namespace Xtensive.Orm.Providers
     public readonly Tuple Tuple;
 
     /// <summary>
+    /// A tuples that store changed column values for multi-record INSERT.
+    /// <see cref="Tuple"/> should remain <see langword="null" />
+    /// </summary>
+    public readonly IReadOnlyList<Tuple> Tuples;
+
+    /// <summary>
     /// A tuple that stored original column values.
     /// </summary>
     public readonly Tuple OriginalTuple;
@@ -47,13 +54,18 @@ namespace Xtensive.Orm.Providers
       processor.ProcessTask(this, context);
     }
 
-
     // Constructors
 
-    public SqlPersistTask(PersistRequest request, Tuple tuple)
+    public SqlPersistTask(PersistRequest request, Tuple tuple = null)
     {
       RequestSequence = EnumerableUtils.One(request);
       Tuple = tuple;
+    }
+
+    public SqlPersistTask(PersistRequest request, IReadOnlyList<Tuple> tuples)
+    {
+      RequestSequence = EnumerableUtils.One(request);
+      Tuples = tuples;
     }
 
     public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)

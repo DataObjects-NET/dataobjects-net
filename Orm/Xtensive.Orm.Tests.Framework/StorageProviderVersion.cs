@@ -33,8 +33,11 @@ namespace Xtensive.Orm.Tests
     public static Version PostgreSql92 = new Version(9, 2);
     public static Version PostgreSql100 = new Version(10, 0);
     public static Version PostgreSql110 = new Version(11, 0);
+    public static Version PostgreSql120 = new Version(12, 0);
 
     public static Version MySql55 = new Version(5, 5);
     public static Version MySql56 = new Version(5, 6);
+    public static Version MySql57 = new Version(5, 7);
+    public static Version Mysql80 = new Version(8, 0);
   }
 }

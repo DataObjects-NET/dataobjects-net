@@ -73,7 +73,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       EntityInfo viewInfo = new EntityInfo();
       viewInfo.MaxIdentifierLength = MaxIdentifierLength;
-      viewInfo.AllowedDdlStatements = DdlStatements.All;
+      viewInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return viewInfo;
     }
 
@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       EntityInfo schemaInfo = new EntityInfo();
       schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
-      schemaInfo.AllowedDdlStatements = DdlStatements.All;
+      schemaInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return schemaInfo;
     }
 
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var tableInfo = new TableInfo();
       tableInfo.MaxIdentifierLength = MaxIdentifierLength;
-      tableInfo.AllowedDdlStatements = DdlStatements.All;
+      tableInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
       return tableInfo;
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var temporaryTableInfo = new TemporaryTableInfo();
       temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
-      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
+      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       temporaryTableInfo.Features = TemporaryTableFeatures.Local;
       return temporaryTableInfo;
     }
@@ -171,7 +171,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         | QueryFeatures.Offset
         | QueryFeatures.InsertDefaultValues
         | QueryFeatures.StrictJoinSyntax
-        | QueryFeatures.ScalarSubquery;
+        | QueryFeatures.ScalarSubquery
+        | QueryFeatures.ParameterAsColumn;
       return queryInfo;
     }
 
@@ -227,6 +228,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index, ValueRange.DateTime, "datetime");
 
       types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index, ValueRange.DateTimeOffset, "datetimeoffset");
+#if NET6_0_OR_GREATER
+
+      types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index, ValueRange.DateOnly, "date");
+
+      types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, ValueRange.TimeOnly, "time");
+#endif
 
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common | index,
         "varchar", "nvarchar", "nchar", "char", "text", "xml");

@@ -19,6 +19,7 @@ namespace Xtensive.Sql.Compiler
 
     private readonly StringBuilder result;
     private readonly SqlPostCompilerConfiguration configuration;
+    private readonly bool canActualizeQuery;
 
     private string[] currentCycleItem;
 
@@ -39,18 +40,32 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(VariantNode node)
     {
-      if (configuration.AlternativeBranches.Contains(node.Id))
-        VisitNodes(node.Alternative);
-      else
-        VisitNodes(node.Main);
+      VisitNodes(configuration.AlternativeBranches.Contains(node.Id) ? node.Alternative : node.Main);
     }
 
     public override void Visit(PlaceholderNode node)
     {
-      string value;
-      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
-        throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
-      result.Append(value);
+      if (node is SchemaNodePlaceholderNode schemaPlaceHolder) {
+        Visit(schemaPlaceHolder);
+      }
+      else {
+        if (!configuration.PlaceholderValues.TryGetValue(node.Id, out var value))
+          throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
+        _ = result.Append(value);
+      }
+    }
+
+    private void Visit(SchemaNodePlaceholderNode node)
+    {
+      EnsureActualizationPossible();
+
+      var schema = node.SchemaNode.Schema;
+
+      var names = (node.DbQualified)
+        ? new string[] { schema.Catalog.GetActualDbName(configuration.DatabaseMapping), schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName }
+        : new string[] { schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName };
+
+      _ = result.Append(SqlHelper.Quote(node.EscapeSetup, names));
     }
 
     public override void Visit(CycleItemNode node)
@@ -78,6 +93,12 @@ namespace Xtensive.Sql.Compiler
 
     #endregion
 
+    private void EnsureActualizationPossible()
+    {
+      if (!canActualizeQuery) {
+        throw new InvalidOperationException(Strings.ExUnableToActualizeSchemaNodeInQuery);
+      }
+    }
 
     // Constructors
 
@@ -86,6 +107,7 @@ namespace Xtensive.Sql.Compiler
       int capacity = estimatedResultLength + ResultCapacityMargin;
       result = new StringBuilder(capacity < MinimalResultCapacity ? MinimalResultCapacity : capacity);
       this.configuration = configuration;
+      canActualizeQuery = configuration.DatabaseMapping != null && configuration.SchemaMapping != null;
     }
   }
 }

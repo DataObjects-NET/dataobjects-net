@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.08.30
 
@@ -17,27 +17,27 @@ namespace Xtensive.Reflection
   /// Faster <see cref="ReflectionInterfaceMapping"/> analogue.
   /// </summary>
   [Serializable]
-  public sealed class InterfaceMapping
+  public readonly struct InterfaceMapping
   {
     /// <summary>
     /// Gets the target type of this mapping.
     /// </summary>
-    public Type TargetType { get; private set; }
+    public Type TargetType { get; }
 
     /// <summary>
     /// Gets the interface type of this mapping.
     /// </summary>
-    public Type InterfaceType { get; private set; }
+    public Type InterfaceType { get; }
 
     /// <summary>
     /// Gets the type members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> TargetMethods { get; private set; }
+    public IReadOnlyList<MethodInfo> TargetMethods { get; }
 
     /// <summary>
     /// Gets the interface members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> InterfaceMethods { get; private set; }
+    public IReadOnlyList<MethodInfo> InterfaceMethods { get; }
 
     
     // Constructors
@@ -50,8 +50,8 @@ namespace Xtensive.Reflection
     {
       TargetType = source.TargetType;
       InterfaceType = source.InterfaceType;
-      TargetMethods = Array.AsReadOnly(source.TargetMethods);
-      InterfaceMethods = Array.AsReadOnly(source.InterfaceMethods);
+      TargetMethods = source.TargetMethods;
+      InterfaceMethods = source.InterfaceMethods;
     }
   }
 }

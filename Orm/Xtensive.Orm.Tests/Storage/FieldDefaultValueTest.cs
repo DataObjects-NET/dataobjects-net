@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -145,6 +145,14 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 
     [Field(DefaultValue = "2012.12.12")]
     public DateTime FDateTime { get; set; }
+#if NET6_0_OR_GREATER
+
+    [Field(DefaultValue = "2012.12.12")]
+    public DateOnly FDateOnly { get; set; }
+
+    [Field(DefaultValue = "00:35:53.35")]
+    public TimeOnly FTimeOnly { get; set; }
+#endif
 
     [Field(DefaultValue = 1000)]
     public TimeSpan FTimeSpan { get; set; }
@@ -223,6 +231,14 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = "2012.12.12")]
     public DateTime? FNDateTime { get; set; }
 
+#if NET6_0_OR_GREATER
+    [Field(DefaultValue = "2012.12.12")]
+    public DateOnly? FNDateOnly { get; set; }
+
+    [Field(DefaultValue = "00:35:53.35")]
+    public TimeOnly? FNTimeOnly { get; set; }
+
+#endif
     [Field(DefaultValue = 1000)]
     public TimeSpan? FNTimeSpan { get; set; }
 
@@ -331,6 +347,12 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(true, x.FBool);
           Assert.AreEqual(byte.MaxValue, x.FByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
+
+#if NET6_0_OR_GREATER
+          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FDateOnly);
+          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+
+#endif
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
           Assert.AreEqual(EByte.Max, x.FEByte);
@@ -357,6 +379,10 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(true, x.FNBool);
           Assert.AreEqual(byte.MaxValue, x.FNByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FNDateTime);
+#if NET6_0_OR_GREATER //DO_DATEONLY
+          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FNDateOnly);
+          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FNTimeOnly);
+#endif
           Assert.AreEqual(12.12M, x.FNDecimal);
           Assert.AreEqual(float.MaxValue, x.FNDouble);
           Assert.AreEqual(EByte.Max, x.FNEByte);

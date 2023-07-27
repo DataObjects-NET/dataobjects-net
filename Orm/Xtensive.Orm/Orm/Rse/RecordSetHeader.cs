@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
-    private volatile TupleDescriptor orderTupleDescriptor;
+    private volatile bool hasOrderTupleDescriptor;
+    private TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
     /// Gets the length of this instance.
@@ -58,13 +59,18 @@ namespace Xtensive.Orm.Rse
     /// Gets the tuple descriptor describing
     /// a set of <see cref="Order"/> columns.
     /// </summary>
-    public TupleDescriptor OrderTupleDescriptor {
+    public TupleDescriptor? OrderTupleDescriptor {
       get {
-        if (Order.Count==0)
+        if (Order.Count==0) {
           return null;
-        if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null) {
-          var fieldTypes = Order.Select(p => Columns[p.Key].Type).ToArray(Order.Count);
-          orderTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+        }
+        if (!hasOrderTupleDescriptor) {
+          lock (this)
+            if (!hasOrderTupleDescriptor) {
+              var fieldTypes = Order.Select(p => Columns[p.Key].Type).ToArray(Order.Count);
+              orderTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+              hasOrderTupleDescriptor = true;
+            }
         }
 
         return orderTupleDescriptor;
@@ -277,7 +283,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
     /// <param name="columns">Result columns.</param>
     public RecordSetHeader(
-      TupleDescriptor tupleDescriptor,
+      in TupleDescriptor tupleDescriptor,
       IReadOnlyList<Column> columns)
       : this(tupleDescriptor, columns, null, null, null)
     {
@@ -326,7 +332,7 @@ namespace Xtensive.Orm.Rse
       TupleDescriptor tupleDescriptor,
       IReadOnlyList<Column> columns,
       IReadOnlyList<ColumnGroup> columnGroups,
-      TupleDescriptor orderKeyDescriptor,
+      TupleDescriptor? orderKeyDescriptor,
       DirectionCollection<int> order)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
@@ -344,6 +350,7 @@ namespace Xtensive.Orm.Rse
         : new ColumnGroupCollection(columnGroups);
 
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
+      hasOrderTupleDescriptor = true;
       Order = order ?? new DirectionCollection<int>();
       Order.Lock(true);
     }

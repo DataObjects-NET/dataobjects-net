@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 
 
 namespace Xtensive.Orm.Internals
@@ -16,15 +15,14 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   public sealed class EntityChangeRegistry : SessionBound
   {
-    private readonly HashSet<EntityState> @new = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> modified = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> removed = new HashSet<EntityState>();
-    private int count;
+    private readonly HashSet<EntityState> @new = new();
+    private readonly HashSet<EntityState> modified = new();
+    private readonly HashSet<EntityState> removed = new();
 
     /// <summary>
     /// Gets the number of registered entities.
     /// </summary>
-    public int Count { get { return count; } }
+    public int Count { get; private set; }
 
     /// <summary>
     /// Registers the specified item.
@@ -34,8 +32,8 @@ namespace Xtensive.Orm.Internals
     {
       // Remove-create sequences fix for Issue 690
       if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
-        removed.Remove(item);
-        count--;
+        _ = removed.Remove(item);
+        Count--;
         if (item.DifferentialTuple.Difference == null) {
           item.SetPersistenceState(PersistenceState.Synchronized);
           return;
@@ -43,18 +41,19 @@ namespace Xtensive.Orm.Internals
         item.SetPersistenceState(PersistenceState.Modified);
       }
       else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
-        @new.Remove(item);
-        count--;
+        _ = @new.Remove(item);
+        Count--;
         return;
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
-        modified.Remove(item);
-        count--;
+        _ = modified.Remove(item);
+        Count--;
       }
 
       var container = GetContainer(item.PersistenceState);
-      if (container.Add(item))
-        count++;
+      if (container.Add(item)) {
+        Count++;
+      }
     }
 
     /// <summary>
@@ -62,39 +61,32 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="state">The state of items to get.</param>
     /// <returns>The sequence of items with specified state.</returns>
-    public IEnumerable<EntityState> GetItems(PersistenceState state)
-    {
-      foreach (var item in GetContainer(state))
-        yield return item;
-    }
+    public RegistryItems<EntityState> GetItems(in PersistenceState state) =>
+      new(GetContainer(state));
 
     /// <summary>
     /// Clears the registry.
     /// </summary>
     public void Clear()
     {
-      count = 0;
+      Count = 0;
       @new.Clear();
       modified.Clear();
       removed.Clear();
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
-    private HashSet<EntityState> GetContainer(PersistenceState state)
+    private HashSet<EntityState> GetContainer(in PersistenceState state)
     {
-      switch (state) {
-      case PersistenceState.New:
-        return @new;
-      case PersistenceState.Modified:
-        return modified;
-      case PersistenceState.Removed:
-        return removed;
-      default:
-        throw new ArgumentOutOfRangeException("state");
-      }
+      return state switch {
+        PersistenceState.New => @new,
+        PersistenceState.Modified => modified,
+        PersistenceState.Removed => removed,
+        _ => throw new ArgumentOutOfRangeException(nameof(state)),
+      };
     }
 
-    
+
     // Constructors
 
     /// <summary>
