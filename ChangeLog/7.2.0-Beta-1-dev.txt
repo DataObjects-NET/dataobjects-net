@@ -9,5 +9,6 @@
 [main] PersistParameterBinding has new field RowIndex, use it for multi-row inserts if needed
 [main] TemporaryTableDescriptor changed interface to IMultiRecordPersistDescriptor, fully compatible with IPersistDescriptor
 [main] SqlNode.Clone() method now returns SqlNode to take advantage of C# covariant returns and reduce casts overhead
+[main] Improved exception handling if some appered during asynchronous Session opening
 [postgresql] QueryInfo.MaxQueryParameterCount actualized, it is 65535 now
 [oracle] QueryInfo.MaxQueryParameterCount actualized, it is 65535 now
