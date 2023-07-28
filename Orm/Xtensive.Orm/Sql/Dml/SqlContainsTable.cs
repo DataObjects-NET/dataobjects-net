@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlExpression TopNByRank { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlContainsTable Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

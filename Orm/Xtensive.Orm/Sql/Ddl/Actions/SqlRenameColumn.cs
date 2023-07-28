@@ -15,10 +15,9 @@ namespace Xtensive.Sql.Ddl
     public TableColumn Column { get; private set; }
     public string NewName { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlRenameColumn(Column, NewName);
+    internal override SqlRenameColumn Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlRenameColumn(t.Column, t.NewName));
       
 
     // Constructors

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -163,6 +163,7 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
+      // there are some operations that rely on this structure.
       return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / NanosecondsPerTick);
     }
 

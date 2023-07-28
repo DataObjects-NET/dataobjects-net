@@ -18,10 +18,9 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCreateAssertion(assertion);
+    internal override SqlCreateAssertion Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCreateAssertion(t.assertion));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

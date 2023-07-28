@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       queryInfo.ParameterPrefix = ":";
       queryInfo.MaxLength = DoNotKnow;
       queryInfo.MaxComparisonOperations = DoNotKnow;
-      queryInfo.MaxQueryParameterCount = 63999;
+      queryInfo.MaxQueryParameterCount = 65535;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
@@ -202,7 +202,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return ServerFeatures.Savepoints |
         ServerFeatures.LargeObjects |
         ServerFeatures.CursorParameters |
-        ServerFeatures.MultipleResultsViaCursorParameters;
+        ServerFeatures.MultipleResultsViaCursorParameters |
+        ServerFeatures.TemporaryTableEmulation;
     }
 
     public override IdentityInfo GetIdentityInfo()

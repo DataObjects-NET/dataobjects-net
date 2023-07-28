@@ -258,6 +258,12 @@ namespace Xtensive.Sql
       return new SqlDropView(view, cascade);
     }
 
+    public static SqlTruncateTable Truncate(Table table)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      return new SqlTruncateTable(table);
+    }
+
     public static SqlAlterTable Alter(Table table, SqlAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(table, "table");

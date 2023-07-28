@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private readonly SubqueryFilterChecker checker;
 
-    protected override Provider VisitFilter(FilterProvider provider)
+    protected override CompilableProvider VisitFilter(FilterProvider provider)
     {
       return checker.Check(provider.Predicate.Body)
         ? provider.Source

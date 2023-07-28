@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -247,6 +248,10 @@ namespace Xtensive.Orm.BulkOperations
     {
     }
 
+    public virtual void Visit(SqlTruncateTable node)
+    {
+    }
+
     public virtual void Visit(SqlDynamicFilter node)
     {
       foreach (SqlExpression expression in node.Expressions)
@@ -314,9 +319,12 @@ namespace Xtensive.Orm.BulkOperations
     {
       VisitInternal(node.From);
       VisitInternal(node.Into);
-      foreach (var pair in node.Values) {
-        VisitInternal(pair.Key);
-        VisitInternal(pair.Value);
+      
+      foreach(var row in node.ValueRows) {
+        foreach(var columnvalue in row.Zip(node.ValueRows.Columns)) {
+          VisitInternal(columnvalue.Second);
+          VisitInternal(columnvalue.First);
+        }
       }
     }
 

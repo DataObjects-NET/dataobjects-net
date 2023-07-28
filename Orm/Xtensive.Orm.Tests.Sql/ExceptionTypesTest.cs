@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2010.02.08
 
@@ -61,29 +61,29 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void CheckConstraintTest()
     {
       var table = schema.CreateTable(CheckedTableName);
-      CreatePrimaryKey(table);
+      _ = CreatePrimaryKey(table);
       var valueColumn1 = table.CreateColumn("value1", Driver.TypeMappings[typeof (int)].MapType());
       valueColumn1.IsNullable = true;
       var valueColumn2 = table.CreateColumn("value2", Driver.TypeMappings[typeof (int)].MapType());
       valueColumn2.IsNullable = false;
 
       var tableRef = SqlDml.TableRef(table);
-      table.CreateCheckConstraint("check_me", tableRef[valueColumn1.Name] > 0);
+      _ = table.CreateCheckConstraint("check_me", tableRef[valueColumn1.Name] > 0);
 
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
 
       // violation of NOT NULL constraint
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumnName], 1);
-      insert.Values.Add(tableRef[valueColumn1.Name], 1);
-      insert.Values.Add(tableRef[valueColumn2.Name], SqlDml.Null);
+      insert.AddValueRow((tableRef[IdColumnName], 1),
+        (tableRef[valueColumn1.Name], 1),
+        (tableRef[valueColumn2.Name], SqlDml.Null));
       AssertExceptionType(insert, SqlExceptionType.CheckConstraintViolation);
 
       // violation of CHECK constraint
       insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumnName], 2);
-      insert.Values.Add(tableRef[valueColumn1.Name], 0);
-      insert.Values.Add(tableRef[valueColumn2.Name], 0);
+      insert.AddValueRow((tableRef[IdColumnName], 2),
+        (tableRef[valueColumn1.Name], 0),
+        (tableRef[valueColumn2.Name], 0));
       AssertExceptionType(insert, SqlExceptionType.CheckConstraintViolation);
     }
 
@@ -98,19 +98,19 @@ namespace Xtensive.Orm.Tests.Sql
       fk.ReferencedTable = masterTable;
       fk.ReferencedColumns.Add(masterId);
       fk.Columns.Add(slaveId);
-      ExecuteNonQuery(SqlDdl.Create(masterTable));
-      ExecuteNonQuery(SqlDdl.Create(slaveTable));
+      _ = ExecuteNonQuery(SqlDdl.Create(masterTable));
+      _ = ExecuteNonQuery(SqlDdl.Create(slaveTable));
 
       var slaveTableRef = SqlDml.TableRef(slaveTable);
       var slaveInsert = SqlDml.Insert(slaveTableRef);
-      slaveInsert.Values.Add(slaveTableRef[IdColumnName], 1);
+      slaveInsert.AddValueRow((slaveTableRef[IdColumnName], 1));
       AssertExceptionType(slaveInsert, SqlExceptionType.ReferentialConstraintViolation);
 
       var masterTableRef = SqlDml.TableRef(masterTable);
       var masterInsert = SqlDml.Insert(masterTableRef);
-      masterInsert.Values.Add(masterTableRef[IdColumnName], 1);
-      ExecuteNonQuery(masterInsert);
-      ExecuteNonQuery(slaveInsert);
+      masterInsert.AddValueRow((masterTableRef[IdColumnName], 1));
+      _ = ExecuteNonQuery(masterInsert);
+      _ = ExecuteNonQuery(slaveInsert);
 
       var masterDelete = SqlDml.Delete(masterTableRef);
       masterDelete.Where = masterTableRef[IdColumnName]==1;
@@ -121,29 +121,27 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void UniqueConstraintTestTest()
     {
       var table = schema.CreateTable(UniqueTableName);
-      CreatePrimaryKey(table);
+      _ = CreatePrimaryKey(table);
       var column = table.CreateColumn("value", Driver.TypeMappings[typeof (int)].MapType());
       column.IsNullable = true;
-      table.CreateUniqueConstraint("unique_me", column);
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = table.CreateUniqueConstraint("unique_me", column);
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumnName], 1);
+      insert.AddValueRow((tableRef[IdColumnName], 1));
 
       // violation of PRIMARY KEY constraint
-      ExecuteNonQuery(insert);
+      _ = ExecuteNonQuery(insert);
       AssertExceptionType(insert, SqlExceptionType.UniqueConstraintViolation);
 
       // violation of UNIQUE constraint
-      insert.Values.Clear();
-      insert.Values.Add(tableRef[IdColumnName], 2);
-      insert.Values.Add(tableRef[column.Name], 0);
-      ExecuteNonQuery(insert);
+      insert = SqlDml.Insert(tableRef);
+      insert.AddValueRow((tableRef[IdColumnName], 2), (tableRef[column.Name], 0));
+      _ = ExecuteNonQuery(insert);
 
-      insert.Values.Clear();
-      insert.Values.Add(tableRef[IdColumnName], 3);
-      insert.Values.Add(tableRef[column.Name], 0);
+      insert = SqlDml.Insert(tableRef);
+      insert.AddValueRow((tableRef[IdColumnName], 3), (tableRef[column.Name], 0));
       AssertExceptionType(insert, SqlExceptionType.UniqueConstraintViolation);
     }
 
@@ -151,37 +149,38 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DeadlockTest()
     {
       var table = schema.CreateTable(DeadlockTableName);
-      CreatePrimaryKey(table);
+      _ = CreatePrimaryKey(table);
       var column = table.CreateColumn("value", Driver.TypeMappings[typeof (int)].MapType());
       column.IsNullable = true;
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
 
       Connection.BeginTransaction();
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumnName], 1);
-      ExecuteNonQuery(insert);
-      insert.Values.Clear();
-      insert.Values.Add(tableRef[IdColumnName], 2);
-      ExecuteNonQuery(insert);
+      insert.AddValueRow((tableRef[IdColumnName], 1));
+      _ = ExecuteNonQuery(insert);
+
+      insert = SqlDml.Insert(tableRef);
+      insert.AddValueRow((tableRef[IdColumnName], 2));
+      _ = ExecuteNonQuery(insert);
       Connection.Commit();
 
       var update1To1 = SqlDml.Update(tableRef);
-      update1To1.Where = tableRef[IdColumnName]==1;
+      update1To1.Where = tableRef[IdColumnName] == 1;
       update1To1.Values.Add(tableRef[column.Name], 1);
 
       var update1To2 = SqlDml.Update(tableRef);
-      update1To2.Where = tableRef[IdColumnName]==1;
+      update1To2.Where = tableRef[IdColumnName] == 1;
       update1To2.Values.Add(tableRef[column.Name], 2);
 
       var update2To1 = SqlDml.Update(tableRef);
-      update2To1.Where = tableRef[IdColumnName]==2;
+      update2To1.Where = tableRef[IdColumnName] == 2;
       update2To1.Values.Add(tableRef[column.Name], 1);
 
       var update2To2 = SqlDml.Update(tableRef);
-      update2To2.Where = tableRef[IdColumnName]==2;
+      update2To2.Where = tableRef[IdColumnName] == 2;
       update2To2.Values.Add(tableRef[column.Name], 2);
-      using (var connectionOne = this.Driver.CreateConnection()) {
+      using (var connectionOne = Driver.CreateConnection()) {
         connectionOne.Open();
         connectionOne.BeginTransaction(IsolationLevel.ReadCommitted);
 
@@ -189,27 +188,27 @@ namespace Xtensive.Orm.Tests.Sql
           connectionTwo.Open();
           connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
 
-          using (var command = connectionOne.CreateCommand(update1To1))
-            command.ExecuteNonQuery();
-          using (var command = connectionTwo.CreateCommand(update2To2))
-            command.ExecuteNonQuery();
+          using (var command = connectionOne.CreateCommand(update1To1)) {
+            _ = command.ExecuteNonQuery();
+          }
+          using (var command = connectionTwo.CreateCommand(update2To2)) {
+            _ = command.ExecuteNonQuery();
+          }
 
           var startEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-          var arg1 = new EvilThreadArgument
-          {
+          var arg1 = new EvilThreadArgument {
             Connection = connectionOne,
             StartEvent = startEvent,
             Statement = update2To1
           };
-          var arg2 = new EvilThreadArgument
-          {
+          var arg2 = new EvilThreadArgument {
             Connection = connectionTwo,
             StartEvent = startEvent,
             Statement = update1To2
           };
           var thread1 = StartEvilThread(arg1);
           var thread2 = StartEvilThread(arg2);
-          startEvent.Set();
+          _ = startEvent.Set();
           thread1.Join();
           thread2.Join();
           startEvent.Close();
@@ -223,20 +222,24 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeoutTest()
     {
       var table = schema.CreateTable(TimeoutTableName);
-      CreatePrimaryKey(table);
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = CreatePrimaryKey(table);
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumnName], 1);
+      insert.AddValueRow((tableRef[IdColumnName], 1));
+
       using (var connectionOne = Driver.CreateConnection()) {
         connectionOne.Open();
         connectionOne.BeginTransaction();
+
         using (var connectionTwo = Driver.CreateConnection()) {
           connectionTwo.Open();
           connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
-          using (var command = connectionTwo.CreateCommand(insert))
-            command.ExecuteNonQuery();
+
+          using (var command = connectionTwo.CreateCommand(insert)) {
+            _ = command.ExecuteNonQuery();
+          }
           AssertExceptionType(connectionOne, insert, SqlExceptionType.OperationTimeout);
         }
       }
@@ -253,8 +256,8 @@ namespace Xtensive.Orm.Tests.Sql
         arg.ExceptionType = null;
         try {
           using (var command = arg.Connection.CreateCommand(arg.Statement)) {
-            arg.StartEvent.WaitOne();
-            command.ExecuteNonQuery();
+            _ = arg.StartEvent.WaitOne();
+            _ = command.ExecuteNonQuery();
           }
         }
         catch (Exception exception) {
@@ -287,7 +290,7 @@ namespace Xtensive.Orm.Tests.Sql
     private void AssertExceptionType(SqlConnection connection, string commandText, SqlExceptionType expectedExceptionType)
     {
       try {
-        ExecuteNonQuery(connection, commandText);
+       _ = ExecuteNonQuery(connection, commandText);
       }
       catch (Exception exception) {
         AssertExceptionType(expectedExceptionType, Driver.GetExceptionType(exception));
@@ -299,7 +302,7 @@ namespace Xtensive.Orm.Tests.Sql
     private TableColumn CreatePrimaryKey(Table table)
     {
       var column = table.CreateColumn(IdColumnName, Driver.TypeMappings[typeof (int)].MapType());
-      table.CreatePrimaryKey("pk_" + table.Name, column);
+      _ = table.CreatePrimaryKey("pk_" + table.Name, column);
       return column;
     }
   }

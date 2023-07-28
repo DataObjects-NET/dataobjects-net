@@ -1,0 +1,3 @@
+[main] Added support for DefaultExpression within Linq queries
+[main] Support for TimeOnly ctors (time parts and ticks) in Linq, except for SQLite and MySQL providers
+[main] No Session.Activate() in ToTransactional extension, it affects EntitySet<T> enumeration.

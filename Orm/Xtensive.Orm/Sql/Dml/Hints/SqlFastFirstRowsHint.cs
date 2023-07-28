@@ -15,10 +15,9 @@ namespace Xtensive.Sql.Dml
     /// <value>The row amount.</value>
     public int Amount { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlFastFirstRowsHint(Amount);
+    internal override SqlFastFirstRowsHint Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlFastFirstRowsHint(t.Amount));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
