@@ -362,7 +362,7 @@ namespace Xtensive.Orm
                 }
                 exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
               }
-            }, TaskContinuationOptions.ExecuteSynchronously)
+            }, TaskContinuationOptions.NotOnCanceled | TaskContinuationOptions.ExecuteSynchronously)
             .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
