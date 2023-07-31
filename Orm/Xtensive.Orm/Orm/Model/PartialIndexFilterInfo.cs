@@ -32,12 +32,12 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    private IList<FieldInfo> fields;
+    private IReadOnlyList<FieldInfo> fields;
 
     /// <summary>
     /// Fields used in <see cref="Expression"/>.
     /// </summary>
-    public IList<FieldInfo> Fields
+    public IReadOnlyList<FieldInfo> Fields
     {
       get { return fields; }
       set
@@ -56,9 +56,6 @@ namespace Xtensive.Orm.Model
         throw Exceptions.NotInitialized("Expression");
       if (Fields==null)
         throw Exceptions.NotInitialized("Fields");
-      fields = fields is List<FieldInfo> list
-        ? list.AsReadOnly()
-        : (IList<FieldInfo>) fields.ToList().AsReadOnly();
       base.Lock(recursive);
     }
   }

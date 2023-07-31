@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
 {
@@ -47,7 +48,7 @@ namespace Xtensive.Orm.Model
       Key.UpdateState();
       var list = new List<TypeInfo>(Root.AllDescendants.Count + 1) {Root};
       list.AddRange(Root.AllDescendants);
-      Types = list.AsReadOnly();
+      Types = list.AsSafeWrapper();
       if (Types.Count == 1)
         InheritanceSchema = InheritanceSchema.ConcreteTable;
       if (TypeDiscriminatorMap != null)
@@ -67,16 +68,16 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// 	Initializes a new instance of this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="root">The hierarchy root.</param>
     /// <param name="key">The key info.</param>
     /// <param name="inheritanceSchema">The inheritance schema.</param>
     /// <param name="typeDiscriminatorMap">The type discriminator map.</param>
     public HierarchyInfo(
-      TypeInfo root, 
-      KeyInfo key, 
-      InheritanceSchema inheritanceSchema, 
+      TypeInfo root,
+      KeyInfo key,
+      InheritanceSchema inheritanceSchema,
       TypeDiscriminatorMap typeDiscriminatorMap)
     {
       Root = root;

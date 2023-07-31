@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Building.Builders
           MappingSchema = typeDef.MappingSchema,
           HasVersionRoots = TypeHelper.GetInterfacesUnordered(typeDef.UnderlyingType)
             .Any(static type => type == typeof(IHasVersionRoots)),
-          Validators = validators.AsReadOnly(),
+          Validators = validators.AsSafeWrapper(),
         };
 
         if (typeDef.StaticTypeId != null) {
@@ -234,6 +235,16 @@ namespace Xtensive.Orm.Building.Builders
     {
       BuildLog.Info(nameof(Strings.LogBuildingDeclaredFieldXY), type.Name, fieldDef.Name);
 
+      var validators = fieldDef.Validators;
+
+      if (fieldDef.IsStructure && DeclaresOnValidate(fieldDef.ValueType)) {
+        validators.Add(new StructureFieldValidator());
+      }
+
+      if (fieldDef.IsEntitySet && DeclaresOnValidate(fieldDef.ValueType)) {
+        validators.Add(new EntitySetFieldValidator());
+      }
+
       var fieldInfo = new FieldInfo(type, fieldDef.Attributes) {
         UnderlyingProperty = fieldDef.UnderlyingProperty,
         Name = fieldDef.Name,
@@ -244,16 +255,8 @@ namespace Xtensive.Orm.Building.Builders
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
         Precision = fieldDef.Precision,
-        Validators = fieldDef.Validators,
+        Validators = validators,
       };
-
-      if (fieldInfo.IsStructure && DeclaresOnValidate(fieldInfo.ValueType)) {
-        fieldInfo.Validators.Add(new StructureFieldValidator());
-      }
-
-      if (fieldInfo.IsEntitySet && DeclaresOnValidate(fieldInfo.ValueType)) {
-        fieldInfo.Validators.Add(new EntitySetFieldValidator());
-      }
 
       type.Fields.Add(fieldInfo);
 

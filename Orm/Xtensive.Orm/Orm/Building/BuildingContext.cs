@@ -62,12 +62,12 @@ namespace Xtensive.Orm.Building
     /// <summary>
     /// Gets all available <see cref="IModule"/> implementations.
     /// </summary>
-    public ICollection<IModule> Modules { get; private set; }
+    public IReadOnlyList<IModule> Modules { get; }
 
     /// <summary>
     /// Gets all available <see cref="IModule2"/> implementations.
     /// </summary>
-    public ICollection<IModule2> Modules2 { get; private set; }
+    public IReadOnlyList<IModule2> Modules2 { get; }
 
     internal ModelDefBuilder ModelDefBuilder { get; set; }
 

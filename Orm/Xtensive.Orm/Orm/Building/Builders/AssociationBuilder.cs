@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
       AssociationInfo existing;
       if (!context.Model.Associations.TryGetValue(association.Name, out existing)) {
         context.Model.Associations.Add(association);
-        association.Ancestors.AddRange(field.Associations);
+        association.AddAncestors(field.Associations);
 
         var associationsToRemove = field.Associations
           .Where(a => a.TargetType == association.TargetType)

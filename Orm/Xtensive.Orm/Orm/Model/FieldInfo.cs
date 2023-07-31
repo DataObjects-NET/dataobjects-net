@@ -51,7 +51,6 @@ namespace Xtensive.Orm.Model
     private TypeInfo declaringType;
     private FieldInfo parent;
     private ColumnInfo column;
-    private NodeCollection<AssociationInfo> associations;
     private Type itemType;
     private string originalName;
     internal SegmentTransform valueExtractor;
@@ -60,7 +59,6 @@ namespace Xtensive.Orm.Model
     private int fieldId;
     private int? cachedHashCode;
 
-    private IList<IPropertyValidator> validators;
     private Segment<int> mappingInfo;
 
     #region IsXxx properties
@@ -545,24 +543,22 @@ namespace Xtensive.Orm.Model
     /// <param name="targetType"></param>
     public AssociationInfo GetAssociation(TypeInfo targetType)
     {
-      if (associations.Count == 0)
-        return null;
-
-      if (associations.Count == 1)
-        return associations[0];
+      switch (Associations.Count) {
+        case 0:
+          return null;
+        case 1:
+          return Associations[0];
+      }
 
       var ordered = IsLocked
-        ? associations
-        : associations.Reorder();
+        ? Associations
+        : Associations.Reorder();
 
       return ordered.FirstOrDefault(
         a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
     }
 
-    public NodeCollection<AssociationInfo> Associations
-    {
-      get { return associations; }
-    }
+    public NodeCollection<AssociationInfo> Associations { get; private set; }
 
     /// <summary>
     /// Gets or sets field's adapter index.
@@ -582,14 +578,7 @@ namespace Xtensive.Orm.Model
     /// Gets <see cref="IPropertyValidator"/> instances
     /// associated with this field.
     /// </summary>
-    public IList<IPropertyValidator> Validators
-    {
-      get { return validators; }
-      internal set {
-        EnsureNotLocked();
-        validators = value;
-      }
-    }
+    public IReadOnlyList<IPropertyValidator> Validators { get; init; }
 
     /// <summary>
     /// Gets value indicating if this field
@@ -658,7 +647,7 @@ namespace Xtensive.Orm.Model
       columns?.Clear();           // To prevent event handler leak
       columns = null;
 
-      HasImmediateValidators = validators.Count > 0 && validators.Any(v => v.IsImmediate);
+      HasImmediateValidators = Validators.Count > 0 && Validators.Any(v => v.IsImmediate);
 
       CreateMappingInfo();
     }
@@ -669,16 +658,14 @@ namespace Xtensive.Orm.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      validators = Array.AsReadOnly(validators.ToArray());
       Fields.Lock(true);
-      if (column != null)
-        column.Lock(true);
-      if (associations.Count > 1) {
-        var sorted = associations.Reorder();
-        associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
-        associations.AddRange(sorted);
+      column?.Lock(true);
+      if (Associations.Count > 1) {
+        var sorted = Associations.Reorder();
+        Associations = new NodeCollection<AssociationInfo>(Associations.Owner, Associations.Name);
+        Associations.AddRange(sorted);
       }
-      associations.Lock(false);
+      Associations?.Lock(false);
     }
 
     private void CreateMappingInfo()
@@ -778,9 +765,11 @@ namespace Xtensive.Orm.Model
         defaultValue = defaultValue,
         defaultSqlExpression = defaultSqlExpression,
         DeclaringField = DeclaringField,
-        Validators = Validators.Select(v => v.CreateNew()).ToList(),
+        Validators = Validators.Select(v => v.CreateNew()).ToArray(),
       };
-      clone.Associations.AddRange(associations);
+      if (Associations.Count > 0) {
+        clone.Associations.AddRange(Associations);
+      }
       return clone;
     }
 
@@ -805,10 +794,8 @@ namespace Xtensive.Orm.Model
       Attributes = attributes;
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
-      Fields = IsEntity || IsStructure
-        ? new FieldInfoCollection(this, "Fields")
-        : FieldInfoCollection.Empty;
-      associations = new NodeCollection<AssociationInfo>(this, "Associations");
+      Fields = IsEntity || IsStructure ? new FieldInfoCollection(this, "Fields") : FieldInfoCollection.Empty;
+      Associations = IsEntity || IsEntitySet ? new NodeCollection<AssociationInfo>(this, "Associations") : NodeCollection<AssociationInfo>.Empty;
     }
   }
 }

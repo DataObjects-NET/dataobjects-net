@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public TypeInfo ReferenceType { get; private set; }
 
-    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
+    public IReadOnlyList<BaseFieldNode> NestedNodes { get; private set; }
 
     public IReadOnlyCollection<Key> ExtractKeys(object target)
     {
@@ -30,10 +30,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         : new[] {referenceKey};
     }
 
-    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
-    {
-      return new ReferenceNode(Path, Field, ReferenceType, NestedNodes);
-    }
+    public IHasNestedNodes ReplaceNestedNodes(IReadOnlyList<BaseFieldNode> nestedNodes) =>
+      new ReferenceNode(Path, Field, ReferenceType, NestedNodes);
 
     public override Node Accept(NodeVisitor visitor)
     {
@@ -42,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public ReferenceNode(string path, FieldInfo field, TypeInfo referenceType, ReadOnlyCollection<BaseFieldNode> nestedNodes)
+    public ReferenceNode(string path, FieldInfo field, TypeInfo referenceType, IReadOnlyList<BaseFieldNode> nestedNodes)
       : base(path, field)
     {
       ReferenceType = referenceType;

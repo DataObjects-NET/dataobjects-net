@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
                 List<Node<int, int>> removedEdges;
                 var result = TopologicalSorter.SortToList(nodes, out removedEdges);
                 if (!allowLoops)
-                    Assert.AreEqual(nodeCount, result.Count);
+                    Assert.AreEqual(nodeCount, result.Count());
             }
             GC.GetTotalMemory(true);
         }

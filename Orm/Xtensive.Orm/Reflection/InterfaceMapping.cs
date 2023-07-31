@@ -10,6 +10,7 @@ using System.Reflection;
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
 using System.Linq;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Reflection
 {

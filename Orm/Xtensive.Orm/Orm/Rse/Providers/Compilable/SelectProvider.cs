@@ -44,17 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
       : base(ProviderType.Select, provider)
     {
-      switch (columnIndexes) {
-        case int[] indexArray:
-          ColumnIndexes = Array.AsReadOnly(indexArray);
-          break;
-        case List<int> indexList:
-          ColumnIndexes = indexList.AsReadOnly();
-          break;
-        default:
-          ColumnIndexes = columnIndexes;
-          break;
-      }
+      ColumnIndexes = columnIndexes.AsSafeWrapper();
 
       Initialize();
     }

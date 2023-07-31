@@ -732,15 +732,15 @@ namespace Xtensive.Reflection
     /// <param name="type">The type to get the interfaces of.</param>
     [Obsolete("Use GetInterfacesOrderByInheritance instead")]
     public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the interfaces of the specified type.
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfacesOrderedByInheritance(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
+      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the sequence of type itself, all its base types and interfaces.

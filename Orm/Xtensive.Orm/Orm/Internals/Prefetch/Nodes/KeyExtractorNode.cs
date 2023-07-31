@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     public Func<T, IReadOnlyCollection<Key>> KeyExtractor { get; }
 
-    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; }
+    public IReadOnlyList<BaseFieldNode> NestedNodes { get; }
 
     IReadOnlyCollection<Key> IHasNestedNodes.ExtractKeys(object target)
     {
@@ -27,10 +27,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       return KeyExtractor.Invoke(target);
     }
 
-    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
-    {
-      return new KeyExtractorNode<T>(KeyExtractor, nestedNodes);
-    }
+    public IHasNestedNodes ReplaceNestedNodes(IReadOnlyList<BaseFieldNode> nestedNodes) =>
+      new KeyExtractorNode<T>(KeyExtractor, nestedNodes);
 
     public override Node Accept(NodeVisitor visitor)
     {
@@ -42,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return $"KeyExtraction<{typeof(T).Name}>";
     }
 
-    public KeyExtractorNode(Func<T, IReadOnlyCollection<Key>> extractor, ReadOnlyCollection<BaseFieldNode> nestedNodes)
+    public KeyExtractorNode(Func<T, IReadOnlyCollection<Key>> extractor, IReadOnlyList<BaseFieldNode> nestedNodes)
       : base("*")
     {
       ArgumentValidator.EnsureArgumentNotNull(extractor, nameof(extractor));
