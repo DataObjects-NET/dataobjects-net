@@ -675,7 +675,7 @@ namespace Xtensive.Orm.Model
         column.Lock(true);
       if (associations.Count > 1) {
         var sorted = associations.Reorder();
-        associations.Clear();       // Unsubscribe to avoid memory leak
+        associations.Clear();
         associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
         associations.AddRange(sorted);
       }
