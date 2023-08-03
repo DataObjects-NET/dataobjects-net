@@ -14,8 +14,6 @@ namespace Xtensive.Sql.Compiler
 
     public readonly string Text;
 
-    internal override void AcceptVisitor(NodeVisitor visitor) => visitor.Visit(this);
-
     public static TextNode Create(string text)
     {
       if (text.Length < 3) {
@@ -26,6 +24,8 @@ namespace Xtensive.Sql.Compiler
       }
       return new TextNode(text);
     }
+
+    internal override void AcceptVisitor(NodeVisitor visitor) => visitor.Visit(this);
 
     // Constructor
 
