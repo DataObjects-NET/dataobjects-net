@@ -165,13 +165,10 @@ namespace Xtensive.Orm.Building.Builders
                   var filterIndex = BuildFilterIndex(implementor,
                     typedIndex ?? typeIndexes.Dequeue(),
                     NonAbstractTypeWithDescendants(implementor, hierarchyImplementors));
-                  var indexesToJoin = new List<IndexInfo>(1 + typeIndexes.Count);
-                  indexesToJoin.Add(filterIndex);
-                  indexesToJoin.AddRange(typeIndexes);
 
-                  var indexToApplyView = indexesToJoin.Count > 1 
-                    ? BuildJoinIndex(implementor, indexesToJoin) 
-                    : indexesToJoin[0];
+                  var indexToApplyView = typeIndexes.Count > 0
+                    ? BuildJoinIndex(implementor, typeIndexes.Prepend(filterIndex))
+                    : filterIndex;
                   var indexView = BuildViewIndex(@interface, indexToApplyView);
                   underlyingIndex.UnderlyingIndexes.Add(indexView);
                 }
@@ -496,7 +493,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = realIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, realIndex, Array.Empty<IndexInfo>());
+      var result = new IndexInfo(reflectedType, attributes, realIndex, addAncestorToUnderlyings: true);
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in realIndex.KeyColumns) {
@@ -531,7 +528,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToFilter.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToFilter, Array.Empty<IndexInfo>()) {
+      var result = new IndexInfo(reflectedType, attributes, indexToFilter, addAncestorToUnderlyings: true) {
         FilterByTypes = filterByTypes
       };
 
@@ -560,11 +557,10 @@ namespace Xtensive.Orm.Building.Builders
     {
       var nameBuilder = context.NameBuilder;
       var firstIndex = indexesToJoin.First();
-      var otherIndexes = indexesToJoin.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique)
         | IndexAttributes.Join | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
+      var result = new IndexInfo(reflectedType, attributes, indexesToJoin);
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in firstIndex.KeyColumns) {
@@ -645,11 +641,10 @@ namespace Xtensive.Orm.Building.Builders
     {
       var nameBuilder = context.NameBuilder;
       var firstIndex = indexesToUnion.First();
-      var otherIndexes = indexesToUnion.Skip(1).ToArray();
       var attributes = firstIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique)
         | IndexAttributes.Union | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, firstIndex, otherIndexes);
+      var result = new IndexInfo(reflectedType, attributes, indexesToUnion);
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in firstIndex.KeyColumns) {
@@ -682,7 +677,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToApplyView.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.View | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, Array.Empty<IndexInfo>());
+      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, addAncestorToUnderlyings: true);
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToApplyView.KeyColumns) {

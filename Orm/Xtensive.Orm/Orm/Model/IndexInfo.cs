@@ -423,9 +423,10 @@ namespace Xtensive.Orm.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
-    /// <param name="ancestorIndex">The ancestors index.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
-    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex)
+    /// <param name="ancestorIndex">The ancestors index.</param>
+    /// <param name="addAncestorToUnderlyings"><see langword="true"/> if <paramref name="ancestorIndex"/> should also be treated as underlying index.</param>
+    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex, bool addAncestorToUnderlyings = false)
       : this()
     {
       declaringType = ancestorIndex.DeclaringType;
@@ -436,6 +437,10 @@ namespace Xtensive.Orm.Model
       filterExpression = ancestorIndex.FilterExpression;
       declaringIndex = ancestorIndex.DeclaringIndex;
       shortName = ancestorIndex.ShortName;
+
+      if (addAncestorToUnderlyings) {
+        UnderlyingIndexes.Add(ancestorIndex);
+      }
     }
 
     /// <summary>
@@ -445,6 +450,7 @@ namespace Xtensive.Orm.Model
     /// <param name="indexAttributes">The index attributes.</param>
     /// <param name="baseIndex">Base index.</param>
     /// <param name="baseIndexes">The base indexes.</param>
+    [Obsolete("Use either IndexInfo(reflectedType, indexAttributes, ancestorIndex, true) in case of one base index or varaint with sequence of indexes")]
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
       : this()
     {
@@ -461,6 +467,33 @@ namespace Xtensive.Orm.Model
 
       foreach (IndexInfo info in baseIndexes)
         UnderlyingIndexes.Add(info);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="reflectedType">Reflected type.</param>
+    /// <param name="indexAttributes">The index attributes.</param>
+    /// <param name="baseIndexes">The base indexes, first of which will be used as source index properties.</param>
+    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IEnumerable<IndexInfo> baseIndexes)
+      : this()
+    {
+      this.reflectedType = reflectedType;
+      attributes = indexAttributes;
+
+      foreach (var info in baseIndexes) {
+        if (declaringType is null) {
+          declaringType = info.DeclaringType;
+          fillFactor = info.FillFactor;
+          filterExpression = info.FilterExpression;
+          declaringIndex = info.DeclaringIndex;
+          shortName = info.ShortName;
+        }
+        UnderlyingIndexes.Add(info);
+      }
+      if (UnderlyingIndexes.Count == 0) {
+        throw new ArgumentException(Strings.ExSequenceContainsNoElements, nameof(baseIndexes));
+      }
     }
   }
 }
