@@ -136,7 +136,7 @@ namespace Xtensive.Orm.BulkOperations
       var sqlSelect = request.Query;
       var exp = sqlSelect.OrderBy[0].Expression;
 
-      if (exp is SqlPlaceholder placeholder) {
+      if (exp is not SqlPlaceholder placeholder) {
         parent.Bindings.AddRange(request.ParameterBindings);
         addContext.Values.Add(column, exp);
         return;
