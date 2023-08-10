@@ -399,12 +399,6 @@ namespace Xtensive.Orm.Model
 
     // Constructors
 
-    private IndexInfo()
-    {
-      includedColumns = new ColumnInfoCollection(this, "IncludedColumns");
-      valueColumns = new ColumnInfoCollection(this, "ValueColumns");
-    }
-
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
@@ -494,6 +488,12 @@ namespace Xtensive.Orm.Model
       if (UnderlyingIndexes.Count == 0) {
         throw new ArgumentException(Strings.ExSequenceContainsNoElements, nameof(baseIndexes));
       }
+    }
+
+    private IndexInfo()
+    {
+      includedColumns = new ColumnInfoCollection(this, "IncludedColumns");
+      valueColumns = new ColumnInfoCollection(this, "ValueColumns");
     }
   }
 }
