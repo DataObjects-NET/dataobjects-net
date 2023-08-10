@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Model
         return;
 
       var keyColumnsCount = keyColumns.Count;
-      var system = new int[keyColumnsCount + 2];
+      var system = new int[keyColumnsCount + 1];
       var lazy = new List<int>();
       var regular = new int[Columns.Count - keyColumnsCount];
 
