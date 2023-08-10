@@ -320,14 +320,15 @@ namespace Xtensive.Orm.Model
       base.UpdateState();
       CreateColumns();
       valueColumns.UpdateState();
-      foreach (IndexInfo baseIndex in underlyingIndexes) {
+      foreach (var baseIndex in underlyingIndexes) {
         baseIndex.UpdateState();
       }
       filter?.UpdateState();
       CreateTupleDescriptors();
 
-      if (!IsPrimary)
+      if (!IsPrimary) {
         return;
+      }
 
       var keyColumnsCount = keyColumns.Count;
       var system = new int[keyColumnsCount + 1];
@@ -342,13 +343,11 @@ namespace Xtensive.Orm.Model
         if (item.IsPrimaryKey || item.IsSystem) {
           system[systemIndex++] = i;
         }
+        else if (item.IsLazyLoad) {
+          lazy.Add(i);
+        }
         else {
-          if (item.IsLazyLoad)
-            lazy.Add(i);
-          else {
-            regular[regularIndex++] = i;
-            //regularIndex++;
-          }
+          regular[regularIndex++] = i;
         }
       }
 
