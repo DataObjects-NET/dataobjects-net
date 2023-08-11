@@ -331,29 +331,26 @@ namespace Xtensive.Orm.Model
       }
 
       var keyColumnsCount = keyColumns.Count;
-      var system = new int[keyColumnsCount + 1];
+      var system = new List<int>(keyColumnsCount + 1);
       var lazy = new List<int>();
-      var regular = new int[Columns.Count - keyColumnsCount];
+      var regular = new List<int>(Columns.Count - keyColumnsCount);
 
-      var regularIndex = 0;
-      var systemIndex = 0;
-
-      for (var i = 0; i < Columns.Count; i++) {
+      for (int i = 0, count = Columns.Count; i < count; i++) {
         var item = Columns[i];
         if (item.IsPrimaryKey || item.IsSystem) {
-          system[systemIndex++] = i;
+          system.Add(i);
         }
         else if (item.IsLazyLoad) {
           lazy.Add(i);
         }
         else {
-          regular[regularIndex++] = i;
+          regular.Add(i);
         }
       }
 
       ColumnIndexMap = new ColumnIndexMap(
-        (systemIndex == system.Length) ? system : new ArraySegment<int>(system, 0, systemIndex),
-        (regularIndex == 0) ? Array.Empty<int>() : new ArraySegment<int>(regular, 0, regularIndex),
+        system,
+        (regular.Count == 0) ? Array.Empty<int>() : regular,
         (lazy.Count == 0) ? Array.Empty<int>() : lazy);
     }
 
