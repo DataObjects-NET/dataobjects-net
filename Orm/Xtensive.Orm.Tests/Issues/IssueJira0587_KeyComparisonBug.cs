@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.06.29
 
@@ -14,6 +14,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Issues.IssueJira0587_KeyComparisonBugModel;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0587_KeyComparisonBugModel
@@ -117,20 +118,22 @@ namespace Xtensive.Orm.Tests.Issues
         var queryBuilder = session.Services.Get<QueryBuilder>();
         var type = Domain.Model.Types[typeof (PassportOffice)];
         var insert1 = SqlDml.Insert(SqlDml.TableRef(catalog.DefaultSchema.Tables[type.MappingName]));
-        insert1.Values.Add(insert1.Into.Columns[type.Fields["Id"].MappingName], 1);
-        insert1.Values.Add(insert1.Into.Columns[type.Fields["Title"].MappingName], "Department #1");
+        insert1.AddValueRow((insert1.Into.Columns[type.Fields["Id"].MappingName], 1),
+          (insert1.Into.Columns[type.Fields["Title"].MappingName], "Department #1"));
+
         var compiledQuery = queryBuilder.CompileQuery(insert1);
         using (var command = connection.CreateCommand(insert1)) {
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
 
         type = Domain.Model.Types[typeof (Person)];
         var insert2 = SqlDml.Insert(SqlDml.TableRef(catalog.DefaultSchema.Tables[type.MappingName]));
-        insert2.Values.Add(insert2.Into.Columns[type.Fields["Id"].MappingName], 1);
-        insert2.Values.Add(insert2.Into.Columns[type.Fields["FirstName"].MappingName], "John");
-        insert2.Values.Add(insert2.Into.Columns[type.Fields["LastName"].MappingName], "Smith");
+        insert2.AddValueRow((insert2.Into.Columns[type.Fields["Id"].MappingName], 1),
+          (insert2.Into.Columns[type.Fields["FirstName"].MappingName], "John"),
+          (insert2.Into.Columns[type.Fields["LastName"].MappingName], "Smith"));
+
         using (var command = connection.CreateCommand(insert2)) {
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
         transaction.Complete();
       }

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText
@@ -45,11 +46,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
 
     private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(),
-        "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
-      using (Upgrader.Enable(version)) {
+      var configuration = BuildDomainConfiguration(version, upgradeMode);
+      using (Model.Upgrader.Enable(version)) {
         var domain = Domain.Build(configuration);
         return domain;
       }
@@ -57,14 +55,21 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
 
     private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
+      var configuration = BuildDomainConfiguration(version, upgradeMode);
+      using (Model.Upgrader.Enable(version)) {
+        var domain = await Domain.BuildAsync(configuration);
+        return domain;
+      }
+    }
+
+    private DomainConfiguration BuildDomainConfiguration(string version, DomainUpgradeMode upgradeMode)
+    {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
-      using (Upgrader.Enable(version)) {
-        var domain = await Domain.BuildAsync(configuration);
-        return domain;
-      }
+      configuration.Types.Register(typeof(Model.Upgrader));
+      return configuration;
     }
   }
 }

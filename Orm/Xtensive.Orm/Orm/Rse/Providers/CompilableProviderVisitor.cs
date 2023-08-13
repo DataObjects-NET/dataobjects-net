@@ -18,145 +18,129 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
   /// </summary>
   [Serializable]
-  public class CompilableProviderVisitor : ProviderVisitor
+  public class CompilableProviderVisitor : ProviderVisitor<CompilableProvider>
   {
-    protected Func<Provider, Expression, Expression> translate;
+    protected Func<CompilableProvider, Expression, Expression> translate;
 
     /// <summary>
     /// Visits the compilable provider.
     /// </summary>
     /// <param name="cp">The compilable provider.</param>
-    public CompilableProvider VisitCompilable(CompilableProvider cp)
-    {
-      var result = (CompilableProvider)Visit(cp);
-      return result;
-    }
+    public CompilableProvider VisitCompilable(CompilableProvider cp) => Visit(cp);
 
     /// <inheritdoc/>
-    protected override Provider VisitTake(TakeProvider provider)
+    protected override CompilableProvider VisitTake(TakeProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TakeProvider(source, provider.Count);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new TakeProvider(source, provider.Count);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitSkip(SkipProvider provider)
+    protected override CompilableProvider VisitSkip(SkipProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SkipProvider(source, provider.Count);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new SkipProvider(source, provider.Count);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitPaging(PagingProvider provider)
+    protected override CompilableProvider VisitPaging(PagingProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new PagingProvider(source, provider);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new PagingProvider(source, provider);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       var columnIndexes = (int[])OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
+      return source == provider.Source
+        ? provider
+        : new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitTag(TagProvider provider)
+    protected override CompilableProvider VisitTag(TagProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TagProvider(source, provider.Tag);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new TagProvider(source, provider.Tag);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitSeek(SeekProvider provider)
+    protected override CompilableProvider VisitSeek(SeekProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source==provider.Source)
-        return provider;
-      return new SeekProvider(source, provider.Key);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new SeekProvider(source, provider.Key);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitRaw(RawProvider provider)
+    protected override CompilableProvider VisitRaw(RawProvider provider)
     {
       return provider;
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitSort(SortProvider provider)
+    protected override CompilableProvider VisitSort(SortProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       var order = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
+      return source == provider.Source
+        ? provider
+        : new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override CompilableProvider VisitJoin(JoinProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       var equalIndexes = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new JoinProvider(left, right, provider.JoinType,
-        equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new JoinProvider(left, right, provider.JoinType,
+            equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitFilter(FilterProvider provider)
+    protected override CompilableProvider VisitFilter(FilterProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
+      _ = OnRecursionExit(provider);
       var predicate = translate(provider, provider.Predicate);
-      if (source == provider.Source && predicate == provider.Predicate)
-        return provider;
-      return new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
+      return source == provider.Source && predicate == provider.Predicate
+        ? provider
+        : new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitDistinct(DistinctProvider provider)
+    protected override CompilableProvider VisitDistinct(DistinctProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new DistinctProvider(source);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new DistinctProvider(source);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitCalculate(CalculateProvider provider)
+    protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
+      _ = OnRecursionExit(provider);
       var translated = false;
       var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
       foreach (var column in provider.CalculatedColumns) {
@@ -166,35 +150,32 @@ namespace Xtensive.Orm.Rse.Providers
         var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
         descriptors.Add(ccd);
       }
-      if (!translated && source == provider.Source)
-        return provider;
-      return new CalculateProvider(source, descriptors.ToArray());
+      return !translated && source == provider.Source
+        ? provider
+        : new CalculateProvider(source, descriptors.ToArray());
     }
 
-    protected override Provider VisitRowNumber(RowNumberProvider provider)
+    /// <inheritdoc/>
+    protected override CompilableProvider VisitRowNumber(RowNumberProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new RowNumberProvider(source, provider.SystemColumn.Name);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new RowNumberProvider(source, provider.SystemColumn.Name);
     }
 
 
     /// <inheritdoc/>
-    protected override Provider VisitAlias(AliasProvider provider)
+    protected override CompilableProvider VisitAlias(AliasProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new AliasProvider(source, provider.Alias);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new AliasProvider(source, provider.Alias);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -211,151 +192,140 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
-      var compilableSource = provider.Source as CompilableProvider;
-      if (compilableSource == null)
-        return provider;
+      var compilableSource = provider.Source;
       OnRecursionEntrance(provider);
       var source = VisitCompilable(compilableSource);
-      OnRecursionExit(provider);
-      if (source == compilableSource)
-        return provider;
-      return new StoreProvider(source, provider.Name);
+      _ = OnRecursionExit(provider);
+      return source == compilableSource ? provider : new StoreProvider(source, provider.Name);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitIndex(IndexProvider provider)
+    protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       OnRecursionEntrance(provider);
-      OnRecursionExit(provider);
+      _ = OnRecursionExit(provider);
       return provider;
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitFreeText(FreeTextProvider provider)
+    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       OnRecursionEntrance(provider);
-      OnRecursionExit(provider);
+      _ = OnRecursionExit(provider);
       return provider;
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       OnRecursionEntrance(provider);
-      OnRecursionExit(provider);
+      _ = OnRecursionExit(provider);
       return provider;
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       var predicate = (Expression<Func<Tuple, Tuple, bool>>)OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitExistence(ExistenceProvider provider)
+    protected override CompilableProvider VisitExistence(ExistenceProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new ExistenceProvider(source, provider.ExistenceColumnName);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new ExistenceProvider(source, provider.ExistenceColumnName);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitApply(ApplyProvider provider)
+    protected override CompilableProvider VisitApply(ApplyProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
-      OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
+      _ = OnRecursionExit(provider);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ApplyProvider(provider.ApplyParameter, left, right,
+            provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitIntersect(IntersectProvider provider)
+    protected override CompilableProvider VisitIntersect(IntersectProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
-      OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new IntersectProvider(left, right);
+      _ = OnRecursionExit(provider);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new IntersectProvider(left, right);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitExcept(ExceptProvider provider)
+    protected override CompilableProvider VisitExcept(ExceptProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
-      OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ExceptProvider(left, right);
+      _ = OnRecursionExit(provider);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ExceptProvider(left, right);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitConcat(ConcatProvider provider)
+    protected override CompilableProvider VisitConcat(ConcatProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
-      OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ConcatProvider(left, right);
+      _ = OnRecursionExit(provider);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ConcatProvider(left, right);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitUnion(UnionProvider provider)
+    protected override CompilableProvider VisitUnion(UnionProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
-      OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new UnionProvider(left, right);
+      _ = OnRecursionExit(provider);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new UnionProvider(left, right);
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitLock(LockProvider provider)
+    protected override CompilableProvider VisitLock(LockProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new LockProvider(source, provider.LockMode, provider.LockBehavior);
+      _ = OnRecursionExit(provider);
+      return source == provider.Source ? provider : new LockProvider(source, provider.LockMode, provider.LockBehavior);
     }
 
-    protected override Provider VisitInclude(IncludeProvider provider)
+    /// <inheritdoc/>
+    protected override CompilableProvider VisitInclude(IncludeProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
-        provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
-    }
-    
-    private static Expression DefaultExpressionTranslator(Provider p, Expression e)
-    {
-      return e;
+      _ = OnRecursionExit(provider);
+      return source == provider.Source
+        ? provider
+        : new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
+            provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
 
     /// <summary>
@@ -373,6 +343,8 @@ namespace Xtensive.Orm.Rse.Providers
     {
     }
 
+    private static Expression DefaultExpressionTranslator(CompilableProvider p, Expression e) => e;
+
     // Constructors
 
     /// <inheritdoc/>
@@ -383,7 +355,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     /// <inheritdoc/>
     /// <param name="expressionTranslator">Expression translator.</param>
-    public CompilableProviderVisitor(Func<Provider, Expression, Expression> expressionTranslator)
+    public CompilableProviderVisitor(Func<CompilableProvider, Expression, Expression> expressionTranslator)
     {
       translate = expressionTranslator;
     }

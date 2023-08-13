@@ -276,6 +276,14 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.SchemaSyncExceptionFormat, Is.EqualTo(expected.SchemaSyncExceptionFormat));
       Assert.That(actual.ServiceContainerType, Is.EqualTo(expected.ServiceContainerType));
       Assert.That(actual.UpgradeMode, Is.EqualTo(expected.UpgradeMode));
+      Assert.That(actual.FullTextChangeTrackingMode, Is.EqualTo(expected.FullTextChangeTrackingMode));
+      Assert.That(actual.AllowCyclicDatabaseDependencies, Is.EqualTo(expected.AllowCyclicDatabaseDependencies));
+      Assert.That(actual.Options, Is.EqualTo(expected.Options));
+      Assert.That(actual.MultidatabaseKeys, Is.EqualTo(expected.MultidatabaseKeys));
+      Assert.That(actual.ShareStorageSchemaOverNodes, Is.EqualTo(expected.ShareStorageSchemaOverNodes));
+      Assert.That(actual.PreferTypeIdsAsQueryParameters, Is.EqualTo(expected.PreferTypeIdsAsQueryParameters));
+      Assert.That(actual.TagsLocation, Is.EqualTo(expected.TagsLocation));
+      Assert.That(actual.MaxNumberOfConditions, Is.EqualTo(expected.MaxNumberOfConditions));
     }
 
     private static void ValidateNamingCovention(NamingConvention expected, NamingConvention actual)
@@ -350,6 +358,16 @@ namespace Xtensive.Orm.Tests.Configuration
 
       clone = configuration.Clone();
       Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+    }
+
+    [Test]
+    public void MaxNumberOfConditionsTest()
+    {
+      var configuration = LoadDomainConfiguration("AppConfigTest", "MaxNumberOfConditions676");
+      Assert.That(configuration.MaxNumberOfConditions, Is.EqualTo(676));
+
+      var clone = configuration.Clone();
+      Assert.That(clone.MaxNumberOfConditions, Is.EqualTo(configuration.MaxNumberOfConditions));
     }
 
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)

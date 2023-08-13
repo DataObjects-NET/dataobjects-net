@@ -1,2 +1,0 @@
-[main] Updated BitFaster.Caching package reference to v2.0.0
-[sqlserver] Updated Microsoft.Data.SqlClient package reference to v5.0.0

@@ -18,10 +18,9 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCreatePartitionFunction(partitionFunction);
+    internal override SqlCreatePartitionFunction Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCreatePartitionFunction(t.partitionFunction));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

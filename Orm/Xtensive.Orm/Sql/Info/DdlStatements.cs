@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 
@@ -46,14 +46,20 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports <see cref="Rename"/> statement
     /// for the mentioned database entity.
     /// </summary>
-    /// <value>0x4</value>
+    /// <value>0x8</value>
     Rename = 0x8,
+
+    /// <summary>
+    /// Indicates that RDBMS supports <see cref="Truncate"/> statement
+    /// </summary>
+    /// <value>0x10</value>
+    Truncate = 0x10,
 
     /// <summary>
     /// Indicates that RDBMS supports all DDL statements
     /// for the mentioned database entity.
     /// </summary>
-    /// <value>0x7</value>
-    All = Create | Alter | Drop | Rename
+    /// <value>0x1F</value>
+    All = Create | Alter | Drop | Rename | Truncate
   }
 }

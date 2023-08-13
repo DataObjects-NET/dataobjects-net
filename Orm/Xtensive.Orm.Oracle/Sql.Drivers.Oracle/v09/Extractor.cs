@@ -101,8 +101,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private const int DefaultPrecision = 38;
-    private const int DefaultScale = 0;
+    private const int DefaultDecimalPrecision = 38;
+    private const int DefaultDecimalScale = 0;
+#if NET6_0_OR_GREATER
+    private const int DefaultDayPrecision = 2;
+    private const int DefaultFSecondsPrecision = 6;
+#endif
 
     private readonly object accessGuard = new object();
 
@@ -494,7 +498,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         state.ReferencingTable = referencingSchema.Tables[reader.GetString(1)];
         state.ForeignKey = state.ReferencingTable.CreateForeignKey(reader.GetString(2));
         ReadConstraintProperties(state.ForeignKey, reader, 3, 4);
-        ReadCascadeAction(state.ForeignKey, reader, 5);
+        ReadForeignKeyDeleteAction(state.ForeignKey, reader, 5);
         var referencedSchema = state.Catalog.Schemas[reader.GetString(8)];
         state.ReferencedTable = referencedSchema.Tables[reader.GetString(9)];
         state.ForeignKey.ReferencedTable = state.ReferencedTable;
@@ -563,25 +567,37 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       var typeName = row.GetString(typeNameIndex);
-      if (typeName == "NUMBER") {
-        var precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
-        var scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
+      if (string.Equals(typeName, "NUMBER", StringComparison.OrdinalIgnoreCase)) {
+        var precision = row.IsDBNull(precisionIndex) ? DefaultDecimalPrecision : ReadInt(row, precisionIndex);
+        var scale = row.IsDBNull(scaleIndex) ? DefaultDecimalScale : ReadInt(row, scaleIndex);
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
-      if (typeName.StartsWith("INTERVAL DAY")) {
+#if NET6_0_OR_GREATER
+      if (typeName.StartsWith("INTERVAL DAY", StringComparison.OrdinalIgnoreCase)) {
+        var dayPrecision = row.IsDBNull(precisionIndex) ? DefaultDayPrecision : ReadInt(row, precisionIndex);
+        var fSecondsPrecision = row.IsDBNull(scaleIndex) ? DefaultFSecondsPrecision : ReadInt(row, scaleIndex);
+
+        return (dayPrecision == 0)
+          ? new SqlValueType(SqlType.Time)
+          : new SqlValueType(SqlType.Interval);
+      }
+#else
+      if (typeName.StartsWith("INTERVAL DAY", StringComparison.OrdinalIgnoreCase)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Interval);
       }
-      if (typeName.StartsWith("TIMESTAMP")) {
+#endif
+      if (typeName.StartsWith("TIMESTAMP", StringComparison.OrdinalIgnoreCase)) {
         // "timestamp precision" is saved as "scale", ignoring too
-        if (typeName.Contains("WITH TIME ZONE")) {
+        if (typeName.Contains("WITH TIME ZONE", StringComparison.OrdinalIgnoreCase)) {
           return new SqlValueType(SqlType.DateTimeOffset);
         }
 
         return new SqlValueType(SqlType.DateTime);
       }
-      if (typeName == "NVARCHAR2" || typeName == "NCHAR") {
+      if (string.Equals(typeName, "NVARCHAR2", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(typeName, "NCHAR", StringComparison.OrdinalIgnoreCase)) {
         var length = ReadInt(row, charLengthIndex);
         var sqlType = typeName.Length == 5 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
@@ -665,7 +681,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "DEFERRED";
     }
 
-    private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
+    private static void ReadForeignKeyDeleteAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
     {
       var deleteRule = row.GetString(deleteRuleIndex);
       switch (deleteRule) {

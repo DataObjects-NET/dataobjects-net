@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     private void CloneAssertions(Schema newSchema, Schema sourceSchema)
     {
       foreach (var assertion in sourceSchema.Assertions) {
-        var newAssertion = newSchema.CreateAssertion(assertion.Name, (SqlExpression)assertion.Condition.Clone(), assertion.IsDeferrable, assertion.IsInitiallyDeferred);
+        var newAssertion = newSchema.CreateAssertion(assertion.Name, assertion.Condition.Clone(), assertion.IsDeferrable, assertion.IsInitiallyDeferred);
         CopyDbName(newAssertion, assertion);
       }
     }
@@ -113,9 +113,9 @@ namespace Xtensive.Orm.Upgrade.Internals
         if (sourceDomain.Collation!=null)
           newDomain.Collation = collationsMap[sourceDomain.Collation];
         if (sourceDomain.DefaultValue!=null)
-          newDomain.DefaultValue = (SqlExpression)sourceDomain.DefaultValue.Clone();
+          newDomain.DefaultValue = sourceDomain.DefaultValue.Clone();
         foreach (var domainConstraint in sourceDomain.DomainConstraints) {
-          var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, (SqlExpression) domainConstraint.Condition.Clone());
+          var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, domainConstraint.Condition.Clone());
           CopyDbName(newConstraint, domainConstraint);
         }
       }
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newColumn, sourceTableColumn);
 
         if (sourceTableColumn.DefaultValue!=null)
-          newColumn.DefaultValue = (SqlExpression) sourceTableColumn.DefaultValue.Clone();
+          newColumn.DefaultValue = sourceTableColumn.DefaultValue.Clone();
 
         var schema = newTable.Schema;
         if (sourceTableColumn.Collation!=null) {
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         if (sourceTableColumn.Domain!=null)
           newColumn.Domain = schema.Domains[sourceTableColumn.Domain.Name];
         if (sourceTableColumn.Expression!=null)
-          newColumn.Expression = (SqlExpression) sourceTableColumn.Expression.Clone();
+          newColumn.Expression = sourceTableColumn.Expression.Clone();
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
         if (sourceTableColumn.SequenceDescriptor!=null)
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         ft.IsUnique = ftIndex.IsUnique;
         ft.UnderlyingUniqueIndex = ftIndex.UnderlyingUniqueIndex;
         if (ftIndex.Where!=null)
-          ft.Where = (SqlExpression) ftIndex.Where.Clone();
+          ft.Where = ftIndex.Where.Clone();
         ClonePartitionDescriptor(ft, sourceIndex);
         return;
       }
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         spatial.IsClustered = spatialIndex.IsClustered;
         spatial.IsUnique = spatialIndex.IsUnique;
         if (spatialIndex.Where!=null)
-          spatial.Where = (SqlExpression) spatialIndex.Where.Clone();
+          spatial.Where = spatialIndex.Where.Clone();
         ClonePartitionDescriptor(spatialIndex, sourceIndex);
         return;
       }
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       index.IsUnique = sourceIndex.IsUnique;
       index.IsClustered = sourceIndex.IsClustered;
       if (sourceIndex.Where!=null)
-        index.Where = (SqlExpression) sourceIndex.Where.Clone();
+        index.Where = sourceIndex.Where.Clone();
       index.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, sourceIndex));
       index.IsBitmap = sourceIndex.IsBitmap;
       ClonePartitionDescriptor(index, sourceIndex);
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       var checkConstraint = sourceConstraint as CheckConstraint;
       if (checkConstraint!=null) {
-        var c = newTable.CreateCheckConstraint(checkConstraint.Name, (SqlExpression) checkConstraint.Condition.Clone());
+        var c = newTable.CreateCheckConstraint(checkConstraint.Name, checkConstraint.Condition.Clone());
         CopyDbName(c, checkConstraint);
         return;
       }

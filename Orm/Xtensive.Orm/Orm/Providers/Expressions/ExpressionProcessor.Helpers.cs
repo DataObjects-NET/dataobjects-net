@@ -199,9 +199,8 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
-      var memberCompiler = memberCompilerProvider.GetCompiler(member);
-      if (memberCompiler==null)
-        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
+      var memberCompiler = memberCompilerProvider.GetCompiler(member)
+        ?? throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
     }
 
@@ -221,6 +220,14 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTime);
+#if NET6_0_OR_GREATER
+
+    private static bool IsDateOnlyExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.DateOnly);
+
+    private static bool IsTimeOnlyExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.TimeOnly);
+#endif
 
     private static bool IsDateTimeOffsetExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTimeOffset);

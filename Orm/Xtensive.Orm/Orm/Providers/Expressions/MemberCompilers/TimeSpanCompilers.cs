@@ -1,10 +1,11 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.02.24
 
 using System;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
@@ -31,8 +32,14 @@ namespace Xtensive.Orm.Providers
       SqlExpression seconds,
       SqlExpression milliseconds)
     {
+      var context = ExpressionTranslationContext.Current;
+      var mapping = context.Driver.GetTypeMapping(typeof(long)); 
+      var mappedType = mapping.MapType();
+
       var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * (hours + 24L * days)));
-      var nanoseconds = NanosecondsPerMillisecond * SqlDml.Cast(m, SqlType.Int64);
+      var nanoseconds = (mappedType.Precision.HasValue)
+        ? NanosecondsPerMillisecond * SqlDml.Cast(m, mappedType.Type, (short) mappedType.Precision.Value, (short) mappedType.Scale.Value)
+        : NanosecondsPerMillisecond * SqlDml.Cast(m, mappedType.Type);
       return SqlDml.IntervalConstruct(nanoseconds);
     }
 
@@ -156,6 +163,7 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
+      // there are some operations that rely on this structure.
       return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / NanosecondsPerTick);
     }
 

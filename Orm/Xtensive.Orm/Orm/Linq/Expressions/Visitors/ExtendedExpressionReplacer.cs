@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    private Expression TranslateExpression(Provider provider, Expression original)
+    private Expression TranslateExpression(CompilableProvider provider, Expression original)
     {
       var result = Visit(original);
       return result ?? original;

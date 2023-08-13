@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression;
     }
 
-    private Expression RewriteExpression(Provider provider, Expression expression)
+    private Expression RewriteExpression(CompilableProvider provider, Expression expression)
     {
       return Visit(expression);
     }

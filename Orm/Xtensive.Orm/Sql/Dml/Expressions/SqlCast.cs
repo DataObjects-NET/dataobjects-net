@@ -20,10 +20,9 @@ namespace Xtensive.Sql.Dml
       Type = replacingExpression.Type;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCast((SqlExpression) Operand.Clone(context), Type);
+    internal override SqlCast Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCast(t.Operand.Clone(c), t.Type));
     
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

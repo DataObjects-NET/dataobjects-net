@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       queryInfo.ParameterPrefix = ":";
       queryInfo.MaxLength = DoNotKnow;
       queryInfo.MaxComparisonOperations = DoNotKnow;
-      queryInfo.MaxQueryParameterCount = 63999;
+      queryInfo.MaxQueryParameterCount = 65535;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
@@ -202,7 +202,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return ServerFeatures.Savepoints |
         ServerFeatures.LargeObjects |
         ServerFeatures.CursorParameters |
-        ServerFeatures.MultipleResultsViaCursorParameters;
+        ServerFeatures.MultipleResultsViaCursorParameters |
+        ServerFeatures.TemporaryTableEmulation;
     }
 
     public override IdentityInfo GetIdentityInfo()
@@ -225,12 +226,19 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         ValueRange.Float, "real");
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
         ValueRange.Double, "double precision", "float");
+
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         ValueRange.DateTime, "timestamp");
+#if NET6_0_OR_GREATER
+      types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index,
+        ValueRange.DateOnly, "DATE");
+      types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index,
+        ValueRange.TimeOnly, "interval day(0) to second(7)");
+#endif
       types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index,
         ValueRange.DateTimeOffset, "TIMESTAMP WITH TIME ZONE");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,
-        ValueRange.TimeSpan, "interval day to second");
+        ValueRange.TimeSpan, "interval day(2) to second(6)");
 
       types.Char = DataTypeInfo.Stream(SqlType.Char,
         common | index | DataTypeFeatures.ZeroLengthValueIsNull, 2000, "nchar");

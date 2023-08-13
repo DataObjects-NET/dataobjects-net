@@ -128,6 +128,10 @@ namespace Xtensive.Orm.Providers
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
         typeof (DateTimeOffsetCompilers),
+#if NET6_0_OR_GREATER
+        typeof (DateOnlyCompilers),
+        typeof (TimeOnlyCompilers),
+#endif
         typeof (TimeSpanCompilers),
         typeof (MathCompilers),
         typeof (NumericCompilers),
