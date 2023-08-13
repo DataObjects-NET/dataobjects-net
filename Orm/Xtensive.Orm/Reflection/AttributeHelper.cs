@@ -24,27 +24,10 @@ namespace Xtensive.Reflection
       private static readonly Type attributeType = typeof(TAttribute);
       public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary = new();
 
-      private static List<TAttribute> GetAttributesAsNewList(MemberInfo member)
-      {
-        var attrObjects = member.GetCustomAttributes(attributeType, false);
-        var attrs = new List<TAttribute>(attrObjects.Length);
-        for (int i = 0, count = attrObjects.Length; i < count; ++i) {
-          attrs.Add((TAttribute) attrObjects[i]);
-        }
-        return attrs;
-      }
+      public static readonly Func<PerAttributeKey, TAttribute[]> AttributesExtractor = ExtractAttributesByKey;
 
-      private static void AddAttributesFromBase(ref List<TAttribute> attributes, MemberInfo member, AttributeSearchOptions options)
+      private static TAttribute[] ExtractAttributesByKey(PerAttributeKey key)
       {
-        if (member.GetBaseMember() is MemberInfo bm) {
-          var attrsToAdd = bm.GetAttributes<TAttribute>(options);
-          if (attrsToAdd.Count > 0) {
-            (attributes ??= new List<TAttribute>(attrsToAdd.Count)).AddRange(attrsToAdd);
-          }
-        }
-      }
-
-      public static readonly Func<PerAttributeKey, TAttribute[]> AttributesExtractor = key => {
         var (member, options) = key;
 
         var attributesAsObjects = member.GetCustomAttributes(attributeType, false);
@@ -74,8 +57,27 @@ namespace Xtensive.Reflection
         }
 
         return attributes?.ToArray(attributes.Count) ?? Array.Empty<TAttribute>();
-      };
-    }
+      }
+
+      private static List<TAttribute> GetAttributesAsNewList(MemberInfo member)
+      {
+        var attrObjects = member.GetCustomAttributes(attributeType, false);
+        var attrs = new List<TAttribute>(attrObjects.Length);
+        for (int i = 0, count = attrObjects.Length; i < count; ++i) {
+          attrs.Add((TAttribute) attrObjects[i]);
+        }
+        return attrs;
+      }
+
+      private static void AddAttributesFromBase(ref List<TAttribute> attributes, MemberInfo member, AttributeSearchOptions options)
+      {
+        if (member.GetBaseMember() is MemberInfo bm) {
+          var attrsToAdd = bm.GetAttributes<TAttribute>(options);
+          if (attrsToAdd.Count > 0) {
+            (attributes ??= new List<TAttribute>(attrsToAdd.Count)).AddRange(attrsToAdd);
+          }
+        }
+      }
 
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
