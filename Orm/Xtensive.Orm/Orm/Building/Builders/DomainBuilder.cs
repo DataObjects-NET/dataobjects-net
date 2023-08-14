@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Building.Builders
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, nameof(builderConfiguration));
 
       var context = new BuildingContext(builderConfiguration);
-      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).Name)) {
         new DomainBuilder(context).Run();
       }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateDomain()
     {
-      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(Domain).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(Domain).Name)) {
         var services = context.BuilderConfiguration.Services;
         var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Building.Builders
       var handlers = context.Domain.Handlers;
       var services = context.BuilderConfiguration.Services;
 
-      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(DomainHandler).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(DomainHandler).Name)) {
         // HandlerFactory
         handlers.Factory = services.HandlerFactory;
 
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateServices()
     {
-      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(IServiceContainer).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(IServiceContainer).Name)) {
         var domain = context.Domain;
         var configuration = domain.Configuration;
         var userContainerType = configuration.ServiceContainerType ?? typeof(ServiceContainer);

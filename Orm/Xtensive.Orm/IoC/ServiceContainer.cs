@@ -27,7 +27,7 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
+    private static readonly Type iServiceContainerType = typeof(IServiceContainer);
 
     private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
       var mappedType = serviceInfo.MappedType;
@@ -187,9 +187,9 @@ namespace Xtensive.IoC
     public static IServiceContainer Create(Type containerType, object configuration, IServiceContainer parent)
     {
       ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
-      if (!typeofIServiceContainer.IsAssignableFrom(containerType))
+      if (!iServiceContainerType.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
-          Strings.ExContainerTypeMustImplementX, typeofIServiceContainer.GetShortName()), "containerType");
+          Strings.ExContainerTypeMustImplementX, iServiceContainerType.Name), "containerType");
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();

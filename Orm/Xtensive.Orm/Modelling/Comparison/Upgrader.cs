@@ -160,18 +160,20 @@ namespace Xtensive.Modelling.Comparison
             .ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff != null) {
-            using (CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation))) {
-              CoreLog.Info(nameof(Strings.LogValidationFailed));
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
-              CoreLog.Info(diff.ToString());
-              CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
-                new ActionSequence() { actions });
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
-              TargetModel.Dump();
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
-              CurrentModel.Dump();
-              throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
+            if (CoreLog.IsLogged(Orm.Logging.LogLevel.Info)) {
+              using (CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation))) {
+                CoreLog.Info(nameof(Strings.LogValidationFailed));
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
+                CoreLog.Info(diff.ToString());
+                CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
+                  new ActionSequence() { actions });
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
+                TargetModel.Dump();
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
+                CurrentModel.Dump();
+              }
             }
+            throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
 
           return new ReadOnlyCollection<NodeAction>(actions.Actions.ToArray());
