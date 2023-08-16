@@ -60,7 +60,12 @@ namespace Xtensive.Orm.Rse.Providers
     protected abstract RecordSetHeader BuildHeader();
 
     private string DebuggerDisplayName {
-      get { return GetType().Name; }
+      get {
+        var type = GetType();
+        return type.IsGenericType
+          ? type.GetShortName()
+          : type.Name;
+      }
     }
 
     /// <summary>
