@@ -357,7 +357,7 @@ namespace Xtensive.Reflection
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.Name));
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
@@ -404,7 +404,7 @@ namespace Xtensive.Reflection
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.Name));
 
       int count = genericArgumentVariants.Count;
       TDelegate[] delegates = new TDelegate[count];

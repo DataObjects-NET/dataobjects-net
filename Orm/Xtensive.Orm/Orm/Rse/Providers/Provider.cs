@@ -60,7 +60,12 @@ namespace Xtensive.Orm.Rse.Providers
     protected abstract RecordSetHeader BuildHeader();
 
     private string DebuggerDisplayName {
-      get { return GetType().GetShortName(); }
+      get {
+        var type = GetType();
+        return type.IsGenericType
+          ? type.GetShortName()
+          : type.Name;
+      }
     }
 
     /// <summary>
@@ -98,8 +103,9 @@ namespace Xtensive.Orm.Rse.Providers
     private string TitleToString()
     {
       var sb = new StringBuilder();
-      string providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
-      string parameters = ParametersToString();
+      var type = GetType();
+      var providerName = (type.IsGenericType ? type.GetShortName() : type.Name).TryCutSuffix(ToString_ProviderTypeSuffix);
+      var parameters = ParametersToString();
 
       sb.Append(providerName);
       if (!parameters.IsNullOrEmpty())

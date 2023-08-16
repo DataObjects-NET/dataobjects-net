@@ -305,15 +305,16 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
+      var underlyingType = TypeInfo?.UnderlyingType ?? TypeReference.Type.UnderlyingType;
       if (TypeInfo!=null)
         return string.Format(
           Strings.KeyFormat,
-          TypeInfo.UnderlyingType.GetShortName(),
+          underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
           Value.ToRegular());
 
       return string.Format(
         Strings.KeyFormatUnknownKeyType,
-        TypeReference.Type.UnderlyingType.GetShortName(),
+        underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
         Value.ToRegular());
     }
 

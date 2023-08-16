@@ -80,7 +80,8 @@ namespace Xtensive.Orm.Linq
     {
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
-        parameter = new ApplyParameter(provider.GetType().GetShortName());
+        var providerType = provider.GetType();
+        parameter = new ApplyParameter(providerType.IsGenericType ? providerType.GetShortName() : providerType.Name);
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
         // May lead TO entity.ToString() calls, while ToString can be overriden.

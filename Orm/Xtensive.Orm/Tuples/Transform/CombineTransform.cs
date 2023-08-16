@@ -47,9 +47,7 @@ namespace Xtensive.Tuples.Transform
     public override string ToString()
     {
       string description = $"{sources.ToDelimitedString(" + ")}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
-      return string.Format(Strings.TupleTransformFormat, 
-        GetType().GetShortName(), 
-        description);
+      return string.Format(Strings.TupleTransformFormat, GetType().Name, description);
     }
 
 
