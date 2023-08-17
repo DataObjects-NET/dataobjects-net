@@ -92,8 +92,11 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(Strings.NodeFormat, 
-        name ?? Strings.UnnamedNodeDisplayName, GetType().GetShortName());
+      var type = GetType();
+
+      return string.Format(Strings.NodeFormat,
+        name ?? Strings.UnnamedNodeDisplayName,
+        type.IsGenericType ? type.GetShortName() : type.Name);
     }
 
 

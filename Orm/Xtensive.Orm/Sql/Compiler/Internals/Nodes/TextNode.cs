@@ -9,17 +9,27 @@ namespace Xtensive.Sql.Compiler
   [DebuggerDisplay("Text = {Text}")]
   internal class TextNode : Node
   {
+    private const string CommaString = ", ";
+    private static readonly TextNode CommaNode = new TextNode(CommaString);
+
     public readonly string Text;
 
-    internal override void AcceptVisitor(NodeVisitor visitor)
+    public static TextNode Create(string text)
     {
-      visitor.Visit(this);
+      if (text.Length < 3) {
+        text = string.Intern(text);
+        if (text == CommaString) {
+          return CommaNode;
+        }
+      }
+      return new TextNode(text);
     }
+
+    internal override void AcceptVisitor(NodeVisitor visitor) => visitor.Visit(this);
 
     // Constructor
 
     public TextNode(string text)
-      : base(true)
     {
       Text = text;
     }

@@ -105,8 +105,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The name of the action.</returns>
     protected virtual string GetActionName()
     {
-      string sn = GetType().GetShortName();
-      return sn.TryCutSuffix("Action");
+      return GetType().Name.TryCutSuffix("Action");
     }
 
     /// <summary>

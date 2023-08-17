@@ -50,7 +50,8 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      return GetType().GetShortName();
+      var type = GetType();
+      return type.IsGenericType ? type.GetShortName() : type.Name;
     }
   }
 }
