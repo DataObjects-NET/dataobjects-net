@@ -29,8 +29,7 @@ namespace Xtensive.Sql.Compiler
 
     // Constructor
 
-    private TextNode(string text)
-      : base(true)
+    public TextNode(string text)
     {
       Text = text;
     }

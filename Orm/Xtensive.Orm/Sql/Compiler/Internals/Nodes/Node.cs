@@ -9,17 +9,6 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public abstract class Node
   {
-    internal readonly bool IsTextNode;
-
     internal abstract void AcceptVisitor(NodeVisitor visitor);
-
-    public Node()
-    {
-    }
-
-    internal Node(bool isTextNode)
-    {
-      IsTextNode = isTextNode;
-    }
   }
 }
