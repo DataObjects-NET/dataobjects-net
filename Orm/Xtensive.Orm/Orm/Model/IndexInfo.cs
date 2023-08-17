@@ -471,6 +471,7 @@ namespace Xtensive.Orm.Model
 
     private IndexInfo()
     {
+      KeyColumns = new DirectionCollection<ColumnInfo>();
       IncludedColumns = new ColumnInfoCollection(this, "IncludedColumns");
       ValueColumns = new ColumnInfoCollection(this, "ValueColumns");
     }
