@@ -24,8 +24,6 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
-    private readonly static System.Type TagProviderType = typeof(TagProvider);
-
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
