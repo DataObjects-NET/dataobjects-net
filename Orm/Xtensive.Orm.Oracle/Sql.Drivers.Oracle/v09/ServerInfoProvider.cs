@@ -229,12 +229,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         ValueRange.DateTime, "timestamp");
-#if NET6_0_OR_GREATER
       types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index,
         ValueRange.DateOnly, "DATE");
       types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index,
         ValueRange.TimeOnly, "interval day(0) to second(7)");
-#endif
       types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index,
         ValueRange.DateTimeOffset, "TIMESTAMP WITH TIME ZONE");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,

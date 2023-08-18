@@ -204,7 +204,6 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<DateTime>(value);
     }
-#if NET6_0_OR_GREATER
 
     public static implicit operator SqlExpression(DateOnly value)
     {
@@ -215,7 +214,6 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<TimeOnly>(value);
     }
-#endif
 
     public static implicit operator SqlExpression(DateTimeOffset value)
     {

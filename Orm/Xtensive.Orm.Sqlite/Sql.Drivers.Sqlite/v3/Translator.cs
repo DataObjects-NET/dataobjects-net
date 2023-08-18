@@ -22,14 +22,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'";
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
 
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fffffff\'";
-#endif
 
     public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
 
@@ -346,7 +344,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart dateTimePart)
@@ -371,7 +368,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart intervalPart) => throw SqlHelper.NotSupported(intervalPart.ToString());
@@ -516,18 +512,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       switch (type) {
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
-#endif
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-");
           break;
         case SqlNodeType.Overlaps:

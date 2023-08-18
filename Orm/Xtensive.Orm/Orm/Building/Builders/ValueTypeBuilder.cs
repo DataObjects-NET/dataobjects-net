@@ -58,7 +58,6 @@ namespace Xtensive.Orm.Building.Builders
         timespan = TimeSpan.FromTicks(ticks);
         return timespan;
       }
-//#if NET6_0_OR_GREATER
 
       if (valueType == WellKnownTypes.TimeOnly) {
         if (value is string timeOnlyString && TimeOnly.TryParse(timeOnlyString, out var timeOnly)) {
@@ -73,7 +72,6 @@ namespace Xtensive.Orm.Building.Builders
         }
         throw FailToParseValue(fieldName, value);
       }
-//#endif
 
       return Convert.ChangeType(value, valueType);
     }

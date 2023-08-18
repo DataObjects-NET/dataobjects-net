@@ -47,9 +47,7 @@ namespace Xtensive.Orm.Linq
       expression.NodeType == ExpressionType.New
       && expression.Type switch { var t =>
         t == WellKnownTypes.TimeSpan || t == WellKnownTypes.DateTime || t == WellKnownTypes.DateTimeOffset
-#if NET6_0_OR_GREATER
           || t == WellKnownTypes.DateOnly || t == WellKnownTypes.TimeOnly
-#endif
       };
 
     public static bool IsQuery(this Expression expression) =>

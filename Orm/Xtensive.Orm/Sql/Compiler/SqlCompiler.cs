@@ -2094,14 +2094,12 @@ namespace Xtensive.Sql.Compiler
         else if (node.IsIntervalPart) {
           translator.Translate(context.Output, node.IntervalPart);
         }
-#if NET6_0_OR_GREATER
         else if (node.IsDatePart) {
           translator.Translate(context.Output, node.DatePart);
         }
         else if (node.IsTimePart) {
           translator.Translate(context.Output, node.TimePart);
         }
-#endif
         else {
           translator.Translate(context.Output, node.DateTimeOffsetPart);
         }

@@ -237,11 +237,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
         ValueRange.DateTime, "timestamp");
-#if NET6_0_OR_GREATER
 
       dtc.DateOnly = DataTypeInfo.Range(SqlType.Date, commonFeatures, ValueRange.DateOnly, "date");
       dtc.TimeOnly = DataTypeInfo.Range(SqlType.Time, commonFeatures, ValueRange.TimeOnly, "time");
-#endif
 
       dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "char");
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "varchar");

@@ -15,14 +15,12 @@ namespace Xtensive.Orm.Tests.Sql
   {
     protected static readonly DateTime DefaultDateTime = new DateTime(2001, 2, 3, 4, 5, 6, 334);
     protected static readonly DateTime SecondDateTime = new DateTime(2000, 12, 11, 10, 9, 8, 765);
-#if NET6_0_OR_GREATER
 
     protected static readonly DateOnly DefaultDateOnly = new DateOnly(2001, 2, 3);
     protected static readonly DateOnly SecondDateOnly = new DateOnly(2000, 12, 11);
 
     protected static readonly TimeOnly DefaultTimeOnly = new TimeOnly(4, 5, 6, 334);
     protected static readonly TimeOnly SecondTimeOnly = new TimeOnly(10, 9, 8, 765);
-#endif
 
     protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 652);
     protected static readonly int AddYearsConst = 5;
@@ -155,7 +153,6 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.Extract(SqlDateTimePart.DayOfYear, DefaultDateTime),
         DefaultDateTime.DayOfYear);
     }
-#if NET6_0_OR_GREATER
 
     [Test]
     public virtual void DateOnlyAddYearsTest()
@@ -289,7 +286,6 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.TimeMinusTime(DefaultTimeOnly, SecondTimeOnly),
         DefaultTimeOnly - SecondTimeOnly);
     }
-#endif
 
     [Test]
     public virtual void IntervalConstructTest()

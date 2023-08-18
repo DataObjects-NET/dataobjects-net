@@ -96,7 +96,6 @@ namespace Xtensive.Orm.Sql.Tests
       Assert.That((int) SqlDateTimePart.DayOfWeek, Is.EqualTo(11));
       Assert.That((int) SqlDateTimePart.Nothing, Is.EqualTo(25));
     }
-#if NET6_0_OR_GREATER
 
     [Test]
     public void DatePartsValueTest()
@@ -119,7 +118,6 @@ namespace Xtensive.Orm.Sql.Tests
       Assert.That((int) SqlTimePart.Nanosecond, Is.EqualTo(7));
       Assert.That((int) SqlTimePart.Nothing, Is.EqualTo(25));
     }
-#endif
 
     [Test]
     public void IntervalPartsValueTest()
@@ -165,7 +163,6 @@ namespace Xtensive.Orm.Sql.Tests
       Assert.That((SqlDateTimeOffsetPart) (int) SqlDateTimePart.DayOfWeek, Is.EqualTo(SqlDateTimeOffsetPart.DayOfWeek));
       Assert.That((SqlDateTimeOffsetPart) (int) SqlDateTimePart.Nothing, Is.EqualTo(SqlDateTimeOffsetPart.Nothing));
     }
-#if NET6_0_OR_GREATER
 
     [Test]
     public void DatePartConversionTest()
@@ -202,7 +199,6 @@ namespace Xtensive.Orm.Sql.Tests
       Assert.That((SqlDateTimeOffsetPart) (int) SqlTimePart.Nanosecond, Is.EqualTo(SqlDateTimeOffsetPart.Nanosecond));
       Assert.That((SqlDateTimeOffsetPart) (int) SqlTimePart.Nothing, Is.EqualTo(SqlDateTimeOffsetPart.Nothing));
     }
-#endif
 
     [Test]
     public void IntervalPartConversionTest()

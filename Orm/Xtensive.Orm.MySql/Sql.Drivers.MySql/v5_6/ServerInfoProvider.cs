@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
 {
   internal class ServerInfoProvider : v5_5.ServerInfoProvider
   {
-#if NET6_0_OR_GREATER
     /// <inheritdoc/>
     public override DataTypeCollection GetDataTypesInfo()
     {
@@ -25,7 +24,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
 
       return types;
     }
-#endif
 
     // Constructors
 

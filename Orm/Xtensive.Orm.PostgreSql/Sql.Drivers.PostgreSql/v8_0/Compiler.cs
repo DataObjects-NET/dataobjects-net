@@ -15,10 +15,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
   internal class Compiler : SqlCompiler
   {
     private const string DateTimeIsoFormat = "YYYY-MM-DD\"T\"HH24:MI:SS";
-#if NET6_0_OR_GREATER
     private const string DateFormat = "YYYY-MM-DD";
     private const string TimeFormat = "HH24:MI:SS.US0";
-#endif
 
     private const long NanosecondsPerHour = 3600000000000;
     private const long NanosecondsPerMinute = 60000000000;
@@ -37,10 +35,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static readonly SqlLiteral ReferenceDateTimeLiteral = SqlDml.Literal(new DateTime(2001, 1, 1));
     private static readonly SqlLiteral EpochLiteral = SqlDml.Literal(new DateTime(1970, 1, 1));
-#if NET6_0_OR_GREATER
     private static readonly SqlLiteral ReferenceDateLiteral = SqlDml.Literal(new DateOnly(2001, 1, 1));
     private static readonly SqlLiteral ZeroTimeLiteral = SqlDml.Literal(new TimeOnly(0, 0, 0));
-#endif
 
     /// <inheritdoc/>
     public override void Visit(SqlDeclareCursor node)
@@ -87,7 +83,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.DateTimeOffsetPlusInterval:
           (node.Left + node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
           SqlDml.Cast(
             SqlDml.Cast(
@@ -95,7 +90,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               SqlType.Time),
             SqlType.Interval).AcceptVisitor(this);
           return;
-#endif
         default:
           base.Visit(node);
           return;
@@ -133,7 +127,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.DateTimeConstruct:
           ConstructDateTime(node.Arguments).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
           ConstructDate(node.Arguments).AcceptVisitor(this);
           return;
@@ -143,7 +136,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.TimeToNanoseconds:
           TimeToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
           return;
-#endif
         case SqlFunctionType.DateTimeTruncate:
           (SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0])).AcceptVisitor(this);
           return;
@@ -153,7 +145,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.DateTimeAddYears:
           (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
           return;
@@ -175,7 +166,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.TimeToString:
           DateTimeToStringIso(node.Arguments[0], TimeFormat).AcceptVisitor(this);
           return;
-#endif
         case SqlFunctionType.DateTimeToStringIso:
           DateTimeToStringIso(node.Arguments[0], DateTimeIsoFormat).AcceptVisitor(this);
           return;
@@ -197,7 +187,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.DateTimeOffsetToDateTime:
           DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateTimeToDate:
           DateTimeToDate(node.Arguments[0]).AcceptVisitor(this);
           return;
@@ -222,7 +211,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlFunctionType.TimeToDateTimeOffset:
           TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
-#endif
       }
       base.Visit(node);
     }
@@ -403,7 +391,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         + (OneMonthInterval * (arguments[1] - 1))
         + (OneDayInterval * (arguments[2] - 1));
     }
-#if NET6_0_OR_GREATER
 
     protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
     {
@@ -460,7 +447,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       return nPerHour + nPerMinute + nPerSecond + nPerMillisecond;
     }
-#endif
 
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp) =>
       SqlDml.FunctionCall("DATE", timestamp);
@@ -523,7 +509,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
-#if NET6_0_OR_GREATER
 
     private static SqlExpression DateTimeToDate(SqlExpression dateTime) =>
       SqlDml.Cast(dateTime, SqlType.Date);
@@ -548,7 +533,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
       SqlDml.Cast(EpochLiteral + time, SqlType.DateTimeOffset);
-#endif
 
     private string ZoneStringFromParts(int hours, int minutes) =>
       $"{(hours < 0 ? "-" : "+")}{Math.Abs(hours):00}:{Math.Abs(minutes):00}";

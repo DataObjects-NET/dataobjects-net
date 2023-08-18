@@ -193,11 +193,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public long DateTimeTicks { get; set; }
-#if NET6_0_OR_GREATER
 
     [Field]
     public long TimeOnlyTicks { get; set; }
-#endif
 
     [Field]
     [Validation.RangeConstraint(Min = -23, Max = 23)]
@@ -224,10 +222,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         OffsetHour = 0,
         OffsetMinute = 0,
         DateTimeTicks = dateTime.Ticks,
-#if NET6_0_OR_GREATER
         TimeOnlyTicks = TimeOnly.FromDateTime(dateTime).Ticks,
         TimeSpan = TimeOnly.FromDateTime(dateTime).ToTimeSpan(),
-#endif
       };
     }
 
@@ -245,10 +241,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         OffsetHour = dateTimeOffset.Offset.Hours,
         OffsetMinute = dateTimeOffset.Offset.Minutes,
         DateTimeTicks = dateTimeOffset.Ticks,
-#if NET6_0_OR_GREATER
         TimeOnlyTicks = TimeOnly.FromDateTime(dateTimeOffset.DateTime).Ticks,
         TimeSpan = TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToTimeSpan(),
-#endif
       };
     }
 
@@ -257,7 +251,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
-#if NET6_0_OR_GREATER
 
   [HierarchyRoot]
   public class DateOnlyEntity : Entity
@@ -314,5 +307,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
-#endif
 }

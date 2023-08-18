@@ -113,14 +113,12 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime FDateTime { get; set; }
 
-#if NET6_0_OR_GREATER
     [Field]
     public DateOnly FDateOnly { get; set; }
 
     [Field]
     public TimeOnly FTimeOnly { get; set; }
 
-#endif
     [Field]
     public TimeSpan FTimeSpan { get; set; }
 
@@ -206,14 +204,12 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime? FNDateTime { get; set; }
 
-#if NET6_0_OR_GREATER
     [Field]
     public DateOnly? FNDateOnly { get; set; }
 
     [Field]
     public TimeOnly? FNTimeOnly { get; set; }
 
-#endif
     [Field]
     public TimeSpan? FNTimeSpan { get; set; }
 
@@ -294,24 +290,20 @@ namespace Xtensive.Orm.Tests.Storage
         var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
         var dateTimeMinValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
 
-#if NET6_0_OR_GREATER
         dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateOnly;
         var dateOnlyMinValue = ((ValueRange<DateOnly>) dataTypeInfo.ValueRange).MinValue;
 
         dataTypeInfo = sqlDriver.ServerInfo.DataTypes.TimeOnly;
         var timeOnlyMinValue = ((ValueRange<TimeOnly>) dataTypeInfo.ValueRange).MinValue;
 
-#endif
         using (var t = session.OpenTransaction()) {
           X x = session.Query.SingleOrDefault<X>(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
           Assert.AreEqual(dateTimeMinValue, x.FDateTime);
-#if NET6_0_OR_GREATER
           Assert.AreEqual(dateOnlyMinValue, x.FDateOnly);
           Assert.AreEqual(timeOnlyMinValue, x.FTimeOnly);
-#endif
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
           Assert.AreEqual(EByte.Default, x.FEByte);
@@ -339,10 +331,8 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(null, x.FNBool);
           Assert.AreEqual(null, x.FNByte);
           Assert.AreEqual(null, x.FNDateTime);
-#if NET6_0_OR_GREATER
           Assert.AreEqual(null, x.FNDateOnly);
           Assert.AreEqual(null, x.FNTimeOnly);
-#endif
           Assert.AreEqual(null, x.FNDecimal);
           Assert.AreEqual(null, x.FNDouble);
           Assert.AreEqual(null, x.FNEByte);
