@@ -93,11 +93,9 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build primary virtual union index
       if (descendants.Count > 0) {
-        var indexesToUnion = new List<IndexInfo>(descendants.Count + 1) { type.Indexes.PrimaryIndex };
-        foreach (var index in descendants.Select(static t => t.Indexes.PrimaryIndex)) {
-          var indexView = BuildViewIndex(type, index);
-          indexesToUnion.Add(indexView);
-        }
+        var indexesToUnion = descendants.Select(t => BuildViewIndex(type, t.Indexes.PrimaryIndex))
+          .Prepend(type.Indexes.PrimaryIndex);
+
         var virtualPrimaryIndex = BuildUnionIndex(type, indexesToUnion);
         type.Indexes.Add(virtualPrimaryIndex);
 
