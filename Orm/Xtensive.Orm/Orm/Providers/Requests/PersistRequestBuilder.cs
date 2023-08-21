@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = CreatePersistRequest(batch, bindings, node.Configuration);
+        var batchRequest = new PersistRequest(driver, batch, bindings);
         batchRequest.Prepare();
         return new List<PersistRequest> {batchRequest}.AsReadOnly();
       }
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Providers
         }
         query.ValueRows.Add(row);
 
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Providers
         if (requiresVersionValidation) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings,context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
 
       return result;
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Providers
         if (context.Task.ValidateVersion) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -192,6 +192,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    [Obsolete("Use constructor directly")]
     protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
     {
       return Handlers.Domain.Configuration.ShareStorageSchemaOverNodes
