@@ -192,14 +192,6 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    [Obsolete("Use constructor directly")]
-    protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
-    {
-      return Handlers.Domain.Configuration.ShareStorageSchemaOverNodes
-        ? new PersistRequest(driver, query, bindings, nodeConfiguration)
-        : new PersistRequest(driver, query, bindings);
-    }
-
     private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
     {
       foreach (var column in context.Type.GetVersionColumns()) {

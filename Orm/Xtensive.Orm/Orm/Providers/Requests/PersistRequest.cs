@@ -56,21 +56,5 @@ namespace Xtensive.Orm.Providers
       CompileUnit = compileUnit;
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
     }
-
-    [Obsolete]
-    public PersistRequest(
-      StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings, NodeConfiguration nodeConfiguration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-
-      var compileUnit = statement as ISqlCompileUnit
-        ?? throw new ArgumentException("Statement is not ISqlCompileUnit");
-
-      this.driver = driver;
-      Statement = statement;
-      CompileUnit = compileUnit;
-      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
-    }
   }
 }

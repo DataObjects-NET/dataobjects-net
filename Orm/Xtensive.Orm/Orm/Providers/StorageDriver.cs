@@ -88,16 +88,6 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-    [Obsolete]
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-    {
-      var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase,
-        CommentLocation = configuration.TagsLocation.ToCommentLocation()
-      };
-      return underlyingDriver.Compile(statement, options);
-    }
-
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
