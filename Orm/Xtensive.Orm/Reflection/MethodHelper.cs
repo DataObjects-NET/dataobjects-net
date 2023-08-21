@@ -94,23 +94,6 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets generic method by names \ types of its arguments.
-    /// </summary>
-    /// <param name="type">Type to search the method in.</param>
-    /// <param name="name">Method name.</param>
-    /// <param name="bindingFlags">Binding attributes.</param>
-    /// <param name="genericArgumentNames">Generic arguments of the method.</param>
-    /// <param name="parameterTypes">Either strings or <see cref="Type"/>s of parameters (mixing is allowed).</param>
-    /// <returns>Found method, if match was found;
-    /// otherwise, <see langword="null"/>.</returns>
-    [DebuggerStepThrough]
-    [Obsolete("Use MethodHelper.GetMethodEx() instead")]
-    [CanBeNull]
-    public static MethodInfo GetMethod(this Type type,
-        string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes) =>
-      GetMethodEx(type, name, bindingFlags, genericArgumentNames, parameterTypes);
-
-    /// <summary>
     /// Gets constructor by names \ types of its parameters.
     /// </summary>
     /// <param name="type">Type to search constructor in.</param>
@@ -146,11 +129,6 @@ namespace Xtensive.Reflection
 
       return lastMatch;
     }
-
-    [Obsolete("Use MethodHelper.GetConstructorEx() instead")]
-    [CanBeNull]
-    public static ConstructorInfo GetConstructor(this Type type, BindingFlags bindingFlags, object[] parameterTypes) =>
-      GetConstructorEx(type, bindingFlags, parameterTypes);
 
     /// <summary>
     /// Gets the types of method parameters.

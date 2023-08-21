@@ -82,12 +82,6 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultEnsureConnectionIsAlive = true;
 
     /// <summary>
-    /// Default <see cref="EntityVersioningPolicy"/> value;
-    /// </summary>
-    [Obsolete("Use VersioningConvention.DefaultVersioningPolicy")]
-    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
-
-    /// <summary>
     /// Default <see cref="UpgradeMode"/> value.
     /// </summary>
     public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;

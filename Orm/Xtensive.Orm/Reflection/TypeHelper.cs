@@ -632,20 +632,6 @@ namespace Xtensive.Reflection
 
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
-    /// accepting specified <paramref name="arguments"/>.
-    /// </summary>
-    /// <param name="type">The type to get the constructor for.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>
-    /// Appropriate constructor, if a single match is found;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    [Obsolete, CanBeNull]
-    public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
-      GetSingleConstructorOrDefault(type, arguments.Select(a => a?.GetType()).ToArray());
-
-    /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="argumentTypes"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
@@ -724,15 +710,6 @@ namespace Xtensive.Reflection
     /// <param name="type">The type to get the interfaces of.</param>
     public static IReadOnlyList<Type> GetInterfacesUnordered(Type type) =>
       UnorderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces());
-
-    /// <summary>
-    /// Gets the interfaces of the specified type.
-    /// Interfaces will be ordered from the very base ones to ancestors.
-    /// </summary>
-    /// <param name="type">The type to get the interfaces of.</param>
-    [Obsolete("Use GetInterfacesOrderByInheritance instead")]
-    public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the interfaces of the specified type.
