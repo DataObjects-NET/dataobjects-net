@@ -566,43 +566,6 @@ namespace Xtensive.Orm.Model
       return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, entityTuple);
     }
 
-    /// <summary>
-    /// Gets the direct implementors of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
-    [Obsolete("Use DirectImplementors/AllImplementors properties instead")]
-    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? AllImplementors : DirectImplementors;
-
-    /// <summary>
-    /// Gets the persistent interfaces this instance implements.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
-    [Obsolete("Use DirectInterfaces/AllInterfaces properties instead")]
-    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? AllInterfaces : DirectInterfaces;
-
-    /// <summary>
-    /// Gets descendants of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
-    /// <returns></returns>
-    [Obsolete("Use DirectDescendants/AllDescendants properties instead")]
-    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? AllDescendants : DirectDescendants;
-
-    /// <summary>
-    /// Gets the ancestors recursively. Root-to-inheritor order.
-    /// </summary>
-    /// <returns>The ancestor</returns>
-    [Obsolete("Use Ancestors property instead")]
-    public IReadOnlyList<TypeInfo> GetAncestors() => Ancestors.ToList();
-
-    /// <summary>
-    /// Gets the root of the hierarchy.
-    /// </summary>
-    /// <returns>The hierarchy root.</returns>
-    [Obsolete("Use Root property instead")]
-    [CanBeNull]
-    public TypeInfo GetRoot() => Root;
-
     public IEnumerable<AssociationInfo> GetTargetAssociations()
     {
       if (targetAssociations == null) {
