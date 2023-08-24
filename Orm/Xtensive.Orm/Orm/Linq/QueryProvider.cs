@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Linq
       var query = Translate(expression);
       TResult result;
       try {
-        result = await runQuery(query, Session, new ParameterContext(), token).ConfigureAwait(false);
+        result = await runQuery(query, Session, new ParameterContext(), token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         Session.Events.NotifyQueryExecuted(expression, exception);

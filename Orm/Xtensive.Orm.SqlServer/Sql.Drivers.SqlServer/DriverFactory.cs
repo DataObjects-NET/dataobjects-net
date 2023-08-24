@@ -10,6 +10,7 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.SqlServer.Resources;
@@ -65,18 +66,18 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       bool isEnglish;
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = LangIdQuery;
-        isEnglish = (await command.ExecuteScalarAsync(token).ConfigureAwait(false)).ToString()=="0";
+        isEnglish = (await command.ExecuteScalarAsync(token).ConfigureAwaitFalse()).ToString()=="0";
       }
 
       var templates = new Dictionary<int, string>();
       command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = MessagesQuery;
-        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
-        await using (reader.ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
+        await using (reader.ConfigureAwaitFalse()) {
+          while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
             ReadMessageTemplate(reader, templates);
           }
         }
@@ -97,9 +98,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static async Task<bool> IsAzureAsync(SqlServerConnection connection, CancellationToken token)
     {
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = VersionQuery;
-        return ((string) await command.ExecuteScalarAsync(token).ConfigureAwait(false))
+        return ((string) await command.ExecuteScalarAsync(token).ConfigureAwaitFalse())
           .IndexOf("Azure", StringComparison.Ordinal) >= 0;
       }
     }
@@ -170,23 +171,23 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var isPooingOn = !IsPoolingOff(connectionString);
       configuration.EnsureConnectionIsAlive &= isPooingOn;
 
-      var connection = await CreateAndOpenConnectionAsync(connectionString, configuration, token).ConfigureAwait(false);
-      await using (connection.ConfigureAwait(false)) {
+      var connection = await CreateAndOpenConnectionAsync(connectionString, configuration, token).ConfigureAwaitFalse();
+      await using (connection.ConfigureAwaitFalse()) {
         var isEnsureAlive = configuration.EnsureConnectionIsAlive;
         var forcedServerVersion = configuration.ForcedServerVersion;
         var isForcedVersion = !string.IsNullOrEmpty(forcedServerVersion);
         var isForcedAzure = isForcedVersion && forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase);
         var isAzure = isForcedAzure
-          || (!isForcedVersion && await IsAzureAsync(connection, token).ConfigureAwait(false));
+          || (!isForcedVersion && await IsAzureAsync(connection, token).ConfigureAwaitFalse());
         var parser = isAzure
           ? new ErrorMessageParser()
-          : await CreateMessageParserAsync(connection, token).ConfigureAwait(false);
+          : await CreateMessageParserAsync(connection, token).ConfigureAwaitFalse();
 
         var versionString = isForcedVersion
           ? isForcedAzure ? "10.0.0.0" : forcedServerVersion
           : connection.ServerVersion ?? string.Empty;
         var version = new Version(versionString);
-        var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
+        var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwaitFalse();
 
         return CreateDriverInstance(connectionString, isAzure, version, defaultSchema, parser, isEnsureAlive);
       }
@@ -261,9 +262,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       if (!configuration.EnsureConnectionIsAlive) {
         if (configuration.DbConnectionAccessors.Count == 0)
-          await OpenConnectionFast(connection, initScript, true, token).ConfigureAwait(false);
+          await OpenConnectionFast(connection, initScript, true, token).ConfigureAwaitFalse();
         else
-          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwaitFalse();
         return connection;
       }
 
@@ -271,10 +272,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? CheckConnectionQuery
         : initScript;
       if (configuration.DbConnectionAccessors.Count == 0)
-        return await EnsureConnectionIsAliveFast(connection, testQuery, true, token).ConfigureAwait(false);
+        return await EnsureConnectionIsAliveFast(connection, testQuery, true, token).ConfigureAwaitFalse();
       else
         return await EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.DbConnectionAccessors, true, token)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
     }
 
     private static async ValueTask OpenConnectionFast(SqlServerConnection connection,
@@ -285,8 +286,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
         SqlHelper.ExecuteInitializationSql(connection, sqlScript);
       }
       else {
-        await connection.OpenAsync(token).ConfigureAwait(false);
-        await SqlHelper.ExecuteInitializationSqlAsync(connection, sqlScript, token).ConfigureAwait(false);
+        await connection.OpenAsync(token).ConfigureAwaitFalse();
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, sqlScript, token).ConfigureAwaitFalse();
       }
     }
 
@@ -362,20 +363,20 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
       else {
         try {
-          await connection.OpenAsync(token).ConfigureAwait(false);
+          await connection.OpenAsync(token).ConfigureAwaitFalse();
 
           var command = connection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = query;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
 
           return connection;
         }
         catch (Exception exception) {
           try {
-            await connection.CloseAsync().ConfigureAwait(false);
-            await connection.DisposeAsync().ConfigureAwait(false);
+            await connection.CloseAsync().ConfigureAwaitFalse();
+            await connection.DisposeAsync().ConfigureAwaitFalse();
           }
           catch {
             // ignored
@@ -383,7 +384,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
           if (InternalHelpers.ShouldRetryOn(exception)) {
             var (isReconnected, newConnection) =
-              await TryReconnectFast(connection.ConnectionString, query, isAsync, token).ConfigureAwait(false);
+              await TryReconnectFast(connection.ConnectionString, query, isAsync, token).ConfigureAwaitFalse();
             if (isReconnected) {
               return newConnection;
             }
@@ -434,32 +435,32 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessos, connection, false, token).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessos, connection, false, token).ConfigureAwaitFalse();
 
         try {
-          await connection.OpenAsync(token).ConfigureAwait(false);
+          await connection.OpenAsync(token).ConfigureAwaitFalse();
 
-          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessos, connection, query, false, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessos, connection, query, false, token).ConfigureAwaitFalse();
 
           var command = connection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = query;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
 
-          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessos, connection, false, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessos, connection, false, token).ConfigureAwaitFalse();
           return connection;
         }
         catch (Exception exception) {
           var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
           if (!retryToConnect) {
-            await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessos, connection, exception, false, token).ConfigureAwait(false);
+            await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessos, connection, exception, false, token).ConfigureAwaitFalse();
           }
 
           var connectionString = connection.ConnectionString;
           try {
-            await connection.CloseAsync().ConfigureAwait(false);
-            await connection.DisposeAsync().ConfigureAwait(false);
+            await connection.CloseAsync().ConfigureAwaitFalse();
+            await connection.DisposeAsync().ConfigureAwaitFalse();
           }
           catch {
             // ignored
@@ -467,7 +468,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
           if (retryToConnect) {
             var (isReconnected, newConnection) =
-              await TryReconnectWithNotification(connectionString, query, connectionAccessos, isAsync, token).ConfigureAwait(false);
+              await TryReconnectWithNotification(connectionString, query, connectionAccessos, isAsync, token).ConfigureAwaitFalse();
             if (isReconnected) {
               return newConnection;
             }
@@ -499,12 +500,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
       else {
         try {
-          await connection.OpenAsync(token).ConfigureAwait(false);
+          await connection.OpenAsync(token).ConfigureAwaitFalse();
 
           var command = connection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = query;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
 
           return (true, connection);
@@ -543,24 +544,24 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessors, connection, true, token).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessors, connection, true, token).ConfigureAwaitFalse();
 
         try {
-          await connection.OpenAsync(token).ConfigureAwait(false);
+          await connection.OpenAsync(token).ConfigureAwaitFalse();
 
-          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessors, connection, query, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessors, connection, query, true, token).ConfigureAwaitFalse();
 
           var command = connection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = query;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
 
-          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessors, connection, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessors, connection, true, token).ConfigureAwaitFalse();
           return (true, connection);
         }
         catch (Exception exception) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessors, connection, exception, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessors, connection, exception, true, token).ConfigureAwaitFalse();
           await connection.DisposeAsync();
           return (false, null);
         }

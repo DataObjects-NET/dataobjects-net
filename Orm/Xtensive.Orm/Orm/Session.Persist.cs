@@ -81,10 +81,10 @@ namespace Xtensive.Orm
     public async Task SaveChangesAsync(CancellationToken token = default)
     {
       if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-        await SaveLocalChangesAsync(token).ConfigureAwait(false);
+        await SaveLocalChangesAsync(token).ConfigureAwaitFalse();
       }
       else {
-        await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();
       }
     }
 
@@ -109,7 +109,7 @@ namespace Xtensive.Orm
     internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
 
     internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
-      await Persist(reason, true, token).ConfigureAwait(false);
+      await Persist(reason, true, token).ConfigureAwaitFalse();
 
     private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
@@ -155,14 +155,14 @@ namespace Xtensive.Orm
           }
 
           if (LazyKeyGenerationIsEnabled) {
-            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
+            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwaitFalse();
           }
 
           ApplyEntitySetsChanges();
           var persistIsSuccessful = false;
           try {
             if (isAsync) {
-              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
+              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwaitFalse();
             }
             else {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
@@ -215,7 +215,7 @@ namespace Xtensive.Orm
       finally {
         IsPersisting = false;
         if (isAsync) {
-          await ts.DisposeAsync().ConfigureAwait(false);
+          await ts.DisposeAsync().ConfigureAwaitFalse();
         }
         else {
           ts.Dispose();
@@ -301,9 +301,9 @@ namespace Xtensive.Orm
     {
       Validate();
       var transaction = OpenTransaction(TransactionOpenMode.New);
-      await using (transaction.ConfigureAwait(false)) {
+      await using (transaction.ConfigureAwaitFalse()) {
         try {
-          await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+          await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();
         }
         finally {
           transaction.Complete();

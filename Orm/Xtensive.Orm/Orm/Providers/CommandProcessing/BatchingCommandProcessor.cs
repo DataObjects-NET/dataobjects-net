@@ -69,11 +69,11 @@ namespace Xtensive.Orm.Providers
       PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwaitFalse();
       }
 
       while (!context.AllowPartialExecution && context.ProcessingTasks.Count > 0) {
-        _ = await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwaitFalse();
       }
     }
 
@@ -101,11 +101,11 @@ namespace Xtensive.Orm.Providers
       PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwaitFalse();
       }
 
       for (; ; ) {
-        var result = await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
+        var result = await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwaitFalse();
         if (result != null && context.ProcessingTasks.Count == 0) {
           return result.CreateReader(request.GetAccessor());
         }
@@ -222,11 +222,11 @@ namespace Xtensive.Orm.Providers
         }
         var hasQueryTasks = context.ActiveTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
-          _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+          _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           return null;
         }
 
-        await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         if (hasQueryTasks) {
           var currentQueryTask = 0;
           while (currentQueryTask < context.ActiveTasks.Count) {
@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Providers
       }
       finally {
         if (!shouldReturnReader) {
-          await context.ActiveCommand.DisposeSafelyAsync().ConfigureAwait(false);
+          await context.ActiveCommand.DisposeSafelyAsync().ConfigureAwaitFalse();
         }
 
         ReleaseCommand(context);

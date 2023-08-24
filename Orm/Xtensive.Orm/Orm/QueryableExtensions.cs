@@ -316,7 +316,7 @@ namespace Xtensive.Orm
     public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
       return source.Provider is QueryProvider queryProvider
-        ? await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false)
+        ? await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwaitFalse()
         : new QueryResult<T>(source.AsEnumerable());
     }
 

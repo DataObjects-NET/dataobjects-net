@@ -96,7 +96,7 @@ namespace Xtensive.Sql
 
       var connectionString = GetConnectionString(connectionInfo);
       configuration = configuration.Clone();
-      var driver = await CreateDriverAsync(connectionString, configuration, token).ConfigureAwait(false);
+      var driver = await CreateDriverAsync(connectionString, configuration, token).ConfigureAwaitFalse();
       driver.Initialize(this, connectionInfo);
       return driver;
     }

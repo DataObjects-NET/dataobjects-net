@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Xtensive.Core;
 using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
@@ -55,7 +56,7 @@ namespace Xtensive.Orm
     {
       EnsureResultsAlive();
       var enumerator = reader.AsAsyncEnumerator();
-      while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
+      while (await enumerator.MoveNextAsync().ConfigureAwaitFalse()) {
         yield return enumerator.Current;
       }
     }

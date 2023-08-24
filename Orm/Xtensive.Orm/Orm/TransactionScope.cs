@@ -67,10 +67,10 @@ namespace Xtensive.Orm
         }
 
         if (IsCompleted) {
-          await Transaction.Commit(isAsync).ConfigureAwait(false);
+          await Transaction.Commit(isAsync).ConfigureAwaitFalse();
         }
         else {
-          await Transaction.Rollback(isAsync).ConfigureAwait(false);
+          await Transaction.Rollback(isAsync).ConfigureAwaitFalse();
         }
       }
       finally {

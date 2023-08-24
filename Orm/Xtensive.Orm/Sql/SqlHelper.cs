@@ -396,12 +396,12 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = queryText;
         command.Transaction = transaction;
-        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
-        await using (reader.ConfigureAwait(false)) {
-          if (!await reader.ReadAsync(token).ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
+        await using (reader.ConfigureAwaitFalse()) {
+          if (!await reader.ReadAsync(token).ConfigureAwaitFalse()) {
             throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
           }
 
@@ -457,9 +457,9 @@ namespace Xtensive.Sql
       }
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = configuration.ConnectionInitializationSql;
-        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
       }
     }
 
@@ -479,9 +479,9 @@ namespace Xtensive.Sql
       }
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = initializationSql;
-        _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
       }
     }
 
@@ -582,7 +582,7 @@ namespace Xtensive.Sql
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpeningAsync(
           new ConnectionEventData(connection, reconnect), token)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
       }
     }
 
@@ -621,7 +621,7 @@ namespace Xtensive.Sql
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionInitializationAsync(
           new ConnectionInitEventData(initializationScript, connection, reconnect), token)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
       }
     }
 
@@ -657,7 +657,7 @@ namespace Xtensive.Sql
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpenedAsync(
           new ConnectionEventData(connection, reconnect), token)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
       }
     }
 
@@ -696,7 +696,7 @@ namespace Xtensive.Sql
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpeningFailedAsync(
           new ConnectionErrorEventData(exception, connection, reconnect), token)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
       }
     }
 

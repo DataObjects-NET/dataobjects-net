@@ -128,4 +128,8 @@
   </ItemGroup>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
+
+  <PropertyGroup>
+    <DefineConstants Condition="'$(DO_CONFIGURE_AWAIT_FALSE)'!='false'">$(DefineConstants);DO_CONFIGURE_AWAIT_FALSE</DefineConstants>
+  </PropertyGroup>
 </Project>

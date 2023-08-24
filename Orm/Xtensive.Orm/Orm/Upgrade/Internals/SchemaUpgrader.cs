@@ -49,11 +49,11 @@ namespace Xtensive.Orm.Upgrade
       var result = TranslateActions(extractedSchema, sourceModel, targetModel, upgradeActions);
 
       foreach (var handler in context.OrderedUpgradeHandlers) {
-        await handler.OnBeforeExecuteActionsAsync(result, token).ConfigureAwait(false);
+        await handler.OnBeforeExecuteActionsAsync(result, token).ConfigureAwaitFalse();
       }
 
       await result.ProcessWithAsync(asyncStatementProcessor, ExecuteNonTransactionallyAsync, token)
-        .ConfigureAwait(false);
+        .ConfigureAwaitFalse();
     }
 
     private UpgradeActionSequence TranslateActions(SchemaExtractionResult extractedSchema, StorageModel sourceModel,
@@ -91,9 +91,9 @@ namespace Xtensive.Orm.Upgrade
 
     private async Task ExecuteNonTransactionallyAsync(IEnumerable<string> batch, CancellationToken token)
     {
-      await driver.CommitTransactionAsync(null, connection, token).ConfigureAwait(false);
-      await executor.ExecuteManyAsync(batch, token).ConfigureAwait(false);
-      await driver.BeginTransactionAsync(null, connection, null, token).ConfigureAwait(false);
+      await driver.CommitTransactionAsync(null, connection, token).ConfigureAwaitFalse();
+      await executor.ExecuteManyAsync(batch, token).ConfigureAwaitFalse();
+      await driver.BeginTransactionAsync(null, connection, null, token).ConfigureAwaitFalse();
     }
 
     private void ExecuteTransactionally(IEnumerable<string> batch) => executor.ExecuteMany(batch);

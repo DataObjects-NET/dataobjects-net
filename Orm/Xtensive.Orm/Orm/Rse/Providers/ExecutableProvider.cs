@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       token.ThrowIfCancellationRequested();
       foreach (var source in Sources) {
         if (source is ExecutableProvider ep) {
-          await ep.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+          await ep.OnBeforeEnumerateAsync(context, token).ConfigureAwaitFalse();
         }
       }
     }
@@ -162,8 +162,8 @@ namespace Xtensive.Orm.Rse.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       var enumerationContext =
-        await session.CreateEnumerationContextAsync(parameterContext, token).ConfigureAwait(false);
-      return await RecordSetReader.CreateAsync(enumerationContext, this, token).ConfigureAwait(false);
+        await session.CreateEnumerationContextAsync(parameterContext, token).ConfigureAwaitFalse();
+      return await RecordSetReader.CreateAsync(enumerationContext, this, token).ConfigureAwaitFalse();
     }
 
     // Constructors

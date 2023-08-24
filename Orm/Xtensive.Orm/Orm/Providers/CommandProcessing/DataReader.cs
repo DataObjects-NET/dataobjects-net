@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -59,12 +60,12 @@ namespace Xtensive.Orm.Providers
         return ((IEnumerator<Tuple>) source).MoveNext();
       }
 
-      if (await command.NextRowAsync(token).ConfigureAwait(false)) {
+      if (await command.NextRowAsync(token).ConfigureAwaitFalse()) {
         return true;
       }
 
       // We don't need the command anymore because all records are processed to the moment.
-      await command.DisposeAsync().ConfigureAwait(false);
+      await command.DisposeAsync().ConfigureAwaitFalse();
       return false;
     }
 
@@ -92,10 +93,10 @@ namespace Xtensive.Orm.Providers
     public async ValueTask DisposeAsync()
     {
       if (source is Command command) {
-        await command.DisposeAsync().ConfigureAwait(false);
+        await command.DisposeAsync().ConfigureAwaitFalse();
       }
       else {
-        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwait(false);
+        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
       }
     }
 

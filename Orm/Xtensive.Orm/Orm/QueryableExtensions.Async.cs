@@ -1460,7 +1460,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var list = new List<TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var element in asyncSource) {
         list.Add(element);
       }
@@ -1482,7 +1482,7 @@ namespace Xtensive.Orm
     /// array that contains values from the input sequence.</returns>
     public static async Task<TSource[]> ToArrayAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default) =>
-      (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
+      (await source.ToListAsync(cancellationToken).ConfigureAwaitFalse()).ToArray();
 
     /// <summary>
     /// Creates a <see cref="Dictionary{TKey, TSource}"/> from an <see cref="IQueryable{TSource}"/>
@@ -1510,7 +1510,7 @@ namespace Xtensive.Orm
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
       var dictionary = new Dictionary<TKey, TSource>();
-      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var tuple in asyncSource) {
         dictionary.Add(tuple.Item1, tuple.Item2);
       }
@@ -1548,7 +1548,7 @@ namespace Xtensive.Orm
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
       var dictionary = new Dictionary<TKey, TValue>();
-      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var tuple in asyncSource) {
         dictionary.Add(tuple.Item1, tuple.Item2);
       }
@@ -1572,7 +1572,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var hashSet = new HashSet<TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var element in asyncSource) {
         hashSet.Add(element);
       }
@@ -1604,7 +1604,7 @@ namespace Xtensive.Orm
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
-      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse();
       return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
@@ -1637,7 +1637,7 @@ namespace Xtensive.Orm
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
-      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse();
       return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
