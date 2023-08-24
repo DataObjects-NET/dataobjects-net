@@ -78,6 +78,7 @@ namespace Xtensive.Reflection
           }
         }
       }
+    }
 
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
