@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Linq
       var wrapper = ((MemberExpression) owner).Expression;
       return wrapper.NodeType == ExpressionType.Constant
         && wrapper.Type.IsGenericType
-        && wrapper.Type.CachedGetGenericTypeDefinition() == typeof(OwnerWrapper<>);
+        && wrapper.Type.GetGenericTypeDefinition() == typeof(OwnerWrapper<>);
     }
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)

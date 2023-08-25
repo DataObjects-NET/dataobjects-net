@@ -1651,7 +1651,7 @@ namespace Xtensive.Orm.Linq
 
       if (sequence.IsLocalCollection(context)) {
         var sequenceType = (sequence.Type.IsGenericType
-          && sequence.Type.CachedGetGenericTypeDefinition() == typeof(Func<>))
+          && sequence.Type.GetGenericTypeDefinition() == typeof(Func<>))
           ? sequence.Type.GetGenericArguments()[0]
           : sequence.Type;
 
