@@ -329,8 +329,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
 
       if (targetType.IsEnum) {
-        var declaringType = canonicalMember.DeclaringType;
-        canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType != declaringType ? declaringType.GetMethods() : targetType.GetMethods());
+        canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, canonicalMember.DeclaringType.GetMethods());
       }
 
       return new CompilerKey(canonicalMember);
