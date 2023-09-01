@@ -1,4 +1,4 @@
-//Copyright (C) Microsoft Corporation.  All rights reserved.
+﻿//Copyright (C) Microsoft Corporation.  All rights reserved.
 
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
-using Xtensive.Reflection;
 
 namespace System.Linq.Dynamic
 {
