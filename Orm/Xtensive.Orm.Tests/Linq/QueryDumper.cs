@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
         var depth = 1;
         XmlNode itemNode = document.CreateElement("Item" + itemIndex);
 
-        if (value==null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition()!=typeof (Grouping<,>))) {
+        if (value == null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>))) {
           itemNode = document.CreateElement("Item" + itemIndex);
           itemIndex++;
           parentNode.AppendChild(itemNode);
@@ -299,8 +299,8 @@ namespace Xtensive.Orm.Tests.Linq
 
       else {
         if (property.PropertyType.IsGenericType &&
-          (property.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)
-            || (property.PropertyType.GetGenericTypeDefinition()==typeof (IEnumerable<>)))) {
+          (property.PropertyType.GetGenericTypeDefinition() == typeof(IQueryable<>)
+            || (property.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))) {
           var enumerable = (IEnumerable) property.GetValue(value, property.GetIndexParameters());
           var list = new List<object>();
           foreach (var o in enumerable)
@@ -556,13 +556,18 @@ namespace Xtensive.Orm.Tests.Linq
     private static void EnumerateAll(IEnumerable enumerable)
     {
       foreach (var o in enumerable)
-        if (o!=null) {
-          if (o.GetType().IsGenericType && (o.GetType().GetGenericTypeDefinition()==typeof (IQueryable<>)
-            || o.GetType().GetGenericTypeDefinition()==typeof (IEnumerable<>)
-            || o.GetType().GetGenericTypeDefinition()==typeof (SubQuery<>)
-            || o.GetType().GetGenericTypeDefinition()==typeof (Grouping<,>)))
-            EnumerateAll((IEnumerable) o);
-          var properties = o.GetType().GetProperties();
+        if (o != null) {
+          var type = o.GetType();
+          if (type.IsGenericType) {
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
+            if (genericTypeDefinition == typeof(IQueryable<>)
+                || genericTypeDefinition == typeof(IEnumerable<>)
+                || genericTypeDefinition == typeof(SubQuery<>)
+              || genericTypeDefinition == typeof(Grouping<,>)) {
+              EnumerateAll((IEnumerable) o);
+            }
+          }
+          var properties = type.GetProperties();
           foreach (var info in properties) {
             if (info.PropertyType.IsGenericType && 
               (info.PropertyType.GetGenericTypeDefinition()==typeof (IQueryable<>)

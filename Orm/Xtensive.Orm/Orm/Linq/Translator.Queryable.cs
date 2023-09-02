@@ -405,7 +405,8 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (source.IsLocalCollection(context)) {
+      var isLocalCollection = source.IsLocalCollection(context);
+      if (isLocalCollection) {
         match = Visit(match);
       }
 
@@ -418,7 +419,7 @@ namespace Xtensive.Orm.Linq
         }
         else {
           // Collection<Child>.Contains(parent)
-          if (!isRoot && !source.IsLocalCollection(context)) {
+          if (!isRoot && !isLocalCollection) {
             QueryHelper.TryAddConvarianceCast(ref source, match.Type);
           }
         }
@@ -1519,15 +1520,16 @@ namespace Xtensive.Orm.Linq
       var algorithm = IncludeAlgorithm.Auto;
       Expression source = null;
       Expression match = null;
-      switch (mc.Arguments.Count) {
+      var arguments = mc.Arguments;
+      switch (arguments.Count) {
         case 2:
           source = mc.Arguments[1];
           match = mc.Arguments[0];
           break;
         case 3:
-          source = mc.Arguments[2];
-          match = mc.Arguments[0];
-          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
+          source = arguments[2];
+          match = arguments[0];
+          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(arguments[1]).Value;
           break;
         default:
           Exceptions.InternalError(string.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
