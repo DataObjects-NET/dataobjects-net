@@ -154,10 +154,17 @@ namespace Xtensive.Core
         Grow(count);
       }
 
+#if NET6_0_OR_GREATE
       int remaining = _pos - index;
       _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
       s.CopyTo(_chars.Slice(index));
       _pos += count;
+#else
+      int remaining = _pos - index;
+      _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
+      s.AsSpan().CopyTo(_chars.Slice(index));
+      _pos += count;
+#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -201,7 +208,11 @@ namespace Xtensive.Core
         Grow(s.Length);
       }
 
+#if NET6_0_OR_GREATER
       s.CopyTo(_chars.Slice(pos));
+#else
+      s.AsSpan().CopyTo(_chars.Slice(pos));
+#endif
       _pos += s.Length;
     }
 
