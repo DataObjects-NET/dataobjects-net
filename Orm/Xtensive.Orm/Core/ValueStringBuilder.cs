@@ -154,17 +154,14 @@ namespace Xtensive.Core
         Grow(count);
       }
 
+      int remaining = _pos - index;
+      _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
 #if NET6_0_OR_GREATE
-      int remaining = _pos - index;
-      _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
       s.CopyTo(_chars.Slice(index));
-      _pos += count;
 #else
-      int remaining = _pos - index;
-      _chars.Slice(index, remaining).CopyTo(_chars.Slice(index + count));
       s.AsSpan().CopyTo(_chars.Slice(index));
-      _pos += count;
 #endif
+      _pos += count;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
