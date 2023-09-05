@@ -6,6 +6,7 @@
 
 using System;
 using System.Text;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -48,7 +49,7 @@ namespace Xtensive.Sql.Dml
         return lockType.ToString();
       if (lockType==SqlLockType.Empty)
         return "No Lock";
-      var result = new StringBuilder();
+      var result = new ValueStringBuilder(stackalloc char[128]);
       if (lockType.Supports(SqlLockType.Shared))
         result.Append("Shared");
       if (lockType.Supports(SqlLockType.Update))

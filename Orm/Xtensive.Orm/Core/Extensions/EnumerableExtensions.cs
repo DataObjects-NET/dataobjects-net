@@ -200,12 +200,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (var item in source) {
         if (insertDelimiter)
           sb.Append(delimiter);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -222,12 +222,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (object item in source) {
         if (insertDelimiter)
           sb.Append(separator);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
