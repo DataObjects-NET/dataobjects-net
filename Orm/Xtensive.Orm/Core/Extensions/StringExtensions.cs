@@ -96,7 +96,7 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       var indent = new string(' ', indentSize);
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       if (indentFirstLine)
         sb.Append(indent);
       int start = 0;
@@ -207,7 +207,7 @@ namespace Xtensive.Core
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
 
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool needDelimiter = false;
       foreach (var part in source) {
         if (needDelimiter)
@@ -283,7 +283,7 @@ namespace Xtensive.Core
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
 
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool previousCharIsEscape = false;
       for (int i = 0; i<source.Length; i++) {
         char c = source[i];
@@ -315,7 +315,7 @@ namespace Xtensive.Core
       if (escapedChars==null)
         throw new ArgumentNullException("escapedChars");
       var chars = escapedChars.Append(escape);
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       foreach (var c in source) {
         var found = false;
         for (int i = 0; i < chars.Length && !found; i++)
@@ -336,7 +336,7 @@ namespace Xtensive.Core
     {
       if (source==null)
         throw new ArgumentNullException("source");
-      var sb = new StringBuilder(source.Length);
+      var sb = new ValueStringBuilder(source.Length);
       var previousCharIsEscape = false;
       foreach (var c in source) {
         if (previousCharIsEscape) {

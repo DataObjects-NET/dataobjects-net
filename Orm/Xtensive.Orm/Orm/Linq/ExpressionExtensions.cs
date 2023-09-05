@@ -132,8 +132,9 @@ namespace Xtensive.Orm.Linq
     }
 
     public static bool IsEntitySet(this Expression expression) =>
-      expression.Type.IsGenericType
-      && expression.Type.GetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetOfT;
+      expression.Type switch {
+        var type => type.IsGenericType && type.GetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetOfT
+      };
 
     public static Expression StripMarkers(this Expression e)
     {

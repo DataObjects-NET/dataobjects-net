@@ -11,6 +11,7 @@ using System.Text;
 using Xtensive.Reflection;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 
 namespace Xtensive.Reflection
@@ -261,18 +262,14 @@ namespace Xtensive.Reflection
         if (!member.IsExplicitImplementation()) {
           return member.Name;
         }
-        var im = member.GetInterfaceMember();
-        return new StringBuilder()
-          .Append(im.DeclaringType.GetFullName())
-          .Append(".")
-          .Append(im.GetFullName(false))
-          .ToString();
+
+        member = member.GetInterfaceMember();
       }
-      return new StringBuilder()
-        .Append(member.DeclaringType.GetFullName())
-        .Append(".")
-        .Append(member.GetFullName(false))
-        .ToString();
+      var sb = new ValueStringBuilder(stackalloc char[256]);
+      sb.Append(member.DeclaringType.GetFullName());
+      sb.Append(".");
+      sb.Append(member.GetFullName(false));
+      return sb.ToString();
     }
 
     /// <summary>
@@ -295,11 +292,11 @@ namespace Xtensive.Reflection
         dotIndex = name.LastIndexOf('.', dotIndex - 1);
         return dotIndex <= 0 ? name : name.Substring(dotIndex + 1);
       }
-      return new StringBuilder()
-        .Append(member.DeclaringType.GetShortName())
-        .Append(".")
-        .Append(member.GetShortName(false))
-        .ToString();
+      var sb = new ValueStringBuilder(stackalloc char[256]);
+      sb.Append(member.DeclaringType.GetShortName());
+      sb.Append(".");
+      sb.Append(member.GetShortName(false));
+      return sb.ToString();
     }
   }
 }
