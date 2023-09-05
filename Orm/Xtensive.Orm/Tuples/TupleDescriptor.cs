@@ -121,7 +121,6 @@ namespace Xtensive.Tuples
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("FieldCount", FieldCount);
       info.AddValue("ValuesLength", ValuesLength);
       info.AddValue("ObjectsLength", ObjectsLength);
 
@@ -286,7 +285,6 @@ namespace Xtensive.Tuples
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      var fieldCount = info.GetInt32("FieldCount");
       ValuesLength = info.GetInt32("ValuesLength");
       ObjectsLength = info.GetInt32("ObjectsLength");
 
