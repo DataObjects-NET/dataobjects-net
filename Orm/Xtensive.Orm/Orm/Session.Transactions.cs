@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -18,7 +19,8 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
-    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
+    private readonly StateLifetimeToken sessionLifetimeToken;
+    private readonly List<StateLifetimeToken> promotedLifetimeTokens;
     private int nextSavepoint;
 
     /// <summary>
@@ -337,6 +339,15 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+    }
+
+    internal bool TryPromoteTokens(IEnumerable<StateLifetimeToken> tokens)
+    {
+      if (promotedLifetimeTokens is null) {
+        return false;
+      }
+      promotedLifetimeTokens.AddRange(tokens);
+      return true;
     }
   }
 }

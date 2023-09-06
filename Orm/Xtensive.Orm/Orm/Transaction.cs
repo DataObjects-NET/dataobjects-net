@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 using JetBrains.Annotations;
 using Xtensive.Collections;
@@ -188,10 +189,10 @@ namespace Xtensive.Orm
         Rollback();
         throw;
       }
-      if (Outer!=null)
+      if (Outer != null)
         PromoteLifetimeTokens();
       else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
-        ClearLifetimeTokens();
+        PromoteLifetimeTokensToSession();
       else
         ExpireLifetimeTokens();
       State = TransactionState.Committed;
@@ -241,6 +242,15 @@ namespace Xtensive.Orm
     private void PromoteLifetimeTokens()
     {
       Outer.lifetimeTokens.AddRange(lifetimeTokens);
+      ClearLifetimeTokens();
+    }
+
+    private void PromoteLifetimeTokensToSession()
+    {
+      if (Outer != null
+          || !Session.TryPromoteTokens(EnumerableUtils.One(LifetimeToken).Union(lifetimeTokens))) {
+        throw new InvalidOperationException("Promoting to session is not supported.");
+      }
       ClearLifetimeTokens();
     }
 

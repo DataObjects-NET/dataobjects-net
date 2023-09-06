@@ -589,6 +589,10 @@ namespace Xtensive.Orm
       remapper = new KeyRemapper(this);
 
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
+      if (configuration.Supports(SessionOptions.NonTransactionalReads)) {
+        promotedLifetimeTokens = new List<StateLifetimeToken>();
+        sessionLifetimeToken = new StateLifetimeToken();
+      }
 
       // Perform activation
       if (activate) {
@@ -611,6 +615,13 @@ namespace Xtensive.Orm
       try {
         if (IsDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogSessionXDisposing, this);
+        }
+
+        sessionLifetimeToken?.Expire();
+        if (promotedLifetimeTokens?.Count > 0) {
+          foreach (var token in promotedLifetimeTokens) {
+            token.Expire();
+          }
         }
 
         SystemEvents.NotifyDisposing();
