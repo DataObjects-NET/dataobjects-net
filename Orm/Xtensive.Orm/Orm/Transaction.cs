@@ -247,11 +247,10 @@ namespace Xtensive.Orm
 
     private void PromoteLifetimeTokensToSession()
     {
-      if (Outer != null
-          || !Session.TryPromoteTokens(EnumerableUtils.One(LifetimeToken).Union(lifetimeTokens))) {
-        throw new InvalidOperationException("Promoting to session is not supported.");
+      if (Outer == null
+          && Session.TryPromoteTokens(EnumerableUtils.One(LifetimeToken).Union(lifetimeTokens))) {
+        ClearLifetimeTokens();
       }
-      ClearLifetimeTokens();
     }
 
     private void ClearLifetimeTokens()
