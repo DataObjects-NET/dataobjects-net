@@ -61,7 +61,7 @@ namespace Xtensive.Orm
       KeyMapping keyMapping;
 
       using (session.Activate()) {
-        using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
+        using (isSystemOperationLog ? (IDisposable) session.OpenSystemLogicOnlyRegion() : null)
         using (var tx = session.OpenTransaction(TransactionOpenMode.New)) {
 
           foreach (var operation in operations)

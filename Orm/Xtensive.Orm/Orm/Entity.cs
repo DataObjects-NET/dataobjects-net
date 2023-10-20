@@ -138,8 +138,7 @@ namespace Xtensive.Orm
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
         foreach (var columnInfo in versionColumns) {
           if (!tuple.GetFieldState(columnInfo.Field.MappingInfo.Offset).IsAvailable()) {
-            if (columnsToPrefetch==null)
-              columnsToPrefetch = new List<PrefetchFieldDescriptor>();
+            columnsToPrefetch ??= new List<PrefetchFieldDescriptor>(1);
             columnsToPrefetch.Add(new PrefetchFieldDescriptor(columnInfo.Field));
           }
         }

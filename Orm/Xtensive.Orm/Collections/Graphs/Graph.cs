@@ -56,9 +56,8 @@ namespace Xtensive.Collections.Graphs
       foreach (var rNode in copy.Nodes) {
         var node = rNode.Value;
         foreach (var edge in node.Edges) {
-          if (!processedEdges.Contains(edge)) {
+          if (processedEdges.Add(edge)) {
             var rEdge = new Edge<TEdge>(nodeMap[edge.Source], nodeMap[edge.Target], (TEdge) edge);
-            processedEdges.Add(edge);
           }
         }
       }
