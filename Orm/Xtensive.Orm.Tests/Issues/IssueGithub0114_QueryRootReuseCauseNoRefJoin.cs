@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void BaseQueryReuseWithExcept()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Except");
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql, "No support for Except");
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void BaseQueryReuseWithIntersect()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Intersect");
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql, "No support for Intersect");
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -2527,7 +2527,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfWheresQueryReuse()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Intersect");
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql, "No support for Intersect");
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -2578,7 +2578,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfWheresQueryReuse()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Except");
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql, "No support for Except");
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
