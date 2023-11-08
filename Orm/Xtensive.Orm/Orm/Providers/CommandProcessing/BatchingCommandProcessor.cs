@@ -56,20 +56,22 @@ namespace Xtensive.Orm.Providers
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize) {
+      var processingTasks = context.ProcessingTasks;
+      while (processingTasks.Count >= batchSize) {
         _ = ExecuteBatch(batchSize, null, context);
       }
 
-      var allowPartialExecution = context.AllowPartialExecution;
-      while (context.ProcessingTasks.Count > 0) {
-        if (allowPartialExecution) {
-          //re-register task
-          RegisterTask(context.ProcessingTasks.Dequeue());
-        }
-        else {
-          _ = context.ProcessingTasks.Count > batchSize
+      if (!context.AllowPartialExecution) {
+        while (processingTasks.Count > 0) {
+          _ = processingTasks.Count > batchSize
             ? ExecuteBatch(batchSize, null, context)
-            : ExecuteBatch(context.ProcessingTasks.Count, null, context);
+            : ExecuteBatch(processingTasks.Count, null, context);
+        }
+      }
+      else {
+        //re-register task
+        for (int i = 0, count = processingTasks.Count; i < count; i++) {
+          tasks.Enqueue(processingTasks.Dequeue());
         }
       }
     }
@@ -78,20 +80,21 @@ namespace Xtensive.Orm.Providers
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize) {
+      var processingTasks = context.ProcessingTasks;
+      while (processingTasks.Count >= batchSize) {
         _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
       }
 
-      var allowPartialExecution = context.AllowPartialExecution;
-      while (context.ProcessingTasks.Count > 0) {
-        if (allowPartialExecution) {
-          //re-register task
-          RegisterTask(context.ProcessingTasks.Dequeue());
-        }
-        else {
+      if (!context.AllowPartialExecution) {
+        while (processingTasks.Count > 0) {
           _ = await ((context.ProcessingTasks.Count > batchSize)
             ? ExecuteBatchAsync(batchSize, null, context, token)
             : ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token));
+        }
+      }
+      else {
+        for(int i = 0, count = processingTasks.Count; i < count; i++) {
+          tasks.Enqueue(processingTasks.Dequeue());
         }
       }
     }
