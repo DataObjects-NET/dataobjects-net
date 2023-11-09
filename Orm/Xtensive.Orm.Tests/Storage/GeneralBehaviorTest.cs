@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Tests.Storage
         action.Invoke();
       }
       catch (InvalidOperationException e) {
-        Assert.AreEqual(Strings.ExEntityIsRemoved, e.Message);
+        Assert.AreEqual(string.Format(Strings.ExEntityOfTypeXIsRemoved, nameof(Order)), e.Message);
       }
     }
   }
