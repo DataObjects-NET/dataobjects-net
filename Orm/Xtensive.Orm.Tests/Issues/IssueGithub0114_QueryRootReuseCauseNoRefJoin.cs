@@ -163,6 +163,140 @@ namespace Xtensive.Orm.Tests.Issues
       tx.Complete();
     }
 
+    [Test]
+    public void MembersAsAliasForSubqhery1()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<Promotion>()
+          .Select(promo => new {
+            promo,
+            notifications = session.Query.All<Notification>()
+          })
+          .Select(anon => new {
+            anon,
+            anon.promo,
+            notificationsAlias1 = anon.notifications,
+            notificationsAlias2 = anon.notifications,
+          })
+          .Select(anon => new {
+            contacted = anon.notificationsAlias1.Select(c => c.Recipient.User.Id)
+              .Union(anon.notificationsAlias2.Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        var expected = session.Query.All<Promotion>()
+          .Select(promo => new { promo })
+          .Select(anon => new {
+            contacted = session.Query.All<Notification>().Select(c => c.Recipient.User.Id)
+              .Union(session.Query.All<Notification>().Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        Assert.That(query.Length, Is.EqualTo(expected.Length));
+
+        for (var i = 0; i < expected.Length; i++) {
+          var a1 = expected[0];
+          var a2 = query[0];
+          var a1contacted = a1.contacted.ToArray();
+          var a2contacted = a2.contacted.ToArray();
+
+          Assert.That(a1.promo.Id, Is.EqualTo(a2.promo.Id));
+          Assert.That(a1contacted.SequenceEqual(a2contacted));
+          Assert.That(a1contacted.Length, Is.Not.Zero);
+        }
+      }
+    }
+
+    [Test]
+    public void MembersAsAliasForSubqhery2()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<Promotion>()
+          .Select(promo => new {
+            promo,
+            notifications = session.Query.All<Notification>()
+          })
+          .Select(anon => new {
+            anon,
+            anon.promo,
+            notificationsAlias1 = anon.notifications,
+            notificationsAlias2 = anon.notifications,
+          })
+          .Select(anon => new {
+            contacted = anon.anon.notifications.Select(c => c.Recipient.User.Id)
+              .Union(anon.notificationsAlias1.Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        var expected = session.Query.All<Promotion>()
+          .Select(promo => new { promo })
+          .Select(anon => new {
+            contacted = session.Query.All<Notification>().Select(c => c.Recipient.User.Id)
+              .Union(session.Query.All<Notification>().Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        Assert.That(query.Length, Is.EqualTo(expected.Length));
+
+        for (var i = 0; i < expected.Length; i++) {
+          var a1 = expected[0];
+          var a2 = query[0];
+          var a1contacted = a1.contacted.ToArray();
+          var a2contacted = a2.contacted.ToArray();
+
+          Assert.That(a1.promo.Id, Is.EqualTo(a2.promo.Id));
+          Assert.That(a1contacted.SequenceEqual(a2contacted));
+          Assert.That(a1contacted.Length, Is.Not.Zero);
+        }
+      }
+    }
+
+    [Test]
+    public void MembersAsAliasForSubqhery3()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<Promotion>()
+          .Select(promo => new {
+            promo,
+            notifications = session.Query.All<Notification>()
+          })
+          .Select(anon => new {
+            anon,
+            anon.promo,
+            notificationsAlias1 = anon.notifications,
+            notificationsAlias2 = anon.notifications,
+          })
+          .Select(anon => new {
+            contacted = anon.notificationsAlias1.Select(c => c.Recipient.User.Id)
+              .Union(anon.anon.notifications.Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        var expected = session.Query.All<Promotion>()
+          .Select(promo => new { promo })
+          .Select(anon => new {
+            contacted = session.Query.All<Notification>().Select(c => c.Recipient.User.Id)
+              .Union(session.Query.All<Notification>().Select(c => c.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        Assert.That(query.Length, Is.EqualTo(expected.Length));
+
+        for (var i = 0; i < expected.Length; i++) {
+          var a1 = expected[0];
+          var a2 = query[0];
+          var a1contacted = a1.contacted.ToArray();
+          var a2contacted = a2.contacted.ToArray();
+
+          Assert.That(a1.promo.Id, Is.EqualTo(a2.promo.Id));
+          Assert.That(a1contacted.SequenceEqual(a2contacted));
+          Assert.That(a1contacted.Length, Is.Not.Zero);
+        }
+      }
+    }
 
     [Test]
     public void BaseQueryReuseWithExcept()
