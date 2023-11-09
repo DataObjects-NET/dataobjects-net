@@ -98,7 +98,11 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public void RegisterPossibleQueryReuse(MemberInfo memberInfo) => queryReuses.Add(memberInfo, 0);
+    public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
+    {
+      if (!queryReuses.ContainsKey(memberInfo))
+        queryReuses.Add(memberInfo, 0);
+    }
 
     public bool CheckIfQueryReusePossible(MemberInfo memberInfo)
     {
