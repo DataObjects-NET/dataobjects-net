@@ -2212,20 +2212,20 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity is removed..
-        /// </summary>
-        internal static string ExEntityIsRemoved {
-            get {
-                return ResourceManager.GetString("ExEntityIsRemoved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is incompatible with this EntitySet..
         /// </summary>
         internal static string ExEntityOfTypeXIsIncompatibleWithThisEntitySet {
             get {
                 return ResourceManager.GetString("ExEntityOfTypeXIsIncompatibleWithThisEntitySet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is removed..
+        /// </summary>
+        internal static string ExEntityOfTypeXIsRemoved {
+            get {
+                return ResourceManager.GetString("ExEntityOfTypeXIsRemoved", resourceCulture);
             }
         }
         

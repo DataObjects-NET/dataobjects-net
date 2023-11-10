@@ -1172,8 +1172,8 @@
   <data name="ValueCanNotBeNull" xml:space="preserve">
     <value>Value can not be null.</value>
   </data>
-  <data name="ExEntityIsRemoved" xml:space="preserve">
-    <value>Entity is removed.</value>
+  <data name="ExEntityOfTypeXIsRemoved" xml:space="preserve">
+    <value>Entity of type '{0}' is removed.</value>
   </data>
   <data name="ValueLengthCanNotExceedX" xml:space="preserve">
     <value>Value can not exceed {0}.</value>

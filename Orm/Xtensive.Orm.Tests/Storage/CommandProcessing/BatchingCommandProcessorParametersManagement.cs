@@ -602,6 +602,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       using (var session = Domain.OpenSession())
       using (var counter = new CommandCounter(session))
       using (var transaction = session.OpenTransaction()) {
+        var before = session.Query.All<ALotOfFieldsEntityValid>().Count();
+
         _ = new ALotOfFieldsEntityValid();
 
         using (counter.Attach()) {
@@ -609,6 +611,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         }
 
         Assert.That(counter.Count, Is.EqualTo(1));
+        Assert.That(session.Query.All<ALotOfFieldsEntityValid>().Count(), Is.EqualTo(before + 1));
       }
     }
 
@@ -618,6 +621,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       using (var session = Domain.OpenSession())
       using (var counter = new CommandCounter(session))
       using (var transaction = session.OpenTransaction()) {
+        var before = session.Query.All<ALotOfFieldsEntityValid>().Count();
+
         _ = new ALotOfFieldsEntityValid();
         _ = new ALotOfFieldsEntityValid();
         _ = new ALotOfFieldsEntityValid();
@@ -631,6 +636,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         var expectedCommandCount = Math.Ceiling(
           Math.Ceiling(4 * Domain.Model.Types[type].Fields.Count / (decimal) StorageLimit));
         Assert.That(counter.Count, Is.EqualTo(expectedCommandCount));
+
+        Assert.That(session.Query.All<ALotOfFieldsEntityValid>().Count(), Is.EqualTo(before + 4));
       }
     }
 
@@ -849,11 +856,13 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     }
 
     [Test]
-    public void PartitialExecutionAllowedTest01()
+    public void PartialExecutionAllowedTest01()
     {
       using (var session = Domain.OpenSession())
       using (var counter = new CommandCounter(session))
       using (var transaction = session.OpenTransaction()) {
+        var countBefore = session.Query.All<ALotOfFieldsEntityValid>().Count();
+
         _ = new ALotOfFieldsEntityValid();
         _ = new ALotOfFieldsEntityValid();
         _ = new ALotOfFieldsEntityValid();
@@ -867,7 +876,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
         counter.Reset();
         using (counter.Attach()) {
-          Assert.That(session.Query.All<ALotOfFieldsEntityValid>().Count(), Is.EqualTo(5));
+          Assert.That(session.Query.All<ALotOfFieldsEntityValid>().Count(), Is.EqualTo(countBefore + 3));
         }
 
         Assert.That(counter.Count, Is.EqualTo(2));
@@ -875,7 +884,36 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     }
 
     [Test]
-    public void PartitialExecutionAllowedTest02()
+    public async Task PartialExecutionAllowedAsyncTest01()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var countBefore = session.Query.All<ALotOfFieldsEntityValid>().Count();
+
+        _ = new ALotOfFieldsEntityValid();
+        _ = new ALotOfFieldsEntityValid();
+        _ = new ALotOfFieldsEntityValid();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter) {
+          session.Persist(PersistReason.Query);
+        }
+
+        Assert.That(counter.Count, Is.EqualTo(0));
+
+        counter.Reset();
+        using (counter.Attach()) {
+          var result = (await session.Query.All<ALotOfFieldsEntityValid>().AsAsync()).ToArray().Length;
+          Assert.That(result, Is.EqualTo(countBefore + 3));
+        }
+
+        Assert.That(counter.Count, Is.EqualTo(2));
+      }
+    }
+
+    [Test]
+    public void PartialExecutionAllowedTest02()
     {
       using (var session = Domain.OpenSession())
       using (var counter = new CommandCounter(session))
@@ -901,9 +939,180 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         Assert.That(counter.Count, Is.EqualTo(1));
         counter.Reset();
         using (counter.Attach()) {
-          Assert.That(session.Query.All<NormalAmountOfFieldsEntity>().Count(), Is.EqualTo(26));
+          Assert.That(session.Query.All<NormalAmountOfFieldsEntity>().Count(), Is.EqualTo(batchSize + 1));
         }
         Assert.That(counter.Count, Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public async Task PartialExecutionAllowedAsyncTest02()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var batchSize = session.Configuration.BatchSize;
+        var currentBatchCapacity = batchSize;
+
+        Console.WriteLine(batchSize);
+        // one complete batch;
+        while (currentBatchCapacity > 0) {
+          _ = new NormalAmountOfFieldsEntity();
+          currentBatchCapacity--;
+        }
+
+        // extra task to have extra batch
+        _ = new NormalAmountOfFieldsEntity();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter.Attach()) {
+          session.Persist(PersistReason.Query);
+        }
+
+        Assert.That(counter.Count, Is.EqualTo(1));
+        counter.Reset();
+        using (counter.Attach()) {
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray().Length;
+          Assert.That(result, Is.EqualTo(batchSize + 1));
+        }
+        Assert.That(counter.Count, Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public void PartialExecutionAllowedTest03()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var batchSize = session.Configuration.BatchSize;
+        var currentBatchCapacity = batchSize;
+
+        Console.WriteLine(batchSize);
+        // one complete batch;
+        while (currentBatchCapacity > 0) {
+          _ = new NormalAmountOfFieldsEntity();
+          currentBatchCapacity--;
+        }
+
+        // extra task to have extra batch
+        _ = new NormalAmountOfFieldsEntity();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter.Attach()) {
+          var result = session.Query.All<NormalAmountOfFieldsEntity>().ToArray();
+          Assert.That(result.Length, Is.EqualTo(batchSize + 1));
+        }
+        Assert.That(counter.Count, Is.EqualTo(2));
+      }
+    }
+
+    [Test]
+    public async Task PartialExecutionAllowedAsyncTest03()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var batchSize = session.Configuration.BatchSize;
+        var currentBatchCapacity = batchSize;
+
+        Console.WriteLine(batchSize);
+        // one complete batch;
+        while (currentBatchCapacity > 0) {
+          _ = new NormalAmountOfFieldsEntity();
+          currentBatchCapacity--;
+        }
+
+        // extra task to have extra batch
+        _ = new NormalAmountOfFieldsEntity();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter.Attach()) {
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray();
+          Assert.That(result.Length, Is.EqualTo(batchSize + 1));
+        }
+        Assert.That(counter.Count, Is.EqualTo(2));
+      }
+    }
+
+    [Test]
+    public void PartialExecutionAllowedTest04()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var countBefore = session.Query.All<ALotOfFieldsEntityValid>().Count();
+
+        var batchSize = session.Configuration.BatchSize;
+        var currentBatchCapacity = batchSize;
+
+        Console.WriteLine(batchSize);
+        // one complete batch;
+        while (currentBatchCapacity > 0) {
+          _ = new ALotOfFieldsEntityValid();
+          currentBatchCapacity--;
+        }
+
+        // extra task to have extra batch
+        _ = new ALotOfFieldsEntityValid();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter.Attach()) {
+          var result = session.Query.All<ALotOfFieldsEntityValid>().ToArray();
+          Assert.That(result.Length, Is.EqualTo(countBefore + batchSize + 1));
+        }
+        Assert.That(counter.Count, Is.EqualTo(13));
+      }
+    }
+
+    [Test]
+    public async Task PartialExecutionAllowedAsyncTest04()
+    {
+      using (var session = Domain.OpenSession())
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var batchSize = session.Configuration.BatchSize;
+        var currentBatchCapacity = batchSize;
+
+        Console.WriteLine(batchSize);
+        // one complete batch;
+        while (currentBatchCapacity > 0) {
+          _ = new NormalAmountOfFieldsEntity();
+          currentBatchCapacity--;
+        }
+
+        // extra task to have extra batch
+        _ = new NormalAmountOfFieldsEntity();
+
+        //persist by query causes allowPartialExecution = true;
+        using (counter.Attach()) {
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray();
+          Assert.That(result.Length, Is.EqualTo(batchSize + 1));
+        }
+        Assert.That(counter.Count, Is.EqualTo(2));
+      }
+    }
+
+    [Test]
+    public void PartialExecutionAllowedTest05()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+
+      var sessionOf25ItemsBatch = new SessionConfiguration(WellKnown.Sessions.Default, SessionOptions.Default | SessionOptions.AutoActivation) { BatchSize = 25 };
+      using (var session = Domain.OpenSession(sessionOf25ItemsBatch))
+      using (var tx = session.OpenTransaction()) {
+        Assert.AreEqual(0, session.Query.All<OneHundredFieldsEntity>().Count());
+
+        for (var i = 0; i < session.Configuration.BatchSize; i++) {
+          var item = new OneHundredFieldsEntity();
+
+          for (var j = 1; j < 98; j++) {
+            item["Value" + j] = i;
+          }
+        }
+
+        var count = session.Query.All<OneHundredFieldsEntity>().ToArray().Length;
+        Assert.AreEqual(session.Configuration.BatchSize, count);
       }
     }
 
@@ -922,60 +1131,6 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           session.SaveChanges();
         }
 
-        Assert.That(counter.Count, Is.EqualTo(2));
-      }
-    }
-
-    [Test]
-    public void PartialExecutionDeniedTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var counter = new CommandCounter(session))
-      using (var transaction = session.OpenTransaction()) {
-        var batchSize = session.Configuration.BatchSize;
-        var currentBatchCapacity = batchSize;
-
-        Console.WriteLine(batchSize);
-        // one complete batch;
-        while (currentBatchCapacity > 0) {
-          _ = new NormalAmountOfFieldsEntity();
-          currentBatchCapacity--;
-        }
-
-        // extra task to have extra batch
-        _ = new NormalAmountOfFieldsEntity();
-
-        //persist by query causes allowPartialExecution = true;
-        using (counter.Attach()) {
-          session.Query.All<NormalAmountOfFieldsEntity>().Run();
-        }
-        Assert.That(counter.Count, Is.EqualTo(2));
-      }
-    }
-
-    [Test]
-    public async Task PartialExecutionDeniedAsyncTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var counter = new CommandCounter(session))
-      using (var transaction = session.OpenTransaction()) {
-        var batchSize = session.Configuration.BatchSize;
-        var currentBatchCapacity = batchSize;
-
-        Console.WriteLine(batchSize);
-        // one complete batch;
-        while (currentBatchCapacity > 0) {
-          _ = new NormalAmountOfFieldsEntity();
-          currentBatchCapacity--;
-        }
-
-        // extra task to have extra batch
-        _ = new NormalAmountOfFieldsEntity();
-
-        //persist by query causes allowPartialExecution = true;
-        using (counter.Attach()) {
-          (await session.Query.All<NormalAmountOfFieldsEntity>().ExecuteAsync()).Run();
-        }
         Assert.That(counter.Count, Is.EqualTo(2));
       }
     }

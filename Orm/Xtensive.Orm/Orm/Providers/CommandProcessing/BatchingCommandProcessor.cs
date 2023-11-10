@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   internal sealed class BatchingCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
     private readonly int batchSize;
-    private readonly Queue<SqlTask> tasks;
+    private Queue<SqlTask> tasks;
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
@@ -55,12 +55,23 @@ namespace Xtensive.Orm.Providers
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize) {
+      var processingTasks = context.ProcessingTasks;
+      while (processingTasks.Count >= batchSize) {
         _ = ExecuteBatch(batchSize, null, context);
       }
 
-      while (!context.AllowPartialExecution && context.ProcessingTasks.Count > 0) {
-        _ = ExecuteBatch(context.ProcessingTasks.Count, null, context);
+      if (!context.AllowPartialExecution) {
+        while (processingTasks.Count > 0) {
+          _ = processingTasks.Count > batchSize
+            ? ExecuteBatch(batchSize, null, context)
+            : ExecuteBatch(processingTasks.Count, null, context);
+        }
+      }
+      else {
+        //re-register task
+        for (int i = 0, count = processingTasks.Count; i < count; i++) {
+          tasks.Enqueue(processingTasks.Dequeue());
+        }
       }
     }
 
@@ -68,12 +79,22 @@ namespace Xtensive.Orm.Providers
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize) {
+      var processingTasks = context.ProcessingTasks;
+      while (processingTasks.Count >= batchSize) {
         _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
       }
 
-      while (!context.AllowPartialExecution && context.ProcessingTasks.Count > 0) {
-        _ = await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
+      if (!context.AllowPartialExecution) {
+        while (processingTasks.Count > 0) {
+          _ = await ((context.ProcessingTasks.Count > batchSize)
+            ? ExecuteBatchAsync(batchSize, null, context, token)
+            : ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token));
+        }
+      }
+      else {
+        for(int i = 0, count = processingTasks.Count; i < count; i++) {
+          tasks.Enqueue(processingTasks.Dequeue());
+        }
       }
     }
 
@@ -86,8 +107,9 @@ namespace Xtensive.Orm.Providers
         _ = ExecuteBatch(batchSize, null, context);
       }
 
-      for (;;) {
-        var result = ExecuteBatch(context.ProcessingTasks.Count, request, context);
+      for (; ; ) {
+        var currentBatchSize = (context.ProcessingTasks.Count > batchSize) ? batchSize : context.ProcessingTasks.Count;
+        var result = ExecuteBatch(currentBatchSize, request, context);
         if (result != null && context.ProcessingTasks.Count == 0) {
           return result.CreateReader(request.GetAccessor());
         }
@@ -105,7 +127,8 @@ namespace Xtensive.Orm.Providers
       }
 
       for (; ; ) {
-        var result = await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
+        var currentBatchSize = (context.ProcessingTasks.Count > batchSize) ? batchSize : context.ProcessingTasks.Count;
+        var result = await ExecuteBatchAsync(currentBatchSize, request, context, token).ConfigureAwait(false);
         if (result != null && context.ProcessingTasks.Count == 0) {
           return result.CreateReader(request.GetAccessor());
         }
@@ -120,17 +143,16 @@ namespace Xtensive.Orm.Providers
         return null;
       }
 
-      var tasksToProcess = context.ProcessingTasks;
-
       AllocateCommand(context);
 
       var shouldReturnReader = false;
+      var tasksToProcess = context.ProcessingTasks;
       try {
         while (numberOfTasks > 0 && tasksToProcess.Count > 0) {
           var task = tasksToProcess.Peek();
           context.CurrentTask = task;
           task.ProcessWith(this, context);
-          if(context.CurrentTask==null) {
+          if (context.CurrentTask == null) {
             numberOfTasks--;
             _ = tasksToProcess.Dequeue();
           }
@@ -151,7 +173,9 @@ namespace Xtensive.Orm.Providers
         if (command.Count==0) {
           return null;
         }
+
         var hasQueryTasks = context.ActiveTasks.Count > 0;
+
         if (!hasQueryTasks && !shouldReturnReader) {
           _ = command.ExecuteNonQuery();
           return null;
@@ -189,11 +213,10 @@ namespace Xtensive.Orm.Providers
         return null;
       }
 
-      var tasksToProcess = context.ProcessingTasks;
-
       AllocateCommand(context);
 
       var shouldReturnReader = false;
+      var tasksToProcess = context.ProcessingTasks;
       try {
         while (numberOfTasks > 0 && tasksToProcess.Count > 0) {
           var task = tasksToProcess.Peek();
@@ -220,6 +243,7 @@ namespace Xtensive.Orm.Providers
         if (command.Count==0) {
           return null;
         }
+
         var hasQueryTasks = context.ActiveTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
           _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
@@ -268,7 +292,7 @@ namespace Xtensive.Orm.Providers
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
-          ValidateCommandParameters(part);
+          ValidateCommandPartParameters(part);
           command.AddPart(part);
           var affectedRowsCount = command.ExecuteNonQuery();
           if (affectedRowsCount == 0) {
@@ -282,20 +306,15 @@ namespace Xtensive.Orm.Providers
     private void PutTasksForExecution(CommandProcessorContext context)
     {
       if (context.AllowPartialExecution) {
-        context.ProcessingTasks = new Queue<SqlTask>();
-        var batchesCount = tasks.Count / batchSize;
-        if (batchesCount == 0) {
-          return;
-        }
-
-        context.ProcessingTasks = new Queue<SqlTask>();
-        while (context.ProcessingTasks.Count < batchesCount * batchSize) {
+        var processingTasksCount = tasks.Count / batchSize * batchSize;
+        context.ProcessingTasks = new Queue<SqlTask>(processingTasksCount);
+        while (context.ProcessingTasks.Count < processingTasksCount) {
           context.ProcessingTasks.Enqueue(tasks.Dequeue());
         }
       }
       else {
-        context.ProcessingTasks = new Queue<SqlTask>(tasks);
-        tasks.Clear();
+        context.ProcessingTasks = tasks;
+        tasks = new Queue<SqlTask>(batchSize);
       }
     }
 
@@ -312,13 +331,6 @@ namespace Xtensive.Orm.Providers
       return behavior == ExecutionBehavior.TooLargeForAnyCommand
         ? throw new ParametersLimitExceededException(currentCount + partsToAdd.Sum(x => x.Parameters.Count), MaxQueryParameterCount)
         : true;
-    }
-
-    private void ValidateCommandParameters(CommandPart commandPart)
-    {
-      if (GetCommandExecutionBehavior(new[] { commandPart }, 0) == ExecutionBehavior.TooLargeForAnyCommand) {
-        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
-      }
     }
 
     private static string GetParameterPrefix(CommandProcessorContext context) =>
