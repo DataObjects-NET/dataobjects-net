@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.MemberCompilation;
@@ -28,6 +29,7 @@ namespace Xtensive.Orm.Linq
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
+    private readonly Dictionary<MemberInfo, int> queryReuses;
 
     public CompilerConfiguration RseCompilerConfiguration { get; private set; }
 
@@ -51,30 +53,17 @@ namespace Xtensive.Orm.Linq
 
     public LinqBindingCollection Bindings { get; private set; }
 
-    public bool IsRoot(Expression expression)
-    {
-      return Query==expression;
-    }
+    public bool IsRoot(Expression expression) => Query == expression;
 
-    public string GetNextAlias()
-    {
-      return resultAliasGenerator.Next();
-    }
+    public string GetNextAlias() => resultAliasGenerator.Next();
 
-    public string GetNextColumnAlias()
-    {
-      return columnAliasGenerator.Next();
-    }
+    public string GetNextColumnAlias() => columnAliasGenerator.Next();
 
-    public ApplyParameter GetApplyParameter(ProjectionExpression projection)
-    {
-      return GetApplyParameter(projection.ItemProjector.DataSource);
-    }
+    public ApplyParameter GetApplyParameter(ProjectionExpression projection) => GetApplyParameter(projection.ItemProjector.DataSource);
 
     public ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
-      ApplyParameter parameter;
-      if (!applyParameters.TryGetValue(provider, out parameter)) {
+      if (!applyParameters.TryGetValue(provider, out var parameter)) {
         parameter = new ApplyParameter(provider.GetType().GetShortName());
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
@@ -86,16 +75,14 @@ namespace Xtensive.Orm.Linq
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
     {
-      ApplyParameter parameter;
-      if (applyParameters.TryGetValue(old, out parameter)) {
+      if (applyParameters.TryGetValue(old, out var parameter)) {
         applyParameters[@new] = parameter;
       }
     }
 
     public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
     {
-      Parameter<Tuple> parameter;
-      if (!tupleParameters.TryGetValue(expression, out parameter)) {
+      if (!tupleParameters.TryGetValue(expression, out var parameter)) {
         parameter = new Parameter<Tuple>(expression.ToString());
         tupleParameters.Add(expression, parameter);
       }
@@ -104,18 +91,31 @@ namespace Xtensive.Orm.Linq
 
     public ItemProjectorExpression GetBoundItemProjector(ParameterExpression parameter, ItemProjectorExpression itemProjector)
     {
-      ItemProjectorExpression result;
-      if (!boundItemProjectors.TryGetValue(parameter, out result)) {
+      if (!boundItemProjectors.TryGetValue(parameter, out var result)) {
         result = itemProjector.BindOuterParameter(parameter);
         boundItemProjectors.Add(parameter, result);
       }
       return result;
     }
 
+    public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
+    {
+      if (!queryReuses.ContainsKey(memberInfo))
+        queryReuses.Add(memberInfo, 0);
+    }
+
+    public bool CheckIfQueryReusePossible(MemberInfo memberInfo)
+    {
+      if (queryReuses.TryGetValue(memberInfo, out var uses)) {
+        queryReuses[memberInfo] = uses + 1;
+        return uses > 0;
+      }
+      return false;
+    }
+
     private Expression ApplyPreprocessor(IQueryPreprocessor preprocessor, Session session, Expression query)
     {
-      var preprocessor2 = preprocessor as IQueryPreprocessor2;
-      return preprocessor2!=null
+      return preprocessor is IQueryPreprocessor2 preprocessor2
         ? preprocessor2.Apply(session, query)
         : preprocessor.Apply(query);
     }
@@ -157,6 +157,7 @@ namespace Xtensive.Orm.Linq
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
+      queryReuses = new Dictionary<MemberInfo, int>();
     }
   }
 }

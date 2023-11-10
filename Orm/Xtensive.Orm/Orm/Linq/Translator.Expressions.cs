@@ -310,34 +310,42 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      if (ma.Expression != null)
-        if (ma.Expression.Type!=ma.Member.ReflectedType
-          && ma.Member is PropertyInfo
-          && !ma.Member.ReflectedType.IsInterface)
+      var memberInfo = ma.Member;
+      var sourceExpression = ma.Expression;
+
+      if (sourceExpression != null) {
+        if (sourceExpression.Type != memberInfo.ReflectedType
+          && memberInfo is PropertyInfo
+          && !memberInfo.ReflectedType.IsInterface) {
           ma = Expression.MakeMemberAccess(
-            ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
-      var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
+            sourceExpression, sourceExpression.Type.GetProperty(memberInfo.Name, memberInfo.GetBindingFlags()));
+
+          memberInfo = ma.Member;
+          sourceExpression = ma.Expression;
+        }
+      }
+
+      var customCompiler = context.CustomCompilerProvider.GetCompiler(memberInfo);
 
       // Reflected type doesn't have custom compiler defined, so falling back to base class compiler
-      var declaringType = ma.Member.DeclaringType;
-      Type reflectedType = ma.Member.ReflectedType;
+      var declaringType = memberInfo.DeclaringType;
+      var reflectedType = memberInfo.ReflectedType;
       if (customCompiler == null && declaringType != reflectedType && declaringType.IsAssignableFrom(reflectedType)) {
         var root = declaringType;
         var current = reflectedType;
         while (current != root && customCompiler == null) {
           current = current.BaseType;
-          var member = current.GetProperty(ma.Member.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
+          var member = current.GetProperty(memberInfo.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
           customCompiler = context.CustomCompilerProvider.GetCompiler(member);
         }
       }
 
-      if (customCompiler!=null) {
-        var member = ma.Member;
-        var expression = customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray);
+      if (customCompiler != null) {
+        var expression = customCompiler.Invoke(sourceExpression, ArrayUtils<Expression>.EmptyArray);
         if (expression == null) {
-          if (member.ReflectedType.IsInterface)
+          if (reflectedType.IsInterface)
             return Visit(BuildInterfaceExpression(ma));
-          if (member.ReflectedType.IsClass)
+          if (reflectedType.IsClass)
             return Visit(BuildHierarchyExpression(ma));
         }
         else
@@ -346,47 +354,49 @@ namespace Xtensive.Orm.Linq
 
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          Func<IQueryable> lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
-          IQueryable rootPoint = lambda();
+          var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var rootPoint = lambda();
           if (rootPoint!=null)
             return base.Visit(rootPoint.Expression);
         }
         return ma;
       }
-      if (ma.Expression==null) {
-        if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
+      if (sourceExpression == null) {
+        if (typeof(IQueryable).IsAssignableFrom(ma.Type)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
-          if (rootPoint!=null)
+          if (rootPoint != null)
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.NodeType==ExpressionType.Constant) {
-        var rfi = ma.Member as FieldInfo;
-        if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
+      else if (sourceExpression.NodeType == ExpressionType.Constant) {
+        if (memberInfo is FieldInfo rfi && (rfi.FieldType.IsGenericType && typeof(IQueryable).IsAssignableFrom(rfi.FieldType))) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
-          if (rootPoint!=null)
+          if (rootPoint != null)
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
-        var type = ma.Expression.Type;
-        var parameter = ma.Expression as ParameterExpression;
-        if (parameter != null) {
+      else if (sourceExpression.GetMemberType() == MemberType.Entity && memberInfo.Name != "Key") {
+        var type = sourceExpression.Type;
+        if (sourceExpression is ParameterExpression parameter) {
           var projection = context.Bindings[parameter];
           type = projection.ItemProjector.Item.Type;
         }
-        if (!context.Model.Types[type].Fields.Contains(context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
-          throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
+        if (!context.Model.Types[type].Fields.Contains(context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) memberInfo))) {
+          throw new NotSupportedException(string.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
+        }
       }
       Expression source;
       using (state.CreateScope()) {
 //        state.BuildingProjection = false;
-        source = Visit(ma.Expression);
+        source = Visit(sourceExpression);
       }
 
-      var result = GetMember(source, ma.Member, ma);
+      var result = context.CheckIfQueryReusePossible(memberInfo)
+        ? GetMemberWithRemap(source, memberInfo, ma)
+        : GetMember(source, memberInfo, ma);
+
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -1405,6 +1415,59 @@ namespace Xtensive.Orm.Linq
       return isMarker
         ? new MarkerExpression(result, markerType)
         : result;
+    }
+
+    private Expression GetMemberWithRemap(Expression expression, MemberInfo memberInfo, Expression sourceExpression)
+    {
+      var original = GetMember(expression, memberInfo, sourceExpression);
+      if (original.IsSubqueryExpression()) {
+        var subquery = (SubQueryExpression) original;
+        var projectionExpression = subquery.ProjectionExpression;
+        var itemProjector = projectionExpression.ItemProjector;
+        var columnIndexes = itemProjector.GetColumns(ColumnExtractionModes.KeepSegment).ToArray();
+
+        var expReplacer = new ExtendedExpressionReplacer((e) => {
+          if (e is GroupingExpression ge && ge.SelectManyInfo.GroupByProjection != null) {
+            var geProjectionExpression = ge.ProjectionExpression;
+            var geItemProjector = geProjectionExpression.ItemProjector;
+            var columnIndexes = geItemProjector.GetColumns(ColumnExtractionModes.KeepSegment).ToArray();
+
+            var newProjectionExpression = new ProjectionExpression(geProjectionExpression.Type,
+              geItemProjector.Remap(geItemProjector.DataSource, columnIndexes),
+              geProjectionExpression.TupleParameterBindings);
+
+            var groupByProjection = ge.SelectManyInfo.GroupByProjection;
+            var groupByProjector = groupByProjection.ItemProjector;
+            var groupByColumnIndexes = groupByProjector.GetColumns(ColumnExtractionModes.KeepSegment).ToArray();
+
+            var newGroupByProjection = new ProjectionExpression(groupByProjection.Type,
+              groupByProjector.Remap(groupByProjector.DataSource, groupByColumnIndexes),
+              groupByProjection.TupleParameterBindings);
+
+            var result = new GroupingExpression(ge.Type,
+              ge.OuterParameter, ge.DefaultIfEmpty, newProjectionExpression, ge.ApplyParameter, ge.KeyExpression,
+              new GroupingExpression.SelectManyGroupingInfo(newGroupByProjection));
+            return result;
+          }
+          else
+            return null;
+        });
+
+        var newItem = expReplacer.Replace(itemProjector.Item);
+        var staysTheSame = newItem == itemProjector.Item;
+        var newItemProjector = staysTheSame
+          ? itemProjector.Remap(itemProjector.DataSource, columnIndexes)
+          : new ItemProjectorExpression(newItem, itemProjector.DataSource, itemProjector.Context);
+
+        var result = new SubQueryExpression(subquery.Type,
+          subquery.OuterParameter,
+          subquery.DefaultIfEmpty,
+          new ProjectionExpression(projectionExpression.Type, newItemProjector, projectionExpression.TupleParameterBindings),
+          subquery.ApplyParameter,
+          subquery.ExtendedType);
+        return result;
+      }
+      return original;
     }
 
     private Expression GetConditionalMember(Expression expression, MemberInfo member, Expression sourceExpression)
