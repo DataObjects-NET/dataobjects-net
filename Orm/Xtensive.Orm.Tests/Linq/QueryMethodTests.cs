@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Linq
           Session.Query.Store(localCustomers),
           customer => customer,
           localCustomer => localCustomer,
-          (customer, localCustomer) => new { customer, localCustomer }).AsAsync()).ToList();
+          (customer, localCustomer) => new { customer, localCustomer }).ExecuteAsync()).ToList();
       var expected = Session.Query.All<Customer>().AsEnumerable()
         .Join(
           Session.Query.Store(localCustomers),
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Tests.Linq
           Session.Query.Store(Session.Query.All<Customer>().Take(10)),
           customer => customer,
           localCustomer => localCustomer,
-          (customer, localCustomer) => new { customer, localCustomer }).AsAsync()).ToList();
+          (customer, localCustomer) => new { customer, localCustomer }).ExecuteAsync()).ToList();
       var expected = Session.Query.All<Customer>().AsEnumerable()
         .Join(
           Session.Query.Store(Session.Query.All<Customer>().Take(10)),

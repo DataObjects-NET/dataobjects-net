@@ -904,7 +904,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
         counter.Reset();
         using (counter.Attach()) {
-          var result = (await session.Query.All<ALotOfFieldsEntityValid>().AsAsync()).ToArray().Length;
+          var result = (await session.Query.All<ALotOfFieldsEntityValid>().ExecuteAsync()).ToArray().Length;
           Assert.That(result, Is.EqualTo(countBefore + 3));
         }
 
@@ -972,7 +972,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         Assert.That(counter.Count, Is.EqualTo(1));
         counter.Reset();
         using (counter.Attach()) {
-          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray().Length;
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().ExecuteAsync()).ToArray().Length;
           Assert.That(result, Is.EqualTo(batchSize + 1));
         }
         Assert.That(counter.Count, Is.EqualTo(1));
@@ -1028,7 +1028,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
         //persist by query causes allowPartialExecution = true;
         using (counter.Attach()) {
-          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray();
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().ExecuteAsync()).ToArray();
           Assert.That(result.Length, Is.EqualTo(batchSize + 1));
         }
         Assert.That(counter.Count, Is.EqualTo(2));
@@ -1086,7 +1086,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
         //persist by query causes allowPartialExecution = true;
         using (counter.Attach()) {
-          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().AsAsync()).ToArray();
+          var result = (await session.Query.All<NormalAmountOfFieldsEntity>().ExecuteAsync()).ToArray();
           Assert.That(result.Length, Is.EqualTo(batchSize + 1));
         }
         Assert.That(counter.Count, Is.EqualTo(2));

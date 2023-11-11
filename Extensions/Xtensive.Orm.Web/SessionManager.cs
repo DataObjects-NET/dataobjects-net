@@ -115,7 +115,6 @@ namespace Xtensive.Orm.Web
           await nextMiddlewareRunner.Invoke(context);
         }
         catch (Exception) {
-          var 
           HasErrors = true;
           throw;
         }
