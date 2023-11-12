@@ -797,8 +797,8 @@
   <data name="ExColumnNotNullable" xml:space="preserve">
     <value>Unable to assign null to non-nullable column.</value>
   </data>
-  <data name="ExEntityIsRemoved" xml:space="preserve">
-    <value>Entity is removed.</value>
+  <data name="ExEntityOfTypeXIsRemoved" xml:space="preserve">
+    <value>Entity of type '{0}' is removed.</value>
   </data>
   <data name="ExFieldWithNameXIsAlreadyRegistered" xml:space="preserve">
     <value>Field with name '{0}' is already registered.</value>

@@ -157,7 +157,7 @@ namespace Xtensive.Orm
     protected void EnsureOwnerIsNotRemoved()
     {
       if (Owner.IsRemoved) {
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+        throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, Owner.TypeInfo.Name));
       }
     }
 

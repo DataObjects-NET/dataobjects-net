@@ -1570,11 +1570,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity is removed..
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is removed..
         /// </summary>
-        internal static string ExEntityIsRemoved {
+        internal static string ExEntityOfTypeXIsRemoved {
             get {
-                return ResourceManager.GetString("ExEntityIsRemoved", resourceCulture);
+                return ResourceManager.GetString("ExEntityOfTypeXIsRemoved", resourceCulture);
             }
         }
         
