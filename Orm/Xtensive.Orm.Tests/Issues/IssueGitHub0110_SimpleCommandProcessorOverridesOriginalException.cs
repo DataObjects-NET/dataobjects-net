@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       _ = theStarter.Set();
 
-      while (!task1State.Ended && !task1State.Ended) {
+      while (!task1State.Ended || !task2State.Ended) {
         Thread.Sleep(100);
       }
 
