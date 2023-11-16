@@ -1,4 +1,15 @@
-﻿# DataObjects.Net
+## :exclamation: Important :exclamation:
+We discovered a serious issue connected to entity saving to storage for provider that use batching. Though its appearance is rare, version update is **strongly recommended**.
+
+Minimal versions in which the issue is addressed: [6.0.12](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/6.0.12),
+[7.0.4](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.0.4),
+[7.1.1](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.1.1)
+
+The ```master``` branch also has the fix merged (commit ```f642a25```).
+
+If you forked the repository then make sure that this fix will propagate to your fork and branches.
+
+# DataObjects.Net
 
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 

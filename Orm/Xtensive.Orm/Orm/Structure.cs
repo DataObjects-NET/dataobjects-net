@@ -334,12 +334,12 @@ namespace Xtensive.Orm
       if (thisIsBound) {
         EnsureIsFetched(Field);
         if (Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
-          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+          throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, Entity.TypeInfo.Name));
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
         if (other.Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
-          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+          throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, other.Entity.TypeInfo.Name));
       }
       return Equals(Tuple, other.Tuple);
     }

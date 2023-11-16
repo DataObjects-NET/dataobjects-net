@@ -1,0 +1,6 @@
+[main] Addressed DataTypeCollection.Add method issue of wrong adding storage-specifid types to the collection
+[main] Addressed rare issue of entities expire management when SessionOption.NonTransactionalReads is on
+[main] Fixed issue of skipping persist or query tasks during batching
+[main] Improved error message when the entity user operates with is removed, now it contains type of entity
+[main] Fixed query root (Query.All<T>()) reuse issue which might lead to bad columns mapping and exception
+[sqlserver] Sql error messages for British English are correctly parsed
