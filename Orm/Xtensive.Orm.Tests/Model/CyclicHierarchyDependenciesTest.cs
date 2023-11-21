@@ -48,26 +48,17 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class CyclicHierarchyDependenciesTest : AutoBuildTest
+  [TestFixture]
+  public class CyclicHierarchyDependenciesTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void MainTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof (H1).Assembly, typeof (H1).Namespace);
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      Domain domain = null;
-      try {
-        domain = Domain.Build(configuration);
-        Assert.Fail("Epic");
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return domain;
+      var config = DomainConfigurationFactory.Create();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
+      config.Types.Register(typeof(H1).Assembly, typeof(H1).Namespace);
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }
   }
 }
