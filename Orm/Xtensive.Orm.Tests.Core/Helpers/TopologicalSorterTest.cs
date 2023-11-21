@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
       _ = GC.GetTotalMemory(true);
       using (new Measurement("Sorting", nodeCount + connectionCount)) {
-        var result = TopologicalSorter.Sort(nodes, out var removedEdges);
+        var result = TopologicalSorter.Sort(nodes, out var _);
         if (!allowLoops)
           Assert.AreEqual(nodeCount, result.Count);
       }
@@ -86,19 +86,19 @@ namespace Xtensive.Orm.Tests.Core.Helpers
     [Test]
     public void NullNodeCollectionTest()
     {
-      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var removedEdges1));
-      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var removedEdges2, false));
-      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var removedEdges3, true));
-      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((List<Node<int, int>>) null, out var removedEdges4));
+      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var _));
+      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var _, false));
+      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((IEnumerable<Node<int, string>>) null, out var _, true));
+      _ = Assert.Throws<ArgumentNullException>(() => TopologicalSorter.Sort((List<Node<int, int>>) null, out _));
     }
 
     [Test]
     public void EmptyNodeCollectionTest()
     {
-      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out var removedEdges1);
-      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out var removedEdges2, false);
-      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out var removedEdges3, true);
-      _ = TopologicalSorter.Sort(new List<Node<int, int>>(), out var removedEdges4);
+      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out _);
+      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out _, false);
+      _ = TopologicalSorter.Sort(Enumerable.Empty<Node<int, string>>(), out _, true);
+      _ = TopologicalSorter.Sort(new List<Node<int, int>>(), out _);
     }
 
     [Test]
@@ -133,7 +133,6 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       connection21_1.BindToNodes();
 
       // Remove edge by edge.
-
       var result = TopologicalSorter.Sort(new[] { node2, node1 }, out var removedEdges);
       Assert.AreEqual(2, result.Count);
       Assert.AreEqual(node1.Item, result[0]);
@@ -192,15 +191,12 @@ namespace Xtensive.Orm.Tests.Core.Helpers
     {
       var actual = TopologicalSorter.Sort(data, connector, out List<Node<T, object>> actualLoopNodes);
 
-      if (expected == null) {
+      if (expected == null)
         Assert.That(actual, Is.Null);
-      }
-      else if(data.Length==0) {
+      else if (data.Length == 0)
         Assert.That(actual, Is.Empty);
-      }
-      else {
+      else
         Assert.That(expected.SequenceEqual(actual));
-      }
 
       var actualLoops = actualLoopNodes != null
         ? actualLoopNodes
@@ -227,18 +223,14 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
     private void TestSortNoLoopsCheck<T>(T[] data, Predicate<T, T> connector, T[] expected)
     {
-      List<Node<T, object>> actualLoopNodes;
       var actual = TopologicalSorter.Sort(data, connector);
 
-      if (expected == null) {
+      if (expected == null)
         Assert.That(actual, Is.Null);
-      }
-      else if (data.Length == 0) {
+      else if (data.Length == 0)
         Assert.That(actual, Is.Empty);
-      }
-      else {
+      else
         Assert.That(expected.SequenceEqual(actual));
-      }
 
       var sortWithRemove = TopologicalSorter.Sort(data, connector, out List<NodeConnection<T, object>> _);
       Assert.AreEqual(sortWithRemove.Count, data.Length);
