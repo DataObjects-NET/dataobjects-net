@@ -183,7 +183,13 @@ namespace Xtensive.Sorting
     /// In this case <paramref name="nodes"/> will contain only the loop edges.</returns>
     public static IEnumerable<TNodeItem> Sort<TNodeItem, TConnectionItem>(
       List<Node<TNodeItem, TConnectionItem>> nodes,
-      out List<Node<TNodeItem, TConnectionItem>> loops) => SortInternal(nodes, out loops).sorted ?? Array.Empty<TNodeItem>();
+      out List<Node<TNodeItem, TConnectionItem>> loops)
+    {
+      var (sorted, count) = SortInternal(nodes, out loops) /* ?? Array.Empty<TNodeItem>()*/;
+      return (sorted is not null && count == 0)
+        ? Array.Empty<TNodeItem>()
+        : sorted;
+    }
 
     /// <summary>
     /// Sorts the specified oriented graph of the nodes in their topological order
@@ -199,9 +205,11 @@ namespace Xtensive.Sorting
       out List<Node<TNodeItem, TConnectionItem>> loops)
     {
       var (sorted, count) = SortInternal(nodes, out loops);
-      return (sorted is null || count == 0)
-        ? Array.Empty<TNodeItem>()
-        : sorted.ToArray(count);
+      return (sorted is null)
+        ? null
+        : count == 0
+          ? Array.Empty<TNodeItem>()
+          : sorted.ToArray(count);
     }
 
     /// <summary>
