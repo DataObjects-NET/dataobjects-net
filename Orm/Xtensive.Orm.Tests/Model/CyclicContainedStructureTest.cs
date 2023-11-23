@@ -57,24 +57,17 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class CyclicContainedStructureTest : AutoBuildTest
+  [TestFixture]
+  public class CyclicContainedStructureTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void MainTest()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = DomainConfigurationFactory.Create();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Model.ReferenceTestModel");
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      Domain domain = null;
-      try {
-        domain = Domain.Build(configuration);
-      }
-      catch (DomainBuilderException) {
-      }
-      return domain;
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }
   }
 }

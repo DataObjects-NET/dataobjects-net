@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       public bool Equals(Item obj)
       {
-        if (obj==null)
+        if (obj == null)
           return false;
-        return obj.Value==Value;
+        return obj.Value == Value;
       }
 
       public override bool Equals(object obj)
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       public override int GetHashCode()
       {
-        return (Value!=null ? Value.GetHashCode() : 0);
+        return (Value != null ? Value.GetHashCode() : 0);
       }
 
       public override string ToString()
@@ -54,14 +54,44 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
     #endregion
 
-    private volatile Item item1;
+    private volatile Item fieldItem1;
+    private volatile Item fieldItem2;
 
     [Test]
-    public void CombinedTest()
+    public void ClassFieldInTestScopeTest()
     {
       var cache = new WeakestCache<Item, Item>(false, false, i => i);
 
-      item1 = new Item("1");
+      fieldItem1 = new Item("1");
+
+      cache.Add(fieldItem1);
+
+      Assert.AreSame(fieldItem1, cache.First());
+      Assert.AreSame(fieldItem1, cache[new Item("1"), true]);
+
+      cache.Remove(fieldItem1);
+      Assert.AreEqual(0, cache.Count);
+
+      cache.Add(fieldItem1);
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
+      fieldItem1 = null;
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
+      Assert.IsNotNull(cache[new Item("1"), true]);
+    }
+
+    [Test]
+    public void LocalVarInTestScopeTest()
+    {
+      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+
+      var item1 = new Item("1");
+
       cache.Add(item1);
 
       Assert.AreSame(item1, cache.First());
@@ -78,9 +108,77 @@ namespace Xtensive.Orm.Tests.Core.Caching
       item1 = null;
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
+      Assert.IsNotNull(cache[new Item("1"), true]);
+    }
+
+    [Test]
+    public void LocalVarInCalledMethodScopeTest()
+    {
+      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+
+      InnerLocalVariableCacheTest(cache);
+
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
       Assert.AreEqual(0, cache.Count);
 
       Assert.IsNull(cache[new Item("1"), true]);
+    }
+
+    [Test]
+    public void ClassFieldInCalledMethodScopeTest()
+    {
+      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+
+      InnerClassFieldCacheTest(cache);
+
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(0, cache.Count);
+
+      Assert.IsNull(cache[new Item("1"), true]);
+    }
+
+    private void InnerLocalVariableCacheTest(WeakestCache<Item, Item> cache)
+    {
+      var item = new Item("1");
+
+      cache.Add(item);
+
+      Assert.AreSame(item, cache.First());
+      Assert.AreSame(item, cache[new Item("1"), true]);
+
+      cache.Remove(item);
+      Assert.AreEqual(0, cache.Count);
+
+      cache.Add(item);
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
+      item = null;
+    }
+
+    private void InnerClassFieldCacheTest(WeakestCache<Item, Item> cache)
+    {
+      fieldItem2 = new Item("1");
+
+      cache.Add(fieldItem2);
+
+      Assert.AreSame(fieldItem2, cache.First());
+      Assert.AreSame(fieldItem2, cache[new Item("1"), true]);
+
+      cache.Remove(fieldItem2);
+      Assert.AreEqual(0, cache.Count);
+
+      cache.Add(fieldItem2);
+      TestHelper.CollectGarbage(true);
+      cache.CollectGarbage();
+      Assert.AreEqual(1, cache.Count);
+
+      fieldItem2 = null;
     }
 
     [Test]
@@ -88,7 +186,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     {
       var cache = new WeakestCache<Item, Item>(false, false, i => i);
       var measurement = new Measurement();
-      for (int i = 0,j = 0; i < 1000000; i++, j++) {
+      for (int i = 0, j = 0; i < 1000000; i++, j++) {
         var item = new Item(i.ToString());
         cache.Add(item);
         if (j == 100000) {
