@@ -190,7 +190,11 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
+#if NET8_0_OR_GREATER
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethodInvoker(type).Invoke(null);
+#else
         var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
+#endif
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }
