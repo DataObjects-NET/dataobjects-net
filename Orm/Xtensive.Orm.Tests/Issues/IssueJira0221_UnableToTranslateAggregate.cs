@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       base.TestFixtureSetUp();
 
-      CreateSessionAndTransaction();
+      _ = CreateSessionAndTransaction();
 
       _ = new ZamesInfo {Owner = new Zames(), Rank = 1};
       _ = new ZamesInfo {Owner = new Zames(), Rank = 3};

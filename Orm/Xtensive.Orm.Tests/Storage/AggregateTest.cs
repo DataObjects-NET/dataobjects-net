@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2032 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.28
 
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       base.TestFixtureSetUp();
 
-      CreateSessionAndTransaction();
+      _ = CreateSessionAndTransaction();
 
       for (int i = 0; i < 10; i++) {
         var x = new X();
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       //"If Field is of an integer type, AVG is always rounded towards 0.
       // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
-      // © Firebird documentation
+      // Â© Firebird documentation
       // Funny, isn't it?
       if (Domain.Configuration.ConnectionInfo.Provider==WellKnown.Provider.Firebird) {
         Assert.AreEqual(Math.Truncate(all.Average(x => x.FByte)), Session.Demand().Query.All<X>().Average(x => x.FByte));
