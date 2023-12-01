@@ -10,6 +10,8 @@ namespace Xtensive.Orm.Reprocessing.Tests
   [TestFixture]
   public abstract class ReprocessingBaseTest : CommonModelTest
   {
+    public const int DefaultTestTimeout = 10000;
+
     protected override void CheckRequirements()
     {
       base.CheckRequirements();

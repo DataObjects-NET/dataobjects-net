@@ -13,10 +13,10 @@ using Xtensive.Orm.Reprocessing.Tests.ReprocessingContext;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  [TestFixture, Timeout(20000)]
+  [TestFixture, Timeout(DefaultTestTimeout * 4)]
   public class DeadlockReprocessing : ReprocessingBaseTest
   {
-    [Test, Timeout(5000)]
+    [Test, Timeout(DefaultTestTimeout)]
     public void SimpleDeadlockTest()
     {
       Console.WriteLine("Test started");
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(2));
     }
 
-    [Test, Timeout(5000)]
+    [Test, Timeout(DefaultTestTimeout)]
     public void NestedSerializableDeadlockTest()
     {
       Console.WriteLine("Test started");
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(5000)]
+    [Test, Timeout(DefaultTestTimeout)]
     public void NestedSnapshotDeadlockTest()
     {
       Console.WriteLine("Test started");
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(5000)]
+    [Test, Timeout(DefaultTestTimeout)]
     public void NestedNestedSerializableSerializableTest()
     {
       Console.WriteLine("Test started");
