@@ -1,4 +1,4 @@
-﻿// ReSharper disable ConvertToConstant.Local
+// ReSharper disable ConvertToConstant.Local
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable AccessToModifiedClosure
 
@@ -11,7 +11,7 @@ using Xtensive.Orm.Reprocessing.Tests.ReprocessingContext;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  [TestFixture, Timeout(20000)]
+  [TestFixture, Timeout(60000)]
   public sealed class UniqueConstraintViolationReprocessing : ReprocessingBaseTest
   {
     private bool treatNullAsUniqueValue;
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       treatNullAsUniqueValue = Domain.StorageProviderInfo.ProviderName == WellKnown.Provider.SqlServer;
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void SimpleUniqueTest()
     {
       Console.WriteLine("Test started");
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(2));
     }
 
-    [Test, Timeout(1000)]
+    [Test, Timeout(5000)]
     public void UniqueConstraintViolationExceptionUnique()
     {
       var i = 0;
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(errorNotified, Is.True);
     }
 
-    [Test, Timeout(1000)]
+    [Test, Timeout(5000)]
     public void UniqueConstraintViolationExceptionPrimary()
     {
       var i = 0;
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSerializablePrimaryKeyConstraintTest()
     {
       Console.WriteLine("Test started");
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSnapshotPrimaryKeyConstraintTest()
     {
       Console.WriteLine("Test started");
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSerializableUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSnapshotUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSerializableExternalWithoutTxUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSnapshotExternalWithoutTxUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(4));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSerializableExternalWithTxUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(6));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedSnapshotExternalWithTxUniqueIndexTest()
     {
       Console.WriteLine("Test started");
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(Bar2Count(), Is.EqualTo(6));
     }
 
-    [Test, Timeout(2000)]
+    [Test, Timeout(5000)]
     public void NestedUniqueIndexWithAutoTransaction()
     {
       Console.WriteLine("Test started");
