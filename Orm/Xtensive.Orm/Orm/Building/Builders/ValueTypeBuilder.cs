@@ -61,14 +61,16 @@ namespace Xtensive.Orm.Building.Builders
 #if NET6_0_OR_GREATER
 
       if (valueType == WellKnownTypes.TimeOnly) {
-        if (value is string timeOnlyString && !TimeOnly.TryParse(timeOnlyString, out var timeOnly)) {
+        TimeOnly timeOnly = default;
+        if (value is string timeOnlyString && !TimeOnly.TryParse(timeOnlyString, out timeOnly)) {
           throw FailToParseValue(fieldName, timeOnlyString);
         }
         return timeOnly;
       }
 
       if (valueType == WellKnownTypes.DateOnly) {
-        if (value is string dateOnlyString && !DateOnly.TryParse(dateOnlyString, out var dateOnly)) {
+        DateOnly dateOnly = default;
+        if (value is string dateOnlyString && !DateOnly.TryParse(dateOnlyString, out dateOnly)) {
           throw FailToParseValue(fieldName, dateOnlyString);
         }
         return dateOnly;

@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Storage
         var customer = new Customer();
         customer.Remove();
         var order = new Order();
-        AssertEntityRemovalHasBeenDetected(() => order.Customer = customer);
+        AssertEntityRemovalHasBeenDetected(() => order.Customer = customer, nameof(Customer));
         tx.Complete();
       }
     }
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var tx = session.OpenTransaction()) {
         var customer = new Customer();
         customer.Remove();
-        AssertEntityRemovalHasBeenDetected(() => new CustomerOrder(1, customer));
+        AssertEntityRemovalHasBeenDetected(() => new CustomerOrder(1, customer), nameof(Customer));
         tx.Complete();
       }
     }
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Add(order));
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Add(order), nameof(Order));
         tx.Complete();
       }
     }
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Remove(order));
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Remove(order), nameof(Order));
         tx.Complete();
       }
     }
@@ -138,18 +138,18 @@ namespace Xtensive.Orm.Tests.Storage
         var customer = new Customer();
         var order = new Order();
         order.Remove();
-        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Contains(order));
+        AssertEntityRemovalHasBeenDetected(() => customer.Orders.Contains(order), nameof(Order));
         tx.Complete();
       }
     }
 
-    private static void AssertEntityRemovalHasBeenDetected(Action action)
+    private static void AssertEntityRemovalHasBeenDetected(Action action, string removedTypeName)
     {
       try {
         action.Invoke();
       }
       catch (InvalidOperationException e) {
-        Assert.AreEqual(Strings.ExEntityIsRemoved, e.Message);
+        Assert.AreEqual(string.Format(Strings.ExEntityOfTypeXIsRemoved, removedTypeName), e.Message);
       }
     }
   }

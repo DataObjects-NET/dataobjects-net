@@ -121,7 +121,6 @@ namespace Xtensive.Tuples
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("FieldCount", FieldCount);
       info.AddValue("ValuesLength", ValuesLength);
       info.AddValue("ObjectsLength", ObjectsLength);
 
@@ -136,13 +135,13 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       for (int i = 0; i < FieldCount; i++) {
         if (i > 0)
           sb.Append(", ");
         sb.Append(FieldTypes[i].GetShortName());
       }
-      return string.Format(Strings.TupleDescriptorFormat, sb);
+      return string.Format(Strings.TupleDescriptorFormat, sb.ToString());
     }
 
     #region Create methods (base)
@@ -286,7 +285,6 @@ namespace Xtensive.Tuples
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      var fieldCount = info.GetInt32("FieldCount");
       ValuesLength = info.GetInt32("ValuesLength");
       ObjectsLength = info.GetInt32("ObjectsLength");
 

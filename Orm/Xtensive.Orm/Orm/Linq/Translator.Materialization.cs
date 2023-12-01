@@ -155,10 +155,16 @@ namespace Xtensive.Orm.Linq
     private List<Expression> VisitNewExpressionArguments(NewExpression n)
     {
       var arguments = new List<Expression>();
-      foreach (var argument in n.Arguments) {
+      var origArguments = n.Arguments;
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
         Expression body;
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
         }
         body = body.IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)

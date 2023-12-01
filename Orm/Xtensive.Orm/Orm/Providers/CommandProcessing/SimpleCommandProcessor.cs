@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
       var part = Factory.CreateQueryPart(task);
-      ValidateCommandParameters(part);
+      ValidateCommandPartParameters(part);
       context.ActiveCommand.AddPart(part);
       context.ActiveTasks.Add(task);
     }
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         try {
-          ValidateCommandParameters(part);
+          ValidateCommandPartParameters(part);
           context.ActiveCommand.AddPart(part);
           var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount == 0) {
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-      ValidateCommandParameters(commandPart);
+      ValidateCommandPartParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
@@ -137,18 +137,11 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-      ValidateCommandParameters(commandPart);
+      ValidateCommandPartParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token).ConfigureAwaitFalse();
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
-    }
-
-    private void ValidateCommandParameters(CommandPart commandPart)
-    {
-      if (GetCommandExecutionBehavior(new[] { commandPart }, 0) == ExecutionBehavior.TooLargeForAnyCommand) {
-        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
-      }
     }
 
     // Constructors

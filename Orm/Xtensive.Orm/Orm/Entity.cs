@@ -410,7 +410,7 @@ namespace Xtensive.Orm
     internal void EnsureNotRemoved()
     {
       if (IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+        throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, TypeInfo.Name));
     }
 
     internal override sealed ValidationResult GetValidationResult()
