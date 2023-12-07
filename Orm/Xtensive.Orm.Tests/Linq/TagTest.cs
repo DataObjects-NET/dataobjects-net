@@ -1,10 +1,11 @@
-// Copyright (C) 2021-2022 Xtensive LLC.
+// Copyright (C) 2021-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Edgar Isajanyan
 // Created:    2021.09.13
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -125,7 +126,24 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class TagTest : AutoBuildTest
   {
-    private Func<string, string> CursorCutter;
+    private readonly ConcurrentDictionary<string, (Session, TransactionScope)> sessions = new();
+    private readonly Func<string, string> cursorCutter =
+      StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)
+        ? ((s) => {
+            var index = s.IndexOf("FOR");
+            return s.Substring(index + 4);
+          })
+        : ((s) => s);
+
+    [TearDown]
+    public void AfterEveryTestSetup()
+    {
+      var context = TestContext.CurrentContext;
+      if (sessions.TryGetValue(context.Test.Name, out var disposals)) {
+        disposals.Item2.DisposeSafely();
+        disposals.Item1.DisposeSafely();
+      }
+    }
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -139,26 +157,6 @@ namespace Xtensive.Orm.Tests.Linq
       return configuration;
     }
 
-    public override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      DefineCursorCutter();
-      CreateSessionAndTransaction();
-    }
-
-    private void DefineCursorCutter()
-    {
-      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
-        CursorCutter = (s) => {
-          var index = s.IndexOf("FOR");
-          return s.Substring(index + 4);
-        };
-      }
-      else {
-        CursorCutter = (s) => s;
-      }
-    }
-
     protected override void CheckRequirements() =>
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Savepoints);
 
@@ -169,6 +167,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void VariousPlacements(TagsLocation tagsLocation)
     {
       Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird);
+
       var config = Domain.Configuration.Clone();
       config.TagsLocation = tagsLocation;
       config.UpgradeMode = DomainUpgradeMode.Skip;
@@ -182,7 +181,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CheckTag(CursorCutter(queryString), "/*simpleTag sessionTag*/", tagsLocation));
+        Assert.IsTrue(CheckTag(cursorCutter(queryString), "/*simpleTag sessionTag*/", tagsLocation));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -190,7 +189,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void LatestTagWins()
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -203,7 +202,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*firstTag secondTag sessionTag*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*firstTag secondTag sessionTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -213,7 +212,7 @@ namespace Xtensive.Orm.Tests.Linq
     [TestCase("A long time ago in a galaxy far,\t\rfar away...", TestName = "MultilineTag")]
     public void SingleTag(string tagText)
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Book>()
@@ -222,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith($"/*{tagText}*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith($"/*{tagText}*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -230,7 +229,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInSubquery()
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -242,7 +241,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*superCoolTag sessionTag evenCoolerTag*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*superCoolTag sessionTag evenCoolerTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -250,7 +249,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInJoin()
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -263,7 +262,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*outer inner sessionTag*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*outer inner sessionTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -271,7 +270,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInUnion()
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -284,7 +283,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -292,7 +291,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInConcat()
     {
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -305,7 +304,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -315,7 +314,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Firebird);
 
-      var session = Session.Demand();
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -328,7 +327,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -337,7 +336,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void TagInIntersect()
     {
       Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Firebird);
-      var session = Session.Demand();
+
+      var session = GetSession();
 
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -350,7 +350,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
+        Assert.IsTrue(cursorCutter(queryString).StartsWith("/*final sessionTag left right*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -358,7 +358,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInPredicateJoin()
     {
-      var realSession = Session.Demand();
+      var realSession = GetSession();
 
       using (var innerTx = realSession.OpenTransaction(TransactionOpenMode.New)) {
         var tagLookup = (
@@ -374,7 +374,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(tagLookup);
         Console.WriteLine(queryString);
 
-        var noCursorString = CursorCutter(queryString);
+        var noCursorString = cursorCutter(queryString);
         Assert.IsTrue(noCursorString.StartsWith("/*BU000"));
         Assert.IsTrue(noCursorString.Contains("BU0003"));
         Assert.IsTrue(noCursorString.Contains("BU0002"));
@@ -386,7 +386,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInGrouping()
     {
-      var session = Session.Demand();
+      var session = GetSession();
       var allCommands = new List<string>();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -419,9 +419,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*BeforeGroupBy sessionTag1*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*BeforeGroupBy sessionTag1*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*BeforeGroupBy (Root query tags -> BeforeGroupBy sessionTag1)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*BeforeGroupBy (Root query tags -> BeforeGroupBy sessionTag1)*/")));
 
         allCommands.Clear();
 
@@ -439,9 +439,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*AfterGroupBy sessionTag2*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*AfterGroupBy sessionTag2*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*(Root query tags -> AfterGroupBy sessionTag2)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*(Root query tags -> AfterGroupBy sessionTag2)*/")));
 
         allCommands.Clear();
 
@@ -459,9 +459,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*BeforeGrouping AfterGrouping sessionTag3*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*BeforeGrouping AfterGrouping sessionTag3*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*BeforeGrouping (Root query tags -> BeforeGrouping AfterGrouping sessionTag3)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*BeforeGrouping (Root query tags -> BeforeGrouping AfterGrouping sessionTag3)*/")));
 
         allCommands.Clear();
 
@@ -480,9 +480,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*AfterGrouping AtTheEnd sessionTag4*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*AfterGrouping AtTheEnd sessionTag4*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*(Root query tags -> AfterGrouping AtTheEnd sessionTag4)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*(Root query tags -> AfterGrouping AtTheEnd sessionTag4)*/")));
 
         allCommands.Clear();
 
@@ -501,9 +501,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*BeforeGrouping AfterGrouping AtTheEnd sessionTag5*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*BeforeGrouping AfterGrouping AtTheEnd sessionTag5*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*BeforeGrouping (Root query tags -> BeforeGrouping AfterGrouping AtTheEnd sessionTag5)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*BeforeGrouping (Root query tags -> BeforeGrouping AfterGrouping AtTheEnd sessionTag5)*/")));
 
         allCommands.Clear();
 
@@ -525,9 +525,9 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         PrintList(allCommands);
-        Assert.That(CursorCutter(allCommands[0]).StartsWith("/*AfterGroup AfterSelect AfterWhere WithinJoin sessionTag6*/"));
+        Assert.That(cursorCutter(allCommands[0]).StartsWith("/*AfterGroup AfterSelect AfterWhere WithinJoin sessionTag6*/"));
         Assert.That(allCommands.Skip(1)
-          .All(command => CursorCutter(command).StartsWith("/*(Root query tags -> AfterGroup AfterSelect AfterWhere WithinJoin sessionTag6)*/")));
+          .All(command => cursorCutter(command).StartsWith("/*(Root query tags -> AfterGroup AfterSelect AfterWhere WithinJoin sessionTag6)*/")));
 
         allCommands.Clear();
       }
@@ -541,7 +541,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SessionTagInlineQuery()
     {
-      var session = Session.Demand();
+      var session = GetSession();
       var allCommands = new List<string>();
 
       using (var outermost = session.Tag("outermost"))
@@ -551,7 +551,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Query.All<BusinessUnit>().Run();
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
-        Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost*/"));
 
         allCommands.Clear();
 
@@ -559,7 +559,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
-        Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost*/"));
 
         allCommands.Clear();
       }
@@ -573,7 +573,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Query.All<BusinessUnit>().Run();
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
-          Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
 
           allCommands.Clear();
 
@@ -581,7 +581,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
-          Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
 
           allCommands.Clear();
         }
@@ -596,7 +596,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Query.All<BusinessUnit>().Run();
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
-            Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
 
@@ -604,7 +604,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
-            Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
           }
@@ -620,7 +620,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SessionTagCachingQuery()
     {
-      var session = Session.Demand();
+      var session = GetSession();
       var allCommands = new List<string>();
 
       using (var outermost = session.Tag("outermost"))
@@ -631,7 +631,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
-        Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost*/"));
 
         allCommands.Clear();
       }
@@ -646,7 +646,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
-          Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between*/"));
 
           allCommands.Clear();
         }
@@ -662,7 +662,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
-            Assert.IsTrue(CursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[0]).Contains("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
           }
@@ -699,7 +699,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
-        Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost*/"));
 
         allCommands.Clear();
       }
@@ -719,7 +719,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
-          Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost in-between*/"));
 
           allCommands.Clear();
         }
@@ -736,7 +736,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
-            Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
           }
@@ -773,7 +773,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
-        Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost*/"));
 
         allCommands.Clear();
       }
@@ -792,7 +792,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
-          Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost in-between*/"));
 
           allCommands.Clear();
         }
@@ -809,7 +809,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
-            Assert.IsTrue(CursorCutter(allCommands[0]).StartsWith("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[0]).StartsWith("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
           }
@@ -850,7 +850,7 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(2));
-        Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
+        Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
 
         allCommands.Clear();
       }
@@ -870,7 +870,7 @@ namespace Xtensive.Orm.Tests.Linq
           session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(2));
-          Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
+          Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
 
           allCommands.Clear();
         }
@@ -887,7 +887,7 @@ namespace Xtensive.Orm.Tests.Linq
             session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(2));
-            Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
+            Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
 
             allCommands.Clear();
           }
@@ -930,12 +930,12 @@ namespace Xtensive.Orm.Tests.Linq
 
         if (batchesSupported) {
           Assert.That(allCommands.Count, Is.EqualTo(2));
-          Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
+          Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
         }
         else {
           Assert.That(allCommands.Count, Is.EqualTo(3));
-          Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
-          Assert.IsTrue(CursorCutter(allCommands[2]).StartsWith("/*outermost*/"));
+          Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost*/"));
+          Assert.IsTrue(cursorCutter(allCommands[2]).StartsWith("/*outermost*/"));
         }
 
         allCommands.Clear();
@@ -952,12 +952,12 @@ namespace Xtensive.Orm.Tests.Linq
 
           if (batchesSupported) {
             Assert.That(allCommands.Count, Is.EqualTo(2));
-            Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
+            Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
           }
           else {
             Assert.That(allCommands.Count, Is.EqualTo(3));
-            Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
-            Assert.IsTrue(CursorCutter(allCommands[2]).StartsWith("/*outermost in-between*/"));
+            Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between*/"));
+            Assert.IsTrue(cursorCutter(allCommands[2]).StartsWith("/*outermost in-between*/"));
           }
 
           allCommands.Clear();
@@ -976,12 +976,12 @@ namespace Xtensive.Orm.Tests.Linq
 
             if (batchesSupported) {
               Assert.That(allCommands.Count, Is.EqualTo(2));
-              Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
+              Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
             }
             else {
               Assert.That(allCommands.Count, Is.EqualTo(3));
-              Assert.IsTrue(CursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
-              Assert.IsTrue(CursorCutter(allCommands[2]).StartsWith("/*outermost in-between deepest*/"));
+              Assert.IsTrue(cursorCutter(allCommands[1]).StartsWith("/*outermost in-between deepest*/"));
+              Assert.IsTrue(cursorCutter(allCommands[2]).StartsWith("/*outermost in-between deepest*/"));
             }
 
             allCommands.Clear();
@@ -993,6 +993,15 @@ namespace Xtensive.Orm.Tests.Linq
       {
         allCommands.Add(args.Command.CommandText);
       }
+    }
+
+    private Session GetSession()
+    {
+      var context = TestContext.CurrentContext;
+      var sessionAndTransaction = CreateSessionAndTransaction();
+      _ = sessions.TryAdd(context.Test.Name, sessionAndTransaction);
+
+      return sessionAndTransaction.Item1;
     }
 
     private static bool CheckTag(string query, string expectedComment, TagsLocation place)

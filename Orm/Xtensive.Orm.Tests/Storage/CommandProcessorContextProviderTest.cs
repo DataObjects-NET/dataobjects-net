@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.12
 
@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Tests.Storage
   {
     protected override void PopulateData()
     {
-      CreateSessionAndTransaction();
+      _ = CreateSessionAndTransaction();
     }
 
     [Test]

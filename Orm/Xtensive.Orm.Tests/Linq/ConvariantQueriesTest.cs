@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.11.02
 
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Linq
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      CreateSessionAndTransaction();
+      _ = CreateSessionAndTransaction();
     }
 
     [Test]
