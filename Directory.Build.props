@@ -41,9 +41,15 @@
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
   </PropertyGroup>
 
+  <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
+    <!-- hard binding to net8, no property and env variable allowed-->
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+  
   <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
   <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
-    <!-- hard binding to net5, no property and env variable allowed-->
+    <!-- hard binding to net7, no property and env variable allowed-->
     <TargetFrameworks>net7.0</TargetFrameworks>
   </PropertyGroup>
 
@@ -53,18 +59,12 @@
     <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 
-  <!-- Debug-NET5, Release-NET5 are mostly for development convenience -->
-  <!-- <PropertyGroup Condition = "$(Configuration.Contains('NET5')) == 'true'"> -->
-    <!-- hard binding to net5, no property and env variable allowed-->
-    <!-- <TargetFrameworks>net5.0</TargetFrameworks> -->
-  <!-- </PropertyGroup> -->
-
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
   <PropertyGroup Label="Defaults" Condition="$(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0;net6.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0;net7.0;net6.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
