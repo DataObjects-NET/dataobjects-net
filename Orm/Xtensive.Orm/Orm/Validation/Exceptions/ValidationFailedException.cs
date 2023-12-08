@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xtensive.Core;
@@ -52,6 +52,9 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     /// <param name="info">Serialization info.</param>
     /// <param name="context">Streaming context.</param>
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
     protected ValidationFailedException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

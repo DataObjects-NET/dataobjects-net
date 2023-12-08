@@ -16,18 +16,23 @@ namespace Xtensive.Orm.Serialization
   /// Object to be serialized instead of <see cref="Entity"/> when serialization <see cref="SerializationKind.ByReference"/> is used.
   /// </summary>
   [Serializable]
-  internal sealed class EntityReference : IObjectReference, 
+  internal sealed class EntityReference :
+#if !NET8_0_OR_GREATER
+    IObjectReference,
+#endif
     ISerializable
   {
     private const string KeyValueName = WellKnown.KeyFieldName;
     private readonly Entity entity;
 
+#if !NET8_0_OR_GREATER
     [SecurityCritical]
     public object GetRealObject(StreamingContext context)
     {
       return entity;
     }
-      
+#endif
+
     [SecurityCritical]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {

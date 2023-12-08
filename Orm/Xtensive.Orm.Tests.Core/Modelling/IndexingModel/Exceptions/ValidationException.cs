@@ -53,6 +53,9 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     #region Serializing members
 
     /// <inheritdoc/>
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
     protected ValidationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
@@ -61,6 +64,9 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     /// <inheritdoc/>
     [SecurityCritical]
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("NodePath", NodePath);
