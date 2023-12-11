@@ -17,21 +17,19 @@ namespace Xtensive.Orm.Serialization
   /// </summary>
   [Serializable]
   internal sealed class EntityReference :
-#if !NET8_0_OR_GREATER
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
     IObjectReference,
-#endif
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
     ISerializable
   {
     private const string KeyValueName = WellKnown.KeyFieldName;
     private readonly Entity entity;
 
-#if !NET8_0_OR_GREATER
     [SecurityCritical]
     public object GetRealObject(StreamingContext context)
     {
       return entity;
     }
-#endif
 
     [SecurityCritical]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
