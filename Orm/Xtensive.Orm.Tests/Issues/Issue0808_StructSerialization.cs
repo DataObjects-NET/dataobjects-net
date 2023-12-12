@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,18 +51,18 @@ namespace Xtensive.Orm.Tests.Issues
       var t = typeof(UnifiedCustomerID);
       Expression<Func<int, UnifiedCustomerID>> ex = a => new UnifiedCustomerID { Id = 2 };
       var serializableExpression = ex.ToSerializableExpression();
-      var memoryStream = new MemoryStream();
+      using (var memoryStream = new MemoryStream()) {
+        var serializer = new DataContractSerializer(typeof(SerializableLambdaExpression),
+          SerializableExpressionTypes.Except(Enumerable.Repeat(typeof(SerializableLambdaExpression), 1)));
 
-      var serializer = new DataContractSerializer(typeof (SerializableLambdaExpression),
-        SerializableExpressionTypes.Except(Enumerable.Repeat(typeof (SerializableLambdaExpression), 1)));
+        serializer.WriteObject(memoryStream, serializableExpression);
 
-      serializer.WriteObject(memoryStream, serializableExpression);
+        memoryStream.Position = 0;
 
-      memoryStream.Position = 0;
+        var deserializedExpression = (SerializableLambdaExpression) serializer.ReadObject(memoryStream);
 
-      var deserializedExpression = (SerializableLambdaExpression) serializer.ReadObject(memoryStream);
-
-      var ex2 = deserializedExpression.ToExpression();
+        var ex2 = deserializedExpression.ToExpression();
+      }
     }
   }
 }
