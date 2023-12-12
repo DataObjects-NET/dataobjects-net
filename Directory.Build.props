@@ -39,10 +39,13 @@
 
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
+    <!-- Enable Usage of BinaryFormatter in test projects -->
+    <EnableUnsafeBinaryFormatterSerialization
+      Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
+  <PropertyGroup Condition = "$(Configuration.Contains('NET8')) == 'true'">
     <!-- hard binding to net8, no property and env variable allowed-->
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
