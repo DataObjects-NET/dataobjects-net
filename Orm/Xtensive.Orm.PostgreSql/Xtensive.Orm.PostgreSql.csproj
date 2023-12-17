@@ -21,6 +21,12 @@
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="4.0.5" />
   </ItemGroup>

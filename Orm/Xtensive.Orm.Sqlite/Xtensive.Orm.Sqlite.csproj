@@ -15,6 +15,12 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.109.2" />
   </ItemGroup>
