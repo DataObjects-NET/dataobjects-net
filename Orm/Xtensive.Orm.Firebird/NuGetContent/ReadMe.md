@@ -2,7 +2,7 @@
 
 The provider is responsible for interactions with Firebird database - information about features and types the storage supports, low level communications, translation of SqlDom queries to native SQL text queries.
 
-For now it supports Firebird 2.5.
+For now it supports Firebird 2.5, 4.0.
 
 ### Usage
 

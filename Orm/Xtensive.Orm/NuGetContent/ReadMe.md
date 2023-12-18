@@ -7,8 +7,8 @@ Supported databases:
 - MS Azure SQL Database
 - Oracle 10g, 11g
 - PostgreSQL 8.3, 8.4, 9.x, 10, 11, 12, 13, 14, 15
-- MySQL 5.5, 5.6
-- Firebird 2.5
+- MySQL 5.6, 5.7, 8.0
+- Firebird 2.5, 4.0
 - Sqlite 3
 
 Providers for the databases are available as separate packages and may be installed following way
