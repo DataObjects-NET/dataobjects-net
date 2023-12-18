@@ -8,11 +8,15 @@ For now it supports MySQL 5.5, 5.6
 
 Create a domain configuration configuration with connection url similar to this
 
+```csharp
     var domainConfiguration = new DomainConfiguration(@"mysql://someuser:somepassword@localhost:3306/tests");
+```
 
 or, alternatively, use connection string like
 
+```csharp
     var domainConfiguration = new DomainConfiguration("mysql",
 	  "Server=localhost;Port=3306;Database=tests;Uid=someuser;Pwd=Sometest;");
+```
 
 After that, if connection settings are valid, build Domain and use it as usual.

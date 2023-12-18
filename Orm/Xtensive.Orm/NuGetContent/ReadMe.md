@@ -3,22 +3,24 @@
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 
 Supported databases:
-- MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019
+- MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019, 2022
 - MS Azure SQL Database
 - Oracle 10g, 11g
-- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11
+- PostgreSQL 8.3, 8.4, 9.x, 10, 11, 12, 13, 14, 15
 - MySQL 5.5, 5.6
 - Firebird 2.5
 - Sqlite 3
 
 Providers for the databases are available as separate packages and may be installed following way
 
+```csharp
     dotnet add package Xtensive.Orm.SqlServer
     dotnet add package Xtensive.Orm.Oracle
     dotnet add package Xtensive.Orm.PostgreSQL
     dotnet add package Xtensive.Orm.MySql
     dotnet add package Xtensive.Orm.Firebird
     dotnet add package Xtensive.Orm.Sqlite
+```
 
 ### Usage
 
@@ -26,6 +28,7 @@ The following  code demonstrates basic usage of DataObjects.Net. For full tutori
 
 Create a domain configuration configuration to connect to certain database
 
+```csharp
     // create configuration with connection to Tests database on local instance of MS SQL Server
     var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
 	
@@ -35,14 +38,17 @@ Create a domain configuration configuration to connect to certain database
 	
     // create database structure from scratch
     domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-
+```
 	
 Build domain by the configuration created before. Usually, domain is built when the application starts and disposed just before the application shuts down.
-	
+
+```csharp
     var domain = Domain.Build(domainConfiguration);
+```
 
 Query data from database, modify results and/or create new entites
 
+```csharp
     // open a session to database
     using (var session = domain.OpenSession()) {
 	  // and transaction
@@ -67,7 +73,10 @@ Query data from database, modify results and/or create new entites
         transactionScope.Complete();
       }
     }
+```
 
 Dispose domain on application shut down
 
-    domain.Dispose()
+```csharp
+    domain.Dispose();
+```
