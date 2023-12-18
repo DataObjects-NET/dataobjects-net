@@ -1,6 +1,6 @@
-# PostgreSQL provider for DataObjects.Net
+# Sqlite provider for DataObjects.Net
 
-The provider is responsible for interactions with PostgreSQL database - information about features and types the storage supports, low level communications, translation of SqlDom queries to native SQL text queries.
+The provider is responsible for interactions with Sqlite database - information about features and types the storage supports, low level communications, translation of SqlDom queries to native SQL text queries.
 
 For now it supports Sqlite 3
 
