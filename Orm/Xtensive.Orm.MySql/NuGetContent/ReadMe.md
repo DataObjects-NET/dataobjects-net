@@ -13,6 +13,6 @@ Create a domain configuration configuration with connection url similar to this
 or, alternatively, use connection string like
 
     var domainConfiguration = new DomainConfiguration("mysql",
-	  "Server=localhost;Port=3306;Database=tests;Uid=someuser;Pwd=Sometest;");
+	  "Server=localhost;Port=3306;Database=tests;Uid=someuser;Pwd=somepassword;");
 
 After that, if connection settings are valid, build Domain and use it as usual.

@@ -12,7 +12,7 @@ Create a domain configuration configuration with connection url similar to this
 
 or, alternatively, use connection string like
 
-    var domainConfiguration = new DomainConfiguration("mysql",
+    var domainConfiguration = new DomainConfiguration("oracle",
 	  "DATA SOURCE="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=xe)))";USER ID=someuser;PASSWORD=somepassword");
 
 After that, if connection settings are valid, build Domain and use it as usual.
