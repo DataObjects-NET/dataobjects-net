@@ -15,7 +15,7 @@ Create a domain configuration configuration with connection url similar to this
 or, alternatively, use connection string like
 
 ```csharp
-    var domainConfiguration = new DomainConfiguration("mysql",
+    var domainConfiguration = new DomainConfiguration("oracle",
 	  "DATA SOURCE="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=xe)))";USER ID=someuser;PASSWORD=somepassword");
 ```
 
