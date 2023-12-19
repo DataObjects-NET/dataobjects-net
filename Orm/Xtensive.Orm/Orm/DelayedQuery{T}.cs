@@ -20,13 +20,22 @@ namespace Xtensive.Orm
   /// </summary>
   /// <typeparam name="TElement">The type of the element in a resulting sequence.</typeparam>
   [Serializable]
-  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>
+  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>, IAsyncEnumerable<TElement>
   {
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator() => Materialize<TElement>().GetEnumerator();
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token)
+    {
+      var elements = await ExecuteAsync(token).ConfigureAwaitFalse();
+      foreach (var element in elements) {
+        yield return element;
+      }
+    }
 
     /// <summary>
     /// Asynchronously executes delayed query.
@@ -43,6 +52,7 @@ namespace Xtensive.Orm
 
     internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
-    {}
+    { }
+
   }
 }
