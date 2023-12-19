@@ -37,10 +37,8 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       
       sb.AppendLine($"{TypeToColumnName[SqlType.DateTime]} [datetime] NULL,");
       sb.AppendLine($"{TypeToColumnName[SqlType.DateTimeOffset]} [datetimeoffset] NULL,");
-#if NET6_0_OR_GREATER
       sb.AppendLine($"{TypeToColumnName[SqlType.Date]} [date] NULL,");
       sb.AppendLine($"{TypeToColumnName[SqlType.Time]} [time] NULL,");
-#endif
 
       sb.AppendLine($"{TypeToColumnName[SqlType.VarCharMax]} [nvarchar] NULL,");
 

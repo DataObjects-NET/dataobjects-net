@@ -76,29 +76,31 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
     private void RunSerializeTest(XmlObjectSerializer serializer)
     {
-      var stream = new MemoryStream();
-      foreach (var expression in Expressions) {
-        Console.WriteLine(expression.ToString(true));
-        serializer.WriteObject(stream, expression.ToSerializableExpression());
-        stream.Seek(0, SeekOrigin.Begin);
-        var serialized = (SerializableExpression) serializer.ReadObject(stream);
-        stream.SetLength(0);
-        Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
-        Console.WriteLine("OK");
+      using (var stream = new MemoryStream()) {
+        foreach (var expression in Expressions) {
+          Console.WriteLine(expression.ToString(true));
+          serializer.WriteObject(stream, expression.ToSerializableExpression());
+          stream.Seek(0, SeekOrigin.Begin);
+          var serialized = (SerializableExpression) serializer.ReadObject(stream);
+          stream.SetLength(0);
+          Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+          Console.WriteLine("OK");
+        }
       }
     }
 
     private void RunSerializeTest(IFormatter serializer)
     {
-      var stream = new MemoryStream();
-      foreach (var expression in Expressions) {
-        Console.WriteLine(expression.ToString(true));
-        serializer.Serialize(stream, expression.ToSerializableExpression());
-        stream.Seek(0, SeekOrigin.Begin);
-        var serialized = (SerializableExpression)serializer.Deserialize(stream);
-        stream.SetLength(0);
-        Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
-        Console.WriteLine("OK");
+      using (var stream = new MemoryStream()) {
+        foreach (var expression in Expressions) {
+          Console.WriteLine(expression.ToString(true));
+          serializer.Serialize(stream, expression.ToSerializableExpression());
+          stream.Seek(0, SeekOrigin.Begin);
+          var serialized = (SerializableExpression) serializer.Deserialize(stream);
+          stream.SetLength(0);
+          Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+          Console.WriteLine("OK");
+        }
       }
     }
 
@@ -124,28 +126,29 @@ namespace Xtensive.Orm.Tests.Core.Linq
     private void RunSerializeBenchmark(XmlObjectSerializer serializer, bool warmUp)
     {
       int operationCount = warmUp ? warmUpOperationCount : actualOperationCount;
-      var stream = new MemoryStream();
-      int operation = 0;
-      long length = 0;
-      using (CreateMeasurement(warmUp, serializer.GetType().Name, operationCount))
-        while (operation < operationCount) {
-          foreach (var expression in Expressions) {
-            operation++;
-            if (operation > operationCount)
-              break;
-            serializer.WriteObject(stream, expression.ToSerializableExpression());
-            length += stream.Position;
-            stream.Seek(0, SeekOrigin.Begin);
-            var serialized = (SerializableExpression)serializer.ReadObject(stream);
-            stream.SetLength(0);
+      using (var stream = new MemoryStream()) {
+        int operation = 0;
+        long length = 0;
+        using (CreateMeasurement(warmUp, serializer.GetType().Name, operationCount))
+          while (operation < operationCount) {
+            foreach (var expression in Expressions) {
+              operation++;
+              if (operation > operationCount)
+                break;
+              serializer.WriteObject(stream, expression.ToSerializableExpression());
+              length += stream.Position;
+              stream.Seek(0, SeekOrigin.Begin);
+              var serialized = (SerializableExpression) serializer.ReadObject(stream);
+              stream.SetLength(0);
+            }
           }
-        }
-//        for (int i = 0; i < operationCount; i++) {
-//          serializer.Serialize(stream, Expressions[expressionIndex].ToSerializableExpression());
-//          length += stream.Length;
-//          stream.SetLength(0);
-//        }
-      Console.Out.WriteLine("Stream size: {0} Kb", length / 1024);
+        //        for (int i = 0; i < operationCount; i++) {
+        //          serializer.Serialize(stream, Expressions[expressionIndex].ToSerializableExpression());
+        //          length += stream.Length;
+        //          stream.SetLength(0);
+        //        }
+        Console.Out.WriteLine("Stream size: {0} Kb", length / 1024);
+      }
     }
 
     private static IDisposable CreateMeasurement(bool warmUp, string name, int operationCount)

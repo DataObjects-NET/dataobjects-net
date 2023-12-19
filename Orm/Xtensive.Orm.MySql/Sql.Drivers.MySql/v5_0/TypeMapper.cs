@@ -14,11 +14,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
-#if NET6_0_OR_GREATER
     private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]), typeof (DateOnly), typeof(TimeOnly) };
-#else
-    private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]) };
-#endif
 
     /// <inheritdoc/>
     public override bool IsParameterCastRequired(Type type)
@@ -66,7 +62,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       parameter.DbType = DbType.String;
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
-#if NET6_0_OR_GREATER
 
     public override void BindDateOnly(DbParameter parameter, object value)
     {
@@ -79,7 +74,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       parameter.DbType = DbType.Time;
       parameter.Value = value ?? DBNull.Value;
     }
-#endif
 
     /// <inheritdoc/>
     public override SqlValueType MapByte(int? length, int? precision, int? scale)

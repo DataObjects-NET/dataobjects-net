@@ -439,10 +439,8 @@ namespace Xtensive.Orm.Tests.Sql
       TypeToColumnName[SqlType.Interval] = "interval_column";
       TypeToColumnName[SqlType.DateTime] = "datetime_column";
       TypeToColumnName[SqlType.DateTimeOffset] = "datetimeoffset_column";
-#if NET6_0_OR_GREATER
       TypeToColumnName[SqlType.Date] = "date_column";
       TypeToColumnName[SqlType.Time] = "time_column";
-#endif
 
       TypeToColumnName[SqlType.Char] = $"char_l{CharLength}_column";
       TypeToColumnName[SqlType.VarChar] = $"varchar_l{VarCharLength}_column";

@@ -58,24 +58,20 @@ namespace Xtensive.Orm.Building.Builders
         timespan = TimeSpan.FromTicks(ticks);
         return timespan;
       }
-#if NET6_0_OR_GREATER
 
       if (valueType == WellKnownTypes.TimeOnly) {
-        TimeOnly timeOnly = default;
-        if (value is string timeOnlyString && !TimeOnly.TryParse(timeOnlyString, out timeOnly)) {
-          throw FailToParseValue(fieldName, timeOnlyString);
+        if (value is string timeOnlyString && TimeOnly.TryParse(timeOnlyString, out var timeOnly)) {
+          return timeOnly;
         }
-        return timeOnly;
+        throw FailToParseValue(fieldName, value);
       }
 
       if (valueType == WellKnownTypes.DateOnly) {
-        DateOnly dateOnly = default;
-        if (value is string dateOnlyString && !DateOnly.TryParse(dateOnlyString, out dateOnly)) {
-          throw FailToParseValue(fieldName, dateOnlyString);
+        if (value is string dateOnlyString && DateOnly.TryParse(dateOnlyString, out var dateOnly)) {
+          return dateOnly;
         }
-        return dateOnly;
+        throw FailToParseValue(fieldName, value);
       }
-#endif
 
       return Convert.ChangeType(value, valueType);
     }

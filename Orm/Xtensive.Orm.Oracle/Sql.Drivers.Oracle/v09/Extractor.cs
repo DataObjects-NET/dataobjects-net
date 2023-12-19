@@ -103,10 +103,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private const int DefaultDecimalPrecision = 38;
     private const int DefaultDecimalScale = 0;
-#if NET6_0_OR_GREATER
     private const int DefaultDayPrecision = 2;
     private const int DefaultFSecondsPrecision = 6;
-#endif
 
     private readonly object accessGuard = new object();
 
@@ -572,7 +570,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         var scale = row.IsDBNull(scaleIndex) ? DefaultDecimalScale : ReadInt(row, scaleIndex);
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
-#if NET6_0_OR_GREATER
       if (typeName.StartsWith("INTERVAL DAY", StringComparison.OrdinalIgnoreCase)) {
         var dayPrecision = row.IsDBNull(precisionIndex) ? DefaultDayPrecision : ReadInt(row, precisionIndex);
         var fSecondsPrecision = row.IsDBNull(scaleIndex) ? DefaultFSecondsPrecision : ReadInt(row, scaleIndex);
@@ -581,13 +578,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           ? new SqlValueType(SqlType.Time)
           : new SqlValueType(SqlType.Interval);
       }
-#else
       if (typeName.StartsWith("INTERVAL DAY", StringComparison.OrdinalIgnoreCase)) {
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Interval);
       }
-#endif
       if (typeName.StartsWith("TIMESTAMP", StringComparison.OrdinalIgnoreCase)) {
         // "timestamp precision" is saved as "scale", ignoring too
         if (typeName.Contains("WITH TIME ZONE", StringComparison.OrdinalIgnoreCase)) {

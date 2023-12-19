@@ -261,7 +261,6 @@ namespace Xtensive.Orm.Tests.Sql
           new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(3, 10, 0)),
           null
         };
-#if NET6_0_OR_GREATER
       if (type == typeof(DateOnly)) {
         return new object[] {
             new DateOnly(2005, 5, 5),
@@ -278,7 +277,6 @@ namespace Xtensive.Orm.Tests.Sql
             null
           };
       }
-#endif
       throw new ArgumentOutOfRangeException();
     }
 

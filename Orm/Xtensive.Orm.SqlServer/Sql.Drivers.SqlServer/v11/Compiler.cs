@@ -48,7 +48,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
     protected override SqlUserFunctionCall ConstructDateTime(IReadOnlyList<SqlExpression> arguments) =>
       SqlDml.FunctionCall("DATETIME2FROMPARTS", arguments[0], arguments[1], arguments[2], 0, 0, 0, 0, 7);
-#if NET6_0_OR_GREATER
 
     protected override SqlUserFunctionCall ConstructDate(IReadOnlyList<SqlExpression> arguments) =>
       SqlDml.FunctionCall("DATEFROMPARTS", arguments[0], arguments[1], arguments[2]);
@@ -79,7 +78,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
       return SqlDml.FunctionCall("TIMEFROMPARTS", hour, minute, second, microsecond, 7);
     }
-#endif
 
     public Compiler(SqlDriver driver)
       : base(driver)

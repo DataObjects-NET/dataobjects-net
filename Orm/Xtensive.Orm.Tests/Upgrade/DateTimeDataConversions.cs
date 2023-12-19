@@ -28,17 +28,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     private readonly DateTimeOffset dateTimeOffsetInitValue =
       new DateTimeOffset(new DateTime(2017, 10, 23, 22, 33, 44, 321), new TimeSpan(3, 45, 0));
     private readonly DateTime dateTimeInitValue = new DateTime(2017, 10, 23, 22,33,44, 321);
-#if NET6_0_OR_GREATER
     private readonly TimeOnly timeOnlyInitValue = TimeOnly.FromTimeSpan(new TimeSpan(22, 33, 44));
     private readonly DateOnly dateOnlyInitValue = DateOnly.FromDateTime(new DateTime(2017, 10, 23));
-#endif
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
       upgradeHandlers[nameof(DateTimeToDateTimeOffsetTest)] = typeof(DateTimeToDateTimeOffsetUpgradeHandler);
       upgradeHandlers[nameof(DateTimeOffsetToDateTimeTest)] = typeof(DateTimeOffsetToDateTimeUpgradeHandler);
-#if NET6_0_OR_GREATER
 
       upgradeHandlers[nameof(DateTimeToDateOnlyTest)] = typeof(DateTimeToDateOnlyUpgradeHandler);
       upgradeHandlers[nameof(DateTimeToTimeOnlyTest)] = typeof(DateTimeToTimeOnlyUpgradeHandler);
@@ -53,11 +50,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       upgradeHandlers[nameof(TimeOnlyToDateTimeTest)] = typeof(TimeOnlyToDateTimeUpgradeHandler);
       upgradeHandlers[nameof(TimeOnlyToDateTimeOffsetTest)] = typeof(TimeOnlyToDateTimeOffsetUpgradeHandler);
       upgradeHandlers[nameof(TimeOnlyToDateOnlyTest)] = typeof(TimeOnlyToDateOnlyUpgradeHandler);
-#endif
 
       initEntities[nameof(DateTimeToDateTimeOffsetTest)] = (typeof(DateTimeEntity), dateTimeInitValue);
       initEntities[nameof(DateTimeOffsetToDateTimeTest)] = (typeof(DateTimeOffsetEntity), dateTimeOffsetInitValue);
-#if NET6_0_OR_GREATER
 
       initEntities[nameof(DateTimeToDateOnlyTest)] = (typeof(DateTimeEntity), dateTimeInitValue);
       initEntities[nameof(DateTimeToTimeOnlyTest)] = (typeof(DateTimeEntity), dateTimeInitValue);
@@ -72,7 +67,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       initEntities[nameof(TimeOnlyToDateTimeTest)] = (typeof(TimeOnlyEntity), timeOnlyInitValue);
       initEntities[nameof(TimeOnlyToDateTimeOffsetTest)] = (typeof(TimeOnlyEntity), timeOnlyInitValue);
       initEntities[nameof(TimeOnlyToDateOnlyTest)] = (typeof(TimeOnlyEntity), timeOnlyInitValue);
-#endif
     }
 
     [SetUp]
@@ -113,7 +107,6 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       UpgradeAndTestData<DateTimeEntity, DateTime>(expectedValue);
     }
-#if NET6_0_OR_GREATER
 
     [Test]
     public void DateTimeToDateOnlyTest()
@@ -244,7 +237,6 @@ namespace Xtensive.Orm.Tests.Upgrade
         UpgradeAndExpectException<DateOnlyEntity, StorageException>();
       }
     }
-#endif
 
     private void UpgradeAndTestData<TEntity, TExpectedValue>(TExpectedValue expectedValue)
       where TEntity : Entity
@@ -346,7 +338,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
       ConversionField = value;
     }
   }
-#if NET6_0_OR_GREATER
 
   [HierarchyRoot]
   [TableMapping("TestEntity")]
@@ -391,7 +382,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
       ConversionField = value;
     }
   }
-#endif
 
   public class DateTimeToDateTimeOffsetUpgradeHandler : UpgradeHandler
   {
@@ -414,7 +404,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
       _ = hints.Add(ChangeFieldTypeHint.Create<DateTimeEntity>(e => e.ConversionField));
     }
   }
-#if NET6_0_OR_GREATER
 
   public class DateTimeToDateOnlyUpgradeHandler : UpgradeHandler
   {
@@ -525,5 +514,4 @@ namespace Xtensive.Orm.Tests.Upgrade.DateTimeTypesDataConversionModel
       _ = hints.Add(ChangeFieldTypeHint.Create<DateOnlyEntity>(e => e.ConversionField));
     }
   }
-#endif
 }

@@ -16,10 +16,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class TypeMapper : Sql.TypeMapper
   {
-#if NET6_0_OR_GREATER
     private ValueRange<DateOnly> dateOnlyRange;
     private ValueRange<TimeOnly> timeOnlyRange;
-#endif
     private ValueRange<DateTime> dateTimeRange;
     private ValueRange<DateTimeOffset> dateTimeOffsetRange;
 
@@ -33,7 +31,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
     }
-#if NET6_0_OR_GREATER
 
     public override object ReadDateOnly(DbDataReader reader, int index)
     {
@@ -46,7 +43,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var value = reader.GetString(index);
       return TimeOnly.ParseExact(value, TimeFormat, CultureInfo.InvariantCulture);
     }
-#endif
 
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
@@ -88,7 +84,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var correctValue = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
       parameter.Value = correctValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
     }
-#if NET6_0_OR_GREATER
 
     public override void BindDateOnly(DbParameter parameter, object value)
     {
@@ -111,7 +106,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var correctValue = ValueRangeValidator.Correct((TimeOnly) value, timeOnlyRange);
       parameter.Value = correctValue.ToString(TimeFormat, CultureInfo.InvariantCulture);
     }
-#endif
 
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
@@ -174,10 +168,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       base.Initialize();
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
       dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
-#if NET6_0_OR_GREATER
       dateOnlyRange = (ValueRange<DateOnly>) Driver.ServerInfo.DataTypes.DateOnly.ValueRange;
       timeOnlyRange = (ValueRange<TimeOnly>) Driver.ServerInfo.DataTypes.TimeOnly.ValueRange;
-#endif
     }
 
     // Constructors

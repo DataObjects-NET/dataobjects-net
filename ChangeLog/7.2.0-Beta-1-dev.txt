@@ -1,3 +1,5 @@
+[main] NET5 is removed from target frameworks, NET7 and NET8 are added instead
+[main] Some exceptions' serialization members were marked obsolete in NET8 library
 [main] Unused Xtensive.Collections.PriorityQueue is removed
 [main] Xtensive.Orm.Rse.Providers.Provider.Sources has changed return type to IReadOnlyList<T>, as well as ctor parameter
 [main] SqlInsert.Values became obsolete and no longer in use. Use ValueRows collection to add value rows
@@ -23,5 +25,11 @@
 [main] Obsolete SqlNodeActualizer class is removed
 [main] Obsolete SqlCompilerContext.SqlNodeActualizer property is removed
 [main] Obsolete XtensiveSql.Dml.Extensions.IsNullReference() extension method is removed
-[postgresql] QueryInfo.MaxQueryParameterCount actualized, it is 65535 now
+[firebird] NET5 is removed from target frameworks, NET7 and NET8 are added instead
+[mysql] NET5 is removed from target frameworks, NET7 and NET8 are added instead
 [oracle] QueryInfo.MaxQueryParameterCount actualized, it is 65535 now
+[oracle] NET5 is removed from target frameworks, NET7 and NET8 are added instead
+[postgresql] NET5 is removed from target frameworks, NET7 and NET8 are added instead
+[postgresql] QueryInfo.MaxQueryParameterCount actualized, it is 65535 now
+[sqlserver] NET5 is removed from target frameworks, NET7 and NET8 are added instead
+[sqlite] NET5 is removed from target frameworks, NET7 and NET8 are added instead
