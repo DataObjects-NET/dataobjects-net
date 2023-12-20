@@ -31,7 +31,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token)
     {
-      var elements = await ExecuteAsync(token).ConfigureAwaitFalse();
+      var elements = await ExecuteAsync(token).ConfigureAwait(false);
       foreach (var element in elements) {
         yield return element;
       }
