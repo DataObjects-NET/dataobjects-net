@@ -54,7 +54,7 @@ namespace Xtensive.Reflection
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
 #if NET8_0_OR_GREATER
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokersByTypes =
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokerByTypes =
 #else
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
 #endif
@@ -661,7 +661,7 @@ namespace Xtensive.Reflection
     /// </exception>
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
-      ConstructorInvokersByTypes.GetOrAdd((type, argumentTypes),
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
         static t => ConstructorExtractor(t) is ConstructorInfo ctor
          ? ConstructorInvoker.Create(ctor)
          : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
@@ -684,7 +684,7 @@ namespace Xtensive.Reflection
     [CanBeNull]
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
-      ConstructorInvokersByTypes.GetOrAdd((type, argumentTypes),
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
         static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
 #else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
