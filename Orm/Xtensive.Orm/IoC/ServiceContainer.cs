@@ -119,7 +119,7 @@ namespace Xtensive.IoC
         _ = creating.TryRemove(key, out _);
       }
 #if NET8_0_OR_GREATER
-      return cInfo.Invoke(new Span<object>(args));
+      return cInfo.Invoke(args.AsSpan());
 #else
       return cInfo.Invoke(args);
 #endif

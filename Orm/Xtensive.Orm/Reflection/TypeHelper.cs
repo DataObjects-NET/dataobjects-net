@@ -54,7 +54,7 @@ namespace Xtensive.Reflection
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
 #if NET8_0_OR_GREATER
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInfoByTypes =
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokersByTypes =
 #else
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
 #endif
@@ -661,7 +661,7 @@ namespace Xtensive.Reflection
     /// </exception>
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes),
+      ConstructorInvokersByTypes.GetOrAdd((type, argumentTypes),
         static t => ConstructorExtractor(t) is ConstructorInfo ctor
          ? ConstructorInvoker.Create(ctor)
          : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
@@ -684,7 +684,7 @@ namespace Xtensive.Reflection
     [CanBeNull]
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes),
+      ConstructorInvokersByTypes.GetOrAdd((type, argumentTypes),
         static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
 #else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
@@ -713,7 +713,6 @@ namespace Xtensive.Reflection
         select ctor;
       return constructors.SingleOrDefault();
     };
-
 
     /// <summary>
     /// Orders the specified <paramref name="types"/> by their inheritance
@@ -956,12 +955,6 @@ namespace Xtensive.Reflection
 
     public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
       GenericMethodInvokers2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodInvokerFactory2);
-#else
-    public static MethodInfo CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
-      CachedMakeGenericMethod(genericDefinition, typeArgument);
-
-    public static MethodInfo CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
-      CachedMakeGenericMethod(genericDefinition, typeArgument1, typeArgument2);
 #endif
 
     public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>

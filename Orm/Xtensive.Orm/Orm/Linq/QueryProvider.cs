@@ -53,16 +53,21 @@ namespace Xtensive.Orm.Linq
     object IQueryProvider.Execute(Expression expression)
     {
       var resultType = expression.Type;
+#if NET8_0_OR_GREATER
       var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
         ? WellKnownMembers.QueryProvider.ExecuteSequence.CachedMakeGenericMethodInvoker(SequenceHelper.GetElementType(resultType))
         : WellKnownMembers.QueryProvider.ExecuteScalar.CachedMakeGenericMethodInvoker(resultType);
       try {
-#if NET8_0_OR_GREATER
         return executeMethod.Invoke(this, expression);
-#else
-        return executeMethod.Invoke(this, new object[] { expression });
-#endif
       }
+#else
+      var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
+        ? WellKnownMembers.QueryProvider.ExecuteSequence.CachedMakeGenericMethod(SequenceHelper.GetElementType(resultType))
+        : WellKnownMembers.QueryProvider.ExecuteScalar.CachedMakeGenericMethod(resultType);
+      try {
+        return executeMethod.Invoke(this, new object[] { expression });
+      }
+#endif
       catch (TargetInvocationException e) {
         if (e.InnerException != null) {
           ExceptionDispatchInfo.Throw(e.InnerException);
