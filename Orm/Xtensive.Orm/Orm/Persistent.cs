@@ -165,6 +165,9 @@ namespace Xtensive.Orm
       return GetFieldValue(TypeInfo.Fields[fieldName]);
     }
 
+    protected internal T GetFieldValue<T>(int fieldIndex) =>
+      GetNormalizedFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
+
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
@@ -173,7 +176,10 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    protected internal T GetFieldValue<T>(FieldInfo field)
+    protected internal T GetFieldValue<T>(FieldInfo field) =>
+      GetNormalizedFieldValue<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
+
+    protected internal T GetNormalizedFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
@@ -356,6 +362,9 @@ namespace Xtensive.Orm
       SetFieldValue(TypeInfo.Fields[fieldName], value);
     }
 
+    protected internal void SetFieldValue<T>(int fieldIndex, T value) =>
+      SetNormalizedFieldValue(TypeInfo.PersistentFields[fieldIndex], value, null, null);
+
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
@@ -383,10 +392,11 @@ namespace Xtensive.Orm
       SetFieldValue(field, value, null, null);
     }
 
-    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
+    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext) =>
+      SetNormalizedFieldValue(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field, value, syncContext, removalContext);
+
+    internal void SetNormalizedFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
       var fieldAccessor = GetFieldAccessor(field);
       object oldValue = GetFieldValue(field);
