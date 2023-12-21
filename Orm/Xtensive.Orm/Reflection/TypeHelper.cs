@@ -55,9 +55,9 @@ namespace Xtensive.Reflection
 
 #if NET8_0_OR_GREATER
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokerByTypes =
-#else
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+      new(new TypesEqualityComparer());
 #endif
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
       new(new TypesEqualityComparer());
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
@@ -645,6 +645,28 @@ namespace Xtensive.Reflection
       }
     }
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Gets <see cref="ConstructorInvoker"/> of the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor invoker, if a single match is found;
+    /// otherwise throws <see cref="InvalidOperationException"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
+    /// -or- more than one such constructor.
+    /// </exception>
+    internal static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor
+         ? ConstructorInvoker.Create(ctor)
+         : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
+
+#endif
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="argumentTypes"/>.
@@ -659,18 +681,27 @@ namespace Xtensive.Reflection
     /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
     /// -or- more than one such constructor.
     /// </exception>
-#if NET8_0_OR_GREATER
-    public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
-      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
-        static t => ConstructorExtractor(t) is ConstructorInfo ctor
-         ? ConstructorInvoker.Create(ctor)
-         : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
-#else
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
         ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
-#endif
 
+#if NET8_0_OR_GREATER
+    /// <summary>
+    /// Gets <see cref="ConstructorInvoker"/> of the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    [CanBeNull]
+    internal static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
+
+#endif
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="argumentTypes"/>.
@@ -682,14 +713,8 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.
     /// </returns>
     [CanBeNull]
-#if NET8_0_OR_GREATER
-    public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
-      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
-        static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
-#else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
-#endif
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
       (var type, var argumentTypes) = t;
