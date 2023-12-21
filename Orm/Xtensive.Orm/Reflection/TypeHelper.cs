@@ -53,7 +53,11 @@ namespace Xtensive.Reflection
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
+#if NET8_0_OR_GREATER
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokerByTypes =
+#else
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+#endif
       new(new TypesEqualityComparer());
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
@@ -67,6 +71,17 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
+
+#if NET8_0_OR_GREATER
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInvoker> GenericMethodInvokers1 = new();
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInvoker> GenericMethodInvokerFactory1 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument));
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInvoker> GenericMethodInvokerFactory2 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2));
+#endif
 
     private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 = new();
 
@@ -644,9 +659,17 @@ namespace Xtensive.Reflection
     /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
     /// -or- more than one such constructor.
     /// </exception>
+#if NET8_0_OR_GREATER
+    public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor
+         ? ConstructorInvoker.Create(ctor)
+         : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
+#else
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
         ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+#endif
 
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
@@ -659,8 +682,14 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.
     /// </returns>
     [CanBeNull]
+#if NET8_0_OR_GREATER
+    public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
+#else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+#endif
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
       (var type, var argumentTypes) = t;
@@ -919,6 +948,14 @@ namespace Xtensive.Reflection
 
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
       GenericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodFactory2);
+
+#if NET8_0_OR_GREATER
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
+      GenericMethodInvokers1.GetOrAdd((genericDefinition, typeArgument), GenericMethodInvokerFactory1);
+
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      GenericMethodInvokers2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodInvokerFactory2);
+#endif
 
     public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>
       GenericTypeInstances1.GetOrAdd((genericDefinition, typeArgument), GenericTypeFactory1);
