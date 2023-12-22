@@ -18,8 +18,6 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
-    private static readonly IDisposable EmptyDisposable = new Disposable(b => { return; });
-
     private bool disableAutoSaveChanges;
     private KeyRemapper remapper;
     private bool persistingIsFailed;
@@ -246,7 +244,7 @@ namespace Xtensive.Orm
       targetEntity.EnsureNotRemoved();
       return Configuration.Supports(SessionOptions.AutoSaveChanges)
         ? pinner.RegisterRoot(targetEntity.State)
-        : EmptyDisposable; // No need to pin in this case
+        : null; // No need to pin in this case
     }
 
     /// <summary>
@@ -260,7 +258,7 @@ namespace Xtensive.Orm
     public IDisposable DisableSaveChanges()
     {
       if (!Configuration.Supports(SessionOptions.AutoSaveChanges)) {
-        return EmptyDisposable; // No need to pin in this case
+        return null; // No need to pin in this case
       }
       if (disableAutoSaveChanges)
         return null;
