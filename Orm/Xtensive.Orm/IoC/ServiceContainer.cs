@@ -227,11 +227,13 @@ namespace Xtensive.IoC
     private static ConstructorInvoker FindConstructorInvoker(Type containerType, params Type[] argumentTypes) =>
       containerType.GetSingleConstructorInvokerOrDefault(argumentTypes);
 #else
+#pragma warning disable CS0612 // Type or member is obsolete
     private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
       containerType.GetSingleConstructorOrDefault(argumentTypes);
+#pragma warning restore CS0612 // Type or member is obsolete
 #endif
 
-#endregion
+    #endregion
 
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by default configuration.

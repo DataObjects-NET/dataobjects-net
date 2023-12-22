@@ -687,6 +687,7 @@ namespace Xtensive.Reflection
     /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
     /// -or- more than one such constructor.
     /// </exception>
+    [Obsolete]// obsolete to safely make it internal later on or delete
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
         ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
@@ -719,6 +720,7 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.
     /// </returns>
     [CanBeNull]
+    [Obsolete]// obsolete to safely make it internal later on
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 
