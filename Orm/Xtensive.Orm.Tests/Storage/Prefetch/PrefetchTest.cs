@@ -13,9 +13,10 @@ using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -921,6 +922,44 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field) || field.Name.StartsWith("IntermediateOffer"));
         }
       }
+    }
+
+    [Test]
+    public void PrefetchOnDelayedQueryTest()
+    {
+      using var session = Domain.OpenSession();
+      var sessionAccessor = session.Services.Get<DirectSessionAccessor>();
+      using var moq = new QueryCounterSessionHandlerMock(session.Handler);
+      using (sessionAccessor.ChangeSessionHandler(moq))
+      using (var transactionScope = session.OpenTransaction()) {
+        var prefetcher = session.Query.CreateDelayedQuery(q => q.All<Invoice>())
+          .Prefetch(o => o.ProcessingTime);
+        foreach (var invoice in prefetcher.AsEnumerable()) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+      Assert.That(moq.GetSyncCounter(), Is.GreaterThan(0));
+      Assert.That(moq.GetAsyncCounter(), Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task PrefetchOnDelayedQueryAsyncTest()
+    {
+      await using var session = await Domain.OpenSessionAsync();
+      var sessionAccessor = session.Services.Get<DirectSessionAccessor>();
+      await using var moq = new QueryCounterSessionHandlerMock(session.Handler);
+      using (sessionAccessor.ChangeSessionHandler(moq))
+      await using (var transactionScope = await session.OpenTransactionAsync()) {
+        var prefetcher = session.Query.CreateDelayedQuery(q => q.All<Invoice>())
+          .Prefetch(o => o.ProcessingTime);
+        await foreach (var invoice in prefetcher.AsAsyncEnumerable()) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+      Assert.That(moq.GetSyncCounter(), Is.EqualTo(0));
+      Assert.That(moq.GetAsyncCounter(), Is.GreaterThan(0));
     }
 
     private void RemoveAllBooks()
