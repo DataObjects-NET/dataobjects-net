@@ -7,6 +7,9 @@
 [main] SqlDml.Truncate() is introduced.
 [main] WellKnown.MaxNumberOfConditions became obsolete, use new DomainConfiguration.MaxNumberOfConditions if needed
 [main] TypeHelper.GetSingleConstructor() and .GetSingleConstructorOrDefault() are marked obsolete
+[main] Session.DisableSaveChages() methods return null value in more cases. See methods' summaries
+[main] DirectSessionAccessor.OpenSystemLogicOnlyRegion() returns disposable struct instead of IDisposable
+[main] OperationRegistry's Disable/EnableSystemOperationRegistration methods return disposable struct instead of IDisposable
 [main] Temporary tables cleanup now uses TRUNCATE instead of DELETE when possible
 [main] Temporary tables population is increased with multi-row inserts - 256 and 16 items per INSERT
 [main] PersistParameterBinding has new field RowIndex, use it for multi-row inserts if needed
