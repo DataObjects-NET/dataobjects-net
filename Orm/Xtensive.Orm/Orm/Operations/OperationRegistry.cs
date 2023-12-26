@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Operations
       private readonly OperationRegistry registry;
       private readonly bool prevIsSystemOperationRegistrationEnabled;
 
-      public SystemOperationRegistrationScope(OperationRegistry registry, bool enable)
+      internal SystemOperationRegistrationScope(OperationRegistry registry, bool enable)
       {
         this.registry = registry;
         prevIsSystemOperationRegistrationEnabled = registry.IsSystemOperationRegistrationEnabled;
@@ -32,9 +32,9 @@ namespace Xtensive.Orm.Operations
     }
 
     private readonly ICompletableScope blockingScope;
+    private readonly Collections.Deque<ICompletableScope> scopes = new();
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
-    private Collections.Deque<ICompletableScope> scopes = new Collections.Deque<ICompletableScope>();
 
     /// <summary>
     /// Gets the session this instance is bound to.
