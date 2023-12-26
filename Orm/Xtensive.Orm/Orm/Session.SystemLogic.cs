@@ -16,7 +16,7 @@ namespace Xtensive.Orm
       private readonly Session session;
       private readonly bool prevIsSystemLogicOnly;
 
-      public SystemLogicOnlyRegionScope(Session session)
+      internal SystemLogicOnlyRegionScope(Session session)
       {
         this.session = session;
         prevIsSystemLogicOnly = session.IsSystemLogicOnly;
