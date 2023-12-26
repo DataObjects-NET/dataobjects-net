@@ -16,10 +16,24 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   public sealed class OperationRegistry
   {
+    public readonly struct SystemOperationRegistrationScope : IDisposable
+    {
+      private readonly OperationRegistry registry;
+      private readonly bool prevIsSystemOperationRegistrationEnabled;
+
+      public SystemOperationRegistrationScope(OperationRegistry registry, bool enable)
+      {
+        this.registry = registry;
+        prevIsSystemOperationRegistrationEnabled = registry.IsSystemOperationRegistrationEnabled;
+        registry.IsSystemOperationRegistrationEnabled = enable;
+      }
+
+      public void Dispose() => registry.IsSystemOperationRegistrationEnabled = prevIsSystemOperationRegistrationEnabled;
+    }
+
     private readonly ICompletableScope blockingScope;
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
-    private bool isSystemOperationRegistrationEnabled = true;
     private Collections.Deque<ICompletableScope> scopes = new Collections.Deque<ICompletableScope>();
 
     /// <summary>
@@ -41,10 +55,7 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets a value indicating whether system operation registration is enabled.
     /// </summary>
-    public bool IsSystemOperationRegistrationEnabled {
-      get { return isSystemOperationRegistrationEnabled; }
-      internal set { isSystemOperationRegistrationEnabled = value; }
-    }
+    public bool IsSystemOperationRegistrationEnabled { get; internal set; } = true;
 
     /// <summary>
     /// Gets a value indicating whether this instance can register operation
@@ -219,29 +230,13 @@ namespace Xtensive.Orm.Operations
     /// Temporarily disables system operation logging.
     /// </summary>
     /// <returns>An <see cref="IDisposable"/> object enabling the logging back on its disposal.</returns>
-    public IDisposable DisableSystemOperationRegistration()
-    {
-      if (!isSystemOperationRegistrationEnabled)
-        return null;
-      var result = new Disposable<OperationRegistry, bool>(this, isSystemOperationRegistrationEnabled,
-        (disposing, _this, previousState) => _this.isSystemOperationRegistrationEnabled = previousState);
-      isSystemOperationRegistrationEnabled = false;
-      return result;
-    }
+    public SystemOperationRegistrationScope DisableSystemOperationRegistration() => new(this, false);
 
     /// <summary>
     /// Temporarily enables system operation logging.
     /// </summary>
     /// <returns>An <see cref="IDisposable"/> object disabling the logging back on its disposal.</returns>
-    public IDisposable EnableSystemOperationRegistration()
-    {
-      if (isSystemOperationRegistrationEnabled)
-        return null;
-      var result = new Disposable<OperationRegistry, bool>(this, isSystemOperationRegistrationEnabled,
-        (disposing, _this, previousState) => _this.isSystemOperationRegistrationEnabled = previousState);
-      isSystemOperationRegistrationEnabled = true;
-      return result;
-    }
+    public SystemOperationRegistrationScope EnableSystemOperationRegistration() => new(this, true);
 
     /// <summary>
     /// Registers the operation.

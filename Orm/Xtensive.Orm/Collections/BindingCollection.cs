@@ -112,9 +112,7 @@ namespace Xtensive.Collections
     public virtual void PermanentAdd(TKey key, TValue value)
     {
       bindings[key] = value;
-      if (!permanentBindings.Contains(key)) {
-        permanentBindings.Add(key);
-      }
+      permanentBindings.Add(key);
     }
 
     /// <summary>
