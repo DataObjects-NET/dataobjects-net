@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// An exception that is thrown when a connection error occured.
+  /// An exception that is thrown when a connection error occurred.
   /// </summary>
   [Serializable]
   public sealed class ConnectionErrorException : StorageException
