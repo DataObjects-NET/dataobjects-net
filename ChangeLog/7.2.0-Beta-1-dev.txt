@@ -15,7 +15,10 @@
 [main] PersistParameterBinding has new field RowIndex, use it for multi-row inserts if needed
 [main] TemporaryTableDescriptor changed interface to IMultiRecordPersistDescriptor, fully compatible with IPersistDescriptor
 [main] SqlNode.Clone() method now returns SqlNode to take advantage of C# covariant returns and reduce casts overhead
+[main] Xtensive.Orm.Rse.Providers.ProviderVisitor is now generic with type parameter of method results
 [main] Improved exception handling if some appered during asynchronous Session opening
+[main] Fixed some ColumnInfoCollection and NodeCollection<AssociationInfo> leaks
+[main] Overall performance and memory officiency improvements
 [main] Obsolete LockableExtensions.EnsureNotLocked is removed
 [main] Obsolete DomainConfiguration.DefaultVersioningPolicy is removed
 [main] Obsolete TypeInfo methods (GetImplementors(), GetInterfaces(), GetDescendants(), GetAncestors() and GetRoot()) are removed
