@@ -132,7 +132,7 @@ namespace Xtensive.Core
           for (var i = list.Count - 1; i >= 0; i--) {
             var disposable = list[i];
             if (disposable is IAsyncDisposable asyncDisposable) {
-              await aggregator.ExecuteAsync(d => d.DisposeAsync(), asyncDisposable).ConfigureAwait(false);
+              await aggregator.ExecuteAsync(d => d.DisposeAsync(), asyncDisposable).ConfigureAwaitFalse();
             }
             else {
               aggregator.Execute(d => d.Dispose(), disposable);

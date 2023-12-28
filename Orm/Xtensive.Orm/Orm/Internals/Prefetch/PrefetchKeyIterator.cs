@@ -7,6 +7,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           resultQueue.Enqueue(key);
           var defaultDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type);
           container.JoinIfPossible(
-            await session.Handler.PrefetchAsync(key, type, defaultDescriptors, token).ConfigureAwait(false));
+            await session.Handler.PrefetchAsync(key, type, defaultDescriptors, token).ConfigureAwaitFalse());
         }
 
         if (exists && taskCount == session.Handler.PrefetchTaskExecutionCount) {
@@ -101,7 +102,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         if (!exists) {
           container.JoinIfPossible(
-            await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false));
+            await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwaitFalse());
         }
 
         if (unknownTypeQueue.Count > 0) {
@@ -110,10 +111,10 @@ namespace Xtensive.Orm.Internals.Prefetch
             var unknownDescriptors =
               PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
             await session.Handler.PrefetchAsync(
-              unknownKey, unknownType, unknownDescriptors, token).ConfigureAwait(false);
+              unknownKey, unknownType, unknownDescriptors, token).ConfigureAwaitFalse();
           }
 
-          await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false);
+          await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwaitFalse();
         }
 
         while (resultQueue.TryDequeue(out var item)) {

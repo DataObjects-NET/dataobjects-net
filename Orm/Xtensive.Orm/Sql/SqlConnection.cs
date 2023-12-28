@@ -237,7 +237,7 @@ namespace Xtensive.Sql
       EnsureIsNotDisposed();
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
       if (connectionAccessorEx == null) {
-        await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
@@ -267,27 +267,27 @@ namespace Xtensive.Sql
       EnsureIsNotDisposed();
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
       if (connectionAccessorEx == null) {
-        await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+        await UnderlyingConnection.OpenAsync(token).ConfigureAwaitFalse();
         if (string.IsNullOrEmpty(initializationScript)) {
           return;
         }
 
         try {
           var command = UnderlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = initializationScript;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
         }
         catch (OperationCanceledException) {
-          await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
+          await UnderlyingConnection.CloseAsync().ConfigureAwaitFalse();
           throw;
         }
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
         await SqlHelper.NotifyConnectionOpeningAsync(accessors, UnderlyingConnection, false, token);
-        await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+        await UnderlyingConnection.OpenAsync(token).ConfigureAwaitFalse();
         if (string.IsNullOrEmpty(initializationScript)) {
           await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, false, token);
           return;
@@ -296,15 +296,15 @@ namespace Xtensive.Sql
         try {
           await SqlHelper.NotifyConnectionInitializingAsync(accessors, UnderlyingConnection, initializationScript, false, token);
           var command = UnderlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = initializationScript;
-            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
           await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, false, token);
         }
         catch (OperationCanceledException ex) {
           await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, UnderlyingConnection, ex, false, token);
-          await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
+          await UnderlyingConnection.CloseAsync().ConfigureAwaitFalse();
           throw;
         }
         catch (Exception ex) {
@@ -397,10 +397,10 @@ namespace Xtensive.Sql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
+        await ActiveTransaction.CommitAsync(token).ConfigureAwaitFalse();
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();
         ClearActiveTransaction();
       }
     }
@@ -432,10 +432,10 @@ namespace Xtensive.Sql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+        await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();
         ClearActiveTransaction();
       }
     }
@@ -538,12 +538,12 @@ namespace Xtensive.Sql
       isDisposed = true;
       try {
         if (ActiveTransaction != null) {
-          await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+          await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();
           ClearActiveTransaction();
         }
       }
       finally {
-        await UnderlyingConnection.DisposeAsync().ConfigureAwait(false);
+        await UnderlyingConnection.DisposeAsync().ConfigureAwaitFalse();
         ClearUnderlyingConnection();
       }
     }

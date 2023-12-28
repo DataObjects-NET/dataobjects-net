@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Internals;
 
 
@@ -41,10 +42,10 @@ namespace Xtensive.Orm
     internal async Task<bool> ExecuteInternalDelayedQueriesAsync(bool skipPersist, CancellationToken token = default)
     {
       if (!skipPersist) {
-        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Other, token).ConfigureAwaitFalse();
       }
 
-      return await ProcessInternalDelayedQueriesAsync(false, token).ConfigureAwait(false);
+      return await ProcessInternalDelayedQueriesAsync(false, token).ConfigureAwaitFalse();
     }
 
     internal bool ExecuteUserDefinedDelayedQueries(bool skipPersist)
@@ -60,11 +61,11 @@ namespace Xtensive.Orm
     {
       token.ThrowIfCancellationRequested();
       if (!skipPersist) {
-        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Other, token).ConfigureAwaitFalse();
       }
 
       token.ThrowIfCancellationRequested();
-      return await ProcessUserDefinedDelayedQueriesAsync(false, token).ConfigureAwait(false);
+      return await ProcessUserDefinedDelayedQueriesAsync(false, token).ConfigureAwaitFalse();
     }
 
     private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
@@ -90,7 +91,7 @@ namespace Xtensive.Orm
 
       try {
         await Handler.ExecuteQueryTasksAsync(
-          internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwait(false);
+          internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwaitFalse();
         return true;
       }
       finally {
@@ -122,7 +123,7 @@ namespace Xtensive.Orm
       var aliveTasks = new List<QueryTask>(userDefinedQueryTasks.Count);
       aliveTasks.AddRange(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive));
       userDefinedQueryTasks.Clear();
-      await Handler.ExecuteQueryTasksAsync(aliveTasks, allowPartialExecution, token).ConfigureAwait(false);
+      await Handler.ExecuteQueryTasksAsync(aliveTasks, allowPartialExecution, token).ConfigureAwaitFalse();
       return true;
     }
   }

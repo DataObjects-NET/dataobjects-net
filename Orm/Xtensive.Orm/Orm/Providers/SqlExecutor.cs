@@ -40,9 +40,9 @@ namespace Xtensive.Orm.Providers
     public async Task<CommandWithDataReader> ExecuteReaderAsync(
       ISqlCompileUnit statement, CommandBehavior commandBehavior, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       return await ExecuteReaderAsync(
-        connection.CreateCommand(Compile(statement)), commandBehavior, token).ConfigureAwait(false);
+        connection.CreateCommand(Compile(statement)), commandBehavior, token).ConfigureAwaitFalse();
     }
 
     public int ExecuteNonQuery(ISqlCompileUnit statement)
@@ -54,10 +54,10 @@ namespace Xtensive.Orm.Providers
 
     public async Task<int> ExecuteNonQueryAsync(ISqlCompileUnit statement, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       var command = connection.CreateCommand(Compile(statement));
-      await using (command.ConfigureAwait(false)) {
-        return await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwait(false);
+      await using (command.ConfigureAwaitFalse()) {
+        return await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwaitFalse();
       }
     }
 
@@ -70,10 +70,10 @@ namespace Xtensive.Orm.Providers
 
     public async Task<object> ExecuteScalarAsync(ISqlCompileUnit statement, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       var command = connection.CreateCommand(Compile(statement));
-      await using (command.ConfigureAwait(false)) {
-        return await driver.ExecuteScalarAsync(session, command, token).ConfigureAwait(false);
+      await using (command.ConfigureAwaitFalse()) {
+        return await driver.ExecuteScalarAsync(session, command, token).ConfigureAwaitFalse();
       }
     }
 
@@ -90,9 +90,9 @@ namespace Xtensive.Orm.Providers
     public async Task<CommandWithDataReader> ExecuteReaderAsync(
       string commandText, CommandBehavior commandBehavior, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       return await ExecuteReaderAsync(
-        connection.CreateCommand(commandText), commandBehavior, token).ConfigureAwait(false);
+        connection.CreateCommand(commandText), commandBehavior, token).ConfigureAwaitFalse();
     }
 
     public int ExecuteNonQuery(string commandText)
@@ -104,10 +104,10 @@ namespace Xtensive.Orm.Providers
 
     public async Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       var command = connection.CreateCommand(commandText);
-      await using (command.ConfigureAwait(false)) {
-        return await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwait(false);
+      await using (command.ConfigureAwaitFalse()) {
+        return await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwaitFalse();
       }
     }
 
@@ -120,10 +120,10 @@ namespace Xtensive.Orm.Providers
 
     public async Task<object> ExecuteScalarAsync(string commandText, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
       var command = connection.CreateCommand(commandText);
-      await using (command.ConfigureAwait(false)) {
-        return await driver.ExecuteScalarAsync(session, command, token).ConfigureAwait(false);
+      await using (command.ConfigureAwaitFalse()) {
+        return await driver.ExecuteScalarAsync(session, command, token).ConfigureAwaitFalse();
       }
     }
 
@@ -141,13 +141,13 @@ namespace Xtensive.Orm.Providers
 
     public async Task ExecuteManyAsync(IEnumerable<string> statements, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
 
       if (driver.ProviderInfo.Supports(ProviderFeatures.Batches)) {
-        await ExecuteManyBatchedAsync(statements, token).ConfigureAwait(false);
+        await ExecuteManyBatchedAsync(statements, token).ConfigureAwaitFalse();
       }
       else {
-        await ExecuteManyByOneAsync(statements, token).ConfigureAwait(false);
+        await ExecuteManyByOneAsync(statements, token).ConfigureAwaitFalse();
       }
     }
 
@@ -160,8 +160,8 @@ namespace Xtensive.Orm.Providers
     public async Task<SqlExtractionResult> ExtractAsync(
       IEnumerable<SqlExtractionTask> tasks, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
-      return await driver.ExtractAsync(connection, tasks, token).ConfigureAwait(false);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwaitFalse();
+      return await driver.ExtractAsync(connection, tasks, token).ConfigureAwaitFalse();
     }
 
     #region Private / internal methods
@@ -186,8 +186,8 @@ namespace Xtensive.Orm.Providers
         }
 
         var command = connection.CreateCommand(statement);
-        await using (command.ConfigureAwait(false)) {
-          await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwait(false);
+        await using (command.ConfigureAwaitFalse()) {
+          await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwaitFalse();
         }
       }
     }
@@ -216,8 +216,8 @@ namespace Xtensive.Orm.Providers
         }
 
         var command = connection.CreateCommand(batch);
-        await using (command.ConfigureAwait(false)) {
-          await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwait(false);
+        await using (command.ConfigureAwaitFalse()) {
+          await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwaitFalse();
         }
       }
     }
@@ -274,10 +274,10 @@ namespace Xtensive.Orm.Providers
     {
       DbDataReader reader;
       try {
-        reader = await driver.ExecuteReaderAsync(session, command, commandBehavior, token).ConfigureAwait(false);
+        reader = await driver.ExecuteReaderAsync(session, command, commandBehavior, token).ConfigureAwaitFalse();
       }
       catch {
-        await command.DisposeAsync().ConfigureAwait(false);
+        await command.DisposeAsync().ConfigureAwaitFalse();
         throw;
       }
       return new CommandWithDataReader(command, reader);

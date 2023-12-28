@@ -40,7 +40,7 @@ namespace Xtensive.Core
       var localTask = task ?? worker();
       task = null;
       worker = null;
-      return await localTask.ConfigureAwait(false);
+      return await localTask.ConfigureAwaitFalse();
     }
 
     public override void Dispose()
@@ -64,7 +64,7 @@ namespace Xtensive.Core
       }
 
       try {
-        await GetAsync().ConfigureAwait(false);
+        await GetAsync().ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         logger?.Warning(nameof(Strings.LogAsyncOperationError), exception: exception);

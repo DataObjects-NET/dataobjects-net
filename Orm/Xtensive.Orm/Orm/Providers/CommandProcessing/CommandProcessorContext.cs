@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers
 
       if (ActiveCommand != null) {
         if (isAsync) {
-          await ActiveCommand.DisposeAsync().ConfigureAwait(false);
+          await ActiveCommand.DisposeAsync().ConfigureAwaitFalse();
         }
         else {
           ActiveCommand.Dispose();

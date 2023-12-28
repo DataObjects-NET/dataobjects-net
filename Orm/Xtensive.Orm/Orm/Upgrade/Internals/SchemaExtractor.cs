@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
       if (context.ExtractedModelCache!=null)
         return context.ExtractedModelCache;
 
-      var schemaExtractionResult = await GetSqlSchemaAsync(token).ConfigureAwait(false);
+      var schemaExtractionResult = await GetSqlSchemaAsync(token).ConfigureAwaitFalse();
       var converter = new SqlModelConverter(services, schemaExtractionResult, GetPartialIndexes());
       var result =  converter.Run();
       context.ExtractedModelCache = result;
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var sqlExtractionTasks = services.MappingResolver.GetSchemaTasks();
-      var sqlExtractionResult = await executor.ExtractAsync(sqlExtractionTasks, token).ConfigureAwait(false);
+      var sqlExtractionResult = await executor.ExtractAsync(sqlExtractionTasks, token).ConfigureAwaitFalse();
       var schema = new SchemaExtractionResult(sqlExtractionResult);
       var handledSchema = new IgnoreRulesHandler(schema, services.Configuration, services.MappingResolver).Handle();
       context.ExtractedSqlModelCache = handledSchema;

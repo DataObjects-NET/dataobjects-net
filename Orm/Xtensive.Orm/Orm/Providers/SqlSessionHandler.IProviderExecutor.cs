@@ -31,10 +31,10 @@ namespace Xtensive.Orm.Providers
     async Task<DataReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
       var context = new CommandProcessorContext(parameterContext);
-      await using (context.ConfigureAwait(false)) {
-        return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
+      await using (context.ConfigureAwaitFalse()) {
+        return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwaitFalse();
       }
     }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers
     async Task IProviderExecutor.StoreAsync(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples,
       ParameterContext parameterContext, CancellationToken token)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
 
       StoreInternal(descriptor, tuples);
 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Providers
     {
       using (var context = new CommandProcessorContext(parameterContext)) {
         if (isAsync) {
-          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwaitFalse();
         }
         else {
           commandProcessor.ExecuteTasks(context);

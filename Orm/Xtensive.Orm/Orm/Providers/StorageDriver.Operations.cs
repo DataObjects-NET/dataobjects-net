@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
@@ -105,10 +106,10 @@ namespace Xtensive.Orm.Providers
 
       try {
         if (!string.IsNullOrEmpty(script)) {
-          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
+          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwaitFalse();
         }
         else {
-          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+          await connection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         }
       }
       catch (OperationCanceledException) {
@@ -130,7 +131,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, CancellationToken cancellationToken)
     {
       if (connection.State != ConnectionState.Open) {
-        await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwait(false);
+        await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwaitFalse();
       }
     }
 
@@ -163,7 +164,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.CloseAsync().ConfigureAwait(false);
+        await connection.CloseAsync().ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -191,7 +192,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.DisposeAsync().ConfigureAwait(false);
+        await connection.DisposeAsync().ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -226,7 +227,7 @@ namespace Xtensive.Orm.Providers
       isolationLevel ??= IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
 
       try {
-        await connection.BeginTransactionAsync(isolationLevel.Value, token).ConfigureAwait(false);
+        await connection.BeginTransactionAsync(isolationLevel.Value, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -255,7 +256,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.CommitAsync(token).ConfigureAwait(false);
+        await connection.CommitAsync(token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -284,7 +285,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.RollbackAsync(token).ConfigureAwait(false);
+        await connection.RollbackAsync(token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -321,7 +322,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.MakeSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.MakeSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -358,7 +359,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.RollbackToSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.RollbackToSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -387,7 +388,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.ReleaseSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.ReleaseSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -466,7 +467,7 @@ namespace Xtensive.Orm.Providers
 
       TResult result;
       try {
-        result = await action(command, commandBehavior, cancellationToken).ConfigureAwait(false);
+        result = await action(command, commandBehavior, cancellationToken).ConfigureAwaitFalse();
       }
       catch (OperationCanceledException) {
         throw;
