@@ -21,6 +21,9 @@
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <ItemGroup Label="Nuget content">
     <Content Include="$(ProjectDir)NuGetContent\**">
       <PackagePath>.</PackagePath>
