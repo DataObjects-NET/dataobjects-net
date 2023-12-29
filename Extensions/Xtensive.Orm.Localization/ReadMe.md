@@ -1,4 +1,3 @@
-=========================
 Xtensive.Orm.Localization
 =========================
 
@@ -9,35 +8,14 @@ This implies that localizable resources are a part of domain model so they are s
 
 Prerequisites
 -------------
-DataObjects.Net Core 0.1 or later (http://dataobjects.net)
+DataObjects.Net 6.0.x or later (http://dataobjects.net)
 
 Implementation
 --------------
-1. Add reference to Xtensive.Orm.Localization assembly
-2. Include types from Xtensive.Orm.Localization assembly into the domain:
 
-  <Xtensive.Orm>
-    <domains>
-      <domain ... >
-        <types>
-          <add assembly="your assembly"/>
-          <add assembly="Xtensive.Orm.Localization"/>
-        </types>
-      </domain>
-    </domains>
-  </Xtensive.Orm>
+Implement ILocalizable<TLocalization> on your localizable entities, e.g.:
 
-  2.1 Optionally add default localization configuration
-  <configSections>
-    <section name="Xtensive.Orm.Localization" type="Xtensive.Orm.Localization.Configuration.ConfigurationSection, Xtensive.Orm.Localization"/>
-  </configSections>
-
-  <Xtensive.Orm.Localization>
-    <defaultCulture name="es-ES"/>
-  </Xtensive.Orm.Localization>
-
-3. Implement ILocalizable<TLocalization> on your localizable entities, e.g.:
-
+```csharp
   [HierarchyRoot]
   public class Page : Entity, ILocalizable<PageLocalization>
   {
@@ -56,9 +34,11 @@ Implementation
 
     public Page(Session session) : base(session) {}
   }
+```
 
-4. Define corresponding localizations, e.g.:
+Define corresponding localizations, e.g.:
 
+```csharp
   [HierarchyRoot]
   public class PageLocalization : Localization<Page>
   {
@@ -68,32 +48,41 @@ Implementation
     public PageLocalization(Session session, CultureInfo culture, Page target)
       : base(session, culture, target) {}
   }
+```
 
-Demo
-----
-1. Access localizable properties as regular ones, e.g.:
+Examples of usage
+-----------------
 
+**Example #1**. Access localizable properties as regular ones, e.g.:
+
+```csharp
   page.Title = "Welcome";
   string title = page.Title;
+```
 
-2. Mass editing of localizable properties:
+**Example #2**. Mass editing of localizable properties:
 
+```csharp
   var en = new CultureInfo("en-US");
   var sp = new CultureInfo("es-ES");
   var page = new Page(session);
   page.Localizations[en].Title = "Welcome";
   page.Localizations[sp].Title = "Bienvenido";
+```
 
-3. Value of localizable properties reflects culture of the current Thread, e.g.:
+**Example #3**. Value of localizable properties reflects culture of the current Thread, e.g.:
 
+```csharp
   Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
   string title = page.Title; // title is "Welcome"
 
   Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
   string title = page.Title; // title is "Bienvenido"
+```
 
-4. Instead of altering CurrentThread, instance of LocalizationScope can be used, e.g.:
+**Example #4**. Instead of altering CurrentThread, instance of LocalizationScope can be used, e.g.:
 
+```csharp
   using (new LocalizationScope(new CultureInfo("en-US"))) {
     string title = page.Title; // title is "Welcome"
   }
@@ -101,9 +90,11 @@ Demo
   using (new LocalizationScope(new CultureInfo("es-ES"))) {
     string title = page.Title; // title is "Bienvenido"
   }
+```
 
-5. LINQ queries that include localizable properties are transparently translated
+**Example #5**. LINQ queries that include localizable properties are transparently translated
 
+```csharp
   Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
   var query = from p in session.Query.All<Page>()
     where p.Title=="Welcome"
@@ -115,8 +106,4 @@ Demo
     where p.Title=="Bienvenido"
     select p;
   Assert.AreEqual(1, query.Count());
-
-
-References
-----------
-http://doextensions.codeplex.com
+```

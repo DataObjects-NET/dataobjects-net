@@ -19,6 +19,9 @@
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Readme.txt" />
+    <None Include="ReadMe.md">
+      <Pack>true</Pack>
+      <PackagePath>.</PackagePath>
+    </None>
   </ItemGroup>
 </Project>
