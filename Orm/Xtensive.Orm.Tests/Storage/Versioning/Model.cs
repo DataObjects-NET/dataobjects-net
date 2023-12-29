@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2018-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2018.03.02
 
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field]
-    long Version { get; }
+    new long Version { get; }
 
     [Field]
     DateTime Date { get; set; }
@@ -405,7 +405,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field, Version]
-    int Version { get; }
+    new int Version { get; }
 
     [Field]
     long SpaceNeeded { get; set; }
@@ -612,7 +612,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field, Version]
-    int Version { get; }
+    new int Version { get; }
 
     [Field]
     string FirstName { get; set; }

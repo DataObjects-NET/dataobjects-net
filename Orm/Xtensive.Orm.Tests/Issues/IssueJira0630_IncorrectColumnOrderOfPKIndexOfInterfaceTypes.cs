@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2016.03.31
 
@@ -792,7 +792,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexO
     SimpleTestEntity HEAEntityField { get; set; }
 
     [Field]
-    SimpleStructure AStructureField { get; set; }
+    new SimpleStructure AStructureField { get; set; }
   }
 
 #endregion
