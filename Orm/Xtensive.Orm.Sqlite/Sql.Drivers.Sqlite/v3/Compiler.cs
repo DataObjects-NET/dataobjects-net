@@ -351,13 +351,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         return;
       }
 
-      AppendTranslated(node, SelectSection.Limit);
+      translator.SelectLimit(context, node);
       SqlDml.Literal(-1).AcceptVisitor(this);
-      AppendTranslated(node, SelectSection.LimitEnd);
+      translator.SelectLimitEnd(context, node);
 
-      AppendTranslated(node, SelectSection.Offset);
+      translator.SelectOffset(context, node);
       node.Offset.AcceptVisitor(this);
-      AppendTranslated(node, SelectSection.OffsetEnd);
+      translator.SelectOffsetEnd(context, node);
     }
 
     /// <inheritdoc/>

@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToUpdate);
         }
 
-        AppendTranslated(node, UpdateSection.Limit);
+        translator.UpdateLimit(context);
         _ = context.Output.AppendOpeningPunctuation("(");
         node.Limit.AcceptVisitor(this);
         _ = context.Output.Append(")");

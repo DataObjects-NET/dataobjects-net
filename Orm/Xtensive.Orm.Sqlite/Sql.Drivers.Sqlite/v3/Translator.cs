@@ -274,17 +274,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      _ = context.Output.Append(section switch {
-        UpdateSection.Entry => "UPDATE",
-        UpdateSection.Set => "SET",
-        UpdateSection.From => "FROM",
-        UpdateSection.Where => "WHERE",
-        _ => string.Empty
-      });
-    }
+    public override void UpdateSet(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("SET").AppendSpaceIfNecessary();
+
+    public override void UpdateFrom(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("FROM").AppendSpaceIfNecessary();
+
+    public override void UpdateWhere(SqlCompilerContext context, SqlUpdate node) =>
+      context.Output.AppendSpaceIfNecessary().Append("WHERE").AppendSpaceIfNecessary();
+
+    public override void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary();
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
