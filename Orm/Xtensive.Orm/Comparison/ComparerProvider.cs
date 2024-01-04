@@ -66,10 +66,12 @@ namespace Xtensive.Comparison
       // the comparer.
       var comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
       if (foundFor == null) {
-        CoreLog.Warning(nameof(Strings.LogCantFindAssociateFor),
-          TypeSuffixes.ToDelimitedString(" \\ "),
-          typeof(TAssociate).GetShortName(),
-          typeof(TKey).GetShortName());
+        if (CoreLog.IsLogged(Orm.Logging.LogLevel.Warning)) {
+          CoreLog.Warning(nameof(Strings.LogCantFindAssociateFor),
+            TypeSuffixes.ToDelimitedString(" \\ "),
+            typeof(TAssociate).GetShortName(),
+            typeof(TKey).GetShortName());
+        }
         return null;
       }
       if (foundFor == typeof(TKey)) {
@@ -77,19 +79,23 @@ namespace Xtensive.Comparison
       }
       associate = BaseComparerWrapperType.Activate(new[] { typeof(TKey), foundFor }, ConstructorParams) as TAssociate;
       if (associate != null) {
-        CoreLog.Warning(nameof(Strings.LogGenericAssociateIsUsedFor),
+        if (CoreLog.IsLogged(Orm.Logging.LogLevel.Warning)) {
+          CoreLog.Warning(nameof(Strings.LogGenericAssociateIsUsedFor),
           BaseComparerWrapperType.GetShortName(),
-          typeof (TKey).GetShortName(),
+          typeof(TKey).GetShortName(),
           foundFor.GetShortName(),
-          typeof (TKey).GetShortName());
+          typeof(TKey).GetShortName());
+        }
         return associate;
       }
       else {
-        CoreLog.Warning(nameof(Strings.LogGenericAssociateCreationHasFailedFor),
+        if (CoreLog.IsLogged(Orm.Logging.LogLevel.Warning)) {
+          CoreLog.Warning(nameof(Strings.LogGenericAssociateCreationHasFailedFor),
           BaseComparerWrapperType.GetShortName(),
-          typeof (TKey).GetShortName(),
+          typeof(TKey).GetShortName(),
           foundFor.GetShortName(),
-          typeof (TKey).GetShortName());
+          typeof(TKey).GetShortName());
+        }
         return null;
       }
     }

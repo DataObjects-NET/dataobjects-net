@@ -87,7 +87,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.OracleDbType = OracleDbType.Double;
       nativeParameter.Value = value ?? DBNull.Value;
     }
-#if NET6_0_OR_GREATER
 
     public override void BindDateOnly(DbParameter parameter, object value)
     {
@@ -104,7 +103,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.OracleDbType = OracleDbType.IntervalDS;
       nativeParameter.Value = value == null ? (object) DBNull.Value : new OracleIntervalDS(((TimeOnly) value).ToTimeSpan());
     }
-#endif
 
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {

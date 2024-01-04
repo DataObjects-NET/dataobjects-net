@@ -943,7 +943,6 @@ namespace Xtensive.Orm.Upgrade
       if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
         return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
       }
-#if NET6_0_OR_GREATER
       if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
         return SqlDml.DateTimeToDate(sqlTableColumn);
       }
@@ -971,12 +970,10 @@ namespace Xtensive.Orm.Upgrade
       //Date -> Time = invalid in most cases.
       //Time -> Date = invalid in most cases.
       //let storage throw exception on attempt
-#endif
 
       return SqlDml.Cast(sqlTableColumn, newType);
     }
 
-#if NET6_0_OR_GREATER
     private static bool IsDateTimeType(in SqlType type)
     {
       return type == SqlType.DateTime
@@ -984,13 +981,6 @@ namespace Xtensive.Orm.Upgrade
         || type == SqlType.Date
         || type == SqlType.Time;
     }
-#else
-    private static bool IsDateTimeType(in SqlType type)
-    {
-      return type == SqlType.DateTime
-        || type == SqlType.DateTimeOffset;
-    }
-#endif
 
     private Table CreateTable(TableInfo tableInfo)
     {

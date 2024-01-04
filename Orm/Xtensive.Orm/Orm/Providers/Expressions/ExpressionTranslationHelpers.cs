@@ -45,14 +45,12 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToDateTime(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateTime);
-#if NET6_0_OR_GREATER
 
     public static SqlExpression ToDate(SqlExpression target) =>
       Cast(target, WellKnownTypes.DateOnly);
 
     public static SqlExpression ToTime(SqlExpression target) =>
       Cast(target, WellKnownTypes.TimeOnly);
-#endif
 
     public static SqlExpression ToUint(SqlExpression target) =>
       Cast(target, WellKnownTypes.UInt32);

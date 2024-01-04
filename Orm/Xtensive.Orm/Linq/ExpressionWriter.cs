@@ -361,7 +361,6 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
-#if NET6_0_OR_GREATER
       else if (type == WellKnownTypes.DateOnly) {
         Write("DateOnly.Parse(\"");
         Write(c.Value.ToString());
@@ -372,7 +371,6 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
-#endif
       else if (c.Value is Type typeValue) {
         Write("typeof(");
         Write(GetTypeName(typeValue));

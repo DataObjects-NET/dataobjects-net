@@ -200,12 +200,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (var item in source) {
         if (insertDelimiter)
           sb.Append(delimiter);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -222,12 +222,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (object item in source) {
         if (insertDelimiter)
           sb.Append(separator);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -465,31 +465,6 @@ namespace Xtensive.Core
     {
       return source.Batch(firstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
     }
-
-#if !NET6_0_OR_GREATER
-    internal static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
-    {
-      using var enumerator = enumerable.GetEnumerator();
-      while (enumerator.MoveNext()) {
-        var chunk = new T[chunkSize];
-        chunk[0] = enumerator.Current;
-
-        var i = 1;
-        for (; i < chunk.Length && enumerator.MoveNext(); i++) {
-          chunk[i] = enumerator.Current;
-        }
-
-        if (i == chunk.Length) {
-          yield return chunk;
-        }
-        else {
-          Array.Resize(ref chunk, i);
-          yield return chunk;
-          yield break;
-        }
-      }
-    }
-#endif
 
     /// <summary>
     /// Invokes specified delegates before and after the enumeration of each batch.

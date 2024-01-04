@@ -22,22 +22,17 @@ namespace Xtensive.Sql.Dml
       base.ReplaceWith(expression);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      var table = SqlTable;
-      SqlNode clonedTable;
-      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable)) {
-        table = (SqlTable) clonedTable;
-      }
+    internal override SqlTableColumn Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var table = t.SqlTable;
+        SqlNode clonedTable;
+        if (c.NodeMapping.TryGetValue(t.SqlTable, out clonedTable)) {
+          table = (SqlTable) clonedTable;
+        }
       
-      var clone = new SqlTableColumn(table, Name);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        var clone = new SqlTableColumn(table, t.Name);
+        return clone;
+      });
 
     // Constructors
 

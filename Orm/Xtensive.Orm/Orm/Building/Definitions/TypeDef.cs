@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// <summary>
   /// Defines a single persistent type.
   /// </summary>
-  [DebuggerDisplay("{underlyingType}")]
+  [DebuggerDisplay("{UnderlyingType}")]
   [Serializable]
   public sealed class TypeDef : SchemaMappedNode
   {

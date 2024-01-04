@@ -54,8 +54,7 @@ namespace Xtensive.Orm.Model
     public void Add(TypeInfo typeInfo, FullTextIndexInfo fullTextIndexInfo)
     {
       EnsureNotLocked();
-      if (!container.Contains(fullTextIndexInfo))
-        container.Add(fullTextIndexInfo);
+      container.Add(fullTextIndexInfo);
       indexMap.Add(typeInfo, fullTextIndexInfo);
     }
 

@@ -59,13 +59,12 @@ namespace Xtensive.Sql.Dml
       unique = replacingExpression.Unique;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlMatch((SqlExpression)value.Clone(context),
-                                    (SqlSubQuery)subQuery.Clone(context),
-                                    unique,
-                                    matchType);
+    internal override SqlMatch Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlMatch(t.value.Clone(c),
+                                    t.subQuery.Clone(c),
+                                    t.unique,
+                                    t.matchType));
 
     internal SqlMatch(SqlExpression value, SqlSubQuery subQuery, bool unique, SqlMatchType matchType)
       : base(SqlNodeType.Match)

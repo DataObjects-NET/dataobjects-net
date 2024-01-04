@@ -133,10 +133,8 @@ namespace Xtensive.Orm.Rse.Providers
       default:
         if (sourceColumnType==WellKnownTypes.TimeSpan || sourceColumnType==WellKnownTypes.DateTimeOffset)
           return sourceColumnType;
-#if NET6_0_OR_GREATER
         if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
           return sourceColumnType;
-#endif
           throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }

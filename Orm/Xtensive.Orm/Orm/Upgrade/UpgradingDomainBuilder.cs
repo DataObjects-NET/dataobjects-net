@@ -362,7 +362,7 @@ namespace Xtensive.Orm.Upgrade
         var candidates = group.ToList();
         if (candidates.Count > 1) {
           throw new DomainBuilderException(
-            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof (IUpgradeHandler).GetShortName(), @group.Key));
+            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof(IUpgradeHandler).Name, @group.Key));
         }
         handlers.Add(group.Key, candidates[0]);
       }
@@ -398,12 +398,12 @@ namespace Xtensive.Orm.Upgrade
       //Getting user resolvers
       var candidates = from r in serviceContainer.GetAll<IFullTextCatalogNameBuilder>()
         let assembly = r.GetType().Assembly
-        where r.IsEnabled && assembly!=typeof (IFullTextCatalogNameBuilder).Assembly
+        where r.IsEnabled && assembly!=typeof(IFullTextCatalogNameBuilder).Assembly
         select r;
 
       var userResolversCount = candidates.Count();
       if (userResolversCount > 1)
-        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogNameBuilder).GetShortName()));
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof(IFullTextCatalogNameBuilder).Name));
 
       var resolver = (userResolversCount==0)
         ? new FullTextCatalogNameBuilder()

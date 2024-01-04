@@ -88,16 +88,6 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-    [Obsolete]
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-    {
-      var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase,
-        CommentLocation = configuration.TagsLocation.ToCommentLocation()
-      };
-      return underlyingDriver.Compile(statement, options);
-    }
-
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
@@ -200,7 +190,11 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
+#if NET8_0_OR_GREATER
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethodInvoker(type).Invoke(null);
+#else
         var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
+#endif
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }

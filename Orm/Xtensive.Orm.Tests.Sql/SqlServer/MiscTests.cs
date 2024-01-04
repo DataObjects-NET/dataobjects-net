@@ -73,12 +73,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      MemoryStream ms = new MemoryStream();
-      BinaryFormatter bf = new BinaryFormatter();
-      bf.Serialize(ms, select);
+      using (var mStream = new MemoryStream()) {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(mStream, select);
 
-      ms.Seek(0, SeekOrigin.Begin);
-      select = (SqlSelect)bf.Deserialize(ms);
+        _ = mStream.Seek(0, SeekOrigin.Begin);
+        select = (SqlSelect) formatter.Deserialize(mStream);
+      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }

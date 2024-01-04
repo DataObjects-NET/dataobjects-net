@@ -143,7 +143,6 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
-#if NET6_0_OR_GREATER
 
     /// <summary>
     /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
@@ -155,7 +154,6 @@ namespace Xtensive.Sql.Info
     /// Time data. Values mignt be rounded to some fractions of a second.
     /// </summary>
     public DataTypeInfo TimeOnly { get; set; }
-#endif
 
     /// <summary>
     /// Fixed-length Unicode character data of n characters. 
@@ -249,10 +247,8 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-#if NET6_0_OR_GREATER
       yield return DateOnly;
       yield return TimeOnly;
-#endif
       yield break;
     }
 

@@ -15,7 +15,7 @@
     <RunAnalyzers>false</RunAnalyzers>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <WarningLevel>0</WarningLevel>
-    <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8;</Configurations>
   </PropertyGroup>
   <!-- Force Release Configuration build and check env variables / User.Directory.Build.props -->
   <Target Name="_CheckConfiguration" BeforeTargets="CoreBuild">

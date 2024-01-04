@@ -35,30 +35,20 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlSelect From { get; set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    internal override SqlInsert Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlInsert {
+          Into = t.Into?.Clone(c),
+          From = t.From?.Clone(c),
+          ValueRows = t.ValueRows.Clone(c)
+        };
 
-      SqlInsert clone = new SqlInsert();
-      clone.Into = (SqlTableRef) Into?.Clone(context);
-      clone.From = (SqlSelect) From?.Clone(context);
-#pragma warning disable CS0618 // Type or member is obsolete
-      //remove cloning after changing code.
-      foreach (KeyValuePair<SqlColumn, SqlExpression> p in Values)
-        clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
-#pragma warning restore CS0618 // Type or member is obsolete
-      clone.ValueRows = ValueRows.Clone(context);
-
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint) hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        if (t.Hints.Count > 0) {
+          foreach (SqlHint hint in t.Hints)
+            clone.Hints.Add((SqlHint) hint.Clone(c));
+        }
+        return clone;
+      });
 
     // Constructor
 

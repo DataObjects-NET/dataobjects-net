@@ -125,7 +125,6 @@ namespace Xtensive.Orm.Tests
       return new DateTime(newTicks);
     }
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Cuts down resolution of <see cref="TimeOnly"/> value if needed, according to current <see cref="StorageProviderInfo.Instance"/>.
     /// </summary>
@@ -180,6 +179,5 @@ namespace Xtensive.Orm.Tests
       }
       insert.ValueRows.Add(row);
     }
-#endif
   }
 }

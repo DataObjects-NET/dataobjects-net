@@ -96,14 +96,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
         case SqlNodeType.TimeMinusTime:
           TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
           return;
-#endif
         default:
           base.Visit(node);
           return;
@@ -186,7 +184,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeConstruct:
           ConstructDateTime(arguments).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
@@ -236,7 +233,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.TimeToDateTime:
           TimeToDateTime(node.Arguments[0]).AcceptVisitor(this);
           return;
-#endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(arguments[0]));
           return;
@@ -244,7 +240,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
       base.Visit(node);
     }
-#if NET6_0_OR_GREATER
 
     public override void Visit(SqlPlaceholder node)
     {
@@ -258,7 +253,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         base.Visit(node);
       }
     }
-#endif
 
     /// <inheritdoc/>
     protected override void VisitSelectLimitOffset(SqlSelect node)
@@ -284,12 +278,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
         return;
       }
-#if NET6_0_OR_GREATER
       if (node.DatePart == SqlDatePart.DayOfWeek || node.DatePart == SqlDatePart.DayOfYear) {
         Visit(SqlDml.FunctionCall(node.DatePart.ToString(), node.Operand));
         return;
       }
-#endif
 
       base.Visit(node);
     }
@@ -318,7 +310,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         DateTimeAddDay(date, ((interval - (interval % NanosecondsPerDay)) + ((interval % NanosecondsPerDay) > (NanosecondsPerDay / 2) ? 0 : 1)) / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
-#if NET6_0_OR_GREATER
 
     protected virtual SqlExpression ConstructDate(IReadOnlyList<SqlExpression> arguments)
     {
@@ -355,7 +346,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
               SqlDml.RawConcat(SqlDml.Native("INTERVAL "),
                 SqlDml.FunctionCall("TIME_TO_SEC", time) + interval / NanosecondsPerSecond),
               SqlDml.Native("SECOND"))));
-#endif
 
     #region Static helpers
 
@@ -387,7 +377,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected static SqlUserFunctionCall DateTimeAddMicrosecond(SqlExpression datetime, SqlExpression microseconds) =>
       SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MICROSECOND"), microseconds, datetime);
-#if NET6_0_OR_GREATER
 
     protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall("DATE_ADD", date, SqlDml.RawConcat(SqlDml.Native("INTERVAL "), SqlDml.RawConcat(years, SqlDml.Native("YEAR"))));
@@ -436,7 +425,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.RawConcat(SqlDml.Native("INTERVAL "),
           SqlDml.FunctionCall("TIME_TO_SEC", time)),
           SqlDml.Native("SECOND")));
-#endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>
       SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%Y-%m-%dT%T");

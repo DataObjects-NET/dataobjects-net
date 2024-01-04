@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
   internal class Compiler : v9_1.Compiler
   {
     protected override SqlUserFunctionCall ConstructDateTime(IReadOnlyList<SqlExpression> arguments) => MakeDateTime(arguments[0], arguments[1], arguments[2]);
-#if NET6_0_OR_GREATER
 
     protected override SqlUserFunctionCall ConstructDate(IReadOnlyList<SqlExpression> arguments) => MakeDate(arguments[0], arguments[1], arguments[2]);
 
@@ -40,11 +39,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
         throw new InvalidOperationException("Unsupported count of parameters");
       }
     }
-#endif
 
     protected static SqlUserFunctionCall MakeDateTime(SqlExpression year, SqlExpression month, SqlExpression day) =>
       SqlDml.FunctionCall("MAKE_TIMESTAMP", year, month, day, SqlDml.Literal(0), SqlDml.Literal(0), SqlDml.Literal(0.0));
-#if NET6_0_OR_GREATER
 
     protected static SqlUserFunctionCall MakeDate(SqlExpression year, SqlExpression month, SqlExpression day) =>
       SqlDml.FunctionCall("MAKE_DATE", year, month, day);
@@ -54,7 +51,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
       (isMilliseconds) 
         ? SqlDml.FunctionCall("MAKE_TIME", hours, minutes, seconds + (SqlDml.Cast(secondFractions, SqlType.Double) / 1000))
         : SqlDml.FunctionCall("MAKE_TIME", hours, minutes, seconds + (SqlDml.Cast(secondFractions, SqlType.Double) / 1000000));
-#endif
 
     // Constructors
 

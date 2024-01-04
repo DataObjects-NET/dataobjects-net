@@ -267,7 +267,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder(16);
+      var sb = new ValueStringBuilder(stackalloc char[16]);
       for (int i = 0; i < Count; i++) {
         TupleFieldState state;
         var value = GetValue(i, out state);
@@ -281,12 +281,12 @@ namespace Xtensive.Tuples
           if (string.IsNullOrEmpty(value as string))
             sb.Append(Strings.EmptyString);
           else
-            sb.Append(value);
+            sb.Append(value.ToString());
         }
         else
-          sb.Append(value);
+          sb.Append(value.ToString());
       }
-      return string.Format(Strings.TupleFormat, sb);
+      return string.Format(Strings.TupleFormat, sb.ToString());
     }
 
     #endregion

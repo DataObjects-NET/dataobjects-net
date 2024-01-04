@@ -10,8 +10,6 @@ using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers
 {
-#if NET6_0_OR_GREATER
-
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeOnlyCompilers
   {
@@ -158,5 +156,4 @@ namespace Xtensive.Orm.Providers
       return SqlDml.TimeToString(_this);
     }
   }
-#endif
 }
