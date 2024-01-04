@@ -16,11 +16,10 @@
   <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="ReadMe.md">
-      <Pack>true</Pack>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
       <PackagePath>.</PackagePath>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />

@@ -18,11 +18,10 @@
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ReadMe.md">
-      <Pack>true</Pack>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
       <PackagePath>.</PackagePath>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
