@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Localization.Tests.Model;
 

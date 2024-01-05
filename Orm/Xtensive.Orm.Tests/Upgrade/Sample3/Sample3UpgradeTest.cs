@@ -5,7 +5,6 @@
 // Created:    2009.05.20
 
 using System.Collections;
-using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Collections;
@@ -14,7 +13,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2;
-using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Sample3
 {

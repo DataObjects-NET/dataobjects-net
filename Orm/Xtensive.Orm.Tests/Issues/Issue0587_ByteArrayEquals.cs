@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2010.01.22
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0587_ByteArrayEquals_Model;

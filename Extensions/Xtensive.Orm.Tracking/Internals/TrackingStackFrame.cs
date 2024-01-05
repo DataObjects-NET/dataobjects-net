@@ -5,7 +5,6 @@
 // Created:    2012.05.16
 
 using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Tracking

@@ -4,10 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2015.12.01
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;

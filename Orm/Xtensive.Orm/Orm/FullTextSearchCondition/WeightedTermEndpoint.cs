@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.12.08
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;

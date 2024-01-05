@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.09.17
 
-using System;
 using System.ComponentModel;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;

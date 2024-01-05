@@ -1,4 +1,3 @@
-﻿using System;
 using Xtensive.Orm;
 
 namespace TestCommon.Model

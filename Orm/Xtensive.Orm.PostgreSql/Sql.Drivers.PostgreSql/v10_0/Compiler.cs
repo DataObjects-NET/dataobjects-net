@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2019.09.25
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v10_0

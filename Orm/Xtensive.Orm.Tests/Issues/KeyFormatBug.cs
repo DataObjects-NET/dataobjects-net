@@ -4,13 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2010.06.11
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
 {

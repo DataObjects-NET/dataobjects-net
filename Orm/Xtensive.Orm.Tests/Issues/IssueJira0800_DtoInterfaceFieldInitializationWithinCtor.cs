@@ -3,8 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 using NUnit.Framework;
-using System;
-using System.Linq;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;

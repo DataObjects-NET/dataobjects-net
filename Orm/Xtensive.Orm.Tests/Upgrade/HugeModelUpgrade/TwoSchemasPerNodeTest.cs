@@ -4,9 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.10.24
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade;

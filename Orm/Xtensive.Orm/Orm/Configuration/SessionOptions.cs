@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.10.06
 
-using System;
 using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Configuration

@@ -4,13 +4,10 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.06
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using System.Linq;
 using Xtensive.Collections;
 
 #region Model

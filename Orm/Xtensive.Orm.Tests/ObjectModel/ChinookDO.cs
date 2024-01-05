@@ -4,10 +4,7 @@
 // Created by: Denis Kudelin
 // Created:    2019.09.19
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Xml.Linq;
 using Xtensive.Orm.Configuration;
 using IdEntity = System.ValueTuple<int,Xtensive.Orm.Entity>;

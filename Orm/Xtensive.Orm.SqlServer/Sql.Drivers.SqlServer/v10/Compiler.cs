@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-using System;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10

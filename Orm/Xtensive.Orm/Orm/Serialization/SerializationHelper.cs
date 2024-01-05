@@ -4,15 +4,12 @@
 // Created by: Alex Kofman
 // Created:    2009.03.24
 
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using System.Linq;
 
 namespace Xtensive.Orm.Serialization
 {

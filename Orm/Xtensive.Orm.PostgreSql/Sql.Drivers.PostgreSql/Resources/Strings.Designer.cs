@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
-    using System;
     
     
     /// <summary>

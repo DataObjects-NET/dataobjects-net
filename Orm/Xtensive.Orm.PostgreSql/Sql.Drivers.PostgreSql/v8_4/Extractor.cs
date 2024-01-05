@@ -4,7 +4,6 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.07.07
 
-using System;
 using System.Data.Common;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_4

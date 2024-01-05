@@ -4,11 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.09.28
 
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Upgrade.NewUpgradeEventsAndPropertiesTestModel;
 using Xtensive.Orm.Upgrade;

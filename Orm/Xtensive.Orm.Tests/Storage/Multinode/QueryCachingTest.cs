@@ -5,9 +5,6 @@
 // Created:    2019.01.28
 
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.Multinode.QueryCachingTestModel;

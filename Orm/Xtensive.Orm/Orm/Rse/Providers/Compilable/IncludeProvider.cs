@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.22
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -13,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using System.Linq;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers

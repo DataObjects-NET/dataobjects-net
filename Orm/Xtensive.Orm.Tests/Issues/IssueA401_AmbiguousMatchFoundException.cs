@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2011.02.07
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueA401_AmbiguousMatchFoundException_Model;
-using System.Linq;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests.Issues

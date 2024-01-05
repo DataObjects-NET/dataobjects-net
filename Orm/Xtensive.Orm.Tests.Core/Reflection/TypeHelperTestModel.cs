@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.20
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Core.Reflection
 {

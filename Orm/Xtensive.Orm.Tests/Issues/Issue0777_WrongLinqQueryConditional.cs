@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2010.08.13
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0777_WrongLinqQueryConditional_Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues
 {

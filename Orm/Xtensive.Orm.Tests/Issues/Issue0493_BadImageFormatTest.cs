@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0493_BadImageFormatTest_Model;

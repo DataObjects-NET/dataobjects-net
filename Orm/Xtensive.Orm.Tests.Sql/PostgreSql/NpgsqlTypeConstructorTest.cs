@@ -4,7 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2014.05.14
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql;

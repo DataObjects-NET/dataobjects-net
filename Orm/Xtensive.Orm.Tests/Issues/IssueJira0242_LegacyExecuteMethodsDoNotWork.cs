@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.27
 
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using MetadataType = Xtensive.Orm.Metadata.Type;
 

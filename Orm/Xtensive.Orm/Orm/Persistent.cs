@@ -4,10 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;

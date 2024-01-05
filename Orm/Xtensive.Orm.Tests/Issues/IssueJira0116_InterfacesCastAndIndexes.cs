@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.20
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0116_InterfacesCastAndIndexesModel;

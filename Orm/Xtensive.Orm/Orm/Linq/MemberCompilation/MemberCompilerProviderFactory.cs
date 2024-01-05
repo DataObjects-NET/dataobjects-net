@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtia
 // Created:    2009.03.27
 
-using System;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Activator = System.Activator;

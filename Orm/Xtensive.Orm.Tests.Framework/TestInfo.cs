@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.09
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;

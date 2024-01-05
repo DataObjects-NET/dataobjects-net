@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.16
 
-using System.Collections.Generic;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2

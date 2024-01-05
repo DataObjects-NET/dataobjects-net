@@ -4,9 +4,6 @@
 // Created by: 
 // Created:    2007.10.20
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using NUnit.Framework;

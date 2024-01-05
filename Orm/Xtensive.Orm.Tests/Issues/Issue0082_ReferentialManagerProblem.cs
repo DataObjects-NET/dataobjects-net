@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.06.04
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0082_ReferentialManagerProblem_Model;

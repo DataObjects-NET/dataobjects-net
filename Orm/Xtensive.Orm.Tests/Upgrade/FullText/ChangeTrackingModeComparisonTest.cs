@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.07.17
 
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.FullText.Model.Version2;

@@ -4,17 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2009.09.07
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 {

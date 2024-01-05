@@ -4,12 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.05
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Tests.Upgrade.SkipUpgradeTestModel;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.SkipUpgradeTestModel
 {

@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2008.12.24
 
-using System;
 
 
 namespace Xtensive.Orm.Metadata

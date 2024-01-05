@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.11.18
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0202_OnRemoveActionOverriding_Model;

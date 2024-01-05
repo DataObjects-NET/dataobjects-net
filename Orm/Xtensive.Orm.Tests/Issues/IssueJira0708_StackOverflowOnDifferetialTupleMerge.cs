@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2017.09.06
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0708_StackOverflowOnDifferetialTupleMergeModel;

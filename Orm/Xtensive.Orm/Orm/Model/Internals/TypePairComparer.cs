@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.03.17
 
-using System.Collections.Generic;
 using Xtensive.Comparison;
 using Xtensive.Core;
 

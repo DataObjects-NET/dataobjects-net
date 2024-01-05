@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.07.28
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Orm.Operations

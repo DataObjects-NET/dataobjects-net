@@ -4,10 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2009.04.08
 
-using System;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Upgrade
 {

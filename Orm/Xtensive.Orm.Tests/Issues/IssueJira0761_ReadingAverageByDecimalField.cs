@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2019.02.14
 
-using System;
 using System.Data.SqlTypes;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel;

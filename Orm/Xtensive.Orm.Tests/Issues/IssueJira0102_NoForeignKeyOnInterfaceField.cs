@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.11
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0102_NoForeignKeyOnInterfaceField_Model;

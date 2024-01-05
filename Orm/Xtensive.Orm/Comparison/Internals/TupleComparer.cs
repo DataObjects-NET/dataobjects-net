@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.29
 
-using System;
 using System.Runtime.Serialization;
 using Tuple = Xtensive.Tuples.Tuple;
 

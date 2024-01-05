@@ -2,9 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Text;
@@ -12,9 +10,6 @@ using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0

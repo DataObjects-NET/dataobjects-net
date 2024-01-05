@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2011.02.07
 
-using System;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;

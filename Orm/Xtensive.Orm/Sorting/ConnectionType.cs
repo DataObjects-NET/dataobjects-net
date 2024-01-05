@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.12.10
 
-using System;
 
 namespace Xtensive.Sorting
 {

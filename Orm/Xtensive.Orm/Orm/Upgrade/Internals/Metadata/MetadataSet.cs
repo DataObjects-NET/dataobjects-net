@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.22
 
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Upgrade
 {

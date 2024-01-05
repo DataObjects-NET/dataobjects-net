@@ -4,11 +4,8 @@
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;

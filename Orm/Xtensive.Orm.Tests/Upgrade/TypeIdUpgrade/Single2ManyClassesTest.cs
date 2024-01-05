@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.28
 
-using System.Linq;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade

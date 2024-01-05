@@ -4,12 +4,10 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.06
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using System.Linq;
 using M=Xtensive.Orm.Model;
 
 #region Model

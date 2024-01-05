@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.18
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Sql.Drivers.Oracle.v11

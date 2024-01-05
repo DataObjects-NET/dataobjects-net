@@ -5,7 +5,6 @@
 // Created:    2008.08.27
 
 using NUnit.Framework;
-using System;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;

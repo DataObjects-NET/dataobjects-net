@@ -4,15 +4,12 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
-using System.Linq;
 
 namespace Xtensive.Modelling.Actions
 {

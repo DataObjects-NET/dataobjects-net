@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.04.01
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.ReferencedKeysModel;

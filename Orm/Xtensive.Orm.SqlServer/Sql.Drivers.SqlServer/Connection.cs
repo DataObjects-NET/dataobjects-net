@@ -4,12 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
-using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using System.Threading;
-using System.Threading.Tasks;
 using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer

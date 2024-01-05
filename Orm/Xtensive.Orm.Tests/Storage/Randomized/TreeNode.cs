@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.11.26
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Storage.Randomized

@@ -4,10 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.08
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 

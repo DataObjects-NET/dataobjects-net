@@ -4,11 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.11
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
-using System.Linq;
 
 namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
 {

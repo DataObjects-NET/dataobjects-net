@@ -4,10 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2008.08.31
 
-using System;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests;

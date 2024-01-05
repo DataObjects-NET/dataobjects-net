@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.03
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Xtensive.Reflection;
 
 namespace Xtensive.Sql

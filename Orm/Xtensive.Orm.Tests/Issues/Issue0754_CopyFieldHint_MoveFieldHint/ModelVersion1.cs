@@ -4,7 +4,6 @@
 // Created by: Alex Gamzov
 // Created:    2010.11.17
 
-using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint.ModelVersion1
 {

@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.03.18
 
-using System;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 

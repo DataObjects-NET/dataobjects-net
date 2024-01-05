@@ -4,10 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2009.01.12
 
-using System.Collections.Generic;
 using NUnit.Framework;
-using System;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Tuples;

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
 using System.Data;
 using System.Data.Common;
 using Oracle.ManagedDataAccess.Client;

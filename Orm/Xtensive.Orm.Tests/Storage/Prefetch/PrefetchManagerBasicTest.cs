@@ -4,11 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.09.07
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Collections;

@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.18
 
-using System;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel

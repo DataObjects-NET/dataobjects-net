@@ -4,12 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
-using System;
 using System.Transactions;
-using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;

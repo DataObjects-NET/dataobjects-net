@@ -4,11 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2010.08.10
 
-using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;

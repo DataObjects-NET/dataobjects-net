@@ -1,4 +1,3 @@
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.BulkOperations.Tests.Issues.WrongAliassesIssue;
 

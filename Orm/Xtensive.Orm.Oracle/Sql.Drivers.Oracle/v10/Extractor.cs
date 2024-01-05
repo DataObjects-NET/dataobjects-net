@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Oracle.v10
 {

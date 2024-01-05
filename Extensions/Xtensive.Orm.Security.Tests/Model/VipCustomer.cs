@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.30
 
-using System;
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Security.Tests.Model

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2020.02.06
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -14,7 +13,6 @@ using Xtensive.Orm.Tests.Model.NameBuilderTestModel;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Definitions;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Model.NameBuilderTestModel
 {

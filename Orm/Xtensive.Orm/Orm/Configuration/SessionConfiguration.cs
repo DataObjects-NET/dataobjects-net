@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
-using System;
 using System.Transactions;
 using Xtensive.Core;
 

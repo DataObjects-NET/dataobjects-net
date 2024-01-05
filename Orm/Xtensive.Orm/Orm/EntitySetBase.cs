@@ -4,11 +4,8 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;

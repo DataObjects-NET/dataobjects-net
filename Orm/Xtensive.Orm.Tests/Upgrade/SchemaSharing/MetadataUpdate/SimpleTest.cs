@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.04.03
 
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using model = Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model;

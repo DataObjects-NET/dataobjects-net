@@ -8,6 +8,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Core.Tuples
 {

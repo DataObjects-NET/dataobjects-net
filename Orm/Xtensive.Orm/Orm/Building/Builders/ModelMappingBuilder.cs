@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.06
 
-using System;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;

@@ -8,8 +8,6 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtensive.Sql.Drivers.Sqlite
 {

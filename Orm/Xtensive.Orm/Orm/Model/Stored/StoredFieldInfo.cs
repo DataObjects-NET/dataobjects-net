@@ -4,11 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Xml.Serialization;
-using System;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Model.Stored

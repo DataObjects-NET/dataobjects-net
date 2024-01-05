@@ -4,11 +4,8 @@
 // Created by: Alexey Kulakov
 // Created:    2018.10.01
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;

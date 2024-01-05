@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.01.30
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.IoC

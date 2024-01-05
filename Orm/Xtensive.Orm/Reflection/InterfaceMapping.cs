@@ -4,12 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2010.08.30
 
-using System;
 using System.Reflection;
 
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
-using System.Linq;
-using System.Collections.Generic;
 
 namespace Xtensive.Reflection
 {

@@ -6,10 +6,7 @@
 
 // TODO: Refactor stupid MSSqlExtractorTests.cs and put all stuff here
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;

@@ -2,9 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using Xtensive.Orm.Web.Tests.Middleware;
 using Microsoft.AspNetCore.Builder;
-using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Xtensive.Orm.Web.Tests.Middleware

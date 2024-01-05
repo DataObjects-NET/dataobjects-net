@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.09.21
 
-using System.Collections.Generic;
 using Xtensive.Sql.Drivers.SqlServer.v10;
 using Xtensive.Sql.Info;
 

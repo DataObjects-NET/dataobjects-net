@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2007.12.28
 
-using System;
 
 namespace Xtensive.Orm
 {

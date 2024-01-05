@@ -4,8 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug.Model.Version1;

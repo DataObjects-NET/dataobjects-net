@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.04.27
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Model;
 using userCase = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.UserCase;

@@ -2,13 +2,8 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;

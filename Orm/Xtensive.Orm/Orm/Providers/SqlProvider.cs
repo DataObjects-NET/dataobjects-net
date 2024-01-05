@@ -4,13 +4,10 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Providers
 {

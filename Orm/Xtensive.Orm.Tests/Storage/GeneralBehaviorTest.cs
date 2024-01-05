@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.02.17
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Storage.GeneralBehaviorTestModel;

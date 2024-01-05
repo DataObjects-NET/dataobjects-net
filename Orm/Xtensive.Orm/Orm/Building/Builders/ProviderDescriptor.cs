@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.01
 
-using System;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;

@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
-using System;
 using Xtensive.Comparison;
 
 namespace Xtensive.Orm.Tests.Core.Comparison

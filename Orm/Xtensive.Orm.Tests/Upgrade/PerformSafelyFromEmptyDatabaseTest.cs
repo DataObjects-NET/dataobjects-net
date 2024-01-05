@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.07.05
 
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Services;

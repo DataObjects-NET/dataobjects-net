@@ -4,10 +4,8 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.03
 
-using System;
 using System.CodeDom.Compiler;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 

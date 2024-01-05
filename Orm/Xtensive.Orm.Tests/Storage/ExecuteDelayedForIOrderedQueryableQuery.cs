@@ -4,9 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.06.23
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.ExecuteDelayedForIOrderedQueryableQueryModel;

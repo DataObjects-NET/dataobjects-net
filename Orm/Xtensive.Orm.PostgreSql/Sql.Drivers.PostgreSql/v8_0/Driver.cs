@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
-using System;
 using NpgsqlTypes;
 using Xtensive.Reflection.PostgreSql;
 using Xtensive.Sql.Compiler;

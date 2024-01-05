@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2018.01.31
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0723_IncludeFilterMappingGathererHandlesMemberExpressionBadlyModel;

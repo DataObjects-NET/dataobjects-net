@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2011.01.21
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueA363_WrongInnerJoin_Model;

@@ -4,13 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.25
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Storage
 {

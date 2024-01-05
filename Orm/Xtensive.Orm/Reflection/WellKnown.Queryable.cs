@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.24
 
-using System.Linq;
 
 namespace Xtensive.Reflection
 {

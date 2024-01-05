@@ -4,12 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.19
 
-using System;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Orm.Internals.FieldAccessors;
 using Xtensive.Reflection;
-using System.Linq;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 

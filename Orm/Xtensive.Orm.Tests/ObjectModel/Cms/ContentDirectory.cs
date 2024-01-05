@@ -4,8 +4,6 @@
 // Created by: Alex Ilyin
 // Created:    2009.08.31
 
-using System;
-using System.Linq;
 using System.Text;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms

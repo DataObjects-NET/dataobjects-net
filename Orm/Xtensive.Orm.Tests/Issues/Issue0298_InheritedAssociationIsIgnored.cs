@@ -4,13 +4,10 @@
 // Created by: a
 // Created:    a
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0298_Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0298_Model
 {

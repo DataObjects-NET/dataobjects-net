@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.08.12
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 
@@ -13,7 +12,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Orm.Operations;
 using Xtensive.Core;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
 {

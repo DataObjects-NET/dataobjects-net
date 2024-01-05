@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2015.04.22
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Services;

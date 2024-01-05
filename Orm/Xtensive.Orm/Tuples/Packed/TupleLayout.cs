@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
-using System;
 using System.Runtime.CompilerServices;
 using Xtensive.Reflection;
 

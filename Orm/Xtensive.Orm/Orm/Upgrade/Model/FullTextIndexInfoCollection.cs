@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2010.01.25
 
-using System;
 
 using Xtensive.Modelling;
 

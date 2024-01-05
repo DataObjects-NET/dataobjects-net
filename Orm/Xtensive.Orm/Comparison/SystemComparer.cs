@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.10
 
-using System;
 using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison

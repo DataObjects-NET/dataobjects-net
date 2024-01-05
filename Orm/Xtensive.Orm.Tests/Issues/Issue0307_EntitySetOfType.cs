@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.08.13
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0307_EntitySetOfType_Model;

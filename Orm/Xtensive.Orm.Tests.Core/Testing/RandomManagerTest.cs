@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.09
 
-using System;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 

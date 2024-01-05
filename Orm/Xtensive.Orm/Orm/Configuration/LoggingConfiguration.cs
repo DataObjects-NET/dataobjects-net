@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using Xtensive.Core;
 using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;

@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.09.30
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests;

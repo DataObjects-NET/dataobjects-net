@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.07.08
 
-using System;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.FieldAccessors

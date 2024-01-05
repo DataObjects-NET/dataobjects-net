@@ -2,7 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

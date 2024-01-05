@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.11.11
 
-using System;
 
 namespace Xtensive.Conversion
 {

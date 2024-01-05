@@ -4,14 +4,12 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.13
 
-using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 {

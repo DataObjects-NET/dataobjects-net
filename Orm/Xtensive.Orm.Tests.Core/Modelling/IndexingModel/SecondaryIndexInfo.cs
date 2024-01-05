@@ -4,8 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.20
 
-using System;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;

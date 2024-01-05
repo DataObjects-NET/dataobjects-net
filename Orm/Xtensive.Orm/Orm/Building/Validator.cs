@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.12
 
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;

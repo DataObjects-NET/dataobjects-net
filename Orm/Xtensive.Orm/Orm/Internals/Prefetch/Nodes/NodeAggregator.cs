@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2011.01.13
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {

@@ -4,9 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.06.17
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Building;

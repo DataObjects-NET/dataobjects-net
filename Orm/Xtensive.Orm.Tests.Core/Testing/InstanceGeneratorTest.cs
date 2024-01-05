@@ -4,8 +4,6 @@
 // Created by: Roman Churakov
 // Created:    2008.01.24
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Orm.Logging;

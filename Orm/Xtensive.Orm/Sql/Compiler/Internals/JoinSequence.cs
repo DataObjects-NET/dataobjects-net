@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.05.18
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Sql.Dml;
 

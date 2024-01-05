@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.12.28
 
-using System;
 using System.Reflection;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;

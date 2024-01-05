@@ -4,11 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.19
 
-using System;
 using System.Data;
 using System.Data.Common;
 using System.IO;
-using System.Linq;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql

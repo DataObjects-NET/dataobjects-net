@@ -4,8 +4,6 @@
 // Created by: Alex Gamzov
 // Created:    2009.09.17
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model;

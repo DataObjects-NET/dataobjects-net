@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.01
 
-using System;
 using System.Data.Common;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers

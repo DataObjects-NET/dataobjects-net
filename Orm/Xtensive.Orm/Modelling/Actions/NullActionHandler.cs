@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.20
 
-using System;
 
 namespace Xtensive.Modelling.Actions
 {

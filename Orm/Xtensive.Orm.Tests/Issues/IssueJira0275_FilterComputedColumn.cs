@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.31
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0275_FilterComputedColumnModel;

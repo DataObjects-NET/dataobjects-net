@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.01.26
 
-using System;
 
 namespace Xtensive.Orm.Linq
 {

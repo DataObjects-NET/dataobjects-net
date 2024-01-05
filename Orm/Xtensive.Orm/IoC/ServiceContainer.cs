@@ -4,11 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;

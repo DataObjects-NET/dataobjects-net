@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using System.Configuration;
-using System.Linq;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Elements;

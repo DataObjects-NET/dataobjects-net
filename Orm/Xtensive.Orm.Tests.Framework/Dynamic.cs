@@ -1,12 +1,10 @@
 ﻿//Copyright (C) Microsoft Corporation.  All rights reserved.
 
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
-using System.Threading;
 
 namespace System.Linq.Dynamic
 {

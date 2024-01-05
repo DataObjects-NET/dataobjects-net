@@ -4,7 +4,6 @@
 // Created by: Csaba Beer
 // Created:    2011.01.08
 
-using System.Linq;
 using Xtensive.Sql.Info;
 using FirebirdSql.Data.FirebirdClient;
 

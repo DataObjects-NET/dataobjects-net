@@ -4,7 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2013.12.30
 
-using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 

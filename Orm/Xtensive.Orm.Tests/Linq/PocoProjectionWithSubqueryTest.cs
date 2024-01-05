@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.06.13
 
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.PocoProjectionWithSubqueryTestModel;

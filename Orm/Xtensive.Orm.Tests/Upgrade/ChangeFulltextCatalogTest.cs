@@ -10,7 +10,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel
 {

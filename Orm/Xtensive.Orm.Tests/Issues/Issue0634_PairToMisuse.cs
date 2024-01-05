@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.06.07
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Issues.Issue0634_PairToMisuse_Model;

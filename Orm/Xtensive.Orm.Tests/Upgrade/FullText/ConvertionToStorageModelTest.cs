@@ -4,13 +4,11 @@
 // Created by: Alexey Kulakov
 // Created:    2017.07.17
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Tests.Upgrade.FullText.ConversionToStorageModelModel;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText.ConversionToStorageModelModel
 {

@@ -4,10 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.01
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Comparison;
 using Xtensive.Core;

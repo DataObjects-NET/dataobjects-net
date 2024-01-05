@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.02.27
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1

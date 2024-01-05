@@ -4,8 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.02
 
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;

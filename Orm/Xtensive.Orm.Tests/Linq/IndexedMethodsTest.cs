@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.12.14
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;

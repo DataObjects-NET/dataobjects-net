@@ -4,11 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.05.29
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;

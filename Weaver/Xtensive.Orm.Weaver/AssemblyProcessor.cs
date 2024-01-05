@@ -4,11 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Stages;
 

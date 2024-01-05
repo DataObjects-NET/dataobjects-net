@@ -4,11 +4,8 @@
 // Created by: Alex Ustinov
 // Created:    2007.07.10
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;

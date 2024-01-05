@@ -4,7 +4,6 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.08.11
 
-using System;
 using System.Configuration;
 using System.IO;
 using System.Transactions;

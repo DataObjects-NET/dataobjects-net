@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.09.23
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0179_NullableBooleanFieldsQueryModel;

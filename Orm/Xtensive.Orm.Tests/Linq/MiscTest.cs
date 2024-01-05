@@ -5,8 +5,6 @@
 // Created:    2009.12.02
 
 
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Collections;

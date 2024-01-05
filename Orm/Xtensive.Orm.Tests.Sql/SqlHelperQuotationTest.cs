@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2020.04.23
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;

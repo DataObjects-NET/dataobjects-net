@@ -4,10 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2012.07.06
 
-using System;
 using System.Configuration;
 using System.Globalization;
-using System.Threading;
 
 namespace Xtensive.Orm.Localization.Configuration
 {

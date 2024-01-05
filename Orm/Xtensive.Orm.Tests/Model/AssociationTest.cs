@@ -13,9 +13,6 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.Association;
-using System.Linq;
-using System.Collections.Generic;
-using System;
 
 namespace Xtensive.Orm.Tests.Model.Association
 {

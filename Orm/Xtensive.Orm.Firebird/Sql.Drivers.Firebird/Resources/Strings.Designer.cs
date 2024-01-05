@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Sql.Drivers.Firebird.Resources {
-    using System;
     
     
     /// <summary>

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.10.13
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Upgrade.Model

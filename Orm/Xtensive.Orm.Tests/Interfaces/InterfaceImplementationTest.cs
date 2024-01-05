@@ -4,11 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2010.05.18
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Interfaces.Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Interfaces
 {

@@ -4,7 +4,6 @@
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
-using System;
 using System.Data.SQLite;
 using System.Security;
 using Xtensive.Sql.Info;

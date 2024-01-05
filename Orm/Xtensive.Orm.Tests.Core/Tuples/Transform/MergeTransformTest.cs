@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.06.05
 
-using System;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Core;

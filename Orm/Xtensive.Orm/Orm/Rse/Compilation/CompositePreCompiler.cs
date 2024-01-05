@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.03.30
 
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation

@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.16
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,7 +11,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using System.Linq;
 
 namespace Xtensive.Orm.Linq
 {

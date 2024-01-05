@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.02.12
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model;

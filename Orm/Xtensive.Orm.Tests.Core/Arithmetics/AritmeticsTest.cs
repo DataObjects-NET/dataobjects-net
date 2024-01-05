@@ -4,9 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.22
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Arithmetic;
 using Xtensive.Orm.Tests;

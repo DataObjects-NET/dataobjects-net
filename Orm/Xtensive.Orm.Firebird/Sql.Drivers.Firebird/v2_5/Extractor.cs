@@ -4,12 +4,8 @@
 // Created by: Csaba Beer
 // Created:    2011.01.13
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Sql.Drivers.Firebird.Resources;
 using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;

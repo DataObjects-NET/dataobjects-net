@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;

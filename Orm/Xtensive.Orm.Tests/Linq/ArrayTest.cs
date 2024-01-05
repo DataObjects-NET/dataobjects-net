@@ -4,10 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.30
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Comparison;

@@ -4,10 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.07
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Collections;
-using System.Linq;
 using Xtensive.Core;
 using DotNetNotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
 using JBNotNullAttribute = JetBrains.Annotations.NotNullAttribute;

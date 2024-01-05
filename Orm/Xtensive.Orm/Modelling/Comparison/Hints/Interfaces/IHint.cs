@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.26
 
-using System.Collections.Generic;
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

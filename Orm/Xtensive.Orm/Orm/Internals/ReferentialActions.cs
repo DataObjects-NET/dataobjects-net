@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.07.15
 
-using System;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.PairIntegrity;

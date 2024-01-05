@@ -5,7 +5,6 @@
 // Created:    2009.09.01
 
 using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml

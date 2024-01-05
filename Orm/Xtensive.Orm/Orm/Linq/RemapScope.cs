@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.06.03
 
-using System;
 using Xtensive.Core;
 
 using Xtensive.IoC;

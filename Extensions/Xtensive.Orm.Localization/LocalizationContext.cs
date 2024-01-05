@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.30
 
-using System;
 using System.Globalization;
-using System.Threading;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Localization

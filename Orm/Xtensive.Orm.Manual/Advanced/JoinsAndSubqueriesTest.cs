@@ -4,9 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.24
 
-using System;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest

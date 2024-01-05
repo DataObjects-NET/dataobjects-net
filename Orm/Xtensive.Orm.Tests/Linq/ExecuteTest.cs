@@ -5,7 +5,6 @@
 // Created:    2009.12.15
 
 using System.Collections;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;

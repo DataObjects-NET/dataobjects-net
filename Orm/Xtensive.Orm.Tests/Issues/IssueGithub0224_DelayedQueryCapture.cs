@@ -2,13 +2,10 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Collections;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Dynamic;
 using System.Reflection;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Orm.Configuration;

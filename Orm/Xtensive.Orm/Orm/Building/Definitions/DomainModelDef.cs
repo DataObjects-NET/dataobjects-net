@@ -4,15 +4,12 @@
 // Created by: Alex Ustinov
 // Created:    2007.07.11
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Model;
 
-using System.Linq;
 
 namespace Xtensive.Orm.Building.Definitions
 {

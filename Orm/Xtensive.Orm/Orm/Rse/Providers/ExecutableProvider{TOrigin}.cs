@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.13
 
-using System;
 
 
 namespace Xtensive.Orm.Rse.Providers

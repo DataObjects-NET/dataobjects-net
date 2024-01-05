@@ -4,10 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

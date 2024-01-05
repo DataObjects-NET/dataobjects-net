@@ -4,10 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.08
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;

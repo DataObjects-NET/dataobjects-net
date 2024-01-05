@@ -4,7 +4,6 @@
 // Created by: Alex Gamzov
 // Created:    2010.10.22
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0851_AnyMappingError_Model;

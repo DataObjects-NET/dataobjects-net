@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.08.04
 
-using System;
 using Xtensive.Tuples;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;

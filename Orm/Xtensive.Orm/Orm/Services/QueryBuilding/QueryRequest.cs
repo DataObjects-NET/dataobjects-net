@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.26
 
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql.Compiler;
 

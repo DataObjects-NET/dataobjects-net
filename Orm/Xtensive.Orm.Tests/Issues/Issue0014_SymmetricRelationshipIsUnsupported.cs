@@ -5,8 +5,6 @@
 // Created:    2008.11.26
 
 
-using System;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

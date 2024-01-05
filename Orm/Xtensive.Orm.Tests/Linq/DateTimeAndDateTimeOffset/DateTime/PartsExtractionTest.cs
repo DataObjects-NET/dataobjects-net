@@ -4,7 +4,6 @@
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 

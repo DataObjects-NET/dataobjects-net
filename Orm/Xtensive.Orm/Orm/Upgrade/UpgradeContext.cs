@@ -4,8 +4,6 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.12.30
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Reflection;
 using Xtensive.Collections;

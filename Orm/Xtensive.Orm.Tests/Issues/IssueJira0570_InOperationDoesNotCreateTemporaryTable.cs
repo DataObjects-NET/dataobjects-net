@@ -4,9 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.08.24
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Core;

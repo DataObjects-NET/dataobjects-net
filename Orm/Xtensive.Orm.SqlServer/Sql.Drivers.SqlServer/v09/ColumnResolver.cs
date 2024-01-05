@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.12
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09

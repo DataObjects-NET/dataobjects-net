@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.03.02
 
-using System;
 using System.Text;
 
 namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel

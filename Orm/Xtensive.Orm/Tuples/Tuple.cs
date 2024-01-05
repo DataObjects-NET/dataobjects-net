@@ -4,7 +4,6 @@
 // Created by: Nick Svetlov
 // Created:    2007.05.30
 
-using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;

@@ -4,13 +4,10 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.03
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Text;
-using System.Linq;
 
 namespace Xtensive.Core
 {

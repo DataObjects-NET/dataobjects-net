@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.06.02
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Tuples.Transform.Internals;

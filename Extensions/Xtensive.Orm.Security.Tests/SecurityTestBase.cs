@@ -1,6 +1,5 @@
 using System.Configuration;
 using NUnit.Framework;
-using System;
 using TestCommon;
 using Xtensive.Core;
 using Xtensive.Orm;

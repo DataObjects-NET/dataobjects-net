@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.11
 
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
-using System;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.DisableSaveChangesTestModel;

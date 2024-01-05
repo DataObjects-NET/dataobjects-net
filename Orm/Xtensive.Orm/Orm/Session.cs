@@ -4,13 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;

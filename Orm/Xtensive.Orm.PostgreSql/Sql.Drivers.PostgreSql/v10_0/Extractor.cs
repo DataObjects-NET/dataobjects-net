@@ -4,11 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2019.09.25
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;

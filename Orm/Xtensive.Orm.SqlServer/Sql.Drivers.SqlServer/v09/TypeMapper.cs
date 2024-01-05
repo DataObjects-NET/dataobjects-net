@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.02
 
-using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;

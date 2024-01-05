@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.08.20
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Sql.Model;
 

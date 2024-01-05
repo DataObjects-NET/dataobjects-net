@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.15
 
-using System;
 using Xtensive.Collections;
 
 namespace Xtensive.Collections

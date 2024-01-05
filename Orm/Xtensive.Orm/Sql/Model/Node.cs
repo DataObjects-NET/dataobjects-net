@@ -2,7 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
 using System.Diagnostics;
 using Xtensive.Core;
 

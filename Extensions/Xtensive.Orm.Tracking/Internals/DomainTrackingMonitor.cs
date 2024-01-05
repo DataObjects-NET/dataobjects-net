@@ -1,4 +1,3 @@
-﻿using System;
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Tracking

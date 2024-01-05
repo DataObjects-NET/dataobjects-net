@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.08.16
 
-using System;
 using System.Text;
 using Xtensive.Core;
 

@@ -4,8 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
 
@@ -38,7 +36,6 @@ using StructureContainer1 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureC
 using StructureContainer2 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer2;
 using StructureContainer3 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer3;
 using StructureContainer4 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer4;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

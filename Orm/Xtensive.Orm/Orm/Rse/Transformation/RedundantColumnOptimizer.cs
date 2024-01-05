@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.12
 
-using System;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 

@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2011.03.25
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.NotEqualsForNullableColumnTest_Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues
 {

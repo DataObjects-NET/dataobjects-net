@@ -4,8 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.06.19
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 
@@ -14,7 +12,6 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Building;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

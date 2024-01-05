@@ -2,7 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 

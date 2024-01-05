@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-using System;
 
 // ReSharper disable CheckNamespace
 namespace JetBrains.Annotations

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.17
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0481_EntitySetCachesInvalidStateModel;

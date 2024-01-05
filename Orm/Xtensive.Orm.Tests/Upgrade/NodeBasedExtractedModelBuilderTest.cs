@@ -5,7 +5,6 @@
 // Created:    2016.12.13
 
 using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;

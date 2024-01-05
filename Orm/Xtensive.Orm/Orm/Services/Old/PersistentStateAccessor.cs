@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.31
 
-using System;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Services

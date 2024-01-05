@@ -4,11 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2010.07.02
 
-using System;
-using System.Collections.Generic;
 
 using Xtensive.Reflection;
-using System.Linq;
 
 
 namespace Xtensive.Collections

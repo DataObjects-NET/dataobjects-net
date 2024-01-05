@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.12.08
 
-using System.Collections.Generic;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
 

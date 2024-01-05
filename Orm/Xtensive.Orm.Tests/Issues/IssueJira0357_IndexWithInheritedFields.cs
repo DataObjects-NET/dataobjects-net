@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.08.07
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;

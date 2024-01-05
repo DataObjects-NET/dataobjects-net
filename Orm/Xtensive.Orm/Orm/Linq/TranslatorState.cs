@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2010.01.21
 
-using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 

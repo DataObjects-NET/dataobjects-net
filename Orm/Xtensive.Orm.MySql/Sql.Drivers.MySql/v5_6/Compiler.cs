@@ -4,8 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2013.12.30
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_6

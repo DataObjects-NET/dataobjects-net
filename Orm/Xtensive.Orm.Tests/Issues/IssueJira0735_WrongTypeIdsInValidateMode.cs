@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.06.17
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using V1 = Xtensive.Orm.Tests.Issues.IssueJira0735_WrongTypeIdsInValidateModeModel.V1;

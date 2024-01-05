@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.05.12
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.TransactionScopeIntegrationTestModel;

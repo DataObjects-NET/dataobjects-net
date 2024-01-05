@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2016.12.08
 
-using System;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using Xtensive.Orm.FullTextSearchCondition;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;

@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.08.20
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
 using Model1 = Xtensive.Orm.Tests.Upgrade.NonNullableReferenceRemovalTestModel.Model1;

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
-using System;
 
 namespace Xtensive.Core
 {

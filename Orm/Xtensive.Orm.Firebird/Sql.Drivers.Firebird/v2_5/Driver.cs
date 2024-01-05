@@ -4,7 +4,6 @@
 // Created by: Csaba Beer
 // Created:    2011.01.10
 
-using System;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
 

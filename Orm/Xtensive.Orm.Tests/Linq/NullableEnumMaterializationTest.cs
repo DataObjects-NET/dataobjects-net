@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.13
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.NullableEnumQueryTestModel;
 

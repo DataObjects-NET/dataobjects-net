@@ -2,9 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Collections;
 using Xtensive.Sql.Model;

@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using Xtensive.Orm.Logging;
 using JetBrains.Annotations;

@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Modelling.IndexingModel.Resources {
-    using System;
     
     
     /// <summary>

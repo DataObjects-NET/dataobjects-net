@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.24
 
-using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;

@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.08
 
-using System;
 
 
 namespace Xtensive.Orm.Internals.Prefetch

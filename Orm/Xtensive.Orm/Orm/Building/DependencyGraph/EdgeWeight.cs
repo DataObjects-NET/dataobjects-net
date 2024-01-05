@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.05.20
 
-using System;
 
 namespace Xtensive.Orm.Building.DependencyGraph
 {

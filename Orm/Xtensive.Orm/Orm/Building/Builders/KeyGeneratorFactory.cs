@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.08
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals.KeyGenerators;
 using Xtensive.Reflection;

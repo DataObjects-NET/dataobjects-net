@@ -2,10 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;

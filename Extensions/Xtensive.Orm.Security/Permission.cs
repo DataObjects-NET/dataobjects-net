@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
-using System;
-using System.Linq;
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Security

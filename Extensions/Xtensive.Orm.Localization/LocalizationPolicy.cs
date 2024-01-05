@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.30
 
-using System;
 
 namespace Xtensive.Orm.Localization
 {

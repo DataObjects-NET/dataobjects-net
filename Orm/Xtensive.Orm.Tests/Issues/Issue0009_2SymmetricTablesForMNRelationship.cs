@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.26
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

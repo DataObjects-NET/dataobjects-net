@@ -4,13 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Dml;

@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;

@@ -3,9 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 using NUnit.Framework;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;

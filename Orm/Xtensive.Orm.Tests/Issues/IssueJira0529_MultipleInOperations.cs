@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.05.21
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0529_MultipleInOperationsTestModel;
 

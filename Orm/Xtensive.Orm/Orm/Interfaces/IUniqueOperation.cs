@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.02.18
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm

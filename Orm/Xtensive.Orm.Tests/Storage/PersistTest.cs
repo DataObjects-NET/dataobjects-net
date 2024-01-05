@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.01
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;

@@ -4,8 +4,6 @@
 // Created by: Denis Kudelin
 // Created:    2019.01.31
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectExpressionModel;

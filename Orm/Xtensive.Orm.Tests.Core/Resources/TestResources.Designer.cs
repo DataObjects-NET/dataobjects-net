@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Resources {
-    using System;
     
     
     /// <summary>

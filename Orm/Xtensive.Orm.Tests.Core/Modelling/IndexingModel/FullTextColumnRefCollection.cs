@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.01.14
 
-using System;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {

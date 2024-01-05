@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2008.07.25
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Comparison;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;

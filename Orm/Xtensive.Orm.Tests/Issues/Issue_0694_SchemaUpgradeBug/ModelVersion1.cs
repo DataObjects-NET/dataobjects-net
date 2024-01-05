@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1

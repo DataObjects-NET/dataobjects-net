@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.29
 
-using System;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;

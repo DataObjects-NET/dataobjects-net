@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.01.30
 
-using System;
 
 
 namespace Xtensive.IoC

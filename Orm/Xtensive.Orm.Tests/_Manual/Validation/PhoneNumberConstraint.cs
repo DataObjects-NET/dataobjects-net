@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.10.28
 
-using System;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Validation;

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.04.26
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.OnRemoveActionForNonPairedAssociationsTestModel;

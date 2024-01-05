@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.27
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;

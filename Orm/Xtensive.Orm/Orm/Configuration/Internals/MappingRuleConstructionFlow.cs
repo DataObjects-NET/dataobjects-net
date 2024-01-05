@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.08
 
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Xtensive.Orm.Configuration

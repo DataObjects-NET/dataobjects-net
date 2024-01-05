@@ -4,7 +4,6 @@
 // Created by: Alex Ilyin
 // Created:    2009.09.16
 
-using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {

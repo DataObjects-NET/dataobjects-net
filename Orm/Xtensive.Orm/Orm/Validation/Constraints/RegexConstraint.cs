@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2008.07.23
 
-using System;
 using System.Text.RegularExpressions;
 using Xtensive.Reflection;
 

@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.12.16
 
-using System.Linq;
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Localization

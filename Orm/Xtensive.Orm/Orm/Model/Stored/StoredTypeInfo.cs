@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.22
 
-using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Xml.Serialization;
 
 namespace Xtensive.Orm.Model.Stored

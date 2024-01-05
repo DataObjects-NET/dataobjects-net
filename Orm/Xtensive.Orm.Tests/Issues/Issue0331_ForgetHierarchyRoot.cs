@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.03
 
-using System;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model;

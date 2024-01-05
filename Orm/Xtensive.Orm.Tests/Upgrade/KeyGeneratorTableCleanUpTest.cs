@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.09.28
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;

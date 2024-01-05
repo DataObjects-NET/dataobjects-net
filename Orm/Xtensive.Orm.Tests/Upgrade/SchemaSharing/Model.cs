@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.03.02
 
-using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Model
 {

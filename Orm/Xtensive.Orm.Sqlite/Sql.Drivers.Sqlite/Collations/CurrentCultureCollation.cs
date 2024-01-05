@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.06.05
 
-using System;
 using System.Data.SQLite;
 
 namespace Xtensive.Sql.Drivers.Sqlite.Collations

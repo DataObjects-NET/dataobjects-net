@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
-using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Serialization;

@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.10.14
 
-using System.Collections.Generic;
 using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Orm.Upgrade

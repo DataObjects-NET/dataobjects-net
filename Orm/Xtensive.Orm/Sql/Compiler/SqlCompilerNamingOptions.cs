@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.31
 
-using System;
 
 namespace Xtensive.Sql.Compiler
 {

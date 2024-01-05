@@ -4,9 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
-using System.Linq;
 using NUnit.Framework;
-using System;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Upgrade;

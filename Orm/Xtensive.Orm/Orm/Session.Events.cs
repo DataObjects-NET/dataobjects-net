@@ -4,13 +4,11 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.06.29
 
-using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Transactions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
-using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Orm

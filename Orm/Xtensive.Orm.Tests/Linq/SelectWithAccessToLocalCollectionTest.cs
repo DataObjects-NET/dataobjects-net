@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.16
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.SelectWithAccessToLocalCollectionTestModel;

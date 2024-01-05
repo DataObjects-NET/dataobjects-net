@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.11
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.UnexpectedBehaviorTestModel;

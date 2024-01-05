@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.15
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0402_WrongEntitySetQuery_Model;

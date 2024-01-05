@@ -4,7 +4,6 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0

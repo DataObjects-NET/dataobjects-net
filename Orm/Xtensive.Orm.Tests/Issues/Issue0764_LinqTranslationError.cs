@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2010.07.12
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0764_LinqTranslationError_Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues
 {

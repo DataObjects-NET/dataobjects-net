@@ -3,8 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtensive.Sql.Model
 {

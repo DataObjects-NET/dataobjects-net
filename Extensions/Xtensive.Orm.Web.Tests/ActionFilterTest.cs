@@ -1,13 +1,10 @@
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using Xtensive.Orm.Web.Tests.Filters;
-using System.Linq;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Xtensive.Orm.Web.Tests.Filters

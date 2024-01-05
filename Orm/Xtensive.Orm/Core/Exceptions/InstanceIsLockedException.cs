@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.06.08
 
-using System;
 using System.Runtime.Serialization;
 
 

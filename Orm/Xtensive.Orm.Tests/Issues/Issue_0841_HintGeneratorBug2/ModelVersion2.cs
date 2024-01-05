@@ -6,7 +6,6 @@
 
 using Xtensive.Core;
 using Xtensive.Orm.Upgrade;
-using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2.Model.Version2
 {

@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.11.20
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Sql;

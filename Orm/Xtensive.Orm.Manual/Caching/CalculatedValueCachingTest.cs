@@ -4,14 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.18
 
-using System;
 using System.Linq.Expressions;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Linq;
-using System.Linq;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Caching
