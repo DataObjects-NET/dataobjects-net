@@ -11,7 +11,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade.Model;
-using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Indexing
 {
