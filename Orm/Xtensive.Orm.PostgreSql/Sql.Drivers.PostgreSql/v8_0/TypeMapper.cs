@@ -129,6 +129,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
+      if (value is DateTimeOffset dateTimeOffset) {
+        var localTimeTicks = dateTimeOffset.UtcTicks;
+        value = new DateTimeOffset(localTimeTicks, TimeSpan.Zero);
+      }
       nativeParameter.NpgsqlValue = value ?? DBNull.Value;
     }
 
@@ -195,7 +199,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
-      return value;
+      return value.ToLocalTime();
     }
 
     // Constructors
