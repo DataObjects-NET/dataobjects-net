@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.05.22
 
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (applyParameters.Count > 1)
         ApplyProviderCorrectorRewriter.ThrowInvalidOperationException();
       var applyParameter = applyParameters[0];
-      if (owner.State.SelfConvertibleApplyProviders[applyParameter])
+      if (owner.State.CheckIfApplyParameterSeflConvertible(applyParameter))
         return false;
       var newPair = new Pair<CalculateProvider, ColumnCollection>(provider, provider.Header.Columns);
       if (owner.State.CalculateProviders.ContainsKey(applyParameter))

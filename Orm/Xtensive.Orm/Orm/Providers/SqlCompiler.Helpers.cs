@@ -345,7 +345,9 @@ namespace Xtensive.Orm.Providers
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
     {
-      var reference = OuterReferences[parameter];
+      if (!OuterReferences.TryGetValue(parameter, out var reference)) {
+        reference = outerReferenceStack.Peek();
+      }
       var sqlProvider = reference.First;
       var useQueryReference = reference.Second;
       return useQueryReference

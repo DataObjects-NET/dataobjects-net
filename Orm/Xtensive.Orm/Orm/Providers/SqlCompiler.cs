@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Providers
 {
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
+    protected readonly Stack<Pair<SqlProvider, bool>> outerReferenceStack = new Stack<Pair<SqlProvider, bool>>();
+
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;

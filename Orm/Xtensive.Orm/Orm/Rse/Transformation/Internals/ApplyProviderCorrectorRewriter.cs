@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.05.15
 
@@ -21,27 +21,40 @@ namespace Xtensive.Orm.Rse.Transformation
   {
     #region Nested types: CorrectorState
 
-    public sealed class CorrectorState : IDisposable
+    internal sealed class CorrectorState : IDisposable
     {
       private readonly CorrectorState previousState;
       private readonly ApplyProviderCorrectorRewriter owner;
+      private readonly Stack<bool> selfConvertibleApplyProviderStack;
+      private readonly Dictionary<ApplyParameter, bool> selfConvertibleApplyProviders;
+
       private bool isDisposed;
 
       public 
         Dictionary<ApplyParameter, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>> 
         Predicates { get; set; }
 
-      public Dictionary<ApplyParameter, bool> SelfConvertibleApplyProviders { get; set; }
+      public Dictionary<ApplyParameter, List<Pair<CalculateProvider, ColumnCollection>>> CalculateProviders { get; set; }
 
-      public Dictionary<ApplyParameter, List<Pair<CalculateProvider, ColumnCollection>>> 
-        CalculateProviders { get; set; }
+      public Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>> CalculateFilters { get; set; }
 
-      public Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>
-        CalculateFilters { get; set; }
+      public bool ExistsApplyProviderRequiringConversion => Predicates.Count > 0 || CalculateProviders.Count > 0;
 
-      public bool ExistsApplyProviderRequiringConversion {
-        get { return Predicates.Count > 0 || CalculateProviders.Count > 0;}
+      public Disposable SetIfApplyParameterConvertible(ApplyParameter parameter, bool isSelfConvertibleApply)
+      {
+        selfConvertibleApplyProviders.Add(parameter, isSelfConvertibleApply);
+        selfConvertibleApplyProviderStack.Push(isSelfConvertibleApply);
+        return new Disposable(
+          x => { 
+            _ = selfConvertibleApplyProviders.Remove(parameter);
+            _ = selfConvertibleApplyProviderStack.Pop();
+          });
       }
+
+      public bool CheckIfApplyParameterSeflConvertible(ApplyParameter parameter) =>
+        selfConvertibleApplyProviders.TryGetValue(parameter, out var result)
+          ? result
+          : selfConvertibleApplyProviderStack.Peek();
 
 
       // Constructors
@@ -57,10 +70,12 @@ namespace Xtensive.Orm.Rse.Transformation
           new Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>();
         previousState = owner.State;
         if (previousState == null) {
-          SelfConvertibleApplyProviders = new Dictionary<ApplyParameter, bool>();
+          selfConvertibleApplyProviders = new Dictionary<ApplyParameter, bool>();
+          selfConvertibleApplyProviderStack = new Stack<bool>();
         }
         else {
-          SelfConvertibleApplyProviders = previousState.SelfConvertibleApplyProviders;
+          selfConvertibleApplyProviders = previousState.selfConvertibleApplyProviders;
+          selfConvertibleApplyProviderStack = previousState.selfConvertibleApplyProviderStack;
         }
         owner.State = this;
       }
@@ -149,9 +164,9 @@ namespace Xtensive.Orm.Rse.Transformation
       CompilableProvider left;
       CompilableProvider right;
       var isSelfConvertibleApply = provider.SequenceType != ApplySequenceType.All;
-      State.SelfConvertibleApplyProviders.Add(provider.ApplyParameter, isSelfConvertibleApply);
-      VisitBinaryProvider(provider, out left, out right);
-      State.SelfConvertibleApplyProviders.Remove(provider.ApplyParameter);
+      using (State.SetIfApplyParameterConvertible(provider.ApplyParameter, isSelfConvertibleApply)) {
+        VisitBinaryProvider(provider, out left, out right);
+      }
 
       if (isSelfConvertibleApply) {
         return ProcesSelfConvertibleApply(provider, left, right);
