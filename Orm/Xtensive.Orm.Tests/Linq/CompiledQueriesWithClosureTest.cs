@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.12.16
 
@@ -24,7 +24,7 @@ namespace CompiledQueriesWithClosureTestModel
 
   public static class Extensions
   {
-    public static DateTime GetUserTime(this DateTime dateTime, TimeZone zone)
+    public static DateTime GetUserTime(this DateTime dateTime, TimeZoneInfo _)
     {
       return dateTime;
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var zone = TimeZone.CurrentTimeZone;
+        var zone = TimeZoneInfo.Local;
         var query = session.Query.Execute(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var zone = TimeZone.CurrentTimeZone;
+        var zone = TimeZoneInfo.Local;
         var query = session.Query.ExecuteDelayed(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();

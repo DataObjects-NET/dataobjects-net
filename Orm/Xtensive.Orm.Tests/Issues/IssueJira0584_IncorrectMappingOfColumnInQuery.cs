@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.05.21
 
@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
   public class PacioliAccount : EntityBase
   {
     [Field, Key]
-    public Guid Id { get; set; }
+    public new Guid Id { get; set; }
 
     [Field]
     public PacioliAccount Parent { get; set; }

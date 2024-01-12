@@ -1,9 +1,12 @@
-﻿using System;
+using System;
 using Xtensive.Core;
 using Microsoft.AspNetCore.Builder;
 
 namespace Xtensive.Orm.Web
 {
+  /// <summary>
+  /// Extensions for <see cref="IApplicationBuilder"/>
+  /// </summary>
   public static class AplicationBuilderExtensions
   {
     /// <summary>

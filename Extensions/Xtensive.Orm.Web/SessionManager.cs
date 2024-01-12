@@ -194,6 +194,10 @@ namespace Xtensive.Orm.Web
         throw new InvalidOperationException("Session is not provided");
     }
 
+    /// <summary>
+    /// Create intance of class.
+    /// </summary>
+    /// <param name="next">A delegate forming pipeline.</param>
     public SessionManager(RequestDelegate next)
     {
       nextMiddlewareRunner = next;

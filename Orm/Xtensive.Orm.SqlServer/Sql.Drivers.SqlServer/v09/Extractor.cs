@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.08.11
 
@@ -33,6 +33,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected HashSet<string> targetSchemes = new HashSet<string>();
     //protected Dictionary<string, Schema> targetSchemes = new Dictionary<string, Schema>();
 
+    /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
       catalog = new Catalog(catalogName);
@@ -40,6 +41,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return catalog;
     }
 
+    /// <inheritdoc/>
+    [Obsolete]
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       catalog = new Catalog(catalogName);
@@ -48,6 +51,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return catalog.Schemas[schemaName];
     }
 
+    /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       catalog = new Catalog(catalogName);

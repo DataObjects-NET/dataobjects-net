@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -30,11 +30,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       theCatalog = new Catalog(catalogName);
       targetSchema = null;
       RegisterReplacements(replacementsRegistry);
-      var schema = ExtractSchema(string.Empty, Driver.CoreServerInfo.DefaultSchemaName);
-      return schema.Catalog;
+      return ExtractSchemes(string.Empty, new string[] { Driver.CoreServerInfo.DefaultSchemaName });
     }
 
     /// <inheritdoc/>
+    [Obsolete]
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       theCatalog = new Catalog(catalogName);
@@ -43,6 +43,22 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       RegisterReplacements(replacementsRegistry);
       ExtractCatalogContents();
       return result;
+    }
+
+    /// <inheritdoc/>
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      theCatalog = new Catalog(catalogName);
+      if (schemaNames?.Length == 0) {
+        targetSchema = null;
+      }
+      else {
+        targetSchema = schemaNames[0];
+      }
+      var result = theCatalog.CreateSchema(targetSchema);
+      RegisterReplacements(replacementsRegistry);
+      ExtractCatalogContents();
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()

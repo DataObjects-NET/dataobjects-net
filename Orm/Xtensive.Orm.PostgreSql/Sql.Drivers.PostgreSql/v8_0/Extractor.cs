@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2020 Xtensive LLC.
+// Copyright (C) 2003-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -293,6 +293,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     #endregion
 
+    /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
       var catalog = new Catalog(catalogName);
@@ -302,6 +303,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return catalog;
     }
 
+    /// <inheritdoc/>
+    [Obsolete]
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       var catalog = new Catalog(catalogName);
@@ -313,6 +316,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return result;
     }
 
+    /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       var catalog = new Catalog(catalogName);

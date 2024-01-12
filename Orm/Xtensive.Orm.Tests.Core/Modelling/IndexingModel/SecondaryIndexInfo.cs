@@ -1,12 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.20
 
 using System;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -44,7 +43,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// <exception cref="ValidationException">Empty secondary key columns collection.</exception>
     protected override void ValidateState()
     {
-      using (var ea = new ExceptionAggregator()) {
+      using (var ea = new Xtensive.Core.ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
         // Secondary key columns: empty set, duplicates
@@ -77,9 +76,9 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
         }
 
         // Included columns
-        var fullKeySet = EnumerableExtensions.ToHashSet(KeyColumns
+        var fullKeySet = KeyColumns
           .Select(cr => cr.Value)
-          .Concat(PrimaryKeyColumns.Select(cr => cr.Value)));
+          .Concat(PrimaryKeyColumns.Select(cr => cr.Value)).ToHashSet();
 
         foreach (var columnRef in IncludedColumns) {
           if (fullKeySet.Contains(columnRef.Value))
