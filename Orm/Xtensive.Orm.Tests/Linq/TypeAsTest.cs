@@ -54,6 +54,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test1()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       using(var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         QueryExpressionTest(
@@ -67,6 +69,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test2()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         QueryExpressionTest(
@@ -80,6 +84,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test3()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         QueryExpressionTest(
