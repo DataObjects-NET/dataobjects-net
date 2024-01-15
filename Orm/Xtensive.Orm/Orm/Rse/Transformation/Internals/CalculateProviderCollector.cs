@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -31,52 +32,68 @@ namespace Xtensive.Orm.Rse.Transformation
       var applyParameter = applyParameters[0];
       if (owner.State.CheckIfApplyParameterSeflConvertible(applyParameter))
         return false;
-      var newPair = new Pair<CalculateProvider, ColumnCollection>(provider, provider.Header.Columns);
-      if (owner.State.CalculateProviders.ContainsKey(applyParameter))
-        owner.State.CalculateProviders[applyParameter].Add(newPair);
-      else
+      var newPair = (provider, provider.Header.Columns);
+
+      if (owner.State.CalculateProviders.TryGetValue(applyParameter, out var existingList)) {
+        existingList.Add(newPair);
+      }
+      else {
         owner.State.CalculateProviders.Add(applyParameter,
-          new List<Pair<CalculateProvider, ColumnCollection>> {newPair});
+          new List<(CalculateProvider, ColumnCollection)> {newPair});
+      }
       return true;
     }
 
     public bool TryAddFilter(FilterProvider filter)
     {
       var tupleAccesses = tupleGatherer.Gather(filter.Predicate);
-      if (tupleAccesses.Count == 0)
-        return false;
-      return TryAddCalculateFilter(filter, tupleAccesses);
+      return tupleAccesses.Count != 0 && TryAddCalculateFilter(filter, tupleAccesses);
     }
 
     public void ValidateSelectedColumnIndexes(SelectProvider provider)
     {
-      if (owner.State.CalculateProviders.Count > 0)
+      if (CheckCalculateProvidersExist()) {
         collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateProviders,
           provider.Header.Columns,
-          Strings.ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved);
-      if (owner.State.CalculateFilters.Count > 0)
+          () => Strings.ExColumnsUsedByCalculatedColumnExpressionContainingApplyParameterAreRemoved);
+      }
+
+      if (CheckCalculateFiltersExist()) {
         collectorHelper.ValidateNewColumnIndexes(owner.State.CalculateFilters,
-          provider.Header.Columns, Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
+          provider.Header.Columns,
+          () => Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
+      }
     }
 
     public void AliasColumns(AliasProvider provider)
     {
-      if (owner.State.CalculateProviders.Count > 0)
+      if (CheckCalculateProvidersExist()) {
         owner.State.CalculateProviders = collectorHelper.GenericAliasColumns(provider,
           owner.State.CalculateProviders);
-      if (owner.State.CalculateFilters.Count > 0)
+      }
+      if (CheckCalculateFiltersExist()) {
         owner.State.CalculateFilters = collectorHelper.GenericAliasColumns(provider,
           owner.State.CalculateFilters);
+      }
     }
 
     #region Private \ internal methods
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckCalculateProvidersExist() => owner.State.CalculateProviders.Count > 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool CheckCalculateFiltersExist() => owner.State.CalculateFilters.Count > 0;
+
+
     private List<ApplyParameter> FindApplyParameters(CalculateProvider newProvider)
     {
       return (from column in newProvider.CalculatedColumns
-      let parameter = parameterSearcher.Find(column.Expression)
-      where parameter!=null
-      select parameter).Distinct().ToList();
+          let parameter = parameterSearcher.Find(column.Expression)
+          where parameter!=null
+          select parameter)
+        .Distinct()
+        .ToList();
     }
 
     private bool TryAddCalculateFilter(FilterProvider filterProvider, List<int> tupleAccesses)
@@ -86,9 +103,9 @@ namespace Xtensive.Orm.Rse.Transformation
         if (!owner.State.CalculateProviders.ContainsKey(key))
           continue;
         foreach (var providerPair in owner.State.CalculateProviders[key]) {
-          if (ContainsAccessToTupleField(tupleAccesses, providerPair.First, filterProvider)) {
+          if (ContainsAccessToTupleField(tupleAccesses, providerPair.Item1, filterProvider)) {
             result = true;
-            AddCalculateFilter(providerPair.First, filterProvider);
+            AddCalculateFilter(providerPair.Item1, filterProvider);
           }
         }
       }
@@ -96,21 +113,19 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     private static bool ContainsAccessToTupleField(IEnumerable<int> tupleAccesses,
-      CalculateProvider calculateProvider, FilterProvider provider)
-    {
-      return tupleAccesses.Any(i => calculateProvider.Header.Columns.Contains(provider.Header.Columns[i]));
-    }
+        CalculateProvider calculateProvider, FilterProvider provider) =>
+      tupleAccesses.Any(i => calculateProvider.Header.Columns.Contains(provider.Header.Columns[i]));
 
     private void AddCalculateFilter(CalculateProvider calculateProvider, FilterProvider filterProvider)
     {
-      var newPair =
-        new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filterProvider.Predicate,
-          filterProvider.Header.Columns);
-      if (owner.State.CalculateFilters.ContainsKey(calculateProvider))
+      var newPair = (filterProvider.Predicate, filterProvider.Header.Columns);
+      if (owner.State.CalculateFilters.ContainsKey(calculateProvider)) {
         owner.State.CalculateFilters[calculateProvider].Add(newPair);
-      else
+      }
+      else {
         owner.State.CalculateFilters.Add(calculateProvider,
-          new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
+          new List<(Expression<Func<Tuple, bool>>, ColumnCollection)> {newPair});
+      }
     }
 
     #endregion

@@ -36,46 +36,50 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public void AliasColumns(AliasProvider provider)
     {
-      if (owner.State.Predicates.Count > 0)
+      if (CheckPredicatesExist()) {
         owner.State.Predicates = collectorHelper.GenericAliasColumns(provider, owner.State.Predicates);
+      }
     }
 
     public void ValidateAggregatedColumns(AggregateProvider provider)
     {
-      if (owner.State.Predicates.Count==0)
-        return;
-      foreach (var parameterPair in owner.State.Predicates)
-        foreach (var predicatePair in parameterPair.Value)
-          foreach (var column in predicatePair.Second)
-            if (provider.GroupColumnIndexes.Contains(column.Index))
-              ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(
-                Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
-          
+      if (CheckPredicatesExist()) {
+        foreach (var parameterPair in owner.State.Predicates)
+          foreach (var predicatePair in parameterPair.Value)
+            foreach (var column in predicatePair.Item2)
+              if (provider.GroupColumnIndexes.Contains(column.Index)) {
+                ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(
+                  Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
+              }
+      }
     }
 
     public void ValidateSelectedColumnIndexes(SelectProvider provider)
     {
-      if (owner.State.Predicates.Count == 0)
-        return;
-      collectorHelper.ValidateNewColumnIndexes(owner.State.Predicates, provider.Header.Columns,
-        Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
+      if (CheckPredicatesExist()) {
+        collectorHelper.ValidateNewColumnIndexes(owner.State.Predicates,
+          provider.Header.Columns,
+          () => Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);
+      }
     }
 
     #region Private \ internal methods
 
     private void SaveApplyPredicate(FilterProvider filter, ApplyParameter applyParameter)
     {
-      if (owner.State.Predicates.ContainsKey(applyParameter))
+      if (owner.State.Predicates.ContainsKey(applyParameter)) {
         owner.State.Predicates[applyParameter]
-          .Add(new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
-            filter.Header.Columns));
+          .Add((filter.Predicate, filter.Header.Columns));
+      }
       else {
-        var newPair = new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
-          filter.Header.Columns);
         owner.State.Predicates.Add(applyParameter,
-          new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
+          new List<(Expression<Func<Tuple, bool>>, ColumnCollection)> { (filter.Predicate, filter.Header.Columns) });
       }
     }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private bool CheckPredicatesExist() =>
+      owner.State.Predicates.Count > 0;
 
     #endregion
 
