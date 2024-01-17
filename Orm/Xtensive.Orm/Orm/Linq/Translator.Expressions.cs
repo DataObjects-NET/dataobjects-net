@@ -963,37 +963,42 @@ namespace Xtensive.Orm.Linq
       return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
     }
 
-    private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
+    private static bool IsConditionalOrWellknown(Expression expression)
     {
-      var conditionalExpression = expression as ConditionalExpression;
-      if (conditionalExpression!=null)
-        return IsConditionalOrWellknown(conditionalExpression.IfTrue, false)
-          && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+      return IsConditionalOrWellknownRecursive(expression, true);
 
-      if (isRoot)
-        return false;
+      static bool IsConditionalOrWellknownRecursive(Expression expression, bool isRootCall)
+      {
+        var conditionalExpression = expression as ConditionalExpression;
+        if (conditionalExpression != null)
+          return IsConditionalOrWellknownRecursive(conditionalExpression.IfTrue, false)
+            && IsConditionalOrWellknownRecursive(conditionalExpression.IfFalse, false);
 
-      if (expression.NodeType==ExpressionType.Constant)
-        return true;
-
-      if (expression.NodeType==ExpressionType.Convert) {
-        var unary = (UnaryExpression) expression;
-        return IsConditionalOrWellknown(unary.Operand, false);
-      }
-
-      if (!(expression is ExtendedExpression))
-        return false;
-
-      var memberType = expression.GetMemberType();
-      switch (memberType) {
-        case MemberType.Primitive:
-        case MemberType.Key:
-        case MemberType.Structure:
-        case MemberType.Entity:
-        case MemberType.EntitySet:
-          return true;
-        default:
+        if (isRootCall)
           return false;
+
+        if (expression.NodeType == ExpressionType.Constant)
+          return true;
+
+        if (expression.NodeType == ExpressionType.Convert) {
+          var unary = (UnaryExpression) expression;
+          return IsConditionalOrWellknownRecursive(unary.Operand, false);
+        }
+
+        if (!(expression is ExtendedExpression))
+          return false;
+
+        var memberType = expression.GetMemberType();
+        switch (memberType) {
+          case MemberType.Primitive:
+          case MemberType.Key:
+          case MemberType.Structure:
+          case MemberType.Entity:
+          case MemberType.EntitySet:
+            return true;
+          default:
+            return false;
+        }
       }
     }
 
