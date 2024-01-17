@@ -12,11 +12,11 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Linq.TypeAsTranslationTestModels;
+using Xtensive.Orm.Tests.Linq.TypeAsTestModels;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  public class TypeAsTranslationTest : AutoBuildTest
+  public class TypeAsTest : AutoBuildTest
   {
     #region Nested types
 
@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Tests.Linq
   }
 }
 
-namespace Xtensive.Orm.Tests.Linq.TypeAsTranslationTestModels
+namespace Xtensive.Orm.Tests.Linq.TypeAsTestModels
 {
   public interface ITestEntity : IEntity
   {
