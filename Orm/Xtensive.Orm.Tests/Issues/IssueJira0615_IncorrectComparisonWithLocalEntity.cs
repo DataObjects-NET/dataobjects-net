@@ -11,7 +11,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEntityModels;
+using Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEntityModel;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -331,6 +331,7 @@ namespace Xtensive.Orm.Tests.Issues
             })
           .OrderBy(t => t.V2)
           .ToArray();
+
         var expected = session.Query.All<PickingProductRequirement>()
           .AsEnumerable()
           .Select(
@@ -348,10 +349,43 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(results.SequenceEqual(expected), Is.True);
       }
     }
+
+    [Test]
+    public void FilterByAlreadyExistedCreatedEntityReduced()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
+
+        var margin = 2;
+        var results = session.Query.All<PickingProductRequirement>()
+          .Select(
+            p => new {
+              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
+            })
+          .OrderBy(t => t.V2)
+          .ToArray();
+
+        var expected = session.Query.All<PickingProductRequirement>()
+          .AsEnumerable()
+          .Select(
+            p => new {
+              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
+            })
+          .OrderBy(t => t.V2)
+          .ToArray();
+
+        Assert.That(expected.Length, Is.EqualTo(4));
+        Assert.That(results.Length, Is.EqualTo(expected.Length));
+        Assert.That(results.Skip(1).All(a => a.V2==2), Is.True);
+        Assert.That(results[0].V2, Is.EqualTo(1));
+        Assert.That(results.SequenceEqual(expected), Is.True);
+      }
+    }
   }
 }
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEntityModels
+namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEntityModel
 {
   [HierarchyRoot]
   public class InventoryAction : MesObject
