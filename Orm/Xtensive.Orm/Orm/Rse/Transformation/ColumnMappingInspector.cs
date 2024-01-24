@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
@@ -21,6 +22,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
+    private readonly Stack<List<int>> outerColumnUsageStack;
 
     private bool hasGrouping;
 
@@ -195,9 +197,9 @@ namespace Xtensive.Orm.Rse.Transformation
       var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<int>();
 
-      outerColumnUsages.Add(applyParameter, currentOuterUsages);
-      _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      using (SetOuterColumnUsage(applyParameter, currentOuterUsages)) {
+        _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
+      }
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
@@ -212,9 +214,10 @@ namespace Xtensive.Orm.Rse.Transformation
       leftMapping = mappings[provider.Left];
 
       _ = ReplaceMappings(provider.Right, rightMapping);
-      outerColumnUsages.Add(applyParameter, leftMapping);
-      var newRightProvider = VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      CompilableProvider newRightProvider;
+      using (SetOuterColumnUsage(applyParameter, leftMapping)) {
+        newRightProvider = VisitCompilable(provider.Right);
+      }
 
       var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
       if (pair.First == null) {
@@ -466,7 +469,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private int ResolveOuterMapping(ApplyParameter parameter, int value)
     {
-      var result = outerColumnUsages[parameter].IndexOf(value);
+      var result = GetOuterColumnUsage(parameter).IndexOf(value);
       return result < 0 ? value : result;
     }
 
@@ -514,6 +517,21 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings) => mappings = savedMappings;
 
+    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<int> usages)
+    {
+      outerColumnUsages.Add(parameter, usages);
+      outerColumnUsageStack.Push(usages);
+      return new Disposable(
+        x => { 
+          _ = outerColumnUsages.Remove(parameter);
+          _ = outerColumnUsageStack.Pop();
+        });
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private List<int> GetOuterColumnUsage(ApplyParameter parameter) =>
+      outerColumnUsages.TryGetValue(parameter, out var result) ? result : outerColumnUsageStack.Peek();
+
     #endregion
 
     // Constructors
@@ -524,6 +542,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       mappings = new Dictionary<Provider, List<int>>();
       outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
+      outerColumnUsageStack = new Stack<List<int>>();
       mappingsGatherer = new TupleAccessGatherer((a, b) => { });
 
       var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);

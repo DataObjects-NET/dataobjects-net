@@ -47,37 +47,27 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     public Pair<Expression<Func<Tuple, bool>>, ColumnCollection> ConcatenateWithExistingPredicate(
-      FilterProvider provider, Pair<Expression<Func<Tuple, bool>>, ColumnCollection> existingPredicatePair)
+      FilterProvider provider, in (Expression<Func<Tuple, bool>>, ColumnCollection) existingPredicatePair)
     {
       var newPredicate = CreatePredicatesConjunction(provider.Predicate,
-        existingPredicatePair.First);
-      var currentColumns = existingPredicatePair.Second;
+        existingPredicatePair.Item1);
+      var currentColumns = existingPredicatePair.Item2;
       foreach (var column in provider.Header.Columns)
         if (!currentColumns.Any(c => c.Name==column.Name))
           currentColumns.Add(column);
       return new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(newPredicate, currentColumns);
     }
 
-    public bool CheckPresenceOfOldColumns(IEnumerable<Column> oldColumns,
-      ICollection<Column> mappedColumns)
-    {
-      foreach (var column in oldColumns)
-        if (!mappedColumns.Contains(column))
-          return false;
-      return true;
-    }
-
-    public Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>> 
-      GenericAliasColumns<TDictKey, TPairKey>(AliasProvider provider,
-      Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>> currentState)
+    public Dictionary<TDictKey, List<(TPairKey, ColumnCollection)>> GenericAliasColumns<TDictKey, TPairKey>(
+      AliasProvider provider,
+      Dictionary<TDictKey, List<(TPairKey, ColumnCollection)>> currentState)
     {
       var newFilters =
-        new Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>>(currentState.Count);
+        new Dictionary<TDictKey, List<(TPairKey, ColumnCollection)>>(currentState.Count);
       foreach (var providerPair in currentState) {
-        var newProviderPairValue = new List<Pair<TPairKey, ColumnCollection>>();
+        var newProviderPairValue = new List<(TPairKey, ColumnCollection)>();
         foreach (var predicatePair in providerPair.Value) {
-          var newPredicatePair = new Pair<TPairKey, ColumnCollection>(
-            predicatePair.First, predicatePair.Second.Alias(provider.Alias));
+          var newPredicatePair = (predicatePair.Item1, predicatePair.Item2.Alias(provider.Alias));
           newProviderPairValue.Add(newPredicatePair);
         }
         newFilters.Add(providerPair.Key, newProviderPairValue);
@@ -86,13 +76,22 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     public void ValidateNewColumnIndexes<TDictKey, TPairKey>(
-      Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>> currentState,
-      ICollection<Column> mappedColumns, string description)
+      Dictionary<TDictKey, List<(TPairKey, ColumnCollection)>> currentState,
+      ICollection<Column> mappedColumns, Func<string> descriptionProvider)
     {
       foreach (var providerPair in currentState)
         foreach (var predicatePair in providerPair.Value)
-          if (!CheckPresenceOfOldColumns(predicatePair.Second, mappedColumns))
-            ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(description);
+          if (!CheckPresenceOfOldColumns(predicatePair.Item2, mappedColumns))
+            ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(descriptionProvider());
+    }
+
+    private static bool CheckPresenceOfOldColumns(IEnumerable<Column> oldColumns,
+      ICollection<Column> mappedColumns)
+    {
+      foreach (var column in oldColumns)
+        if (!mappedColumns.Contains(column))
+          return false;
+      return true;
     }
   }
 }

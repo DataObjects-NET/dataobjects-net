@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -24,24 +24,24 @@ namespace Xtensive.Orm.Providers
     {
       bool processViaCrossApply;
       switch (provider.SequenceType) {
-      case ApplySequenceType.All:
-        // apply is required
-        if (!providerInfo.Supports(ProviderFeatures.Apply))
-          throw new NotSupportedException();
-        processViaCrossApply = true;
-        break;
-      case ApplySequenceType.First:
-      case ApplySequenceType.FirstOrDefault:
-        // apply is prefered but is not required
-        processViaCrossApply = providerInfo.Supports(ProviderFeatures.Apply);
-        break;
-      case ApplySequenceType.Single:
-      case ApplySequenceType.SingleOrDefault:
-        // apply is not allowed
-        processViaCrossApply = false;
-        break;
-      default:
-        throw new ArgumentOutOfRangeException();
+        case ApplySequenceType.All:
+          // apply is required
+          if (!providerInfo.Supports(ProviderFeatures.Apply))
+            throw new NotSupportedException();
+          processViaCrossApply = true;
+          break;
+        case ApplySequenceType.First:
+        case ApplySequenceType.FirstOrDefault:
+          // apply is prefered but is not required
+          processViaCrossApply = providerInfo.Supports(ProviderFeatures.Apply);
+          break;
+        case ApplySequenceType.Single:
+        case ApplySequenceType.SingleOrDefault:
+          // apply is not allowed
+          processViaCrossApply = false;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
 
       var left = Compile(provider.Left);
@@ -64,24 +64,29 @@ namespace Xtensive.Orm.Providers
           return mc;
         });
         var providerVisitor = new CompilableProviderVisitor((p, e) => visitor.Visit(e));
-        providerVisitor.VisitCompilable(provider.Right);
+        _ = providerVisitor.VisitCompilable(provider.Right);
         shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains)
           || groupByIsUsed
           || provider.Left.Type.In(ProviderType.Store, ProviderType.Include)
           || left.Header.Columns.Count!=left.Request.Statement.Columns.Count;
       }
 
-      var binding = OuterReferences.Add(
-        provider.ApplyParameter, new Pair<SqlProvider, bool>(left, shouldUseQueryReference));
+      var outerReference = new Pair<SqlProvider, bool>(left, shouldUseQueryReference);
+      var binding = OuterReferences.Add(provider.ApplyParameter, outerReference);
 
       using (binding) {
+        outerReferenceStack.Push(outerReference);
+
         var right = Compile(provider.Right);
 
         var query = processViaCrossApply
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right, shouldUseQueryReference);
 
-        return CreateProvider(query, provider, left, right);
+        var result = CreateProvider(query, provider, left, right);
+
+        _ = outerReferenceStack.Pop();
+        return result;
       }
     }
 

@@ -1,0 +1,2 @@
+[main] Fixed certain cases of bad translation of casts via 'as' operator in LINQ queries
+[main] Addressed certain issues of translation connected with comparison with local entity instace within LINQ queries

@@ -963,37 +963,42 @@ namespace Xtensive.Orm.Linq
       return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
     }
 
-    private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
+    private static bool IsConditionalOrWellknown(Expression expression)
     {
-      var conditionalExpression = expression as ConditionalExpression;
-      if (conditionalExpression!=null)
-        return IsConditionalOrWellknown(conditionalExpression.IfTrue, false)
-          && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+      return IsConditionalOrWellknownRecursive(expression, true);
 
-      if (isRoot)
-        return false;
+      static bool IsConditionalOrWellknownRecursive(Expression expression, bool isRootCall)
+      {
+        var conditionalExpression = expression as ConditionalExpression;
+        if (conditionalExpression != null)
+          return IsConditionalOrWellknownRecursive(conditionalExpression.IfTrue, false)
+            && IsConditionalOrWellknownRecursive(conditionalExpression.IfFalse, false);
 
-      if (expression.NodeType==ExpressionType.Constant)
-        return true;
-
-      if (expression.NodeType==ExpressionType.Convert) {
-        var unary = (UnaryExpression) expression;
-        return IsConditionalOrWellknown(unary.Operand, false);
-      }
-
-      if (!(expression is ExtendedExpression))
-        return false;
-
-      var memberType = expression.GetMemberType();
-      switch (memberType) {
-        case MemberType.Primitive:
-        case MemberType.Key:
-        case MemberType.Structure:
-        case MemberType.Entity:
-        case MemberType.EntitySet:
-          return true;
-        default:
+        if (isRootCall)
           return false;
+
+        if (expression.NodeType == ExpressionType.Constant)
+          return true;
+
+        if (expression.NodeType == ExpressionType.Convert) {
+          var unary = (UnaryExpression) expression;
+          return IsConditionalOrWellknownRecursive(unary.Operand, false);
+        }
+
+        if (!(expression is ExtendedExpression))
+          return false;
+
+        var memberType = expression.GetMemberType();
+        switch (memberType) {
+          case MemberType.Primitive:
+          case MemberType.Key:
+          case MemberType.Structure:
+          case MemberType.Entity:
+          case MemberType.EntitySet:
+            return true;
+          default:
+            return false;
+        }
       }
     }
 
@@ -1319,7 +1324,32 @@ namespace Xtensive.Orm.Linq
         var memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
-        var argument = Visit(newExpression.Arguments[memberIndex]);
+        var argument = newExpression.Arguments[memberIndex];
+        var currentLambda = state.CurrentLambda;
+        if (!(currentLambda is null) && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection)) {
+          // Here, we try to detect whether the expression has already visited, in such cases
+          // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
+          // gets projection of already visited source and substitutes parameter 'x' access with 
+          // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
+          // of OrderBy visiting, because it is the only place that sets 'true' to the property,
+          // but we can't rely on it for future-proof solution.
+
+          // Knowing that parameter-to-projection binding happens when expression has visited,
+          // we assume this check is enough for certain cases, probably not for all of them.
+          // We can't deny visiting of the argument for all the cases because of chance to break
+          // some cases we could not imagine at the time of changes
+          switch (argument.NodeType) {
+            case ExpressionType.TypeAs:
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+              if (argument.Type == typeof(object) && state.ShouldOmitConvertToObject)
+                argument = argument.StripCasts();
+              break;
+          }
+        }
+        else {
+          argument = Visit(argument);
+        }
         return isMarker ? new MarkerExpression(argument, markerType) : argument;
       }
 
@@ -1505,41 +1535,56 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression VisitTypeAs(Expression source, Type targetType)
     {
-      if (source.GetMemberType()!=MemberType.Entity)
+      if (source.GetMemberType() != MemberType.Entity) {
         throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
+      }
 
       // Expression is already of requested type.
-      var visitedSource = Visit(source);
-      if (source.Type==targetType)
-        return visitedSource;
+      if (source.Type == targetType) {
+        return Visit(source);
+      }
 
       // Call convert to parent type.
-      if (targetType.IsAssignableFrom(source.Type))
+      if (targetType.IsAssignableFrom(source.Type)) {
         return Visit(Expression.Convert(source, targetType));
+      }
 
       // Cast to subclass or interface.
       using (state.CreateScope()) {
-        var targetTypeInfo = context.Model.Types[targetType];
+        var bareVisitedSource = Visit(source).StripCasts().StripMarkers();
+        if (!(bareVisitedSource is IEntityExpression entityExpression))
+          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+
         // Using of state.Parameter[0] is a very weak approach.
         // `as` operator could be applied on expression that has no relation with current parameter
         // thus the later code will fail.
         // We can't easily find real parameter that need replacement.
         // We work around this situation by supporting some known cases.
         // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
-        var currentParameter = state.Parameters[0];
-        var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
-        var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
+        // Some known cases also can be solved by using outer parameter of visited source which is in form of IEntityExpression
 
-        if (entityExpression==null)
-          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+        var strippedSource = source.StripMemberAccessChain();
+        var currentParameter = state.Parameters[0];
+
+        ParameterExpression parameter;
+        if (strippedSource is ParameterExpression pExpression) {
+          parameter = pExpression;
+        }
+        else if (bareVisitedSource is ParameterizedExpression pzExpression && pzExpression.OuterParameter != null) {
+          parameter = pzExpression.OuterParameter;
+        }
+        else {
+          parameter = currentParameter;
+        }
 
         // Replace original recordset. New recordset is left join with old recordset
-        ProjectionExpression originalResultExpression = context.Bindings[parameter];
+        var originalResultExpression = context.Bindings[parameter];
         var originalQuery = originalResultExpression.ItemProjector.DataSource;
-        int offset = originalQuery.Header.Columns.Count;
+        var offset = originalQuery.Header.Columns.Count;
 
         // Join primary index of target type
-        IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
+        var targetTypeInfo = context.Model.Types[targetType];
+        var indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
         var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
         var keySegment = entityExpression.Key.Mapping.GetItems();
         var keyPairs = keySegment
@@ -1555,10 +1600,12 @@ namespace Xtensive.Orm.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        var result = EntityExpression.Create(targetTypeInfo, offset, false);
         result.IsNullable = true;
-        if (parameter!=currentParameter)
+        if (parameter != currentParameter) {
           result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
+        }
+
         return result;
       }
     }
