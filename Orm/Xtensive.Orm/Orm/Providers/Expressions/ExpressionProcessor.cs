@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Providers
       else {
         @case[check] = ifTrue;
         @case.Else = ifFalse;
-        return c;
+        return @case;
       }
     }
 
