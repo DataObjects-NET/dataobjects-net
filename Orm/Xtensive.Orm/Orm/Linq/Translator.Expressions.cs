@@ -1535,41 +1535,56 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression VisitTypeAs(Expression source, Type targetType)
     {
-      if (source.GetMemberType()!=MemberType.Entity)
+      if (source.GetMemberType() != MemberType.Entity) {
         throw new NotSupportedException(Strings.ExAsOperatorSupportsEntityOnly);
+      }
 
       // Expression is already of requested type.
-      var visitedSource = Visit(source);
-      if (source.Type==targetType)
-        return visitedSource;
+      if (source.Type == targetType) {
+        return Visit(source);
+      }
 
       // Call convert to parent type.
-      if (targetType.IsAssignableFrom(source.Type))
+      if (targetType.IsAssignableFrom(source.Type)) {
         return Visit(Expression.Convert(source, targetType));
+      }
 
       // Cast to subclass or interface.
       using (state.CreateScope()) {
-        var targetTypeInfo = context.Model.Types[targetType];
+        var bareVisitedSource = Visit(source).StripCasts().StripMarkers();
+        if (!(bareVisitedSource is IEntityExpression entityExpression))
+          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+
         // Using of state.Parameter[0] is a very weak approach.
         // `as` operator could be applied on expression that has no relation with current parameter
         // thus the later code will fail.
         // We can't easily find real parameter that need replacement.
         // We work around this situation by supporting some known cases.
         // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
-        var currentParameter = state.Parameters[0];
-        var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
-        var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
+        // Some known cases also can be solved by using outer parameter of visited source which is in form of IEntityExpression
 
-        if (entityExpression==null)
-          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+        var strippedSource = source.StripMemberAccessChain();
+        var currentParameter = state.Parameters[0];
+
+        ParameterExpression parameter;
+        if (strippedSource is ParameterExpression pExpression) {
+          parameter = pExpression;
+        }
+        else if (bareVisitedSource is ParameterizedExpression pzExpression && pzExpression.OuterParameter != null) {
+          parameter = pzExpression.OuterParameter;
+        }
+        else {
+          parameter = currentParameter;
+        }
 
         // Replace original recordset. New recordset is left join with old recordset
-        ProjectionExpression originalResultExpression = context.Bindings[parameter];
+        var originalResultExpression = context.Bindings[parameter];
         var originalQuery = originalResultExpression.ItemProjector.DataSource;
-        int offset = originalQuery.Header.Columns.Count;
+        var offset = originalQuery.Header.Columns.Count;
 
         // Join primary index of target type
-        IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
+        var targetTypeInfo = context.Model.Types[targetType];
+        var indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
         var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
         var keySegment = entityExpression.Key.Mapping.GetItems();
         var keyPairs = keySegment
@@ -1585,10 +1600,12 @@ namespace Xtensive.Orm.Linq
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
-        var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+        var result = EntityExpression.Create(targetTypeInfo, offset, false);
         result.IsNullable = true;
-        if (parameter!=currentParameter)
+        if (parameter != currentParameter) {
           result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
+        }
+
         return result;
       }
     }

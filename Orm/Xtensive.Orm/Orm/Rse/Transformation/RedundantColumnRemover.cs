@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.12
 
@@ -23,7 +23,12 @@ namespace Xtensive.Orm.Rse.Transformation
       var currentMapping = mappings[applyProvider.Right];
       if (currentMapping.SequenceEqual(requestedMapping))
         return base.OverrideRightApplySource(applyProvider, provider, requestedMapping);
-      var selectProvider = new SelectProvider(provider, requestedMapping.ToArray());
+      var selectingRequestedMapping = requestedMapping.ToArray();
+      for (int i = 0, count = requestedMapping.Count; i < count; i++) {
+        selectingRequestedMapping[i] = currentMapping.IndexOf(selectingRequestedMapping[i]);
+      }
+
+      var selectProvider = new SelectProvider(provider, selectingRequestedMapping);
       return new Pair<CompilableProvider, List<int>>(selectProvider, requestedMapping);
     }
 
