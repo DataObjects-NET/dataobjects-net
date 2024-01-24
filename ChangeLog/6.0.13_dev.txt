@@ -1,0 +1,1 @@
+[main] Addressed certain issues of translation connected with comparison with local entity instace within LINQ queries
