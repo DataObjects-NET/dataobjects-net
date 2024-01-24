@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.12.08
 
@@ -8,9 +8,9 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueJira060x_InvalidExpressionInOrderByModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0619_InvalidExpressionInOrderByModel;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira060x_InvalidExpressionInOrderByModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0619_InvalidExpressionInOrderByModel
 {
   public interface IMesObject
   {
@@ -72,6 +72,14 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0619_InvalidExpressionInOrderBy : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      configuration.Types.Register(typeof(IMesObject).Assembly, typeof(IMesObject).Namespace);
+      return configuration;
+    }
+
     [Test]
     public void Test01()
     {
@@ -162,12 +170,20 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void Test07()
     {
-      var configuration = base.BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (IMesObject).Assembly, typeof (IMesObject).Namespace);
-      return configuration;
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var query = session.Query.All<ProductRequirement>().Select(c => new {
+          V0 = c.ID as object,
+          V1 = c.TypeId as object,
+          V2 = ((c.QuantityToGetViaInventoryAction.NormalizedValue / c.RequestedProductQuantity.NormalizedValue) >
+                  0.05m) as object
+        }).OrderBy(el => el.V2);
+
+        Assert.DoesNotThrow(() => query.Run());
+      }
     }
   }
 }

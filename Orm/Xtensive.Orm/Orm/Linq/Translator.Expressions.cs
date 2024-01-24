@@ -963,37 +963,42 @@ namespace Xtensive.Orm.Linq
       return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
     }
 
-    private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
+    private static bool IsConditionalOrWellknown(Expression expression)
     {
-      var conditionalExpression = expression as ConditionalExpression;
-      if (conditionalExpression!=null)
-        return IsConditionalOrWellknown(conditionalExpression.IfTrue, false)
-          && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+      return IsConditionalOrWellknownRecursive(expression, true);
 
-      if (isRoot)
-        return false;
+      static bool IsConditionalOrWellknownRecursive(Expression expression, bool isRootCall)
+      {
+        var conditionalExpression = expression as ConditionalExpression;
+        if (conditionalExpression != null)
+          return IsConditionalOrWellknownRecursive(conditionalExpression.IfTrue, false)
+            && IsConditionalOrWellknownRecursive(conditionalExpression.IfFalse, false);
 
-      if (expression.NodeType==ExpressionType.Constant)
-        return true;
-
-      if (expression.NodeType==ExpressionType.Convert) {
-        var unary = (UnaryExpression) expression;
-        return IsConditionalOrWellknown(unary.Operand, false);
-      }
-
-      if (!(expression is ExtendedExpression))
-        return false;
-
-      var memberType = expression.GetMemberType();
-      switch (memberType) {
-        case MemberType.Primitive:
-        case MemberType.Key:
-        case MemberType.Structure:
-        case MemberType.Entity:
-        case MemberType.EntitySet:
-          return true;
-        default:
+        if (isRootCall)
           return false;
+
+        if (expression.NodeType == ExpressionType.Constant)
+          return true;
+
+        if (expression.NodeType == ExpressionType.Convert) {
+          var unary = (UnaryExpression) expression;
+          return IsConditionalOrWellknownRecursive(unary.Operand, false);
+        }
+
+        if (!(expression is ExtendedExpression))
+          return false;
+
+        var memberType = expression.GetMemberType();
+        switch (memberType) {
+          case MemberType.Primitive:
+          case MemberType.Key:
+          case MemberType.Structure:
+          case MemberType.Entity:
+          case MemberType.EntitySet:
+            return true;
+          default:
+            return false;
+        }
       }
     }
 
@@ -1319,7 +1324,32 @@ namespace Xtensive.Orm.Linq
         var memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
-        var argument = Visit(newExpression.Arguments[memberIndex]);
+        var argument = newExpression.Arguments[memberIndex];
+        var currentLambda = state.CurrentLambda;
+        if (!(currentLambda is null) && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection)) {
+          // Here, we try to detect whether the expression has already visited, in such cases
+          // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
+          // gets projection of already visited source and substitutes parameter 'x' access with 
+          // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
+          // of OrderBy visiting, because it is the only place that sets 'true' to the property,
+          // but we can't rely on it for future-proof solution.
+
+          // Knowing that parameter-to-projection binding happens when expression has visited,
+          // we assume this check is enough for certain cases, probably not for all of them.
+          // We can't deny visiting of the argument for all the cases because of chance to break
+          // some cases we could not imagine at the time of changes
+          switch (argument.NodeType) {
+            case ExpressionType.TypeAs:
+            case ExpressionType.Convert:
+            case ExpressionType.ConvertChecked:
+              if (argument.Type == typeof(object) && state.ShouldOmitConvertToObject)
+                argument = argument.StripCasts();
+              break;
+          }
+        }
+        else {
+          argument = Visit(argument);
+        }
         return isMarker ? new MarkerExpression(argument, markerType) : argument;
       }
 
