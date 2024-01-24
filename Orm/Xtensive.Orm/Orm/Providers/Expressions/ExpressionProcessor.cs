@@ -323,28 +323,27 @@ namespace Xtensive.Orm.Providers
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
-      SqlContainer container = ifTrue as SqlContainer;
-      if (container!=null)
-        ifTrue = TryUnwrapEnum(container);
-      container = ifFalse as SqlContainer;
-      if (container!=null)
-        ifFalse = TryUnwrapEnum(container);
+
+      if (ifTrue is SqlContainer ifTrueContainer)
+        ifTrue = TryUnwrapEnum(ifTrueContainer);
+      if (ifFalse is SqlContainer ifFalseContainer)
+        ifFalse = TryUnwrapEnum(ifFalseContainer);
+
       var boolCheck = fixBooleanExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
-      var varCheck = boolCheck as SqlVariant;
-      if (!varCheck.IsNullReference())
-        return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
+      //var varCheck = boolCheck as SqlVariant;
+      //if (!varCheck.IsNullReference())
+      //  return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
+      var @case = SqlDml.Case();
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
-        var c = SqlDml.Case();
-        c[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
-        c.Else = booleanExpressionConverter.BooleanToInt(ifFalse);
-        return booleanExpressionConverter.IntToBoolean(c);
+        @case[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
+        @case.Else = booleanExpressionConverter.BooleanToInt(ifFalse);
+        return booleanExpressionConverter.IntToBoolean(@case);
       }
       else {
-        var c = SqlDml.Case();
-        c[check] = ifTrue;
-        c.Else = ifFalse;
+        @case[check] = ifTrue;
+        @case.Else = ifFalse;
         return c;
       }
     }
