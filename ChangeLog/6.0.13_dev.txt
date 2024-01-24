@@ -1,0 +1,1 @@
+[main] Fixed certain cases of bad translation of casts via 'as' operator in LINQ queries
