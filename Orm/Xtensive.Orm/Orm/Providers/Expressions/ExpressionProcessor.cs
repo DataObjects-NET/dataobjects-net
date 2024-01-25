@@ -22,34 +22,50 @@ namespace Xtensive.Orm.Providers
 {
   internal sealed partial class ExpressionProcessor : ExpressionVisitor<SqlExpression>
   {
+    [Flags]
+    private enum ProcessorOptions
+    {
+      None = 0,
+      FixBooleanExpressions = 1 << 0,
+      PreferCaseOverVariant = 1 << 1,
+      EmptyStringIsNull = 1 << 2,
+      DateTimeEmulation = 1 << 3,
+      DateTimeOffsetEmulation = 1 << 4,
+      SpecialByteArrayComparison = 1 << 5
+    }
+
     private static readonly SqlExpression SqlFalse = SqlDml.Literal(false);
     private static readonly SqlExpression SqlTrue = SqlDml.Literal(true);
 
+    private readonly SqlCompiler compiler;
+    private readonly LambdaExpression lambda;
     private readonly StorageDriver driver;
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
     private readonly IReadOnlyList<SqlExpression>[] sourceColumns;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
-    private readonly LambdaExpression lambda;
-    private readonly HashSet<QueryParameterBinding> bindings;
-    private readonly List<ParameterExpression> activeParameters;
-    private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping;
-    private readonly SqlCompiler compiler;
+    private readonly ProviderInfo providerInfo;
+    private readonly ProcessorOptions options;
 
+    private readonly List<ParameterExpression> activeParameters
+      = new List<ParameterExpression>();
+    private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping
+      = new Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>>();
     private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity
       = new Dictionary<QueryParameterIdentity, QueryParameterBinding>();
-    private readonly List<QueryParameterBinding> otherBindings = new List<QueryParameterBinding>();
-
-    private readonly bool fixBooleanExpressions;
-    private readonly bool preferCaseOverVariant;
-    private readonly bool emptyStringIsNull;
-    private readonly bool dateTimeEmulation;
-    private readonly bool dateTimeOffsetEmulation;
-    private readonly bool specialByteArrayComparison;
-    private readonly ProviderInfo providerInfo;
+    private readonly List<QueryParameterBinding> otherBindings
+      = new List<QueryParameterBinding>();
 
     private bool executed;
+
+    private bool FixBooleanExpressions => (options & ProcessorOptions.FixBooleanExpressions) !=0;
+    private bool PreferCaseOverVariant => options.HasFlag(ProcessorOptions.PreferCaseOverVariant);
+    private bool EmptyStringIsNull => (options & ProcessorOptions.EmptyStringIsNull) != 0;
+    private bool DateTimeEmulation => (options & ProcessorOptions.DateTimeEmulation) != 0;
+    private bool DateTimeOffsetEmulation => (options & ProcessorOptions.DateTimeOffsetEmulation) != 0;
+    private bool SpecialByteArrayComparison => (options & ProcessorOptions.SpecialByteArrayComparison) != 0;
+
 
     public SqlExpression Translate()
     {
@@ -102,12 +118,12 @@ namespace Xtensive.Orm.Providers
       SqlExpression result;
       if (optimizeBooleanParameter) {
         result = SqlDml.Variant(binding, SqlFalse, SqlTrue);
-        if (fixBooleanExpressions)
+        if (FixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
       }
       else {
         result = binding.ParameterReference;
-        if (type==typeof(bool) && fixBooleanExpressions)
+        if (type == typeof(bool) && FixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
         else if (typeMapping.ParameterCastRequired)
           result = SqlDml.Cast(result, typeMapping.MapType());
@@ -152,9 +168,9 @@ namespace Xtensive.Orm.Providers
       if (IsEnumUnderlyingType(sourceType, targetType) || IsEnumUnderlyingType(targetType, sourceType))
         return operand;
       // Special case for boolean cast
-      if (fixBooleanExpressions && IsBooleanExpression(cast.Operand)) {
+      if (FixBooleanExpressions && IsBooleanExpression(cast.Operand)) {
         var result = SqlDml.Case();
-        result.Add(operand, 1);
+        _ = result.Add(operand, 1);
         result.Else = 0;
         operand = result;
       }
@@ -178,7 +194,7 @@ namespace Xtensive.Orm.Providers
         expression.NodeType == ExpressionType.Equal
         || expression.NodeType == ExpressionType.NotEqual;
 
-      var isBooleanFixRequired = fixBooleanExpressions
+      var isBooleanFixRequired = FixBooleanExpressions
         && (isEqualityCheck || expression.NodeType == ExpressionType.Coalesce)
         && (IsBooleanExpression(expression.Left) || IsBooleanExpression(expression.Right));
 
@@ -215,7 +231,7 @@ namespace Xtensive.Orm.Providers
       }
 
       //handle SQLite DateTime comparsion
-      if (dateTimeEmulation
+      if (DateTimeEmulation
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
           && IsComparisonExpression(expression)
@@ -225,7 +241,7 @@ namespace Xtensive.Orm.Providers
       }
 
       //handle SQLite DateTimeOffset comparsion
-      if (dateTimeOffsetEmulation
+      if (DateTimeOffsetEmulation
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
           && IsComparisonExpression(expression)
@@ -235,7 +251,7 @@ namespace Xtensive.Orm.Providers
       }
 
       //handle Oracle special syntax of BLOB comparison
-      if (specialByteArrayComparison
+      if (SpecialByteArrayComparison
         && (IsExpressionOf(expression.Left, typeof(byte[])) || IsExpressionOf(expression.Left, typeof(byte[])))) {
         var comparison = BuildByteArraySyntaxComparison(left, right);
         left = comparison.left;
@@ -330,14 +346,16 @@ namespace Xtensive.Orm.Providers
       if (ifFalse is SqlContainer ifFalseContainer)
         ifFalse = TryUnwrapEnum(ifFalseContainer);
 
-      var boolCheck = fixBooleanExpressions
+      var fixExpressions = FixBooleanExpressions;
+
+      var boolCheck = fixExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
       var varCheck = boolCheck as SqlVariant;
-      if (!preferCaseOverVariant && !varCheck.IsNullReference())
+      if (!PreferCaseOverVariant && !varCheck.IsNullReference())
         return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
       var @case = SqlDml.Case();
-      if (fixBooleanExpressions && IsBooleanExpression(expression)) {
+      if (fixExpressions && IsBooleanExpression(expression)) {
         @case[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
         @case.Else = booleanExpressionConverter.BooleanToInt(ifFalse);
         return booleanExpressionConverter.IntToBoolean(@case);
@@ -352,14 +370,14 @@ namespace Xtensive.Orm.Providers
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       if (expression.Value==null)
-        return fixBooleanExpressions && expression.Type==typeof (bool?)
+        return FixBooleanExpressions && expression.Type==typeof (bool?)
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
       if (type==typeof (object))
         type = expression.Value.GetType();
       type = type.StripNullable();
-      if (fixBooleanExpressions && type==typeof (bool)) {
+      if (FixBooleanExpressions && type == typeof(bool)) {
         var literal = SqlDml.Literal((bool) expression.Value);
         return booleanExpressionConverter.IntToBoolean(literal);
       }
@@ -404,7 +422,7 @@ namespace Xtensive.Orm.Providers
         var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
         result = queryRef[columnIndex];
       }
-      if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
+      if (FixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
     }
@@ -465,39 +483,43 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     public ExpressionProcessor(
-      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, bool preferCaseOverVariant, params IReadOnlyList<SqlExpression>[] sourceColumns)
+      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, in bool preferCaseOverVariant, params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
 
-      this.compiler = compiler; // This might be null, check before use!
-      this.lambda = lambda;
-      this.sourceColumns = sourceColumns;
-      this.preferCaseOverVariant = preferCaseOverVariant;
-
-      providerInfo = handlers.ProviderInfo;
-      driver = handlers.StorageDriver;
-
-      fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
-      emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
-      dateTimeEmulation = providerInfo.Supports(ProviderFeatures.DateTimeEmulation);
-      dateTimeOffsetEmulation = providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation);
-      memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
-      specialByteArrayComparison = providerInfo.ProviderName.Equals(WellKnown.Provider.Oracle);
-
-      bindings = new HashSet<QueryParameterBinding>();
-      activeParameters = new List<ParameterExpression>();
-      evaluator = new ExpressionEvaluator(lambda);
-      parameterExtractor = new ParameterExtractor(evaluator);
-
-      if (fixBooleanExpressions)
-        booleanExpressionConverter = new BooleanExpressionConverter(driver);
-      if (lambda.Parameters.Count!=sourceColumns.Length)
+      if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
         throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
-      sourceMapping = new Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>>();
+
+      this.compiler = compiler; // This might be null, check before use!
+      this.lambda = lambda;
+      this.sourceColumns = sourceColumns;
+
+      providerInfo = handlers.ProviderInfo;
+      driver = handlers.StorageDriver;
+      memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
+
+      evaluator = new ExpressionEvaluator(lambda);
+      parameterExtractor = new ParameterExtractor(evaluator);
+
+      options = ProcessorOptions.None;
+      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
+        options |= ProcessorOptions.FixBooleanExpressions;
+        booleanExpressionConverter = new BooleanExpressionConverter(driver);
+      }
+      if (providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull))
+        options |= ProcessorOptions.EmptyStringIsNull;
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation))
+        options |= ProcessorOptions.DateTimeEmulation;
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation))
+        options |= ProcessorOptions.DateTimeOffsetEmulation;
+      if (providerInfo.ProviderName.Equals(WellKnown.Provider.Oracle))
+        options |= ProcessorOptions.SpecialByteArrayComparison;
+      if (preferCaseOverVariant)
+        options |= ProcessorOptions.PreferCaseOverVariant;
     }
   }
 }
