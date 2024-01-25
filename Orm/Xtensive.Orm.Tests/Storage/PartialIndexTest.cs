@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -159,6 +159,16 @@ namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
   {
     public static Expression<Func<ContainsOperatorSupport, bool>> Index =>
       test => new[] { "1", "2", "3" }.Contains(test.TestField);
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(TestField), Filter = nameof(Index))]
+  public class ConditionalExpressionSuport : TestBase
+  {
+    public static Expression<Func<ConditionalExpressionSuport, bool>> Index =>
+      test => test.Id == ((test.TestField == null) ? 100 : 200) ? test.TestField.Contains("hello") : false;
 
     [Field]
     public string TestField { get; set; }
@@ -542,6 +552,9 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void ContainsOperatorSupportTest() => AssertBuildSuccess(typeof(ContainsOperatorSupport));
+
+    [Test]
+    public void ConditionalOperationSupportTest() => AssertBuildSuccess(typeof(ConditionalExpressionSuport));
 
     [Test]
     public void DoubleIndexWithNameTest() => AssertBuildSuccess(typeof(DoubleIndexWithName));
