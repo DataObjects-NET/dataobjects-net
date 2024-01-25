@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
         .Cast<SqlExpression>()
         .ToList();
 
-      var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
+      var processor = new ExpressionProcessor(filter.Expression, handlers, null, true, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var result = handlers.StorageDriver.Compile(fragment).GetCommandText();
       return result;

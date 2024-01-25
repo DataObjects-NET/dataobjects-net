@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -42,6 +42,7 @@ namespace Xtensive.Orm.Providers
     private readonly List<QueryParameterBinding> otherBindings = new List<QueryParameterBinding>();
 
     private readonly bool fixBooleanExpressions;
+    private readonly bool preferCaseOverVariant;
     private readonly bool emptyStringIsNull;
     private readonly bool dateTimeEmulation;
     private readonly bool dateTimeOffsetEmulation;
@@ -332,9 +333,9 @@ namespace Xtensive.Orm.Providers
       var boolCheck = fixBooleanExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
-      //var varCheck = boolCheck as SqlVariant;
-      //if (!varCheck.IsNullReference())
-      //  return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
+      var varCheck = boolCheck as SqlVariant;
+      if (!preferCaseOverVariant && !varCheck.IsNullReference())
+        return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
       var @case = SqlDml.Case();
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
         @case[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
@@ -464,7 +465,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     public ExpressionProcessor(
-      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, params IReadOnlyList<SqlExpression>[] sourceColumns)
+      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, bool preferCaseOverVariant, params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
@@ -473,6 +474,7 @@ namespace Xtensive.Orm.Providers
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;
       this.sourceColumns = sourceColumns;
+      this.preferCaseOverVariant = preferCaseOverVariant;
 
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;

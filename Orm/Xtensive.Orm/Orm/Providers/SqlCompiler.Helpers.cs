@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers
     protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
+      var processor = new ExpressionProcessor(le, Handlers, this, (Owner ?? RootProvider).Type == ProviderType.Sort, sourceColumns);
       var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
         processor.Translate(), processor.GetBindings());
       return result;
