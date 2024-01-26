@@ -260,6 +260,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comparison of two entity fields is not supported..
+        /// </summary>
+        internal static string ComparisonOfTwoEntityFieldsIsNotSupported {
+            get {
+                return ResourceManager.GetString("ComparisonOfTwoEntityFieldsIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ComparisonRule({0}, {1}).
         /// </summary>
         internal static string ComparisonRuleFormat {
