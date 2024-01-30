@@ -15,6 +15,36 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public sealed class IssueJira0802_PostgreOrderByWithConditionalIssue : AutoBuildTest
   {
+    private Key sharedFlowKey;
+
+    public Session Session { get; set; }
+
+    public TransactionScope Transaction { get; set; }
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      Session = Domain.OpenSession();
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      Session?.Dispose();
+      base.TestFixtureTearDown();
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+      Transaction = Session.OpenTransaction();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+      Transaction?.Dispose();
+    }
+
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.PostgreSql);
 
     protected override DomainConfiguration BuildConfiguration()
@@ -30,38 +60,26 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var sharedFlow = new LogisticFlow(session, 1000);
-        var uniqueFlow = new LogisticFlow(session, 1100);
+        sharedFlowKey = sharedFlow.Key;
 
         _ = new PickingProductRequirement(session, 10) {
           Quantity = new DimensionalField(session, 36),
-          InventoryAction = new InventoryAction(session, 100) {
-            LogisticFlow = sharedFlow,
-            NullableField = "a"
-          }
+          InventoryAction = new InventoryAction(session, 100, sharedFlow, "a")
         };
 
         _ = new PickingProductRequirement(session, 20) {
           Quantity = new DimensionalField(session, 35),
-          InventoryAction = new InventoryAction(session, 200) {
-            LogisticFlow = sharedFlow,
-            NullableField = "b"
-          }
+          InventoryAction = new InventoryAction(session, 200, sharedFlow, "b")
         };
 
         _ = new PickingProductRequirement(session, 30) {
           Quantity = new DimensionalField(session, 34),
-          InventoryAction = new InventoryAction(session, 300) {
-            LogisticFlow = sharedFlow,
-            NullableField = "a"
-          }
+          InventoryAction = new InventoryAction(session, 300, sharedFlow, "a")
         };
 
         _ = new PickingProductRequirement(session, 40) {
           Quantity = new DimensionalField(session, 34),
-          InventoryAction = new InventoryAction(session, 400) {
-            LogisticFlow = uniqueFlow,
-            NullableField = null
-          }
+          InventoryAction = new InventoryAction(session, 400, new LogisticFlow(session, 1100), null)
         };
 
         transaction.Complete();
@@ -70,1358 +88,1357 @@ namespace Xtensive.Orm.Tests.Issues
 
 
     [Test]
-    public void ComplexConditionalByEntityInOrderBy()
+    public void ConditionalExprByEntityInOrderBy()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.False);
-        Assert.That(results.Skip(1).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results[0].V2, Is.LessThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(expected.Length, Is.GreaterThan(0));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.False);
+      Assert.That(results.Skip(1).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNumberInOrderBy1()
+    public void ConditionalExprByNumberInOrderBy1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.False);
-        Assert.That(results.Skip(1).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results[0].V2, Is.LessThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.False);
+      Assert.That(results.Skip(1).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
+      Assert.That(results[0].V2, Is.LessThan(40));
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNumberInOrderBy2()
+    public void ConditionalExprByNumberInOrderBy2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Skip(3).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-    [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy1()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results[3].V2, Is.GreaterThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(3).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy2()
+    public void ConditionalExprByNullableFieldInOrderBy1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 > 40), Is.True);
-        Assert.That(results[0].V2, Is.LessThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results[3].V2, Is.GreaterThan(40));
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy3()
+    public void ConditionalExprByNullableFieldInOrderBy2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Skip(2).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results[0].V2, Is.LessThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(1).All(a => a.V2 > 40), Is.True);
+      Assert.That(results[0].V2, Is.LessThan(40));
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy4()
+    public void ConditionalExprByNullableFieldInOrderBy3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Skip(2).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(2).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
+      Assert.That(results[0].V2, Is.LessThan(40));
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy5()
+    public void ConditionalExprByNullableFieldInOrderBy4()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Skip(3).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(2).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderBy6()
+    public void ConditionalExprByNullableFieldInOrderBy5()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(1).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Skip(1).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-    [Test]
-    public void ComplexConditionalByEntityInOrderByDesc()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(3).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNumberInOrderByDesc2()
+    public void ConditionalExprByNullableFieldInOrderBy6()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(1).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(1).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNumberInOrderByDesc3()
+    public void ConditionalExprByEntityInOrderByDesc()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-    [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc1()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc2()
+    public void ConditionalExprByNumberInOrderByDesc2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc3()
+    public void ConditionalExprByNumberInOrderByDesc3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(2).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Take(2).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc4()
+    public void ConditionalExprByNullableFieldInOrderByDesc1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(2).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.Skip(2).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc5()
+    public void ConditionalExprByNullableFieldInOrderByDesc2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
     }
 
     [Test]
-    public void ComplexConditionalByNullableFieldInOrderByDesc6()
+    public void ConditionalExprByNullableFieldInOrderByDesc3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue *
-                (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
-        Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-    [Test]
-    public void SimpleConditionalByEntityInOrderBy()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Take(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Take(2).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNumberInOrderBy1()
+    public void ConditionalExprByNullableFieldInOrderByDesc4()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID > 100 ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID > 100 ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Take(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(2).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.Skip(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNumberInOrderBy2()
+    public void ConditionalExprByNullableFieldInOrderByDesc5()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID == 100 ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID == 100 ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 1), Is.True);
-        Assert.That(results[3].V2, Is.EqualTo(2));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-
-    [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy1()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t)=>t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.Skip(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Take(1).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy2()
+    public void ConditionalExprByNullableFieldInOrderByDesc6()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .OrderByDescending(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(4));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.Skip(1).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Skip(3).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Take(3).All(a => a.V2 > 40), Is.True);
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy3()
+    public void ConditionalExprByEntityInWhere()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "a" ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "a" ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
+      Assert.That(expected.Length, Is.EqualTo(3));
 
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(2).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Take(2).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy4()
+    public void ConditionalExprByNumberInWhere1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(3));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(2).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Take(2).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy5()
+    public void ConditionalExprByNumberInWhere2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "b" ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "b" ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(1));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.Skip(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalWithNullableFieldInOrderBy6()
+    public void ConditionalExprByNullableFieldInWhere1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(1));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Take(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results[0].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-
-    [Test]
-    public void SimpleConditionalByEntityInOrderByDesc()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results[3].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNumberInOrderByDesc1()
+    public void ConditionalExprByNullableFieldInWhere2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID > 100 ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID > 100 ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(3));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results[3].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNumberInOrderByDesc2()
+    public void ConditionalExprByNullableFieldInWhere3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID == 100 ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.ID == 100 ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(2));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results[0].V2, Is.EqualTo(2));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
-    }
-
-
-
-
-    [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc1()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
-
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results[0].V2, Is.EqualTo(2));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc2()
+    public void ConditionalExprByNullableFieldInWhere4()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(2));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results[3].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc3()
+    public void ConditionalExprByNullableFieldInWhere5()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "a" ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "a" ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(1));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(2).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Skip(2).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc4()
+    public void ConditionalExprByNullableFieldInWhere6()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(3));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
-
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(2).All(a => a.V2 == 2), Is.True);
-        Assert.That(results.Skip(2).All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
     }
 
     [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc5()
+    public void ConditionalExprByEntityInGroupBy()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "b" ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField == "b" ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
+      Assert.That(expected.Length, Is.EqualTo(4));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
 
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 == 1), Is.True);
-        Assert.That(results[0].V2, Is.EqualTo(2));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(1));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(3));
     }
 
     [Test]
-    public void SimpleConditionalByNullableFieldInOrderByDesc6()
+    public void ConditionalExprByNumberInGroupBy1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
 
-        session.Events.DbCommandExecuting += CommandExecutingEventHandler;
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
-        session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)
-            })
-          .OrderByDescending(t => t.V2)
-          .ToArray();
+      Assert.That(expected.Length, Is.EqualTo(3));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        PrintExpected(expected, (t) => t.V2);
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(1));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(2));
+    }
 
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Take(3).All(a => a.V2 == 2), Is.True);
-        Assert.That(results[3].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+    [Test]
+    public void ConditionalExprByNumberInGroupBy2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(3));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(2));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy1()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(3));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(1));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(3));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy3()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(2));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy4()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(2));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy5()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(3));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(2));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInGroupBy6()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(3));
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+
+      Assert.That(results.Select(r => r.Key).Count(a => a < 40), Is.EqualTo(1));
+      Assert.That(results.Select(r => r.Key).Count(a => a > 40), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ConditionalExprByEntityInSum()
+    {
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNumberInSum1()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNumberInSum2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum1()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum3()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum4()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum5()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInSum6()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (int) (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1))
+          })
+        .Sum(t => t.V2);
+
+      Assert.That(results, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void ConditionalExprByEntityInInclude()
+    {
+      var sharedFlow = Session.Query.Single(sharedFlowKey);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72)
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72)
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(2));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNumberInInclude1()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1)).In(40, 70, 72)
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+       .Select(p => new {
+         V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.ID > 100 ? margin : 1)).In(40, 70, 72)
+       })
+       .OrderBy(t => t.V2)
+       .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNumberInInclude2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1)).In(40, 70, 72) // 100 -> 36
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.ID == 100 ? margin : 1)).In(40, 70, 72) // 100 -> 36
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude1()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1)).In(40, 68, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == null ? margin : 1)).In(40, 68, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude2()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField != null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(2));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude3()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "a" ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude4()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "a" || p.InventoryAction.NullableField == null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude5()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.NullableField == "b" ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
+    }
+
+    [Test]
+    public void ConditionalExprByNullableFieldInInclude6()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      var expected = Session.Query.All<PickingProductRequirement>().AsEnumerable()
+        .Select(p => new {
+          V2 = (p.Quantity.NormalizedValue *
+              (p.InventoryAction.NullableField != "b" || p.InventoryAction.NullableField == null ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(expected.Length, Is.EqualTo(4));
+
+      Assert.That(results.Length, Is.EqualTo(expected.Length));
+      Assert.That(results.Count(p => p.V2 == true), Is.EqualTo(1));
+      Assert.That(results.SequenceEqual(expected), Is.True);
     }
 
 
-    private void PrintExpected<T>(T[] items, Func<T, int> accessor)
-    {
-      Console.WriteLine();
-      Console.WriteLine("Expected order of values:");
+    //private void PrintExpected<TItem, TValue>(TItem[] items, Func<TItem, TValue> accessor)
+    //{
+    //  Console.WriteLine();
+    //  Console.WriteLine("Expected order of values:");
 
-      foreach (var item in items) {
-        Console.WriteLine(accessor(item));
-      }
-    }
-
+    //  foreach (var item in items) {
+    //    Console.WriteLine(accessor(item));
+    //  }
+    //}
 
     private static void CommandExecutingEventHandler(object sender, DbCommandEventArgs e)
     {
@@ -1447,37 +1464,24 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0802_PostgreOrderByWithConditionalI
   public class InventoryAction : MesObject
   {
     [Field]
-    public Product Product { get; set; }
-
-    [Field]
     public LogisticFlow LogisticFlow { get; set; }
 
     [Field(Length = 50)]
     public string NullableField { get; set; }
 
-    public InventoryAction(Session session, int id)
-      : base(session, id)
+    public InventoryAction(Session Session, int id, LogisticFlow logisticFlow, string nullableValue)
+      : base(Session, id)
     {
+      LogisticFlow = logisticFlow;
+      NullableField = nullableValue;
     }
   }
 
   [HierarchyRoot]
   public class LogisticFlow : MesObject
   {
-    public LogisticFlow(Session session, int id)
-      : base(session, id)
-    {
-    }
-  }
-
-  [HierarchyRoot]
-  public class Product : MesObject
-  {
-    [Field]
-    public string MeasureType { get; set; }
-
-    public Product(Session session, int id)
-      : base(session, id)
+    public LogisticFlow(Session Session, int id)
+      : base(Session, id)
     {
     }
   }
@@ -1486,17 +1490,13 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0802_PostgreOrderByWithConditionalI
   public class PickingProductRequirement : MesObject
   {
     [Field]
-    [Association(OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Deny)]
-    public Product Product { get; private set; }
-
-    [Field]
     public DimensionalField Quantity { get; set; }
 
     [Field]
     public InventoryAction InventoryAction { get; set; }
 
-    public PickingProductRequirement(Session session, int id)
-      : base(session, id)
+    public PickingProductRequirement(Session Session, int id)
+      : base(Session, id)
     {
     }
   }
@@ -1504,10 +1504,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0802_PostgreOrderByWithConditionalI
   public class DimensionalField : Structure
   {
     [Field]
-    public decimal NormalizedValue { get; private set; }
+    public int NormalizedValue { get; private set; }
 
-    public DimensionalField(Session session, decimal nValue)
-      : base(session)
+    public DimensionalField(Session Session, int nValue)
+      : base(Session)
     {
       NormalizedValue = nValue;
     }
@@ -1518,13 +1518,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0802_PostgreOrderByWithConditionalI
     [Field, Key]
     public int ID { get; private set; }
 
-    protected MesObject(Session session, int id)
-      : base(session, id)
-    {
-    }
-
-    protected MesObject(Session session)
-      : base(session)
+    protected MesObject(Session Session, int id)
+      : base(Session, id)
     {
     }
   }
