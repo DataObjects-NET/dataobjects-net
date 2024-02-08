@@ -1950,7 +1950,7 @@ namespace Xtensive.Orm.Tests.Issues
       var results = Session.Query.All<PickingProductRequirement>()
         .Select(
           p => new {
-            V2 = (int) (p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+            V2 = (int) (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
           })
         .Where(t => t.V2 > 40)
         .ToArray();
@@ -1968,7 +1968,7 @@ namespace Xtensive.Orm.Tests.Issues
       var results = Session.Query.All<PickingProductRequirement>()
         .Select(
           p => new {
-            V2 = (int) (p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+            V2 = (int) (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
           })
         .OrderBy(t => t.V2)
         .ToArray();
@@ -1987,7 +1987,7 @@ namespace Xtensive.Orm.Tests.Issues
       var results = Session.Query.All<PickingProductRequirement>()
         .Select(
           p => new {
-            V2 = (p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+            V2 = (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
           })
         .GroupBy(t => t.V2)
         .ToArray();
@@ -2002,11 +2002,11 @@ namespace Xtensive.Orm.Tests.Issues
 
       var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
-        .Where(p => (p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1)) > 40)
+        .Where(p => (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1)) > 40)
         .ToArray();
 
       Assert.That(results.Length, Is.EqualTo(2));
-      Assert.That(results.All(a => a.MultyFieldKeyRef == sharedEntity), Is.True);
+      Assert.That(results.All(a => a.MultiFieldKeyRef == sharedEntity), Is.True);
     }
 
     [Test]
@@ -2016,12 +2016,12 @@ namespace Xtensive.Orm.Tests.Issues
 
       var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
-        .OrderBy(p => p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+        .OrderBy(p => p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
         .ToArray();
 
       Assert.That(results.Length, Is.EqualTo(4));
-      Assert.That(results.Take(2).Any(p => p.MultyFieldKeyRef == sharedEntity), Is.False);
-      Assert.That(results.Skip(2).All(p => p.MultyFieldKeyRef == sharedEntity), Is.True);
+      Assert.That(results.Take(2).Any(p => p.MultiFieldKeyRef == sharedEntity), Is.False);
+      Assert.That(results.Skip(2).All(p => p.MultiFieldKeyRef == sharedEntity), Is.True);
     }
 
     [Test]
@@ -2031,7 +2031,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
-        .GroupBy(p => p.Quantity.NormalizedValue * (p.MultyFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+        .GroupBy(p => p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
         .ToArray();
 
       Assert.That(results.Length, Is.EqualTo(4));
@@ -2048,7 +2048,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       Console.Write(" Parameters: ");
       for (int i = 0, count = parameters.Count; i < count; i++) {
-        var parameter = parameters[0];
+        var parameter = parameters[i];
         Console.WriteLine($"{parameter.ParameterName} = {parameter.Value}");
       }
     }
@@ -2109,7 +2109,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
     public bool? NullableBooleanFlag { get; set; }
 
     [Field]
-    public MultiFieldKeyEntity MultyFieldKeyRef { get; set; }
+    public MultiFieldKeyEntity MultiFieldKeyRef { get; set; }
 
     public PickingProductRequirement(Session session,
       MultiFieldKeyEntity multiFieldKeyEntity, int id, bool boolFlag, bool? nullableBoolFlag)
@@ -2117,7 +2117,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
     {
       BooleanFlag = boolFlag;
       NullableBooleanFlag = nullableBoolFlag;
-      multiFieldKeyEntity = multiFieldKeyEntity;
+      MultiFieldKeyRef = multiFieldKeyEntity;
     }
   }
 
