@@ -1586,14 +1586,14 @@ namespace Xtensive.Orm.Tests.Issues
 
       var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
-        .OrderBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 41, 42))
+        .OrderBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72))
         .ToArray();
 
       Assert.That(results.Length, Is.EqualTo(4));
-      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
-      Assert.That(results[1].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
-      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
-      Assert.That(results[3].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
     }
 
     [Test]
