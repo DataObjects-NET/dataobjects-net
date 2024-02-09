@@ -1806,7 +1806,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
-        .GroupBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 75))
+        .GroupBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72))
         .ToArray();
 
       Assert.That(results.Length, Is.EqualTo(2));
@@ -2140,9 +2140,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
   public class DimensionalField : Structure
   {
     [Field]
-    public decimal NormalizedValue { get; private set; }
+    public int NormalizedValue { get; private set; }
 
-    public DimensionalField(Session session, decimal nValue)
+    public DimensionalField(Session session, int nValue)
       : base(session)
     {
       NormalizedValue = nValue;
