@@ -43,13 +43,13 @@ namespace Xtensive.Orm.Linq
 
       // Structure
       var memberType = expression.GetMemberType();
-      if (memberType==MemberType.Structure
-        && typeof (Structure).IsAssignableFrom(operandType))
+      if (memberType == MemberType.Structure
+        && typeof(Structure).IsAssignableFrom(operandType))
         return Expression.Constant(false);
 
       // Entity
-      if (memberType==MemberType.Entity
-        && typeof (IEntity).IsAssignableFrom(operandType)) {
+      if (memberType == MemberType.Entity
+        && typeof(IEntity).IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
         IEnumerable<int> typeIds = type.GetDescendants(true)
           .Union(type.GetImplementors(true))
@@ -73,9 +73,11 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression Visit(Expression e)
     {
-      if (e==null)
+      if (e == null)
         return null;
       if (e.IsProjection())
+        return e;
+      if (state.NonVisitableExpressions.Contains(e))
         return e;
       if (context.Evaluator.CanBeEvaluated(e)) {
         if (typeof (IQueryable).IsAssignableFrom(e.Type))
@@ -230,6 +232,11 @@ namespace Xtensive.Orm.Linq
             : rightNoCastsType.GetEnumUnderlyingType();
           left = Visit(Expression.Convert(rightNoCasts, typeToCast));
           right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
+        }
+        else if (state.NonVisitableExpressions.Contains(leftNoCasts)
+           || state.NonVisitableExpressions.Contains(rightNoCasts)) {
+          left = binaryExpression.Left;
+          right = binaryExpression.Right;
         }
         else {
           left = Visit(binaryExpression.Left);
@@ -1045,7 +1052,7 @@ namespace Xtensive.Orm.Linq
 
         switch (fieldExpression.GetMemberType()) {
           case MemberType.Entity:
-            IEnumerable<Type> keyFieldTypes = context
+            var keyFieldTypes = context
               .Model
               .Types[fieldExpression.Type]
               .Key
@@ -1066,39 +1073,48 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    private static IList<Expression> GetEntityFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    private IList<Expression> GetEntityFields(Expression expression, IReadOnlyList<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
-      if (expression is IEntityExpression)
-        return GetKeyFields(((IEntityExpression) expression).Key, null);
-
-
-      Expression keyExpression;
-
-      if (expression.IsNull())
-        keyExpression = Expression.Constant(null, KeyType);
-      else if (IsConditionalOrWellknown(expression))
+      if (expression is IEntityExpression iEntityExpression) {
+        return GetKeyFields(iEntityExpression.Key, null);
+      }
+      if (expression.IsNull()) {
+        return GetKeyFields(Expression.Constant(null, KeyType), keyFieldTypes);
+      }
+      if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
-          .ToList();
-      else
-      {
-        ConstantExpression nullEntityExpression = Expression.Constant(null, expression.Type);
-        BinaryExpression isNullExpression = Expression.Equal(expression, nullEntityExpression);
-        if (!typeof (IEntity).IsAssignableFrom(expression.Type))
-          expression = Expression.Convert(expression, typeof (IEntity));
-        keyExpression = Expression.Condition(
-          isNullExpression,
-          Expression.Constant(null, KeyType),
-          Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
+          .ToList(keyFieldTypes.Count);
       }
-      return GetKeyFields(keyExpression, keyFieldTypes);
+
+      var nullEntityExpression = Expression.Constant(null, expression.Type);
+      var isNullExpression = Expression.Equal(expression, nullEntityExpression);
+      if (!typeof(IEntity).IsAssignableFrom(expression.Type))
+        expression = Expression.Convert(expression, typeof(IEntity));
+
+      var resultList = new List<Expression>(keyFieldTypes.Count);
+      for(int i = 0, count = keyFieldTypes.Count; i < count; i++) {
+        var keyFieldType = keyFieldTypes[i];
+        var baseType = keyFieldType.StripNullable();
+        var fieldType = (baseType.IsEnum ? Enum.GetUnderlyingType(baseType) : baseType).ToNullable();
+        var keyTupleExpression = Expression.MakeMemberAccess(
+          Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey), WellKnownMembers.Key.Value);
+        var tupleAccess = (Expression) keyTupleExpression.MakeTupleAccess(fieldType, i);
+
+        var entityNullCheck = Expression.Condition(
+          isNullExpression,
+          Expression.Constant(null, keyFieldType.ToNullable()),
+          tupleAccess);
+        resultList.Add(entityNullCheck);
+        _ = state.NonVisitableExpressions.Add(entityNullCheck);
+      }
+      return resultList;
     }
 
     private static Expression GetConditionalKeyField(Expression expression, Type keyFieldType, int index)
     {
-      var ce = expression as ConditionalExpression;
-      if (ce != null)
+      if (expression is ConditionalExpression ce)
         return Expression.Condition(
           ce.Test,
           GetConditionalKeyField(ce.IfTrue, keyFieldType, index),
@@ -1109,16 +1125,16 @@ namespace Xtensive.Orm.Linq
       return ee.Key.KeyFields[index].LiftToNullable();
     }
 
-    private static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    private IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
 
-      var keyExpression = expression as KeyExpression;
-      if (keyExpression!=null)
+      if (expression is KeyExpression keyExpression) {
         return keyExpression
           .KeyFields
-          .Select(fieldExpression => (Expression) fieldExpression)
-          .ToList();
+          .Cast<Expression>()
+          .ToList(keyExpression.KeyFields.Count);
+      }
 
       if (expression.IsNull())
         return keyFieldTypes
@@ -1137,7 +1153,9 @@ namespace Xtensive.Orm.Linq
           var tupleAccess = (Expression) keyTupleExpression.MakeTupleAccess(fieldType, index);
           if (fieldType!=resultType)
             tupleAccess = Expression.Convert(tupleAccess, resultType);
-          return (Expression) Expression.Condition(isNullExpression, Expression.Constant(null, resultType), tupleAccess);
+          var checkForNulls = (Expression) Expression.Condition(isNullExpression, Expression.Constant(null, resultType), tupleAccess);
+          _ = state.NonVisitableExpressions.Add(checkForNulls);
+          return checkForNulls;
         })
         .ToList();
     }
