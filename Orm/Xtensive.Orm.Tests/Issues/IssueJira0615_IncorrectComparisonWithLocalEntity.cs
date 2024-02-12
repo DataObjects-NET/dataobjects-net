@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -17,6 +18,40 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public sealed class IssueJira0615_IncorrectComparisonWithLocalEntity : AutoBuildTest
   {
+    public Session Session { get; set; }
+
+    public TransactionScope Transaction { get; set; }
+
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      Session = Domain.OpenSession();
+    }
+
+    public override void TestFixtureTearDown()
+    {
+      Session?.Dispose();
+      base.TestFixtureTearDown();
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+      Transaction = Session.OpenTransaction();
+#if DEBUG
+      Session.Events.DbCommandExecuting += CommandExecutingEventHandler;
+#endif
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+#if DEBUG
+      Session.Events.DbCommandExecuting -= CommandExecutingEventHandler;
+#endif
+      Transaction?.Dispose();
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -29,35 +64,29 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
+
+        var nullFlow = new LogisticFlow(session, 999);
         var sharedFlow = new LogisticFlow(session, 1000);
         var uniqueFlow = new LogisticFlow(session, 1100);
 
-        _ = new PickingProductRequirement(session, 10) {
+        var sharedMultiFieldKeyRef = new MultiFieldKeyEntity(session, 1000, 10);
+        var uniqueMultiFieldKeyRef = new MultiFieldKeyEntity(session, 1100, 11);
+
+        _ = new PickingProductRequirement(session, null, 10, true, true) {
           Quantity = new DimensionalField(session, 36),
-          InventoryAction = new InventoryAction(session, 100) {
-            LogisticFlow = sharedFlow
-          }
+          InventoryAction = new InventoryAction(session, 100, sharedFlow, nullFlow, true, true),
         };
-
-        _ = new PickingProductRequirement(session, 20) {
+        _ = new PickingProductRequirement(session, sharedMultiFieldKeyRef, 20, true, true) {
           Quantity = new DimensionalField(session, 35),
-          InventoryAction = new InventoryAction(session, 200) {
-            LogisticFlow = sharedFlow
-          }
+          InventoryAction = new InventoryAction(session, 200, sharedFlow, nullFlow, true, true),
         };
-
-        _ = new PickingProductRequirement(session, 30) {
+        _ = new PickingProductRequirement(session, sharedMultiFieldKeyRef, 30, true, true) {
           Quantity = new DimensionalField(session, 34),
-          InventoryAction = new InventoryAction(session, 300) {
-            LogisticFlow = sharedFlow
-          }
+          InventoryAction = new InventoryAction(session, 300, nullFlow, nullFlow, true, true),
         };
-
-        _ = new PickingProductRequirement(session, 40) {
+        _ = new PickingProductRequirement(session, uniqueMultiFieldKeyRef, 40, true, null) {
           Quantity = new DimensionalField(session, 34),
-          InventoryAction = new InventoryAction(session, 400) {
-            LogisticFlow = uniqueFlow
-          }
+          InventoryAction = new InventoryAction(session, 400, uniqueFlow, nullFlow, true, null),
         };
 
         transaction.Complete();
@@ -65,323 +94,1965 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void SimpleCaseOfLocalEntityComparison()
+    public void EqualsInWhereByEntityItselfTest1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var requirement = session.Query.All<PickingProductRequirement>().First();
-        var result = session.Query.All<PickingProductRequirement>()
-          .Select(x => new { V1 = x == requirement })
-          .OrderBy(o => o.V1).ToArray();
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
 
-        Assert.That(result.Length, Is.EqualTo(4));
-        Assert.That(result.All(x => x.V1 == true), Is.False);
-        Assert.That(result.Any(x => x.V1 == true), Is.True);
-      }
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(x => x == requirement)
+        .ToArray();
+      Assert.That(results.Length, Is.EqualTo(1));
     }
 
     [Test]
-    public void SequenceOfMembersInOrderBy()
+    public void EqualsInWhereByEntityItselfTest2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var requirement = session.Query.All<PickingProductRequirement>().First();
-        var result = session.Query.All<PickingProductRequirement>()
-          .Select(x => new { V1 = new { V2 = x == requirement } })
-          .OrderBy(o => o.V1.V2)
-          .ToArray();
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
 
-        Assert.That(result.Length, Is.EqualTo(4));
-        Assert.That(result.All(x => x.V1.V2 == true), Is.False);
-        Assert.That(result.Any(x => x.V1.V2 == true), Is.True);
-      }
-    }
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(x => x == requirement && x.BooleanFlag == true)
+        .ToArray();
 
-
-    [Test]
-    public void FilterByNewlyCreatedEntity()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var stockFlow = new LogisticFlow(session, 1);
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == stockFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == stockFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.EqualTo(1));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityReduced()
+    public void EqualsInWhereByEntityItselfTest3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var stockFlow = new LogisticFlow(session, 1);
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int)(p.InventoryAction.LogisticFlow == stockFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == stockFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 == 1), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(x => x == requirement && x.NullableBooleanFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityKey()
+    public void EqualsInWhereByEntityFieldTest1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var stockFlow = new LogisticFlow(session, 1);
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == stockFlow.Key ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == stockFlow.Key ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == sharedFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(i => i.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityId()
+    public void EqualsInWhereByEntityFieldTest2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var stockFlow = new LogisticFlow(session, 1);
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.ID == stockFlow.ID ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.ID == stockFlow.ID ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == sharedFlow && i.BooleanFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(i => i.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityRef()
+    public void EqualsInWhereByEntityFieldTest3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        var stockFlow = new LogisticFlow(session, 1);
-        var inventoryAction = new InventoryAction(session, 2) { LogisticFlow = stockFlow, Product = new Product(session, 3) };
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == sharedFlow && i.NullableBooleanFlag == true)
+        .ToArray();
 
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == inventoryAction.LogisticFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == inventoryAction.LogisticFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(i => i.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityRefKey()
+    public void EqualsInWhereByChainOfEntityFieldsTest1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var stockFlow = new LogisticFlow(session, 1);
-        var inventoryAction = new InventoryAction(session, 2) { LogisticFlow = stockFlow, Product = new Product(session, 3) };
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == inventoryAction.LogisticFlow.Key ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == inventoryAction.LogisticFlow.Key ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == sharedFlow)
+        .ToArray();
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(p => p.InventoryAction.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByNewlyCreatedEntityRefId()
+    public void EqualsInWhereByChainOfEntityFieldsTest2()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        var stockFlow = new LogisticFlow(session, 1);
-        var inventoryAction = new InventoryAction(session, 2) { LogisticFlow = stockFlow, Product = new Product(session, 3) };
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == sharedFlow && p.InventoryAction.BooleanFlag == true)
+        .ToArray();
 
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.ID == inventoryAction.LogisticFlow.ID ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.ID == inventoryAction.LogisticFlow.ID ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.All(a => a.V2 < 40), Is.True);
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(p => p.InventoryAction.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByAlreadyExistedCreatedEntity()
+    public void EqualsInWhereByChainOfEntityFieldsTest3()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == sharedFlow && p.InventoryAction.NullableBooleanFlag == true)
+        .ToArray();
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
-
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2 < 40), Is.False);
-        Assert.That(results.Skip(1).All(a => a.V2 > 40 && a.V2 < 75), Is.True);
-        Assert.That(results[0].V2, Is.LessThan(40));
-        Assert.That(results.SequenceEqual(expected), Is.True);
-      }
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(p => p.InventoryAction.LogisticFlow == sharedFlow));
     }
 
     [Test]
-    public void FilterByAlreadyExistedCreatedEntityReduced()
+    public void EqualsInWhereByEntityFieldRemoteTest1()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var sharedFlow = session.Query.All<LogisticFlow>().First(f => f.ID == 1000);
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == i.NullFlow)
+        .ToArray();
 
-        var margin = 2;
-        var results = session.Query.All<PickingProductRequirement>()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].LogisticFlow, Is.EqualTo(results[0].NullFlow));
+    }
 
-        var expected = session.Query.All<PickingProductRequirement>()
-          .AsEnumerable()
-          .Select(
-            p => new {
-              V2 = (int) (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
-            })
-          .OrderBy(t => t.V2)
-          .ToArray();
+    [Test]
+    public void EqualsInWhereByEntityFieldRemoteTest2()
+    {
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == i.NullFlow && i.BooleanFlag == true)
+        .ToArray();
 
-        Assert.That(expected.Length, Is.EqualTo(4));
-        Assert.That(results.Length, Is.EqualTo(expected.Length));
-        Assert.That(results.Skip(1).All(a => a.V2==2), Is.True);
-        Assert.That(results[0].V2, Is.EqualTo(1));
-        Assert.That(results.SequenceEqual(expected), Is.True);
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].LogisticFlow, Is.EqualTo(results[0].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereByEntityFieldRemoteTest3()
+    {
+      var results = Session.Query.All<InventoryAction>()
+        .Where(i => i.LogisticFlow == i.NullFlow && i.NullableBooleanFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].LogisticFlow, Is.EqualTo(results[0].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereByChainOfEntityFieldRemoteTest1()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(results[0].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereByChainOfEntityFieldRemoteTest2()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow && p.InventoryAction.BooleanFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(results[0].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereByChainOfEntityFieldRemoteTest3()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow && p.InventoryAction.NullableBooleanFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(results[0].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest01()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Where(p => (p.LogisticFlow == sharedFlow ? margin : 1) > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest02()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1) > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest03()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1) > 1)
+        .Where(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1) > 40))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest04()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Where(p => (p.LogisticFlow == p.NullFlow ? margin : 1) > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].LogisticFlow, Is.EqualTo(results[0].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest05()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1) > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(results[0].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest06()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1) > 40))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(results[0].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest07()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Where(p => (p.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest08()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest09()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest10()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Where(p => (p.LogisticFlow == p.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest11()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void EqualsInWhereConditionalTest12()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(40, 68))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityItselfTest1()
+    {
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p == requirement
+        })
+        .Where(x => x.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself, Is.EqualTo(requirement));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityItselfTest2()
+    {
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p == requirement
+        })
+        .OrderBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.False);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[3].EntityItself, Is.EqualTo(requirement));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityItselfTest3()
+    {
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p == requirement
+        })
+        .GroupBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldTest1()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == sharedFlow
+        })
+        .Where(x => x.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(p => p.SomeFlag), Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldTest2()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == sharedFlow
+        })
+        .OrderBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[2].EntityItself.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].EntityItself.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldTest3()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == sharedFlow
+        })
+        .GroupBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldsTest1()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow
+        })
+        .Where(x => x.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.All(p => p.SomeFlag), Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldsTest2()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow
+        })
+        .OrderBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[2].EntityItself.InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].EntityItself.InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldsTest3()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow
+        })
+        .GroupBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldRemoteTest1()
+    {
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == i.NullFlow
+        })
+        .Where(x => x.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself.LogisticFlow, Is.EqualTo(results[0].EntityItself.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldRemoteTest2()
+    {
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == i.NullFlow
+        })
+        .OrderBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.False);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[3].EntityItself.LogisticFlow, Is.EqualTo(results[3].EntityItself.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByEntityFieldRemoteTest3()
+    {
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.LogisticFlow == i.NullFlow
+        })
+        .GroupBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldRemoteTest1()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.InventoryAction.LogisticFlow == i.InventoryAction.NullFlow
+        })
+        .Where(x => x.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[0].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldRemoteTest2()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.InventoryAction.LogisticFlow == i.InventoryAction.NullFlow
+        })
+        .OrderBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.False);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[3].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[3].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectByChainOfEntityFieldRemoteTest3()
+    {
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = i.InventoryAction.LogisticFlow == i.InventoryAction.NullFlow
+        })
+        .GroupBy(x => x.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest01()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == sharedFlow) ? margin : 1
+        })
+        .Where(p => p.SomeFlag > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.Length, Is.LessThan(4));
+      Assert.That(results.All(i => i.SomeFlag > 1), Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest02()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == sharedFlow) ? margin : 1
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[1].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[2].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[3].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[2].EntityItself.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].EntityItself.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest03()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == sharedFlow) ? margin : 1
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest04()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1
+        })
+        .Where(p => p.SomeFlag > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.Length, Is.LessThan(4));
+      Assert.That(results.All(i => i.SomeFlag > 1), Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest05()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[1].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[2].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[3].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[3].EntityItself.InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest06()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1
+        })
+        .GroupBy(p => p.SomeFlag > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest07()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
+        })
+        .Where(p => p.SomeFlag > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.GreaterThan(0));
+      Assert.That(results.Length, Is.LessThan(4));
+      Assert.That(results.All(i => i.SomeFlag > 40), Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest08()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.LessThan(40));
+      Assert.That(results[1].SomeFlag, Is.LessThan(40));
+      Assert.That(results[2].SomeFlag, Is.GreaterThan(40));
+      Assert.That(results[3].SomeFlag, Is.GreaterThan(40));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest09()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest10()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == i.NullFlow) ? margin : 1
+        })
+        .Where(p => p.SomeFlag > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[0].EntityItself.LogisticFlow, Is.EqualTo(results[0].EntityItself.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest11()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == i.NullFlow) ? margin : 1
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[1].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[2].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[3].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[3].EntityItself.LogisticFlow, Is.EqualTo(results[3].EntityItself.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest12()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = (i.LogisticFlow == i.NullFlow) ? margin : 1
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest13()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1
+        })
+        .Where(p => p.SomeFlag > 1)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(2));
+      Assert.That(results[0].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[0].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest14()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[1].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[2].SomeFlag, Is.EqualTo(1));
+      Assert.That(results[3].SomeFlag, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest15()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest16()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)
+        })
+        .Where(p => p.SomeFlag > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.EqualTo(68));
+      Assert.That(results[0].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[0].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest17()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.LessThan(40));
+      Assert.That(results[1].SomeFlag, Is.LessThan(40));
+      Assert.That(results[2].SomeFlag, Is.LessThan(40));
+      Assert.That(results[3].SomeFlag, Is.GreaterThan(40));
+      Assert.That(results[3].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[3].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest18()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest19()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == sharedFlow) ? margin : 1).In(1, 3)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest20()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == sharedFlow) ? margin : 1).In(1, 3)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[2].EntityItself.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[3].EntityItself.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest21()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == sharedFlow) ? margin : 1).In(1, 3)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest22()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest23()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+      Assert.That(results[2].EntityItself.InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[3].EntityItself.InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest24()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest25()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest26()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest27()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest28()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == i.NullFlow) ? margin : 1).In(2, 3)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself.LogisticFlow, Is.EqualTo(results[0].EntityItself.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest29()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == i.NullFlow) ? margin : 1).In(2, 3)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.False);
+      Assert.That(results[3].SomeFlag, Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest30()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .Select(i => new {
+          EntityItself = i,
+          SomeFlag = ((i.LogisticFlow == i.NullFlow) ? margin : 1).In(2, 3)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest31()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[0].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest32()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.False);
+      Assert.That(results[3].SomeFlag, Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest33()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest34()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(30, 32, 68)
+        })
+        .Where(p => p.SomeFlag == true)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(1));
+      Assert.That(results[0].SomeFlag, Is.True);
+      Assert.That(results[0].EntityItself.InventoryAction.LogisticFlow,
+        Is.EqualTo(results[0].EntityItself.InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest35()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(34, 36)
+        })
+        .OrderBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].SomeFlag, Is.False);
+      Assert.That(results[1].SomeFlag, Is.False);
+      Assert.That(results[2].SomeFlag, Is.True);
+      Assert.That(results[3].SomeFlag, Is.True);
+    }
+
+    [Test]
+    public void EqualsInSelectConditionalTest36()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(p => new {
+          EntityItself = p,
+          SomeFlag = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(34, 36)
+        })
+        .GroupBy(p => p.SomeFlag)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInOrderByEntityItselfTest()
+    {
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(x => x == requirement)
+        .ToArray();
+    }
+
+    [Test]
+    public void EqualsInOrderByEntityFieldTest()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => p.LogisticFlow == sharedFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByChainOfFieldsTest()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => p.InventoryAction.LogisticFlow == sharedFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByEntityFieldAndRemoteEntityTest()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => p.LogisticFlow == p.NullFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.Not.EqualTo(results[0].NullFlow));
+      Assert.That(results[1].LogisticFlow, Is.Not.EqualTo(results[1].NullFlow));
+      Assert.That(results[2].LogisticFlow, Is.Not.EqualTo(results[2].NullFlow));
+      Assert.That(results[3].LogisticFlow, Is.EqualTo(results[3].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByChainOfFieldsAndRemoteEntityTest()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[0].InventoryAction.NullFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[1].InventoryAction.NullFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[2].InventoryAction.NullFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(results[3].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EquaInOrderByConditionalTest01()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => (p.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest02()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest03()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest04()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => (p.LogisticFlow == p.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.Not.EqualTo(results[0].NullFlow));
+      Assert.That(results[1].LogisticFlow, Is.Not.EqualTo(results[1].NullFlow));
+      Assert.That(results[2].LogisticFlow, Is.Not.EqualTo(results[2].NullFlow));
+      Assert.That(results[3].LogisticFlow, Is.EqualTo(results[3].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest05()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[0].InventoryAction.NullFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[1].InventoryAction.NullFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[2].InventoryAction.NullFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(results[3].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest06()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[0].InventoryAction.NullFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[1].InventoryAction.NullFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[2].InventoryAction.NullFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(results[3].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest07()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => (p.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[1].LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[2].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[3].LogisticFlow, Is.Not.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest08()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest09()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(sharedFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(sharedFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest10()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .OrderBy(p => (p.LogisticFlow == p.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].LogisticFlow, Is.Not.EqualTo(results[0].NullFlow));
+      Assert.That(results[1].LogisticFlow, Is.Not.EqualTo(results[1].NullFlow));
+      Assert.That(results[2].LogisticFlow, Is.Not.EqualTo(results[2].NullFlow));
+      Assert.That(results[3].LogisticFlow, Is.EqualTo(results[3].NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest11()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[0].InventoryAction.NullFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[1].InventoryAction.NullFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[2].InventoryAction.NullFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(results[3].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInOrderByConditionalTest12()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(40, 41, 68))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results[0].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[0].InventoryAction.NullFlow));
+      Assert.That(results[1].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[1].InventoryAction.NullFlow));
+      Assert.That(results[2].InventoryAction.LogisticFlow, Is.Not.EqualTo(results[2].InventoryAction.NullFlow));
+      Assert.That(results[3].InventoryAction.LogisticFlow, Is.EqualTo(results[3].InventoryAction.NullFlow));
+    }
+
+    [Test]
+    public void EqualsInGroupByEntityItselfTest()
+    {
+      var requirement = Session.Query.All<PickingProductRequirement>().First();
+
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(x => x == requirement)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByEntityFieldTest()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => p.LogisticFlow == sharedFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByChainOfFieldsTest()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => p.InventoryAction.LogisticFlow == sharedFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByEntityFieldAndRemoteEntityTest()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => p.LogisticFlow == p.NullFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByChainOfFieldsAndRemoteEntityTest()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EquaInGroupByConditionalTest01()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => (p.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest02()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest03()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest04()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => (p.LogisticFlow == p.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest05()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest06()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest07()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => (p.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest08()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1).In(1, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest09()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().FirstOrDefault(i => i.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == sharedFlow ? margin : 1)).In(40, 70, 72))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest10()
+    {
+      var margin = 2;
+      var results = Session.Query.All<InventoryAction>()
+        .GroupBy(p => (p.LogisticFlow == p.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest11()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1).In(2, 3))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsInGroupByConditionalTest12()
+    {
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow ? margin : 1)).In(40, 41, 68))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void EqualsByEntityKey01()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityKey02()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(2).All(a => a.V2 > 40), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityKey03()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void EqualsByEntityKey04()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1)) > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+      Assert.That(results.All(a => a.InventoryAction.LogisticFlow == sharedFlow), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityKey05()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1)))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results.Take(2).Any(a => a.InventoryAction.LogisticFlow == sharedFlow), Is.False);
+      Assert.That(results.Skip(2).All(a => a.InventoryAction.LogisticFlow == sharedFlow), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityKey06()
+    {
+      var sharedFlow = Session.Query.All<LogisticFlow>().First(f => f.Id == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => (p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow.Key == sharedFlow.Key ? margin : 1)))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void EqualsByEntityMultiFieldKey01()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+          })
+        .Where(t => t.V2 > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+      Assert.That(results.All(a => a.V2 > 40), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityMultiFieldKey02()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (int) (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+          })
+        .OrderBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results.Take(2).All(a => a.V2 < 40), Is.True);
+      Assert.That(results.Skip(2).All(a => a.V2 > 40), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityMultifieldKey03()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Select(
+          p => new {
+            V2 = (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+          })
+        .GroupBy(t => t.V2)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+    }
+
+    [Test]
+    public void EqualsByEntityMultiFieldKey04()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .Where(p => (p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1)) > 40)
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(2));
+      Assert.That(results.All(a => a.MultiFieldKeyRef == sharedEntity), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityMultiFieldKey05()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .OrderBy(p => p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+      Assert.That(results.Take(2).Any(p => p.MultiFieldKeyRef == sharedEntity), Is.False);
+      Assert.That(results.Skip(2).All(p => p.MultiFieldKeyRef == sharedEntity), Is.True);
+    }
+
+    [Test]
+    public void EqualsByEntityMultifieldKey06()
+    {
+      var sharedEntity = Session.Query.All<MultiFieldKeyEntity>().First(f => f.Id1 == 1000);
+
+      var margin = 2;
+      var results = Session.Query.All<PickingProductRequirement>()
+        .GroupBy(p => p.Quantity.NormalizedValue * (p.MultiFieldKeyRef.Key == sharedEntity.Key ? margin : 1))
+        .ToArray();
+
+      Assert.That(results.Length, Is.EqualTo(4));
+    }
+#if DEBUG
+
+    private static void CommandExecutingEventHandler(object sender, DbCommandEventArgs e)
+    {
+      var command = e.Command;
+      var commandText = command.CommandText;
+      Console.WriteLine("No Modifications SQL Text:");
+      Console.WriteLine(commandText);
+      var parameters = command.Parameters;
+
+      Console.Write(" Parameters: ");
+      for (int i = 0, count = parameters.Count; i < count; i++) {
+        var parameter = parameters[i];
+        Console.WriteLine($"{parameter.ParameterName} = {parameter.Value}");
       }
     }
+#endif
   }
 }
 
@@ -391,14 +2062,25 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
   public class InventoryAction : MesObject
   {
     [Field]
-    public Product Product { get; set; }
-
-    [Field]
     public LogisticFlow LogisticFlow { get; set; }
 
-    public InventoryAction(Session session, int id)
+    [Field]
+    public LogisticFlow NullFlow { get; set; }
+
+    [Field]
+    public bool BooleanFlag { get; set; }
+
+    [Field]
+    public bool? NullableBooleanFlag { get; set; }
+
+    public InventoryAction(Session session, int id, 
+      LogisticFlow logisticFlow, LogisticFlow nullFlow, bool boolFlag, bool? nullableBoolFlag)
       : base(session, id)
     {
+      LogisticFlow = logisticFlow;
+      NullFlow = nullFlow;
+      BooleanFlag = boolFlag;
+      NullableBooleanFlag = nullableBoolFlag;
     }
   }
 
@@ -412,32 +2094,45 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
   }
 
   [HierarchyRoot]
-  public class Product : MesObject
-  {
-    [Field]
-    public string MeasureType { get; set; }
-
-    public Product(Session session, int id)
-      : base(session, id)
-    {
-    }
-  }
-
-  [HierarchyRoot]
   public class PickingProductRequirement : MesObject
   {
-    [Field]
-    [Association(OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Deny)]
-    public Product Product { get; private set; }
-
     [Field]
     public DimensionalField Quantity { get; set; }
 
     [Field]
     public InventoryAction InventoryAction { get; set; }
 
-    public PickingProductRequirement(Session session, int id)
-      : base(session, id)
+    [Field]
+    public bool BooleanFlag { get; set; }
+
+    [Field]
+    public bool? NullableBooleanFlag { get; set; }
+
+    [Field]
+    public MultiFieldKeyEntity MultiFieldKeyRef { get; set; }
+
+    public PickingProductRequirement(Session session,
+      MultiFieldKeyEntity multiFieldKeyEntity, int id, bool boolFlag, bool? nullableBoolFlag)
+       : base(session, id)
+    {
+      BooleanFlag = boolFlag;
+      NullableBooleanFlag = nullableBoolFlag;
+      MultiFieldKeyRef = multiFieldKeyEntity;
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class MultiFieldKeyEntity : Entity
+  {
+    [Field, Key(0)]
+    public int Id1 { get; private set; }
+
+    [Field, Key(1)]
+    public int Id2 { get; private set; }
+
+    public MultiFieldKeyEntity(Session session, int id1, int id2)
+      : base(session, id1, id2)
     {
     }
   }
@@ -445,9 +2140,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
   public class DimensionalField : Structure
   {
     [Field]
-    public decimal NormalizedValue { get; private set; }
+    public int NormalizedValue { get; private set; }
 
-    public DimensionalField(Session session, decimal nValue)
+    public DimensionalField(Session session, int nValue)
       : base(session)
     {
       NormalizedValue = nValue;
@@ -457,7 +2152,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0615_IncorrectComparisonWithLocalEn
   public abstract class MesObject : Entity
   {
     [Field, Key]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     protected MesObject(Session session, int id)
       : base(session, id)
