@@ -352,8 +352,10 @@ namespace Xtensive.Orm.Providers
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
       var varCheck = boolCheck as SqlVariant;
-      if (!PreferCaseOverVariant && !varCheck.IsNullReference())
+
+      if (!PreferCaseOverVariant && !varCheck.IsNullReference()) {
         return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
+      }
       var @case = SqlDml.Case();
       if (fixExpressions && IsBooleanExpression(expression)) {
         @case[check] = booleanExpressionConverter.BooleanToInt(ifTrue);
@@ -482,8 +484,11 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public ExpressionProcessor(
-      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, in bool preferCaseOverVariant, params IReadOnlyList<SqlExpression>[] sourceColumns)
+    public ExpressionProcessor(LambdaExpression lambda,
+      HandlerAccessor handlers,
+      SqlCompiler compiler,
+      in bool preferCaseOverVariant,
+      params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");

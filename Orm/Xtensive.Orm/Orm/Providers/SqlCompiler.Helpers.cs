@@ -60,10 +60,10 @@ namespace Xtensive.Orm.Providers
 
     protected virtual string ProcessAliasedName(string name) => name;
 
-    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
+    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le, in bool preferCaseOverVariant,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      var processor = new ExpressionProcessor(le, Handlers, this, (Owner ?? RootProvider).Type == ProviderType.Sort, sourceColumns);
+      var processor = new ExpressionProcessor(le, Handlers, this, preferCaseOverVariant, sourceColumns);
       var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
         processor.Translate(), processor.GetBindings());
       return result;
