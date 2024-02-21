@@ -15,7 +15,7 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class ExpressionProcessor
+  internal partial class ExpressionProcessor
   {
     private readonly static Type ObjectType = typeof(object);
     private readonly static Type BooleanType = typeof(bool);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression TryTranslateEqualitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
+      if (right.NodeType==SqlNodeType.Null || EmptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNull(left);
 
       object id = null;
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression TryTranslateInequalitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
+      if (right.NodeType==SqlNodeType.Null || EmptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNotNull(left);
       
       object id = null;
