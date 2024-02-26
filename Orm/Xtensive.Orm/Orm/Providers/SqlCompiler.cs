@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Providers
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
       var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
-        var result = ProcessExpression(column.Expression, sourceColumns);
+        var result = ProcessExpression(column.Expression, true, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
         if (column.Type.StripNullable()==typeof (bool))
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Providers
       var query = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(query);
-      var result = ProcessExpression(provider.Predicate, sourceColumns);
+      var result = ProcessExpression(provider.Predicate, true, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
 
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Providers
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
-      var result = ProcessExpression(provider.Predicate, leftExpressions, rightExpressions);
+      var result = ProcessExpression(provider.Predicate, false, leftExpressions, rightExpressions);
       var joinExpression = result.First;
       var bindings = result.Second;
 
