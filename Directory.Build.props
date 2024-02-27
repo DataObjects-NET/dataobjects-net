@@ -42,6 +42,7 @@
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
       Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
@@ -49,7 +50,7 @@
     <!-- hard binding to net8, no property and env variable allowed-->
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
   <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
     <!-- hard binding to net7, no property and env variable allowed-->
@@ -130,7 +131,7 @@
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
     <PackageReference Condition="$(DoGeneratePackage) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+                      Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>
