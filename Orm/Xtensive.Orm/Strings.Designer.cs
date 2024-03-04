@@ -3709,6 +3709,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported..
+        /// </summary>
+        internal static string ExJoinHasSameInnerAndOuterParameterInstances {
+            get {
+                return ResourceManager.GetString("ExJoinHasSameInnerAndOuterParameterInstances", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key already exists..
         /// </summary>
         internal static string ExKeyAlreadyExists {
