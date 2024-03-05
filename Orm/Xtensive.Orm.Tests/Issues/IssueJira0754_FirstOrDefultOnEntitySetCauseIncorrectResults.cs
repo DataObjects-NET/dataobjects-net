@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0754_FirstOrDefultOnEntitySetCauseIncorrectResultsModel;
 
 
@@ -86,6 +87,8 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0754_FirstOrDefultOnEntitySetCauseIncorrectResults : AutoBuildTest
   {
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
