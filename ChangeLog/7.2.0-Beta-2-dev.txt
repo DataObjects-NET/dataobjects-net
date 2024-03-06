@@ -1,0 +1,1 @@
+[main] Upgrade hints change names of constructors' string parameters for better understanding of what suppose to be in them.
