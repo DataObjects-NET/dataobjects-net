@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.06.05
 
@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Upgrade
   public sealed class ChangeFieldTypeHint : UpgradeHint,
     IEquatable<ChangeFieldTypeHint>
   {
-    private const string ToStringFormat = "Change type of field: {0}.{1}";
-
     /// <summary>
     /// Gets the target type.
     /// </summary>
@@ -45,32 +43,26 @@ namespace Xtensive.Orm.Upgrade
         return true;
       var comparer = StringComparer.OrdinalIgnoreCase;
       return base.Equals(other)
-        && other.Type==Type
+        && other.Type == Type
         && comparer.Equals(other.FieldName, FieldName);
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as ChangeFieldTypeHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as ChangeFieldTypeHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = base.GetHashCode();
-        result = (result * 397) ^ (Type!=null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (FieldName!=null ? FieldName.GetHashCode() : 0);
+        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (FieldName != null ? FieldName.GetHashCode() : 0);
         return result;
       }
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, Type, FieldName);
-    }
+    public override string ToString() => $"Change type of field: {Type}.{FieldName}";
 
 
     // Constructors
@@ -78,12 +70,12 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="type">Value for <see cref="Type"/>.</param>
-    /// <param name="fieldName">Value for <see cref="FieldName"/>.</param>
+    /// <param name="type">The type field belongs to.</param>
+    /// <param name="fieldName">Name of field that changes type.</param>
     public ChangeFieldTypeHint(Type type, string fieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "sourceField");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
 
       Type = type;
       FieldName = fieldName;

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.04.29
 
@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Upgrade
   public sealed class MergeTypeHint : UpgradeHint,
     IEquatable<MergeTypeHint>
   {
-    private const string ToStringFormat = "Merge type: {0} -> {1}";
-
     /// <summary>
     /// Gets the new type.
     /// </summary>
@@ -39,33 +37,28 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
-        && other.NewType==NewType
-        && other.OldType==OldType;
+      return base.Equals(other)
+        && other.NewType == NewType
+        && other.OldType == OldType;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as MergeTypeHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as MergeTypeHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = base.GetHashCode();
-        result = (result * 397) ^ (NewType!=null ? NewType.GetHashCode() : 0);
-        result = (result * 397) ^ (OldType!=null ? OldType.GetHashCode() : 0);
+        result = (result * 397) ^ (NewType != null ? NewType.GetHashCode() : 0);
+        result = (result * 397) ^ (OldType != null ? OldType.GetHashCode() : 0);
         return result;
       }
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, OldType.GetFullName(), NewType.GetFullName());
-    }
+    public override string ToString() =>
+      $"Merge type: {OldType.GetFullName()} -> {NewType.GetFullName()}";
 
 
     // Constructors
@@ -77,8 +70,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newType">The new type.</param>
     public MergeTypeHint(Type oldType, Type newType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(newType, "newType");
-      ArgumentValidator.EnsureArgumentNotNull(oldType, "oldType");
+      ArgumentValidator.EnsureArgumentNotNull(newType, nameof(newType));
+      ArgumentValidator.EnsureArgumentNotNull(oldType, nameof(oldType));
 
       OldType = oldType;
       NewType = newType;
