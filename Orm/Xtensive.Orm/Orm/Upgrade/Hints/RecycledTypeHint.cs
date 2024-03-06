@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.04.29
 
@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Upgrade
   public sealed class RecycledTypeHint : UpgradeHint,
     IEquatable<RecycledTypeHint>
   {
-    private const string ToStringFormat = "Recycled type: {0}";
-
     /// <summary>
     /// Gets the type.
     /// </summary>
@@ -34,31 +32,25 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
-        && other.Type==Type;
+      return base.Equals(other)
+        && other.Type == Type;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as RecycledTypeHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as RecycledTypeHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = base.GetHashCode();
-        result = (result * 397) ^ (Type!=null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
         return result;
       }
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, Type);
-    }
+    public override string ToString() => $"Recycled type: {Type}";
 
 
     // Constructors
@@ -69,7 +61,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="type">The recycled type.</param>
     public RecycledTypeHint(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
 
       Type = type;
 

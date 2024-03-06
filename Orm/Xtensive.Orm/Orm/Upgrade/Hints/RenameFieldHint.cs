@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.04.29
 
@@ -18,8 +18,6 @@ namespace Xtensive.Orm.Upgrade
   public sealed class RenameFieldHint : UpgradeHint,
     IEquatable<RenameFieldHint>
   {
-    private const string ToStringFormat = "Rename field: {0} {1} -> {2}";
-
     /// <summary>
     /// Gets or sets the type of the target.
     /// </summary>
@@ -42,35 +40,30 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
-        && other.TargetType==TargetType 
-        && other.OldFieldName==OldFieldName
-        && other.NewFieldName==NewFieldName;
+      return base.Equals(other)
+        && other.TargetType == TargetType
+        && other.OldFieldName == OldFieldName
+        && other.NewFieldName == NewFieldName;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as RenameFieldHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as RenameFieldHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = base.GetHashCode();
-        result = (result * 397) ^ (TargetType!=null ? TargetType.GetHashCode() : 0);
-        result = (result * 397) ^ (OldFieldName!=null ? OldFieldName.GetHashCode() : 0);
-        result = (result * 397) ^ (NewFieldName!=null ? NewFieldName.GetHashCode() : 0);
+        result = (result * 397) ^ (TargetType != null ? TargetType.GetHashCode() : 0);
+        result = (result * 397) ^ (OldFieldName != null ? OldFieldName.GetHashCode() : 0);
+        result = (result * 397) ^ (NewFieldName != null ? NewFieldName.GetHashCode() : 0);
         return result;
       }
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, TargetType.FullName, OldFieldName, NewFieldName);
-    }
+    public override string ToString() =>
+      $"Rename field: {TargetType.FullName} {OldFieldName} -> {NewFieldName}";
 
 
     // Constructors

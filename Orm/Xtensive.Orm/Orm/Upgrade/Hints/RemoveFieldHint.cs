@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.10.09
 
@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Upgrade
   public class RemoveFieldHint : UpgradeHint,
     IEquatable<RemoveFieldHint>
   {
-    private const string ToStringFormat = "Remove field: {0}.{1}";
-
     /// <summary>
     /// Gets the source type.
     /// </summary>
@@ -49,32 +47,26 @@ namespace Xtensive.Orm.Upgrade
       if (ReferenceEquals(this, other))
         return true;
       return base.Equals(other)
-        && other.Type==Type
-        && other.Field==Field;
+        && other.Type == Type
+        && other.Field == Field;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as RemoveFieldHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as RemoveFieldHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
     {
       unchecked {
         int result = base.GetHashCode();
-        result = (result * 397) ^ (Type!=null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (Field!=null ? Field.GetHashCode() : 0);
+        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (Field != null ? Field.GetHashCode() : 0);
         return result;
       }
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, Type, Field);
-    }
+    public override string ToString() => $"Remove field: {Type}.{Field}";
 
 
     // Constructors
@@ -82,29 +74,29 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="type">Value for <see cref="Type"/>.</param>
-    /// <param name="field">Value for <see cref="Field"/>.</param>
-    public RemoveFieldHint(string type, string field)
+    /// <param name="typeName">Full name of type that contains removing field.</param>
+    /// <param name="fieldName">Removing field name.</param>
+    public RemoveFieldHint(string typeName, string fieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "type");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
-      Type = type;
-      Field = field;
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
+      Type = typeName;
+      Field = fieldName;
       AffectedColumns = Array.Empty<string>();
     }
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="type">Value for <see cref="Type"/>.</param>
-    /// <param name="field">Value for <see cref="Field"/>.</param>
-    public RemoveFieldHint(Type type, string field)
+    /// <param name="type">The type that contains removing field.</param>
+    /// <param name="fieldName">Removing field name.</param>
+    public RemoveFieldHint(Type type, string fieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
 
       Type = type.FullName;
-      Field = field;
+      Field = fieldName;
       AffectedColumns = Array.Empty<string>();
     }
 
