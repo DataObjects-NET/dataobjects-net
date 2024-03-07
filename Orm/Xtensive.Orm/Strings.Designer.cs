@@ -6872,6 +6872,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
+        /// </summary>
+        internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
+            get {
+                return ResourceManager.GetString("ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to activate EntitySet for &apos;{0}&apos; field because it does not has association..
         /// </summary>
         internal static string ExUnableToActivateEntitySetWithoutAssociation {
