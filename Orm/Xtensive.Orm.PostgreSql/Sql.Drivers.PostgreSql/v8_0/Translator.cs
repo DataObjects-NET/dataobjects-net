@@ -453,23 +453,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
-    {
-      switch (section) {
-        case FetchSection.Entry:
-          _ = context.Output.Append("FETCH ").Append(node.Option.ToString().ToUpper());
-          return;
-        case FetchSection.Targets:
-          var output = context.Output;
-          _ = output.Append("FROM ");
-          TranslateIdentifier(output, node.Cursor.Name);
-          return;
-        case FetchSection.Exit:
-          break;
-      }
-      base.Translate(context, node, section);
-    }
+    public override void FetchEntry(SqlCompilerContext context, SqlFetch node) =>
+      context.Output.Append("FETCH ").Append(node.Option.ToString().ToUpper());
+
+    public override void FetchTarget(SqlCompilerContext context, SqlFetch node) =>
+      TranslateIdentifier(context.Output.AppendSpaceIfNecessary().Append("FROM "), node.Cursor.Name);
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlOpenCursor node)
