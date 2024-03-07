@@ -4,14 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {

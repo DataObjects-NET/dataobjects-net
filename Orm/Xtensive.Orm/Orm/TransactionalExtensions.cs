@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.07.31
 
-using System;
-using System.Collections.Generic;
 using System.Transactions;
 
 namespace Xtensive.Orm

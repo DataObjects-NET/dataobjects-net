@@ -4,13 +4,10 @@
 // Created by: Csaba Beer
 // Created:    2011.01.17
 
-using System;
-using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {

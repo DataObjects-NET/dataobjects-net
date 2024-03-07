@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.01.29
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Orm.Tests.ObjectModel.GraphModel

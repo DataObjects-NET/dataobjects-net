@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.30
 
-using System;
 
 
 namespace Xtensive.Orm.Upgrade

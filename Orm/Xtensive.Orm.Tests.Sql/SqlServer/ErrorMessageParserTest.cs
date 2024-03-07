@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.09.28
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Sql.Drivers.SqlServer;
 

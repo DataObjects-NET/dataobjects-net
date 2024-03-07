@@ -4,14 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.30
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Xtensive.Orm.Upgrade
 {

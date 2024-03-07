@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.10.27
 
-using System;
 using Xtensive.Orm.Tests._Manual.Validation;
 using Xtensive.Orm.Validation;
 

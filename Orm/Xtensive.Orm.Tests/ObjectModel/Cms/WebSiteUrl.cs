@@ -4,7 +4,6 @@
 // Created by: Alex Ilyin
 // Created:    2009.09.08
 
-using System;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms

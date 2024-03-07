@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {

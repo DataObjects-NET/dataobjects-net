@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.09
 
-using System;
 
 namespace Xtensive.Orm.Tests
 {

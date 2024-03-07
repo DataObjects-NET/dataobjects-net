@@ -4,10 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.03
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Collections;
-using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Upgrade;

@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
-using System;
 
 namespace Xtensive.Orm.Tracking
 {

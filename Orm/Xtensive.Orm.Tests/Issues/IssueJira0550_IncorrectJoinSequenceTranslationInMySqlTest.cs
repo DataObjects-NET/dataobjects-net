@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.09.01
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0550_IncorrectJoinSequenceTranslationInMySqlTestModel;

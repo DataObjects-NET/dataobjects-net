@@ -1,4 +1,3 @@
-﻿using System;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Reprocessing

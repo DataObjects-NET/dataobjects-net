@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.17
 
-using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Reflection
 {

@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.02.25
 
-using System;
 using System.IO;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -14,7 +13,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Linq;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage

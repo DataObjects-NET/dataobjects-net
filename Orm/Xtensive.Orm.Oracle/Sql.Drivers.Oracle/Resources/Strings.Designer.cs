@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Sql.Drivers.Oracle.Resources {
-    using System;
     
     
     /// <summary>

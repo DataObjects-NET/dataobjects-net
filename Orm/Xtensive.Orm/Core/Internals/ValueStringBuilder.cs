@@ -5,7 +5,6 @@
 // + re-structured to fit project rules
 // + formatting rules applied
 
-using System;
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;

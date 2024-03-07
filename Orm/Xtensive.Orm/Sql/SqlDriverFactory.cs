@@ -5,8 +5,6 @@
 // Created:    2009.06.23
 
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;

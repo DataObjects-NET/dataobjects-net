@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Sql.Info

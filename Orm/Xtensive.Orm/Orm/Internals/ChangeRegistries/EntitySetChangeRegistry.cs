@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.03.27
 
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Internals
 {

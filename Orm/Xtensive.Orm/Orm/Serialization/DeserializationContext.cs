@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.03.30
 
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.IoC;

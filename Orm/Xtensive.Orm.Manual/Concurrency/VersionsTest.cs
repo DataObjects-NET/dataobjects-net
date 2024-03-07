@@ -4,9 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.11
 
-using System;
-using System.Linq;
-using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core;

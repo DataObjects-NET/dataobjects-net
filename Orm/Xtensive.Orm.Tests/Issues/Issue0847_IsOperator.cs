@@ -1,4 +1,3 @@
-﻿using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0847_IsOperator;

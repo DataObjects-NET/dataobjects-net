@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.15
 
-using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;

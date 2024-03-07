@@ -5,9 +5,6 @@
 // Created:    2019.12.16
 
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;

@@ -4,10 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2010.10.08
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0827_LinqDtoMaterialization;

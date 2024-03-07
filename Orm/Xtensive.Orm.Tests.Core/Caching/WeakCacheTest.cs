@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Orm.Tests;

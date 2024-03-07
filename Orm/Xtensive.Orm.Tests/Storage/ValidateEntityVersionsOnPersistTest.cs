@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.04.22
 
-using System.Linq;
 using NUnit.Framework;
 using ValidateEntityVersionsOnPersistTestModel;
 using Xtensive.Orm;

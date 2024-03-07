@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.02.27
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
@@ -14,12 +12,10 @@ using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1;
 using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;
 using Xtensive.Orm.Upgrade;
-using System.Linq;
 using Author = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Author;
 using Book = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book;
 using Author2 = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely.Author;
 using Book2 = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely.Book;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

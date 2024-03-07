@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.01
 
-using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Xtensive.Comparison;

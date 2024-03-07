@@ -5,7 +5,6 @@
 // Created:    2009.04.16
 
 using System.Collections;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;

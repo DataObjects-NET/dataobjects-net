@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.11.19
 
-using System;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_4

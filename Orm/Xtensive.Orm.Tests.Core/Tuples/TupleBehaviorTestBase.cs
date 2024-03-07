@@ -4,9 +4,6 @@
 // Created by: Nick Svetlov
 // Created:    2008.05.23
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Tuples;

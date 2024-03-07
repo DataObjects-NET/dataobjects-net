@@ -5,7 +5,6 @@
 // Created:    2009.05.20
 
 using Xtensive.Orm.Upgrade;
-using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
 {

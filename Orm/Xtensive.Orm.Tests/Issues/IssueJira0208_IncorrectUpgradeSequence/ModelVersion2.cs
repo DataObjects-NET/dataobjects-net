@@ -5,11 +5,9 @@
 // Created:    2009.05.20
 
 using System.Collections;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Upgrade;
-using System;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence.Model.Version2
 {

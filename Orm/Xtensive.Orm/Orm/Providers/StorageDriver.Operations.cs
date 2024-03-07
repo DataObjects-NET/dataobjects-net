@@ -4,11 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 

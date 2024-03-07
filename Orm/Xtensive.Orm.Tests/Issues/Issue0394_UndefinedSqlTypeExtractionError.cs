@@ -8,7 +8,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
-using System.Linq;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using Xtensive.Sql;
 

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.01.22
 
-using System;
 using System.Numerics;
 
 namespace Xtensive.Tuples.Packed

@@ -4,8 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2009.04.06
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;

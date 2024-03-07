@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.07
 
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 

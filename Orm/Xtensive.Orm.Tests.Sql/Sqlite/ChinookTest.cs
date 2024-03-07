@@ -4,11 +4,9 @@
 // Created by: Malisa Ncube
 // Created:    2011.06.10
 
-using System;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Sql;

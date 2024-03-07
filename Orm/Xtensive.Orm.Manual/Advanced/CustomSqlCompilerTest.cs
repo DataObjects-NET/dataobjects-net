@@ -4,13 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.11
 
-using System;
 using NUnit.Framework;
 using Xtensive.Linq;
 using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using System.Linq;
 
 namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 {

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.07.18
 
-using System.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

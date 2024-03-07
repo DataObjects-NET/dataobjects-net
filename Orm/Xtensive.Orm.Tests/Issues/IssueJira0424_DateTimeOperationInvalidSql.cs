@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.01.31
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0424_DateTimeOperationInvalidSqlModel;

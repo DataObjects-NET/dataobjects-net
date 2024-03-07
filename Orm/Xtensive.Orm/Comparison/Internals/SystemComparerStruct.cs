@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.02.10
 
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 

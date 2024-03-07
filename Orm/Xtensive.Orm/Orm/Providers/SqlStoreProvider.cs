@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers

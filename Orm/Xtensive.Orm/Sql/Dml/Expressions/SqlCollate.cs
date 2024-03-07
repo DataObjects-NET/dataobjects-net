@@ -2,7 +2,6 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
 

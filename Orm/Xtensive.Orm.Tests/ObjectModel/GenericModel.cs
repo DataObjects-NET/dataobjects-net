@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.07
 
-using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.GenericModel
 {

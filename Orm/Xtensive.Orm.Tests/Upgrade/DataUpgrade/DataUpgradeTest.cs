@@ -4,10 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.30
 
-using System;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Xtensive.Core;

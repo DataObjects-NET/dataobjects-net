@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2019.06.24
 
-using System.Collections.Generic;
 
 namespace Xtensive.Core
 {

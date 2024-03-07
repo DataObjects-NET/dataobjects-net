@@ -4,14 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.Oracle.v09
 {

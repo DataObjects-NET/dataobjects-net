@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.07.16
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Storage.Multimapping;
 using Xtensive.Orm.Upgrade;

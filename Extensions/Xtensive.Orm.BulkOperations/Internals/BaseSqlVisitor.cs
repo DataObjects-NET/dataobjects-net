@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;

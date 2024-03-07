@@ -4,10 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2010.01.21
 
-using System;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
 using Xtensive.Core;

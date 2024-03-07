@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.04.02
 
-using System;
 
 
 namespace Xtensive.Orm.Model

@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.10
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Rewriters;

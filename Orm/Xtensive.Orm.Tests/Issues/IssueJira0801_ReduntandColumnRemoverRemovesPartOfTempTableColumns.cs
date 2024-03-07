@@ -5,9 +5,6 @@
 // Created:    2020.11.16
 
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0801_ReduntandColumnRemoverRemovesPartOfTempTableColumnsModel;
 

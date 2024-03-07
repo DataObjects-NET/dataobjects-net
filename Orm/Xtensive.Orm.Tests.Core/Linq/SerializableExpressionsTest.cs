@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.13
 
-using System;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
@@ -14,7 +12,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Linq.SerializableExpressions;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {

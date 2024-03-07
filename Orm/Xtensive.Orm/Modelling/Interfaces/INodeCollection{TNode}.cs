@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.18
 
-using System.Collections.Generic;
 using Xtensive.Collections;
 
 namespace Xtensive.Modelling

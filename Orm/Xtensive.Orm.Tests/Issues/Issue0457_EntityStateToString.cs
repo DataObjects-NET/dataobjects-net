@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.10.29
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0457_EntityStateToStringModel;

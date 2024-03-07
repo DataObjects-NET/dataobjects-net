@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.SqlServer.Resources {
-    using System;
     
     
     /// <summary>

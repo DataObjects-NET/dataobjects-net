@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.06.29
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0262_Model;

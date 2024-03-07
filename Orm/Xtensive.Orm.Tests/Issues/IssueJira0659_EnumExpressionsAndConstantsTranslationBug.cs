@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.08.08
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0659_GroupByConditionalExpressionWithEnumsModel;

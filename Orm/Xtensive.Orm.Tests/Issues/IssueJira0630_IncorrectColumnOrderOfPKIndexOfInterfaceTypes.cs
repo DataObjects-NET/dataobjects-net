@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2016.03.31
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypesModel;

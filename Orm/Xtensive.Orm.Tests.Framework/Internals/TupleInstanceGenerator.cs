@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.30
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

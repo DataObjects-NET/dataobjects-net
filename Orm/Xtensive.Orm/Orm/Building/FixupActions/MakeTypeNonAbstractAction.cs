@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.09.08
 
-using System;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions

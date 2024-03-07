@@ -6,8 +6,6 @@
 
 using System.Data.Common;
 using System.Diagnostics;
-using System.Collections.Generic;
-using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {

@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.11.12
 
-using System;
 using System.Globalization;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;

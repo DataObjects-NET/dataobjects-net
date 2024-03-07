@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.05.21
 
-using System;
 using NUnit.Framework;
 using model1 = Xtensive.Orm.Tests.Issues.IssueJira0529_BugWithRecycledNestedV1;
 using model2 = Xtensive.Orm.Tests.Issues.IssueJira0529_BugWithRecycledNestedV2;

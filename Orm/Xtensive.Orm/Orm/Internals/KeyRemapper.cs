@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.05.06
 
-using System;
-using System.Linq;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Internals

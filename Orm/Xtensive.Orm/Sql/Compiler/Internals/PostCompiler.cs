@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.23
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Xtensive.Sql.Compiler

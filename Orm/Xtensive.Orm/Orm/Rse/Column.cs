@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
-using System;
 
 
 namespace Xtensive.Orm.Rse

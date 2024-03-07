@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.03.05
 
-using System;
 
 
 namespace Xtensive.Orm.Rse

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.09.15
 
-using System;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;

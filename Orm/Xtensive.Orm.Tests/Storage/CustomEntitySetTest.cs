@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.07
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Storage.CustomEntitySetModel;

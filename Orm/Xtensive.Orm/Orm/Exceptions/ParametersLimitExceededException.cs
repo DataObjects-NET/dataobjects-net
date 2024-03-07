@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.11.02
 
-using System;
 
 namespace Xtensive.Orm
 {

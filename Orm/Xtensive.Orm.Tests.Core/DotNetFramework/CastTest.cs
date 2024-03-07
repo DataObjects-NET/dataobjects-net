@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.21
 
-using System;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework

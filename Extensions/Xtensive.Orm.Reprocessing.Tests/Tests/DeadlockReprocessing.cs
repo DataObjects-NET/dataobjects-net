@@ -2,10 +2,6 @@
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable AccessToModifiedClosure
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Transactions;
 using NUnit.Framework;
 using TestCommon.Model;

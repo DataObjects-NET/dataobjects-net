@@ -4,11 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2009.12.15
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.IoC;

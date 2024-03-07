@@ -4,9 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2020.03.26
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;

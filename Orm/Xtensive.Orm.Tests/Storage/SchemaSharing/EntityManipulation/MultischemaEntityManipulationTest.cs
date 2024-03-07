@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.04.05
 
-using System.Collections.Generic;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using model = Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model;

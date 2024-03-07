@@ -4,12 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2009.04.21
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.ConditionalTestModel;
 using Xtensive.Orm.Tests.Storage.ForeignKeys;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.ConditionalTestModel
 {

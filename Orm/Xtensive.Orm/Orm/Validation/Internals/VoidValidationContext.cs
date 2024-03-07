@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.09.12
 
-using System.Collections.Generic;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Validation

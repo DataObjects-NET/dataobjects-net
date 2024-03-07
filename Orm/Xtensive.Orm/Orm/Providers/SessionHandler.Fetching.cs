@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;

@@ -6,7 +6,6 @@
 
 using System.Diagnostics;
 using NUnit.Framework;
-using System;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Configuration;

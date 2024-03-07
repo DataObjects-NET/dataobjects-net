@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.08.03
 
-using System;
 
 namespace Xtensive.Orm.Tests.Storage.Performance.CrudModel
 {

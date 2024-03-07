@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using System.Collections.Generic;
 
 namespace Xtensive.Orm
 {

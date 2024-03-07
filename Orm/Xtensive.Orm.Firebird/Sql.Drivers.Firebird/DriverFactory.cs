@@ -4,11 +4,8 @@
 // Created by: Csaba Beer
 // Created:    2011.01.08
 
-using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using FirebirdSql.Data.FirebirdClient;
 using Xtensive.Core;
 using Xtensive.Orm;

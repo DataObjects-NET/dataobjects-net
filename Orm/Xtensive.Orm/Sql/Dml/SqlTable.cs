@@ -2,9 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml

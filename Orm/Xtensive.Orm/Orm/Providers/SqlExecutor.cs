@@ -4,12 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.29
 
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;

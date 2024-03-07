@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.02.19
 
-using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;

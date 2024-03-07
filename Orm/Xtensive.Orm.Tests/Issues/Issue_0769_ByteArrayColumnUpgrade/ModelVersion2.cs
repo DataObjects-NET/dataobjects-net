@@ -5,11 +5,9 @@
 // Created:    2009.05.20
 
 using System.Collections;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Upgrade;
-using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2
 {

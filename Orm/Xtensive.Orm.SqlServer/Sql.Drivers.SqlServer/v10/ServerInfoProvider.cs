@@ -4,7 +4,6 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.07.07
 
-using System;
 using Xtensive.Sql.Info;
 using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 

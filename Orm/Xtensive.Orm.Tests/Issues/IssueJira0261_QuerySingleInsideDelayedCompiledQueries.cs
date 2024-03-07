@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.07.28
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0261_QuerySingleInsideDelayedCompiledQueriesModel;

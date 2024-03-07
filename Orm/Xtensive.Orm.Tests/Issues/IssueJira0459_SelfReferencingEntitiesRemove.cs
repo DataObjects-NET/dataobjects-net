@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.08.14
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0459_SelfReferencingEntitiesRemoveModel;

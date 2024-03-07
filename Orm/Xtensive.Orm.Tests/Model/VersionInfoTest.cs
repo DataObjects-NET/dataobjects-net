@@ -5,11 +5,9 @@
 // Created:    2009.08.13
 
 using System.Reflection;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
-using System;
 
 #region Models
 

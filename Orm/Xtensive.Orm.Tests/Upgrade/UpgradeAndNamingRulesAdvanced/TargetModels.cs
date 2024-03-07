@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.03
 
-using System.Collections.Generic;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 

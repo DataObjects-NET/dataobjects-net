@@ -4,8 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.11
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Xtensive.Core;

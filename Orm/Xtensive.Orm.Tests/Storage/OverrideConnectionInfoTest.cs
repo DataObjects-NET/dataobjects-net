@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,6 +6,7 @@
 
 using NUnit.Framework;
 using Xtensive.Orm.Metadata;
+using Type = Xtensive.Orm.Metadata.Type;
 
 namespace Xtensive.Orm.Tests.Storage
 {

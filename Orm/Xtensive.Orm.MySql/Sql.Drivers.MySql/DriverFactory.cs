@@ -4,12 +4,8 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
 using System.Data.Common;
-using System.Linq;
 using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Xtensive.Orm;
 using Xtensive.Sql.Drivers.MySql.Resources;

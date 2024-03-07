@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.08.29
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler

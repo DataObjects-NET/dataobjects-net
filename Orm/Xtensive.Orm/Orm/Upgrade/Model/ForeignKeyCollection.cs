@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
-using System;
 
 using Xtensive.Modelling;
 using Xtensive.Orm.Upgrade.Model;

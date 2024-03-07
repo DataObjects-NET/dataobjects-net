@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.03.03
 
-using System.Collections.Generic;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using model = Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager.Model;

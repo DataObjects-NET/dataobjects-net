@@ -4,11 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 using Tuple = Xtensive.Tuples.Tuple;

@@ -4,7 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2013.11.25
 
-using System;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;

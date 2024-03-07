@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm

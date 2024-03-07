@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel;
 using Xtensive.Orm.Upgrade.Model;
 using Database1 = Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel.Database1;
 using Database2 = Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel.Database2;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel
 {

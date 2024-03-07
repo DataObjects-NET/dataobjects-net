@@ -4,10 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.24
 
-using System;
 using NUnit.Framework;
-using System.Linq;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Services;

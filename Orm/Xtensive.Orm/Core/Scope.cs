@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.27
 
-using System;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security;
-using System.Threading;
 
 
 namespace Xtensive.Core

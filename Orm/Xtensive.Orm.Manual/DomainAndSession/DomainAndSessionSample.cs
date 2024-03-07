@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.06.17
 
-using System;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

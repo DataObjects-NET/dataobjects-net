@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2010.08.27
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model;

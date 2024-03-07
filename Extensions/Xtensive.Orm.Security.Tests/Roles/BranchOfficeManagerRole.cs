@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.06.26
 
-using System;
-using System.Linq;
 using Xtensive.Orm;
 using Xtensive.Orm.Security.Tests.Model;
 

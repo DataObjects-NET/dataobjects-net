@@ -1,4 +1,3 @@
-using System;
 using System.Transactions;
 using Xtensive.Orm.Reprocessing.Configuration;
 

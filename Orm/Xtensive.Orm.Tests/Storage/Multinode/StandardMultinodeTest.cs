@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.26
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.Keys;

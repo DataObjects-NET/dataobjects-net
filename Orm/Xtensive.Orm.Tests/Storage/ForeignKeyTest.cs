@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.03.11
 
-using System;
 using NUnit.Framework;
 using Xtensive.IoC;
 using Xtensive.Tuples;

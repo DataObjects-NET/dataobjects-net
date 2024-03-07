@@ -1,4 +1,3 @@
-﻿using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {

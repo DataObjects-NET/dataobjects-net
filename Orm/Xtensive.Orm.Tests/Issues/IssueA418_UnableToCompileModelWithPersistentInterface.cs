@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2011.02.08
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueA418_UnableToCompileModelWithPersistentInterface_Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues
 {

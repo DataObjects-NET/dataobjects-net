@@ -1,4 +1,3 @@
-﻿using System;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0116_InterfacesCastAndIndexesModel

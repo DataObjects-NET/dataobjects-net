@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.14
 
-using System;
 namespace Xtensive.Orm.Linq.Expressions
 {
   internal interface IEntityExpression : IPersistentExpression

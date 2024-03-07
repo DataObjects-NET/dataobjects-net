@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Sql.Drivers.Sqlite.Resources {
-    using System;
     
     
     /// <summary>

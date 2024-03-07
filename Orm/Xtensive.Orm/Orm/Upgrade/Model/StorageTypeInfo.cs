@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.24
 
-using System;
 using System.Globalization;
 using Xtensive.Core;
 

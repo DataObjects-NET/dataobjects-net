@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.09.13
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.PersistentPropertyWeavingTestModel;

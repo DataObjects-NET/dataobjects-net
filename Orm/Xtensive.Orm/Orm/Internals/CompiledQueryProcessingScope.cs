@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.27
 
-using System;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;

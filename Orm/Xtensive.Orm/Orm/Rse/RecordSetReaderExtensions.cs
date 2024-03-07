@@ -4,8 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.06.09
 
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
 using Tuple = Xtensive.Tuples.Tuple;

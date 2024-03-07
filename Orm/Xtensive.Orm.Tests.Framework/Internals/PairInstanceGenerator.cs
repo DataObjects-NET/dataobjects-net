@@ -5,7 +5,6 @@
 // Created:    2008.01.25
 
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests

@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2012.05.17
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tracking.Tests.Model;
 

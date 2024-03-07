@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.01
 
-using System;
 using System.Collections.Concurrent;
 using System.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;

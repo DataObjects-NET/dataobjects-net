@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.03.03
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2005TestModel;

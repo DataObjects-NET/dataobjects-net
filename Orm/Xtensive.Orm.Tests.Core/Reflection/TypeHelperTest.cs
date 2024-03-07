@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Reflection;
 using NUnit.Framework;
@@ -14,7 +12,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Core.Reflection
 {

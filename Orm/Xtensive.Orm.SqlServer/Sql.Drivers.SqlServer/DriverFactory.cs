@@ -4,12 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.SqlServer.Resources;

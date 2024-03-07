@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.10.11
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Logging

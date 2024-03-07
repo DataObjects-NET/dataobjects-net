@@ -4,12 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.29
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Caching;
-using System.Linq;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Caching

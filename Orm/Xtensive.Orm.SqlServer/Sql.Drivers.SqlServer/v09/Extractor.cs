@@ -4,13 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.11
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;

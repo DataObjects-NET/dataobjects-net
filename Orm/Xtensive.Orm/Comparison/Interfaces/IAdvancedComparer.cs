@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
-using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Comparison
 {

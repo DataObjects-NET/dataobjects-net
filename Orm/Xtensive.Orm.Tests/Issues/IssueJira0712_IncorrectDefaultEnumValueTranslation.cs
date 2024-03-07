@@ -4,7 +4,6 @@
 // Created by: Julian Mamokin
 // Created:    2017.09.15
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;

@@ -4,8 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2010.02.15
 
-using System;
-using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Tuples;

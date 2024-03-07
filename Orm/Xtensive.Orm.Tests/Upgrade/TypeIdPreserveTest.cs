@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.01
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;

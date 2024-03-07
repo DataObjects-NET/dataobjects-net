@@ -5,10 +5,7 @@
 // Created:    2014.07.18
 
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;

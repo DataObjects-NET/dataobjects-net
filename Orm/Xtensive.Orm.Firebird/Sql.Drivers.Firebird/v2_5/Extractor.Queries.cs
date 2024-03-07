@@ -4,7 +4,6 @@
 // Created by: Csaba Beer
 // Created:    2011.01.13
 
-using System;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {

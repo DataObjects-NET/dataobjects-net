@@ -4,12 +4,9 @@
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
-using System;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
 using Xtensive.Sql.Drivers.Sqlite.v3;

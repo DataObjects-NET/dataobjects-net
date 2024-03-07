@@ -1,4 +1,3 @@
-﻿using System;
 using System.Configuration;
 using Xtensive.Core;
 

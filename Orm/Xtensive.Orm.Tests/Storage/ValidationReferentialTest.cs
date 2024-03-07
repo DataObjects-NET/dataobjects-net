@@ -4,8 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.06.08
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ValidationReferentialTestModel;

@@ -4,9 +4,7 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.17
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;

@@ -4,14 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse.Providers;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Xtensive.Orm.Providers
 {

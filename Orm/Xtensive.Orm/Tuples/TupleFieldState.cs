@@ -4,7 +4,6 @@
 // Created by: Nick Svetlov
 // Created:    2007.06.18
 
-using System;
 
 namespace Xtensive.Tuples
 {

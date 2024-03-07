@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.05.27
 
-using System;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation

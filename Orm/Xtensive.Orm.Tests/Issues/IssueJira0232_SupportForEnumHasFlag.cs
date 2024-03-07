@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.07.22
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel;

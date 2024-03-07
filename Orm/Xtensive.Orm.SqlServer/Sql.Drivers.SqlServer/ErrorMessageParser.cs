@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.09.28
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;

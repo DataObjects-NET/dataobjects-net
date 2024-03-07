@@ -2,8 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using Xtensive.Collections;
@@ -11,7 +9,6 @@ using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using System.Linq;
 
 namespace Xtensive.Sql
 {

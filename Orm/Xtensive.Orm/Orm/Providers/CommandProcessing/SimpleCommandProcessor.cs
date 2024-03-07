@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers

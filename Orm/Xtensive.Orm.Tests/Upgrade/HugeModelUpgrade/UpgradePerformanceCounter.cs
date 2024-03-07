@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.10.19
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade

@@ -3,10 +3,7 @@
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.11.18
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;

@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.03.24
 
-using System;
-using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0648_MultiThreadNullReference_Model;

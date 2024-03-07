@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.01.09
 
-using System;
 
 namespace Xtensive.Orm.Tests
 {

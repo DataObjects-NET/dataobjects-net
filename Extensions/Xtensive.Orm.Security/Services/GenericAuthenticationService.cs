@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.16
 
-using System;
-using System.Linq;
 using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.IoC;

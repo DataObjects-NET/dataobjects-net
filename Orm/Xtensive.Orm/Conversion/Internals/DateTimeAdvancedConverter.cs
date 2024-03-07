@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.23
 
-using System;
 using System.Globalization;
 
 namespace Xtensive.Conversion

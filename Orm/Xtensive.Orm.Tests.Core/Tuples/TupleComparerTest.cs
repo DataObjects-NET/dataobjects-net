@@ -4,9 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.08.23
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Orm.Tests;

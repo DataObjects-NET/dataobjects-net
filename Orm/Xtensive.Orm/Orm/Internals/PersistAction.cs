@@ -4,7 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.07.09
 
-using System;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals

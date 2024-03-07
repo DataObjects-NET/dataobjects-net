@@ -4,9 +4,7 @@
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
-using System;
 using System.Text;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.03.02
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.VersioningConventionTestModel;

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.05
 
-using System.Collections.Generic;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced

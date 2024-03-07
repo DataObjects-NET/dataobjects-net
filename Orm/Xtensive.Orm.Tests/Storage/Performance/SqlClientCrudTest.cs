@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.09.19
 
-using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

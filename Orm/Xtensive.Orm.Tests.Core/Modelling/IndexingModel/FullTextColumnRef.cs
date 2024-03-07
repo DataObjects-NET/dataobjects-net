@@ -5,7 +5,6 @@
 // Created:    2010.01.14
 
 
-using System;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 

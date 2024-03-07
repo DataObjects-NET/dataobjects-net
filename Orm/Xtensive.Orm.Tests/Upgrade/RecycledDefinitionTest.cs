@@ -4,10 +4,6 @@
 // Created by: Andrey Turkov
 // Created:    2013.08.21
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Upgrade.RecycledDefinitionTestModel;
 using Xtensive.Orm.Upgrade;

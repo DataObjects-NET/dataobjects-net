@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.04.27
 
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.09.19
 
-using System;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHints.Model.Version1
 {

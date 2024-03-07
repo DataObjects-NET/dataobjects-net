@@ -4,12 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2009.09.02
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Issues.Issue0371_ObjectEquals_Model;
-using System.Linq;
 using Xtensive.Orm.Tests.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0371_ObjectEquals_Model

@@ -4,7 +4,6 @@
 // Created by: 
 // Created:    2008.03.06
 
-using System;
 using System.Runtime.Serialization;
 using Xtensive.Conversion;
 using Xtensive.Core;

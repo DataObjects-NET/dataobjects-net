@@ -4,14 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2011.05.29
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.ProjectCustomCompilerException.Model;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues
 {

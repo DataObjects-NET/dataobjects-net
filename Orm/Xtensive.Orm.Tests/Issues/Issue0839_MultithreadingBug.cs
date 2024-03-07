@@ -4,10 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2010.10.14
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0839_MultithreadingBug_Model;

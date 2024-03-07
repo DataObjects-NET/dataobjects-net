@@ -5,7 +5,6 @@
 // Created:    2009.08.31
 
 
-using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {

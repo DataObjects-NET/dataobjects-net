@@ -4,7 +4,6 @@
 // Created by: Denis Kryuchkov
 // Created:    2009.05.14
 
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;

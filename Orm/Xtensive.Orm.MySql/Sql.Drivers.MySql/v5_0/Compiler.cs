@@ -4,13 +4,11 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Core;
-using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {

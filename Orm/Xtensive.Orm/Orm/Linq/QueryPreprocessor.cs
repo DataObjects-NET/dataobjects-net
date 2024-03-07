@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.08.20
 
-using System;
 using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq

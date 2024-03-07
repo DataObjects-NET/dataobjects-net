@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.RegularModel

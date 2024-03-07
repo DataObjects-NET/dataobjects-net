@@ -5,8 +5,6 @@
 // Created:    2009.08.20
 
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;

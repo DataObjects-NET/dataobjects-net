@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.03.06
 
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;

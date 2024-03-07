@@ -4,7 +4,6 @@
 // Created by: Edgar Isajanyan
 // Created:    2021.09.13
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml

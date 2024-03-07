@@ -49,7 +49,7 @@
     <!-- hard binding to net8, no property and env variable allowed-->
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
   <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
     <!-- hard binding to net7, no property and env variable allowed-->
@@ -126,6 +126,14 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
 
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>

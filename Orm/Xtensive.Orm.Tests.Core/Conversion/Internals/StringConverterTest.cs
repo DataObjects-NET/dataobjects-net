@@ -4,7 +4,6 @@
 // Created by: Roman Churakov
 // Created:    2008.01.26
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 

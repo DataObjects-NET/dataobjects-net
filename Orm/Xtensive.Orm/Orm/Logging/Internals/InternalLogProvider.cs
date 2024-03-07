@@ -4,10 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Logging

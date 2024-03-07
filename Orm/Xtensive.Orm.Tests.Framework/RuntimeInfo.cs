@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.04.17
 
-using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 

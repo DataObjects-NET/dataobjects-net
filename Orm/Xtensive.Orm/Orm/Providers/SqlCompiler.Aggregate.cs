@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;

@@ -1,6 +1,5 @@
 ﻿#if NOT_IMPLMENETED
 
-using System;
 using System.Transactions;
 using PostSharp.Aspects;
 

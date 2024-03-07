@@ -4,10 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2010.07.26
 
-using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Issues.Issue0767_QueryByInterfaceException_Model;

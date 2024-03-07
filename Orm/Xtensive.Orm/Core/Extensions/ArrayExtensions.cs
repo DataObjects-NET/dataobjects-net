@@ -5,8 +5,6 @@
 // Reimplemented by: Dmitri Maximov
 // Created:    2007.07.04
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Reflection;

@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.04.28
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJIRA0085_Model;

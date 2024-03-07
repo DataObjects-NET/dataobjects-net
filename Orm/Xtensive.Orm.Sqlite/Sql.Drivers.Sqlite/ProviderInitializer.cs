@@ -4,13 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.08.21
 
-using System;
 using System.Data.SQLite;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using Xtensive.Core;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
 

@@ -4,10 +4,6 @@
 // Created by: Alexander Ovchinnikov
 // Created:    2012.02.29
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using TestCommon.Model;
 

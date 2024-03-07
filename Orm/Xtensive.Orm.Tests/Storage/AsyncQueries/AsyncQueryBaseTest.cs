@@ -4,8 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2019.09.12
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;

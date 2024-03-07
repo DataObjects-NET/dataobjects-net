@@ -4,10 +4,8 @@
 // Created by: Ivan Galkin
 // Created:    2009.03.24
 
-using System;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {

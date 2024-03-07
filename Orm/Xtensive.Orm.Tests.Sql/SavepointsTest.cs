@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.20
 
-using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

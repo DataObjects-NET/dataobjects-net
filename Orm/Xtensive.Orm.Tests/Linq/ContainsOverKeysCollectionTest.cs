@@ -4,10 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTestModel;

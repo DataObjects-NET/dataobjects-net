@@ -4,8 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2014.04.09
 
-using System;
-using System.Linq;
 using NpgsqlTypes;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

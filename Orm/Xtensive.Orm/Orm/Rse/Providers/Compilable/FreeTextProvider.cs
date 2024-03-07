@@ -4,9 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2009.12.28
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;

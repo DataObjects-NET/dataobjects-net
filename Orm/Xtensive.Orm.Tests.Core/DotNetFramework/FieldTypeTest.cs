@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.09.01
 
-using System;
-using System.Threading;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework

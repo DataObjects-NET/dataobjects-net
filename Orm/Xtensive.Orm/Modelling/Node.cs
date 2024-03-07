@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -17,7 +15,6 @@ using Xtensive.Modelling.Attributes;
 
 using Xtensive.Reflection;
 using Xtensive.Modelling.Validation;
-using System.Linq;
 
 namespace Xtensive.Modelling
 {

@@ -4,13 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;

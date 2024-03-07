@@ -2,15 +2,12 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Sql;
 using Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes
 {

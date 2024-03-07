@@ -5,8 +5,6 @@
 // Created:    2008.01.25
 
 
-using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests
 {

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2018.03.14
 
-using System;
 using System.Configuration;
 
 namespace Xtensive.Orm.Configuration.Elements

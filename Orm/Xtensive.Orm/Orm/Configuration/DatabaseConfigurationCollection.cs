@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.08
 
-using System;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Configuration

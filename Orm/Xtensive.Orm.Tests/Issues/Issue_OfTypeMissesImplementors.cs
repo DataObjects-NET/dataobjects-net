@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.08.21
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue_OfTypeMissesImplementors_Model;

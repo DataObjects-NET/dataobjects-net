@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.10.03
 
-using System;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Core.Diagnostics

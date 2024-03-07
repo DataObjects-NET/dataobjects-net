@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.17
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -13,7 +11,6 @@ using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using System.Linq;
 using Xtensive.Orm.Tests.Core.Modelling.IndexingModel;
 
 namespace Xtensive.Orm.Tests.Core.Modelling

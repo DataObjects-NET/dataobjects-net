@@ -4,12 +4,10 @@
 // Created by: Nick Svetlov
 // Created:    2008.06.11
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ActivatorModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.ActivatorModel
 {

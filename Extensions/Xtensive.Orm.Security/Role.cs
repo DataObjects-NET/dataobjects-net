@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Orm.Validation;
 

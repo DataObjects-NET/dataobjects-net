@@ -4,10 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch.Model
 {

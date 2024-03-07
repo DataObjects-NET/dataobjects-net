@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.06.12
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model;

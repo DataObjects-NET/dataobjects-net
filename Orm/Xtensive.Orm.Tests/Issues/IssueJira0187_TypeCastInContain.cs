@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2011.09.06
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue_TypeCastInContain_Model;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_TypeCastInContain_Model
 {

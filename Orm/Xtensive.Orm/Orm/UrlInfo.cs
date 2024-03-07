@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.06.08
 
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;

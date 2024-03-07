@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.02.08
 
-using System;
 using System.Data;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;

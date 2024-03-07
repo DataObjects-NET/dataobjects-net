@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.24
 
-using System;
 using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;

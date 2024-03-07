@@ -4,7 +4,6 @@
 // Created by: Alena Mikshina
 // Created:    2014.04.09
 
-using System;
 using System.Data.Common;
 using Npgsql;
 using NpgsqlTypes;

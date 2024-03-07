@@ -4,10 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.06.13
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;

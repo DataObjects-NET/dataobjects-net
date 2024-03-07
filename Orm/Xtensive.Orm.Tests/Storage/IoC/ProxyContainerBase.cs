@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.11
 
-using System;
-using System.Collections.Generic;
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Tests.Storage.IoC

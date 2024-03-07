@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.22
 
-using System;
 using Xtensive.Orm;
 using Xtensive.Orm.Security.Configuration;
 

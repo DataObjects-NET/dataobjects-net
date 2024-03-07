@@ -5,7 +5,6 @@
 // Created:    2009.07.13
 
 using NUnit.Framework;
-using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;

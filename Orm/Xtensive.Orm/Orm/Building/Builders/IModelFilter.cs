@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.14
 
-using System;
 using System.Reflection;
 
 namespace Xtensive.Orm.Building.Builders

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.22
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0339_PrefetchViaStructureModel;
 

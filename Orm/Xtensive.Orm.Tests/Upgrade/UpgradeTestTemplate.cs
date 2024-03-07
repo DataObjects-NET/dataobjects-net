@@ -4,9 +4,6 @@
 // Created by: <AUTHOR>
 // Created:    <YYYY.MM.DD>
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;

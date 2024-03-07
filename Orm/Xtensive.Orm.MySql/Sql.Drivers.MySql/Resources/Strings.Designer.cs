@@ -9,7 +9,6 @@
 //------------------------------------------------------------------------------
 
 namespace Xtensive.Sql.Drivers.MySql.Resources {
-    using System;
     
     
     /// <summary>

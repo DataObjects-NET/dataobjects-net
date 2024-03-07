@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2010.06.21
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
 

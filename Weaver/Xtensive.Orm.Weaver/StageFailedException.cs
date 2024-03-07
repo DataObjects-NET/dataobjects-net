@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
-using System;
 
 namespace Xtensive.Orm.Weaver
 {

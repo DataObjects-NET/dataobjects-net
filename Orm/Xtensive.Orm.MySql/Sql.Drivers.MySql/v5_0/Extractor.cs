@@ -4,12 +4,8 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;

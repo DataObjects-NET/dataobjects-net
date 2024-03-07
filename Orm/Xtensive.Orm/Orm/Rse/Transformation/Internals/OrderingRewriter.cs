@@ -4,12 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.04.24
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Orm.Rse.Providers;
-using System.Linq;
 
 namespace Xtensive.Orm.Rse.Transformation
 {

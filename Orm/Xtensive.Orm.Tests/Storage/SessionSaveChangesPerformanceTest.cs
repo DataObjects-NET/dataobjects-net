@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2012.07.25
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.SessionSaveChangesPerformanceTestModel;

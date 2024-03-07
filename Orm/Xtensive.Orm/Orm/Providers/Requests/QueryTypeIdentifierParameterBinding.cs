@@ -3,7 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 
-using System;
 using Xtensive.Core;
 using Xtensive.Sql;
 

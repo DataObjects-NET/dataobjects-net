@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.12.23
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0559_EntitySetQueryError_Model;

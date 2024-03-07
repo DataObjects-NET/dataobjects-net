@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.05.06
 
-using System;
 
 namespace Xtensive.Tuples.Transform
 {

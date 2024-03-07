@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.06.26
 
-using System.Collections.Generic;
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Security

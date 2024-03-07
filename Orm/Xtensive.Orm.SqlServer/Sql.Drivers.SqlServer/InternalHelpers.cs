@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2020.04.10
 
-using System;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using Xtensive.Core;

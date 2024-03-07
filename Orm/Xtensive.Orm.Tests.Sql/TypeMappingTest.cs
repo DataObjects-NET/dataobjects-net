@@ -5,11 +5,8 @@
 // Created:    2009.07.08
 
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql;
 

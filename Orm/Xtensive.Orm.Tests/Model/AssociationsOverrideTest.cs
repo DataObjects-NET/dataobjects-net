@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.04.27
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.DiscardedAssociationsBugModel;

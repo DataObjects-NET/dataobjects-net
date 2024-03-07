@@ -4,15 +4,12 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M1 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
 using NUnit.Framework;
-using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 {

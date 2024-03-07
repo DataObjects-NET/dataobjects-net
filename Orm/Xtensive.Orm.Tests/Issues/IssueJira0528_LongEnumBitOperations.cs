@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.04.11
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0528_LongEnumBitOperationsModel;
 

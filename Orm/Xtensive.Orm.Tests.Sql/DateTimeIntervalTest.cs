@@ -5,7 +5,6 @@
 // Created:    2009.02.27
 
 using NUnit.Framework;
-using System;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 

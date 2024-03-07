@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.26
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.LegacyDb.ContainerItemModel;

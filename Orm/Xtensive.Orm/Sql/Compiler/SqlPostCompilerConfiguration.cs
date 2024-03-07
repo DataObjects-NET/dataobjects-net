@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.07
 
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using Xtensive.Core;

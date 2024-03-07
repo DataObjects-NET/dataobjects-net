@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.08
 
-using System;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
 {

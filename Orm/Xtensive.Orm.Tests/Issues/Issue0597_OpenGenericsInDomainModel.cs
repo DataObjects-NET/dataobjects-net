@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2010.02.08
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0597_OpenGenericsInDomainModel_Model;

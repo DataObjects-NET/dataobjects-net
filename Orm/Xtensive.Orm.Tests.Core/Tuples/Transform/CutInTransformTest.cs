@@ -4,7 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.06.23
 
-using System;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Tuples;

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2017.04.05
 
-using System;
 
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 {

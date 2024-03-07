@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.11.15
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel;

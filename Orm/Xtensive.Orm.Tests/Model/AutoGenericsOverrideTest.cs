@@ -1,4 +1,3 @@
-﻿using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Configuration;

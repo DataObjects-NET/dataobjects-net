@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2014.10.27
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;
 using model1 = Xtensive.Orm.Tests.Issues.IssueJira0563_IncorrectPersistActionSequenceModel1;

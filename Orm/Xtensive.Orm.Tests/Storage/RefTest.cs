@@ -4,11 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2010.10.01
 
-using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.RefTest
 {

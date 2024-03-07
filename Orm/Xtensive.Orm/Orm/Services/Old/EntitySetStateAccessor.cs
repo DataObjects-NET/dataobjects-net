@@ -5,9 +5,7 @@
 // Created:    2009.12.18
 
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Services

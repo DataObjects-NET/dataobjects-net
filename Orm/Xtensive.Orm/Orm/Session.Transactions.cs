@@ -4,10 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Transactions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;

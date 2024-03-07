@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.09.25
 
-using System;
 
 namespace Xtensive.Sql.Model
 {

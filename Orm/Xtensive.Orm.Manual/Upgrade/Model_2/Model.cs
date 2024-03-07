@@ -4,7 +4,6 @@
 // Created by: Alex Kofman
 // Created:    2009.11.11
 
-using System;
 using System.Diagnostics;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_2

@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.10
 
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0042_IndexAttributeIsOmitted_Model;

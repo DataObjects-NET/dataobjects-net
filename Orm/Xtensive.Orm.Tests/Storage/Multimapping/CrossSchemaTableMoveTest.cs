@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.16
 
-using System.Linq;
 using NUnit.Framework;
 using V1 = Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version1;
 using V2 = Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2;

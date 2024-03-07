@@ -4,11 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2009.12.16
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {

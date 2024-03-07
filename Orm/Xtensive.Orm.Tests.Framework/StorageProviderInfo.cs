@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.07.23
 
-using System;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 

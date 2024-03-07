@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.14
 
-using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Namespace1;
 using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Namespace2;

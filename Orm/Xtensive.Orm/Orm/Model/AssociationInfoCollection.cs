@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.02
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Xtensive.Orm.Model
 {

@@ -4,9 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2007.12.20
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;

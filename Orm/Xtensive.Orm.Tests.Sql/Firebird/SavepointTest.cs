@@ -5,7 +5,6 @@
 // Created:    2011.01.21
 
 using NUnit.Framework;
-using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {

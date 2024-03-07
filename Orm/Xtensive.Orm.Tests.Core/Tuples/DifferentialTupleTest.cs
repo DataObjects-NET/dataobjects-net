@@ -4,7 +4,6 @@
 // Created by: Nick Svetlov
 // Created:    2008.05.23
 
-using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;

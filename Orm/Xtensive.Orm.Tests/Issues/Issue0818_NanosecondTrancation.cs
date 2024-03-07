@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2010.10.14
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0818_NanosecondTrancation_Model;

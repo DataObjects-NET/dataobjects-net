@@ -4,9 +4,6 @@
 // Created by: Alex Gamzov
 // Created:    2009.09.28
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel;

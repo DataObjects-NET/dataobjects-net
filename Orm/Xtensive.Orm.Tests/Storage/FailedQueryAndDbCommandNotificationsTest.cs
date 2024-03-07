@@ -4,8 +4,6 @@
 // Created by: Julian Mamokin
 // Created:    2017.02.08
 
-using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.FailedQueryAndDbCommandNotificationsTestModel;

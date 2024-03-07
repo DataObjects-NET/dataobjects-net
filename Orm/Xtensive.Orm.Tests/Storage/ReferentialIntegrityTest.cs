@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.01
 
-using System;
-using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;

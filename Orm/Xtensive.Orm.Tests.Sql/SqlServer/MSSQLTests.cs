@@ -4,7 +4,6 @@
 
 using System.Diagnostics;
 using NUnit.Framework;
-using System;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Sql;
@@ -13,9 +12,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
-using System.Linq;
 using Xtensive.Core;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {

@@ -4,14 +4,11 @@
 // Created by: Alex Yakunin
 // Created:    2010.07.02
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Orm.Tests;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Core.Collections
 {

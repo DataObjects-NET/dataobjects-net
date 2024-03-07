@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.12.16
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.IoC.Model;

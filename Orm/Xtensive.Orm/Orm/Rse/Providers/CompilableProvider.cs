@@ -4,8 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
-using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {

@@ -1,5 +1,3 @@
-﻿using System;
-using System.Linq;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;

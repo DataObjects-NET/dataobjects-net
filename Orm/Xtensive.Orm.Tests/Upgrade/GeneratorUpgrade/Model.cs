@@ -4,9 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2019.12.10
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade

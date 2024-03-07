@@ -4,14 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2010.02.18
 
-using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.Dto;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {

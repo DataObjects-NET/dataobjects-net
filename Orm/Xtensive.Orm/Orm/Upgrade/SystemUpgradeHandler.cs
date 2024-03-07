@@ -4,12 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.05.01
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;

@@ -4,11 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.04.05
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v11
 {

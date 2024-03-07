@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.25
 
-using System;
-using System.Linq;
 
 namespace Xtensive.Linq
 {

@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.01.21
 
-using System;
 using Xtensive.Conversion;
 
 namespace Xtensive.Orm.Tests.Core.Conversion

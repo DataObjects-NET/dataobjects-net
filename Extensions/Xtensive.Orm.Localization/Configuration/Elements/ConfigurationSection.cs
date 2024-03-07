@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2012.07.06
 
-using System;
 using System.Configuration;
 
 namespace Xtensive.Orm.Localization.Configuration

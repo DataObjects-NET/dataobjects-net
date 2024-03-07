@@ -4,7 +4,6 @@
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
 using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using Xtensive.Sql.Info;

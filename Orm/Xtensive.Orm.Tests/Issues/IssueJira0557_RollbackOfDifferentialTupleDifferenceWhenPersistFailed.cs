@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.10.03
 
-using System;
 using System.Globalization;
-using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;

@@ -4,10 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2019.10.03
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Xml.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;

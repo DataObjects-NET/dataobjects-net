@@ -4,13 +4,10 @@
 // Created by: Denis Kudelin
 // Created:    2019.03.19
 
-using System;
-using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;

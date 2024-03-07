@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.30
 
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm;
 using Xtensive.Orm.Security.Tests.Model;

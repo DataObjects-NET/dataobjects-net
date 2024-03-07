@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.24
 
-using System;
 using System.Transactions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model;

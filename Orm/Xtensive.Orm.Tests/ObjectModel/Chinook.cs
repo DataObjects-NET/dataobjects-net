@@ -4,9 +4,7 @@
 // Created by: Denis Kudelin
 // Created:    2019.09.19
 
-using System;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO

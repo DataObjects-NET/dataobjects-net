@@ -2,13 +2,11 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using System.Linq;
 using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_3

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.09.02
 
-using System.Collections.Generic;
 using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver

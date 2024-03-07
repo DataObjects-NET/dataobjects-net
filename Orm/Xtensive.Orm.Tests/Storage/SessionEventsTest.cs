@@ -4,13 +4,10 @@
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
-using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.SessionEventsTestModel;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
 {

@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2019.07.01
 
-using System;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 {

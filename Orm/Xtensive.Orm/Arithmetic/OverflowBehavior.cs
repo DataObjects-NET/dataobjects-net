@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.02.10
 
-using System;
 
 namespace Xtensive.Arithmetic
 {

@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;

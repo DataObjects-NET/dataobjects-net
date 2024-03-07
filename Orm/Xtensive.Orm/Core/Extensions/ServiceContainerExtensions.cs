@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.02
 
-using System;
 using JetBrains.Annotations;
 using Xtensive.Reflection;
 using Xtensive.IoC;

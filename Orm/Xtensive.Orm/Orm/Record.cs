@@ -4,8 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.12.30
 
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Orm.Internals;

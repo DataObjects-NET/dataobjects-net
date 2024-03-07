@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.11.11
 
-using System;
-using System.Threading;
 
 namespace Xtensive.Orm.Logging
 {

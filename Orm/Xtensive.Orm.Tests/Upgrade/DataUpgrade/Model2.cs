@@ -4,7 +4,6 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.30
 
-using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version2
 {

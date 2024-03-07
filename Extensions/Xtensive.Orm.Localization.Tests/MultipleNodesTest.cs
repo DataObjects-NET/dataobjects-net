@@ -5,7 +5,6 @@
 // Created:    2019.12.04
 
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Globalization;
 using TestCommon;
 using Xtensive.Orm.Configuration;
