@@ -1,5 +1,6 @@
 [main] Fixed certain cases of bad translation of casts via 'as' operator in LINQ queries
 [main] Addressed certain issues of translation connected with comparison with local entity instace within LINQ queries
 [main] Fixed rare issues of incorrect translation of filtered index expressions including conditional expressions
-[main] Join/LeftJoin is denied to have the same expression instance for both inner/outer selector.
+[main] Join/LeftJoin is denied to have the same expression instance for both inner/outer selector
+[main] Added dedicated exception when RenameFieldHint.TargetType exists in current model but absent in storage model
 [postgresql] Fixed issue of incorrect translation of contitional expressions including comparison with nullable fields
