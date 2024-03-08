@@ -5,10 +5,8 @@
 // Created:    2018.10.18
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -345,7 +343,13 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<TestEntity>()
           .Select(e => values.Contains(e.List.FirstOrDefault().Link.Value3.Value)).ToArray();
 
-        Assert.That(result.Single(), Is.True);
+        var values2 = new MyEnum?[] { MyEnum.Bar, MyEnum.Foo };
+        var expected = session.Query.All<TestEntity>().AsEnumerable()
+          .Select(e => values2.Contains(e.List.FirstOrDefault()?.Link.Value3.Value)).ToArray();
+
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(expected.Length, Is.EqualTo(2));
+        Assert.That(result.Except(expected).Count(), Is.EqualTo(0));
       }
     }
 
@@ -358,7 +362,18 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<TestEntity>()
           .Select(e => e.List.FirstOrDefault().Link.Value3.Value.In(values)).ToArray();
 
-        Assert.That(result.Single(), Is.True);
+        var expected = session.Query.All<TestEntity>().AsEnumerable()
+          .Select(e => {
+            var firsItem = e.List.FirstOrDefault();
+            if (firsItem == null)
+              return false;
+            return firsItem.Link.Value3.Value.In(values);
+          })
+          .ToArray();
+
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(expected.Length, Is.EqualTo(2));
+        Assert.That(result.Except(expected).Count(), Is.EqualTo(0));
       }
     }
 
@@ -397,7 +412,18 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<TestEntity>()
           .Select(e => values.Contains(e.List.FirstOrDefault().Link.String.Substring(2, 3))).ToArray();
 
-        Assert.That(result, Is.All.True);
+        var expected = session.Query.All<TestEntity>().AsEnumerable()
+         .Select(e => {
+           var firsItem = e.List.FirstOrDefault();
+           if (firsItem == null)
+             return false;
+           return values.Contains(firsItem.Link.String.Substring(2, 3));
+         })
+         .ToArray();
+
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(expected.Length, Is.EqualTo(2));
+        Assert.That(result.Except(expected).Count(), Is.EqualTo(0));
       }
     }
 
