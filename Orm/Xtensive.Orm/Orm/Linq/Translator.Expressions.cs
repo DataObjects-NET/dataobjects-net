@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -1662,38 +1662,30 @@ namespace Xtensive.Orm.Linq
     {
       if (entityFieldExpression.Entity!=null)
         return;
-      TypeInfo typeInfo = entityFieldExpression.PersistentType;
-      IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
+      var typeInfo = entityFieldExpression.PersistentType;
+      var joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-      Segment<int> keySegment = entityFieldExpression.Mapping;
-      Pair<int>[] keyPairs = keySegment.GetItems()
+      var keySegment = entityFieldExpression.Mapping;
+      var keyPairs = keySegment.GetItems()
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
-      ItemProjectorExpression originalItemProjector = entityFieldExpression.OuterParameter==null
+      var originalItemProjector = entityFieldExpression.OuterParameter==null
         ? context.Bindings[state.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
-      int offset = originalItemProjector.DataSource.Header.Length;
+
       var oldDataSource = originalItemProjector.DataSource;
-      bool shouldUseLeftJoin = false;
-      var filterProvider = oldDataSource as FilterProvider;
-      if (filterProvider!=null) {
-        var applyProvider = filterProvider.Source as ApplyProvider;
-        if (applyProvider!=null)
-          shouldUseLeftJoin = applyProvider.ApplyType==JoinType.LeftOuter;
-        else {
-          var joinProvider = filterProvider.Source as JoinProvider; 
-          if (joinProvider!=null)
-            shouldUseLeftJoin = joinProvider.JoinType==JoinType.LeftOuter;
-        }
+      var offset = oldDataSource.Header.Length;
+      var shouldUseLeftJoin = false;
+
+      var sourceToCheck = (oldDataSource is FilterProvider filterProvider) ? filterProvider.Source : oldDataSource;
+      if ((sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
+          (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter)) {
+        shouldUseLeftJoin = true;
       }
-      else {
-        var joinProvider = oldDataSource as JoinProvider;
-        if (joinProvider!=null)
-          shouldUseLeftJoin = joinProvider.JoinType==JoinType.LeftOuter;
-      }
+
       var newDataSource = entityFieldExpression.IsNullable || shouldUseLeftJoin
-        ? originalItemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
-        : originalItemProjector.DataSource.Join(joinedRs, keyPairs);
+        ? oldDataSource.LeftJoin(joinedRs, keyPairs)
+        : oldDataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;
       entityFieldExpression.RegisterEntityExpression(offset);
       context.RebindApplyParameter(oldDataSource, newDataSource);
