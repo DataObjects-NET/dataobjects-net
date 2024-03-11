@@ -539,8 +539,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         builder.AppendHexArray(array);
         return builder.ToString();
       }
-      if (literalType==typeof(Guid))
-        return QuoteString(literalValue.ToString());
+      if (literalType == typeof(Guid))
+        return string.Format("CAST ({0} AS UNIQUEIDENTIFIER)", QuoteString(literalValue.ToString()));
       if (literalType==typeof (Int64))
         return String.Format("CAST({0} as BIGINT)", literalValue);
       return base.Translate(context, literalValue);

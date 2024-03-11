@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Providers
 {
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
+    protected readonly Stack<Pair<SqlProvider, bool>> outerReferenceStack = new Stack<Pair<SqlProvider, bool>>();
+
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
@@ -109,7 +111,7 @@ namespace Xtensive.Orm.Providers
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
       var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
-        var result = ProcessExpression(column.Expression, sourceColumns);
+        var result = ProcessExpression(column.Expression, true, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
         if (column.Type.StripNullable()==typeof (bool))
@@ -148,7 +150,7 @@ namespace Xtensive.Orm.Providers
       var query = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(query);
-      var result = ProcessExpression(provider.Predicate, sourceColumns);
+      var result = ProcessExpression(provider.Predicate, true, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
 
@@ -252,7 +254,7 @@ namespace Xtensive.Orm.Providers
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
-      var result = ProcessExpression(provider.Predicate, leftExpressions, rightExpressions);
+      var result = ProcessExpression(provider.Predicate, false, leftExpressions, rightExpressions);
       var joinExpression = result.First;
       var bindings = result.Second;
 

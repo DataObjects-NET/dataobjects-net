@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.12
 
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test08()
+    public void Test08()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test09()
+    public void Test09()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test10()
+    public void Test10()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test11()
+    public void Test11()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test15()
+    public void Test15()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2013.12.13
 
@@ -10,6 +10,9 @@ using NLogManager = NLog.LogManager;
 
 namespace Xtensive.Orm.Logging.NLog
 {
+  /// <summary>
+  /// Log implementation for NLog.
+  /// </summary>
   public class Log : BaseLog
   {
     private readonly Logger target;
@@ -30,11 +33,13 @@ namespace Xtensive.Orm.Logging.NLog
       }
     }
 
+    /// <inheritdoc/>
     public override bool IsLogged(LogLevel level)
     {
       return target.IsEnabled(ConvertLevel(level));
     }
 
+    /// <inheritdoc/>
     public override void Write(LogEventInfo info)
     {
       if (info.Exception!=null)
@@ -43,6 +48,10 @@ namespace Xtensive.Orm.Logging.NLog
         target.Log(ConvertLevel(info.Level), info.FormattedMessage);
     }
 
+    /// <summary>
+    /// Creates instance of <see cref="Log"/> class.
+    /// </summary>
+    /// <param name="name">Log name.</param>
     public Log(string name)
     {
       target = NLogManager.GetLogger(name);

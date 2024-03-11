@@ -14,6 +14,7 @@
     <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
+	<NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>

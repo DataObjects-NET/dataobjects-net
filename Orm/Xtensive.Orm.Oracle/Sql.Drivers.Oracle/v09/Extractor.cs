@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
@@ -30,6 +30,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private string nonSystemSchemasFilter;
 
+    /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
       theCatalog = new Catalog(catalogName);
@@ -41,6 +42,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return theCatalog;
     }
 
+    /// <inheritdoc/>
+    [Obsolete]
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       targetSchemes.Clear();
@@ -55,6 +58,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return theCatalog.Schemas[targetSchema];
     }
 
+    /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       theCatalog = new Catalog(catalogName);

@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -24,15 +24,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private Catalog theCatalog;
     private string targetSchema;
 
+    /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
-      theCatalog = new Catalog(catalogName);
-      targetSchema = null;
-      ExtractSchemas();
-      ExtractCatalogContents();
+      theCatalog = ExtractSchemes(catalogName, Array.Empty<string>());
       return theCatalog;
     }
 
+    /// <inheritdoc/>
+    [Obsolete]
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       theCatalog = new Catalog(catalogName);
@@ -41,6 +41,19 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       ExtractCatalogContents();
       return theCatalog.Schemas[0];
       //            return theCatalog.Schemas[targetSchema];
+    }
+
+    /// <inheritdoc/>
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(catalogName, nameof(catalogName));
+      ArgumentValidator.EnsureArgumentNotNull(schemaNames, nameof(schemaNames));
+
+      var targetSchema = schemaNames.Length > 0 ? schemaNames[0] : null;
+      theCatalog = new Catalog(catalogName);
+      ExtractSchemas(theCatalog, targetSchema);
+      ExtractCatalogContents();
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()
@@ -56,11 +69,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       ExtractSequences();
     }
 
-    private void ExtractSchemas()
+    private void ExtractSchemas(Catalog catalog, string targetSchema)
     {
-      var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
-      var defaultSchema = theCatalog.CreateSchema(defaultSchemaName);
-      theCatalog.DefaultSchema = defaultSchema;
+      if (targetSchema == null) {
+        var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
+        var defaultSchema = catalog.CreateSchema(defaultSchemaName);
+        catalog.DefaultSchema = defaultSchema;
+      }
+      else {
+        // since target schema is the only schema to extract
+        // it will be set as default for catalog
+        _ = catalog.CreateSchema(targetSchema);
+      }
     }
 
     private void ExtractTables()
