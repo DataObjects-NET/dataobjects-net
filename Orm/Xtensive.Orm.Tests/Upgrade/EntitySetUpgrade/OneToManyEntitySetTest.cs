@@ -24,9 +24,9 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       using (var domain = Domain.Build(initConfig))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var person = new TestModel.RemoveField.Before.Person();
-        var address1 =  new TestModel.RemoveField.Before.Address() { Person = person };
-        var address2 =  new TestModel.RemoveField.Before.Address() { Person = person };
+        var person = new TestModel.RenameField.Before.Person();
+        var address1 =  new TestModel.RenameField.Before.Address() { Person = person };
+        var address2 =  new TestModel.RenameField.Before.Address() { Person = person };
         tx.Complete();
       }
 
@@ -56,9 +56,9 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       await using (var domain = await Domain.BuildAsync(initConfig))
       await using (var session = await domain.OpenSessionAsync())
       await using (var tx = await session.OpenTransactionAsync()) {
-        var person = new TestModel.RemoveField.Before.Person();
-        var address1 = new TestModel.RemoveField.Before.Address() { Person = person };
-        var address2 = new TestModel.RemoveField.Before.Address() { Person = person };
+        var person = new TestModel.RenameField.Before.Person();
+        var address1 = new TestModel.RenameField.Before.Address() { Person = person };
+        var address2 = new TestModel.RenameField.Before.Address() { Person = person };
         tx.Complete();
       }
 

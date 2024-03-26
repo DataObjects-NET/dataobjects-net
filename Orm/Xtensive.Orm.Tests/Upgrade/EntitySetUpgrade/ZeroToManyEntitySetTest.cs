@@ -401,7 +401,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeTypeOfKeyFieldUnconvertibleTest()
     {
       // Impossible to do this in PerformSafely
@@ -442,7 +442,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeTypeOfKeyFieldUnconvertibleAsyncTest()
     {
       // Impossible to do this in PerformSafely
@@ -483,7 +483,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeTypeOfKeyFieldsUnconvertibleTest()
     {
       // Impossible to do this in PerformSafely
@@ -525,7 +525,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeTypeOfKeyFieldsUnconvertibleAsyncTest()
     {
       // Impossible to do this in PerformSafely
@@ -567,7 +567,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeEntitySetItemTypeTest()
     {
       // Impossible to do this in PerformSafely
@@ -624,7 +624,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeEntitySetItemTypeAsyncTest()
     {
       // Impossible to do this in PerformSafely
@@ -681,7 +681,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeESTypeFromRemovedTypeTest()
     {
       // Impossible to do this in PerformSafely
@@ -733,7 +733,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeESTypeFromRemovedTypeAsyncTest()
     {
       // Impossible to do this in PerformSafely

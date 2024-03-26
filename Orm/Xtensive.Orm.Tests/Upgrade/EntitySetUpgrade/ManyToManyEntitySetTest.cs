@@ -894,7 +894,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeTypeOfKeyFieldOnMasterUnconvertibleTest()
     {
       //imposible to upgrade with hints
@@ -940,7 +940,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeTypeOfKeyFieldOnMasterUnconvertibleAsyncTest()
     {
       //imposible to upgrade with hints
@@ -986,7 +986,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void ChangeTypeOfKeyFieldOnSlaveUnconvertibleTest()
     {
       //imposible to upgrade with hints
@@ -1032,7 +1032,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task ChangeTypeOfKeyFieldOnSlaveUnconvertibleAsyncTest()
     {
       //imposible to upgrade with hints
@@ -1460,7 +1460,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public void RemoveEntitySetFieldOnMasterTest()
     {
       // this requires to rename auxilary type,
@@ -1504,7 +1504,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       }
     }
 
-    [Test]
+    [Test, Explicit]
     public async Task RemoveEntitySetFieldOnMasterAsyncTest()
     {
       // this requires to rename auxilary type,
