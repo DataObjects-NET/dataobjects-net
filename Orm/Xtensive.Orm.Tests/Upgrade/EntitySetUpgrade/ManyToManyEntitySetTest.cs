@@ -17,6 +17,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetItemTypeOnMasterTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -61,6 +63,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetItemTypeOnMasterAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -105,6 +109,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetItemTypeOnSlaveTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -149,6 +155,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetItemTypeOnSlaveAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -365,6 +373,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetFieldAndTypeOnMasterTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -409,6 +419,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetFieldAndTypeOnMasterAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -453,6 +465,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetFieldAndTypeOnSlaveTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -497,6 +511,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetFieldAndTypeOnSlaveAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -541,6 +557,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameKeyFieldOnMasterTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -585,6 +603,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameKeyFieldOnMasterAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -629,6 +649,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameKeyFieldOnSlaveTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -673,6 +695,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameKeyFieldOnSlaveAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -718,6 +742,9 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public void ChangeTypeOfKeyFieldOnMasterConvertibleTest()
     {
       // no hints required
+
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -762,6 +789,9 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public async Task ChangeTypeOfKeyFieldOnMasterConvertibleAsyncTest()
     {
       // no hints required
+
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -808,6 +838,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       // no hints required
       // automaticly creates hint
 
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
         typeof(TestModel.SharedBefore.Author),
@@ -853,6 +885,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     {
       // no hints required
       // automaticly creates hint
+
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.SharedBefore.Book),
@@ -1789,6 +1823,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RemoveMasterKeyFieldTypeTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveMasterKeyFieldType.Before.Book),
         typeof(TestModel.RemoveMasterKeyFieldType.Before.Author),
@@ -1832,6 +1868,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RemoveMasterKeyFieldTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveMasterKeyFieldType.Before.Book),
         typeof(TestModel.RemoveMasterKeyFieldType.Before.Author),
@@ -1875,6 +1913,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RemoveSlaveKeyFieldTypeTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveSlaveKeyFieldType.Before.Book),
         typeof(TestModel.RemoveSlaveKeyFieldType.Before.Author),
@@ -1918,6 +1958,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RemoveSlaveKeyFieldTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for dropping Primary Key constraint");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveSlaveKeyFieldType.Before.Book),
         typeof(TestModel.RemoveSlaveKeyFieldType.Before.Author),

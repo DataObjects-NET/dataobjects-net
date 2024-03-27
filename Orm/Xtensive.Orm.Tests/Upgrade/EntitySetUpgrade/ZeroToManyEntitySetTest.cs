@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetItemTypeTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameEntitySetItemType.Before.Staff),
         typeof(TestModel.RenameEntitySetItemType.Before.Brigade)
@@ -56,6 +58,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetItemTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameEntitySetItemType.Before.Staff),
         typeof(TestModel.RenameEntitySetItemType.Before.Brigade)
@@ -176,6 +180,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameEntitySetFieldAndTypeTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameEntitySetFieldAndType.Before.Staff),
         typeof(TestModel.RenameEntitySetFieldAndType.Before.Brigade)
@@ -215,6 +221,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameEntitySetFieldAndTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameEntitySetFieldAndType.Before.Staff),
         typeof(TestModel.RenameEntitySetFieldAndType.Before.Brigade)
@@ -254,6 +262,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RenameKeyFieldTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Staff),
         typeof(TestModel.RenameKeyField.Before.Brigade)
@@ -292,6 +302,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RenameKeyFieldAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Staff),
         typeof(TestModel.RenameKeyField.Before.Brigade)
@@ -330,6 +342,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void ChangeTypeOfKeyFieldConvertibleTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.ChangeTypeOfKeyFieldConvertible.Before.Staff),
         typeof(TestModel.ChangeTypeOfKeyFieldConvertible.Before.Brigade)
@@ -367,6 +381,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task ChangeTypeOfKeyFieldConvertibleAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.ChangeTypeOfKeyFieldConvertible.Before.Staff),
         typeof(TestModel.ChangeTypeOfKeyFieldConvertible.Before.Brigade)
@@ -954,6 +970,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RemoveSlaveKeyFieldTypeTest()
     {
+      //Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveSlaveKeyField.Before.Staff),
         typeof(TestModel.RemoveSlaveKeyField.Before.Brigade)
@@ -993,6 +1011,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RemoveSlaveKeyFieldTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveSlaveKeyField.Before.Staff),
         typeof(TestModel.RemoveSlaveKeyField.Before.Brigade)
@@ -1032,6 +1052,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RemoveMasterKeyFieldTypeTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveMasterKeyField.Before.Staff),
         typeof(TestModel.RemoveMasterKeyField.Before.Brigade)
@@ -1071,6 +1093,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public async Task RemoveMasterKeyFieldTypeAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveMasterKeyField.Before.Staff),
         typeof(TestModel.RemoveMasterKeyField.Before.Brigade)
