@@ -325,6 +325,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public void RenameKeyFieldTest()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Primary Key field modification.");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Person),
@@ -363,6 +364,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public async Task RenameKeyFieldAsyncTest()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Primary Key field modification.");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Person),

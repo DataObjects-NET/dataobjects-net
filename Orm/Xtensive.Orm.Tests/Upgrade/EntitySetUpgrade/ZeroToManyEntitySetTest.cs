@@ -263,6 +263,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public void RenameKeyFieldTest()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Primary Key field modification.");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Staff),
@@ -303,6 +304,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     public async Task RenameKeyFieldAsyncTest()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite, "Issue with Primary Key column rename via table recreation");
+      Require.ProviderIsNot(StorageProvider.Firebird, "No support for Primary Key field modification.");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RenameKeyField.Before.Staff),
@@ -521,7 +523,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
         var staff1 = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Staff("1", "2");
         var staff2 = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Staff("3", "4");
 
-        var brigade = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Brigade();
+        var brigade = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Brigade("8");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 
@@ -563,7 +565,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
         var staff1 = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Staff("1", "2");
         var staff2 = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Staff("3", "4");
 
-        var brigade = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Brigade();
+        var brigade = new TestModel.ChangeTypeOfKeyFieldsUnconvertible.Before.Brigade("8");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 
@@ -812,10 +814,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       using (var domain = Domain.Build(initConfig))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var staff1 = new TestModel.RemoveEntitySetField.Before.Staff();
-        var staff2 = new TestModel.RemoveEntitySetField.Before.Staff();
+        var staff1 = new TestModel.RemoveEntitySetField.Before.Staff("1");
+        var staff2 = new TestModel.RemoveEntitySetField.Before.Staff("2");
 
-        var brigade = new TestModel.RemoveEntitySetField.Before.Brigade();
+        var brigade = new TestModel.RemoveEntitySetField.Before.Brigade("3");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 
@@ -851,10 +853,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
       await using (var domain = await Domain.BuildAsync(initConfig))
       await using (var session = await domain.OpenSessionAsync())
       await using (var tx = await session.OpenTransactionAsync()) {
-        var staff1 = new TestModel.RemoveEntitySetField.Before.Staff();
-        var staff2 = new TestModel.RemoveEntitySetField.Before.Staff();
+        var staff1 = new TestModel.RemoveEntitySetField.Before.Staff("1");
+        var staff2 = new TestModel.RemoveEntitySetField.Before.Staff("2");
 
-        var brigade = new TestModel.RemoveEntitySetField.Before.Brigade();
+        var brigade = new TestModel.RemoveEntitySetField.Before.Brigade("3");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 
@@ -895,10 +897,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
         var user2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.User();
         var user3 = new TestModel.RemoveEntitySetFieldAndItemType.Before.User();
 
-        var staff1 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff();
-        var staff2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff();
+        var staff1 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff("1");
+        var staff2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff("2");
 
-        var brigade = new TestModel.RemoveEntitySetFieldAndItemType.Before.Brigade();
+        var brigade = new TestModel.RemoveEntitySetFieldAndItemType.Before.Brigade("3");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 
@@ -939,10 +941,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
         var user2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.User();
         var user3 = new TestModel.RemoveEntitySetFieldAndItemType.Before.User();
 
-        var staff1 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff();
-        var staff2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff();
+        var staff1 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff("1");
+        var staff2 = new TestModel.RemoveEntitySetFieldAndItemType.Before.Staff("2");
 
-        var brigade = new TestModel.RemoveEntitySetFieldAndItemType.Before.Brigade();
+        var brigade = new TestModel.RemoveEntitySetFieldAndItemType.Before.Brigade("3");
         _ = brigade.Guys.Add(staff1);
         _ = brigade.Guys.Add(staff2);
 

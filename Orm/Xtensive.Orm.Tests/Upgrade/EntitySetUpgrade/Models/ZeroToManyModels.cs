@@ -458,7 +458,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -467,7 +467,6 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
         public Staff(string key1)
           : base(key1)
         {
-
         }
       }
 
@@ -531,10 +530,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key(0)]
+        [Field(Length = 10), Key(0)]
         public string Id1 { get; private set; }
 
-        [Field, Key(1)]
+        [Field(Length = 10), Key(1)]
         public string Id2 { get; private set; }
 
         [Field]
@@ -549,7 +548,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -557,6 +556,11 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
 
         [Field]
         public EntitySet<Staff> Guys { get; private set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
     }
 
@@ -591,6 +595,11 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
 
         [Field]
         public EntitySet<Staff> Guys { get; private set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
 
       public class Upgrader : UpgradeHandler
@@ -614,18 +623,22 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
-
 
         [Field]
         public int Test { get; set; }
+
+        public Staff(string key)
+          : base(key)
+        {
+        }
       }
 
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -633,6 +646,11 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
 
         [Field]
         public EntitySet<Staff> Guys { get; private set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
     }
 
@@ -641,22 +659,31 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
-
 
         [Field]
         public int Test { get; set; }
+
+        public Staff(string key)
+          : base(key)
+        {
+        }
       }
 
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
         public int Test { get; set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
 
       public class Upgrader : UpgradeHandler
@@ -711,17 +738,22 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
         public int Test { get; set; }
+
+        public Staff(string key)
+          : base(key)
+        {
+        }
       }
 
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -729,6 +761,11 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
 
         [Field]
         public EntitySet<Staff> Guys { get; private set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
     }
 
@@ -747,11 +784,16 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
         public int Test { get; set; }
+
+        public Brigade(string key)
+          : base(key)
+        {
+        }
       }
 
       public class Upgrader : UpgradeHandler
@@ -797,10 +839,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key(0)]
+        [Field(Length = 10), Key(0)]
         public string Id1 { get; private set; }
 
-        [Field, Key(1)]
+        [Field(Length = 10), Key(1)]
         public string Id2 { get; private set; }
 
         [Field]
@@ -815,7 +857,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -836,7 +878,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -851,7 +893,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -925,7 +967,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -940,10 +982,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key(0)]
+        [Field(Length = 10), Key(0)]
         public string Id1 { get; private set; }
 
-        [Field, Key(1)]
+        [Field(Length = 10), Key(1)]
         public string Id2 { get; private set; }
 
         [Field]
@@ -964,7 +1006,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Staff : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
@@ -979,7 +1021,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade.Models.ZeroToMany
       [HierarchyRoot]
       public class Brigade : Entity
       {
-        [Field, Key]
+        [Field(Length = 10), Key]
         public string Id { get; private set; }
 
         [Field]
