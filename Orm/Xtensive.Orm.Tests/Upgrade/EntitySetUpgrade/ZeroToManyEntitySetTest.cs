@@ -970,7 +970,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgrade
     [Test]
     public void RemoveSlaveKeyFieldTypeTest()
     {
-      //Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
+      Require.ProviderIsNot(StorageProvider.Sqlite, "No support for Primary Key dropping.");
 
       var initConfig = CreateInitConfiguration(new[] {
         typeof(TestModel.RemoveSlaveKeyField.Before.Staff),
