@@ -1,5 +1,4 @@
-﻿================
-Xtensive.Orm.Web
+﻿Xtensive.Orm.Web
 ================
 
 Summary
@@ -25,12 +24,13 @@ in your code (directly or indirectly). So e.g. requests to static web pages won'
 
 Prerequisites
 -------------
-DataObjects.Net Core  0.1 or later (http://dataobjects.net)
+DataObjects.Net 6.0.x or later (http://dataobjects.net)
 
 Implementation
 --------------
 To start using SessionManager it should be added to ASP.NET Middleware pipeline in Startup class like in example below
 
+```csharp
 public class Startup
 {
   public Startup(IConfiguration configuration)
@@ -52,10 +52,10 @@ public class Startup
 
     // Add session manager to the pipeline
     app.UseSessionManager();
-	
+
     // Configure parts of the pipeline which are after SessionManager. 
     // These parts will work with SessionManager.
-	
+
     // For instance, MVC controllers will be able to query data using DataObjects.Net
     app.UseMvc(routes =>
     {
@@ -65,3 +65,4 @@ public class Startup
     });
   }
 }
+```

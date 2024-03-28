@@ -25,6 +25,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <ItemGroup Label="Build order">
     <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
