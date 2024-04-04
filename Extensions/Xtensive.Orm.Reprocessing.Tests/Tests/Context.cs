@@ -12,18 +12,50 @@ using TestCommon.Model;
 
 namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
 {
-  public class Context
+  public class Context : IDisposable
   {
     private readonly Domain domain;
+
     public int Count;
     private AutoResetEvent wait1 = new AutoResetEvent(false);
     private AutoResetEvent wait2 = new AutoResetEvent(false);
 
+    public bool Disposed { get; private set; }
+
+    /// <summary>
+    /// Root runner.
+    /// </summary>
+    public void Run(
+      IsolationLevel? isolationLevel,
+      TransactionOpenMode? transactionOpenMode,
+      Action<bool, IsolationLevel?, TransactionOpenMode?> action)
+    {
+      domain.Execute(
+        session => {
+          session.Remove(session.Query.All<Foo>());
+          session.Remove(session.Query.All<Bar>());
+          session.Remove(session.Query.All<Bar2>());
+          _ = new Bar(session);
+          _ = new Foo(session);
+        });
+
+      Parallel.Invoke(
+        () => action(true, isolationLevel, transactionOpenMode),
+        () => action(false, isolationLevel, transactionOpenMode));
+    }
+
+    #region Actions
+
+    // The actions that can be passed to root runner method (Run)
+    // Some might be wrapped by other actons,
+    // others used only directrly from runner method
+
     public void Deadlock(bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
-      TestContext.WriteLine("Context.DeadLock entered");
-      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
-        session => {
+      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
+        .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
+        .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
+        .Execute(session => {
           _ = Interlocked.Increment(ref Count);
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
           if (first) {
@@ -31,6 +63,7 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
             if (wait1 != null) {
               _ = wait1.Set();
               _ = wait2.WaitOne();
+              wait1.Dispose();
               wait1 = null;
             }
             _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
@@ -40,12 +73,12 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
             if (wait2 != null) {
               _ = wait2.Set();
               _ = wait1.WaitOne();
+              wait2.Dispose();
               wait2 = null;
             }
             _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
           }
         });
-      TestContext.WriteLine("Context.DeadLock left");
     }
 
     public void External(
@@ -54,7 +87,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
       TransactionOpenMode? transactionOpenMode,
       Action<Session, bool, IsolationLevel?, TransactionOpenMode?> action)
     {
-      TestContext.WriteLine("Context.External entered");
       using (var session = domain.OpenSession())
       using (var tran = isolationLevel == null ? null : session.OpenTransaction()) {
         if (tran != null) {
@@ -76,7 +108,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
           tran.Complete();
         }
       }
-      TestContext.WriteLine("Context.External left");
     }
 
     public void Parent(
@@ -86,7 +117,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
       IExecuteActionStrategy strategy,
       Action<bool, IsolationLevel?, TransactionOpenMode?> action)
     {
-      TestContext.WriteLine("Context.Parent1 entered");
       domain.WithStrategy(strategy)
         .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
         .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
@@ -106,7 +136,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
             }
             action(first, isolationLevel, transactionOpenMode);
           });
-      TestContext.WriteLine("Context.Parent1 left");
     }
 
     public void Parent(
@@ -117,7 +146,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
       IExecuteActionStrategy strategy,
       Action<bool, IsolationLevel?, TransactionOpenMode?> action)
     {
-      TestContext.WriteLine("Context.Parent2 entered");
       domain.WithStrategy(strategy)
         .WithSession(session)
         .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
@@ -138,38 +166,15 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
             }
             action(first, isolationLevel, transactionOpenMode);
           });
-      TestContext.WriteLine("Context.Parent2 left");
-    }
-
-    public void Run(
-      IsolationLevel? isolationLevel,
-      TransactionOpenMode? transactionOpenMode,
-      Action<bool, IsolationLevel?, TransactionOpenMode?> action)
-    {
-      TestContext.WriteLine("Context.Run entered");
-      domain.Execute(
-        session => {
-          session.Remove(session.Query.All<Foo>());
-          session.Remove(session.Query.All<Bar>());
-          session.Remove(session.Query.All<Bar2>());
-          _ = new Bar(session);
-          _ = new Foo(session);
-        });
-      TestContext.WriteLine("Context.Run executed Domain.Execute");
-      TestContext.WriteLine("Context.Run Parallel.Invoke started");
-      Parallel.Invoke(
-        () => action(true, isolationLevel, transactionOpenMode),
-        () => action(false, isolationLevel, transactionOpenMode));
-      TestContext.WriteLine("Context.Run Parallel.Invoke ended");
-      TestContext.WriteLine("Context.Run left");
     }
 
     public void UniqueConstraintViolation(
       bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
-      TestContext.WriteLine("Context.UniqueConstraintViolation entered");
-      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
-        session => {
+      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
+        .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
+        .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
+        .Execute(session => {
           _ = Interlocked.Increment(ref Count);
           session.EnsureTransactionIsStarted();
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
@@ -179,27 +184,29 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
               if (wait1 != null && wait2 != null) {
                 _ = wait1.Set();
                 _ = wait2.WaitOne();
+                wait1.Dispose();
                 wait1 = null;
               }
             }
             else if (wait2 != null && wait2 != null) {
               _ = wait2.Set();
               _ = wait1.WaitOne();
+              wait2.Dispose();
               wait2 = null;
             }
             _ = new Foo(session) { Name = name };
           }
           session.SaveChanges();
         });
-      TestContext.WriteLine("Context.UniqueConstraintViolation left");
     }
 
     public void UniqueConstraintViolationPrimaryKey(
       bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
-      TestContext.WriteLine("Context.UniqueConstraintViolationPrimaryKey entered");
-      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
-        session => {
+      domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
+        .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
+        .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
+        .Execute(session => {
           _ = Interlocked.Increment(ref Count);
           session.EnsureTransactionIsStarted();
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
@@ -211,24 +218,35 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
               if (w1 != null && w2 != null) {
                 _ = w1.Set();
                 _ = w2.WaitOne();
+                wait1.Dispose();
                 wait1 = null;
               }
             }
             else if (w1 != null && w2 != null) {
               _ = w2.Set();
               _ = w1.WaitOne();
+              wait2.Dispose();
               wait2 = null;
             }
             _ = new Foo(session, id) { Name = Guid.NewGuid().ToString() };
           }
           session.SaveChanges();
         });
-      TestContext.WriteLine("Context.UniqueConstraintViolationPrimaryKey left");
     }
+    #endregion
 
     public Context(Domain domain)
     {
       this.domain = domain;
+    }
+
+    public void Dispose()
+    {
+      if (Disposed)
+        return;
+      Disposed = true;
+      wait1?.Dispose();
+      wait2?.Dispose();
     }
   }
 }

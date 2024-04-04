@@ -30,12 +30,23 @@ namespace Xtensive.Sql.Model
     /// <returns><see langword="True"/> if this instance is read-only; otherwise, <see langword="false"/>.</returns>
     public override bool IsReadOnly { get { return IsLocked || base.IsReadOnly; } }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Adds item to collection.
+    /// </summary>
+    /// <param name="item">Item to add</param>
+    /// <exception cref="ArgumentException">The item with same name already exists in the collection</exception>
     public override void Add(TNode item)
     {
       base.Add(item);
-      if (!string.IsNullOrEmpty(item.GetNameInternal()))
-        nameIndex.Add(item.GetNameInternal(), item);
+      var name = item.GetNameInternal();
+      if (!string.IsNullOrEmpty(name)) {
+        try {
+          nameIndex.Add(name, item);
+        }
+        catch(ArgumentException) {
+          throw new ArgumentException(string.Format(Strings.ExItemWithNameXAlreadyExists, name));
+        }
+      }
     }
 
     public override bool Remove(TNode item)

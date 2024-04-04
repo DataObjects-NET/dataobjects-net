@@ -287,7 +287,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return TranslateByteArrayLiteral((byte[]) literalValue);
       }
       if (literalType == WellKnownTypes.GuidType) {
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+        return string.Format("uuid'{0}'", SqlHelper.GuidToString((Guid) literalValue));
       }
       if (literalType == WellKnownTypes.DateTimeOffsetType) {
         return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);

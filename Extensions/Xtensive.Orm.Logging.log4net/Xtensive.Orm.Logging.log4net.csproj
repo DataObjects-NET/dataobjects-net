@@ -11,14 +11,19 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.10" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Readme.txt" />
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

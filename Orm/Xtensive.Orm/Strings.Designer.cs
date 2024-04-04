@@ -260,6 +260,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comparison of two entity fields is not supported..
+        /// </summary>
+        internal static string ComparisonOfTwoEntityFieldsIsNotSupported {
+            get {
+                return ResourceManager.GetString("ComparisonOfTwoEntityFieldsIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ComparisonRule({0}, {1}).
         /// </summary>
         internal static string ComparisonRuleFormat {
@@ -3700,6 +3709,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported..
+        /// </summary>
+        internal static string ExJoinHasSameInnerAndOuterParameterInstances {
+            get {
+                return ResourceManager.GetString("ExJoinHasSameInnerAndOuterParameterInstances", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key already exists..
         /// </summary>
         internal static string ExKeyAlreadyExists {
@@ -6850,6 +6868,15 @@ namespace Xtensive {
         internal static string ExTypeXWasNotRegisteredForActivation {
             get {
                 return ResourceManager.GetString("ExTypeXWasNotRegisteredForActivation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
+        /// </summary>
+        internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
+            get {
+                return ResourceManager.GetString("ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel", resourceCulture);
             }
         }
         

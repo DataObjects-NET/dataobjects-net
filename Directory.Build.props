@@ -55,6 +55,7 @@
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
+	<NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <!-- Populate standard properties. -->

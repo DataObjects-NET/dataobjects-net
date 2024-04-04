@@ -5,6 +5,7 @@
 // Created:    2010.01.21
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
@@ -54,6 +55,16 @@ namespace Xtensive.Orm.Linq
     public IncludeAlgorithm IncludeAlgorithm { get; set; }
 
     public Type TypeOfEntityStoredInKey { get; set; }
+
+
+    /// <summary>
+    /// Expessions that were constructed during original expression translation
+    /// and aim to replace original parts so they are avoidable to visit by Linq translator.
+    /// </summary>
+    /// <remarks>
+    /// Not all expression that constructed by us should be skipped when visiting.
+    /// </remarks>
+    public HashSet<Expression> NonVisitableExpressions { get; private set; }
 
     public bool JoinLocalCollectionEntity
     {
@@ -165,6 +176,7 @@ namespace Xtensive.Orm.Linq
       OuterParameters = Parameters = Array.Empty<ParameterExpression>();
       IncludeAlgorithm = IncludeAlgorithm.Auto;
       TypeOfEntityStoredInKey = null;
+      NonVisitableExpressions = new HashSet<Expression>();
     }
 
     private TranslatorState(TranslatorState currentState)
@@ -176,6 +188,7 @@ namespace Xtensive.Orm.Linq
       CurrentLambda = currentState.CurrentLambda;
       IncludeAlgorithm = currentState.IncludeAlgorithm;
       TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
+      NonVisitableExpressions = currentState.NonVisitableExpressions;
     }
   }
 }
