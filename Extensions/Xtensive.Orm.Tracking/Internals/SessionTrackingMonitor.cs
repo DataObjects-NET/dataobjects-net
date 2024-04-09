@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -76,13 +76,8 @@ namespace Xtensive.Orm.Tracking
     [ServiceConstructor]
     public SessionTrackingMonitor(Session session, DirectSessionAccessor accessor)
     {
-      if (session==null)
-        throw new ArgumentNullException("session");
-      if (accessor==null)
-        throw new ArgumentNullException("accessor");
-
-      this.session = session;
-      this.accessor = accessor;
+      this.session = session ?? throw new ArgumentNullException(nameof(session));
+this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
       stack = new Stack<TrackingStackFrame>();
       stack.Push(new TrackingStackFrame());

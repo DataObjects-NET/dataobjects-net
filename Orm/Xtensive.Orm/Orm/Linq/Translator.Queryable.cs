@@ -1120,6 +1120,10 @@ namespace Xtensive.Orm.Linq
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
+      if (innerParameter == outerParameter) {
+        throw new NotSupportedException(Strings.ExJoinHasSameInnerAndOuterParameterInstances);
+      }
+
       var outerSequence = VisitSequence(outerSource);
       var innerSequence = VisitSequence(innerSource);
       using (context.Bindings.Add(outerParameter, outerSequence))

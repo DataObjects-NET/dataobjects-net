@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case TypeCode.UInt16:
           return true;
       }
-      if (type==typeof (Guid)) {
+      if (type == typeof(Guid)) {
         return true;
       }
 

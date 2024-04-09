@@ -115,15 +115,20 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AddMillisecondsTest()
     {
-      CheckNotMySql55();
+      CheckNotMySql55NorSqlServer2005();
       RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value) == today.AddMilliseconds(value));
     }
 
-    private void CheckNotMySql55()
+    private void CheckNotMySql55NorSqlServer2005()
     {
-      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)
-        && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+      var storageProviderInfo = StorageProviderInfo.Instance;
+      if (storageProviderInfo.CheckProviderIs(StorageProvider.MySql)
+        && storageProviderInfo.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
         throw new IgnoreException("Test requires MySQL version greater than 5.5");
+      }
+      if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)
+        && storageProviderInfo.CheckProviderVersionIsAtMost(StorageProviderVersion.SqlServer2005)) {
+        throw new IgnoreException("MS SQL Server 2005rounds miliseconds of DateTime so test is inconsistent.");
       }
     }
   }

@@ -1,5 +1,4 @@
-================
-Xtensive.Orm.Web
+﻿Xtensive.Orm.Web
 ================
 
 Summary
@@ -19,6 +18,7 @@ Usage of action filter
 
 To start using action filter it should be added to action filters collection like so
 
+```csharp
 public class Startup
 {
   public Startup(IConfiguration configuration)
@@ -216,6 +216,7 @@ public class Startup
     });
   }
 }
+```
 
 And then in actual pages you can use SessionAccessor like below
 
