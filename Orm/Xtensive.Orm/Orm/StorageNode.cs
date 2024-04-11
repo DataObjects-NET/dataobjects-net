@@ -48,7 +48,7 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
 
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>> PersistRequestCache { get; private set; }
 
     /// <inheritdoc/>
     public Session OpenSession()
@@ -123,7 +123,7 @@ namespace Xtensive.Orm
       TypeIdRegistry = typeIdRegistry;
 
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>>();
       InternalQueryCache = new ConcurrentDictionary<object, object>();
     }
   }

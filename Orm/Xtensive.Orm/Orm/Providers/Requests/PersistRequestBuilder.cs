@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyCollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;

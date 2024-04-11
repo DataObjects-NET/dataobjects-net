@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
-      var result = new List<CommandPart>();
+      var result = new List<CommandPart>(task.RequestSequence.Count);
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
         var tuple = task.Tuple;
