@@ -16,14 +16,11 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class CursorCommandFactory : CommandFactory
   {
-    private const string CursorParameterNameFormat = "{0}c";
-    private const string StatementFormat = "OPEN :{0} FOR {1}";
-
     public override CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
     {
       var part = base.CreateQueryPart(request, parameterNamePrefix, parameterContext);
-      var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
-      part.Statement = string.Format(StatementFormat, parameterName, part.Statement);
+      var parameterName = $"{parameterNamePrefix}c";
+      part.Statement = $"OPEN :{parameterName} FOR {part.Statement}";
       var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;
       part.Parameters.Add(parameter);
