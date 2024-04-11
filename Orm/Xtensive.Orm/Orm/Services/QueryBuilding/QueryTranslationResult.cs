@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -27,10 +27,10 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    internal QueryTranslationResult(ISqlCompileUnit query, IEnumerable<QueryParameterBinding> bindings)
+    internal QueryTranslationResult(ISqlCompileUnit query, IList<QueryParameterBinding> bindings)
     {
       Query = query;
-      ParameterBindings = bindings.ToList();
+      ParameterBindings = bindings;
     }
   }
 }
