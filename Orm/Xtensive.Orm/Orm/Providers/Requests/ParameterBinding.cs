@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.26
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -26,7 +27,12 @@ namespace Xtensive.Orm.Providers
     public static IEnumerable<T> NormalizeBindings<T>(IEnumerable<T> bindings)
       where T : ParameterBinding
     {
-      return bindings!=null ? new HashSet<T>(bindings) : Enumerable.Empty<T>();
+      if (bindings is null)
+        return Array.Empty<T>();
+      var normalized = bindings.ToArray();
+      if (normalized.Length == 0)
+        return Array.Empty<T>();
+      return normalized;
     }
 
 
