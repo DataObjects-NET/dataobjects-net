@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
       return CreatePersistParts(task, DefaultParameterNamePrefix);
     }
 
-    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, string parameterNamePrefix)
+    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, in string parameterNamePrefix)
     {
       ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
@@ -76,9 +76,9 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(task.Request, DefaultParameterNamePrefix, task.ParameterContext);
     }
 
-    public CommandPart CreateQueryPart(SqlLoadTask task, string parameterNamePrefix)
+    public CommandPart CreateQueryPart(SqlLoadTask task, in string parameterNamePrefix)
     {
-      return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
+      return CreateQueryPart(task.Request, in parameterNamePrefix, task.ParameterContext);
     }
 
     public CommandPart CreateQueryPart(IQueryRequest request, ParameterContext parameterContext)
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(request, DefaultParameterNamePrefix, parameterContext);
     }
 
-    public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    public virtual CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(request, "request");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, string name, object value)
+    private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, in string name, object value)
     {
       var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Providers
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddCharacterLobParameter(CommandPart commandPart, string name, string value)
+    private void AddCharacterLobParameter(CommandPart commandPart, in string name, in string value)
     {
       var lob = Connection.CreateCharacterLargeObject();
       commandPart.Resources.Add(lob);
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Providers
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddBinaryLobParameter(CommandPart commandPart, string name, byte[] value)
+    private void AddBinaryLobParameter(CommandPart commandPart, in string name, byte[] value)
     {
       var lob = Connection.CreateBinaryLargeObject();
       commandPart.Resources.Add(lob);
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private void AddParameter(
-      CommandPart commandPart, ParameterBinding binding, string parameterName, object parameterValue)
+      CommandPart commandPart, ParameterBinding binding, in string parameterName, object parameterValue)
     {
       switch (binding.TransmissionType) {
       case ParameterTransmissionType.Regular:
@@ -259,7 +259,7 @@ namespace Xtensive.Orm.Providers
       }
     }
     
-    private string GetParameterName(string prefix, ref int index)
+    private string GetParameterName(in string prefix, ref int index)
     {
       var result = $"{prefix}{index.ToString("G")}"; //leave ToString(). it is faster
       index++;

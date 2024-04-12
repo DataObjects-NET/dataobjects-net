@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class CursorCommandFactory : CommandFactory
   {
-    public override CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    public override CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
       var part = base.CreateQueryPart(request, parameterNamePrefix, parameterContext);
       var parameterName = $"{parameterNamePrefix}c";
