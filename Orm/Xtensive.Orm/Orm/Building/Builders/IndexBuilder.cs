@@ -809,16 +809,17 @@ namespace Xtensive.Orm.Building.Builders
     private ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
+      var indexKeyColumns = index.KeyColumns;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).ToList()
-        : index.KeyColumns
+        ? (IReadOnlyList<int>) CollectionUtils.RangeToArray(0, indexKeyColumns.Count)
+        : indexKeyColumns
             .Select(pair => pair.Key)
             .Concat(index.ValueColumns)
             .Select((c, i) => new {c, i})
             .Where(arg => arg.c.IsPrimaryKey)
             .Select(arg => arg.i)
             .ToList();
-      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList();
+      var columns = CollectionUtils.RangeToArray(0, indexKeyColumns.Count + index.ValueColumns.Count);
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 

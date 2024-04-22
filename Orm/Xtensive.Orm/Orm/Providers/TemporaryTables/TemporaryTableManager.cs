@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Providers
   public class TemporaryTableManager : DomainBoundHandler
   {
     private const string TableNamePattern = "Tmp_{0}";
-    private const string ColumnNamePattern = "C{0}";
 
     private TemporaryTableBackEnd backEnd;
 
@@ -151,9 +150,13 @@ namespace Xtensive.Orm.Providers
 
     private string[] BuildFieldNames(TupleDescriptor source)
     {
-      return Enumerable.Range(0, source.Count)
-          .Select(i => string.Format(ColumnNamePattern, i))
-          .ToArray();
+      var names = new string[source.Count];
+      for(int i = 0, count = names.Length; i < count; i++) {
+#pragma warning disable IDE0071 // Simplify interpolation
+        names[i] = $"C{i.ToString("G")}";
+#pragma warning restore IDE0071 // Simplify interpolation
+      }
+      return names;
     }
 
     private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[]fieldNames, Collation collation)
