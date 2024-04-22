@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class RedundantColumnRemover : ColumnMappingInspector
   {
+    private static readonly System.Reflection.MethodInfo EnumerableSelectMethod;
+
     protected override Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
     {
       var currentMapping = mappings[applyProvider.Right];
@@ -47,18 +49,21 @@ namespace Xtensive.Orm.Rse.Transformation
     private static Expression<Func<ParameterContext, IEnumerable<Tuple>>> RemapRawProviderSource(
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
-      var selectMethodInfo = WellKnownTypes.Enumerable
-        .GetMethods()
-        .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
-          && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
-        .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
-
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
-      var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
+      var newExpression = Expression.Call(EnumerableSelectMethod, source.Body, Expression.Constant(selector));
       return (Expression<Func<ParameterContext, IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression, source.Parameters[0]);
     }
 
     // Constructors
+
+    static RedundantColumnRemover()
+    {
+      EnumerableSelectMethod = WellKnownTypes.Enumerable
+        .GetMethods()
+        .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
+          && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
+        .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
+    }
 
     public RedundantColumnRemover(CompilableProvider originalProvider)
       : base(originalProvider)

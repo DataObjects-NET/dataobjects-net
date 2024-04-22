@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -158,8 +158,7 @@ namespace Xtensive.Orm.Linq
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
       var innerQuery = CreateEntityQuery(elementType);
-      var joinMethodInfo = WellKnownTypes.Queryable.GetMethods()
-        .Single(mi => mi.Name==Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length==5)
+      var joinMethodInfo = WellKnownMembers.Queryable.Join
         .MakeGenericMethod(new[] {
           connectorType,
           elementType,
