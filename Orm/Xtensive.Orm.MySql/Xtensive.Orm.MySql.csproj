@@ -36,9 +36,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
-    <PackageReference Include="MySql.Data" Version="8.0.30" />
-    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="MySql.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Sql.Drivers.MySql\Resources\Strings.Designer.cs">
