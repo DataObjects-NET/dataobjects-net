@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, true);
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
 
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, false);
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
 
@@ -428,11 +428,27 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
     {
-      return left
-        .Union(right)
-        .Distinct()
-        .OrderBy(i => i)
-        .ToList();
+      var hs = new HashSet<int>(left);
+      foreach (var r in right) {
+        _ = hs.Add(r);
+      }
+      var resultList = hs.ToList(hs.Count);
+      resultList.Sort();
+      return resultList;
+    }
+
+    private static List<int> Merge(List<int> leftMap, IEnumerable<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count * 2);
+      preReturn.Sort();
+      return preReturn;
+    }
+
+    private static List<int> Merge(List<int> leftMap, List<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count + rightMap.Count);
+      preReturn.Sort();
+      return preReturn;
     }
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
@@ -488,11 +504,16 @@ namespace Xtensive.Orm.Rse.Transformation
         expression.Parameters[1]);
     }
 
-    private void VisitJoin(ref List<int> leftMapping, ref CompilableProvider left, ref List<int> rightMapping,
-      ref CompilableProvider right)
+    private void VisitJoin(
+      ref List<int> leftMapping, ref CompilableProvider left,
+      ref List<int> rightMapping, ref CompilableProvider right, bool skipSort)
     {
-      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+      if (!skipSort) {
+        leftMapping = leftMapping.Distinct().ToList(leftMapping.Count);
+        leftMapping.Sort();
+        rightMapping = rightMapping.Distinct().ToList(rightMapping.Count);
+        rightMapping.Sort();
+      }
 
       // visit
 

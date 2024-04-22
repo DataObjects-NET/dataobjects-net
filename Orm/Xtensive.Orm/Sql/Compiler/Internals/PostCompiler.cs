@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(TextNode node)
     {
-      result.Append(node.Text);
+      _ = result.Append(node.Text);
     }
 
     public override void Visit(VariantNode node)
@@ -45,30 +45,28 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(PlaceholderNode node)
     {
-      string value;
-      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
+      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out var value))
         throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
-      result.Append(value);
+      _ = result.Append(value);
     }
 
     public override void Visit(CycleItemNode node)
     {
-      result.Append(currentCycleItem[node.Index]);
+      _ = result.Append(currentCycleItem[node.Index]);
     }
 
     public override void Visit(CycleNode node)
     {
-      List<string[]> items;
-      if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out items))
+      if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out var items))
         throw new InvalidOperationException(string.Format(Strings.ExItemsForCycleXAreNotSpecified, node.Id));
       if (items==null || items.Count==0) {
         VisitNodeSequence(node.EmptyCase);
         return;
       }
-      for (int i = 0; i < items.Count - 1; i++) {
+      for (int i = 0, count = items.Count; i < count - 1; i++) {
         currentCycleItem = items[i];
         VisitNodeSequence(node.Body);
-        result.Append(node.Delimiter);
+        _ = result.Append(node.Delimiter);
       }
       currentCycleItem = items[items.Count - 1];
       VisitNodeSequence(node.Body);

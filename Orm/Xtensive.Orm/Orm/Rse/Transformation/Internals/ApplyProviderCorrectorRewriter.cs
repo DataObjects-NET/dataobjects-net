@@ -95,14 +95,14 @@ namespace Xtensive.Orm.Rse.Transformation
         if (previousState == null)
           return;
         foreach (var pair in CalculateProviders) {
-          if (previousState.CalculateProviders.ContainsKey(pair.Key))
-            previousState.CalculateProviders[pair.Key].AddRange(pair.Value);
+          if (previousState.CalculateProviders.TryGetValue(pair.Key, out var existingValue))
+            existingValue.AddRange(pair.Value);
           else
             previousState.CalculateProviders.Add(pair.Key, pair.Value);
         }
         foreach (var pair in CalculateFilters) {
-          if (previousState.CalculateFilters.ContainsKey(pair.Key))
-            previousState.CalculateFilters[pair.Key].AddRange(pair.Value);
+          if (previousState.CalculateFilters.TryGetValue(pair.Key, out var existingValue))
+            existingValue.AddRange(pair.Value);
           else
             previousState.CalculateFilters.Add(pair.Key, pair.Value);
         }
@@ -117,16 +117,15 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #endregion
 
-    public CorrectorState State { get; private set;}
-
     private readonly bool throwOnCorrectionFault;
 
-    private readonly ApplyFilterRewriter predicateRewriter = new ApplyFilterRewriter();
-    private readonly CollectorHelper collectorHelper = new CollectorHelper();
-    private readonly CalculateRelatedExpressionRewriter calculateExpressionRewriter =
-      new CalculateRelatedExpressionRewriter();
+    private readonly ApplyFilterRewriter predicateRewriter = new();
+    private readonly CollectorHelper collectorHelper = new();
+    private readonly CalculateRelatedExpressionRewriter calculateExpressionRewriter = new();
     private readonly ApplyPredicateCollector predicateCollector;
     private readonly CalculateProviderCollector calculateProviderCollector;
+
+    public CorrectorState State { get; private set; }
 
     public CompilableProvider Rewrite(CompilableProvider rootProvider)
     {
@@ -391,9 +390,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private static AggregateProvider RecreateAggregate(AggregateProvider provider, CompilableProvider source)
     {
       var columnCount = provider.AggregateColumns.Length;
-      var acds = provider.AggregateColumns.Select(
-          ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType))
-        .ToArray(columnCount);
+      var acds = provider.AggregateColumns.SelectToArray(
+          ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
       return new AggregateProvider(source, provider.GroupColumnIndexes, acds);
     }
 
@@ -401,9 +399,8 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var columnsCount = provider.CalculatedColumns.Length;
       var ccds = provider.CalculatedColumns
-        .Select(
-          column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression))
-        .ToArray(columnsCount);
+        .SelectToArray(
+          column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
       return new CalculateProvider(source, ccds);
     }
 
@@ -412,7 +409,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var calculateProvider = providerPair.Item1;
       var columnCollection = providerPair.Item2;
-      var ccd = calculateProvider.CalculatedColumns.Select(
+      var ccd = calculateProvider.CalculatedColumns.SelectToArray(
         column => {
           var newColumnExpression = (Expression<Func<Tuple, object>>) calculateExpressionRewriter
             .Rewrite(column.Expression, column.Expression.Parameters[0], columnCollection,
@@ -420,7 +417,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var currentName = columnCollection.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
-      return new CalculateProvider(source, ccd.ToArray());
+      return new CalculateProvider(source, ccd);
     }
 
     #endregion

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class CollectorHelper
   {
-    private readonly ParameterRewriter parameterRewriter = new ParameterRewriter();
+    private readonly ParameterRewriter parameterRewriter = new();
 
     public Expression<Func<Tuple, bool>> CreatePredicatesConjunction(
       Expression<Func<Tuple, bool>> newPredicate, Expression<Func<Tuple, bool>> oldPredicate)
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Transformation
         existingPredicatePair.Item1);
       var currentColumns = existingPredicatePair.Item2;
       foreach (var column in provider.Header.Columns)
-        if (!currentColumns.Any(c => c.Name==column.Name))
+        if (currentColumns[column.Name] is null)
           currentColumns.Add(column);
       return new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(newPredicate, currentColumns);
     }
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newFilters =
         new Dictionary<TDictKey, List<(TPairKey, ColumnCollection)>>(currentState.Count);
       foreach (var providerPair in currentState) {
-        var newProviderPairValue = new List<(TPairKey, ColumnCollection)>();
+        var newProviderPairValue = new List<(TPairKey, ColumnCollection)>(providerPair.Value.Count);
         foreach (var predicatePair in providerPair.Value) {
           var newPredicatePair = (predicatePair.Item1, predicatePair.Item2.Alias(provider.Alias));
           newProviderPairValue.Add(newPredicatePair);
