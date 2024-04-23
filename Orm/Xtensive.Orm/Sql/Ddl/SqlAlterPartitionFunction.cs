@@ -31,24 +31,18 @@ namespace Xtensive.Sql.Ddl
       set { option = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlAlterPartitionFunction clone = new SqlAlterPartitionFunction(partitionFunction, boundary, option);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlAlterPartitionFunction(partitionFunction, boundary, option);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
     }
 
-    internal SqlAlterPartitionFunction(PartitionFunction partitionFunction, string boundary,
-                                       SqlAlterPartitionFunctionOption option)
+    internal SqlAlterPartitionFunction(
+      PartitionFunction partitionFunction, string boundary, SqlAlterPartitionFunctionOption option)
       : base(SqlNodeType.Alter)
     {
       this.partitionFunction = partitionFunction;

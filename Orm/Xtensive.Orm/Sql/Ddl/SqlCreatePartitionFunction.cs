@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreatePartitionFunction : SqlStatement, ISqlCompileUnit
   {
-    private PartitionFunction partitionFunction;
+    public PartitionFunction PartitionFunction { get; }
 
-    public PartitionFunction PartitionFunction {
-      get {
-        return partitionFunction;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlCreatePartitionFunction clone = new SqlCreatePartitionFunction(partitionFunction);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreatePartitionFunction(PartitionFunction);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -37,7 +25,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlCreatePartitionFunction(PartitionFunction partitionFunction)
       : base(SqlNodeType.Create)
     {
-      this.partitionFunction = partitionFunction;
+      PartitionFunction = partitionFunction;
     }
   }
 }

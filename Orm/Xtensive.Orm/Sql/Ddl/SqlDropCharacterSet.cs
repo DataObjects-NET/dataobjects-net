@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropCharacterSet : SqlStatement, ISqlCompileUnit
   {
-    private CharacterSet characterSet;
+    public CharacterSet CharacterSet { get; }
 
-    public CharacterSet CharacterSet {
-      get {
-        return characterSet;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropCharacterSet clone = new SqlDropCharacterSet(characterSet);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropCharacterSet(CharacterSet);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropCharacterSet(CharacterSet characterSet) : base(SqlNodeType.Drop)
     {
-      this.characterSet = characterSet;
+      CharacterSet = characterSet;
     }
   }
 }

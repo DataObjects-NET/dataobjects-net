@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
@@ -36,13 +37,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlUserFunctionCall clone = new SqlUserFunctionCall(name);
-      for (int i = 0, l = Arguments.Count; i < l; i++)
-        clone.Arguments.Add((SqlExpression)Arguments[i].Clone(context));
-      context.NodeMapping[this] = clone;
+      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
+        context.NodeMapping[this] = clone = new SqlUserFunctionCall(Name, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
+      }
       return clone;
     }
 

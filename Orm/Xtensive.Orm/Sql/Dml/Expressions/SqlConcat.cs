@@ -16,10 +16,11 @@ namespace Xtensive.Sql.Dml
   {
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
-      var expressionsClone = new Collection<SqlExpression>();
+      var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
         expressionsClone.Add((SqlExpression) e.Clone(context));
 

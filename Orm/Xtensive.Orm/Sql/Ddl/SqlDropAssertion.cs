@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropAssertion : SqlStatement, ISqlCompileUnit
   {
-    private Assertion assertion;
+    public Assertion Assertion { get; }
 
-    public Assertion Assertion {
-      get {
-        return assertion;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropAssertion clone = new SqlDropAssertion(assertion);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropAssertion(Assertion);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropAssertion(Assertion assertion) : base(SqlNodeType.Drop)
     {
-      this.assertion = assertion;
+      Assertion = assertion;
     }
   }
 }

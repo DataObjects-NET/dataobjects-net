@@ -228,22 +228,22 @@ namespace Xtensive.Modelling
     internal void Add(Node node)
     {
       this.EnsureNotLocked();
-      if (node.Index!=list.Count)
+      if (node.Index != list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
-      if (nameIndex.ContainsKey(name))
-        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
       int count = list.Count;
+      if (!nameIndex.TryAdd(name, node)) {
+        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
+      }
       try {
         list.Add(node);
-        nameIndex.Add(name, node);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Add, node.Index));
       }
       catch {
-        if (list.Count>count)
+        if (list.Count > count)
           list.RemoveAt(count);
-        if (nameIndex.Count>count)
+        if (nameIndex.Count > count)
           nameIndex.Remove(name);
         throw;
       }
@@ -259,8 +259,7 @@ namespace Xtensive.Modelling
       string name = node.Name;
       try {
         list.RemoveAt(index);
-        if (nameIndex.ContainsKey(name))
-          nameIndex.Remove(name);
+        nameIndex.Remove(name);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Remove, index));
       }
@@ -316,21 +315,18 @@ namespace Xtensive.Modelling
     internal void AddName(Node node)
     {
       this.EnsureNotLocked();
-      string name = node.Name;
-      if (nameIndex.ContainsKey(name))
+      if (!nameIndex.TryAdd(node.Name, node)) {
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
-      nameIndex.Add(name, node);
+      }
     }
 
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void CheckIntegrity()
     {
       foreach (var node in list) {
-        var name = node.Name;
-        if (!nameIndex.ContainsKey(name))
+        if (!nameIndex.TryGetValue(node.Name, out var value) || value != node) {
           throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
-        if (node!=nameIndex[name])
-          throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
+        }
       }
     }
 

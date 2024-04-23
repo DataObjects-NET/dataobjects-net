@@ -464,16 +464,16 @@ namespace Xtensive.Orm.Building.Builders
         if (typeImplementors.Any())
         {
           foreach (var implementor in typeImplementors)
-            if (referenceRegistrator.ContainsKey(implementor))
-              referenceRegistrator[implementor] += 1;
+            if (referenceRegistrator.TryGetValue(implementor, out var refCount))
+              referenceRegistrator[implementor] = refCount + 1;
         }
         else {
-          if (referenceRegistrator.ContainsKey(type))
-            referenceRegistrator[type] += 1;
+          if (referenceRegistrator.TryGetValue(type, out var refCount))
+            referenceRegistrator[type] = refCount + 1;
           if (descendantTypes.Any()) {
             foreach (var descendant in descendantTypes) {
-              if (referenceRegistrator.ContainsKey(descendant))
-                referenceRegistrator[descendant] += 1;
+              if (referenceRegistrator.TryGetValue(descendant, out var refCount1))
+                referenceRegistrator[descendant] = refCount1 + 1;
             }
           }
         }

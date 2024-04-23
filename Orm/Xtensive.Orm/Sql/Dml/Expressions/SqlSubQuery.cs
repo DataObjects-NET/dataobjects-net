@@ -35,16 +35,17 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       SqlSubQuery clone;
       SqlSelect select = query as SqlSelect;
       SqlQueryExpression expression = query as SqlQueryExpression;
       if (select != null)
-        clone = new SqlSubQuery((SqlSelect)select.Clone(context));
-      else 
-        clone = new SqlSubQuery((SqlQueryExpression)expression.Clone(context));
+        clone = new SqlSubQuery((SqlSelect) select.Clone(context));
+      else
+        clone = new SqlSubQuery((SqlQueryExpression) expression.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }

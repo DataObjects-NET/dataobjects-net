@@ -10,14 +10,9 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropSchema : SqlStatement, ISqlCompileUnit
   {
-    private Schema schema;
     private bool cascade = true;
 
-    public Schema Schema {
-      get {
-        return schema;
-      }
-    }
+    public Schema Schema { get; }
 
     public bool Cascade {
       get {
@@ -28,16 +23,10 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropSchema clone = new SqlDropSchema(schema);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropSchema(Schema);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -46,12 +35,12 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropSchema(Schema schema) : base(SqlNodeType.Drop)
     {
-      this.schema = schema;
+      Schema = schema;
     }
 
     internal SqlDropSchema(Schema schema, bool cascade) : base(SqlNodeType.Drop)
     {
-      this.schema = schema;
+      Schema = schema;
       this.cascade = cascade;
     }
   }

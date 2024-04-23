@@ -10,32 +10,18 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlAlterTable : SqlStatement, ISqlCompileUnit
   {
-    private SqlAction action;
-    private Table table;
+    private readonly SqlAction action;
+    private readonly Table table;
 
-    public SqlAction Action {
-      get {
-        return action;
-      }
-    }
+    public SqlAction Action => action;
 
-    public Table Table {
-      get {
-        return table;
-      }
-    }
+    public Table Table => table;
 
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlAlterTable clone = new SqlAlterTable(table, (SqlAction)action.Clone(context));
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlAlterTable(table, (SqlAction) action.Clone(context));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

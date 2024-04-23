@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateSequence : SqlStatement, ISqlCompileUnit
   {
-    private Sequence sequence;
+    public Sequence Sequence { get; }
 
-    public Sequence Sequence {
-      get {
-        return sequence;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlCreateSequence clone = new SqlCreateSequence(sequence);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateSequence(Sequence);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateSequence(Sequence sequence) : base(SqlNodeType.Create)
     {
-      this.sequence = sequence;
+      Sequence = sequence;
     }
   }
 }

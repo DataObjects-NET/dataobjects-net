@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropCollation : SqlStatement, ISqlCompileUnit
   {
-    private Collation collation;
+    public Collation Collation { get; }
 
-    public Collation Collation {
-      get {
-        return collation;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropCollation clone = new SqlDropCollation(collation);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropCollation(Collation);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropCollation(Collation collation) : base(SqlNodeType.Drop)
     {
-      this.collation = collation;
+      Collation = collation;
     }
   }
 }

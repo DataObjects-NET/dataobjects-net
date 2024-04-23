@@ -725,9 +725,8 @@ namespace Xtensive.Orm.Linq
           .ToList();
         if (members.Count!=1 || duplicateMembers.Contains(members[0]))
           continue;
-        if (bindings.ContainsKey(members[0])) {
-          bindings.Remove(members[0]);
-          duplicateMembers.Add(members[0]);
+        if (bindings.Remove(members[0])) {
+          _ = duplicateMembers.Add(members[0]);
         }
         else
           bindings.Add(members[0], constructorArguments[parameterIndex]);

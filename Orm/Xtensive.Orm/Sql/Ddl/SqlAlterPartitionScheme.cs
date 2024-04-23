@@ -10,31 +10,17 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlAlterPartitionScheme : SqlStatement, ISqlCompileUnit
   {
-    private PartitionSchema partitionSchema;
-    private string filegroup;
+    private readonly PartitionSchema partitionSchema;
+    private readonly string filegroup;
 
-    public PartitionSchema PartitionSchema {
-      get {
-        return partitionSchema;
-      }
-    }
+    public PartitionSchema PartitionSchema => partitionSchema;
 
-    public string Filegroup {
-      get {
-        return filegroup;
-      }
-    }
+    public string Filegroup => filegroup;
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlAlterPartitionScheme clone = new SqlAlterPartitionScheme(partitionSchema, filegroup);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlAlterPartitionScheme(partitionSchema, filegroup);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

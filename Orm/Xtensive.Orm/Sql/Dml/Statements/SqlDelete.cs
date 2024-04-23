@@ -62,20 +62,21 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
-      SqlDelete clone = new SqlDelete();
-      if (Delete!=null)
-        clone.Delete = (SqlTableRef)Delete.Clone(context);
-      if (from!=null)
-        clone.From = (SqlQueryRef)from.Clone(context);
-      if (!where.IsNullReference())
+      var clone = new SqlDelete();
+      if (Delete != null)
+        clone.Delete = (SqlTableRef) Delete.Clone(context);
+      if (from != null)
+        clone.From = (SqlQueryRef) from.Clone(context);
+      if (where is not null)
         clone.Where = (SqlExpression) where.Clone(context);
 
-      if (Hints.Count>0)
+      if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
+          clone.Hints.Add((SqlHint) hint.Clone(context));
 
       context.NodeMapping[this] = clone;
       return clone;

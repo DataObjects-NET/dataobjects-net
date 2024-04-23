@@ -718,14 +718,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var columnOwnerId = Convert.ToInt64(dataReader["attrelid"]);
       var columnId = Convert.ToInt64(dataReader["attnum"]);
       var columnName = dataReader["attname"].ToString();
-      if (tableMap.ContainsKey(columnOwnerId)) {
-        var table = tableMap[columnOwnerId];
+      if (tableMap.TryGetValue(columnOwnerId, out var table)) {
         var col = table.CreateColumn(columnName);
-        if (!tableColumns.ContainsKey(columnOwnerId)) {
-          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>());
+        if (tableColumns.TryGetValue(columnId, out var column)) {
+          tableColumns.Add(columnId, new Dictionary<long, TableColumn>());
         }
-
-        tableColumns[columnOwnerId].Add(columnId, col);
+        else {
+          column.Add(columnId, col);
+        }
 
         var columnTypeName = dataReader["typname"].ToString();
         var columnTypeSpecificData = Convert.ToInt32(dataReader["atttypmod"]);

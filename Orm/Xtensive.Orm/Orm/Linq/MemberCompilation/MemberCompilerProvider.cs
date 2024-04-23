@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -103,14 +103,15 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       foreach (var (targetMember, compiler) in newRegistrations) {
         var key = GetCompilerKey(targetMember);
-        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilers.ContainsKey(key)) {
-          if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
+        if (!compilers.TryAdd(key, compiler)) {
+          switch (conflictHandlingMethod) {
+            case ConflictHandlingMethod.Overwrite:
+              compilers[key] = compiler;
+              break;
+            case ConflictHandlingMethod.ReportError:
+              throw new InvalidOperationException(string.Format(Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
           }
-          continue;
         }
-        compilers[key] = compiler;
       }
     }
 

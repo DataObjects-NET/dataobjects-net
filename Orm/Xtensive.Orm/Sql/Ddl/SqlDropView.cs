@@ -10,14 +10,9 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropView : SqlStatement, ISqlCompileUnit
   {
-    private View view;
     private bool cascade = true;
 
-    public View View {
-      get {
-        return view;
-      }
-    }
+    public View View { get; }
 
     public bool Cascade {
       get {
@@ -28,16 +23,10 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropView clone = new SqlDropView(view);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropView(View);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -46,12 +35,12 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropView(View view) : base(SqlNodeType.Drop)
     {
-      this.view = view;
+      View = view;
     }
 
     internal SqlDropView(View view, bool cascade) : base(SqlNodeType.Drop)
     {
-      this.view = view;
+      View = view;
       this.cascade = cascade;
     }
   }

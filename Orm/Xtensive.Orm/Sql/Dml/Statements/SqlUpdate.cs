@@ -69,24 +69,25 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       var clone = new SqlUpdate();
-      if (update!=null)
-        clone.Update = (SqlTableRef)Update.Clone(context);
-      if (from!=null)
-        clone.From = (SqlQueryRef)from.Clone(context);
+      if (update != null)
+        clone.Update = (SqlTableRef) Update.Clone(context);
+      if (from != null)
+        clone.From = (SqlQueryRef) from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
         clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
-      if (!where.IsNullReference())
-        clone.Where = (SqlExpression)where.Clone(context);
-      if (!limit.IsNullReference())
-        clone.Limit = (SqlExpression)where.Clone(context);
-      if (Hints.Count>0)
+          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
+      if (where is not null)
+        clone.Where = (SqlExpression) where.Clone(context);
+      if (limit is not null)
+        clone.Limit = (SqlExpression) where.Clone(context);
+      if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
+          clone.Hints.Add((SqlHint) hint.Clone(context));
 
       context.NodeMapping[this] = clone;
       return clone;

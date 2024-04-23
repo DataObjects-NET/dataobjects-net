@@ -45,17 +45,18 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlWhile clone = new SqlWhile((SqlExpression)condition.Clone(context));
-      if (statement!=null)
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
+
+      SqlWhile clone = new SqlWhile((SqlExpression) condition.Clone(context));
+      if (statement != null)
         clone.Statement = (SqlStatement) statement.Clone(context);
       context.NodeMapping[this] = clone;
 
       return clone;
     }
-    
+
     internal SqlWhile(SqlExpression condition) : base(SqlNodeType.While)
     {
       this.condition = condition;

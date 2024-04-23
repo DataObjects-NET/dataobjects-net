@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -18,18 +19,10 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public IEnumerable<SqlTable> Tables { get { return tables; } }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlForceJoinOrderHint();
-      if (tables!=null)
-        clone.tables = tables
-          .Select(table => (SqlTable) table.Clone())
-          .ToArray();
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlForceJoinOrderHint(tables?.Select(table => (SqlTable) table.Clone()).ToArray(tables.Length));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -100,8 +100,7 @@ namespace Xtensive.Orm.Linq
 
     public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
     {
-      if (!queryReuses.ContainsKey(memberInfo))
-        queryReuses.Add(memberInfo, 0);
+      queryReuses.TryAdd(memberInfo, 0);
     }
 
     public bool CheckIfQueryReusePossible(MemberInfo memberInfo)

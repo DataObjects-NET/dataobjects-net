@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateDomain : SqlStatement, ISqlCompileUnit
   {
-    private Domain domain;
+    public Domain Domain { get; }
 
-    public Domain Domain {
-      get {
-        return domain;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlCreateDomain clone = new SqlCreateDomain(domain);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateDomain(Domain);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateDomain(Domain domain) : base(SqlNodeType.Create)
     {
-      this.domain = domain;
+      Domain = domain;
     }
   }
 }

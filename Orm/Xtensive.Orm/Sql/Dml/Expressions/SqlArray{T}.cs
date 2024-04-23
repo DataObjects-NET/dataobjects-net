@@ -43,14 +43,10 @@ namespace Xtensive.Sql.Dml
       Values = replacingExpression.Values;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = new SqlArray<T>((T[]) Values.Clone());
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlArray<T>((T[]) Values.Clone());
 
 
     // Constructors

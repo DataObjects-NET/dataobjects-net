@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateTranslation : SqlStatement, ISqlCompileUnit
   {
-    private Translation translation;
+    public Translation Translation { get; }
 
-    public Translation Translation {
-      get {
-        return translation;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlCreateTranslation clone = new SqlCreateTranslation(translation);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateTranslation(Translation);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateTranslation(Translation translation) : base(SqlNodeType.Create)
     {
-      this.translation = translation;
+      Translation = translation;
     }
   }
 }

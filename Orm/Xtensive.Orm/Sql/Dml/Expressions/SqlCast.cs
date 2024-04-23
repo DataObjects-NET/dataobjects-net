@@ -22,16 +22,11 @@ namespace Xtensive.Sql.Dml
       Type = replacingExpression.Type;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCast((SqlExpression) Operand.Clone(context), Type);
 
-      var clone = new SqlCast((SqlExpression) Operand.Clone(context), Type);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
-    
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);

@@ -119,8 +119,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private void AddCalculateFilter(CalculateProvider calculateProvider, FilterProvider filterProvider)
     {
       var newPair = (filterProvider.Predicate, filterProvider.Header.Columns);
-      if (owner.State.CalculateFilters.ContainsKey(calculateProvider)) {
-        owner.State.CalculateFilters[calculateProvider].Add(newPair);
+      if (owner.State.CalculateFilters.TryGetValue(calculateProvider, out var filters)) {
+        filters.Add(newPair);
       }
       else {
         owner.State.CalculateFilters.Add(calculateProvider,

@@ -9,36 +9,26 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlDeclareVariable : SqlStatement, ISqlCompileUnit
   {
-    private SqlVariable variable;
-
     /// <summary>
     /// Gets the variable.
     /// </summary>
     /// <value>The variable.</value>
-    public SqlVariable Variable
-    {
-      get { return variable; }
-    }
+    public SqlVariable Variable { get; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDeclareVariable(Variable);
 
-      SqlDeclareVariable clone = new SqlDeclareVariable(variable);
-      context.NodeMapping[this] = clone;
-      return clone;
+    public override void AcceptVisitor(ISqlVisitor visitor)
+    {
+      visitor.Visit(this);
     }
 
     internal SqlDeclareVariable(SqlVariable variable)
       : base(SqlNodeType.DeclareVariable)
     {
-      this.variable = variable;
-    }
-
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
+      Variable = variable;
     }
   }
 }
