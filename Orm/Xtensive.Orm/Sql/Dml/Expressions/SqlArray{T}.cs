@@ -56,9 +56,15 @@ namespace Xtensive.Sql.Dml
       Values = values;
     }
 
+    // do not remove, they used by reflection
     internal SqlArray(List<object> values)
     {
       Values = values.Cast<T>().ToArray();
+    }
+
+    internal SqlArray(object[] values)
+    {
+      Values = ArrayExtensions.Cast<object, T>(values);
     }
   }
 }

@@ -68,6 +68,8 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    public int Count => map.Count;
+
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {
       this.EnsureNotLocked();

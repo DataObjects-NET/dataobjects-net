@@ -15,7 +15,7 @@ using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     /// <inheritdoc/>
     protected override SqlProvider VisitTake(TakeProvider provider)

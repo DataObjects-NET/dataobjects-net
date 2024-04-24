@@ -24,6 +24,7 @@ namespace Xtensive.Sql
     public static readonly SqlBreak Break = new SqlBreak();
     public static readonly SqlContinue Continue = new SqlContinue();
     public static readonly SqlNative Asterisk = Native("*");
+    public static readonly Type GenericSqlArrayType = typeof(SqlArray<>);
 
     #region Aggregates
 
@@ -149,11 +150,29 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = typeof (SqlArray<>).MakeGenericType(itemType);
+      var resultType = GenericSqlArrayType.MakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
         null, new object[] {valueList}, null);
+      return (SqlArray) result;
+    }
+
+    public static SqlArray Array(object[] values)
+    {
+      if (values.Length == 0)
+        return Array(ArrayUtils<int>.EmptyArray);
+      var itemType = values[0].GetType();
+      foreach (var t in values.Select(value => value.GetType())) {
+        if (!itemType.IsAssignableFrom(t))
+          throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
+      }
+
+      var resultType = typeof(SqlArray<>).MakeGenericType(itemType);
+      var result = Activator.CreateInstance(
+        resultType,
+        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new object[] { values }, null);
       return (SqlArray) result;
     }
 

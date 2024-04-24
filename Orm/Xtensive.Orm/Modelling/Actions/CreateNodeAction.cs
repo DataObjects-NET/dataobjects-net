@@ -102,8 +102,8 @@ namespace Xtensive.Modelling.Actions
     protected Node TryConstructor(IModel model, params object[] arguments)
     {
       if (parameters!=null)
-        arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
-      var argTypes = arguments.Select(a => a.GetType()).ToArray();
+        arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray(arguments.Length + parameters.Length);
+      var argTypes = arguments.SelectToArray(a => a.GetType());
       var ci = type.GetConstructor(argTypes);
       if (ci==null)
         return null;

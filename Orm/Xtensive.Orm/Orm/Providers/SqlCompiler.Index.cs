@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
@@ -15,18 +16,8 @@ using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler
+  public partial class SqlCompiler
   {
-    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
-    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
     /// <inheritdoc/>
     protected override SqlProvider VisitIndex(IndexProvider provider)
     {
@@ -111,11 +102,11 @@ namespace Xtensive.Orm.Providers
       var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
 
       var sourceTables = index.UnderlyingIndexes.Any(i => i.IsVirtual)
-        ? underlyingQueries.Select(SqlDml.QueryRef).Cast<SqlTable>().ToList()
+        ? underlyingQueries.Select(SqlDml.QueryRef).Cast<SqlTable>().ToList(index.UnderlyingIndexes.Count)
         : underlyingQueries.Select(q => {
-          var tableRef = (SqlTableRef) q.From;
-          return (SqlTable) SqlDml.TableRef(tableRef.DataTable, tableRef.Name, q.Columns.Select(c => c.Name));
-        }).ToList();
+            var tableRef = (SqlTableRef) q.From;
+            return (SqlTable) SqlDml.TableRef(tableRef.DataTable, tableRef.Name, q.Columns.Select(c => c.Name));
+          }).ToList(index.UnderlyingIndexes.Count);
 
       foreach (var table in sourceTables) {
         if (resultTable==null)
@@ -124,7 +115,7 @@ namespace Xtensive.Orm.Providers
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             var binary = (table.Columns[i]==rootTable.Columns[i]);
-            if (joinExpression.IsNullReference())
+            if (joinExpression is null)
               joinExpression = binary;
             else
               joinExpression &= binary;
@@ -173,27 +164,27 @@ namespace Xtensive.Orm.Providers
           .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
-        var values = filterByTypes
-          .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue));
+        
         if (filterByTypes.Count == 1) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, filterByTypes.First().TypeDiscriminatorValue);
           filter = discriminatorColumn == SqlDml.Literal(discriminatorValue);
         }
         else {
+          var values = filterByTypes
+            .SelectToArray(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue));
           filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
           if (containsDefault) {
             var allValues = discriminatorMap
-              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First));
+              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First)).ToArray(discriminatorMap.Count);
             filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
           }
         }
       }
       else {
         var typeIdColumn = baseQuery.Columns[Handlers.Domain.Handlers.NameBuilder.TypeIdColumnName];
-        var typeIds = filterByTypes.Select(t => TypeIdRegistry[t]).ToArray();
         filter = filterByTypes.Count == 1
           ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
-          : SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+          : SqlDml.In(typeIdColumn, SqlDml.Array(filterByTypes.SelectToArray(t=> TypeIdRegistry[t])));
       }
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);

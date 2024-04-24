@@ -9,10 +9,22 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     /// <inheritdoc/>
     protected override SqlProvider VisitRaw(RawProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    /// <inheritdoc/>
+    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
     {
       throw new NotSupportedException();
     }

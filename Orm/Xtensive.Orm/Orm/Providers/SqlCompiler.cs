@@ -76,20 +76,23 @@ namespace Xtensive.Orm.Providers
 
       SqlSelect sourceSelect = source.Request.Statement;
       var sqlSelect = sourceSelect.ShallowClone();
-      var columns = sqlSelect.Columns.ToList();
-      sqlSelect.Columns.Clear();
-      for (int i = 0; i < columns.Count; i++) {
+      var sqlSelectColumns = sqlSelect.Columns;
+      var tempColumns = new SqlColumn[sqlSelectColumns.Count];
+      sqlSelectColumns.CopyTo(tempColumns, 0);
+
+      sqlSelectColumns.Clear();
+      for (int i = 0; i < tempColumns.Length; i++) {
         var columnName = provider.Header.Columns[i].Name;
         columnName = ProcessAliasedName(columnName);
-        var column = columns[i];
+        var column = tempColumns[i];
         var columnRef = column as SqlColumnRef;
         var columnStub = column as SqlColumnStub;
         if (!ReferenceEquals(null, columnRef))
-          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
+          sqlSelectColumns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
         else if (!ReferenceEquals(null, columnStub))
-          sqlSelect.Columns.Add(columnStub);
+          sqlSelectColumns.Add(columnStub);
         else
-          sqlSelect.Columns.Add(column, columnName);
+          sqlSelectColumns.Add(column, columnName);
       }
       return CreateProvider(sqlSelect, provider, source);
     }
@@ -129,7 +132,7 @@ namespace Xtensive.Orm.Providers
 
       var sourceSelect = source.Request.Statement;
       SqlSelect query;
-      if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
+      if (sourceSelect.Limit is not null || sourceSelect.Offset is not null) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns);
@@ -181,7 +184,7 @@ namespace Xtensive.Orm.Providers
         ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlExpression>().ToList()
+        ? leftTable.Columns.Cast<SqlExpression>().ToList(leftTable.Columns.Count)
         : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, right);
@@ -192,7 +195,7 @@ namespace Xtensive.Orm.Providers
         ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlExpression>().ToList()
+        ? rightTable.Columns.Cast<SqlExpression>().ToList(rightTable.Columns.Count)
         : ExtractColumnExpressions(right.Request.Statement);
 
       var joinType = provider.JoinType==JoinType.LeftOuter
@@ -200,7 +203,7 @@ namespace Xtensive.Orm.Providers
         : SqlJoinType.InnerJoin;
 
       SqlExpression joinExpression = null;
-      for (var i = 0; i < provider.EqualIndexes.Count(); ++i) {
+      for (int i = 0, count = provider.EqualIndexes.Length; i < count; ++i) {
         var leftExpression = leftExpressions[provider.EqualIndexes[i].First];
         var rightExpression = rightExpressions[provider.EqualIndexes[i].Second];
         joinExpression &= GetJoinExpression(leftExpression, rightExpression, provider, i);
@@ -284,16 +287,19 @@ namespace Xtensive.Orm.Providers
       var query = source.ShallowClone();
       var parameterBindings = new List<QueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
+      var headerColumns = provider.Header.Columns;
+
       Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
-        pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
+        pair => ((MappedColumn) headerColumns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
-        .ToList();
+        .ToList(provider.Header.Order.Count);
 
-      for (int i = 0; i < keyColumns.Count; i++) {
+      parameterBindings.Capacity = keyColumns.Count;
+      for (int i = 0, count = keyColumns.Count; i < count; i++) {
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
-        var column = provider.Header.Columns[columnIndex];
+        var column = headerColumns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         var binding = new QueryParameterBinding(typeMapping, GetSeekKeyElementAccessor(provider.Key, i));
         parameterBindings.Add(binding);
@@ -419,7 +425,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Intersect(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
 
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -443,7 +449,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -467,7 +473,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -491,7 +497,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -499,14 +505,15 @@ namespace Xtensive.Orm.Providers
 
     protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var directionCollection = provider.Header.Order;
+      var header = provider.Header;
+      var directionCollection = header.Order;
       if (directionCollection.Count == 0)
         directionCollection = new DirectionCollection<int>(1);
       var source = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
-      query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
+      query.Columns.Add(rowNumber, header.Columns.Last().Name);
       var columns = ExtractColumnExpressions(query);
       foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
@@ -559,13 +566,14 @@ namespace Xtensive.Orm.Providers
     {
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
-      Mapping = configuration.StorageNode.Mapping;
-      TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
-      NodeConfiguration = configuration.StorageNode.Configuration;
+      var storageNode = configuration.StorageNode;
+      Mapping = storageNode.Mapping;
+      TypeIdRegistry = storageNode.TypeIdRegistry;
+      NodeConfiguration = storageNode.Configuration;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
-      forceApplyViaReference = handlers.ProviderInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
+      forceApplyViaReference = providerInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
