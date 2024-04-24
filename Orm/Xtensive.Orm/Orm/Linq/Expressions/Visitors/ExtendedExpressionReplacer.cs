@@ -120,8 +120,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
       var arguments = new List<Expression>();
-      var bindings = new Dictionary<MemberInfo, Expression>();
-      var nativeBindings = new Dictionary<MemberInfo, Expression>();
+      var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
+      var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
       bool recreate = false;
       foreach (var argument in expression.ConstructorArguments) {
         var result = Visit(argument);

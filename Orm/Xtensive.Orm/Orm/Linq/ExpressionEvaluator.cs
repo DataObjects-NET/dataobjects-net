@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq
           return !WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type);
         }
 
-        if (ma.Expression.Type.IsNullable() && ma.Member.Name == "Value") {
+        if (ma.Expression.Type.IsNullable() && ma.Member.Name.Equals("Value", StringComparison.Ordinal)) {
           return false;
         }
 

@@ -1572,8 +1572,13 @@ namespace Xtensive.Orm.Linq
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
       if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
-        outerColumnList = outerColumnList.OrderBy(i => i).ToList();
-        innerColumnList = innerColumnList.OrderBy(i => i).ToList();
+        var outerColumnListCopy = outerColumnList.ToList();
+        outerColumnListCopy.Sort();
+        outerColumnList = outerColumnListCopy;
+
+        var innerColumnListCopy = innerColumnList.ToList();
+        innerColumnListCopy.Sort();
+        innerColumnList = innerColumnListCopy;
       }
 
       var outerColumns = outerColumnList.ToArray();
