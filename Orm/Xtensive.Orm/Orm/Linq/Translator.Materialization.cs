@@ -23,9 +23,14 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private readonly CompiledQueryProcessingScope compiledQueryScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
+
+    private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression Session = Expression.Parameter(WellKnownOrmTypes.Session, "session");
+
+    private readonly CompiledQueryProcessingScope compiledQueryScope;
 
     public TranslatedQuery Translate()
     {
@@ -107,10 +112,6 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof (Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -126,17 +127,17 @@ namespace Xtensive.Orm.Linq
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
-        tupleReader,
+        TupleReader,
         materializationContextExpression,
-        parameterContext,
+        ParameterContext,
         Expression.Constant(itemMaterializer));
 
       var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, tupleReader, session, parameterContext);
+        body, TupleReader, Session, ParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
@@ -166,6 +167,26 @@ namespace Xtensive.Orm.Linq
           arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
       }
       return arguments;
+    }
+
+    private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
+    {
+      var origArguments = n.Arguments;
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
+        Expression body;
+        using (state.CreateScope()) {
+          state.CalculateExpressions = false;
+          body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
+        }
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+          : ProcessProjectionElement(body);
+      }
     }
 
     private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)

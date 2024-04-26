@@ -5,6 +5,7 @@
 // Created:    2009.02.27
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -33,39 +34,44 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly Type OrmCollectionExtensionsType = typeof(CollectionExtensionsEx);
+    private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensions);
+
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       var expression = tb.Expression;
       Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
-      if (operandType.IsAssignableFrom(expressionType))
+      if (operandType.IsAssignableFrom(expressionType)) {
         return Expression.Constant(true);
+      }
 
       // Structure
       var memberType = expression.GetMemberType();
-      if (memberType == MemberType.Structure
-        && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType))
+      if (memberType == MemberType.Structure && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType)) {
         return Expression.Constant(false);
+      }
 
       // Entity
-      if (memberType == MemberType.Entity
-        && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
-        TypeInfo type = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = type.GetDescendants(true)
-          .Union(type.GetImplementors(true))
-          .Union(Enumerable.Repeat(type, 1))
+      if (memberType == MemberType.Entity && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
+        var entityTypeInfo = context.Model.Types[operandType];
+        var typeIds = entityTypeInfo.GetDescendants(true)
+          .Union(entityTypeInfo.GetImplementors(true))
+          .Union(Enumerable.Repeat(entityTypeInfo, 1))
           .Select(t => context.TypeIdRegistry.GetTypeId(t));
-        MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
-        Expression boolExpression = null;
-        foreach (int typeId in typeIds)
-          boolExpression = MakeBooleanExpression(
-            boolExpression,
-            memberExpression,
+
+        var typeIdPropAccessor = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
+        Expression filterByTypeIdExpression = null;
+        foreach (var typeId in typeIds) {
+          filterByTypeIdExpression = MakeBooleanExpression(
+            filterByTypeIdExpression,
+            typeIdPropAccessor,
             Expression.Constant(typeId),
             ExpressionType.Equal,
             ExpressionType.OrElse);
+        }
 
-        return Visit(boolExpression);
+        return Visit(filterByTypeIdExpression);
       }
 
       throw new NotSupportedException(Strings.ExTypeIsMethodSupportsOnlyEntitiesAndStructures);
@@ -101,12 +107,12 @@ namespace Xtensive.Orm.Linq
     {
       switch (u.NodeType) {
       case ExpressionType.TypeAs:
-        if (u.GetMemberType()==MemberType.Entity)
+        if (u.GetMemberType() is MemberType.Entity)
           return VisitTypeAs(u.Operand, u.Type);
         break;
       case ExpressionType.Convert:
       case ExpressionType.ConvertChecked:
-        if (u.GetMemberType()==MemberType.Entity) {
+        if (u.GetMemberType() is MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
             || !WellKnownOrmInterfaces.Entity.IsAssignableFrom(u.Operand.Type))
@@ -134,9 +140,9 @@ namespace Xtensive.Orm.Linq
         body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
         var shouldTranslate =
-          (body.NodeType!=ExpressionType.New || body.IsNewExpressionSupportedByStorage())
-          && body.NodeType!=ExpressionType.MemberInit
-          && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection);
+          (body.NodeType is not ExpressionType.New || body.IsNewExpressionSupportedByStorage())
+          && body.NodeType is not ExpressionType.MemberInit
+          && !(body.NodeType is ExpressionType.Constant && state.BuildingProjection);
         if (shouldTranslate)
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
@@ -177,8 +183,8 @@ namespace Xtensive.Orm.Linq
           left = ExpressionEvaluator.Evaluate(binaryExpression.Left);
         }
         else {
-          var leftMemberAccess = binaryExpression.Left as MemberExpression;
-          left = leftMemberAccess!=null && leftMemberAccess.Member.ReflectedType.IsClosure()
+          left = (binaryExpression.Left is MemberExpression leftMemberAccess
+              && leftMemberAccess.Member.ReflectedType.IsClosure())
             ? ExpressionEvaluator.Evaluate(leftMemberAccess)
             : Visit(binaryExpression.Left);
         }
@@ -186,13 +192,13 @@ namespace Xtensive.Orm.Linq
           right = ExpressionEvaluator.Evaluate(binaryExpression.Right);
         }
         else {
-          var rightMemberAccess = binaryExpression.Right as MemberExpression;
-          right = rightMemberAccess!=null && rightMemberAccess.Member.ReflectedType.IsClosure()
+          right = (binaryExpression.Right is MemberExpression rightMemberAccess
+              && rightMemberAccess.Member.ReflectedType.IsClosure())
             ? ExpressionEvaluator.Evaluate(rightMemberAccess)
             : Visit(binaryExpression.Right);
         }
       }
-      else if (memberType == MemberType.Entity || memberType == MemberType.Structure) {
+      else if (memberType is MemberType.Entity or MemberType.Structure) {
         if (binaryExpression.NodeType == ExpressionType.Coalesce) {
           if ((context.Evaluator.CanBeEvaluated(binaryExpression.Right) && !(binaryExpression.Right is ConstantExpression))
             || (context.Evaluator.CanBeEvaluated(binaryExpression.Left) && !(binaryExpression.Left is ConstantExpression)))
@@ -219,14 +225,14 @@ namespace Xtensive.Orm.Linq
         var rightNoCastsType = rightNoCasts.Type;
         var bareRightType = rightNoCastsType.StripNullable();
 
-        if (bareLeftType.IsEnum && rightNoCasts.NodeType == ExpressionType.Constant) {
+        if (bareLeftType.IsEnum && rightNoCasts.NodeType is ExpressionType.Constant) {
           var typeToCast = leftNoCastsType.IsNullable()
             ? bareLeftType.GetEnumUnderlyingType().ToNullable()
             : leftNoCastsType.GetEnumUnderlyingType();
           left = Visit(Expression.Convert(leftNoCasts, typeToCast));
           right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
         }
-        else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
+        else if (bareRightType.IsEnum && leftNoCasts.NodeType is ExpressionType.Constant) {
           var typeToCast = rightNoCastsType.IsNullable()
             ? bareRightType.GetEnumUnderlyingType().ToNullable()
             : rightNoCastsType.GetEnumUnderlyingType();
@@ -253,15 +259,15 @@ namespace Xtensive.Orm.Linq
         binaryExpression.IsLiftedToNull,
         binaryExpression.Method);
 
-      if (binaryExpression.NodeType==ExpressionType.Equal
-        || binaryExpression.NodeType==ExpressionType.NotEqual)
+      if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
         return VisitBinaryRecursive(resultBinaryExpression, binaryExpression);
 
-      if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
-        var newArrayExpression = left.StripCasts() as NewArrayExpression;
-        var indexExpression = right.StripCasts() as ConstantExpression;
-        if (newArrayExpression!=null && indexExpression!=null && indexExpression.Type==WellKnownTypes.Int32)
+      if (binaryExpression.NodeType is ExpressionType.ArrayIndex) {
+        if (left.StripCasts() is NewArrayExpression newArrayExpression
+            && right.StripCasts() is ConstantExpression indexExpression
+            && indexExpression.Type == WellKnownTypes.Int32) {
           return newArrayExpression.Expressions[(int) indexExpression.Value];
+        }
 
         throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
       }
@@ -271,9 +277,9 @@ namespace Xtensive.Orm.Linq
       static bool EnumRewritableOperations(BinaryExpression b)
       {
         var nt = b.NodeType;
-        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
-          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
-          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
+        return nt is ExpressionType.Equal or ExpressionType.NotEqual
+          or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
+          or ExpressionType.LessThan or ExpressionType.LessThanOrEqual;
       }
     }
 
@@ -283,8 +289,8 @@ namespace Xtensive.Orm.Linq
         ? c.IfFalse.GetMemberType()
         : c.IfTrue.GetMemberType();
       if (memberType == MemberType.Entity || memberType == MemberType.Structure) {
-        if ((context.Evaluator.CanBeEvaluated(c.IfFalse) && !(c.IfFalse is ConstantExpression))
-          || (context.Evaluator.CanBeEvaluated(c.IfTrue) && !(c.IfTrue is ConstantExpression)))
+        if ((context.Evaluator.CanBeEvaluated(c.IfFalse) && (c.IfFalse is not ConstantExpression))
+          || (context.Evaluator.CanBeEvaluated(c.IfTrue) && (c.IfTrue is not ConstantExpression)))
           throw new NotSupportedException(string.Format(Strings.ExXExpressionsWithConstantValuesOfYTypeNotSupported, "Conditional", memberType.ToString()));
       }
       return base.VisitConditional(c);
@@ -292,10 +298,11 @@ namespace Xtensive.Orm.Linq
 
     private Expression ConvertEnum(Expression left)
     {
-      var underlyingType = Enum.GetUnderlyingType(left.Type.StripNullable());
-      if (left.Type.IsNullable())
-        underlyingType = underlyingType.ToNullable();
-      left = left.NodeType==ExpressionType.Convert
+      var underlyingType = left.Type.IsNullable()
+        ? Enum.GetUnderlyingType(left.Type.GetGenericArguments()[0]).ToNullable()
+        : Enum.GetUnderlyingType(left.Type);
+
+      left = left.NodeType is ExpressionType.Convert
         ? Expression.Convert(((UnaryExpression) left).Operand, underlyingType)
         : Expression.Convert(left, underlyingType);
       return left;
@@ -450,7 +457,7 @@ namespace Xtensive.Orm.Linq
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
         // Visit QueryEndpoint.
-        if (method.DeclaringType == typeof(QueryEndpoint)) {
+        if (method.DeclaringType == WellKnownOrmTypes.QueryEndpoint) {
           // Query.All<T>
           if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.All)) {
             return ConstructQueryable(mc);
@@ -1208,22 +1215,25 @@ namespace Xtensive.Orm.Linq
       var dataSource = oldResult.ItemProjector.DataSource;
 
       SortProvider sortProvider = null;
-      if (dataSource is SortProvider) {
-        sortProvider = (SortProvider) dataSource;
-        dataSource = sortProvider.Source;
+      if (dataSource is SortProvider sortProvider1) {
+        sortProvider = sortProvider1;
+        dataSource = sortProvider1.Source;
       }
 
-      var columns = new List<CalculatedColumnDescriptor>();
-      if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
-        var calculateProvider = ((CalculateProvider) dataSource);
-        var presentColumns = calculateProvider
+      CalculatedColumnDescriptor[] columns;
+      if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider calculateProvider && isInlined==calculateProvider.IsInlined) {
+        columns = calculateProvider
           .CalculatedColumns
-          .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
-        columns.AddRange(presentColumns);
+          .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression))
+          .ToArray(calculateProvider.CalculatedColumns.Length + 1);
+        columns[^1] = descriptor;
         dataSource = calculateProvider.Source;
       }
-      columns.Add(descriptor);
-      dataSource = dataSource.Calculate(isInlined, columns.ToArray());
+      else {
+        columns = new[] { descriptor };
+      }
+      
+      dataSource = dataSource.Calculate(isInlined, columns);
 
       if (sortProvider!=null)
         dataSource = dataSource.OrderBy(sortProvider.Order);
@@ -1291,7 +1301,7 @@ namespace Xtensive.Orm.Linq
           .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
-        return arguments.ToList();
+        return arguments.ToList(newExpression.Members.Count);
       }
 
       if (expression.NodeType==ExpressionType.Constant) {
@@ -1299,29 +1309,36 @@ namespace Xtensive.Orm.Linq
         if (constantExpression.Value==null && constantExpression.Type==WellKnownTypes.Object) {
           var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
           constantExpression = Expression.Constant(null, newConstantExpressionType);
-          return constantExpression
+          var orderedProps1 = constantExpression
             .Type
-            .GetProperties()
-            .OrderBy(property => property.Name)
-            .Select(p => Expression.MakeMemberAccess(constantExpression, p))
-            .Cast<Expression>()
-            .ToList();
+            .GetProperties();
+          Array.Sort(orderedProps1, CompareProps);
+
+          return orderedProps1
+            .Select(p => (Expression) Expression.MakeMemberAccess(constantExpression, p))
+            .ToList(orderedProps1.Length);
         }
       }
 
-      return expression
+      var orderedProps = expression
         .Type
-        .GetProperties()
-        .OrderBy(property => property.Name)
-        .Select(p => Expression.MakeMemberAccess(expression, p))
-        .Select(e => (Expression) e)
-        .ToList();
+        .GetProperties();
+      Array.Sort(orderedProps, CompareProps);
+
+      return orderedProps
+        .Select(p => (Expression) Expression.MakeMemberAccess(expression, p))
+        .ToList(orderedProps.Length);
+
+      static int CompareProps(PropertyInfo p1, PropertyInfo p2)
+      {
+        return StringComparer.Ordinal.Compare(p1.Name, p2.Name);
+      }
     }
 
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
       var newExpression = mi.NewExpression;
-      var arguments = VisitNewExpressionArguments(newExpression);
+      VisitNewExpressionArgumentsSkipResults(newExpression);
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
       foreach (var binding in bindings) {
@@ -1529,13 +1546,12 @@ namespace Xtensive.Orm.Linq
 
     private Expression GetConditionalMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
-      var ce = expression as ConditionalExpression;
-      if (ce != null) {
+      if (expression is ConditionalExpression ce) {
         var ifTrue = GetConditionalMember(ce.IfTrue, member, sourceExpression);
         var ifFalse = GetConditionalMember(ce.IfFalse, member, sourceExpression);
         if (ifTrue == null || ifFalse == null)
           return null;
-        return Expression.Condition(ce.Test,ifTrue,ifFalse);
+        return Expression.Condition(ce.Test, ifTrue, ifFalse);
       }
       if (expression.IsNull()) {
         var mt = member.MemberType;
@@ -1648,8 +1664,7 @@ namespace Xtensive.Orm.Linq
     public void EnsureEntityFieldsAreJoined(EntityExpression entityExpression, ItemProjectorExpression itemProjector)
     {
       TypeInfo typeInfo = entityExpression.PersistentType;
-      if (
-        typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
+      if (typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
         return; // All fields are already joined
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(itemProjector.Context.GetNextAlias());
@@ -1807,7 +1822,7 @@ namespace Xtensive.Orm.Linq
     private IList<ColumnInfo> GetColumnsToSearch(ConstantExpression arrayOfColumns, Type elementType, TypeInfo domainType)
     {
       var columnAccessLambdas = (LambdaExpression[])arrayOfColumns.Value;
-      var fulltextFields = new List<ColumnInfo>();
+      var fulltextFields = new List<ColumnInfo>(columnAccessLambdas.Length);
       foreach (var lambda in columnAccessLambdas) {
         var field = FieldExtractor.Extract(lambda, elementType, domainType);
         if (field.Column==null)
