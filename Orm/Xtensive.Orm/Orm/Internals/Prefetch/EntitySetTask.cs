@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = pair.Second.ReferencingField.Associations.Last();
       var field = association.Reversed.OwnerField;
-      var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
+      var keyColumnTypes = field.Columns.SelectToArray(column => column.ValueType);
       return primaryTargetIndex
         .GetQuery()
         .Filter(QueryHelper.BuildFilterLambda(field.MappingInfo.Offset, keyColumnTypes, ownerParameter));

@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Providers
     {
       ISqlQueryExpression result = null;
 
-      var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery).ToList();
+      var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
       foreach (var select in baseQueries) {
         result = result==null
           ? (ISqlQueryExpression) select
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Providers
       SqlExpression filter = null;
       var type = index.ReflectedType;
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
-      var filterByTypes = index.FilterByTypes.ToList();
+      var filterByTypes = index.FilterByTypes;
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
         var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns

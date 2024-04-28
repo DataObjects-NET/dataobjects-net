@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse
     public ColumnCollection Alias(string alias)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
-      return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
+      return new ColumnCollection(this.SelectToList(column => column.Clone(alias + "." + column.Name)));
     }
 
     // Constructors

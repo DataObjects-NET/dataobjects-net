@@ -62,9 +62,13 @@ namespace Xtensive.Orm.Rse
       get {
         if (Order.Count==0)
           return null;
-        if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null) {
-          var fieldTypes = Order.Select(p => Columns[p.Key].Type).ToArray(Order.Count);
-          orderTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+        if (orderTupleDescriptor==null) {
+          lock (this) {
+            if (orderTupleDescriptor==null) {
+              var fieldTypes = Order.SelectToArray(p => Columns[p.Key].Type);
+              orderTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+            }
+          }
         }
 
         return orderTupleDescriptor;
@@ -141,15 +145,21 @@ namespace Xtensive.Orm.Rse
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<int>(g.Keys.Count);
+        //var keys = new List<int>(g.Keys.Count);
+        var keys1 = new int[g.Keys.Count];
+        var ai = 0;
         foreach (var i in g.Keys) {
-          keys.Add(columnCount + i);
+          keys1[ai++] = columnCount + i;
+          //keys.Add(columnCount + i);
         }
-        var columns = new List<int>(g.Columns.Count);
+        //var columns = new List<int>(g.Columns.Count);
+        var columns1 = new int[g.Columns.Count];
+        ai = 0;
         foreach (var i in g.Columns) {
-          columns.Add(columnCount + i);
+          columns1[ai++] = columnCount + i;
+          //columns.Add(columnCount + i);
         }
-        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
+        groups.Add(new ColumnGroup(g.TypeInfoRef, keys1, columns1));
       }
 
       return new RecordSetHeader(
@@ -167,8 +177,11 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IEnumerable<int> selectedColumns)
     {
-      var columns = new List<int>(selectedColumns);
-      var columnsMap = new List<int>(Enumerable.Repeat(-1, Columns.Count));
+      var columns = (selectedColumns is IReadOnlyList<int> rList) ? rList : new List<int>(selectedColumns);
+
+      var columnsMap = new int[Columns.Count];
+      Array.Fill(columnsMap, -1);
+
       for (int newIndex = 0; newIndex < columns.Count; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
@@ -179,9 +192,9 @@ namespace Xtensive.Orm.Rse
       var resultOrder = new DirectionCollection<int>(
         Order
           .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
-          .TakeWhile(o => o.Key >= 0));
+          .TakeWhile(static o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex));
+      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex)).ToList(columns.Count);
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
@@ -190,7 +203,7 @@ namespace Xtensive.Orm.Rse
             g.Keys.Select(k => columnsMap[k]),
             g.Columns
               .Select(c => columnsMap[c])
-              .Where(c => c >= 0)));
+              .Where(static c => c >= 0)));
 
       return new RecordSetHeader(
         resultTupleDescriptor,
@@ -231,27 +244,38 @@ namespace Xtensive.Orm.Rse
       var indexInfoColumns = indexInfo.Columns;
       var indexInfoKeyColumns = indexInfo.KeyColumns;
 
-      var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray(indexInfoColumns.Count);
+      var resultFieldTypes = indexInfoColumns.SelectToArray(columnInfo => columnInfo.ValueType);
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
-      var keyOrder = new List<KeyValuePair<int, Direction>>(
-        indexInfoKeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+      //var keyOrder = new List<KeyValuePair<int, Direction>>(
+      //  indexInfoKeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+
+      var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<int, Direction>(i, p.Value));
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
-        keyOrder.AddRange(
-          indexInfo.ValueColumns
-            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
-            .Where(pair => pair.First.IsPrimaryKey)
+        var offset = indexInfoKeyColumns.Count;
+        keyOrderEnumerable = keyOrderEnumerable
+          .Concat(indexInfo.ValueColumns
+            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + offset))
+            .Where(static pair => pair.First.IsPrimaryKey)
             .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }
-      var order = new DirectionCollection<int>(keyOrder);
+
+      //if (!indexInfo.IsPrimary) {
+      //  var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
+      //  keyOrder.AddRange(
+      //    indexInfo.ValueColumns
+      //      .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
+      //      .Where(pair => pair.First.IsPrimaryKey)
+      //      .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
+      //}
+      var order = new DirectionCollection<int>(keyOrderEnumerable);
 
       var keyFieldTypes = indexInfoKeyColumns
-        .Select(columnInfo => columnInfo.Key.ValueType)
-        .ToArray(indexInfoKeyColumns.Count);
+        .SelectToArray(static columnInfo => columnInfo.Key.ValueType);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
-      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
+      var resultColumns = indexInfoColumns.Select(static (c,i) => (Column) new MappedColumn(c,i,c.ValueType));
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(

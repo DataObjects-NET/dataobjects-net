@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumns = new ReadOnlyList<FullTextColumnInfo>(targetColumns.Select(tc=>index.Columns.First(c=>c.Column==tc)).ToList());
+      TargetColumns = new ReadOnlyList<FullTextColumnInfo>(targetColumns.SelectToList(tc=>index.Columns.First(c=>c.Column==tc)));
       TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =

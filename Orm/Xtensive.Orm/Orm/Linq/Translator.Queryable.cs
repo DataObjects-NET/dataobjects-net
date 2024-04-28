@@ -957,8 +957,7 @@ namespace Xtensive.Orm.Linq
           SubQueryIndex = subqueryIndex,
           GroupIndex = groupIndex,
           Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
-        })
-        .ToList();
+        });
       var applyParameter = context.GetApplyParameter(groupingProjection);
       var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
