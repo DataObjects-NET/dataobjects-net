@@ -959,7 +959,7 @@ namespace Xtensive.Orm.Linq
           Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
         });
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+      var tupleParameter = QueryHelper.TupleParameter;
 
       var filterBody = (nullableKeyColumns.Count == 0)
         ? comparisonInfos.Aggregate(
