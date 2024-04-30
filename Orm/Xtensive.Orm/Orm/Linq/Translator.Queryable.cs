@@ -1225,7 +1225,7 @@ namespace Xtensive.Orm.Linq
           innerGrouping.ResultAccessMethod);
       }
 
-      var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
+      var groupingKeyPropertyInfo = groupingType.GetProperty(WellKnown.KeyFieldName);
       var groupingJoinParameter = Expression.Parameter(enumerableType, "groupingJoinParameter");
       var groupingKeyExpression = Expression.MakeMemberAccess(
         Expression.Convert(groupingJoinParameter, groupingType),

@@ -391,7 +391,7 @@ namespace Xtensive.Orm.Linq
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (sourceExpression.GetMemberType() == MemberType.Entity && memberInfo.Name != "Key") {
+      else if (sourceExpression.GetMemberType() == MemberType.Entity && memberInfo.Name != WellKnown.KeyFieldName) {
         var type = sourceExpression.Type;
         if (sourceExpression is ParameterExpression parameter) {
           var projection = context.Bindings[parameter];
@@ -1420,7 +1420,7 @@ namespace Xtensive.Orm.Linq
           }
           break;
         case ExtendedExpressionType.Grouping:
-          if (member.Name == "Key") {
+          if (member.Name == WellKnown.KeyFieldName) {
             return ((GroupingExpression) expression).KeyExpression;
           }
           break;
