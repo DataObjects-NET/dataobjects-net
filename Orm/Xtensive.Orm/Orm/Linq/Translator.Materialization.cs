@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Linq
       return Translate(projection, Enumerable.Empty<Parameter<Tuple>>());
     }
 
-    private TranslatedQuery Translate(ProjectionExpression projection,
+    internal TranslatedQuery Translate(ProjectionExpression projection,
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
