@@ -7,7 +7,7 @@ The extension provides integration points between DataObjects.Net internal loggi
 
 Prerequisites
 -------------
-DataObjects.Net 6.0.x (http://dataobjects.net)
+DataObjects.Net 7.0.x (http://dataobjects.net)
 log4net 2.0.10 or later (http://logging.apache.org/log4net/)
 
 Implementation

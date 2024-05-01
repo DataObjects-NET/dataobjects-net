@@ -8,7 +8,7 @@ There are 2 main parts that can also be used separately: authentication services
 
 Prerequisites
 -------------
-DataObjects.Net 6.0.x or later (http://dataobjects.net)
+DataObjects.Net 7.0.x or later (http://dataobjects.net)
 
 How to use
 ----------
