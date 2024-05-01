@@ -39,13 +39,8 @@ namespace Xtensive.Sql.Model
     {
       base.Add(item);
       var name = item.GetNameInternal();
-      if (!string.IsNullOrEmpty(name)) {
-        try {
-          nameIndex.Add(name, item);
-        }
-        catch(ArgumentException) {
-          throw new ArgumentException(string.Format(Strings.ExItemWithNameXAlreadyExists, name));
-        }
+      if (!string.IsNullOrEmpty(name) && !nameIndex.TryAdd(name, item)) {
+        throw new ArgumentException(string.Format(Strings.ExItemWithNameXAlreadyExists, name));
       }
     }
 
