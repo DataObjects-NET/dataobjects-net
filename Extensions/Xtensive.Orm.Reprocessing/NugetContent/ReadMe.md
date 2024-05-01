@@ -8,7 +8,7 @@ should represent a separate block of logic, usually a delegate of a method and b
 
 Prerequisites
 -------------
-DataObjects.Net 6.0.x (http://dataobjects.net)
+DataObjects.Net 7.0.x (http://dataobjects.net)
 
 Examples of usage
 -----------------

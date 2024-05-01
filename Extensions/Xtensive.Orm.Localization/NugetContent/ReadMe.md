@@ -8,7 +8,7 @@ This implies that localizable resources are a part of domain model so they are s
 
 Prerequisites
 -------------
-DataObjects.Net 6.0.x or later (http://dataobjects.net)
+DataObjects.Net 7.0.x or later (http://dataobjects.net)
 
 Implementation
 --------------

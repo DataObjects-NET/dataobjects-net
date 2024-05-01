@@ -2,7 +2,7 @@
 
 The provider is responsible for interactions with MySQL database - information about features and types the storage supports, low level communications, translation of SqlDom queries to native SQL text queries.
 
-For now it supports MySQL 5.5, 5.6
+For now it supports MySQL 5.5, 5.6, 5.7
 
 ### Usage
 
