@@ -39,6 +39,11 @@ namespace Xtensive.Reflection
     public const string IndexerPropertyName = "Item";
 
     /// <summary>
+    /// Returns "get_Item"
+    /// </summary>
+    public const string IndexerPropertyGetterName = "get_Item";
+
+    /// <summary>
     /// Returns "add_".
     /// </summary>
     public const string AddEventHandlerPrefix = "add_";

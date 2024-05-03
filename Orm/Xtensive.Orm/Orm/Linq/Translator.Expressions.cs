@@ -983,7 +983,12 @@ namespace Xtensive.Orm.Linq
         }
       }
       var fieldInfo = typeInfo.Fields[evaluatedArgument];
-      return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
+      return Expression.Convert(
+        Expression.Call(
+          objectExpression,
+          objectExpression.Type.GetProperty(Reflection.WellKnown.IndexerPropertyName).GetGetMethod(),
+          new[] {Expression.Constant(evaluatedArgument)}),
+        fieldInfo.ValueType);
     }
 
     private static bool IsConditionalOrWellknown(Expression expression)
@@ -1054,9 +1059,7 @@ namespace Xtensive.Orm.Linq
           propertyAccessorExpression = Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty);
         }
         else {
-          var attributes = structureType.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
-          var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
-          var methodInfo = structureType.GetProperty(indexerPropertyName).GetGetMethod();
+          var methodInfo = structureType.GetProperty(Reflection.WellKnown.IndexerPropertyName).GetGetMethod();
           propertyAccessorExpression = Expression.Call(Expression.Convert(expression, structureType), methodInfo, Expression.Constant(fieldExpression.Name));
         }
         var memberExpression = (Expression) Expression.Condition(

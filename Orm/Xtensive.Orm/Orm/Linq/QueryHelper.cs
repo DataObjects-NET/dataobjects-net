@@ -25,6 +25,8 @@ namespace Xtensive.Orm.Linq
   {
     private sealed class OwnerWrapper<TOwner>
     {
+      public static readonly Type GenericDef = typeof(OwnerWrapper<>);
+
       public TOwner Owner { get; set; }
 
       public OwnerWrapper(TOwner owner)
@@ -76,8 +78,7 @@ namespace Xtensive.Orm.Linq
         return false;
       var wrapper = ((MemberExpression) owner).Expression;
       return wrapper.NodeType==ExpressionType.Constant
-        && wrapper.Type.IsGenericType
-        && wrapper.Type.GetGenericTypeDefinition()==typeof (OwnerWrapper<>);
+        && wrapper.Type.IsOwnerWrapper();
     }
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
@@ -85,13 +86,21 @@ namespace Xtensive.Orm.Linq
       // A hack making expression to look like regular parameter 
       // (ParameterExtractor.IsParameter => true)
       var owner = entitySet.Owner;
+      var ownerType = owner.TypeInfo.UnderlyingType;
       var wrapper = Activator.CreateInstance(
-        typeof (OwnerWrapper<>).MakeGenericType(owner.GetType()), owner);
-      var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
+        OwnerWrapper<int>.GenericDef.MakeGenericType(ownerType), owner);
+      var wrappedOwner = Expression.Property(Expression.Constant(wrapper), nameof(OwnerWrapper<int>.Owner));
       if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
       }
-      var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+      //fast way to get indexer getter method
+      var indexerGetter = ownerType.GetMethod(Reflection.WellKnown.IndexerPropertyGetterName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+      if (indexerGetter.Attributes.HasFlag(MethodAttributes.SpecialName)
+          && (indexerGetter.DeclaringType == WellKnownOrmTypes.Persistent || indexerGetter.DeclaringType == WellKnownOrmTypes.Entity))
+        return Expression.Convert(Expression.Call(Expression.Constant(owner), indexerGetter, new[] { Expression.Constant(entitySet.Field.Name) }), entitySet.Field.ValueType);
+
+      // old-fashion slow way, if something went wrong
+      var indexers = ownerType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
       return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);
@@ -191,7 +200,7 @@ namespace Xtensive.Orm.Linq
     public static Type GetSequenceElementType(Type type)
     {
       var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT);
-      return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
+      return sequenceType?.GetGenericArguments()[0];
     }
 
     private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
@@ -202,5 +211,9 @@ namespace Xtensive.Orm.Linq
       }
       return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
     }
+
+    private static bool IsOwnerWrapper(this Type type) =>
+      (type.MetadataToken ^ OwnerWrapper<int>.GenericDef.MetadataToken) == 0
+        && ReferenceEquals(type.Module, OwnerWrapper<int>.GenericDef.Module);
   }
 }
