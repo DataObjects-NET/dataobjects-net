@@ -820,9 +820,8 @@ namespace Xtensive.Orm.Linq
         // Check key compatibility
         leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
         // Key split to it's fields.
-        IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
-          .KeyFields
-          .Select(fieldExpression => fieldExpression.Type);
+        IReadOnlyList<FieldExpression> keyFields = (leftKeyExpression ?? rightKeyExpression)
+          .KeyFields;
         leftExpressions = GetKeyFields(left, keyFields);
         rightExpressions = GetKeyFields(right, keyFields);
         break;
@@ -1096,15 +1095,20 @@ namespace Xtensive.Orm.Linq
     {
       expression = expression.StripCasts();
       if (expression is IEntityExpression iEntityExpression) {
-        return GetKeyFields(iEntityExpression.Key, null);
+        var keyFields = iEntityExpression.Key.KeyFields;
+        return keyFields
+          .Cast<Expression>()
+          .ToArray(keyFields.Count);
       }
       if (expression.IsNull()) {
-        return GetKeyFields(Expression.Constant(null, WellKnownOrmTypes.Key), keyFieldTypes);
+        return keyFieldTypes
+          .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
+          .ToArray(keyFieldTypes.Count);
       }
       if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
-          .ToList(keyFieldTypes.Count);
+          .ToArray(keyFieldTypes.Count);
       }
 
       var nullEntityExpression = Expression.Constant(null, expression.Type);
@@ -1112,7 +1116,7 @@ namespace Xtensive.Orm.Linq
       if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(expression.Type))
         expression = Expression.Convert(expression, WellKnownOrmInterfaces.Entity);
 
-      var resultList = new List<Expression>(keyFieldTypes.Count);
+      var resultList = new Expression[keyFieldTypes.Count];
       for(int i = 0, count = keyFieldTypes.Count; i < count; i++) {
         var keyFieldType = keyFieldTypes[i];
         var baseType = keyFieldType.StripNullable();
@@ -1125,7 +1129,7 @@ namespace Xtensive.Orm.Linq
           isNullExpression,
           Expression.Constant(null, keyFieldType.ToNullable()),
           tupleAccess);
-        resultList.Add(entityNullCheck);
+        resultList[i] = entityNullCheck;
         _ = state.NonVisitableExpressions.Add(entityNullCheck);
       }
       return resultList;
@@ -1144,7 +1148,7 @@ namespace Xtensive.Orm.Linq
       return ee.Key.KeyFields[index].LiftToNullable();
     }
 
-    private IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    private IList<Expression> GetKeyFields(Expression expression, IReadOnlyList<FieldExpression> keyFields /* IEnumerable<Type> keyFieldTypes*/)
     {
       expression = expression.StripCasts();
 
@@ -1152,19 +1156,21 @@ namespace Xtensive.Orm.Linq
         return keyExpression
           .KeyFields
           .Cast<Expression>()
-          .ToList(keyExpression.KeyFields.Count);
+          .ToArray(keyExpression.KeyFields.Count);
       }
 
       if (expression.IsNull())
-        return keyFieldTypes
+        return keyFields
+          .Select(f => f.Type)
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
-          .ToList();
+          .ToArray(keyFields.Count);
 
       var nullExpression = Expression.Constant(null, expression.Type);
       var isNullExpression = Expression.Equal(expression, nullExpression);
       var keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.Key.Value);
 
-      return keyFieldTypes
+      return keyFields
+        .Select(f => f.Type)
         .Select((type, index) => {
           var resultType = type.ToNullable();
           var baseType = type.StripNullable();
@@ -1176,7 +1182,7 @@ namespace Xtensive.Orm.Linq
           _ = state.NonVisitableExpressions.Add(checkForNulls);
           return checkForNulls;
         })
-        .ToList();
+        .ToArray(keyFields.Count);
     }
 
     private Expression ProcessProjectionElement(Expression body)
@@ -1304,7 +1310,7 @@ namespace Xtensive.Orm.Linq
           .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
-        return arguments.ToList(newExpression.Members.Count);
+        return arguments.ToArray(newExpression.Members.Count);
       }
 
       if (expression.NodeType==ExpressionType.Constant) {
@@ -1319,7 +1325,7 @@ namespace Xtensive.Orm.Linq
 
           return orderedProps1
             .Select(p => (Expression) Expression.MakeMemberAccess(constantExpression, p))
-            .ToList(orderedProps1.Length);
+            .ToArray(orderedProps1.Length);
         }
       }
 
@@ -1330,7 +1336,7 @@ namespace Xtensive.Orm.Linq
 
       return orderedProps
         .Select(p => (Expression) Expression.MakeMemberAccess(expression, p))
-        .ToList(orderedProps.Length);
+        .ToArray(orderedProps.Length);
 
       static int CompareProps(PropertyInfo p1, PropertyInfo p2)
       {
