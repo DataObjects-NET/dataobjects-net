@@ -1657,7 +1657,7 @@ namespace Xtensive.Orm.Linq
               .Model
               .Types[memberAccess.Expression.Type]
               .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName(propertyInfo)];
-            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
+            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field, context.Domain);
           }
         }
       }
@@ -1684,7 +1684,7 @@ namespace Xtensive.Orm.Linq
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
         var entitySetQuery =
-          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field, context.Domain);
         result = (ProjectionExpression) Visit(entitySetQuery);
       }
 

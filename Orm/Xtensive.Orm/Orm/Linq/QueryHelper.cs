@@ -63,10 +63,9 @@ namespace Xtensive.Orm.Linq
       return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameter);
     }
 
-    private static Expression CreateEntityQuery(Type elementType)
+    private static Expression CreateEntityQuery(Type elementType, Domain domain)
     {
-      var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
-      return Expression.Call(null, queryAll);
+      return domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType)));
     }
 
     public static bool IsDirectEntitySetQuery(Expression entitySet)
@@ -106,7 +105,7 @@ namespace Xtensive.Orm.Linq
       return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);
     }
 
-    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
+    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field, Domain domain)
     {
       if (!field.IsDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
@@ -131,7 +130,7 @@ namespace Xtensive.Orm.Linq
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),
-          CreateEntityQuery(elementType),
+          CreateEntityQuery(elementType, domain),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
@@ -156,7 +155,7 @@ namespace Xtensive.Orm.Linq
 
       var outerQuery = Expression.Call(
         WellKnownMembers.Queryable.Where.MakeGenericMethod(connectorType),
-        CreateEntityQuery(connectorType),
+        CreateEntityQuery(connectorType, domain),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
 
@@ -168,7 +167,7 @@ namespace Xtensive.Orm.Linq
       var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
-      var innerQuery = CreateEntityQuery(elementType);
+      var innerQuery = CreateEntityQuery(elementType, domain);
       var joinMethodInfo = WellKnownMembers.Queryable.Join
         .MakeGenericMethod(new[] {
           connectorType,

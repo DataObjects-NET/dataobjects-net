@@ -125,6 +125,8 @@ namespace Xtensive.Orm
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
+    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; private set; }
+
     internal object UpgradeContextCookie { get; private set; }
 
     internal SqlConnection SingleConnection { get; private set; }
@@ -423,6 +425,7 @@ namespace Xtensive.Orm
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      RootCallExpressionsCache = new ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression>();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;

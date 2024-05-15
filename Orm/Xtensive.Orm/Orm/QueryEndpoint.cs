@@ -938,7 +938,7 @@ namespace Xtensive.Orm
     {
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
-        : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+        : session.Domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
     }
 
     #endregion
