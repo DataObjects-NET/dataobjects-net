@@ -212,10 +212,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitQuerySingle(MethodCallExpression mc)
     {
       var returnType = mc.Method.ReturnType;
-
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(returnType));
-      var source = ConstructQueryable(queryAll);
+
+      var source = ConstructQueryable(returnType);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
       var equility = Expression.Equal(keyAccessor, argument);

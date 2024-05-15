@@ -1274,13 +1274,23 @@ namespace Xtensive.Orm.Linq
     private Expression ConstructQueryable(MethodCallExpression mc)
     {
       var elementType = mc.Method.GetGenericArguments()[0];
-      TypeInfo type;
-      if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      if (!context.Model.Types.TryGetValue(elementType, out var type))
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(mc.Type, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+    }
+
+    private Expression ConstructQueryable(Type elementType)
+    {
+      if (!context.Model.Types.TryGetValue(elementType, out var type))
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      var index = type.Indexes.PrimaryIndex;
+      var entityExpression = EntityExpression.Create(type, 0, false);
+      var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType),
+        itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)

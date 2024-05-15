@@ -96,7 +96,18 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(Column column)
     {
-      return Add(EnumerableUtils.One(column));
+      var newColumns = new List<Column>(Columns.Count + 1);
+      newColumns.AddRange(Columns);
+      newColumns.Add(column);
+
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
+
+      return new RecordSetHeader(
+        newTupleDescriptor,
+        newColumns,
+        ColumnGroups,
+        OrderTupleDescriptor,
+        Order);
     }
 
     /// <summary>
@@ -109,10 +120,28 @@ namespace Xtensive.Orm.Rse
       var newColumns = new List<Column>(Columns);
       newColumns.AddRange(columns);
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
-        newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
+
+      return new RecordSetHeader(
+        newTupleDescriptor,
+        newColumns,
+        ColumnGroups,
+        OrderTupleDescriptor,
+        Order);
+    }
+
+    /// <summary>
+    /// Adds the specified columns to header.
+    /// </summary>
+    /// <param name="columns">The columns to add.</param>
+    /// <returns>The constructed header.</returns>
+    public RecordSetHeader Add(IReadOnlyList<Column> columns)
+    {
+      var newColumns = new List<Column>(Columns.Count + columns.Count);
+      newColumns.AddRange(Columns);
+      newColumns.AddRange(columns);
+
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
       return new RecordSetHeader(
         newTupleDescriptor,
@@ -136,10 +165,7 @@ namespace Xtensive.Orm.Rse
         newColumns.Add(c.Clone(columnCount + c.Index));
       }
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
-        newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
       var columnGroupCount = ColumnGroups.Count;
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
@@ -280,6 +306,16 @@ namespace Xtensive.Orm.Rse
         resultGroups,
         keyDescriptor,
         order);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private static TupleDescriptor CreateTupleDescriptor(List<Column> newColumns)
+    {
+      var newFieldTypes = new Type[newColumns.Count];
+      for (var i = 0; i < newColumns.Count; i++) {
+        newFieldTypes[i] = newColumns[i].Type;
+      }
+      return TupleDescriptor.Create(newFieldTypes);
     }
 
     /// <inheritdoc/>

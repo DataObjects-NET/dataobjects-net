@@ -33,9 +33,11 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (expression.NodeType == ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
       }
+      if (expression.NodeType is not ExpressionType.Call)
+        return originalExpression;
 
       var methodCall = expression as MethodCallExpression;
-      if (methodCall == null || !IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type)) {
+      if (!IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type)) {
         return originalExpression;
       }
 
