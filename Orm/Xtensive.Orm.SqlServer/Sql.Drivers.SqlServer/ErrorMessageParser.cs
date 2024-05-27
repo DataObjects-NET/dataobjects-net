@@ -219,7 +219,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       CollectLastChunk(regexBuilder, template, offset);
-      return new PreparedTemplate(regexBuilder.ToString(), indexes.ToArray());
+      return new PreparedTemplate(regexBuilder.ToString(), indexes);
     }
 
 
