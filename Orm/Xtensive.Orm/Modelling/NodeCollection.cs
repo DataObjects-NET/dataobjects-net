@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
@@ -13,10 +13,6 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Modelling;
-using Xtensive.Modelling.Comparison;
-
 
 namespace Xtensive.Modelling
 {
