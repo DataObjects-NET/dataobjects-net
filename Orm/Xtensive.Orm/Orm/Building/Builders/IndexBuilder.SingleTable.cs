@@ -79,15 +79,14 @@ namespace Xtensive.Orm.Building.Builders
       if (!type.IsAbstract)
         primaryIndexFilterTypes.Add(type);
       primaryIndexFilterTypes.AddRange(descendants);
-      
+
       // Import inherited indexes
       var ancestorIndexes = root.Indexes
         .Where(i => types.Contains(i.ReflectedType) && !i.IsTyped)
         .Reverse()
         .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
-          : i)
-        .ToList();
+          : i);
       foreach (var ancestorIndex in ancestorIndexes) {
         if (type.Indexes.Any(i => 
             i.DeclaringIndex == ancestorIndex.DeclaringIndex &&
