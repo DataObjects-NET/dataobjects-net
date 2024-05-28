@@ -726,9 +726,15 @@ namespace Xtensive.Orm.Linq
             SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
             ref aggregateDescriptor);
           if (commonOriginDataSource != null) {
+            var aggregateDescriptors = groupingDataSource.AggregateColumns
+              .Select(c => c.Descriptor)
+              .Append(aggregateDescriptor)
+              .ToArray(groupingDataSource.AggregateColumns.Length + 1);
+
             resultDataSource = new AggregateProvider(
-              commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
-              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).Append(aggregateDescriptor).ToArray());
+              commonOriginDataSource,
+              groupingDataSource.GroupColumnIndexes,
+              (IReadOnlyList<AggregateColumnDescriptor>) aggregateDescriptors);
             var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
             groupingProjection = new ProjectionExpression(
               groupingProjection.Type, optimizedItemProjector,

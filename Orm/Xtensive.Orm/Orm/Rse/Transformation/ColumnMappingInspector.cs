@@ -272,7 +272,7 @@ namespace Xtensive.Orm.Rse.Transformation
         .Select(index => sourceMap.IndexOf(index))
         .ToArray(provider.GroupColumnIndexes.Length);
 
-      return new AggregateProvider(source, groupColumnIndexes, columns.ToArray());
+      return new AggregateProvider(source, groupColumnIndexes, columns);
     }
 
     protected override Provider VisitCalculate(CalculateProvider provider)
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       return !translated && newSourceProvider == provider.Source && descriptors.Count == provider.CalculatedColumns.Length
         ? provider
-        : new CalculateProvider(newSourceProvider, descriptors.ToArray());
+        : new CalculateProvider(newSourceProvider, descriptors);
     }
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
@@ -444,7 +444,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return preReturn;
     }
 
-    private static List<int> Merge(List<int> leftMap, List<int> rightMap)
+    private static List<int> Merge(List<int> leftMap, IList<int> rightMap)
     {
       var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count + rightMap.Count);
       preReturn.Sort();

@@ -391,19 +391,15 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private static AggregateProvider RecreateAggregate(AggregateProvider provider, CompilableProvider source)
     {
-      var columnCount = provider.AggregateColumns.Length;
-      var acds = provider.AggregateColumns.SelectToArray(
-          ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-      return new AggregateProvider(source, provider.GroupColumnIndexes, acds);
+      return new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
     }
 
     private static CalculateProvider RecreateCalculate(CalculateProvider provider, CompilableProvider source)
     {
-      var columnsCount = provider.CalculatedColumns.Length;
       var ccds = provider.CalculatedColumns
         .SelectToArray(
           column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
-      return new CalculateProvider(source, ccds);
+      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) ccds);
     }
 
     private CalculateProvider RewriteCalculateColumnExpressions(
@@ -419,7 +415,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var currentName = columnCollection.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
-      return new CalculateProvider(source, ccd);
+      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) ccd);
     }
 
     #endregion

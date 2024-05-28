@@ -98,9 +98,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var result = provider;
       var source = VisitCompilable(provider.Source);
       if (source != provider.Source) {
-        var acds =provider.AggregateColumns
-           .Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-        result = new AggregateProvider(source, provider.GroupColumnIndexes, acds.ToArray());
+        result = new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
       }
       if (sortOrder.Count > 0) {
         var selectOrdering = new DirectionCollection<int>();
