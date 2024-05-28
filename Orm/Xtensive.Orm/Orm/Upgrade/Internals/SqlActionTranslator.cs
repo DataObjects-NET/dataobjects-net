@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -845,13 +845,11 @@ namespace Xtensive.Orm.Upgrade
         if (referencedNode!=null && referencingNode!=null)
             new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
-      List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
-      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
-      sortedTables.Reverse();
+      var sortedTables = TopologicalSorter.Sort(nodes, out List<NodeConnection<TableInfo, ForeignKeyInfo>> edges);
       // TODO: Process removed edges
 
       // Build DML commands
-      foreach (var table in sortedTables) {
+      foreach (var table in sortedTables.ReverseList()) {
         var tableRef = SqlDml.TableRef(FindTable(table));
         var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];
