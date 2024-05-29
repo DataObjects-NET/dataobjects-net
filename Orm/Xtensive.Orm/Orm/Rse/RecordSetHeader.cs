@@ -171,17 +171,17 @@ namespace Xtensive.Orm.Rse
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        var keys1 = new int[g.Keys.Count];
+        var keys = new int[g.Keys.Count];
         var ai = 0;
         foreach (var i in g.Keys) {
-          keys1[ai++] = columnCount + i;
+          keys[ai++] = columnCount + i;
         }
-        var columns1 = new int[g.Columns.Count];
+        var columns = new int[g.Columns.Count];
         ai = 0;
         foreach (var i in g.Columns) {
-          columns1[ai++] = columnCount + i;
+          columns[ai++] = columnCount + i;
         }
-        groups.Add(new ColumnGroup(g.TypeInfoRef, keys1, columns1));
+        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
       }
 
       return new RecordSetHeader(

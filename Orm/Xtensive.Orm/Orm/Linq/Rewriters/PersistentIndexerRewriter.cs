@@ -78,8 +78,6 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
 
-      //var attributes = mc.Object.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
-      //var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
       var indexerProperty = mc.Object.Type.GetProperty(Reflection.WellKnown.IndexerPropertyName);
       if (indexerProperty!=null)
         return Expression.MakeIndex(mc.Object, indexerProperty, new[] {Expression.Constant(name)});
