@@ -720,11 +720,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var columnName = dataReader["attname"].ToString();
       if (tableMap.TryGetValue(columnOwnerId, out var table)) {
         var col = table.CreateColumn(columnName);
-        if (tableColumns.TryGetValue(columnId, out var column)) {
-          tableColumns.Add(columnId, new Dictionary<long, TableColumn>());
+        if (tableColumns.TryGetValue(columnOwnerId, out var columns)) {
+          columns.Add(columnId, col);
         }
         else {
-          column.Add(columnId, col);
+          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>() { { columnId, col } });
         }
 
         var columnTypeName = dataReader["typname"].ToString();
