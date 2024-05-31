@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -601,7 +601,7 @@ namespace Xtensive.Core
           if (edgeTester.Invoke(left.Value, right.Value))
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
-      return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
+      return result.HasLoops ? null : result.SortedNodes.SelectToList(node => node.Value);
     }
 
     /// <summary>

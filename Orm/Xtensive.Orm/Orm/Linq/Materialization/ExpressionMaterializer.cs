@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -26,17 +26,14 @@ namespace Xtensive.Orm.Linq.Materialization
   [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
-    private static readonly MethodInfo BuildPersistentTupleMethod;
-    private static readonly MethodInfo GetTupleSegmentMethod;
-    private static readonly MethodInfo GetParameterValueMethod;
-    private static readonly PropertyInfo ParameterContextProperty;
-    private static readonly MethodInfo GetTupleParameterValueMethod;
+    private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
+    private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+    private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
 
-    private readonly TranslatorContext context;
-    private readonly ParameterExpression tupleParameter;
-    private readonly ParameterExpression itemMaterializationContextParameter;
-    private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
-    private readonly HashSet<Parameter<Tuple>> tupleParameters;
+    private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
+    private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
 
     private static readonly Type[] SubQueryConstructorArgumentTypes = {
       WellKnownOrmTypes.ProjectionExpression,
@@ -46,23 +43,35 @@ namespace Xtensive.Orm.Linq.Materialization
       WellKnownOrmTypes.ItemMaterializationContext
     };
 
+    private static readonly Type[] GroupingConstructorArgumentTypesTemplate = new[] {
+      WellKnownOrmTypes.ProjectionExpression,
+      WellKnownOrmTypes.TranslatedQuery,
+      WellKnownOrmTypes.ParameterOfTuple,
+      WellKnownOrmTypes.Tuple,
+      null,
+      WellKnownOrmTypes.ItemMaterializationContext
+    };
+
+    private readonly TranslatorContext context;
+    private readonly ParameterExpression tupleParameter;
+    private readonly ParameterExpression itemMaterializationContextParameter;
+    private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
+    private readonly HashSet<Parameter<Tuple>> tupleParameters;
+
     #region Public static methods
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
+      var visitor = new ExpressionMaterializer(QueryHelper.TupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
       var processedExpression = OwnerRemover.RemoveOwner(expression);
-      return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
+      return FastExpression.Lambda(visitor.Visit(processedExpression), QueryHelper.TupleParameter);
     }
 
     public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var materializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, materializationContextParameter, tupleParameters);
-      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), tupleParameter, materializationContextParameter);
+      var visitor = new ExpressionMaterializer(QueryHelper.TupleParameter, context, MaterializationContextParameter, tupleParameters);
+      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), QueryHelper.TupleParameter, MaterializationContextParameter);
       var count = visitor.entityRegistry.Count;
       return new MaterializationInfo(count, lambda);
     }
@@ -110,16 +119,14 @@ namespace Xtensive.Orm.Linq.Materialization
       // 2. Create constructor
       var keyType = groupingExpression.KeyExpression.Type;
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
+      // Copying from template is 2x+ faster than instantiating an array with defined items
+      var ctorParameterTypes = new Type[GroupingConstructorArgumentTypesTemplate.Length];
+      Array.Copy(GroupingConstructorArgumentTypesTemplate, ctorParameterTypes, GroupingConstructorArgumentTypesTemplate.Length);
+      ctorParameterTypes[4] = keyType;
+
       var groupingCtor = WellKnownOrmTypes.GroupingOfTKeyTElement
         .MakeGenericType(keyType, elementType)
-        .GetConstructor(new[] {
-          WellKnownOrmTypes.ProjectionExpression,
-          WellKnownOrmTypes.TranslatedQuery,
-          WellKnownOrmTypes.ParameterOfTuple,
-          WellKnownOrmTypes.Tuple,
-          keyType,
-          WellKnownOrmTypes.ItemMaterializationContext
-        });
+        .GetConstructor(ctorParameterTypes);
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -185,10 +192,8 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 3. Make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
-      var translateMethod = Translator.TranslateMethod;
-      return (TranslatedQuery) translateMethod.Invoke(
-        context.Translator,
-        new object[] {projection, tupleParameters.Append(parameterOfTuple)});
+
+      return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
@@ -321,7 +326,7 @@ namespace Xtensive.Orm.Linq.Materialization
           Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
-        Expression.Constant(TypeReferenceAccuracy.BaseType),
+        TypeReferenceAccuracyConstantExpression,
         tupleExpression);
     }
 
@@ -478,9 +483,7 @@ namespace Xtensive.Orm.Linq.Materialization
         var materializedOwner = MaterializeThroughOwner((Expression) owner, tuple, defaultIfEmpty);
         Expression fieldExpression;
         if (field.Field.IsDynamicallyDefined) {
-          var attributes = materializedOwner.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
-          var indexerPropertyName = ((DefaultMemberAttribute) attributes.Single()).MemberName;
-          var methodInfo = materializedOwner.Type.GetProperty(indexerPropertyName).GetGetMethod();
+          var methodInfo = materializedOwner.Type.GetProperty(Reflection.WellKnown.IndexerPropertyName).GetGetMethod();
           fieldExpression = Expression.Convert(Expression.Call(materializedOwner, methodInfo, Expression.Constant(field.Field.Name)), field.Field.ValueType);
         }
         else

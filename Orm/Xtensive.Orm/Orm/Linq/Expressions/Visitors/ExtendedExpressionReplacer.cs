@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -120,8 +120,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
       var arguments = new List<Expression>();
-      var bindings = new Dictionary<MemberInfo, Expression>();
-      var nativeBindings = new Dictionary<MemberInfo, Expression>();
+      var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
+      var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
       bool recreate = false;
       foreach (var argument in expression.ConstructorArguments) {
         var result = Visit(argument);

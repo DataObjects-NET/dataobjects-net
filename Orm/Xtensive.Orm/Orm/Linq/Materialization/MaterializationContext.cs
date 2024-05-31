@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -74,17 +74,21 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyInfo    = type.Key;
       var descriptor = type.TupleDescriptor;
 
-      var typeColumnMap = columns.ToArray();
-      if (approximateType.IsInterface)
+      var typeColumnMap = new Pair<int>[columns.Length];
+      if (approximateType.IsInterface) {
         // fixup target index
         for (int i = 0; i < columns.Length; i++) {
-          var pair = typeColumnMap[i];
+          var pair = columns[i];
           var approxTargetIndex = pair.First;
           var interfaceField = approximateType.Columns[approxTargetIndex].Field;
           var field = type.FieldMap[interfaceField];
           var targetIndex = field.MappingInfo.Offset;
           typeColumnMap[i] = new Pair<int>(targetIndex, pair.Second);
         }
+      }
+      else {
+        Array.Copy(columns, typeColumnMap, columns.Length);
+      }
 
       int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
       int[] keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();

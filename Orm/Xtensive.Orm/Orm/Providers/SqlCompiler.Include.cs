@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -15,7 +15,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     /// <inheritdoc/>
     protected override SqlProvider VisitInclude(IncludeProvider provider)
@@ -90,12 +90,14 @@ namespace Xtensive.Orm.Providers
       out TemporaryTableDescriptor tableDescriptor)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var filteredColumns = provider.FilteredColumns.Select(index => sourceColumns[index]).ToList();
+      var filteredColumns = provider.FilteredColumns
+        .Select(index => sourceColumns[index])
+        .ToArray(provider.FilteredColumns.Count);
       tableDescriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, Guid.NewGuid().ToString(), filterTupleDescriptor);
       var filterQuery = tableDescriptor.QueryStatement.ShallowClone();
       var tableRef = filterQuery.From;
-      for (int i = 0; i < filterTupleDescriptor.Count; i++)
+      for (int i = 0, count = filterTupleDescriptor.Count; i < count; i++)
         filterQuery.Where &= filteredColumns[i]==tableRef[i];
       var resultExpression = SqlDml.Exists(filterQuery);
       return resultExpression;

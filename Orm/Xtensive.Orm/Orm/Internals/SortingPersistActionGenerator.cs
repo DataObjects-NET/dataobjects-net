@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.22
 
@@ -182,8 +182,7 @@ namespace Xtensive.Orm.Internals
       if (result.HasLoops) {
         sortedNodes = result.SortedNodes.Union(result.LoopNodes).ToList();
         var loopNodes = result.LoopNodes.ToDictionary(el => el as Collections.Graphs.Node);
-        notBreakedEdges.Reverse();
-        var loopEdgeForBreak = notBreakedEdges.First(edge => loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target));
+        var loopEdgeForBreak = notBreakedEdges.ReverseList().First(edge => loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target));
         result.BrokenEdges.Add(loopEdgeForBreak);
       }
       else

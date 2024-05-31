@@ -19,7 +19,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     protected SqlProvider CreateProvider(SqlSelect statement,
       CompilableProvider origin, params ExecutableProvider[] sources) =>
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Providers
 
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
       var pagingIsUsed = rowNumberIsUsed
-        || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
+        || sourceSelect.Limit is not null || sourceSelect.Offset is not null;
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();

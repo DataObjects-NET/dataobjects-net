@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -61,42 +61,42 @@ namespace Xtensive.Tuples.Packed
 
         ValueFieldAccessor ResolveByType(Type type)
         {
-          return ReferenceEquals(type, WellKnownTypes.Bool) ? BoolAccessor :
-            ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt16) ? UInt16Accessor :
+          return ReferenceEquals(type, WellKnownTypes.Int64) ? Int64Accessor :
+            ReferenceEquals(type, WellKnownTypes.Guid) ? GuidAccessor :
             ReferenceEquals(type, WellKnownTypes.Int32) ? Int32Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt32) ? UInt32Accessor :
-            ReferenceEquals(type, WellKnownTypes.Int64) ? Int64Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt64) ? UInt64Accessor :
-            ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
-            ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
+            ReferenceEquals(type, WellKnownTypes.Bool) ? BoolAccessor :
             ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
+            ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.Decimal) ? DecimalAccessor :
-            ReferenceEquals(type, WellKnownTypes.Guid) ? GuidAccessor :
-            ReferenceEquals(type, WellKnownTypes.DateTimeOffset) ? DateTimeOffsetAccessor : null;
+            ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
+            ReferenceEquals(type, WellKnownTypes.DateTimeOffset) ? DateTimeOffsetAccessor :
+            ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
+            ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
+            ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
+            ReferenceEquals(type, WellKnownTypes.UInt16) ? UInt16Accessor :
+            ReferenceEquals(type, WellKnownTypes.UInt32) ? UInt32Accessor :
+            ReferenceEquals(type, WellKnownTypes.UInt64) ? UInt64Accessor : null;
         }
 
         ValueFieldAccessor ResolveByNullableType(Type type)
         {
           return ReferenceEquals(type, WellKnownTypes.NullableBool) ? BoolAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableSByte) ? SByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt16) ? UInt16Accessor :
             ReferenceEquals(type, WellKnownTypes.NullableInt32) ? Int32Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt32) ? UInt32Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableInt64) ? Int64Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt64) ? UInt64Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableDecimal) ? DecimalAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableInt64) ? Int64Accessor :
             ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDecimal) ? DecimalAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDateTimeOffset) ? DateTimeOffsetAccessor : null;
+            ReferenceEquals(type, WellKnownTypes.NullableDateTimeOffset) ? DateTimeOffsetAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor : 
+            ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
+            ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableSByte) ? SByteAccessor :
+            ReferenceEquals(type, WellKnownTypes.NullableUInt16) ? UInt16Accessor :
+            ReferenceEquals(type, WellKnownTypes.NullableUInt32) ? UInt32Accessor :
+            ReferenceEquals(type, WellKnownTypes.NullableUInt64) ? UInt64Accessor : null;
         }
       }
     }

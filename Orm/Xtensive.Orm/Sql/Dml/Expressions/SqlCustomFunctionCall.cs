@@ -1,12 +1,13 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.05.06
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
@@ -37,13 +38,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlCustomFunctionCall(FunctionType);
-      for (int i = 0, l = Arguments.Count; i < l; i++)
-        clone.Arguments.Add((SqlExpression) Arguments[i].Clone(context));
-      context.NodeMapping[this] = clone;
+      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
+        context.NodeMapping[this] = clone = new SqlCustomFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
+      }
       return clone;
     }
 

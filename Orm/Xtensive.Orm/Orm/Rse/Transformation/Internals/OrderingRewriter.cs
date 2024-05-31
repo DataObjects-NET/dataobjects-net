@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.04.24
 
@@ -98,14 +98,13 @@ namespace Xtensive.Orm.Rse.Transformation
       var result = provider;
       var source = VisitCompilable(provider.Source);
       if (source != provider.Source) {
-        var acds =provider.AggregateColumns
-           .Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-        result = new AggregateProvider(source, provider.GroupColumnIndexes, acds.ToArray());
+        result = new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
       }
       if (sortOrder.Count > 0) {
         var selectOrdering = new DirectionCollection<int>();
+        var groupColumnIndexes = result.GroupColumnIndexes;
         foreach (var pair in sortOrder) {
-          var columnIndex = result.GroupColumnIndexes.IndexOf(pair.Key);
+          var columnIndex = groupColumnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0) {
             if (selectOrdering.Count > 0)
               selectOrdering.Clear();

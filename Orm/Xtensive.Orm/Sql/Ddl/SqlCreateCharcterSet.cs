@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateCharacterSet : SqlStatement, ISqlCompileUnit
   {
-    private CharacterSet characterSet;
+    public CharacterSet CharacterSet { get; }
 
-    public CharacterSet CharacterSet {
-      get {
-        return characterSet;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlCreateCharacterSet clone = new SqlCreateCharacterSet(characterSet);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateCharacterSet(CharacterSet);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +24,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateCharacterSet(CharacterSet characterSet) : base(SqlNodeType.Create)
     {
-      this.characterSet = characterSet;
+      this.CharacterSet = characterSet;
     }
   }
 }

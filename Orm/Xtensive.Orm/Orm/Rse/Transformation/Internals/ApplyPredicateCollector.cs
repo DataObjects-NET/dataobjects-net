@@ -19,8 +19,8 @@ namespace Xtensive.Orm.Rse.Transformation
   internal sealed class ApplyPredicateCollector
   {
     private readonly ApplyProviderCorrectorRewriter owner;
-    private readonly ApplyParameterSearcher parameterSearcher = new ApplyParameterSearcher();
-    private readonly CollectorHelper collectorHelper = new CollectorHelper();
+    private readonly ApplyParameterSearcher parameterSearcher = new();
+    private readonly CollectorHelper collectorHelper = new();
 
     public bool TryAdd(FilterProvider filter)
     {
@@ -67,9 +67,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void SaveApplyPredicate(FilterProvider filter, ApplyParameter applyParameter)
     {
-      if (owner.State.Predicates.ContainsKey(applyParameter)) {
-        owner.State.Predicates[applyParameter]
-          .Add((filter.Predicate, filter.Header.Columns));
+      if (owner.State.Predicates.TryGetValue(applyParameter, out var predicates)) {
+        predicates.Add((filter.Predicate, filter.Header.Columns));
       }
       else {
         owner.State.Predicates.Add(applyParameter,

@@ -48,14 +48,10 @@ namespace Xtensive.Orm.Providers
     private readonly ProviderInfo providerInfo;
     private readonly ProcessorOptions options;
 
-    private readonly List<ParameterExpression> activeParameters
-      = new List<ParameterExpression>();
-    private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping
-      = new Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>>();
-    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity
-      = new Dictionary<QueryParameterIdentity, QueryParameterBinding>();
-    private readonly List<QueryParameterBinding> otherBindings
-      = new List<QueryParameterBinding>();
+    private readonly List<ParameterExpression> activeParameters = new();
+    private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping = new();
+    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity = new();
+    private readonly List<QueryParameterBinding> otherBindings = new();
 
     private bool executed;
 
@@ -183,7 +179,7 @@ namespace Xtensive.Orm.Providers
     {
       // handle x.CompareTo(y) > 0 and similar comparisons
       var result = TryTranslateCompareExpression(expression);
-      if (!result.IsNullReference()) {
+      if (result is not null) {
         return result;
       }
 
@@ -260,7 +256,7 @@ namespace Xtensive.Orm.Providers
 
       // handle special cases
       result = TryTranslateBinaryExpressionSpecialCases(expression, left, right);
-      if (!result.IsNullReference()) {
+      if (result is not null) {
         return result;
       }
 
@@ -353,7 +349,7 @@ namespace Xtensive.Orm.Providers
         : check;
       var varCheck = boolCheck as SqlVariant;
 
-      if (!PreferCaseOverVariant && !varCheck.IsNullReference()) {
+      if (!PreferCaseOverVariant && varCheck is not null) {
         return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
       }
       var @case = SqlDml.Case();
@@ -401,7 +397,7 @@ namespace Xtensive.Orm.Providers
       if (mc.AsTupleAccess(activeParameters) != null)
         return VisitTupleAccess(mc);
 
-      var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
+      var arguments = mc.Arguments.SelectToArray(a => Visit(a));
       var mi = mc.Method;
 
       if (mc.Object!=null && mc.Object.Type!=mi.ReflectedType)
@@ -434,7 +430,7 @@ namespace Xtensive.Orm.Providers
       if (activeParameters.Count>0)
         throw new InvalidOperationException();
       activeParameters.AddRange(l.Parameters);
-      for (int i = 0; i < l.Parameters.Count; i++) {
+      for (int i = 0, count = l.Parameters.Count; i < count; i++) {
         var p = l.Parameters[i];
         sourceMapping[p] = sourceColumns[i];
       }
@@ -447,14 +443,14 @@ namespace Xtensive.Orm.Providers
 
     protected override SqlExpression VisitNew(NewExpression n)
     {
-      return CompileMember(n.Constructor, null, n.Arguments.Select(a => Visit(a)).ToArray());
+      return CompileMember(n.Constructor, null, n.Arguments.SelectToArray(a => Visit(a)));
     }
 
     protected override SqlExpression VisitNewArray(NewArrayExpression expression)
     {
       if (expression.NodeType!=ExpressionType.NewArrayInit)
         throw new NotSupportedException();
-      var expressions = expression.Expressions.Select(e => Visit(e)).ToArray();
+      var expressions = expression.Expressions.SelectToArray(e => Visit(e));
       return SqlDml.Container(expressions);
     }
 
@@ -496,7 +492,7 @@ namespace Xtensive.Orm.Providers
 
       if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
-      if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
+      if (sourceColumns.Any(list => list.Any(c => c is null)))
         throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
 
       this.compiler = compiler; // This might be null, check before use!

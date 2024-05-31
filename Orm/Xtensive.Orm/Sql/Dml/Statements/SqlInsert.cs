@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -49,21 +49,22 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       SqlInsert clone = new SqlInsert();
-      if (Into!=null)
+      if (Into != null)
         clone.Into = (SqlTableRef) Into.Clone(context);
-      if (from!=null)
+      if (from != null)
         clone.From = (SqlSelect) from.Clone(context);
       foreach (KeyValuePair<SqlColumn, SqlExpression> p in values)
         clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
+          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
 
-      if (Hints.Count>0)
+      if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
+          clone.Hints.Add((SqlHint) hint.Clone(context));
 
       context.NodeMapping[this] = clone;
       return clone;

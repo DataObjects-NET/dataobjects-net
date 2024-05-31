@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -48,7 +48,7 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
 
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>> PersistRequestCache { get; private set; }
 
     /// <inheritdoc/>
     public Session OpenSession()
@@ -123,7 +123,7 @@ namespace Xtensive.Orm
       TypeIdRegistry = typeIdRegistry;
 
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>>();
       InternalQueryCache = new ConcurrentDictionary<object, object>();
     }
   }

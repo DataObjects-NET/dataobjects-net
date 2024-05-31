@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -23,9 +23,14 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private readonly CompiledQueryProcessingScope compiledQueryScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
+
+    private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression Session = Expression.Parameter(WellKnownOrmTypes.Session, "session");
+
+    private readonly CompiledQueryProcessingScope compiledQueryScope;
 
     public TranslatedQuery Translate()
     {
@@ -33,7 +38,7 @@ namespace Xtensive.Orm.Linq
       return Translate(projection, Enumerable.Empty<Parameter<Tuple>>());
     }
 
-    private TranslatedQuery Translate(ProjectionExpression projection,
+    internal TranslatedQuery Translate(ProjectionExpression projection,
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
@@ -82,7 +87,7 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count==0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
-        var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
+        var resultProvider = new SelectProvider(originProvider, usedColumns);
         var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
         var result = new ProjectionExpression(
           origin.Type,
@@ -107,10 +112,6 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof (Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -126,17 +127,17 @@ namespace Xtensive.Orm.Linq
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
-        tupleReader,
+        TupleReader,
         materializationContextExpression,
-        parameterContext,
+        ParameterContext,
         Expression.Constant(itemMaterializer));
 
       var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, tupleReader, session, parameterContext);
+        body, TupleReader, Session, ParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
@@ -168,6 +169,26 @@ namespace Xtensive.Orm.Linq
       return arguments;
     }
 
+    private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
+    {
+      var origArguments = n.Arguments;
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
+        Expression body;
+        using (state.CreateScope()) {
+          state.CalculateExpressions = false;
+          body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
+        }
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+          : ProcessProjectionElement(body);
+      }
+    }
+
     private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)
     {
       if (le.Parameters.Count==2) {
@@ -191,10 +212,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitQuerySingle(MethodCallExpression mc)
     {
       var returnType = mc.Method.ReturnType;
-
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(returnType));
-      var source = ConstructQueryable(queryAll);
+
+      var source = ConstructQueryable(returnType);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
       var equility = Expression.Equal(keyAccessor, argument);

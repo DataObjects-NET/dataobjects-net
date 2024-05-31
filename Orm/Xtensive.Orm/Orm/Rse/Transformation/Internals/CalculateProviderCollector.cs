@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Rse.Transformation
   internal sealed class CalculateProviderCollector
   {
     private readonly ApplyProviderCorrectorRewriter owner;
-    private readonly ApplyParameterSearcher parameterSearcher = new ApplyParameterSearcher();
-    private readonly CollectorHelper collectorHelper = new CollectorHelper();
-    private readonly TupleAccessGatherer tupleGatherer = new TupleAccessGatherer((p, i) => {});
+    private readonly ApplyParameterSearcher parameterSearcher = new();
+    private readonly CollectorHelper collectorHelper = new();
+    private readonly TupleAccessGatherer tupleGatherer = new((p, i) => {});
 
     public bool TryAdd(CalculateProvider provider)
     {
@@ -100,12 +100,12 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var result = false;
       foreach (var key in owner.State.Predicates.Keys) {
-        if (!owner.State.CalculateProviders.ContainsKey(key))
-          continue;
-        foreach (var providerPair in owner.State.CalculateProviders[key]) {
-          if (ContainsAccessToTupleField(tupleAccesses, providerPair.Item1, filterProvider)) {
-            result = true;
-            AddCalculateFilter(providerPair.Item1, filterProvider);
+        if (owner.State.CalculateProviders.TryGetValue(key, out var providerPairs)) {
+          foreach (var providerPair in providerPairs) {
+            if (ContainsAccessToTupleField(tupleAccesses, providerPair.Item1, filterProvider)) {
+              result = true;
+              AddCalculateFilter(providerPair.Item1, filterProvider);
+            }
           }
         }
       }
@@ -119,8 +119,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private void AddCalculateFilter(CalculateProvider calculateProvider, FilterProvider filterProvider)
     {
       var newPair = (filterProvider.Predicate, filterProvider.Header.Columns);
-      if (owner.State.CalculateFilters.ContainsKey(calculateProvider)) {
-        owner.State.CalculateFilters[calculateProvider].Add(newPair);
+      if (owner.State.CalculateFilters.TryGetValue(calculateProvider, out var filters)) {
+        filters.Add(newPair);
       }
       else {
         owner.State.CalculateFilters.Add(calculateProvider,

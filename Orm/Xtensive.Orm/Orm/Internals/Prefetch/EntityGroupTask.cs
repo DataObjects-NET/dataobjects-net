@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -86,18 +86,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public CompilableProvider Provider { get; private set; }
 
-    public void AddKey(Key key, bool exactType)
-    {
-      if (keys == null) {
-        keys = new Dictionary<Key, bool>();
-      }
-
-      if (keys.ContainsKey(key)) {
-        return;
-      }
-
-      keys.Add(key, exactType);
-    }
+    public void AddKey(Key key, bool exactType) =>
+      (keys ??= new Dictionary<Key, bool>()).TryAdd(key, exactType);
 
     public void RegisterQueryTasks()
     {
@@ -171,16 +161,18 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static CompilableProvider CreateRecordSet(object cachingKey)
     {
-      var pair = (Pair<object, CacheKey>) cachingKey;
-      var selectedColumnIndexes = pair.Second.ColumnIndexes;
-      var keyColumnsCount = pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count;
+      var cachedKey = ((Pair<object, CacheKey>) cachingKey).Second;
+      var selectedColumnIndexes = cachedKey.ColumnIndexes;
+      var primaryIndex = cachedKey.Type.Indexes.PrimaryIndex;
+      var keyColumnsCount = primaryIndex.KeyColumns.Count;
+
       var keyColumnIndexes = new int[keyColumnsCount];
-      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
+      for(var index = 0; index < keyColumnsCount; index++) {
         keyColumnIndexes[index] = index;
       }
 
-      var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
+      var columnCollectionLength = primaryIndex.Columns.Count;
+      return primaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }

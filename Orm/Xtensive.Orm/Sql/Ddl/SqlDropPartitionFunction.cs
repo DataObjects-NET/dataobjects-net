@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,24 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropPartitionFunction : SqlStatement, ISqlCompileUnit
   {
-    private PartitionFunction partitionFunction;
+    public PartitionFunction PartitionFunction { get; }
 
-    public PartitionFunction PartitionFunction {
-      get {
-        return partitionFunction;
-      }
-    }
-
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDropPartitionFunction clone = new SqlDropPartitionFunction(partitionFunction);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropPartitionFunction(PartitionFunction);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -37,7 +25,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropPartitionFunction(PartitionFunction partitionFunction)
       : base(SqlNodeType.Drop)
     {
-      this.partitionFunction = partitionFunction;
+      PartitionFunction = partitionFunction;
     }
   }
 }

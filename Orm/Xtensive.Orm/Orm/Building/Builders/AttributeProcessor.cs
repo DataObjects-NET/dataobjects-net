@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -387,12 +387,10 @@ namespace Xtensive.Orm.Building.Builders
 
         context.Validator.ValidateName(result.First, ValidationRule.Column);
 
-        if (target.ContainsKey(result.First)) {
+        if (!target.TryAdd(result.First, result.Second)) {
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, fieldName));
         }
-
-        target.Add(result.First, result.Second);
       }
     }
 

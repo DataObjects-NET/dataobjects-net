@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.09.01
 
@@ -16,10 +16,11 @@ namespace Xtensive.Sql.Dml
   {
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
-      var expressionsClone = new Collection<SqlExpression>();
+      var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
         expressionsClone.Add((SqlExpression) e.Clone(context));
 

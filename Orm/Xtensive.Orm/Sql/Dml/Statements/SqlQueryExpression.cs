@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -32,17 +32,12 @@ namespace Xtensive.Sql.Dml
       get { return all; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlQueryExpression clone = new SqlQueryExpression(NodeType,
-        (ISqlQueryExpression)((SqlNode) left).Clone(context),
-        (ISqlQueryExpression)((SqlNode) right).Clone(context), all);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlQueryExpression(NodeType,
+          (ISqlQueryExpression) ((SqlNode) left).Clone(context),
+          (ISqlQueryExpression) ((SqlNode) right).Clone(context), all);
 
     #region IEnumerable<ISqlQueryExpression> Members
 

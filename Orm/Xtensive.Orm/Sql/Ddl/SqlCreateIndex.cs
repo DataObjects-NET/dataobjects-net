@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -11,18 +11,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateIndex : SqlStatement, ISqlCompileUnit
   {
-    public Index Index { get; private set; }
+    public Index Index { get; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlCreateIndex(Index);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateIndex(Index);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

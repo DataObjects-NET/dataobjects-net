@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.18
 
@@ -16,14 +16,11 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class CursorCommandFactory : CommandFactory
   {
-    private const string CursorParameterNameFormat = "{0}c";
-    private const string StatementFormat = "OPEN :{0} FOR {1}";
-
-    public override CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    public override CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
       var part = base.CreateQueryPart(request, parameterNamePrefix, parameterContext);
-      var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
-      part.Statement = string.Format(StatementFormat, parameterName, part.Statement);
+      var parameterName = $"{parameterNamePrefix}c";
+      part.Statement = $"OPEN :{parameterName} FOR {part.Statement}";
       var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;
       part.Parameters.Add(parameter);

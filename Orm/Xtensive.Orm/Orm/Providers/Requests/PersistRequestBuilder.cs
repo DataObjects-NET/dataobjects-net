@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyCollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;

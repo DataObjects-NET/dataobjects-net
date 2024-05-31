@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse
     public ColumnCollection Alias(string alias)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
-      return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
+      return new ColumnCollection(this.SelectToList(column => column.Clone(alias + "." + column.Name)));
     }
 
     // Constructors

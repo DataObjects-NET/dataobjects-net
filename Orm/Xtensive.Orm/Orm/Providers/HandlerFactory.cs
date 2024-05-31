@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -52,8 +52,7 @@ namespace Xtensive.Orm.Providers
       var contract = type;
       var implementor = type;
 
-      while (contract!=HandlerType && contract!=DomainBoundHandlerType && !serviceMapping.ContainsKey(contract)) {
-        serviceMapping[contract] = implementor;
+      while (contract != HandlerType && contract != DomainBoundHandlerType && serviceMapping.TryAdd(contract, implementor)) {
         contract = contract.BaseType;
       }
     }

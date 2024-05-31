@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
@@ -51,8 +51,7 @@ namespace Xtensive.Modelling.Actions
         var last = actions[lastIndex] as PropertyChangeAction;
         if (last!=null && ca.Path==last.Path) {
           foreach (var pair in last.Properties) {
-            if (!ca.Properties.ContainsKey(pair.Key))
-              ca.Properties.Add(pair.Key, pair.Value);
+            _ = ca.Properties.TryAdd(pair.Key, pair.Value);
           }
           actions.RemoveAt(lastIndex);
         }
