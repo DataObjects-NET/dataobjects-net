@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2003-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -718,14 +718,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var columnOwnerId = Convert.ToInt64(dataReader["attrelid"]);
       var columnId = Convert.ToInt64(dataReader["attnum"]);
       var columnName = dataReader["attname"].ToString();
-      if (tableMap.ContainsKey(columnOwnerId)) {
-        var table = tableMap[columnOwnerId];
+      if (tableMap.TryGetValue(columnOwnerId, out var table)) {
         var col = table.CreateColumn(columnName);
-        if (!tableColumns.ContainsKey(columnOwnerId)) {
-          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>());
+        if (tableColumns.TryGetValue(columnOwnerId, out var columns)) {
+          columns.Add(columnId, col);
         }
-
-        tableColumns[columnOwnerId].Add(columnId, col);
+        else {
+          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>() { { columnId, col } });
+        }
 
         var columnTypeName = dataReader["typname"].ToString();
         var columnTypeSpecificData = Convert.ToInt32(dataReader["atttypmod"]);

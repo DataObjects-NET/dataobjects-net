@@ -23,12 +23,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private sealed class PreparedTemplate
     {
       public readonly Regex ParserExpression;
-      public readonly ReadOnlyCollection<int> Indexes;
+      public readonly IReadOnlyList<int> Indexes;
 
-      public PreparedTemplate(string regex, IEnumerable<int> indexes)
+      public PreparedTemplate(string regex, IReadOnlyList<int> indexes)
       {
         ParserExpression = new Regex(regex, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-        Indexes = indexes.ToList().AsReadOnly();
+        Indexes = indexes;
       }
     }
 
@@ -190,7 +190,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       CollectLastChunk(regexBuilder, template, offset);
-      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count));
+      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count).ToArray(count));
     }
 
     private static PreparedTemplate PrepareNonEnglishTemplate(string template)

@@ -26,13 +26,13 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider Calculate(this CompilableProvider source,
       params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(source, columns);
+      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns);
     }
 
     public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
       params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(source, isInlined, columns);
+      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns, isInlined);
     }
 
     public static CompilableProvider RowNumber(this CompilableProvider source, string columnName)
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
       int[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
     {
-      return new AggregateProvider(recordQuery, groupIndexes, descriptors);
+      return new AggregateProvider(recordQuery, groupIndexes, (IReadOnlyList<AggregateColumnDescriptor>) descriptors);
     }
 
     public static CompilableProvider Skip(this CompilableProvider source, Func<ParameterContext, int> count)

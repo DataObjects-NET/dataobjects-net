@@ -94,8 +94,7 @@ namespace Xtensive.Orm.Building.Builders
         .Reverse()
         .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
-          : i)
-        .ToChainedBuffer();
+          : i);
       foreach (var ancestorIndex in ancestorIndexes) {
         if (type.Indexes.Any(i => 
             i.DeclaringIndex == ancestorIndex.DeclaringIndex &&

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,18 +10,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreatePartitionScheme : SqlStatement, ISqlCompileUnit
   {
-    private PartitionSchema partitionSchema;
-
-    public PartitionSchema PartitionSchema {
-      get {
-        return partitionSchema;
-      }
-    }
+    public PartitionSchema PartitionSchema { get; }
 
     internal override object Clone(SqlNodeCloneContext context) =>
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
-        : context.NodeMapping[this] = new SqlCreatePartitionScheme(partitionSchema);
+        : context.NodeMapping[this] = new SqlCreatePartitionScheme(PartitionSchema);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -31,7 +25,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlCreatePartitionScheme(PartitionSchema partitionSchema)
       : base(SqlNodeType.Create)
     {
-      this.partitionSchema = partitionSchema;
+      PartitionSchema = partitionSchema;
     }
   }
 }

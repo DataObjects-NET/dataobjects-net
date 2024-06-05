@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -193,20 +193,20 @@ namespace Xtensive.Sql.Dml
         return value;
       }
 
-      SqlSelect clone = new SqlSelect(from==null ? null : (SqlTable) from.Clone(context));
+      SqlSelect clone = new SqlSelect(from == null ? null : (SqlTable) from.Clone(context));
 
       foreach (SqlColumn c in columns)
-        clone.Columns.Add((SqlColumn)c.Clone(context));
+        clone.Columns.Add((SqlColumn) c.Clone(context));
       if (groupBy != null)
         foreach (SqlColumn c in groupBy)
-          clone.GroupBy.Add((SqlColumn)c.Clone(context));
+          clone.GroupBy.Add((SqlColumn) c.Clone(context));
       if (where is not null)
-        clone.Where = (SqlExpression)where.Clone(context);
+        clone.Where = (SqlExpression) where.Clone(context);
       if (having is not null)
-        clone.Having = (SqlExpression)having.Clone(context);
+        clone.Having = (SqlExpression) having.Clone(context);
       if (orderBy != null)
         foreach (SqlOrder so in orderBy)
-          clone.OrderBy.Add((SqlOrder)so.Clone(context));
+          clone.OrderBy.Add((SqlOrder) so.Clone(context));
       clone.Distinct = distinct;
       clone.Limit = Limit;
       clone.Offset = Offset;
@@ -215,7 +215,7 @@ namespace Xtensive.Sql.Dml
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
+          clone.Hints.Add((SqlHint) hint.Clone(context));
 
       context.NodeMapping[this] = clone;
 

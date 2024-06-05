@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class CommandFactory
   {
-    private const string ParameterNameFormat = "{0}{1}";
-    private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
     private const string DefaultParameterNamePrefix = "p0_";
     private const int LobBlockSize = ushort.MaxValue;
 
@@ -43,7 +41,7 @@ namespace Xtensive.Orm.Providers
       return CreatePersistParts(task, DefaultParameterNamePrefix);
     }
 
-    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, string parameterNamePrefix)
+    public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, in string parameterNamePrefix)
     {
       ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
@@ -51,7 +49,7 @@ namespace Xtensive.Orm.Providers
       var nodeConfiguration = Session.StorageNode.Configuration;
       var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
 
-      var result = new List<CommandPart>();
+      var result = new List<CommandPart>(task.RequestSequence.Count);
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
         var tuple = task.Tuple;
@@ -65,7 +63,7 @@ namespace Xtensive.Orm.Providers
         foreach (var binding in request.ParameterBindings) {
           var parameterValue = GetParameterValue(task, binding);
           if (binding.BindingType==PersistParameterBindingType.VersionFilter && IsHandledLikeNull(parameterValue)) {
-            configuration.AlternativeBranches.Add(binding);
+            _ = configuration.AlternativeBranches.Add(binding);
           }
           else {
             var parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
@@ -85,9 +83,9 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(task.Request, DefaultParameterNamePrefix, task.ParameterContext);
     }
 
-    public CommandPart CreateQueryPart(SqlLoadTask task, string parameterNamePrefix)
+    public CommandPart CreateQueryPart(SqlLoadTask task, in string parameterNamePrefix)
     {
-      return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
+      return CreateQueryPart(task.Request, in parameterNamePrefix, task.ParameterContext);
     }
 
     public CommandPart CreateQueryPart(IQueryRequest request, ParameterContext parameterContext)
@@ -95,7 +93,7 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(request, DefaultParameterNamePrefix, parameterContext);
     }
 
-    public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
+    public virtual CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(request, "request");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
@@ -120,14 +118,14 @@ namespace Xtensive.Orm.Providers
         case QueryParameterBindingType.SmartNull:
           // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
           if (IsHandledLikeNull(parameterValue)) {
-            configuration.AlternativeBranches.Add(binding);
+            _ = configuration.AlternativeBranches.Add(binding);
             continue;
           }
           break;
         case QueryParameterBindingType.BooleanConstant:
           // expanding true/false parameters to constants to help query optimizer with branching
           if ((bool) parameterValue)
-            configuration.AlternativeBranches.Add(binding);
+            _ = configuration.AlternativeBranches.Add(binding);
           continue;
         case QueryParameterBindingType.LimitOffset:
           // not parameter, just inlined constant
@@ -137,27 +135,28 @@ namespace Xtensive.Orm.Providers
           // Like "LimitOffset" but we handle zero value specially
           // We replace value with 1 and activate special branch that evaluates "where" part to "false"
           var stringValue = parameterValue.ToString();
-          if (stringValue=="0") {
+          if (stringValue.Equals("0", StringComparison.Ordinal)) {
             configuration.PlaceholderValues.Add(binding, "1");
-            configuration.AlternativeBranches.Add(binding);
+            _ = configuration.AlternativeBranches.Add(binding);
           }
-          else
+          else {
             configuration.PlaceholderValues.Add(binding, stringValue);
+          }
           continue;
         case QueryParameterBindingType.RowFilter:
           var filterData = (List<Tuple>) parameterValue;
-          var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
-          if (filterData==null) {
-            configuration.AlternativeBranches.Add(binding);
+          if (filterData is null) {
+            _ = configuration.AlternativeBranches.Add(binding);
             continue;
           }
+          var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
           var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          var filterValues = new List<string[]>();
-          for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
+          var filterValues = new List<string[]>(filterData.Count);
+          for (int tupleIndex = 0, overallCount = filterData.Count; tupleIndex < overallCount; tupleIndex++) {
             var tuple = filterData[tupleIndex];
             var parameterReferences = new string[tuple.Count];
-            for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-              var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
+            for (int fieldIndex = 0, fieldCount = tuple.Count; fieldIndex < fieldCount; fieldIndex++) {
+              var name = $"{commonPrefix}_{tupleIndex.ToString("G")}_{fieldIndex.ToString("G")}";
               var value = tuple.GetValueOrDefault(fieldIndex);
               parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
               AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
@@ -175,7 +174,7 @@ namespace Xtensive.Orm.Providers
           throw new ArgumentOutOfRangeException("binding.BindingType");
         }
         // regular case -> just adding the parameter
-        string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+        var parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
         configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
         AddParameter(result, binding, parameterName, parameterValue);
       }
@@ -202,16 +201,16 @@ namespace Xtensive.Orm.Providers
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-      case PersistParameterBindingType.Regular:
-        return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-      case PersistParameterBindingType.VersionFilter:
-        return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
-      default:
-        throw new ArgumentOutOfRangeException("binding.Source");
+        case PersistParameterBindingType.Regular:
+          return task.Tuple.GetValueOrDefault(binding.FieldIndex);
+        case PersistParameterBindingType.VersionFilter:
+          return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+        default:
+          throw new ArgumentOutOfRangeException("binding.Source");
       }
     }
 
-    private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, string name, object value)
+    private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, in string name, object value)
     {
       var parameter = Connection.CreateParameter();
       parameter.ParameterName = name;
@@ -219,7 +218,7 @@ namespace Xtensive.Orm.Providers
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddCharacterLobParameter(CommandPart commandPart, string name, string value)
+    private void AddCharacterLobParameter(CommandPart commandPart, in string name, in string value)
     {
       var lob = Connection.CreateCharacterLargeObject();
       commandPart.Resources.Add(lob);
@@ -245,7 +244,7 @@ namespace Xtensive.Orm.Providers
       commandPart.Parameters.Add(parameter);
     }
 
-    private void AddBinaryLobParameter(CommandPart commandPart, string name, byte[] value)
+    private void AddBinaryLobParameter(CommandPart commandPart, in string name, byte[] value)
     {
       var lob = Connection.CreateBinaryLargeObject();
       commandPart.Resources.Add(lob);
@@ -262,7 +261,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private void AddParameter(
-      CommandPart commandPart, ParameterBinding binding, string parameterName, object parameterValue)
+      CommandPart commandPart, ParameterBinding binding, in string parameterName, object parameterValue)
     {
       switch (binding.TransmissionType) {
       case ParameterTransmissionType.Regular:
@@ -279,9 +278,9 @@ namespace Xtensive.Orm.Providers
       }
     }
     
-    private string GetParameterName(string prefix, ref int index)
+    private string GetParameterName(in string prefix, ref int index)
     {
-      var result = string.Format(ParameterNameFormat, prefix, index);
+      var result = $"{prefix}{index.ToString("G")}"; //leave ToString(). it is faster
       index++;
       return result;
     }

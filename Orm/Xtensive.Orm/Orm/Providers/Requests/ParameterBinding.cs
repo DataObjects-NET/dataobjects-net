@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.09.26
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -26,7 +27,12 @@ namespace Xtensive.Orm.Providers
     public static IEnumerable<T> NormalizeBindings<T>(IEnumerable<T> bindings)
       where T : ParameterBinding
     {
-      return bindings!=null ? new HashSet<T>(bindings) : Enumerable.Empty<T>();
+      if (bindings is null)
+        return Array.Empty<T>();
+      var normalized = bindings.ToArray();
+      if (normalized.Length == 0)
+        return Array.Empty<T>();
+      return normalized;
     }
 
 

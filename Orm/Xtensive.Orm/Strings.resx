@@ -2567,6 +2567,15 @@ Error: {1}</value>
   <data name="ExXExpressionsWithConstantValuesOfYTypeNotSupported" xml:space="preserve">
     <value>{0} expressions with constant values of {1} type are not supported.</value>
   </data>
+  <data name="ComparisonOfTwoEntityFieldsIsNotSupported" xml:space="preserve">
+    <value>Comparison of two entity fields is not supported.</value>
+  </data>
+  <data name="ExJoinHasSameInnerAndOuterParameterInstances" xml:space="preserve">
+    <value>Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported.</value>
+  </data>
+  <data name="ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel" xml:space="preserve">
+    <value>The type '{0}',which contains renaming field '{1}', doesn't exist in storage model.</value>
+  </data>
   <data name="ExArgumentContainsInvalidCharacters" xml:space="preserve">
     <value>Invalid argument: Argument {0} cannot contain '{1}' characters.</value>
   </data>

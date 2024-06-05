@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2020 Xtensive LLC.
+// Copyright (C) 2013-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -33,9 +33,11 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (expression.NodeType == ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
       }
+      if (expression.NodeType is not ExpressionType.Call)
+        return originalExpression;
 
       var methodCall = expression as MethodCallExpression;
-      if (methodCall == null || !IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type)) {
+      if (!IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type)) {
         return originalExpression;
       }
 

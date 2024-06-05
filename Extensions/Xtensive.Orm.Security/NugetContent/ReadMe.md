@@ -1,4 +1,3 @@
-=====================
 Xtensive.Orm.Security
 =====================
 
@@ -9,13 +8,14 @@ There are 2 main parts that can also be used separately: authentication services
 
 Prerequisites
 -------------
-DataObjects.Net 0.1 or later (http://dataobjects.net)
+DataObjects.Net 7.0.x or later (http://dataobjects.net)
 
-Implementation
---------------
-1. Add reference to Xtensive.Orm.Security assembly
-2. Include types from Xtensive.Orm.Security assembly into the domain:
+How to use
+----------
 
+Include types from Xtensive.Orm.Security assembly into the domain:
+
+```xml
   <Xtensive.Orm>
     <domains>
       <domain ... >
@@ -26,23 +26,29 @@ Implementation
       </domain>
     </domains>
   </Xtensive.Orm>
+```
 
-3. If you are planning to use one of authentication services add 
+If you are planning to use one of authentication services add 
 
+```xml
   <section name="Xtensive.Orm.Security" type="Xtensive.Orm.Security.Configuration.ConfigurationSection, Xtensive.Orm.Security" />
+```
 
 and set up the desired hashing service:
 
+```xml
   <Xtensive.Orm.Security>
     <hashingService name="plain"/>
     <!-- other options are: md5, sha1, sha256, sha384, sha512 -->
   </Xtensive.Orm.Security>
+```
 
-Demo
-----
+Examples
+--------
 
-1. Define a class that inherits GenericPrincipal class that will describe your users, e.g.:
+**Example #1**. Definition of a class that inherits GenericPrincipal class that will describe your users, e.g.:
 
+```csharp
   [HierarchyRoot]
   public class User : GenericPrincipal
   {
@@ -57,11 +63,16 @@ Demo
 
     ...
 
-    public User(Session session) : base(session) {}
+    public User(Session session)
+      : base(session)
+    {
+    }
   }
+```
 
-2. Having the User class defined, it can be used for user creation and authentication.
+**Example #2**. Having the User class defined above, it can be used for user creation and authentication.
 
+```csharp
   // Creating a user
   using (var session = Domain.OpenSession()) {
     using (var transaction = session.OpenTransaction()) {
@@ -79,9 +90,11 @@ Demo
       transaction.Complete();
     }
   }
+```
 
-3. Define a hierarchy of roles. A role is a set of permissions for a job fuction within a company, e.g.:
+**Example #3**. Definition of a hierarchy of roles for users. A role is a set of permissions for a job fuction within a company, e.g.:
 
+```
 EmployeeRole
 |
 |- StockManagerRole
@@ -91,7 +104,11 @@ EmployeeRole
      |- SalesManagerRole
      |
      |- SalesPresidentRole
+```
 
+The role tree above can be represented like following:
+
+```csharp
   // This is base role for all employees
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public abstract class EmployeeRole : Role
@@ -126,7 +143,59 @@ EmployeeRole
       : base(session) {}
   }
 
-  // Create instances of roles on first domain initialization
+  public class SalesRepresentativeRole : EmployeeRole
+  {
+    protected override void RegisterPermissions()
+    {
+      // Sales manager inherits Employee permissions
+      base.RegisterPermissions();
+
+      // All sales representative can read customer
+      RegisterPermission(new Permission<Customer>());
+      // All sales representative can read orders
+      RegisterPermission(new Permission<Order>());
+    }
+
+    protected EmployeeRole(Session session)
+      : base(session) {}
+  }
+
+  public class SalesManagerRole : SalesRepresentativeRole
+  {
+    protected override void RegisterPermissions()
+    {
+      // Sales manager inherits SalesRepresentativeRole permissions
+      base.RegisterPermissions();
+
+      // Sales managers can read and write orders
+      RegisterPermission(new Permission<Order>(canWrite:true));
+    }
+
+    protected SalesManagerRole(Session session)
+      : base(session) {}
+  }
+
+  public class SalesPresidentRole : SalesRepresentativeRole
+  {
+    protected override void RegisterPermissions()
+    {
+      // Sales manager inherits SalesRepresentativeRole permissions
+      base.RegisterPermissions();
+
+      // Sales president can read and write customers
+      RegisterPermission(new Permission<Customer>(canWrite:true));
+      // Sales president can read and write orders
+      RegisterPermission(new Permission<Order>(canWrite:true));
+    }
+
+    protected SalesManagerRole(Session session)
+      : base(session) {}
+  }
+```
+
+The roles should be intitalized on first domain build for being able to use them further, e.g:
+
+```csharp
   using (var session = Domain.OpenSession()) {
     using (var transaction = session.OpenTransaction()) {
       new SalesRepresentativeRole(session);
@@ -136,9 +205,11 @@ EmployeeRole
       transaction.Complete();
     }
   }
+```
 
-4. Members of staff are assigned particular roles, e.g.:
+**Example #4**. Assigning one of roles to a user.
 
+```csharp
   using (var session = Domain.OpenSession()) {
     using (var transaction = session.OpenTransaction()) {
       var stockManagerRole = session.Query.All<StockManagerRole>().Single();
@@ -149,15 +220,19 @@ EmployeeRole
       transaction.Complete();
     }
   }
+```
 
-5. Checking whether a user has the required role
+**Example #5**. Checking whether a user has the required role
 
+```csharp
   user.IsInRole("StockManagerRole");
   // or
   user.Roles.Contains(stockManagerRole);
+```
 
-6. Session impersonation
+**Example #6**. Session impersonation
 
+```csharp
   using (var imContext = session.Impersonate(user)) {
     // inside the region the session is impersonated with the specified 
     // principal and set of their roles and permissions
@@ -173,10 +248,12 @@ EmployeeRole
     if (p != null && p.CanRead)
       // allow doing some stuff
   }
+```
 
 To end the impersonation call ImpersonationContext.Undo() or Dispose() method.
 Impersonation contexts can be nested, e.g.:
 
+```csharp
   using (var userContext = session.Impersonate(user)) {
     // do some user-related stuff
 
@@ -187,10 +264,12 @@ Impersonation contexts can be nested, e.g.:
     // we are still in user impersonation context
   }
   // no context here
+```
 
-7. Secure (restrictive) queries
+**Example #7**. Secure (restrictive) queries.
 A role may set up a condition that will be automatically added to any query and limits the query results, e.g.:
 
+```csharp
   public class AutomobileManagerRole : EmployeeRole
   {
     private static IQueryable<Customer> GetCustomers(ImpersonationContext context, QueryEndpoint query)
@@ -210,10 +289,12 @@ A role may set up a condition that will be automatically added to any query and 
     public AutomobileManagerRole(Session session)
       : base(session) {}
   }
+```
 
 Now all employees that have AutomobileManagerRole will read 
 customers that have IsAutomobileIndustry property set to true, e.g.:
 
+```csharp
   using (var session = Domain.OpenSession()) {
     using (var transaction = session.OpenTransaction()) {
       var automobileManagerRole = session.Query.All<AutomobileManagerRole>().Single();
@@ -230,7 +311,4 @@ customers that have IsAutomobileIndustry property set to true, e.g.:
       transaction.Complete();
     }
   }
-
-References
-----------
-http://doextensions.codeplex.com
+```

@@ -5,6 +5,7 @@
 // Created:    2010.01.21
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -49,6 +50,7 @@ namespace Xtensive.Orm.Linq
       CurrentLambda = null,
       IncludeAlgorithm = IncludeAlgorithm.Auto,
       TypeOfEntityStoredInKey = null,
+      NonVisitableExpressions = new HashSet<Expression>(),
     };
 
     private readonly TranslatorStateFlags flags;
@@ -65,6 +67,16 @@ namespace Xtensive.Orm.Linq
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetFlag(TranslatorStateFlags f) => (flags & f) != 0;
+
+
+    /// <summary>
+    /// Expessions that were constructed during original expression translation
+    /// and aim to replace original parts so they are avoidable to visit by Linq translator.
+    /// </summary>
+    /// <remarks>
+    /// Not all expression that constructed by us should be skipped when visiting.
+    /// </remarks>
+    public HashSet<Expression> NonVisitableExpressions { get; init; }
 
     public bool JoinLocalCollectionEntity
     {

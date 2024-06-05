@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -179,6 +179,25 @@ namespace Xtensive.Orm.Linq
       return arguments;
     }
 
+    private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
+    {
+      var origArguments = n.Arguments;
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
+        Expression body;
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
+          body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
+        }
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+          : ProcessProjectionElement(body);
+      }
+    }
+
     private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)
     {
       if (le.Parameters.Count == 2) {
@@ -198,10 +217,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitQuerySingle(MethodCallExpression mc)
     {
       var returnType = mc.Method.ReturnType;
-
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(returnType));
-      var source = ConstructQueryable(queryAll);
+
+      var source = ConstructQueryable(returnType);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
       var equility = Expression.Equal(keyAccessor, argument);

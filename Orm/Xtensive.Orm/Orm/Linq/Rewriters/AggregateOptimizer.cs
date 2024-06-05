@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2020 Xtensive LLC.
+// Copyright (C) 2013-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var keyType = keySelector.Body.Type;
       var elementType = elementSelector.Body.Type;
       var wrapperType = typeof (GroupByItemWrapper<,>).CachedMakeGenericType(keyType, elementType);
-      var wrapperKeyProperty = wrapperType.GetProperty("Key");
+      var wrapperKeyProperty = wrapperType.GetProperty(WellKnown.KeyFieldName);
       var wrapperElementProperty = wrapperType.GetProperty("Element");
 
       var projectionParameter = keySelector.Parameters[0];
