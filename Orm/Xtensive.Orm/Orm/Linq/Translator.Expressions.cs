@@ -1148,7 +1148,7 @@ namespace Xtensive.Orm.Linq
       return ee.Key.KeyFields[index].LiftToNullable();
     }
 
-    private IList<Expression> GetKeyFields(Expression expression, IReadOnlyList<FieldExpression> keyFields /* IEnumerable<Type> keyFieldTypes*/)
+    private IList<Expression> GetKeyFields(Expression expression, IReadOnlyList<FieldExpression> keyFields)
     {
       expression = expression.StripCasts();
 

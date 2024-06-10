@@ -269,9 +269,6 @@ namespace Xtensive.Orm.Rse
       var resultFieldTypes = indexInfoColumns.SelectToArray(columnInfo => columnInfo.ValueType);
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
-      //var keyOrder = new List<KeyValuePair<int, Direction>>(
-      //  indexInfoKeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
-
       var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<int, Direction>(i, p.Value));
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
@@ -283,14 +280,6 @@ namespace Xtensive.Orm.Rse
             .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }
 
-      //if (!indexInfo.IsPrimary) {
-      //  var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
-      //  keyOrder.AddRange(
-      //    indexInfo.ValueColumns
-      //      .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
-      //      .Where(pair => pair.First.IsPrimaryKey)
-      //      .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
-      //}
       var order = new DirectionCollection<int>(keyOrderEnumerable);
 
       var keyFieldTypes = indexInfoKeyColumns
