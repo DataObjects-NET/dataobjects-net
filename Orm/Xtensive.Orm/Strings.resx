@@ -2603,4 +2603,10 @@ Error: {1}</value>
   <data name="ExMaxNumberOfConditionsShouldBeBetweenXAndY" xml:space="preserve">
     <value>DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included).</value>
   </data>
+  <data name="ExNestedTransactionTimeout" xml:space="preserve">
+    <value>Nested transaction cannot have timeout</value>
+  </data>
+  <data name="ExTransactionTimeout" xml:space="preserve">
+    <value>Transaction is longer than {0}</value>
+  </data>
 </root>
