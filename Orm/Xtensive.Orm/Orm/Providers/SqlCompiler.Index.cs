@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Providers
       var keyColumnCount = index.KeyColumns.Count;
       var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
 
-      var sourceTables = new List<SqlTable>();
+      var sourceTables = new List<SqlTable>(index.UnderlyingIndexes.Count);
       List<QueryParameterBinding> resultBindings = null;
       if(index.UnderlyingIndexes.Any(i => i.IsVirtual)) {
         foreach(var item in underlyingQueries) {

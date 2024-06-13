@@ -287,7 +287,9 @@ namespace Xtensive.Orm.Rse
         .SelectToArray(static columnInfo => columnInfo.Key.ValueType);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
-      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i,c.ValueType)).ToArray(indexInfoColumns.Count);
+      var resultColumns = indexInfoColumns
+        .Select(static (c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i, c.ValueType))
+        .ToArray(indexInfoColumns.Count);
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(

@@ -67,12 +67,13 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void SaveApplyPredicate(FilterProvider filter, ApplyParameter applyParameter)
     {
+      var providerAndFilterColumns = (filter.Predicate, filter.Header.Columns);
       if (owner.State.Predicates.TryGetValue(applyParameter, out var predicates)) {
-        predicates.Add((filter.Predicate, filter.Header.Columns));
+        predicates.Add(providerAndFilterColumns);
       }
       else {
         owner.State.Predicates.Add(applyParameter,
-          new List<(Expression<Func<Tuple, bool>>, ColumnCollection)> { (filter.Predicate, filter.Header.Columns) });
+          new List<(Expression<Func<Tuple, bool>>, ColumnCollection)> { providerAndFilterColumns });
       }
     }
 

@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Rse.Providers
         if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
           return sourceColumnType;
 #endif
-          throw AggregateNotSupported(sourceColumnType, aggregateType);
+        throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }
 

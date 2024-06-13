@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Linq
 
       // Structure
       var memberType = expression.GetMemberType();
-      if (memberType==MemberType.Structure
+      if (memberType == MemberType.Structure
         && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType)) {
         return FalseExpression;
       }
 
       // Entity
-      if (memberType==MemberType.Entity
+      if (memberType == MemberType.Entity
         && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
 

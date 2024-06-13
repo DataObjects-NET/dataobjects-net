@@ -84,7 +84,7 @@ namespace Xtensive.Sql.Compiler
       for (int i = 0, count = items.Count; i < count - 1; i++) {
         currentCycleItem = items[i];
         VisitNodes(node.Body);
-        result.Append(node.Delimiter);
+        _ = result.Append(node.Delimiter);
       }
       currentCycleItem = items[items.Count - 1];
       VisitNodes(node.Body);

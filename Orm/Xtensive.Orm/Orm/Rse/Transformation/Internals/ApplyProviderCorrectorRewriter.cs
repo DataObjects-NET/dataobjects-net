@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private Provider ProcesSelfConvertibleApply(ApplyProvider provider, CompilableProvider left,
       CompilableProvider right)
     {
-      State.Predicates.Remove(provider.ApplyParameter);
+      _ = State.Predicates.Remove(provider.ApplyParameter);
       if (left != provider.Left || right != provider.Right)
         return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
       return provider;
