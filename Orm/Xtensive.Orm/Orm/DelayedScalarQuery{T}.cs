@@ -37,7 +37,7 @@ namespace Xtensive.Orm
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing scalar query execution result.</returns>
     public async ValueTask<TResult> ExecuteAsync(CancellationToken token = default) =>
-      (await MaterializeAsync<TResult>(token).ConfigureAwait(false)).ToScalar(resultAccessMethod);
+      (await MaterializeAsync<TResult>(token).ConfigureAwaitFalse()).ToScalar(resultAccessMethod);
 
     // Constructors
 

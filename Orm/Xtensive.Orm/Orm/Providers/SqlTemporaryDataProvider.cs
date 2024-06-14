@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers
         return;
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      await executor.StoreAsync(tableDescriptor, data, storageContext.ParameterContext, token).ConfigureAwait(false);
+      await executor.StoreAsync(tableDescriptor, data, storageContext.ParameterContext, token).ConfigureAwaitFalse();
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)

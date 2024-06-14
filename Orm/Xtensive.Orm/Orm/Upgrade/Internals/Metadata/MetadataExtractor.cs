@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Upgrade
     public async Task ExtractTypesAsync(MetadataSet output, SqlExtractionTask task, CancellationToken token = default)
     {
       var types = new List<TypeMetadata>();
-      await ExtractTypesAsync(types, task, token).ConfigureAwait(false);
+      await ExtractTypesAsync(types, task, token).ConfigureAwaitFalse();
       output.Types.AddRange(types);
     }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
       CancellationToken token = default)
     {
       var assemblies = new List<AssemblyMetadata>();
-      await ExtractAssembliesAsync(assemblies, task, token).ConfigureAwait(false);
+      await ExtractAssembliesAsync(assemblies, task, token).ConfigureAwaitFalse();
       output.Assemblies.AddRange(assemblies);
     }
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
       CancellationToken token = default)
     {
       var extensions = new List<ExtensionMetadata>();
-      await ExtractExtensionsAsync(extensions, task, token).ConfigureAwait(false);
+      await ExtractExtensionsAsync(extensions, task, token).ConfigureAwaitFalse();
       output.Extensions.AddRange(extensions);
     }
 
@@ -134,10 +134,10 @@ namespace Xtensive.Orm.Upgrade
     private async Task ExecuteQueryAsync<T>(ICollection<T> output, ISqlCompileUnit query, Func<DbDataReader, T> parser,
       CancellationToken token)
     {
-      var command = await executor.ExecuteReaderAsync(query, CommandBehavior.SequentialAccess, token).ConfigureAwait(false);
-      await using (command.ConfigureAwait(false)) {
+      var command = await executor.ExecuteReaderAsync(query, CommandBehavior.SequentialAccess, token).ConfigureAwaitFalse();
+      await using (command.ConfigureAwaitFalse()) {
         var reader = command.Reader;
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
           output.Add(parser.Invoke(reader));
         }
       }

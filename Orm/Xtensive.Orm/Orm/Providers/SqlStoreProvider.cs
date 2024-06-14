@@ -6,6 +6,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
@@ -35,8 +36,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected internal override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
-      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
-      await LockAndStoreAsync(context, Source.ToEnumerable(context), token).ConfigureAwait(false);
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwaitFalse();
+      await LockAndStoreAsync(context, Source.ToEnumerable(context), token).ConfigureAwaitFalse();
     }
 
     protected internal override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)

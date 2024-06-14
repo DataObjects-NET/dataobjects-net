@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -32,7 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected internal override async Task OnBeforeEnumerateAsync(EnumerationContext context, CancellationToken token)
     {
-      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwaitFalse();
       var parameterContext = ((Xtensive.Orm.Providers.EnumerationContext) context).ParameterContext;
       SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke(parameterContext));
     }
