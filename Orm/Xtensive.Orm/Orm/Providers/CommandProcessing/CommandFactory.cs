@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
-      var nodeConfiguration = Session.StorageNode.Configuration;
-      var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
+      var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
+      var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : Session.StorageNode.Configuration;
 
       var result = new List<CommandPart>(task.RequestSequence.Count);
       int parameterIndex = 0;
