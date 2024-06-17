@@ -24,6 +24,7 @@ namespace Xtensive.Orm.Providers
     private const int LobBlockSize = ushort.MaxValue;
 
     private readonly bool emptyStringIsNull;
+    private readonly bool shareStorageNodesOverNodes;
 
     public StorageDriver Driver { get; private set; }
 
@@ -103,7 +104,6 @@ namespace Xtensive.Orm.Providers
       var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
       var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : Session.StorageNode.Configuration;
 
-      var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
       var configuration = shareStorageNodesOverNodes
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
           : new SqlPostCompilerConfiguration();
@@ -299,6 +299,7 @@ namespace Xtensive.Orm.Providers
       Connection = connection;
 
       emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      shareStorageNodesOverNodes = session.Domain.Configuration.ShareStorageSchemaOverNodes;
     }
   }
 }
