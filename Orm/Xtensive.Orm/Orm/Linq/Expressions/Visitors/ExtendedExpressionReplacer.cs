@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var itemChanged = item != projectionExpression.ItemProjector.Item;
       if (providerChanged || itemChanged) {
         var itemProjector = new ItemProjectorExpression(item, provider, projectionExpression.ItemProjector.Context);
-        return projectionExpression.Apply(itemProjector);
+        return projectionExpression.ApplyItemProjector(itemProjector);
       }
       return projectionExpression;
     }

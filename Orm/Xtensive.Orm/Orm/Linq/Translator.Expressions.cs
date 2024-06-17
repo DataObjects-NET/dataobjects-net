@@ -706,7 +706,7 @@ namespace Xtensive.Orm.Linq
 
     internal static bool FilterBindings(MemberInfo mi, string name, Type type)
     {
-      var result = String.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase);
+      var result = string.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase);
       if (!result)
         return false;
 
@@ -725,7 +725,8 @@ namespace Xtensive.Orm.Linq
 
     #region Private helper methods
 
-    private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(ParameterInfo[] constructorParameters, IList<Expression> constructorArguments, Expression newExpression)
+    private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(
+      ParameterInfo[] constructorParameters, IList<Expression> constructorArguments, Expression newExpression)
     {
       var bindings = new Dictionary<MemberInfo, Expression>();
       var duplicateMembers = new HashSet<MemberInfo>();

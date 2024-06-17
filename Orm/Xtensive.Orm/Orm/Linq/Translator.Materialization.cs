@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Linq
       if (context.SessionTags != null)
         result = ApplySessionTags(result, context.SessionTags);
       var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
-      result = result.Apply(newItemProjector);
+      result = result.ApplyItemProjector(newItemProjector);
 
       var optimized = Optimize(result);
 
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Linq
         var usedColumnsArray = usedColumns.ToArray();
         var resultProvider = new SelectProvider(originProvider, usedColumnsArray);
         var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumnsArray);
-        var result = origin.Apply(itemProjector);
+        var result = origin.ApplyItemProjector(itemProjector);
         return result;
       }
       return origin;
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Linq
         var projector = currentProjection.ItemProjector;
         var newDataSource = projector.DataSource.Tag(tag);
         var newItemProjector = new ItemProjectorExpression(projector.Item, newDataSource, projector.Context);
-        currentProjection = currentProjection.Apply(newItemProjector);
+        currentProjection = currentProjection.ApplyItemProjector(newItemProjector);
       }
       return currentProjection;
     }
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = sequence.Apply(sequenceItemProjector);
+        sequence = sequence.ApplyItemProjector(sequenceItemProjector);
         return indexProjectionExpression;
       }
       return null;
