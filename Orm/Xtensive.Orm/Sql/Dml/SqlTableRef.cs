@@ -29,22 +29,15 @@ namespace Xtensive.Sql.Dml
     /// <value>The table.</value>
     public DataTable DataTable { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : CreateClone(context);
-
-    private SqlTableRef CreateClone(SqlNodeCloneContext context)
-    {
-      var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
-      context.NodeMapping[this] = clone;
-      var columnClones = new List<SqlTableColumn>(columns.Count);
-      columnClones.AddRange(columns.Select(column => (SqlTableColumn) column.Clone(context)));
-
-      clone.columns = new SqlTableColumnCollection(columnClones);
-
-      return clone;
-    }
+    /// <inheritdoc />
+    internal override SqlTableRef Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlTableRef { Name = t.Name, DataTable = t.DataTable };
+        var columnClones = new List<SqlTableColumn>(t.columns.Count);
+        columnClones.AddRange(t.columns.Select(column => column.Clone(c)));
+        clone.columns = new SqlTableColumnCollection(columnClones);
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

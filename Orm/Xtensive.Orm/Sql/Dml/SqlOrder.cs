@@ -30,12 +30,12 @@ namespace Xtensive.Sql.Dml
     /// <value><see langword="true"/> if ascending; otherwise, <see langword="false"/>.</value>
     public bool Ascending { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = (Expression is null
-            ? new SqlOrder(Position, Ascending)
-            : new SqlOrder((SqlExpression) Expression.Clone(context), Ascending));
+    /// <inheritdoc />
+    internal override SqlOrder Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, context) =>
+        t.Expression is null
+          ? new SqlOrder(t.Position, t.Ascending)
+          : new SqlOrder(t.Expression.Clone(context), t.Ascending));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

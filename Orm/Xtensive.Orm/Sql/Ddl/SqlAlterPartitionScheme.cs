@@ -17,10 +17,9 @@ namespace Xtensive.Sql.Ddl
 
     public string Filegroup => filegroup;
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAlterPartitionScheme(partitionSchema, filegroup);
+    /// <inheritdoc />
+    internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>  new SqlAlterPartitionScheme(t.partitionSchema, t.filegroup));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

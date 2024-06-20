@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     private void CloneAssertions(Schema newSchema, Schema sourceSchema)
     {
       foreach (var assertion in sourceSchema.Assertions) {
-        var newAssertion = newSchema.CreateAssertion(assertion.Name, (SqlExpression)assertion.Condition.Clone(), assertion.IsDeferrable, assertion.IsInitiallyDeferred);
+        var newAssertion = newSchema.CreateAssertion(assertion.Name, assertion.Condition.Clone(new Sql.SqlNodeCloneContext()), assertion.IsDeferrable, assertion.IsInitiallyDeferred);
         CopyDbName(newAssertion, assertion);
       }
     }
@@ -113,9 +113,9 @@ namespace Xtensive.Orm.Upgrade.Internals
         if (sourceDomain.Collation!=null)
           newDomain.Collation = collationsMap[sourceDomain.Collation];
         if (sourceDomain.DefaultValue!=null)
-          newDomain.DefaultValue = (SqlExpression)sourceDomain.DefaultValue.Clone();
+          newDomain.DefaultValue = sourceDomain.DefaultValue.Clone(new Sql.SqlNodeCloneContext());
         foreach (var domainConstraint in sourceDomain.DomainConstraints) {
-          var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, (SqlExpression) domainConstraint.Condition.Clone());
+          var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, domainConstraint.Condition.Clone(new Sql.SqlNodeCloneContext()));
           CopyDbName(newConstraint, domainConstraint);
         }
       }
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       foreach (var sourceSequence in sourceSchema.Sequences) {
         var newSequence = newSchema.CreateSequence(sourceSequence.Name);
         CopyDbName(newSequence, sourceSequence);
-        newSequence.SequenceDescriptor = (SequenceDescriptor) sourceSequence.SequenceDescriptor.Clone();
+        newSequence.SequenceDescriptor = sourceSequence.SequenceDescriptor.Clone();
       }
     }
 
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
         if (sourceView.Definition != null) {
-          newView.Definition = (SqlNative) sourceView.Definition.Clone();
+          newView.Definition = sourceView.Definition.Clone(new Sql.SqlNodeCloneContext());
         }
         CloneViewColumns(newView, sourceView);
         CloneIndexes(newView, sourceView);
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newColumn, sourceTableColumn);
 
         if (sourceTableColumn.DefaultValue!=null)
-          newColumn.DefaultValue = (SqlExpression) sourceTableColumn.DefaultValue.Clone();
+          newColumn.DefaultValue = sourceTableColumn.DefaultValue.Clone(new Sql.SqlNodeCloneContext());
 
         var schema = newTable.Schema;
         if (sourceTableColumn.Collation!=null) {
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         if (sourceTableColumn.Domain!=null)
           newColumn.Domain = schema.Domains[sourceTableColumn.Domain.Name];
         if (sourceTableColumn.Expression!=null)
-          newColumn.Expression = (SqlExpression) sourceTableColumn.Expression.Clone();
+          newColumn.Expression = sourceTableColumn.Expression.Clone(new Sql.SqlNodeCloneContext());
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
         if (sourceTableColumn.SequenceDescriptor!=null)
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         ft.IsUnique = ftIndex.IsUnique;
         ft.UnderlyingUniqueIndex = ftIndex.UnderlyingUniqueIndex;
         if (ftIndex.Where!=null)
-          ft.Where = (SqlExpression) ftIndex.Where.Clone();
+          ft.Where = ftIndex.Where.Clone(new Sql.SqlNodeCloneContext());
         ClonePartitionDescriptor(ft, sourceIndex);
         return;
       }
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         spatial.IsClustered = spatialIndex.IsClustered;
         spatial.IsUnique = spatialIndex.IsUnique;
         if (spatialIndex.Where!=null)
-          spatial.Where = (SqlExpression) spatialIndex.Where.Clone();
+          spatial.Where = spatialIndex.Where.Clone(new Sql.SqlNodeCloneContext());
         ClonePartitionDescriptor(spatialIndex, sourceIndex);
         return;
       }
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       index.IsUnique = sourceIndex.IsUnique;
       index.IsClustered = sourceIndex.IsClustered;
       if (sourceIndex.Where!=null)
-        index.Where = (SqlExpression) sourceIndex.Where.Clone();
+        index.Where = sourceIndex.Where.Clone(new Sql.SqlNodeCloneContext());
       index.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, sourceIndex));
       index.IsBitmap = sourceIndex.IsBitmap;
       ClonePartitionDescriptor(index, sourceIndex);
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       var checkConstraint = sourceConstraint as CheckConstraint;
       if (checkConstraint!=null) {
-        var c = newTable.CreateCheckConstraint(checkConstraint.Name, (SqlExpression) checkConstraint.Condition.Clone());
+        var c = newTable.CreateCheckConstraint(checkConstraint.Name, checkConstraint.Condition.Clone(new Sql.SqlNodeCloneContext()));
         CopyDbName(c, checkConstraint);
         return;
       }

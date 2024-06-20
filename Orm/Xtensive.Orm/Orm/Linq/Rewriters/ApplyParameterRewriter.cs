@@ -12,7 +12,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class ApplyParameterRewriter : ExtendedExpressionVisitor
+  internal sealed class ApplyParameterRewriter : ExtendedExpressionVisitor
   {
     private readonly Expression newApplyParameterValueExpression;
     private readonly ApplyParameter oldApplyParameter;
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     }
 
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);

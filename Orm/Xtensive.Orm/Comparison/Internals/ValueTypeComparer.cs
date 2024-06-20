@@ -16,7 +16,7 @@ namespace Xtensive.Comparison
   internal class ValueTypeComparer<T>: ValueTypeComparerBase<T>
     where T: struct, IComparable<T>, IEquatable<T>
   {
-    protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
+    protected override ValueTypeComparer<T> CreateNew(ComparisonRules rules)
       => new ValueTypeComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y)

@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public Domain Domain { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCreateDomain(Domain);
+    /// <inheritdoc />
+    internal override SqlCreateDomain Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlCreateDomain(t.Domain));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

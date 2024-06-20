@@ -22,7 +22,7 @@ namespace Xtensive.Comparison
     public readonly static IAdvancedComparer<T> Instance = new SystemComparer<T>(SystemComparerProvider.Instance, ComparisonRules.Positive);
 
     /// <inheritdoc/>
-    protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
+    protected override SystemComparer<T> CreateNew(ComparisonRules rules)
       => new SystemComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     /// <inheritdoc/>

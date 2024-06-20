@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.07
 
@@ -51,7 +51,13 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc />
-    public object Clone()
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public MappingRuleCollection Clone()
     {
       var result = new MappingRuleCollection();
       foreach (var rule in this)

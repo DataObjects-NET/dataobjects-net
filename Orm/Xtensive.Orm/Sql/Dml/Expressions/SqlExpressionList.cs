@@ -98,6 +98,9 @@ namespace Xtensive.Sql.Dml
       expressions.RemoveAt(index);
     }
 
+    /// <inheritdoc />
+    internal abstract override SqlExpressionList Clone(SqlNodeCloneContext context);
+
 
     // Constructor
 

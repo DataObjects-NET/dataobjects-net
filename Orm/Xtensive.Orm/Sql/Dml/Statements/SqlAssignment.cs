@@ -30,10 +30,10 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAssignment((ISqlLValue) left.Clone(), (SqlExpression) right.Clone(context));
+    /// <inheritdoc />
+    internal override SqlAssignment Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static(t, c) =>
+        new SqlAssignment((ISqlLValue) ((SqlNode)t.left).Clone(c), t.right.Clone(c)));
 
     internal SqlAssignment(ISqlLValue left, SqlExpression right)
       : base(SqlNodeType.Assign)

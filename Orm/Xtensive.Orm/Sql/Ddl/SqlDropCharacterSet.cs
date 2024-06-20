@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public CharacterSet CharacterSet { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlDropCharacterSet(CharacterSet);
+    /// <inheritdoc />
+    internal override SqlDropCharacterSet Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlDropCharacterSet(t.CharacterSet));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

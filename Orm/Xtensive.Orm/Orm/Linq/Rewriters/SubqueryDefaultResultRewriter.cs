@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Linq.Rewriters
   {
     protected override Expression VisitUnknown(Expression e) => e;
 
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override BinaryExpression VisitBinary(BinaryExpression b)
     {
       var left = ApplyCorrection(Visit(b.Left));
       var right = ApplyCorrection(Visit(b.Right));

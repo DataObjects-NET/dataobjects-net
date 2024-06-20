@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class UInt16Comparer : ValueTypeComparer<ushort>
   {
-    protected override IAdvancedComparer<ushort> CreateNew(ComparisonRules rules)
+    protected override UInt16Comparer CreateNew(ComparisonRules rules)
       => new UInt16Comparer(Provider, ComparisonRules.Combine(rules));
 
 

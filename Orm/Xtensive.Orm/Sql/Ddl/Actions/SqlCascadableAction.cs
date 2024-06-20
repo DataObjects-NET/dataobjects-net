@@ -13,6 +13,9 @@ namespace Xtensive.Sql.Ddl
   {
     public bool Cascade { get; private set; }
 
+    /// <inheritdoc />
+    internal abstract override SqlCascadableAction Clone(SqlNodeCloneContext context);
+
     // Constructors
 
     protected SqlCascadableAction(bool cascade)

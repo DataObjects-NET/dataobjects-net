@@ -149,13 +149,18 @@ namespace Xtensive.Collections
       base.Lock(recursive);
     }
 
+    
+
     #region ICloneable members
 
+    /// <inheritdoc/>
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
-    /// Clones this instance.
+    /// Creates a new object that is a copy of the current instance.
     /// </summary>
-    /// <returns></returns>
-    public virtual object Clone()
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public virtual TypeRegistry Clone()
     {
       return new TypeRegistry(this);
     }

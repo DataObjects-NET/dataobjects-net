@@ -20,7 +20,7 @@ namespace Xtensive.Comparison
     [NonSerialized]
     private int nullHashCode;
 
-    protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
+    protected override ObjectComparer<T> CreateNew(ComparisonRules rules)
       => new ObjectComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y)

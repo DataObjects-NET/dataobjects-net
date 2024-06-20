@@ -13,7 +13,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class PairComparer<T1, T2>: WrappingComparer<Pair<T1, T2>, T1, T2>
   {
-    protected override IAdvancedComparer<Pair<T1, T2>> CreateNew(ComparisonRules rules)
+    protected override PairComparer<T1, T2> CreateNew(ComparisonRules rules)
     {
       return new PairComparer<T1, T2>(Provider, ComparisonRules.Combine(rules));
     }

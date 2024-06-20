@@ -25,11 +25,9 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAlterDomain(domain, (SqlAction) action.Clone(context));
+    /// <inheritdoc />
+    internal override SqlAlterDomain Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlAlterDomain(t.domain, t.action.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

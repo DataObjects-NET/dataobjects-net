@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dml
   public class SqlStatementBlock : SqlStatement,
     IList<SqlStatement>
   {
-    private IList<SqlStatement> statements = new Collection<SqlStatement>();
+    private readonly IList<SqlStatement> statements = new Collection<SqlStatement>();
 
     #region IList<SqlStatement> Members
 
@@ -98,18 +98,14 @@ namespace Xtensive.Sql.Dml
 
     #endregion
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      SqlStatementBlock clone = new SqlStatementBlock();
-      foreach (SqlStatement s in statements)
-        clone.Add((SqlStatement) s.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    /// <inheritdoc />
+    internal override SqlStatementBlock Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlStatementBlock();
+        foreach (var s in t.statements)
+          clone.Add(s.Clone(c));
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -15,10 +15,9 @@ namespace Xtensive.Sql.Dml
     /// <value>The variable.</value>
     public SqlVariable Variable { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlDeclareVariable(Variable);
+    /// <inheritdoc />
+    internal override SqlDeclareVariable Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, (t, c) => new SqlDeclareVariable(t.Variable));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

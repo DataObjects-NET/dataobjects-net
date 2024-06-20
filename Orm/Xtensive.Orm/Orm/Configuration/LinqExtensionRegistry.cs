@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.10.27
 
@@ -74,14 +74,14 @@ namespace Xtensive.Orm.Configuration
       return GetEnumerator();
     }
 
+    /// <inheritdoc/>
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
-    /// Clones this instance.
+    /// Creates a new object that is a copy of the current instance.
     /// </summary>
-    /// <returns>Clone of this instance.</returns>
-    public object Clone()
-    {
-      return new LinqExtensionRegistry(this);
-    }
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public LinqExtensionRegistry Clone() => new LinqExtensionRegistry(this);
 
 
     // Constructors

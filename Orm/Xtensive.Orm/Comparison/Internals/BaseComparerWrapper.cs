@@ -14,7 +14,7 @@ namespace Xtensive.Comparison
   internal class BaseComparerWrapper<T, TBase>: WrappingComparer<T, TBase>
     where T: TBase
   {
-    protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
+    protected override BaseComparerWrapper<T, TBase> CreateNew(ComparisonRules rules)
       => new BaseComparerWrapper<T, TBase>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y) => BaseComparer.Compare(x, y);

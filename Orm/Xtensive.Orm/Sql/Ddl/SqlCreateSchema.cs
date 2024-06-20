@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public Schema Schema { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCreateSchema(Schema);
+    /// <inheritdoc />
+    internal override SqlCreateSchema Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlCreateSchema(t.Schema));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

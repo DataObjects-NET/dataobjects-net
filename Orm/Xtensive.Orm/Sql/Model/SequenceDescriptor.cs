@@ -131,8 +131,14 @@ namespace Xtensive.Sql.Model
       }
     }
 
-   
+
     #region IClonable Members
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public SequenceDescriptor Clone() => new SequenceDescriptor(owner, startValue, increment, maxValue, minValue, isCyclic);
 
     ///<summary>
     ///Creates a new object that is a copy of the current instance.
@@ -140,10 +146,7 @@ namespace Xtensive.Sql.Model
     ///<returns>
     ///A new object that is a copy of this instance.
     ///</returns>
-    public object Clone()
-    {
-      return new SequenceDescriptor(owner, startValue, increment, maxValue, minValue, isCyclic);
-    }
+    object ICloneable.Clone() => Clone();
 
     #endregion
 

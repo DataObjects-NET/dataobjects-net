@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitDomainModel(DomainModel domainModel)
+    protected override StorageModel VisitDomainModel(DomainModel domainModel)
     {
       // Build tables, columns and primary indexes
       foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitColumnInfo(ColumnInfo column)
+    protected override StorageColumnInfo VisitColumnInfo(ColumnInfo column)
     {
       var nonNullableType = column.ValueType;
       var nullableType    = ToNullable(nonNullableType, column.IsNullable);
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitKeyInfo(KeyInfo keyInfo)
+    protected override StorageSequenceInfo VisitKeyInfo(KeyInfo keyInfo)
     {
       if (keyInfo.Sequence==null || !keyInfo.IsFirstAmongSimilarKeys)
         return null;
@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
+    protected override StorageFullTextIndexInfo VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       if (!providerInfo.Supports(ProviderFeatures.FullText)) {
         UpgradeLog.Warning(nameof(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX), fullTextIndex.Name);
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Upgrade
         }
         else
           UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
-        new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        _ = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       
       ftIndex.FullTextCatalog = 
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>Visit result.</returns>
-    private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
+    private PrimaryIndexInfo VisitPrimaryIndexInfo(IndexInfo index)
     {
       foreach (var column in index.Columns)
         Visit(column);

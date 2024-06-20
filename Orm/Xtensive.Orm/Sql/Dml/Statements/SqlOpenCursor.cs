@@ -21,7 +21,8 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    /// <inheritdoc />
+    internal override SqlOpenCursor Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

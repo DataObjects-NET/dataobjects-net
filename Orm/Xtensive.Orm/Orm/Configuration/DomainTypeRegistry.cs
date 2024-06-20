@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2021 Xtensive LLC.
+// Copyright (C) 2010-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public override object Clone() => new DomainTypeRegistry(this);
+    public override DomainTypeRegistry Clone() => new DomainTypeRegistry(this);
 
     #endregion
 

@@ -15,7 +15,7 @@ namespace Xtensive.Comparison
   internal sealed class KeyValuePairComparer<T1, T2>: WrappingComparer<KeyValuePair<T1, T2>, T1, T2>,
     ISystemComparer<KeyValuePair<T1, T2>>
   {
-    protected override IAdvancedComparer<KeyValuePair<T1, T2>> CreateNew(ComparisonRules rules)
+    protected override KeyValuePairComparer<T1, T2> CreateNew(ComparisonRules rules)
       => new KeyValuePairComparer<T1, T2>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(KeyValuePair<T1, T2> x, KeyValuePair<T1, T2> y)

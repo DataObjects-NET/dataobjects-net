@@ -14,7 +14,7 @@ namespace Xtensive.Comparison
   internal sealed class AssemblyComparer: WrappingComparer<Assembly, string>,
     ISystemComparer<Assembly>
   {
-    protected override IAdvancedComparer<Assembly> CreateNew(ComparisonRules rules)
+    protected override AssemblyComparer CreateNew(ComparisonRules rules)
       => new AssemblyComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Assembly x, Assembly y)

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -707,7 +707,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    protected override ConfigurationBase CreateClone() => new DomainConfiguration();
+    protected override DomainConfiguration CreateClone() => new DomainConfiguration();
 
     /// <summary>
     /// Copies the properties from the <paramref name="source"/>
@@ -726,14 +726,14 @@ namespace Xtensive.Orm.Configuration
       connectionInfo = configuration.ConnectionInfo;
       defaultSchema = configuration.DefaultSchema;
       defaultDatabase = configuration.DefaultDatabase;
-      types = (DomainTypeRegistry) configuration.Types.Clone();
-      linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
-      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
+      types = configuration.Types.Clone();
+      linqExtensions = configuration.LinqExtensions.Clone();
+      namingConvention = configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
+      sessions = configuration.Sessions.Clone();
       upgradeMode = configuration.UpgradeMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
@@ -747,12 +747,12 @@ namespace Xtensive.Orm.Configuration
       multidatabaseKeys = configuration.MultidatabaseKeys;
       ensureConnectionIsAlive = configuration.EnsureConnectionIsAlive;
       options = configuration.Options;
-      databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
-      mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
-      keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
-      ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
+      databases =  configuration.Databases.Clone();
+      mappingRules = configuration.MappingRules.Clone();
+      keyGenerators = configuration.KeyGenerators.Clone();
+      ignoreRules = configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
-      versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
+      versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
     }
 

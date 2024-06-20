@@ -15,7 +15,7 @@ namespace Xtensive.Comparison
     ISystemComparer<TEnumerable>
     where TEnumerable: class, IEnumerable<T>
   {
-    protected override IAdvancedComparer<TEnumerable> CreateNew(ComparisonRules rules)
+    protected override EnumerableInterfaceComparer<TEnumerable, T> CreateNew(ComparisonRules rules)
       => new EnumerableInterfaceComparer<TEnumerable, T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(TEnumerable x, TEnumerable y)

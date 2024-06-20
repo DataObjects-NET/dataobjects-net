@@ -60,27 +60,19 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    /// <inheritdoc />
+    internal override SqlDelete Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlDelete();
+        clone.Delete = t.Delete?.Clone(c);
+        clone.From = (SqlQueryRef) t.from?.Clone(c);
+        clone.Where = t.where?.Clone(c);
 
-      var clone = new SqlDelete();
-      if (Delete != null)
-        clone.Delete = (SqlTableRef) Delete.Clone(context);
-      if (from != null)
-        clone.From = (SqlQueryRef) from.Clone(context);
-      if (where is not null)
-        clone.Where = (SqlExpression) where.Clone(context);
-
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint) hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        if (t.Hints.Count > 0)
+          foreach (var hint in t.Hints)
+            clone.Hints.Add(hint.Clone(c));
+        return clone;
+      });
 
     // Constructor
 

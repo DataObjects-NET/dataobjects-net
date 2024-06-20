@@ -30,13 +30,13 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override MappedColumn Clone(int newIndex)
     {
       return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
     }
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
+    public override MappedColumn Clone(string newName)
     {
       return new MappedColumn(this, newName);
     }

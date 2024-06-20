@@ -458,7 +458,7 @@ namespace Xtensive.Orm.Providers
       return CompileMember(n.Constructor, null, n.Arguments.SelectToArray(a => Visit(a)));
     }
 
-    protected override SqlExpression VisitNewArray(NewArrayExpression expression)
+    protected override SqlContainer VisitNewArray(NewArrayExpression expression)
     {
       if (expression.NodeType!=ExpressionType.NewArrayInit)
         throw new NotSupportedException();

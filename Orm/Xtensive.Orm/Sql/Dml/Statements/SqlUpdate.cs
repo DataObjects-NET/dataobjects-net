@@ -67,31 +67,22 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      var clone = new SqlUpdate();
-      if (update != null)
-        clone.Update = (SqlTableRef) Update.Clone(context);
-      if (from != null)
-        clone.From = (SqlQueryRef) from.Clone(context);
-      foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
-        clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
-      if (where is not null)
-        clone.Where = (SqlExpression) where.Clone(context);
-      if (limit is not null)
-        clone.Limit = (SqlExpression) where.Clone(context);
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint) hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    /// <inheritdoc />
+    internal override SqlUpdate Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlUpdate();
+        clone.Update = t.update?.Clone(c);
+        clone.From = t.from?.Clone(c);
+        foreach (KeyValuePair<ISqlLValue, SqlExpression> p in t.values)
+          clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(c)] =
+            p.Value is null ? null : p.Value.Clone(c);
+        clone.Where = t.where?.Clone(c);
+        clone.Limit = t.limit?.Clone(c);
+        if (t.Hints.Count > 0)
+          foreach (var hint in t.Hints)
+            clone.Hints.Add(hint.Clone(c));
+        return clone;
+      });
 
     // Constructor
 

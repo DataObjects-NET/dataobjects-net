@@ -14,19 +14,16 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlConcat : SqlExpressionList
   {
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    /// <inheritdoc />
+    internal override SqlConcat Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var expressionsClone = new List<SqlExpression>(t.expressions.Count);
+        foreach (var e in t.expressions)
+          expressionsClone.Add(e.Clone(c));
 
-      var expressionsClone = new List<SqlExpression>(expressions.Count);
-      foreach (var e in expressions)
-        expressionsClone.Add((SqlExpression) e.Clone(context));
-
-      var clone = new SqlConcat(expressionsClone);
-      return clone;
-    }
+        var clone = new SqlConcat(expressionsClone);
+        return clone;
+      });
 
     public override void ReplaceWith(SqlExpression expression)
     {

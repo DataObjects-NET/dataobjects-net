@@ -14,7 +14,10 @@ namespace Xtensive.Sql.Dml
     public abstract Type ItemType { get; }
     public abstract int Length { get; }
     public abstract object[] GetValues();
-    
+
+    /// <inheritdoc />
+    internal abstract override SqlExpression Clone(SqlNodeCloneContext context);
+
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);

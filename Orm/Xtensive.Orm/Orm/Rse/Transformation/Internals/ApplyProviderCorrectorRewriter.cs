@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return predicateCollector.TryAdd(newProvider) ? source : newProvider;
     }
 
-    protected override Provider VisitAlias(AliasProvider provider)
+    protected override AliasProvider VisitAlias(AliasProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = source!=provider.Source ? new AliasProvider(source, provider.Alias) : provider;
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override SelectProvider VisitSelect(SelectProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
 
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
 
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitIntersect(IntersectProvider provider)
+    protected override IntersectProvider VisitIntersect(IntersectProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
       return left != provider.Left || right != provider.Right
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitExcept(ExceptProvider provider)
+    protected override ExceptProvider VisitExcept(ExceptProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
       return left != provider.Left || right != provider.Right
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitConcat(ConcatProvider provider)
+    protected override ConcatProvider VisitConcat(ConcatProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
       return left != provider.Left || right != provider.Right
@@ -262,7 +262,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitUnion(UnionProvider provider)
+    protected override UnionProvider VisitUnion(UnionProvider provider)
     {
       VisitBinaryProvider(provider, out var left, out var right);
       return left != provider.Left || right != provider.Right
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : provider;
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override AggregateProvider VisitAggregate(AggregateProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
@@ -291,14 +291,14 @@ namespace Xtensive.Orm.Rse.Transformation
       return calculateProviderCollector.TryAdd(newProvider) ? source : newProvider;
     }
 
-    protected override Provider VisitTake(TakeProvider provider)
+    protected override TakeProvider VisitTake(TakeProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
       return source != provider.Source ? new TakeProvider(source, provider.Count) : provider;
     }
 
-    protected override Provider VisitSkip(SkipProvider provider)
+    protected override SkipProvider VisitSkip(SkipProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();

@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class DoubleComparer : ValueTypeComparer<double>
   {
-    protected override IAdvancedComparer<double> CreateNew(ComparisonRules rules)
+    protected override DoubleComparer CreateNew(ComparisonRules rules)
       => new DoubleComparer(Provider, ComparisonRules.Combine(rules));
 
 

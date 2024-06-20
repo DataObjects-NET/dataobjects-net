@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     #region Visitor methods overrsides
 
-    protected override Expression VisitFullTextExpression(FullTextExpression expression)
+    protected override NewExpression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return processedTarget;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
+    protected override UnaryExpression VisitGroupingExpression(GroupingExpression groupingExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(groupingExpression,
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Convert(resultExpression, groupingExpression.Type);
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+    protected override UnaryExpression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(
@@ -289,7 +289,7 @@ namespace Xtensive.Orm.Linq.Materialization
           .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    protected override UnaryExpression VisitStructureExpression(StructureExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Linq.Materialization
         expression.Type);
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression expression)
+    protected override MethodCallExpression VisitKeyExpression(KeyExpression expression)
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
       Expression tupleExpression = Expression.Call(
@@ -404,7 +404,7 @@ namespace Xtensive.Orm.Linq.Materialization
         : CreateEntity(expression, tupleExpression);
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    protected override MethodCallExpression VisitEntitySetExpression(EntitySetExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return prefetchEntitySetExpression;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression expression)
+    protected override MethodCallExpression VisitColumnExpression(ColumnExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);

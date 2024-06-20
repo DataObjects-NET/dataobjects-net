@@ -139,7 +139,7 @@ namespace Xtensive.Orm.BulkOperations
       var indexMapping = PrimaryIndexes[0];
       var columns = new List<ColumnInfo>();
       foreach (var columnInfo in indexMapping.PrimaryIndex.KeyColumns.Keys) {
-        var s = (SqlSelect) select.Clone();
+        var s = (SqlSelect) ((ICloneable) select).Clone();
         foreach (var column in columns) {
           var ex = SqlDml.Equals(s.From.Columns[column.Name], table.Columns[column.Name]);
           s.Where = s.Where is null ? ex : SqlDml.And(s.Where, ex);

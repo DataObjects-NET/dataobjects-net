@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class SingleComparer : ValueTypeComparer<float>
   {
-    protected override IAdvancedComparer<float> CreateNew(ComparisonRules rules)
+    protected override SingleComparer CreateNew(ComparisonRules rules)
       => new SingleComparer(Provider, ComparisonRules.Combine(rules));
 
 

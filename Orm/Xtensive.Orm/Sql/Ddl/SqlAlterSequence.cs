@@ -24,10 +24,9 @@ namespace Xtensive.Sql.Ddl
       set => infoOption = value;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAlterSequence(sequence, (SequenceDescriptor) sequenceDescriptor.Clone(), infoOption);
+    /// <inheritdoc />
+    internal override SqlAlterSequence Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t,c) => new SqlAlterSequence(t.sequence, t.sequenceDescriptor.Clone(), t.infoOption));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

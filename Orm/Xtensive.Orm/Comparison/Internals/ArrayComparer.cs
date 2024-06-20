@@ -13,7 +13,7 @@ namespace Xtensive.Comparison
   internal sealed class ArrayComparer<T> : WrappingComparer<T[], T>, 
     ISystemComparer<T[]>
   {
-    protected override IAdvancedComparer<T[]> CreateNew(ComparisonRules rules)
+    protected override ArrayComparer<T> CreateNew(ComparisonRules rules)
       => new ArrayComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T[] x, T[] y)

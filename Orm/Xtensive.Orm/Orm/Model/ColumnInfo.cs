@@ -246,27 +246,26 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <summary>
-    /// Clones this instance.
+    /// Creates a new object that is a copy of the current instance.
     /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
     public ColumnInfo Clone()
     {
-      ColumnInfo clone = new ColumnInfo(field);
-      clone.Name = Name;
-      clone.attributes = attributes;
-      clone.valueType = valueType;
-      clone.length = length;
-      clone.scale = scale;
-      clone.precision = precision;
-      clone.defaultValue = defaultValue;
-      clone.defaultSqlExpression = defaultSqlExpression;
-      clone.indexes = indexes;
-      clone.cultureInfo = cultureInfo;
+      var clone = new ColumnInfo(field) {
+        Name = Name,
+        attributes = attributes,
+        valueType = valueType,
+        length = length,
+        scale = scale,
+        precision = precision,
+        defaultValue = defaultValue,
+        defaultSqlExpression = defaultSqlExpression,
+        indexes = indexes,
+        cultureInfo = cultureInfo
+      };
 
       return clone;
     }

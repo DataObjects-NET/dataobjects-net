@@ -22,6 +22,9 @@ namespace Xtensive.Sql.Dml
     /// <value>The collection of join hints.</value>
     public IList<SqlHint> Hints => hints ??= new Collection<SqlHint>();
 
+    /// <inheritdoc />
+    internal abstract override SqlStatement Clone(SqlNodeCloneContext context);
+
     // Constructors
 
     protected SqlQueryStatement(SqlNodeType nodeType) : base(nodeType)

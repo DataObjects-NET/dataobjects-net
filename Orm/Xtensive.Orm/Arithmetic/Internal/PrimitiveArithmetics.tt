@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 // Copyright (C) 2008 Xtensive LLC.
@@ -146,7 +146,7 @@ foreach (var type in types) {
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<<#= primitiveName #>> CreateNew(ArithmeticRules rules)
+    protected override <#= className #> CreateNew(ArithmeticRules rules)
     {
       return new <#= className #>(Provider, rules);
     }

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlExpressionCloneTest()
     {
       SqlExpression e = SqlDml.Literal(1);
-      SqlExpression eClone = (SqlExpression) e.Clone();
+      SqlExpression eClone = e.Clone(new SqlNodeCloneContext());
       Assert.AreNotEqual(e, eClone);
       Assert.AreEqual(e.NodeType, eClone.NodeType);
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlLiteralCloneTest()
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
-      SqlLiteral<int> lClone = (SqlLiteral<int>) l.Clone();
+      SqlLiteral<int> lClone = l.Clone(new SqlNodeCloneContext());
       Assert.AreNotEqual(l, lClone);
       Assert.AreEqual(l.Value, lClone.Value);
       Assert.AreEqual(l.NodeType, lClone.NodeType);
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlArrayCloneTest()
     {
       SqlArray<int> a = SqlDml.Array(new int[]{1, 2, 4});
-      SqlArray<int> aClone = (SqlArray<int>) a.Clone();
+      SqlArray<int> aClone = a.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(a, aClone);
       Assert.IsTrue(a.Values!=aClone.Values);
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlBinaryCloneTest()
     {
       SqlBinary b = SqlDml.Literal(2) > 1;
-      SqlBinary bClone = (SqlBinary)b.Clone();
+      SqlBinary bClone = b.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(b, bClone);
       Assert.AreNotEqual(b.Left, bClone.Left);
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Sql
       c[SqlDml.Literal(2)] = SqlDml.Literal("B");
       c.Else = SqlDml.Literal("C");
       
-      SqlCase cClone = (SqlCase) c.Clone();
+      SqlCase cClone = c.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(c, cClone);
       Assert.AreNotEqual(c.Value, cClone.Value);
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlCastCloneTest()
     {
       SqlCast c = SqlDml.Cast(SqlDml.Literal(1), SqlType.Decimal, 6 ,4);
-      SqlCast cClone = (SqlCast)c.Clone();
+      SqlCast cClone = c.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(c, cClone);
       Assert.AreNotEqual(c.Operand, cClone.Operand);
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlUserColumn c = SqlDml.Column(1);
-        SqlUserColumn cClone = (SqlUserColumn)c.Clone();
+        SqlUserColumn cClone = c.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(c, cClone);
         Assert.AreNotEqual(c.Expression, cClone.Expression);
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Sql
       {
         SqlTableRef t = SqlDml.TableRef(table1);
         SqlTableColumn c = (SqlTableColumn)t[0];
-        SqlTableColumn cClone = (SqlTableColumn)c.Clone();
+        SqlTableColumn cClone = (SqlTableColumn)c.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(c, cClone);
 //        Assert.AreNotEqual(c.SqlTable, cClone.SqlTable);
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlFunctionCall fc = SqlDml.FunctionCall("Function", 1, 2, 4);
-        SqlFunctionCall fcClone = (SqlFunctionCall) fc.Clone();
+        SqlFunctionCall fcClone = fc.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(fc, fcClone);
         Assert.AreNotEqual(fc.Arguments, fcClone.Arguments);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Sql
       Console.WriteLine();
       {
         SqlFunctionCall fc = SqlDml.CharLength("string");
-        SqlFunctionCall fcClone = (SqlFunctionCall) fc.Clone();
+        SqlFunctionCall fcClone = fc.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(fc, fcClone);
         Assert.AreNotEqual(fc.Arguments, fcClone.Arguments);
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlLike l = SqlDml.Like("epxression", "e%", "\\");
-        SqlLike lClone = (SqlLike) l.Clone();
+        SqlLike lClone = l.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(l, lClone);
         Assert.AreNotEqual(l.Expression, lClone.Expression);
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Sql
       Console.WriteLine();
       {
         SqlLike l = SqlDml.Like("epxression", "e%");
-        SqlLike lClone = (SqlLike)l.Clone();
+        SqlLike lClone = l.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(l, lClone);
         Assert.AreNotEqual(l.Expression, lClone.Expression);
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlRowCloneTest()
     {
       SqlRow r = SqlDml.Row(1, 2, 4, SqlDml.Literal(6) + 5);
-      SqlRow rClone = (SqlRow)r.Clone();
+      SqlRow rClone = r.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(r, rClone);
       Assert.AreEqual(r.NodeType, rClone.NodeType);
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlUnaryCloneTest()
     {
       SqlUnary u = -SqlDml.Literal(1);
-      SqlUnary uClone = (SqlUnary)u.Clone();
+      SqlUnary uClone = u.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(u, uClone);
       Assert.AreEqual(u.NodeType, uClone.NodeType);
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlVariableCloneTest()
     {
       SqlVariable v = SqlDml.Variable("v", SqlType.Int32);
-      SqlVariable vClone = (SqlVariable)v.Clone();
+      SqlVariable vClone = v.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(v, vClone);
       Assert.AreEqual(v.NodeType, vClone.NodeType);
@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlAggregate a = SqlDml.Count();
-        SqlAggregate aClone = (SqlAggregate) a.Clone();
+        SqlAggregate aClone = a.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(a, aClone);
         Assert.AreEqual(a.NodeType, aClone.NodeType);
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Tests.Sql
       Console.WriteLine();
       {
         SqlAggregate a = SqlDml.Sum(1);
-        SqlAggregate aClone = (SqlAggregate)a.Clone();
+        SqlAggregate aClone = a.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(a, aClone);
         Assert.AreNotEqual(a.Expression, aClone.Expression);
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlTableRefCloneTest()
     {
       SqlTableRef t = SqlDml.TableRef(table1);
-      SqlTableRef tClone = (SqlTableRef)t.Clone();
+      SqlTableRef tClone = t.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(t, tClone);
       Assert.AreNotEqual(t.Columns, tClone.Columns);
@@ -292,7 +292,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.Columns.Add(t.Columns[0]);
 
       SqlQueryRef qr = SqlDml.QueryRef(s);
-      SqlQueryRef qrClone = (SqlQueryRef)qr.Clone();
+      SqlQueryRef qrClone = qr.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(qr, qrClone);
       Assert.AreNotEqual(qr.Columns, qrClone.Columns);
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.Columns.Add(t.Columns[0]);
 
       SqlSubQuery ss = SqlDml.SubQuery(s);
-      SqlSubQuery ssClone = (SqlSubQuery)ss.Clone();
+      SqlSubQuery ssClone = ss.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(ss, ssClone);
       Assert.AreNotEqual(ss.Query, ssClone.Query);
@@ -332,7 +332,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.Columns.Add(t.Columns[0]);
 
       SqlMatch m = SqlDml.Match(SqlDml.Row(4), s, true, SqlMatchType.Full);
-      SqlMatch mClone = (SqlMatch)m.Clone();
+      SqlMatch mClone = m.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(m, mClone);
       Assert.AreNotEqual(m.Value, mClone.Value);
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.Where = SqlDml.Like(tr1["Name"], "Marat");
       s.Hints.Add(SqlDml.FastFirstRowsHint(10));
 
-      SqlSelect sClone = (SqlSelect)s.Clone();
+      SqlSelect sClone = s.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(s, sClone);
       Assert.AreNotEqual(s.Columns, sClone.Columns);
@@ -403,7 +403,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.OrderBy.Add(tr1["ID"], false);
       s.OrderBy.Add(2);
 
-      sClone = (SqlSelect)s.Clone();
+      sClone = s.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(s, sClone);
       Assert.AreNotEqual(s.Columns, sClone.Columns);
@@ -449,7 +449,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlQueryRef t = SqlDml.QueryRef(s, "SUBSELECT");
       s2.From = t;
       s2.Columns.Add(t.Asterisk);
-      SqlSelect s2Clone = (SqlSelect) s2.Clone();
+      SqlSelect s2Clone = s2.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(s2, s2Clone);
       Assert.AreEqual(s2.Columns.Count, s2Clone.Columns.Count);
@@ -460,7 +460,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlOrder o = SqlDml.Order(2, true);
-        SqlOrder oClone = (SqlOrder) o.Clone();
+        SqlOrder oClone = o.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(o, oClone);
         Assert.AreEqual(o.NodeType, oClone.NodeType);
@@ -471,7 +471,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       {
         SqlOrder o = SqlDml.Order(SqlDml.Column(SqlDml.Literal(2)), false);
-        SqlOrder oClone = (SqlOrder)o.Clone();
+        SqlOrder oClone = o.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(o, oClone);
         Assert.AreEqual(o.NodeType, oClone.NodeType);
@@ -486,7 +486,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       SqlParameterRef p = SqlDml.ParameterRef("p");
       SqlAssignment a = SqlDml.Assign(p, 1);
-      SqlAssignment aClone = (SqlAssignment) a.Clone();
+      SqlAssignment aClone = a.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(a, aClone);
       Assert.AreEqual(a.NodeType, aClone.NodeType);
@@ -504,7 +504,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlBatch b = SqlDml.Batch();
       b.Add(a);
       b.Add(a);
-      SqlBatch bClone = (SqlBatch) b.Clone();
+      SqlBatch bClone = b.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(b, bClone);
       Assert.AreEqual(b.NodeType, bClone.NodeType);
@@ -518,7 +518,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       {
         SqlVariable dv = SqlDml.Variable("v", SqlType.Char, 5);
-        SqlVariable dvClone = (SqlVariable) dv.Clone();
+        SqlVariable dvClone = dv.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(dv, dvClone);
         Assert.AreEqual(dv.NodeType, dvClone.NodeType);
@@ -528,7 +528,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       {
         SqlVariable dv = SqlDml.Variable("v", SqlType.Decimal, 6, 4);
-        SqlVariable dvClone = (SqlVariable)dv.Clone();
+        SqlVariable dvClone = dv.Clone(new SqlNodeCloneContext());
 
         Assert.AreNotEqual(dv, dvClone);
         Assert.AreEqual(dv.NodeType, dvClone.NodeType);
@@ -544,7 +544,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlDelete d = SqlDml.Delete(t);
       d.Where = t[0] < 6;
       d.Hints.Add(SqlDml.FastFirstRowsHint(10));
-      SqlDelete dClone = (SqlDelete) d.Clone();
+      SqlDelete dClone = d.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(d, dClone);
       Assert.AreNotEqual(d.Delete, dClone.Delete);
@@ -567,7 +567,7 @@ namespace Xtensive.Orm.Tests.Sql
       ifFalse.Columns.Add(2, "id");
       
       SqlIf i = SqlDml.If(SqlDml.SubQuery(ifTrue) > 0, ifTrue);
-      SqlIf iClone = (SqlIf) i.Clone();
+      SqlIf iClone = i.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(i, iClone);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
@@ -580,7 +580,7 @@ namespace Xtensive.Orm.Tests.Sql
       Console.WriteLine();
       
       i.False = ifFalse;
-      iClone = (SqlIf)i.Clone();
+      iClone = i.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(i, iClone);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
@@ -600,7 +600,7 @@ namespace Xtensive.Orm.Tests.Sql
       i.Values[t[0]] = 1;
       i.Values[t[1]] = "Anonym";
       i.Hints.Add(SqlDml.FastFirstRowsHint(10));
-      SqlInsert iClone = (SqlInsert)i.Clone();
+      SqlInsert iClone = i.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(i, iClone);
       Assert.AreNotEqual(i.Into, iClone.Into);
@@ -622,7 +622,7 @@ namespace Xtensive.Orm.Tests.Sql
       u.Values[t[1]] = "Anonym";
       u.Where = t.Columns["ID"]==1;
       u.Hints.Add(SqlDml.FastFirstRowsHint(10));
-      SqlUpdate uClone = (SqlUpdate)u.Clone();
+      SqlUpdate uClone = u.Clone(new SqlNodeCloneContext());
 
       Assert.AreNotEqual(u, uClone);
       Assert.AreNotEqual(u.Update, uClone.Update);
@@ -656,7 +656,7 @@ namespace Xtensive.Orm.Tests.Sql
       b.Add(f);
       w.Statement = b;
 
-      SqlWhile wClone = (SqlWhile) w.Clone();
+      SqlWhile wClone = w.Clone(new SqlNodeCloneContext());
       
       Assert.AreNotEqual(w, wClone);
       Assert.AreEqual(w.NodeType, wClone.NodeType);

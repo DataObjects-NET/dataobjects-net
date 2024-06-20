@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.09.04
 
@@ -92,14 +92,20 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public object Clone()
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public NamingConvention Clone()
     {
-      EnsureNotLocked();
-      var result = new NamingConvention();
-      result.letterCasePolicy = letterCasePolicy;
-      result.namespacePolicy = namespacePolicy;
-      result.namingRules = namingRules;
-      result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
+      var result = new NamingConvention {
+        letterCasePolicy = letterCasePolicy,
+        namespacePolicy = namespacePolicy,
+        namingRules = namingRules,
+        namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms)
+      };
       return result;
     }
 

@@ -11,7 +11,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class SelectManySelectorRewriter : ExpressionVisitor
+  internal sealed class SelectManySelectorRewriter : ExpressionVisitor
   {
     private readonly ParameterExpression sourceParameter;
     private readonly ParameterExpression targetParameter;
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return base.VisitMemberAccess(m);
     }
 
-    protected override Expression VisitParameter(ParameterExpression p)
+    protected override ParameterExpression VisitParameter(ParameterExpression p)
     {
       if (p==sourceParameter)
         processingFailed = true;

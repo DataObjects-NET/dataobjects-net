@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public Sequence Sequence { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCreateSequence(Sequence);
+    /// <inheritdoc />
+    internal override SqlCreateSequence Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlCreateSequence(t.Sequence));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class Int32Comparer : ValueTypeComparer<int>
   {
-    protected override IAdvancedComparer<int> CreateNew(ComparisonRules rules) => new Int32Comparer(Provider, ComparisonRules.Combine(rules));
+    protected override Int32Comparer CreateNew(ComparisonRules rules) => new Int32Comparer(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

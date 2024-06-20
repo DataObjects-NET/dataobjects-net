@@ -53,7 +53,8 @@ namespace Xtensive.Sql.Dml
       get { return targets; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    /// <inheritdoc />
+    internal override SqlFetch Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

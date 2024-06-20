@@ -369,14 +369,19 @@ namespace Xtensive.Orm.Model
       underlyingIndexes.Lock();
     }
 
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
     public IndexInfo Clone()
     {
-      var result = new IndexInfo(reflectedType, attributes, declaringIndex);
-      result.shortName = shortName;
-      result.Name = Name;
-      result.keyColumns = keyColumns;
-      result.valueColumns = valueColumns;
-      result.includedColumns = includedColumns;
+      var result = new IndexInfo(reflectedType, attributes, declaringIndex) {
+        shortName = shortName,
+        Name = Name,
+        keyColumns = keyColumns,
+        valueColumns = valueColumns,
+        includedColumns = includedColumns
+      };
       return result;
     }
 

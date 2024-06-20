@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public PartitionFunction PartitionFunction { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlDropPartitionFunction(PartitionFunction);
+    /// <inheritdoc />
+    internal override SqlDropPartitionFunction Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlDropPartitionFunction(t.PartitionFunction));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

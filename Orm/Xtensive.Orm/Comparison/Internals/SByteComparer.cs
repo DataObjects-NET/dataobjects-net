@@ -12,7 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class SByteComparer : ValueTypeComparer<sbyte>
   {
-    protected override IAdvancedComparer<sbyte> CreateNew(ComparisonRules rules)
+    protected override SByteComparer CreateNew(ComparisonRules rules)
       => new SByteComparer(Provider, ComparisonRules.Combine(rules));
 
 

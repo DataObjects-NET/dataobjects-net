@@ -70,20 +70,20 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered;
     }
 
-    protected override Expression VisitMarker(MarkerExpression expression)
+    protected override MarkerExpression VisitMarker(MarkerExpression expression)
     {
       Visit(expression.Target);
       return expression;
     }
 
-    protected override Expression VisitFieldExpression(FieldExpression f)
+    protected override FieldExpression VisitFieldExpression(FieldExpression f)
     {
       ProcessFieldOwner(f);
       AddColumns(f, f.Mapping.GetItems());
       return f;
     }
 
-    protected override Expression VisitStructureFieldExpression(StructureFieldExpression s)
+    protected override StructureFieldExpression VisitStructureFieldExpression(StructureFieldExpression s)
     {
       ProcessFieldOwner(s);
       AddColumns(s,
@@ -93,13 +93,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return s;
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression k)
+    protected override KeyExpression VisitKeyExpression(KeyExpression k)
     {
       AddColumns(k, k.Mapping.GetItems());
       return k;
     }
 
-    protected override Expression VisitEntityExpression(EntityExpression e)
+    protected override EntityExpression VisitEntityExpression(EntityExpression e)
     {
       if (TreatEntityAsKey) {
         var keyExpression = (KeyExpression) e.Fields.First(f => f.ExtendedType==ExtendedExpressionType.Key);
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return e;
     }
 
-    protected override Expression VisitEntityFieldExpression(EntityFieldExpression ef)
+    protected override EntityFieldExpression VisitEntityFieldExpression(EntityFieldExpression ef)
     {
       var keyExpression = (KeyExpression) ef.Fields.First(f => f.ExtendedType==ExtendedExpressionType.Key);
       AddColumns(ef, keyExpression.Mapping.GetItems());
@@ -127,19 +127,19 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ef;
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression es)
+    protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression es)
     {
       VisitEntityExpression((EntityExpression) es.Owner);
       return es;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression c)
+    protected override ColumnExpression VisitColumnExpression(ColumnExpression c)
     {
       AddColumns(c, c.Mapping.GetItems());
       return c;
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    protected override StructureExpression VisitStructureExpression(StructureExpression expression)
     {
       AddColumns(expression,
         expression.Fields
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       Visit(expression.KeyExpression);
       VisitSubQueryExpression(expression);
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return subQueryExpression;
     }
 
-    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    protected override LocalCollectionExpression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
       foreach (var field in expression.Fields)
         Visit((Expression) field.Value);
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         columns.AddRange(expressionColumns.Select(i=>new Pair<int, Expression>(i, parameterizedExpression)));
     }
 
-    protected override Expression VisitFullTextExpression(FullTextExpression expression)
+    protected override FullTextExpression VisitFullTextExpression(FullTextExpression expression)
     {
       VisitEntityExpression(expression.EntityExpression);
       VisitColumnExpression(expression.RankExpression);

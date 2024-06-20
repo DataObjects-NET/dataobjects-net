@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Rse
   public class SystemColumn : Column
   {
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override SystemColumn Clone(int newIndex)
     {
       return new SystemColumn(this, newIndex);
     }
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
+    public override SystemColumn Clone(string newName)
     {
       return new SystemColumn(this, newName);
     }

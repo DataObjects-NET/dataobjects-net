@@ -1365,7 +1365,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    protected override Expression VisitMemberInit(MemberInitExpression mi)
+    protected override ConstructorExpression VisitMemberInit(MemberInitExpression mi)
     {
       var newExpression = mi.NewExpression;
       VisitNewExpressionArgumentsSkipResults(newExpression);

@@ -243,6 +243,9 @@ namespace Xtensive.Sql.Dml
 
     public sealed override bool Equals(object obj) => ReferenceEquals(this, obj);
 
+    /// <inheritdoc />
+    internal override abstract SqlExpression Clone(SqlNodeCloneContext context);
+
     // Constructor
 
     protected SqlExpression(SqlNodeType nodeType) : base(nodeType)

@@ -14,8 +14,9 @@ namespace Xtensive.Sql.Dml
     {
       _ = ArgumentValidator.EnsureArgumentIs<SqlNull>(expression);
     }
-    
-    internal override object Clone(SqlNodeCloneContext context)
+
+    /// <inheritdoc />
+    internal override SqlNull Clone(SqlNodeCloneContext context)
     {
       return this;
     }

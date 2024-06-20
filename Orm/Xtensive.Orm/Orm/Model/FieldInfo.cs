@@ -755,14 +755,12 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <summary>
-    /// Clones this instance.
+    /// Creates a new object that is a copy of the current instance.
     /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
     public FieldInfo Clone()
     {
       var clone = new FieldInfo(declaringType, reflectedType, Attributes) {

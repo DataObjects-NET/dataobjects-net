@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitTable(Table table)
+    protected override TableInfo VisitTable(Table table)
     {
       var tableInfo = new TableInfo(targetModel, resolver.GetNodeName(table));
 
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitTableColumn(TableColumn tableColumn)
+    protected override StorageColumnInfo VisitTableColumn(TableColumn tableColumn)
     {
       var tableInfo = currentTable;
       var typeInfo = ExtractType(tableColumn);
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitForeignKey(ForeignKey key)
+    protected override ForeignKeyInfo VisitForeignKey(ForeignKey key)
     {
       var referencingTable = targetModel.Tables[resolver.GetNodeName(key.Owner)];
       var referencingColumns = new List<StorageColumnInfo>();
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitPrimaryKey(PrimaryKey key)
+    protected override PrimaryIndexInfo VisitPrimaryKey(PrimaryKey key)
     {
       var tableInfo = currentTable;
       var primaryIndexInfo = new PrimaryIndexInfo(tableInfo, key.Name) {IsClustered = key.IsClustered};
@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitFullTextIndex(FullTextIndex index)
+    protected override StorageFullTextIndexInfo VisitFullTextIndex(FullTextIndex index)
     {
       var tableInfo = currentTable;
       var name = index.Name.IsNullOrEmpty()
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitIndex(Index index)
+    protected override SecondaryIndexInfo VisitIndex(Index index)
     {
       var tableInfo = currentTable;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitSequence(Sequence sequence)
+    protected override StorageSequenceInfo VisitSequence(Sequence sequence)
     {
       var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
         Increment = sequence.SequenceDescriptor.Increment.Value

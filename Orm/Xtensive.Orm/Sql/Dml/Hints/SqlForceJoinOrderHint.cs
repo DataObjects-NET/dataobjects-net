@@ -19,10 +19,10 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public IEnumerable<SqlTable> Tables { get { return tables; } }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlForceJoinOrderHint(tables?.Select(table => (SqlTable) table.Clone()).ToArray(tables.Length));
+    /// <inheritdoc />
+    internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlForceJoinOrderHint(t.tables?.Select(table => table.Clone(c)).ToArray(t.tables.Length)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

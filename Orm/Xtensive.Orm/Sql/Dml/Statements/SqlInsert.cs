@@ -47,28 +47,22 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    /// <inheritdoc />
+    internal override SqlInsert Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlInsert();
+        clone.Into = t.into?.Clone(c);
+        clone.from = t.from?.Clone(c);
+        foreach (KeyValuePair<SqlColumn, SqlExpression> p in t.values)
+          clone.Values[p.Key.Clone(c)] =
+            p.Value is null ? null : p.Value.Clone(c);
 
-      SqlInsert clone = new SqlInsert();
-      if (Into != null)
-        clone.Into = (SqlTableRef) Into.Clone(context);
-      if (from != null)
-        clone.From = (SqlSelect) from.Clone(context);
-      foreach (KeyValuePair<SqlColumn, SqlExpression> p in values)
-        clone.Values[(SqlTableColumn) p.Key.Clone(context)] =
-          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
+        if (t.Hints.Count > 0)
+          foreach (var hint in t.Hints)
+            clone.Hints.Add(hint.Clone(c));
 
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint) hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     // Constructor
 

@@ -99,18 +99,14 @@ namespace Xtensive.Sql.Dml
 
     #endregion
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      var clone = new SqlBatch();
-      foreach (SqlStatement s in statements)
-        clone.Add((SqlStatement) s.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    /// <inheritdoc />
+    internal override SqlBatch Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlBatch();
+        foreach (var s in t.statements)
+          clone.Add(s.Clone(c));
+        return clone;
+      });
 
     /// <inheritdoc/>
     public override void AcceptVisitor(ISqlVisitor visitor)

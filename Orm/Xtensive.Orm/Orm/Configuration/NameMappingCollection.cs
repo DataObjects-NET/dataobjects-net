@@ -1,6 +1,6 @@
-// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
@@ -99,10 +99,13 @@ namespace Xtensive.Orm.Configuration
     /// Creates clone of this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public object Clone()
-    {
-      return new NameMappingCollection(this);
-    }
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public NameMappingCollection Clone() => new NameMappingCollection(this);
 
     /// <summary>
     /// Initializes new instance of this type.

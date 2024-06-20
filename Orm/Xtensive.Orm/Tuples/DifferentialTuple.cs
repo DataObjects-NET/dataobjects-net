@@ -105,7 +105,7 @@ namespace Xtensive.Tuples
     internal void BackupDifference()
     {
       if (difference != null)
-        backupedDifference = (DifferentialTuple) this.Clone();
+        backupedDifference = Clone();
     }
 
     internal void DropBackedUpDifference()
@@ -170,13 +170,13 @@ namespace Xtensive.Tuples
     #region CreateNew, Clone, Reset methods
 
     /// <inheritdoc/>
-    public override Tuple CreateNew()
+    public override DifferentialTuple CreateNew()
     {
       return new DifferentialTuple(origin.CreateNew());
     }
 
     /// <inheritdoc/>
-    public override Tuple Clone()
+    public override DifferentialTuple Clone()
     {
       return new DifferentialTuple(
         origin.Clone(), 

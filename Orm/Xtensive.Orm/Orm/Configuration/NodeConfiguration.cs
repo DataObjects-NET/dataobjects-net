@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
@@ -108,8 +108,8 @@ namespace Xtensive.Orm.Configuration
         nodeId = nodeId,
         connectionInfo = connectionInfo,
         connectionInitializationSql = connectionInitializationSql,
-        databaseMapping = (NameMappingCollection) databaseMapping.Clone(),
-        schemaMapping = (NameMappingCollection) schemaMapping.Clone(),
+        databaseMapping = databaseMapping.Clone(),
+        schemaMapping = schemaMapping.Clone(),
       };
       return clone;
     }

@@ -103,23 +103,15 @@ namespace Xtensive.Sql.Dml
         cases.Add(pair);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var v)) {
-        return v;
-      }
-
-      var clone = new SqlCase(value is null ? null : (SqlExpression) value.Clone(context));
-
-      if (@else is not null)
-        clone.Else = (SqlExpression) @else.Clone(context);
-
-      foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)
-        clone[(SqlExpression) pair.Key.Clone(context)] = (SqlExpression) pair.Value.Clone(context);
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    /// <inheritdoc />
+    internal override SqlCase Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlCase(t.value?.Clone(c));
+        clone.Else = t.@else?.Clone(c);
+        foreach (var pair in t.cases)
+          clone[pair.Key.Clone(c)] = pair.Value.Clone(c);
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

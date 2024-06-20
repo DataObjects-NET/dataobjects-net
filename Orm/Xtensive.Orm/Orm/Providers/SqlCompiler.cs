@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitStore(StoreProvider provider)
+    protected override SqlStoreProvider VisitStore(StoreProvider provider)
     {
       var source =
         provider.Source as ExecutableProvider

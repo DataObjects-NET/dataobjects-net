@@ -20,12 +20,14 @@ namespace Xtensive.Tuples.Packed
       get { return PackedDescriptor; }
     }
 
-    public override Tuple Clone()
+    /// <inheritdoc />
+    public override PackedTuple Clone()
     {
       return new PackedTuple(this);
     }
 
-    public override Tuple CreateNew()
+    /// <inheritdoc />
+    public override PackedTuple CreateNew()
     {
       return new PackedTuple(PackedDescriptor);
     }

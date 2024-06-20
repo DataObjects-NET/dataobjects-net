@@ -12,6 +12,9 @@ namespace Xtensive.Sql
   [Serializable]
   public abstract class SqlStatement : SqlNode
   {
+    /// <inheritdoc />
+    internal abstract override SqlStatement Clone(SqlNodeCloneContext context);
+
     protected SqlStatement(SqlNodeType nodeType) : base(nodeType)
     {
     }

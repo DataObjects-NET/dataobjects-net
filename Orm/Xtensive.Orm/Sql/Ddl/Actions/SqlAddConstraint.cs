@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public Constraint Constraint { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAddConstraint(Constraint);
+    /// <inheritdoc />
+    internal override SqlAddConstraint Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlAddConstraint(t.Constraint));
 
     // Constructors
 

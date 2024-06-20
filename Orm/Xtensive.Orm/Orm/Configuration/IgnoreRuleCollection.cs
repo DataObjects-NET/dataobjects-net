@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -51,7 +51,13 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc />
-    public object Clone()
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public IgnoreRuleCollection Clone()
     {
       var result = new IgnoreRuleCollection();
       foreach (var rule in this)

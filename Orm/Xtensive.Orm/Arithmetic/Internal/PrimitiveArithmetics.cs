@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
@@ -124,7 +124,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Byte> CreateNew(ArithmeticRules rules)
+    protected override ByteArithmetic CreateNew(ArithmeticRules rules)
     {
       return new ByteArithmetic(Provider, rules);
     }
@@ -255,7 +255,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<SByte> CreateNew(ArithmeticRules rules)
+    protected override SByteArithmetic CreateNew(ArithmeticRules rules)
     {
       return new SByteArithmetic(Provider, rules);
     }
@@ -386,7 +386,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Char> CreateNew(ArithmeticRules rules)
+    protected override CharArithmetic CreateNew(ArithmeticRules rules)
     {
       return new CharArithmetic(Provider, rules);
     }
@@ -517,7 +517,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Int16> CreateNew(ArithmeticRules rules)
+    protected override Int16Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new Int16Arithmetic(Provider, rules);
     }
@@ -648,7 +648,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<UInt16> CreateNew(ArithmeticRules rules)
+    protected override UInt16Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new UInt16Arithmetic(Provider, rules);
     }
@@ -779,7 +779,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Int32> CreateNew(ArithmeticRules rules)
+    protected override Int32Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new Int32Arithmetic(Provider, rules);
     }
@@ -910,7 +910,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<UInt32> CreateNew(ArithmeticRules rules)
+    protected override UInt32Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new UInt32Arithmetic(Provider, rules);
     }
@@ -1041,7 +1041,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Int64> CreateNew(ArithmeticRules rules)
+    protected override Int64Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new Int64Arithmetic(Provider, rules);
     }
@@ -1172,7 +1172,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<UInt64> CreateNew(ArithmeticRules rules)
+    protected override UInt64Arithmetic CreateNew(ArithmeticRules rules)
     {
       return new UInt64Arithmetic(Provider, rules);
     }
@@ -1303,7 +1303,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Decimal> CreateNew(ArithmeticRules rules)
+    protected override DecimalArithmetic CreateNew(ArithmeticRules rules)
     {
       return new DecimalArithmetic(Provider, rules);
     }
@@ -1434,7 +1434,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Single> CreateNew(ArithmeticRules rules)
+    protected override SingleArithmetic CreateNew(ArithmeticRules rules)
     {
       return new SingleArithmetic(Provider, rules);
     }
@@ -1565,7 +1565,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <inheritdoc/>
-    protected override IArithmetic<Double> CreateNew(ArithmeticRules rules)
+    protected override DoubleArithmetic CreateNew(ArithmeticRules rules)
     {
       return new DoubleArithmetic(Provider, rules);
     }
