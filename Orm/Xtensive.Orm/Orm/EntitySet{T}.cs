@@ -1,4 +1,5 @@
 // Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
@@ -11,6 +12,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
@@ -59,7 +62,8 @@ namespace Xtensive.Orm
   /// <seealso cref="AssociationAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
     ICollection<TItem>, 
-    IQueryable<TItem>
+    IQueryable<TItem>,
+    IAsyncEnumerable<TItem>
     where TItem : IEntity
   {
     private static readonly MemberExpression OwnerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
@@ -189,6 +193,15 @@ namespace Xtensive.Orm
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
+    }
+    
+    public async IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+      var result = await ((QueryProvider)Provider).ExecuteSequenceAsync<TItem>(Expression, cancellationToken).ConfigureAwait(false);
+      var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
+        yield return element;
+      }
     }
 
     /// <inheritdoc/>
