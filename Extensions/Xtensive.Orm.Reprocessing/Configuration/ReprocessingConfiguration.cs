@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Reprocessing.Configuration
@@ -9,6 +10,14 @@ namespace Xtensive.Orm.Reprocessing.Configuration
   /// </summary>
   public class ReprocessingConfiguration
   {
+    // intermediate class for reading section
+    private class ReprocessingOptions
+    {
+      public string DefaultTransactionOpenMode { get; set; }
+
+      public string DefaultExecuteStrategy { get; set; }
+    }
+
     /// <summary>
     /// Gets default value of the <see cref="DefaultTransactionOpenMode"/> property.
     /// </summary>
@@ -79,6 +88,51 @@ namespace Xtensive.Orm.Reprocessing.Configuration
           DefaultExecuteStrategy = section.DefaultExecuteStrategy,
           DefaultTransactionOpenMode = section.DefaultTransactionOpenMode
         };
+    }
+
+    /// <summary>
+    /// Loads the <see cref="ReprocessingConfiguration"/> from given configuration section.
+    /// </summary>
+    /// <param name="configurationSection"><see cref="IConfigurationSection"/> to load from.</param>
+    /// <returns>Loaded configuration or configuration with default settings.</returns>
+    public static ReprocessingConfiguration Load(IConfigurationSection configurationSection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+
+      return TryReadAsOptions(configurationSection, out var reprocessingConfiguration)
+         ? reprocessingConfiguration
+         : new ReprocessingConfiguration();
+    }
+
+    private static bool TryReadAsOptions(IConfigurationSection configuration, out ReprocessingConfiguration reprocessingConfiguration)
+    {
+      var reprocessingOptions = configuration.Get<ReprocessingOptions>();
+
+      if (reprocessingOptions == default) {
+        reprocessingConfiguration = null;
+        return false;
+      }
+
+      if (reprocessingOptions.DefaultTransactionOpenMode == default
+        && reprocessingOptions.DefaultExecuteStrategy == default) {
+        // that means instance is default. probably invalid
+        reprocessingConfiguration = null;
+        return false;
+      }
+
+      var result = new ReprocessingConfiguration();
+      if (reprocessingOptions.DefaultTransactionOpenMode != default
+        && Enum.TryParse<TransactionOpenMode>(reprocessingOptions.DefaultTransactionOpenMode, out var enumValue)) {
+          result.DefaultTransactionOpenMode = enumValue;
+      }
+      if (!string.IsNullOrEmpty(reprocessingOptions.DefaultExecuteStrategy)) {
+        var type = Type.GetType(reprocessingOptions.DefaultExecuteStrategy, false);
+        if (type == null)
+          throw new InvalidOperationException($"Can't resolve type '{reprocessingOptions.DefaultExecuteStrategy}'. Note that DefaultExecuteStrategy value should be in form of Assembly Qualified Name");
+        result.DefaultExecuteStrategy = type;
+      }
+      reprocessingConfiguration = result;
+      return true;
     }
 
     /// <summary>

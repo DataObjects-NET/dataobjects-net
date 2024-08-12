@@ -1,0 +1,80 @@
+{
+  "Xtensive.Orm.Localization.Json.Empty": {
+
+  },
+
+  "Xtensive.Orm.Localization.Json.NameEmpty": {
+    "DefaultCulture": ""
+  },
+
+  "Xtensive.Orm.Localization.Json.NameDefined": {
+    "DefaultCulture": "es-ES"
+  },
+
+  "Xtensive.Orm.Localization.Json.FaultyValue": {
+    "DefaultCulture": "ololo"
+  },
+
+  "Xtensive.Orm.Localization.Json.Naming.LC": {
+    "defaultculture": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Naming.UC": {
+    "DEFAULTCULTURE": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Naming.CC": {
+    "defaultCulture": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Naming.PC": {
+    "DefaultCulture": "es-ES"
+  },
+
+  "Xtensive.Orm.Localization.Json.Mistype.LC": {
+    "defailtculture": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Mistype.UC": {
+    "DEFAILTCULTURE": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Mistype.CC": {
+    "defailtCulture": "es-ES"
+  },
+  "Xtensive.Orm.Localization.Json.Mistype.PC": {
+    "DefailtCulture": "es-ES"
+  },
+
+
+  "Xtensive.Orm.Localization.Json.NameNode.Empty": {
+    "DefaultCulture": {
+    }
+  },
+
+  "Xtensive.Orm.Localization.Json.NameNode.NameEmpty": {
+    "DefaultCulture": {
+      "Name": ""
+    }
+  },
+
+  "Xtensive.Orm.Localization.Json.NameNode.Espaniol": {
+    "DefaultCulture": {
+      "Name": "es-ES"
+    }
+  },
+
+  "Xtensive.Orm.Localization.Json.NameNode.FaultyValue": {
+    "DefaultCulture": {
+      "Name": "ololo"
+    }
+  },
+
+  "Xtensive.Orm.Localization.Json.NameNode.Naming.LC": {
+    "DefaultCulture": { "name": "es-ES" }
+  },
+  "Xtensive.Orm.Localization.Json.NameNode.Naming.UC": {
+    "DefaultCulture": { "NAME": "es-ES" }
+  },
+  "Xtensive.Orm.Localization.Json.NameNode.Naming.CC": {
+    "DefaultCulture": { "naMe": "es-ES" }
+  },
+  "Xtensive.Orm.Localization.Json.NameNode.Naming.PC": {
+    "DefaultCulture": { "NaMe": "es-ES" }
+  }
+}
