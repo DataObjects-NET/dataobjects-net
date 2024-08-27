@@ -8,6 +8,7 @@ using System;
 using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Internals;
 using Xtensive.Orm.Internals;
@@ -646,6 +647,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IsMultischema => isMultischema ?? GetIsMultischema();
 
+    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
+
+    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
 
     private bool GetIsMultidatabase()
     {
@@ -768,6 +772,8 @@ namespace Xtensive.Orm.Configuration
     /// <returns>The clone of this configuration.</returns>
     public new DomainConfiguration Clone() => (DomainConfiguration) base.Clone();
 
+    #region Static DomainConfiguration.Load() methods
+
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
     /// with the specified <paramref name="name"/>
@@ -847,11 +853,6 @@ namespace Xtensive.Orm.Configuration
       return LoadConfigurationFromSection(section, name);
     }
 
-    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
-
-    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
-
-
     private static DomainConfiguration LoadConfigurationFromSection(ConfigurationSection section, string name)
     {
       var domainElement = section.Domains[name];
@@ -861,6 +862,20 @@ namespace Xtensive.Orm.Configuration
       }
       return domainElement.ToNative();
     }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="configurationSection">Root configuration section where domain configurations are placed</param>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
+    public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
+    {
+      throw new NotImplementedException();
+    }
+    #endregion
 
     // Constructors
 
