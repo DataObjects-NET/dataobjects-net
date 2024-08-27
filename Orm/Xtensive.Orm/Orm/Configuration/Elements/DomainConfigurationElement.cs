@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
     /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<KeyGeneratorConfigurationElement>), AddItemName = "keyGenerator")]
     public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
     {
       get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
@@ -295,7 +295,8 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="DomainConfiguration.AllowCyclicDatabaseDependencies" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(AllowCyclicDatabaseDependenciesElementName, DefaultValue = false)]
+    [ConfigurationProperty(AllowCyclicDatabaseDependenciesElementName,
+      DefaultValue = DomainConfiguration.DefaultAllowCyclicDatabaseDependencies)]
     public bool AllowCyclicDatabaseDependencies
     {
       get { return (bool) this[AllowCyclicDatabaseDependenciesElementName]; }

@@ -68,6 +68,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName,
       DefaultValue = SessionConfiguration.DefaultCacheSize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int CacheSize {
       get { return (int) this[CacheSizeElementName]; }
       set { this[CacheSizeElementName] = value; }
@@ -114,6 +115,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// </summary>
     [ConfigurationProperty(BatchSizeElementName,
       DefaultValue = SessionConfiguration.DefaultBatchSize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int BatchSize {
       get { return (int) this[BatchSizeElementName]; }
       set { this[BatchSizeElementName] = value; }
@@ -142,6 +144,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// </summary>
     [ConfigurationProperty(EntityChangeRegistrySizeElementName,
       DefaultValue = SessionConfiguration.DefaultEntityChangeRegistrySize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int EntityChangeRegistrySize {
       get { return (int) this[EntityChangeRegistrySizeElementName]; }
       set { this[EntityChangeRegistrySizeElementName] = value; }
