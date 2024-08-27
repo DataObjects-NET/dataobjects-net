@@ -23,11 +23,26 @@ namespace Xtensive.Orm.Configuration
     /// Default cache size.
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
-    
+
+    /// <summary>
+    /// Default session options.
+    /// </summary>
+    public const SessionOptions DefaultSessionOptions = SessionOptions.Default;
+
     ///<summary>
     /// Default isolation level.
     ///</summary>
     public const IsolationLevel DefaultDefaultIsolationLevel = IsolationLevel.RepeatableRead;
+
+    /// <summary>
+    /// Default cache type.
+    /// </summary>
+    public const SessionCacheType DefaultCacheType = SessionCacheType.Default;
+
+    /// <summary>
+    /// Default reader preloading policy.
+    /// </summary>
+    public const ReaderPreloadingPolicy DefaultReaderPreloadingPolicy = ReaderPreloadingPolicy.Default;
 
     /// <summary>
     /// Default batch size.
@@ -46,13 +61,13 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public static readonly SessionConfiguration Default = new SessionConfiguration(WellKnown.Sessions.Default);
 
-    private SessionOptions options = SessionOptions.Default;
+    private SessionOptions options = DefaultSessionOptions;
     private string userName = string.Empty;
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
     private int batchSize = DefaultBatchSize;
     private int entityChangeRegistrySize = DefaultEntityChangeRegistrySize;
-    private SessionCacheType cacheType = SessionCacheType.Default;
+    private SessionCacheType cacheType = DefaultCacheType;
     private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevel; // what a fancy name?
     private int? defaultCommandTimeout = null;
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;

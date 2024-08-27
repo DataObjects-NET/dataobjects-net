@@ -9,9 +9,9 @@ using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration.Elements;
+using Xtensive.Orm.Configuration.Internals;
 using Xtensive.Orm.Internals;
-using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
+using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
 {
@@ -95,7 +95,13 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value.
     /// </summary>
+    [Obsolete ("User DefaultForeignKeyMode")]
     public const ForeignKeyMode DefauktForeignKeyMode = ForeignKeyMode.Default;
+
+    /// <summary>
+    /// Default <see cref="ForeignKeyMode"/> value.
+    /// </summary>
+    public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
     /// <summary>
     /// Default <see cref="FullTextChangeTrackingMode"/> value.
@@ -154,7 +160,7 @@ namespace Xtensive.Orm.Configuration
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
-    private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
+    private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private FullTextChangeTrackingMode fullTextChangeTrackingMode = DefaultFullTextChangeTrackingMode;
     private DomainOptions options = DefaultDomainOptions;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
