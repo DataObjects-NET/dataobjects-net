@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="ShareStorageSchemaOverNodes"/> value:
-    /// <see langword="false"/>
+    /// <see langword="false"/>.
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
@@ -354,6 +354,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets a value indicating change tracking mode of full-text indexes.
     /// The property may have no effect for certain storages where there is no support for such option.
+    /// Default value is <see cref="DomainConfiguration.DefaultFullTextChangeTrackingMode"/>.
     /// </summary>
     public FullTextChangeTrackingMode FullTextChangeTrackingMode
     {
@@ -590,7 +591,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets versioning convention.
+    /// Gets or sets rules of entity versioning.
     /// </summary>
     public VersioningConvention VersioningConvention
     {
@@ -603,6 +604,13 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Enables extra check if connection is not broken on its opening.
+    /// For some RDBMSs physical connection may become broken but connection pool, which
+    /// is in charge of logical connections, is not aware of it.
+    /// In such cases connection pool provides connection
+    /// which is dead on arrival and causes exception on first use of it.
+    /// Such connection should be re-created and re-opened. The extra check
+    /// tests connection by making "first use" of it, if check failed connection
+    /// will be restored automatically.
     /// </summary>
     public bool EnsureConnectionIsAlive
     {

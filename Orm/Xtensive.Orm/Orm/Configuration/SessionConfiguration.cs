@@ -118,6 +118,7 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Gets or sets the type of the session cache.
+    /// Default value is <see cref="DefaultCacheType"/>.
     /// </summary>
     public SessionCacheType CacheType {
       get { return cacheType; }
@@ -160,6 +161,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets the size of the batch.
     /// This affects create, update, delete operations and future queries.
+    /// Default value is <see cref="DefaultBatchSize"/>.
     /// </summary>
     public int BatchSize {
       get { return batchSize; }
@@ -183,6 +185,8 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Gets or sets the reader preloading policy.
+    /// It affects query results reading.
+    /// Default value is <see cref="DefaultReaderPreloadingPolicy"/>.
     /// </summary>
     public ReaderPreloadingPolicy ReaderPreloading
     {
@@ -195,6 +199,7 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Gets or sets the size of the entity change registry.
+    /// Default value is <see cref="DefaultEntityChangeRegistrySize"/>.
     /// </summary>
     public int EntityChangeRegistrySize
     {
