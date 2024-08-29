@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
-    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />
+    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />.
     /// </summary>
     public const bool DefaultAllowCyclicDatabaseDependencies = false;
 
@@ -881,8 +881,25 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
     public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
     {
-      throw new NotImplementedException();
+      var allDomainsSection = configurationSection.GetSection("Domains");
+      if (allDomainsSection != null && allDomainsSection.GetChildren().Any()) {
+        var domainSection = allDomainsSection.GetSection(name);
+        if (domainSection.GetChildren().Any()) {
+          var parseResult = new FromJsonToDomainConfigurationParser().Parse(domainSection);
+          if (parseResult != null)
+            return parseResult;
+        }
+        else if ((domainSection = allDomainsSection.GetSection($"Domain:{name}")).GetChildren().Any()) {
+          var parseResult = new XmlDomainConfigParser().Parse(domainSection);
+          if (parseResult != null)
+            return parseResult;
+        }
+      }
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
     }
+
     #endregion
 
     // Constructors
