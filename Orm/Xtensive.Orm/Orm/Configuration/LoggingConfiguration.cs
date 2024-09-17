@@ -82,12 +82,12 @@ namespace Xtensive.Orm.Configuration
 
     public static LoggingConfiguration Load(IConfigurationSection configurationSection)
     {
-      throw new NotImplementedException();
+      return new LoggingConfigurationParser().Parse(configurationSection);
     }
 
     public static LoggingConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
     {
-      throw new NotImplementedException();
+      return new LoggingConfigurationParser().Parse(configurationRoot, sectionName);
     }
 
     /// <summary>

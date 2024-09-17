@@ -8,23 +8,92 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration.Options;
 
 namespace Xtensive.Orm.Configuration.Internals
 {
-  internal interface IConfigurationSectionParser
+  internal interface IConfigurationSectionParser<TConfiguration>
   {
-    DomainConfiguration Parse(IConfiguration configuration);
+    TConfiguration Parse(IConfiguration configuration);
 
-    DomainConfiguration Parse(IConfigurationRoot configuration, string sectionName);
+    TConfiguration Parse(IConfigurationRoot configuration, string sectionName);
+  }
 
-    DomainConfiguration Parse(IConfigurationSection domainConfiguration, Dictionary<string, string> connectionStrings = null);
+  internal sealed class LoggingConfigurationParser : IConfigurationSectionParser<LoggingConfiguration>
+  {
+    private const string LoggingSectionName = "Logging";
+    private const string LogsSectionName = "Logs";
 
+    private const string ProviderElementName = "Provider";
+    private const string LogElementName = "Log";
+    private const string LogSourceElementName = "Source";
+    private const string LogTargerElementName = "Target";
+
+    public LoggingConfiguration Parse(IConfiguration configuration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      if (configuration is IConfigurationRoot configurationRoot) {
+        return Parse(configurationRoot, WellKnown.DefaultConfigurationSection);
+      }
+      else if (configuration is IConfigurationSection configurationSection) {
+        return Parse(configurationSection);
+      }
+      throw new InvalidOperationException("");
+    }
+
+    public LoggingConfiguration Parse(IConfigurationRoot configuration, string sectionName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
+
+      return Parse(configuration.GetSection(sectionName));
+    }
+
+    public LoggingConfiguration Parse(IConfigurationSection configurationSection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+
+      var ormConfigurationSection = configurationSection;
+
+      var loggingSection = ormConfigurationSection.GetSection(LoggingSectionName);
+
+      if (loggingSection != null && loggingSection.GetChildren().Any()) {
+        var provider = loggingSection.GetSection(ProviderElementName)?.Value;
+        var logsSection = loggingSection.GetSection(LogsSectionName);
+        IConfigurationSection logElement;
+
+        if (logsSection != null && logsSection.GetChildren().Any()) {
+          logElement = logsSection.GetSection(LogElementName);
+          if (logElement == null || !logElement.GetChildren().Any()) {
+            logElement = logsSection;
+          }
+        }
+        else {
+          logElement = loggingSection.GetSection(LogElementName);
+        }
+
+        var configuration = new LoggingConfiguration(provider);
+
+        foreach (var logItem in logElement.GetSelfOrChildren()) {
+          var source = logItem.GetSection(LogSourceElementName).Value;
+          var target = logItem.GetSection(LogTargerElementName).Value;
+          if (source.IsNullOrEmpty() || target.IsNullOrEmpty())
+            throw new InvalidOperationException();
+          configuration.Logs.Add(new LogConfiguration(source, target));
+        }
+
+        return configuration;
+      }
+
+      throw new InvalidOperationException(
+        string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, WellKnown.DefaultConfigurationSection));
+    }
   }
 
   internal sealed class XmlDomainConfigParser : DomainConfigurationParser
   {
-
     protected override void ProcessNamingConvention(IConfigurationSection namingConventionSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
       if (namingConventionSection == null) {
@@ -37,7 +106,8 @@ namespace Xtensive.Orm.Configuration.Internals
         if (namingConvetion!= null) {
           var synonymsSection = namingConventionSection.GetSection(NamespaceSynonymSectionName);
           var synonyms = synonymsSection != null && synonymsSection.GetChildren().Any()
-            ? GetSelfOrChildren(synonymsSection.GetSection(SynonymElementName))
+            ? synonymsSection.GetSection(SynonymElementName)
+              .GetSelfOrChildren()
               .Select(s => s.Get<NamespaceSynonymOptions>())
               .Where(ns => ns != null)
               .ToArray()
@@ -85,7 +155,8 @@ namespace Xtensive.Orm.Configuration.Internals
     {
       var registrations = typesSection.GetSection(OldStyleTypeRegistrationElementName);
       if (registrations != null && registrations.GetChildren().Any()) {
-        domainConfigurationOptions.Types = GetSelfOrChildren(registrations)
+        domainConfigurationOptions.Types = registrations
+          .GetSelfOrChildren()
           .Select(s => s.Get<TypeRegistrationOptions>())
           .Where(tr => tr != null)
           .ToArray();
@@ -101,7 +172,8 @@ namespace Xtensive.Orm.Configuration.Internals
       if (registrations == null)
         return false;
 
-      domainConfigurationOptions.Types = GetSelfOrChildren(registrations)
+      domainConfigurationOptions.Types = registrations
+        .GetSelfOrChildren()
         .Select(s => s.Get<TypeRegistrationOptions>())
         .Where(tr => tr != null)
         .ToArray();
@@ -116,7 +188,7 @@ namespace Xtensive.Orm.Configuration.Internals
       var databaseElement = databasesSection.GetSection(DatabaseElementName);
       if (databaseElement == null)
         return;
-      foreach (var section in GetSelfOrChildren(databaseElement, true)) {
+      foreach (var section in databaseElement.GetSelfOrChildren(true)) {
         var dbItem = section.Get<DatabaseOptions>();
         if (dbItem == null)
           continue;
@@ -150,7 +222,7 @@ namespace Xtensive.Orm.Configuration.Internals
       var sessionElement = sessionsSection.GetSection(SessionElementName);
       if (sessionElement == null)
         return;
-      foreach (var section in GetSelfOrChildren(sessionElement, true)) {
+      foreach (var section in sessionElement.GetSelfOrChildren(true)) {
         var sessionItem = section.Get<SessionConfigurationOptions>();
         if (sessionItem == null)
           continue;
@@ -166,36 +238,15 @@ namespace Xtensive.Orm.Configuration.Internals
       var collectionElement = collectionSection.GetSection(itemKey);
       if (collectionElement == null)
         return;
-      foreach (var item in GetSelfOrChildren(collectionElement)) {
+      foreach (var item in collectionElement.GetSelfOrChildren()) {
         var optItem = item.Get<TOption>();
         collection.Add(optItem);
       }
-    }
-
-    private IEnumerable<IConfigurationSection> GetSelfOrChildren(IConfigurationSection section, bool requiredName = false)
-    {
-      var children = section.GetChildren().ToList();
-      if (children.Count > 0) {
-        if (requiredName) {
-          var anyItemWithName = children.Any(i => i["name"] != null);
-          if (anyItemWithName) {
-            return children;
-          }
-        }
-        var firstChild = children[0];
-        var isIndexed = firstChild.Key == "0";
-        if (isIndexed)
-          return children;
-        else
-          return EnumerableUtils.One(section);
-      }
-      return children;
     }
   }
 
   internal class FromJsonToDomainConfigurationParser : DomainConfigurationParser
   {
-
     protected override void ProcessNamingConvention(IConfigurationSection namingConventionSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
       if (namingConventionSection == null || !namingConventionSection.GetChildren().Any())
@@ -207,7 +258,7 @@ namespace Xtensive.Orm.Configuration.Internals
     }
   }
 
-  internal abstract class DomainConfigurationParser : IConfigurationSectionParser
+  internal abstract class DomainConfigurationParser : IConfigurationSectionParser<DomainConfiguration>
   {
     protected const string RuleElementName = "Rule";
     protected const string KeyGeneratorElementName = "KeyGenerator";
