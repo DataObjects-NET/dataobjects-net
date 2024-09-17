@@ -75,6 +75,7 @@ namespace Xtensive.Orm.Tests.Configuration
   public sealed class AppConfigStyleConfigurationTest : ConfigurationFileTestBase
   {
     protected override string DefaultSectionName => "Xtensive.Orm.AppConfig";
+    protected override string Postfix => "AppConfig";
 
     protected override bool NameAttributeUnique => false;
 
@@ -88,6 +89,7 @@ namespace Xtensive.Orm.Tests.Configuration
   public sealed class XmlConfigurationTest : ConfigurationFileTestBase
   {
     protected override string DefaultSectionName => "Xtensive.Orm.Xml";
+    protected override string Postfix => "Xml";
 
     protected override void RegisterConfigurationFile(ConfigurationBuilder builder)
     {
@@ -99,6 +101,7 @@ namespace Xtensive.Orm.Tests.Configuration
   public sealed class JsonConfigurationTest : ConfigurationFileTestBase
   {
     protected override string DefaultSectionName => "Xtensive.Orm.Json";
+    protected override string Postfix => "Json";
 
     protected override void RegisterConfigurationFile(ConfigurationBuilder builder)
     {
@@ -113,6 +116,7 @@ namespace Xtensive.Orm.Tests.Configuration
     private IConfigurationSection configurationSection;
 
     protected abstract string DefaultSectionName { get; }
+    protected abstract string Postfix { get; }
     protected virtual bool NameAttributeUnique => true;
 
     [OneTimeSetUp]
@@ -132,18 +136,24 @@ namespace Xtensive.Orm.Tests.Configuration
 
     protected abstract void RegisterConfigurationFile(ConfigurationBuilder builder);
 
-    private DomainConfiguration GetDomainConfiguration(string domainName)
+    private DomainConfiguration LoadDomainConfiguration(string domainName)
     {
       var domainConfiguration = DomainConfiguration.Load(configurationSection, domainName);
       return domainConfiguration;
     }
+    private LoggingConfiguration LoadLoggingConfiguration(IConfigurationSection customConfigurationSection = null)
+    {
+      var loggingConfiguration = LoggingConfiguration.Load(customConfigurationSection ?? configurationSection);
+      return loggingConfiguration;
+    }
+
 
     #region Simple Domain settings that used to be attributes
 
     [Test]
     public void ProviderAndConnectionStringTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithProviderAndConnectionString");
+      var domainConfig = LoadDomainConfiguration("DomainWithProviderAndConnectionString");
       Assert.That(domainConfig.ConnectionInfo.Provider, Is.EqualTo(WellKnown.Provider.Sqlite));
       Assert.That(domainConfig.ConnectionInfo.ConnectionString, Is.EqualTo("Data Source=DO-Testsaaa.db3"));
       Assert.That(domainConfig.ConnectionInfo.ConnectionUrl, Is.Null);
@@ -154,7 +164,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void ConnectionUrlTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithConnectionUrl");
+      var domainConfig = LoadDomainConfiguration("DomainWithConnectionUrl");
       Assert.That(domainConfig.ConnectionInfo.Provider, Is.EqualTo(WellKnown.Provider.Sqlite));
       Assert.That(domainConfig.ConnectionInfo.ConnectionString, Is.Null);
       Assert.That(domainConfig.ConnectionInfo.ConnectionUrl.Url, Is.EqualTo("sqlite:///DO-Tests.db3"));
@@ -165,7 +175,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void CustomValidKeyCacheSizeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomValidKeyCacheSize");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomValidKeyCacheSize");
 
       ValidateAllDefaultExcept(domainConfig, ((d) => d.KeyCacheSize, 192));
     }
@@ -173,14 +183,14 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void CustomInvalidKeyCacheSizeTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomInvalidKeyCacheSize"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidKeyCacheSize"));
 
     }
 
     [Test]
     public void CustomValidKeyGeneratorCacheSizeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomValidKeyGeneratorCacheSize");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomValidKeyGeneratorCacheSize");
 
       ValidateAllDefaultExcept(domainConfig, ((d) => d.KeyGeneratorCacheSize, 192));
     }
@@ -188,13 +198,13 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void CustomInvalidKeyGeneratorCacheSizeTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomInvalidKeyGeneratorCacheSize"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidKeyGeneratorCacheSize"));
     }
 
     [Test]
     public void CustomValidQueryCacheSizeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomValidQueryCacheSize");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomValidQueryCacheSize");
 
       ValidateAllDefaultExcept(domainConfig, ((d) => d.QueryCacheSize, 192));
     }
@@ -202,26 +212,26 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void CustomInvalidQueryCacheSizeTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomInvalidQueryCacheSize"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidQueryCacheSize"));
     }
 
     [Test]
     public void CustomValidRecordSetMappingCacheSizeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomValidRecordSetMappingCacheSize");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomValidRecordSetMappingCacheSize");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.RecordSetMappingCacheSize, 192));
     }
 
     [Test]
     public void CustomInvalidRecordSetMappingCacheSizeTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomInvalidRecordSetMappingCacheSize"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidRecordSetMappingCacheSize"));
     }
 
     [Test]
     public void CustomDefaultDatabaseTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomDatabase");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomDatabase");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "MyFancyDatabase"),
         ((d) => d.IsMultidatabase, true),
@@ -232,7 +242,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void CustomDefaultSchemaTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithCustomSchema");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomSchema");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultSchema, "MyFancySchema"),
         ((d) => d.IsMultidatabase, false),
@@ -242,42 +252,42 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void UpgradeModesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithUpgradeMode1");
+      var domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode1");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.Default));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode2");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode2");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.Recreate));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode3");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode3");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.Perform));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode4");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode4");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.PerformSafely));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode5");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode5");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.Validate));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode6");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode6");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.LegacyValidate));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode7");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode7");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.Skip));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithUpgradeMode8");
+      domainConfig = LoadDomainConfiguration("DomainWithUpgradeMode8");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.UpgradeMode, DomainUpgradeMode.LegacySkip));
       domainConfig.Lock();
@@ -286,33 +296,33 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void WrongUpgradeModeTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithWrongUpgradeMode"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithWrongUpgradeMode"));
     }
 
     [Test]
     public void ForeighKeyModesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode1");
+      var domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode1");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.None));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode2");
+      domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode2");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.Hierarchy));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode3");
+      domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode3");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.Reference));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode4");
+      domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode4");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.All));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode5");
+      domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode5");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.Default));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithForeignKeyMode6");
+      domainConfig = LoadDomainConfiguration("DomainWithForeignKeyMode6");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.ForeignKeyMode, ForeignKeyMode.Hierarchy | ForeignKeyMode.Reference));
       domainConfig.Lock();
     }
@@ -320,29 +330,29 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void InvalidForeighKeyModeTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidForeignKeyMode"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidForeignKeyMode"));
     }
 
     [Test]
     public void ChangeTrackingModesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithChangeTrackingMode1");
+      var domainConfig = LoadDomainConfiguration("DomainWithChangeTrackingMode1");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.FullTextChangeTrackingMode, FullTextChangeTrackingMode.Off));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithChangeTrackingMode2");
+      domainConfig = LoadDomainConfiguration("DomainWithChangeTrackingMode2");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.FullTextChangeTrackingMode, FullTextChangeTrackingMode.Auto));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithChangeTrackingMode3");
+      domainConfig = LoadDomainConfiguration("DomainWithChangeTrackingMode3");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.FullTextChangeTrackingMode, FullTextChangeTrackingMode.Manual));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithChangeTrackingMode4");
+      domainConfig = LoadDomainConfiguration("DomainWithChangeTrackingMode4");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.FullTextChangeTrackingMode, FullTextChangeTrackingMode.OffWithNoPopulation));
       domainConfig.Lock();
 
-      domainConfig = GetDomainConfiguration("DomainWithChangeTrackingMode5");
+      domainConfig = LoadDomainConfiguration("DomainWithChangeTrackingMode5");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.FullTextChangeTrackingMode, FullTextChangeTrackingMode.Default));
       domainConfig.Lock();
     }
@@ -350,13 +360,13 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void InvalidChangeTrackingModeTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidChangeTrackingMode"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidChangeTrackingMode"));
     }
 
     [Test]
     public void DomainOptionsTest1()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDomainOptionsValid1");
+      var domainConfig = LoadDomainConfiguration("DomainWithDomainOptionsValid1");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.Options, DomainOptions.Default));
       domainConfig.Lock();
     }
@@ -364,54 +374,54 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DomainOptionsTest2()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDomainOptionsValid2");
+      var domainConfig = LoadDomainConfiguration("DomainWithDomainOptionsValid2");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.Options, DomainOptions.None));
       domainConfig.Lock();
     }
     [Test]
     public void InvalidDomainOptionsTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithDomainOptionsInvalid"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithDomainOptionsInvalid"));
     }
 
     [Test]
     public void CollationTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithColation");
+      var domainConfig = LoadDomainConfiguration("DomainWithColation");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.Collation, "generalci"));
     }
 
     [Test]
     public void BriefSchemaSyncExceptionsTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithBriefSchemaSyncExceptions");
+      var domainConfig = LoadDomainConfiguration("DomainWithBriefSchemaSyncExceptions");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.SchemaSyncExceptionFormat, SchemaSyncExceptionFormat.Brief));
     }
 
     [Test]
     public void DetailedSchemaSyncExceptionsTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDetailedSchemaSyncExceptions");
+      var domainConfig = LoadDomainConfiguration("DomainWithDetailedSchemaSyncExceptions");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.SchemaSyncExceptionFormat, SchemaSyncExceptionFormat.Detailed));
     }
 
     [Test]
     public void DefaultSchemaSyncExceptionsTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDefaultSchemaSyncExceptions");
+      var domainConfig = LoadDomainConfiguration("DomainWithDefaultSchemaSyncExceptions");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.SchemaSyncExceptionFormat, SchemaSyncExceptionFormat.Default));
     }
 
     [Test]
     public void InvalidSchemaSyncExceptionsTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidSchemaSyncExceptions"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidSchemaSyncExceptions"));
     }
 
     [Test]
     public void TagsLocationNowhereTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTagsLocationNowhere");
+      var domainConfig = LoadDomainConfiguration("DomainWithTagsLocationNowhere");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.TagsLocation, TagsLocation.Nowhere));
     }
@@ -419,7 +429,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TagsLocationBeforeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTagsLocationBefore");
+      var domainConfig = LoadDomainConfiguration("DomainWithTagsLocationBefore");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.TagsLocation, TagsLocation.BeforeStatement));
     }
@@ -427,7 +437,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TagsLocationWithinTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTagsLocationWithin");
+      var domainConfig = LoadDomainConfiguration("DomainWithTagsLocationWithin");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.TagsLocation, TagsLocation.WithinStatement));
     }
@@ -435,7 +445,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TagsLocationAfterTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTagsLocationAfter");
+      var domainConfig = LoadDomainConfiguration("DomainWithTagsLocationAfter");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.TagsLocation, TagsLocation.AfterStatement));
     }
@@ -443,7 +453,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TagsLocationDefaultTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTagsLocationDefault");
+      var domainConfig = LoadDomainConfiguration("DomainWithTagsLocationDefault");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.TagsLocation, TagsLocation.Default));
     }
@@ -451,13 +461,13 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void InvalidTagsLocationTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithTagsLocationInvalid"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithTagsLocationInvalid"));
     }
 
     [Test]
     public void ForcedServerVersionTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithForcedServerVersion");
+      var domainConfig = LoadDomainConfiguration("DomainWithForcedServerVersion");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.ForcedServerVersion, "10.0.0.0"));
     }
@@ -465,7 +475,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void InitializationSqlTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithInitSql");
+      var domainConfig = LoadDomainConfiguration("DomainWithInitSql");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.ConnectionInitializationSql, "use [OtherDb]"));
     }
@@ -473,7 +483,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void IncludeSqlInExceptionsTest()
     {
-      var domainConfig = GetDomainConfiguration("IncludeSqlInExceptionsTrue");
+      var domainConfig = LoadDomainConfiguration("IncludeSqlInExceptionsTrue");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.IncludeSqlInExceptions, true));
     }
@@ -481,7 +491,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DontIncludeSqlInExceptionsTest()
     {
-      var domainConfig = GetDomainConfiguration("IncludeSqlInExceptionsFalse");
+      var domainConfig = LoadDomainConfiguration("IncludeSqlInExceptionsFalse");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.IncludeSqlInExceptions, false));
     }
@@ -489,7 +499,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void AllowCyclicDatabaseDependanciesTest()
     {
-      var domainConfig = GetDomainConfiguration("AllowCyclicDatabaseDependenciesTrue");
+      var domainConfig = LoadDomainConfiguration("AllowCyclicDatabaseDependenciesTrue");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.AllowCyclicDatabaseDependencies, true));
     }
@@ -497,7 +507,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DisallowCyclicDatabaseDependanciesTest()
     {
-      var domainConfig = GetDomainConfiguration("AllowCyclicDatabaseDependenciesFalse");
+      var domainConfig = LoadDomainConfiguration("AllowCyclicDatabaseDependenciesFalse");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.AllowCyclicDatabaseDependencies, false));
     }
@@ -505,35 +515,35 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void BuildInParallelTest()
     {
-      var domainConfig = GetDomainConfiguration("BuildInParallelTrue");
+      var domainConfig = LoadDomainConfiguration("BuildInParallelTrue");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.BuildInParallel, true));
     }
 
     [Test]
     public void DontBuildInParallelTest()
     {
-      var domainConfig = GetDomainConfiguration("BuildInParallelFalse");
+      var domainConfig = LoadDomainConfiguration("BuildInParallelFalse");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.BuildInParallel, false));
     }
 
     [Test]
     public void AllowMultidatabaseKeysTest()
     {
-      var domainConfig = GetDomainConfiguration("MultidatabaseKeysTrue");
+      var domainConfig = LoadDomainConfiguration("MultidatabaseKeysTrue");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.MultidatabaseKeys, true));
     }
 
     [Test]
     public void DisallowMultidatabaseKeysTest()
     {
-      var domainConfig = GetDomainConfiguration("MultidatabaseKeysFalse");
+      var domainConfig = LoadDomainConfiguration("MultidatabaseKeysFalse");
       ValidateAllDefaultExcept(domainConfig, ((d) => d.MultidatabaseKeys, false));
     }
 
     [Test]
     public void ShareStorageSchemaOverNodesTest()
     {
-      var domainConfig = GetDomainConfiguration("SharedStorageSchemaOn");
+      var domainConfig = LoadDomainConfiguration("SharedStorageSchemaOn");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.ShareStorageSchemaOverNodes, true));
     }
@@ -541,7 +551,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DontShareStorageSchemaOverNodesTest()
     {
-      var domainConfig = GetDomainConfiguration("SharedStorageSchemaOff");
+      var domainConfig = LoadDomainConfiguration("SharedStorageSchemaOff");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.ShareStorageSchemaOverNodes, false));
     }
@@ -549,7 +559,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void EnsureConnectionIsAliveTest()
     {
-      var domainConfig = GetDomainConfiguration("EnableConnectionIsAliveTrue");
+      var domainConfig = LoadDomainConfiguration("EnableConnectionIsAliveTrue");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.EnsureConnectionIsAlive, true));
     }
@@ -557,7 +567,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DontCheckConnectionIsAliveTest()
     {
-      var domainConfig = GetDomainConfiguration("EnableConnectionIsAliveFalse");
+      var domainConfig = LoadDomainConfiguration("EnableConnectionIsAliveFalse");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.EnsureConnectionIsAlive, false));
     }
@@ -565,7 +575,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void PreferTypeIdAsQueryParameterTest()
     {
-      var domainConfig = GetDomainConfiguration("PreferTypeIdsAsQueryParametersTrue");
+      var domainConfig = LoadDomainConfiguration("PreferTypeIdsAsQueryParametersTrue");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.PreferTypeIdsAsQueryParameters, true));
     }
@@ -573,7 +583,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DontPreferTypeIdAsQueryParameterTest()
     {
-      var domainConfig = GetDomainConfiguration("PreferTypeIdsAsQueryParametersFalse");
+      var domainConfig = LoadDomainConfiguration("PreferTypeIdsAsQueryParametersFalse");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.PreferTypeIdsAsQueryParameters, false));
     }
@@ -584,7 +594,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest01()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention1");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention1");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -600,7 +610,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest02()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention2");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention2");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Lowercase));
@@ -616,7 +626,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest03()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention3");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention3");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.AsIs));
@@ -632,7 +642,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest04()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention4");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention4");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Default));
@@ -648,7 +658,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest05()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention5");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention5");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -659,7 +669,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest06()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention6");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention6");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -670,7 +680,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest07()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention7");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention7");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -681,7 +691,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest08()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention8");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention8");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -692,7 +702,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest09()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention9");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention9");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -703,7 +713,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest10()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention10");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention10");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -715,7 +725,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionSettingsTest11()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithNamingConvention11");
+      var domainConfig = LoadDomainConfiguration("DomainWithNamingConvention11");
       ValidateAllDefault(domainConfig);
       var namingConvention = domainConfig.NamingConvention;
       Assert.That(namingConvention.LetterCasePolicy, Is.EqualTo(LetterCasePolicy.Uppercase));
@@ -726,19 +736,19 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void NamingConventionInvalidSettingsTest1()
     {
-      _ = Assert.Throws<InvalidOperationException> (()=> GetDomainConfiguration("DomainWithInvalidNamingConvention1"));
+      _ = Assert.Throws<InvalidOperationException> (()=> LoadDomainConfiguration("DomainWithInvalidNamingConvention1"));
     }
 
     [Test]
     public void NamingConventionInvalidSettingsTest2()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidNamingConvention2"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidNamingConvention2"));
     }
 
     [Test]
     public void NamingConventionInvalidSettingsTest3()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidNamingConvention3"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidNamingConvention3"));
     }
 
     #endregion
@@ -748,7 +758,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionPessimisticTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithVersioningConvention1");
+      var domainConfig = LoadDomainConfiguration("DomainWithVersioningConvention1");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Pessimistic));
       Assert.That(domainConfig.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
@@ -757,7 +767,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionOptimisticTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithVersioningConvention2");
+      var domainConfig = LoadDomainConfiguration("DomainWithVersioningConvention2");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Optimistic));
       Assert.That(domainConfig.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
@@ -766,7 +776,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionDefaultTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithVersioningConvention3");
+      var domainConfig = LoadDomainConfiguration("DomainWithVersioningConvention3");
       ValidateAllDefault(domainConfig);
 
       Assert.That(domainConfig.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Default));
@@ -776,7 +786,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionDenyEntitySetChangeVersionTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithVersioningConvention4");
+      var domainConfig = LoadDomainConfiguration("DomainWithVersioningConvention4");
       ValidateAllDefault(domainConfig);
 
       Assert.That(domainConfig.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Optimistic));
@@ -786,7 +796,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionAllowEntitySetChangeVersionTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithVersioningConvention5");
+      var domainConfig = LoadDomainConfiguration("DomainWithVersioningConvention5");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Optimistic));
       Assert.That(domainConfig.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
@@ -795,7 +805,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void VersioningConventionInvalidTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithInvalidVersioningConvention1"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithInvalidVersioningConvention1"));
     }
 
     #endregion
@@ -804,7 +814,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TypesRegistrationAsTypesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithTypes");
+      var domainConfig = LoadDomainConfiguration("DomainWithTypes");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.DummyEntity1)), Is.True);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.DummyEntity2)), Is.True);
@@ -814,7 +824,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TypesRegistrationAsAssembliesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithAssemblies");
+      var domainConfig = LoadDomainConfiguration("DomainWithAssemblies");
       ValidateAllDefault(domainConfig);
       var ormAssembly = typeof(DomainConfiguration).Assembly;
       Assert.That(domainConfig.Types.Count, Is.GreaterThan(0));
@@ -824,7 +834,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TypesRegistrationAsAssembliesWithNamespace()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithAssembliesAndNamespaces");
+      var domainConfig = LoadDomainConfiguration("DomainWithAssembliesAndNamespaces");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.NestedNamespace.DummyNestedEntity1)), Is.True);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.NestedNamespace.DummyNestedEntity2)), Is.True);
@@ -833,7 +843,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MixedTypeRegistration()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMixedRegistrations");
+      var domainConfig = LoadDomainConfiguration("DomainWithMixedRegistrations");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.DummyEntity1)), Is.True);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.DummyEntity2)), Is.True);
@@ -847,7 +857,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       // same type twice
 
-      var domainConfig = GetDomainConfiguration("DomainWithInvalidRegistrations1");
+      var domainConfig = LoadDomainConfiguration("DomainWithInvalidRegistrations1");
 
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.DummyEntity1)), Is.True);
@@ -859,7 +869,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void InvalidTypeRegistration2()
     {
       // same Assembly
-      var domainConfig = GetDomainConfiguration("DomainWithInvalidRegistrations2");
+      var domainConfig = LoadDomainConfiguration("DomainWithInvalidRegistrations2");
 
       ValidateAllDefault(domainConfig);
       var ormAssembly = typeof(DomainConfiguration).Assembly;
@@ -871,7 +881,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void InvalidTypeRegistration3()
     {
       // same assembly and namespace
-      var domainConfig = GetDomainConfiguration("DomainWithInvalidRegistrations3");
+      var domainConfig = LoadDomainConfiguration("DomainWithInvalidRegistrations3");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.NestedNamespace.DummyNestedEntity1)), Is.True);
       Assert.That(domainConfig.Types.Contains(typeof(TypesToUseInTests.NestedNamespace.DummyNestedEntity2)), Is.True);
@@ -880,25 +890,25 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void InvalidTypeRegistration4()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidRegistrations4"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidRegistrations4"));
     }
 
     [Test]
     public void InvalidTypeRegistration5()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidRegistrations5"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidRegistrations5"));
     }
 
     [Test]
     public void InvalidTypeRegistration6()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidRegistrations6"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidRegistrations6"));
     }
 
     [Test]
     public void InvalidTypeRegistration7()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidRegistrations7"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidRegistrations7"));
     }
 
     #endregion
@@ -908,7 +918,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MultipleSessionsTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMultipleSessionConfigurations");
+      var domainConfig = LoadDomainConfiguration("DomainWithMultipleSessionConfigurations");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -932,7 +942,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithEmptyNameTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionEmptyName");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionEmptyName");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -945,7 +955,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithCustomNameTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomName");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomName");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -960,7 +970,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithCustomUserNameTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomUser");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomUser");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -974,7 +984,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithOptionsTest1()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionDefaultOptions");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionDefaultOptions");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -988,7 +998,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithOptionsTest2()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionServerProfile");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionServerProfile");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1002,7 +1012,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithOptionsTest3()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionClientProfile");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionClientProfile");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1016,7 +1026,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithOptionsTest4()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomOptions");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomOptions");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1030,7 +1040,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithCollectionSizesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionWithCollectionSizes");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionWithCollectionSizes");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1046,7 +1056,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomCacheTypeTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomCacheType");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomCacheType");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1060,7 +1070,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomIsolationLevelTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomIsolationLevel");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomIsolationLevel");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1074,7 +1084,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomCommandTimeoutTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomCommandTimeout");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomCommandTimeout");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1088,7 +1098,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomPreloadingPolicyTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomPreloadingPolicy");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomPreloadingPolicy");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1102,7 +1112,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomConnectionStringTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomConnectionString");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomConnectionString");
       ValidateAllDefault(domainConfig);
 
       var sessions = domainConfig.Sessions;
@@ -1115,7 +1125,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionCustomConnectionUrlTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithSessionCustomConnectionUrl");
+      var domainConfig = LoadDomainConfiguration("DomainWithSessionCustomConnectionUrl");
       ValidateAllDefault(domainConfig);
       var sessions = domainConfig.Sessions;
       Assert.That(sessions.Count, Is.EqualTo(1));
@@ -1127,55 +1137,55 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SessionWithInvalidOptions()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithSessionInvalidOptions"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidOptions"));
     }
 
     [Test]
     public void SessionWithInvalidCacheSizeTest1()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidCacheSize1"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheSize1"));
     }
 
     [Test]
     public void SessionWithInvalidCacheSizeTest2()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidCacheSize2"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheSize2"));
     }
 
     [Test]
     public void SessionWithInvalidCacheSizeTest3()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidCacheSize3"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheSize3"));
     }
 
     [Test]
     public void SessionWithInvalidBatchSizeTest1()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidBatchSize1"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidBatchSize1"));
     }
 
     [Test]
     public void SessionWithInvalidBatchSizeTest2()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidBatchSize2"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidBatchSize2"));
     }
 
     [Test]
     public void SessionWithInvalidEntityChangeRegistryTest1()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidEntityChangeRegistry1"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidEntityChangeRegistry1"));
     }
 
     [Test]
     public void SessionWithInvalidEntityChangeRegistryTest2()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithSessionInvalidEntityChangeRegistry2"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidEntityChangeRegistry2"));
     }
 
     [Test]
     public void SessionWithInvalidCacheType1()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => GetDomainConfiguration("DomainWithSessionInvalidCacheType"));
+      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheType"));
     }
 
     #endregion
@@ -1185,7 +1195,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DatabaseConfigurationOnlyAliasTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDatabases1");
+      var domainConfig = LoadDomainConfiguration("DomainWithDatabases1");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Databases.Count, Is.EqualTo(2));
       var db1 = domainConfig.Databases[0];
@@ -1203,7 +1213,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DatabaseConfigurationWithTypeIdsTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithDatabases2");
+      var domainConfig = LoadDomainConfiguration("DomainWithDatabases2");
       ValidateAllDefault(domainConfig);
       Assert.That(domainConfig.Databases.Count, Is.EqualTo(2));
       var db1 = domainConfig.Databases[0];
@@ -1221,25 +1231,25 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DatabaseConfigurationNegativeMinTypeIdTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithInvalidDatabases1"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithInvalidDatabases1"));
     }
 
     [Test]
     public void DatabaseConfigurationInvalidMinTypeIdTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithInvalidDatabases2"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithInvalidDatabases2"));
     }
 
     [Test]
     public void DatabaseConfigurationNegativeMaxTypeIdTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithInvalidDatabases3"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithInvalidDatabases3"));
     }
 
     [Test]
     public void DatabaseConfigurationInvalidMaxTypeIdTest()
     {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithInvalidDatabases4"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithInvalidDatabases4"));
     }
 
     #endregion
@@ -1251,7 +1261,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      var domainConfig = GetDomainConfiguration("DomainWithCustomGenerator");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomGenerator");
       ValidateAllDefault(domainConfig);
     }
 
@@ -1260,7 +1270,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      var domainConfig = GetDomainConfiguration("DomainWithCustomGeneratorsWithDatabaseNames");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomGeneratorsWithDatabaseNames");
       ValidateAllDefault(domainConfig);
     }
 
@@ -1269,7 +1279,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      var domainConfig = GetDomainConfiguration("DomainWithCustomGeneratorsWithDatabaseNamesAndKeyParams");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomGeneratorsWithDatabaseNamesAndKeyParams");
       ValidateAllDefault(domainConfig);
     }
 
@@ -1278,7 +1288,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      var domainConfig = GetDomainConfiguration("DomainWithCustomGeneratorsWithDatabasesAliases");
+      var domainConfig = LoadDomainConfiguration("DomainWithCustomGeneratorsWithDatabasesAliases");
       ValidateAllDefault(domainConfig);
     }
 
@@ -1287,7 +1297,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithCustomGeneratorsConflict1"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithCustomGeneratorsConflict1"));
     }
 
     [Test]
@@ -1295,7 +1305,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithCustomGeneratorsConflict2"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithCustomGeneratorsConflict2"));
     }
 
     [Test]
@@ -1303,7 +1313,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomGeneratorNegativeSeed"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomGeneratorNegativeSeed"));
     }
 
     [Test]
@@ -1311,7 +1321,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       if (!NameAttributeUnique)
         throw new IgnoreException("");
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => GetDomainConfiguration("DomainWithCustomGeneratorNegativeCache"));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomGeneratorNegativeCache"));
     }
 
     #endregion
@@ -1321,7 +1331,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void IgnoreRulesTest()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithIgnoreRules");
+      var domainConfig = LoadDomainConfiguration("DomainWithIgnoreRules");
       ValidateAllDefault(domainConfig);
       ValidateIgnoreRules(domainConfig.IgnoreRules);
     }
@@ -1329,25 +1339,25 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void IgnoreColumnAndIndexAtTheSameTimeTest()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidIgnoreRules1"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidIgnoreRules1"));
     }
 
     [Test]
     public void IgnoreTableAndColumnAndIndexAtTheSameTimeTest()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidIgnoreRules2"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidIgnoreRules2"));
     }
 
     [Test]
     public void IgnoreDatabaseOnlyTest()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidIgnoreRules3"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidIgnoreRules3"));
     }
 
     [Test]
     public void IgnoreDatabaseAndSchemaOnlyTest()
     {
-      _ = Assert.Throws<ArgumentException>(() => GetDomainConfiguration("DomainWithInvalidIgnoreRules4"));
+      _ = Assert.Throws<ArgumentException>(() => LoadDomainConfiguration("DomainWithInvalidIgnoreRules4"));
     }
 
     private void ValidateIgnoreRules(IgnoreRuleCollection rules)
@@ -1488,7 +1498,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest1()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules1");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules1");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1507,7 +1517,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest2()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules2");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules2");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1528,7 +1538,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest3()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules3");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules3");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1548,7 +1558,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest4()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules4");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules4");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1568,7 +1578,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest5()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules5");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules5");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1588,7 +1598,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest6()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules6");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules6");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1607,7 +1617,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void MappingRulesTest7()
     {
-      var domainConfig = GetDomainConfiguration("DomainWithMappingRules7");
+      var domainConfig = LoadDomainConfiguration("DomainWithMappingRules7");
       ValidateAllDefaultExcept(domainConfig,
         ((d) => d.DefaultDatabase, "main"),
         ((d) => d.DefaultSchema, "dbo"),
@@ -1627,54 +1637,101 @@ namespace Xtensive.Orm.Tests.Configuration
     public void MappingRuleWithConflictByAssemblyTest()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithConflictMappingRules1"));
+        () => LoadDomainConfiguration("DomainWithConflictMappingRules1"));
     }
 
     [Test]
     public void MappingRuleWithConflictByNamespaceTest()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithConflictMappingRules2"));
+        () => LoadDomainConfiguration("DomainWithConflictMappingRules2"));
     }
 
     [Test]
     public void MappingRulesInvalidTest1()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithInvalidMappingRules1"));
+        () => LoadDomainConfiguration("DomainWithInvalidMappingRules1"));
     }
 
     [Test]
     public void MappingRulesInvalidTest2()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithInvalidMappingRules2"));
+        () => LoadDomainConfiguration("DomainWithInvalidMappingRules2"));
     }
 
     [Test]
     public void MappingRulesInvalidTest3()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithInvalidMappingRules3"));
+        () => LoadDomainConfiguration("DomainWithInvalidMappingRules3"));
     }
 
     [Test]
     public void MappingRulesInvalidTest4()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithInvalidMappingRules4"));
+        () => LoadDomainConfiguration("DomainWithInvalidMappingRules4"));
     }
 
     [Test]
     public void MappingRulesInvalidTest5()
     {
       var exception = Assert.Throws<System.ArgumentException>(
-        () => GetDomainConfiguration("DomainWithInvalidMappingRules5"));
+        () => LoadDomainConfiguration("DomainWithInvalidMappingRules5"));
     }
 
     #endregion
 
+    #region Logging
 
+    [Test]
+    public void LoggingConfigurationTest()
+    {
+      var configuration = LoadLoggingConfiguration();
+      ValidateLoggingConfiguration(configuration);
+    }
+
+    [Test]
+    public void LoggingEmptyLoggingSectionTest()
+    {
+      var section = configuration.GetSection($"Xtensive.Orm.EmptyLogging.{Postfix}");
+      _ = Assert.Throws<InvalidOperationException>(() => LoadLoggingConfiguration(section));
+    }
+
+    [Test]
+    public void LoggingEmptyLogsTest()
+    {
+      if (Postfix == "AppConfig")
+        throw new IgnoreException("");
+
+      var section = configuration.GetSection($"Xtensive.Orm.EmptyLogs.{Postfix}");
+      _ = Assert.Throws<InvalidOperationException>(() => LoadLoggingConfiguration(section));
+    }
+
+    [Test]
+    public void LoggingOnlyProviderDeclaredTest()
+    {
+      var section = configuration.GetSection($"Xtensive.Orm.OnlyLogProvider.{Postfix}");
+      var loggingConfig = LoadLoggingConfiguration(section);
+      Assert.That(loggingConfig.Logs.Count, Is.EqualTo(0));
+      Assert.That(loggingConfig.Provider, Is.EqualTo("Xtensive.Orm.Logging.log4net.LogProvider"));
+    }
+
+    [Test]
+    public void LoggingProviderAndEmptyLogsTest()
+    {
+      if (Postfix == "AppConfig")
+        throw new IgnoreException("");
+
+      var section = configuration.GetSection($"Xtensive.Orm.LogProviderAndEmptyLogs.{Postfix}");
+      var loggingConfig = LoadLoggingConfiguration(section);
+      Assert.That(loggingConfig.Logs.Count, Is.EqualTo(0));
+      Assert.That(loggingConfig.Provider, Is.EqualTo("Xtensive.Orm.Logging.log4net.LogProvider"));
+    }
+
+    #endregion
 
     private void ValidateAllDefault(DomainConfiguration domainConfiguration)
     {
@@ -1865,7 +1922,7 @@ namespace Xtensive.Orm.Tests.Configuration
         throw new ArgumentOutOfRangeException(nameof(configuration));
     }
 
-    public bool TryExtractPropertyFormLambda<TConfiguration, T>(Expression<Func<TConfiguration, T>> lambda,
+    private bool TryExtractPropertyFormLambda<TConfiguration, T>(Expression<Func<TConfiguration, T>> lambda,
       out System.Reflection.PropertyInfo property)
     {
       if (lambda.Body.StripCasts() is MemberExpression mExpression && mExpression.Member is System.Reflection.PropertyInfo prop) {
@@ -1988,6 +2045,33 @@ namespace Xtensive.Orm.Tests.Configuration
 
       if (!nameof(sessionConfiguration.ConnectionInfo).In(excludedProperties))
         Assert.That(sessionConfiguration.ConnectionInfo, Is.Null);
+    }
+
+    private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
+    {
+      Assert.That(configuration.Provider, Is.Not.Null.Or.Empty);
+      Assert.That(configuration.Provider, Is.EqualTo("Xtensive.Orm.Logging.log4net.LogProvider"));
+
+      Assert.That(configuration.Logs[0].Source, Is.EqualTo("*"));
+      Assert.That(configuration.Logs[0].Target, Is.EqualTo("Console"));
+
+      Assert.That(configuration.Logs[1].Source, Is.EqualTo("SomeLogName"));
+      Assert.That(configuration.Logs[1].Target, Is.EqualTo("DebugOnlyConsole"));
+
+      Assert.That(configuration.Logs[2].Source, Is.EqualTo("FirstLogName,SecondLogName"));
+      Assert.That(configuration.Logs[2].Target, Is.EqualTo(@"d:\log.txt"));
+
+      Assert.That(configuration.Logs[3].Source, Is.EqualTo("LogName, AnotherLogName"));
+      Assert.That(configuration.Logs[3].Target, Is.EqualTo("Console"));
+
+      Assert.That(configuration.Logs[4].Source, Is.EqualTo("FileLog"));
+      Assert.That(configuration.Logs[4].Target, Is.EqualTo("log.txt"));
+
+      Assert.That(configuration.Logs[5].Source, Is.EqualTo("NullLog"));
+      Assert.That(configuration.Logs[5].Target, Is.EqualTo("None"));
+
+      Assert.That(configuration.Logs[6].Source, Is.EqualTo("Trash"));
+      Assert.That(configuration.Logs[6].Target, Is.EqualTo("skjdhfjsdf sdfsdfksjdghj fgdfg"));
     }
   }
 }

@@ -80,6 +80,16 @@ namespace Xtensive.Orm.Configuration
       return loggingConfiguration;
     }
 
+    public static LoggingConfiguration Load(IConfigurationSection configurationSection)
+    {
+      throw new NotImplementedException();
+    }
+
+    public static LoggingConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
+    {
+      throw new NotImplementedException();
+    }
+
     /// <summary>
     /// Creates instance of this class.
     /// </summary>
