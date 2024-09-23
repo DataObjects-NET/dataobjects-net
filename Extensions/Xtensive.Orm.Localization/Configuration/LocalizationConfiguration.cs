@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Localization.Configuration
 {
@@ -38,7 +39,7 @@ namespace Xtensive.Orm.Localization.Configuration
     /// Gets or sets the default culture.
     /// </summary>
     /// <value>The default culture.</value>
-    public CultureInfo DefaultCulture { get; private set; }
+    public CultureInfo DefaultCulture { get; internal set; }
 
     /// <summary>
     /// Loads the <see cref="LocalizationConfiguration"/>
@@ -114,90 +115,30 @@ namespace Xtensive.Orm.Localization.Configuration
       return result;
     }
 
+    /// <summary>
+    /// Loads <see cref="LocalizationConfiguration"/> from given configuration section.
+    /// </summary>
+    /// <param name="configurationSection"><see cref="IConfigurationSection"/> to load from.</param>
+    /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
     public static LocalizationConfiguration Load(IConfigurationSection configurationSection)
     {
       ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
 
-      if (TryReadAsOptions(configurationSection, out var localizationConfiguration))
-        return localizationConfiguration;
-
-      // if failed then try to handle unusual formats or xml with name attribute
-      return TryReadUnusualOrOldFormats(configurationSection, out var fallbackConfiguration)
-        ? fallbackConfiguration
-        : new LocalizationConfiguration {
-            DefaultCulture = Thread.CurrentThread.CurrentCulture
-          };
-    }
-
-    private static bool TryReadAsOptions(IConfigurationSection rootSection, out LocalizationConfiguration localizationConfiguration)
-    {
-      LocalizationOptions localizationOptions;
-      try {
-        localizationOptions = rootSection.Get<LocalizationOptions>();
-      }
-      catch {
-        localizationConfiguration = null;
-        return false;
-      }
-
-      if (localizationOptions != null) {
-        if (!string.IsNullOrEmpty(localizationOptions.DefaultCulture)) {
-          try {
-            var culture = new CultureInfo(localizationOptions.DefaultCulture);
-            localizationConfiguration = new LocalizationConfiguration() { DefaultCulture = culture };
-            return true;
-          }
-          catch (CultureNotFoundException) {
-          }
-        }
-      }
-      localizationConfiguration = null;
-      return false;
+      return new LocalizationConfigurationReader().Read(configurationSection);
     }
 
     /// <summary>
-    /// Tries to read configuration of old format that supported by
-    /// old <see cref="System.Configuration.ConfigurationManager"/>
-    /// or configuration where name of service is element, not attribute.
+    /// Loads <see cref="LocalizationConfiguration"/> from given configuration section of <paramref name="configurationRoot"/>.
+    /// If section name is not provided <see cref="LocalizationConfiguration.DefaultSectionName"/> is used.
     /// </summary>
-    /// <param name="rootSection">A configuration section that contains data to read.</param>
-    /// <param name="localizationConfiguration">Read configuration or null if reading was not successful.</param>
-    /// <returns><see landword="true"/> if reading is successful, otherwise <see landword="true"/>.</returns>
-    private static bool TryReadUnusualOrOldFormats(IConfigurationSection rootSection,
-      out LocalizationConfiguration localizationConfiguration)
+    /// <param name="configurationRoot"><see cref="IConfigurationRoot"/> of sections.</param>
+    /// <param name="sectionName">Custom section name to load from.</param>
+    /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
+    public static LocalizationConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
     {
-      var defaultCultureSection = rootSection.GetSection(DefaultCultureElementName);
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
 
-      if (defaultCultureSection == null) {
-        localizationConfiguration = null;
-        return false;
-      }
-
-      var cultureName = defaultCultureSection.GetSection(CultureNameAttributeName)?.Value;
-      if (cultureName == null) {
-        var children = defaultCultureSection.GetChildren().ToList();
-        if (children.Count > 0) {
-          cultureName = children[0].GetSection(CultureNameAttributeName).Value;
-        }
-      }
-
-      if (cultureName != null && ! string.IsNullOrEmpty(cultureName)) {
-        try {
-          var culture = new CultureInfo(cultureName);
-          localizationConfiguration = new LocalizationConfiguration() {
-            DefaultCulture = culture
-          };
-          return true;
-        }
-        catch (CultureNotFoundException) {
-          localizationConfiguration = new LocalizationConfiguration() {
-            DefaultCulture = Thread.CurrentThread.CurrentCulture
-          };
-          return true;
-        }
-      }
-      localizationConfiguration = null;
-      return false;
+      return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
     }
   }
 }

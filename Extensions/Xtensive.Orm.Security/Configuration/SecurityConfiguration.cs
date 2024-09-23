@@ -19,43 +19,6 @@ namespace Xtensive.Orm.Security.Configuration
   [Serializable]
   public class SecurityConfiguration
   {
-    #region nested types
-#pragma warning disable CS0661, CS0659 // Type defines operator == or operator != but does not override Object.GetHashCode()
-#if !NET6_0_OR_GREATER
-    /// <summary>
-    /// Represents Json and XML without neither name attributes nor name as child element;
-    /// </summary>
-    private struct SecurityOptions
-    {
-      public string HashingService { get; set; }
-
-      public string AuthenticationService { get; set; }
-
-      public static bool operator ==(SecurityOptions r1, SecurityOptions r2)
-      {
-        return (r1.HashingService, r1.AuthenticationService) == (r2.HashingService, r2.AuthenticationService);
-      }
-
-      public static bool operator !=(SecurityOptions r1, SecurityOptions r2)
-      {
-        return (r1.HashingService, r1.AuthenticationService) != (r2.HashingService, r2.AuthenticationService);
-      }
-
-      public override bool Equals(object obj)
-      {
-        if (obj is null)
-          return false;
-        if (obj is SecurityOptions objRep)
-          return (HashingService, AuthenticationService) == (objRep.HashingService, objRep.AuthenticationService);
-        return false;
-      }
-    }
-
-#endif
-#pragma warning restore CS0661, CS0659 // Type defines operator == or operator != but does not override Object.GetHashCode()
-
-#endregion
-
     /// <summary>
     /// Default SectionName value:
     /// "<see langword="Xtensive.Orm.Security" />".
@@ -65,11 +28,9 @@ namespace Xtensive.Orm.Security.Configuration
     internal const string HashingServiceElementName = "HashingService";
     internal const string AuthenticationServiceElementName = "AuthenticationService";
 
-    private const string DefaultHashingServiceName = "plain";
-    private const string DefaultAuthenticationServiceName = "default";
-    private const string ServiceNameAttributeName = "name";
+    internal const string DefaultHashingServiceName = "plain";
+    internal const string DefaultAuthenticationServiceName = "default";
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Gets or sets the name of the hashing service.
     /// </summary>
@@ -83,19 +44,6 @@ namespace Xtensive.Orm.Security.Configuration
     /// <value>The name of the authentication service.</value>
     [ConfigurationKeyName(AuthenticationServiceElementName)]
     public string AuthenticationServiceName { get; set; }
-#else
-    /// <summary>
-    /// Gets or sets the name of the hashing service.
-    /// </summary>
-    /// <value>The name of the hashing service.</value>
-    public string HashingServiceName { get; set; }
-
-    /// <summary>
-    /// Gets or sets the name of the authentication service.
-    /// </summary>
-    /// <value>The name of the authentication service.</value>
-    public string AuthenticationServiceName { get; set; }
-#endif
 
     /// <summary>
     /// Loads the <see cref="SecurityConfiguration"/>
@@ -175,127 +123,34 @@ namespace Xtensive.Orm.Security.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
 
-      // First attempt is to read modern xml or json
-      if (TryReadConfigurationAsTypeInstance(configurationSection, out var fromModerntStyle))
-        return fromModerntStyle;
+      var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationSection);
+      if (configuration != null)
+        return configuration;
 
-      // if failed then try to handle unusual formats or xml with name attribute
-      return TryReadUnusualOrOldFormats(configurationSection, out var fallbackConfiguration)
-        ? fallbackConfiguration
-        : new SecurityConfiguration(true);
+      configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationSection);
+      if (configuration != null)
+        return configuration;
+      return new SecurityConfiguration(true);
     }
 
     /// <summary>
-    /// Tries to read configuration of most relevant format where service names declared as child nodes.
+    /// Loads the <see cref="SecurityConfiguration"/> from given configuration section.
     /// </summary>
-    /// <param name="configuration">A configuration section that contains data to read.</param>
-    /// <param name="securityConfiguration"></param>
-    /// <returns><see landword="true"/> if reading is successful, otherwise <see landword="true"/></returns>
-    private static bool TryReadConfigurationAsTypeInstance(IConfigurationSection configuration, out SecurityConfiguration securityConfiguration)
+    /// <param name="configurationRoot"><see cref="IConfigurationRoot"/> to load section from.</param>
+    /// <param name="sectionName">Name of the section where configuration is stored.</param>
+    /// <returns>Loaded configuration or configuration with default settings.</returns>
+    public static SecurityConfiguration Load(IConfigurationRoot configurationRoot, string sectionName)
     {
-      //  <Xtensive.Orm.Security>
-      //    <hashingService>sha1</hashingService>
-      //    <authenticationService>SomeServiceName</authenticationService>
-      //  </Xtensive.Orm.Security>
-      // or
-      //  "Xtensive.Orm.Security" : {
-      //    "hashingService" :"sha1",
-      //    "authenticationService" : "SomeServiceName"
-      //  }
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
 
-#if NET6_0_OR_GREATER
-      try {
+      var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      if (configuration != null)
+        return configuration;
 
-        var configAsIs = configuration.Get<SecurityConfiguration>();
-        if (configAsIs != null && (configAsIs.AuthenticationServiceName ?? configAsIs.HashingServiceName) != null) {
-          configAsIs.HashingServiceName = string.IsNullOrEmpty(configAsIs.HashingServiceName)
-            ? DefaultHashingServiceName
-            : configAsIs.HashingServiceName.ToLowerInvariant();
-          configAsIs.AuthenticationServiceName = string.IsNullOrEmpty(configAsIs.AuthenticationServiceName)
-            ? DefaultAuthenticationServiceName
-            : (configAsIs.AuthenticationServiceName?.ToLowerInvariant());
-          securityConfiguration = configAsIs;
-          return true;
-        }
-      }
-      catch {
-        securityConfiguration = null;
-        return false;
-      }
-#else
-      try {
-        var securityOptions = configuration.Get<SecurityOptions>();
-        if (securityOptions != default) {
-          securityConfiguration = new SecurityConfiguration(true);
-          if (!string.IsNullOrEmpty(securityOptions.HashingService))
-            securityConfiguration.HashingServiceName = securityOptions.HashingService.ToLowerInvariant();
-          if(!string.IsNullOrEmpty(securityOptions.AuthenticationService))
-            securityConfiguration.AuthenticationServiceName = securityOptions.AuthenticationService.ToLowerInvariant(); ;
-
-          return true;
-        }
-      }
-      catch {
-        securityConfiguration = null;
-        return false;
-      }
-#endif
-      var children = configuration.GetChildren().ToList();
-      if (!children.Any()) {
-        securityConfiguration = new SecurityConfiguration(true);
-        return true;
-      }
-      else {
-        securityConfiguration = null;
-        return false;
-      }
-    }
-
-    /// <summary>
-    /// Tries to read configuration of old format that supported by
-    /// old <see cref="System.Configuration.ConfigurationManager"/>
-    /// or configuration where name of service is element, not attribute.
-    /// </summary>
-    /// <param name="configuration">A configuration section that contains data to read.</param>
-    /// <param name="securityConfiguration">Read configuration or null if reading was not successful.</param>
-    /// <returns><see landword="true"/> if reading is successful, otherwise <see landword="true"/>.</returns>
-    private static bool TryReadUnusualOrOldFormats(IConfigurationSection configuration,
-      out SecurityConfiguration securityConfiguration)
-    {
-      var hashingServiceSection = configuration.GetSection(HashingServiceElementName);
-      var authenticationServiceSection = configuration.GetSection(AuthenticationServiceElementName);
-
-      if (hashingServiceSection == null && authenticationServiceSection == null) {
-        securityConfiguration = null;
-        return false;
-      }
-
-      var hashingServiceName = hashingServiceSection.GetSection(ServiceNameAttributeName)?.Value;
-      if (hashingServiceName == null) {
-        var children = hashingServiceSection.GetChildren().ToList();
-        if (children.Count > 0) {
-          hashingServiceName = children[0].GetSection(ServiceNameAttributeName).Value;
-        }
-      }
-
-      var authenticationServiceName = authenticationServiceSection.GetSection(ServiceNameAttributeName)?.Value;
-      if (authenticationServiceName == null) {
-        var children = authenticationServiceSection.GetChildren().ToList();
-        if (children.Count > 0) {
-          authenticationServiceName = children[0].GetSection(ServiceNameAttributeName).Value;
-        }
-      }
-      if ((hashingServiceName ?? authenticationServiceName) != null) {
-        securityConfiguration = new SecurityConfiguration(true);
-        if (!string.IsNullOrEmpty(hashingServiceName))
-          securityConfiguration.HashingServiceName = hashingServiceName.ToLowerInvariant();
-        if (!string.IsNullOrEmpty(authenticationServiceName))
-          securityConfiguration.AuthenticationServiceName = authenticationServiceName.ToLowerInvariant();
-
-        return true;
-      }
-      securityConfiguration = null;
-      return false;
+      configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      if (configuration != null)
+        return configuration;
+      return new SecurityConfiguration(true);
     }
 
     /// <summary>
@@ -305,7 +160,10 @@ namespace Xtensive.Orm.Security.Configuration
     {
     }
 
-    private SecurityConfiguration(bool initWithDefaults)
+    /// <summary>
+    /// Creates instance of <see cref="SecurityConfiguration"/> with properties initialized on demand.
+    /// </summary>
+    internal SecurityConfiguration(bool initWithDefaults)
     {
       if (initWithDefaults) {
         HashingServiceName = DefaultHashingServiceName;
