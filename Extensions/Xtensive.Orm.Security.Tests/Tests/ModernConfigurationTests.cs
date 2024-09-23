@@ -389,7 +389,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     [Test]
     public void NameNodeInLowCase()
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.LC");
+      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.LC");
       var secConfig = SecurityConfiguration.Load(section);
       ValidateNamingConfigurationResults(secConfig);
     }
@@ -397,7 +397,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     [Test]
     public void NameNodeInUpperCase()
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.UC");
+      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.UC");
       var secConfig = SecurityConfiguration.Load(section);
       ValidateNamingConfigurationResults(secConfig);
     }
@@ -405,7 +405,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     [Test]
     public void NameNodeInCamelCase()
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.CC");
+      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.CC");
       var secConfig = SecurityConfiguration.Load(section);
       ValidateNamingConfigurationResults(secConfig);
     }
@@ -413,7 +413,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     [Test]
     public void NameNodeInPascalCase()
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.PC");
+      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.PC");
       var secConfig = SecurityConfiguration.Load(section);
       ValidateNamingConfigurationResults(secConfig);
     }
