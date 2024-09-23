@@ -897,6 +897,38 @@ namespace Xtensive.Orm.Configuration
           Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
     }
 
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string sectionName, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+
       throw new InvalidOperationException(string.Format(
           Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
     }
