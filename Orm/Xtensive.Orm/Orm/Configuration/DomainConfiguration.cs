@@ -877,7 +877,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="configurationSection">Root configuration section where domain configurations are placed</param>
     /// <param name="name">Name of the <see cref="Domain"/>.</param>
-    /// <returns></returns>
+    /// <returns>Domain configuration.</returns>
     /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
     public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
     {

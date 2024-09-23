@@ -7,7 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration.Internals;
 using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
@@ -43,7 +45,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(string sectionName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
 
       var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
       if (section==null)
@@ -70,8 +72,8 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
 
       var section = (ConfigurationSection) configuration.GetSection(sectionName);
       if (section==null)
@@ -80,12 +82,36 @@ namespace Xtensive.Orm.Configuration
       return loggingConfiguration;
     }
 
+    /// <summary>
+    /// Loads logging configuration from the specified configuration section.
+    /// </summary>
+    /// <param name="configurationSection">Root configuration section where logging configuration is placed.</param>
+    /// <returns>Logging configuration.</returns>
+    /// <exception cref="InvalidOperationException">The logging section is not found.</exception>
     public static LoggingConfiguration Load(IConfigurationSection configurationSection)
     {
       return new LoggingConfigurationReader().Read(configurationSection);
     }
 
+    /// <summary>
+    /// Loads logging configuration from default section.
+    /// </summary>
+    /// <param name="configurationRoot">Root of configuration.</param>
+    /// <returns>Read configuration.</returns>
+    /// <exception cref="InvalidOperationException">The logging section is not found.</exception>
+    public static LoggingConfiguration Load(IConfigurationRoot configurationRoot)
+    {
       return new LoggingConfigurationReader().Read(configurationRoot);
+    }
+
+    /// <summary>
+    /// Loads logging configuration from specific section.
+    /// </summary>
+    /// <param name="configurationRoot">Root of configuration.</param>
+    /// <param name="sectionName">Section name where logging configuration is defined.</param>
+    /// <returns>Read configuration.</returns>
+    /// <exception cref="InvalidOperationException">The logging section is not found.</exception>
+    public static LoggingConfiguration Load(IConfigurationRoot configurationRoot, string sectionName)
     {
       return new LoggingConfigurationReader().Read(configurationRoot, sectionName);
     }

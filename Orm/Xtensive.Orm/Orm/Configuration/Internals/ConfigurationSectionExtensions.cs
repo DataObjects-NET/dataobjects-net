@@ -1,8 +1,9 @@
-using System;
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Collections;
 

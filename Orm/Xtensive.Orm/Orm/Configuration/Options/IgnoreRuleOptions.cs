@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Configuration.Options
     IValidatableOptions,
     IToNativeConvertable<IgnoreRule>
   {
+    /// <inheritdoc/>
     public object Identifier =>
       (Database ?? string.Empty,
        Schema ?? string.Empty,
@@ -20,10 +21,29 @@ namespace Xtensive.Orm.Configuration.Options
        Column ?? string.Empty,
        Index ?? string.Empty);
 
+    /// <summary>
+    /// Database part of the rule
+    /// </summary>
     public string Database { get; set; }
+
+    /// <summary>
+    /// Schema part of the rule.
+    /// </summary>
     public string Schema { get; set; }
+
+    /// <summary>
+    /// Table part of the rule.
+    /// </summary>
     public string Table { get; set; }
+
+    /// <summary>
+    /// Column part of the rule.
+    /// </summary>
     public string Column { get; set; }
+
+    /// <summary>
+    /// Index part of the rule.
+    /// </summary>
     public string Index { get; set; }
 
     /// <inheritdoc />

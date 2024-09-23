@@ -301,19 +301,11 @@ namespace Xtensive.Orm.Configuration.Options
         }
       }
 
-      foreach (var element in Sessions)
+      foreach (var element in Sessions) {
         config.Sessions.Add(element.Value.ToNative(connectionStrings));
+      }
 
       return config;
-    }
-
-    private static T ParseEnum<T>(string value)
-      where T : struct
-    {
-      if (!Enum.TryParse<T>(value, true, out var result)) {
-        throw new ArgumentException($"Can't parse given value '{value}' to enum type '{typeof(T).FullName}'");
-      }
-      return result;
     }
   }
 }
