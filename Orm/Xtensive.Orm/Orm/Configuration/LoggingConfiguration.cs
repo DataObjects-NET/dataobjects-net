@@ -82,12 +82,12 @@ namespace Xtensive.Orm.Configuration
 
     public static LoggingConfiguration Load(IConfigurationSection configurationSection)
     {
-      return new LoggingConfigurationParser().Parse(configurationSection);
+      return new LoggingConfigurationReader().Read(configurationSection);
     }
 
-    public static LoggingConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
+      return new LoggingConfigurationReader().Read(configurationRoot);
     {
-      return new LoggingConfigurationParser().Parse(configurationRoot, sectionName);
+      return new LoggingConfigurationReader().Read(configurationRoot, sectionName);
     }
 
     /// <summary>

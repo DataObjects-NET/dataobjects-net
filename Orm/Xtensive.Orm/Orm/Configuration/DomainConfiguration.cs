@@ -881,20 +881,21 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
     public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
     {
-      var allDomainsSection = configurationSection.GetSection("Domains");
-      if (allDomainsSection != null && allDomainsSection.GetChildren().Any()) {
-        var domainSection = allDomainsSection.GetSection(name);
-        if (domainSection.GetChildren().Any()) {
-          var parseResult = new FromJsonToDomainConfigurationParser().Parse(domainSection);
-          if (parseResult != null)
-            return parseResult;
-        }
-        else if ((domainSection = allDomainsSection.GetSection($"Domain:{name}")).GetChildren().Any()) {
-          var parseResult = new XmlDomainConfigParser().Parse(domainSection);
-          if (parseResult != null)
-            return parseResult;
-        }
-      }
+      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
 
       throw new InvalidOperationException(string.Format(
           Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));

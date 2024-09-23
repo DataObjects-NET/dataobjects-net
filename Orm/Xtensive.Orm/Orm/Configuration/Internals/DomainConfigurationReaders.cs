@@ -7,93 +7,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Options;
 
 namespace Xtensive.Orm.Configuration.Internals
 {
-  internal interface IConfigurationSectionParser<TConfiguration>
+  internal sealed class XmlToDomainConfigurationReader : DomainConfigurationReader
   {
-    TConfiguration Parse(IConfiguration configuration);
-
-    TConfiguration Parse(IConfigurationRoot configuration, string sectionName);
-  }
-
-  internal sealed class LoggingConfigurationParser : IConfigurationSectionParser<LoggingConfiguration>
-  {
-    private const string LoggingSectionName = "Logging";
-    private const string LogsSectionName = "Logs";
-
-    private const string ProviderElementName = "Provider";
-    private const string LogElementName = "Log";
-    private const string LogSourceElementName = "Source";
-    private const string LogTargerElementName = "Target";
-
-    public LoggingConfiguration Parse(IConfiguration configuration)
+    protected override bool ValidateCorrectFormat(IConfigurationSection allDomainsSection, string domainName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
-
-      if (configuration is IConfigurationRoot configurationRoot) {
-        return Parse(configurationRoot, WellKnown.DefaultConfigurationSection);
-      }
-      else if (configuration is IConfigurationSection configurationSection) {
-        return Parse(configurationSection);
-      }
-      throw new InvalidOperationException("");
+      return !allDomainsSection.GetSection(domainName).GetChildren().Any()
+        && allDomainsSection.GetSection(string.Format(NamedDomainTemplate, domainName)).GetChildren().Any();
     }
 
-    public LoggingConfiguration Parse(IConfigurationRoot configuration, string sectionName)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
+    protected override IConfigurationSection GetDomainSection(IConfigurationSection allDomainsSection, string domainName) =>
+      allDomainsSection.GetSection(string.Format(NamedDomainTemplate, domainName));
 
-      return Parse(configuration.GetSection(sectionName));
-    }
-
-    public LoggingConfiguration Parse(IConfigurationSection configurationSection)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
-
-      var ormConfigurationSection = configurationSection;
-
-      var loggingSection = ormConfigurationSection.GetSection(LoggingSectionName);
-
-      if (loggingSection != null && loggingSection.GetChildren().Any()) {
-        var provider = loggingSection.GetSection(ProviderElementName)?.Value;
-        var logsSection = loggingSection.GetSection(LogsSectionName);
-        IConfigurationSection logElement;
-
-        if (logsSection != null && logsSection.GetChildren().Any()) {
-          logElement = logsSection.GetSection(LogElementName);
-          if (logElement == null || !logElement.GetChildren().Any()) {
-            logElement = logsSection;
-          }
-        }
-        else {
-          logElement = loggingSection.GetSection(LogElementName);
-        }
-
-        var configuration = new LoggingConfiguration(provider);
-
-        foreach (var logItem in logElement.GetSelfOrChildren()) {
-          var source = logItem.GetSection(LogSourceElementName).Value;
-          var target = logItem.GetSection(LogTargerElementName).Value;
-          if (source.IsNullOrEmpty() || target.IsNullOrEmpty())
-            throw new InvalidOperationException();
-          configuration.Logs.Add(new LogConfiguration(source, target));
-        }
-
-        return configuration;
-      }
-
-      throw new InvalidOperationException(
-        string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, WellKnown.DefaultConfigurationSection));
-    }
-  }
-
-  internal sealed class XmlDomainConfigParser : DomainConfigurationParser
-  {
     protected override void ProcessNamingConvention(IConfigurationSection namingConventionSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
       if (namingConventionSection == null) {
@@ -245,8 +174,17 @@ namespace Xtensive.Orm.Configuration.Internals
     }
   }
 
-  internal class FromJsonToDomainConfigurationParser : DomainConfigurationParser
+  internal sealed class JsonToDomainConfigurationReader : DomainConfigurationReader
   {
+    protected override bool ValidateCorrectFormat(IConfigurationSection allDomainsSection, string domainName)
+    {
+      return allDomainsSection.GetSection(domainName).GetChildren().Any()
+        && !allDomainsSection.GetSection(string.Format(NamedDomainTemplate, domainName)).GetChildren().Any();
+    }
+
+    protected override IConfigurationSection GetDomainSection(IConfigurationSection allDomainsSection, string domainName) =>
+      allDomainsSection.GetSection(domainName);
+
     protected override void ProcessNamingConvention(IConfigurationSection namingConventionSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
       if (namingConventionSection == null || !namingConventionSection.GetChildren().Any())
@@ -258,7 +196,7 @@ namespace Xtensive.Orm.Configuration.Internals
     }
   }
 
-  internal abstract class DomainConfigurationParser : IConfigurationSectionParser<DomainConfiguration>
+  internal abstract class DomainConfigurationReader : IConfigurationSectionReader<DomainConfiguration>
   {
     protected const string RuleElementName = "Rule";
     protected const string KeyGeneratorElementName = "KeyGenerator";
@@ -277,31 +215,78 @@ namespace Xtensive.Orm.Configuration.Internals
     protected const string MappingRulesSectionName = "MappingRules";
     protected const string SessionsSectionName = "Sessions";
     protected const string NamespaceSynonymSectionName = "NamespaceSynonyms";
+    protected const string DomainsSectionName = "Domains";
 
-    public DomainConfiguration Parse(IConfiguration configuration)
+    protected const string NamedDomainTemplate = "Domain:{0}";
+
+    /// <summary>
+    /// Gets domain configuration with name "Default" from <see cref="WellKnown.DefaultConfigurationSection">default section</see>.
+    /// </summary>
+    /// <param name="configurationRoot"></param>
+    /// <returns></returns>
+    public DomainConfiguration Read(IConfigurationRoot configurationRoot) =>
+      Read(configurationRoot, WellKnown.DefaultConfigurationSection, "Default");
+
+    /// <summary>
+    /// Gets domain configuration with name "Default" from <paramref name="configurationRoot"/>.
+    /// </summary>
+    /// <param name="configurationRoot"></param>
+    /// <param name="sectionName"></param>
+    /// <returns></returns>
+    public DomainConfiguration Read(IConfigurationRoot configurationRoot, string sectionName) =>
+      Read(configurationRoot, sectionName, "Default");
+
+    /// <summary>
+    /// Gets domain configuration with given name from <paramref name="configurationRoot"/>.
+    /// </summary>
+    /// <param name="configurationRoot"></param>
+    /// <param name="sectionName"></param>
+    /// <param name="nameOfConfiguration"></param>
+    /// <returns></returns>
+    public DomainConfiguration Read(IConfigurationRoot configurationRoot, string sectionName, string nameOfConfiguration)
     {
-      if (configuration is IConfigurationRoot configurationRoot) {
-        return Parse(configurationRoot, WellKnown.DefaultConfigurationSection);
-      }
-      else if (configuration is IConfigurationSection configurationSection) {
-        return Parse(configurationSection);
-      }
-      throw new InvalidOperationException("");
+      var allDomainsSection = configurationRoot.GetSection(sectionName).GetSection(DomainsSectionName);
+      if (allDomainsSection == null || !allDomainsSection.GetChildren().Any())
+        return null;
+
+      var domainConfigurationSection = GetDomainSection(allDomainsSection, nameOfConfiguration);
+      if (domainConfigurationSection == null || !domainConfigurationSection.GetChildren().Any())
+        return null;
+
+      var connectionStrings = configurationRoot.GetSection("ConnectionStrings").Get<Dictionary<string, string>>();
+      var context = new ConfigurationParserContext(domainConfigurationSection, connectionStrings);
+
+      return ReadInternal(context);
     }
 
-    public DomainConfiguration Parse(IConfigurationRoot configuration, string sectionName)
+    public DomainConfiguration Read(IConfigurationSection rootSection) =>
+      Parse(rootSection, "Default", null);
+
+    public DomainConfiguration Read(IConfigurationSection rootSection, string nameOfConfiguration) =>
+      Parse(rootSection, nameOfConfiguration, null);
+
+    public DomainConfiguration Parse(IConfigurationSection rootSection, Dictionary<string, string> connectionStrings)
+      => Parse(rootSection, "Default", connectionStrings);
+
+    public DomainConfiguration Parse(IConfigurationSection rootSection, string nameOfConfiguration, Dictionary<string, string> connectionStrings)
     {
-      var context = new ConfigurationParserContext(configuration, sectionName);
-      return ParseInternal(context);
+      var allDomainsSection = rootSection.GetSection(DomainsSectionName);
+      if (allDomainsSection == null || !allDomainsSection.GetChildren().Any())
+        return null;
+
+      var domainConfigurationSection = GetDomainSection(allDomainsSection, nameOfConfiguration);
+      if (domainConfigurationSection == null || !domainConfigurationSection.GetChildren().Any())
+        return null;
+
+      var context = new ConfigurationParserContext(domainConfigurationSection, connectionStrings);
+      return ReadInternal(context);
     }
 
-    public DomainConfiguration Parse(IConfigurationSection domainConfiguration, Dictionary<string, string> connectionStrings = null)
-    {
-      var context = new ConfigurationParserContext(domainConfiguration, connectionStrings);
-      return ParseInternal(context);
-    }
+    protected abstract bool ValidateCorrectFormat(IConfigurationSection allDomainsSection, string domainName);
 
-    private DomainConfiguration ParseInternal(ConfigurationParserContext context)
+    protected abstract IConfigurationSection GetDomainSection(IConfigurationSection allDomainsSection, string domainName);
+
+    private DomainConfiguration ReadInternal(ConfigurationParserContext context)
     {
       var domainByNameSection = context.CurrentSection;
       if (domainByNameSection == null || !domainByNameSection.GetChildren().Any()) {
@@ -357,6 +342,8 @@ namespace Xtensive.Orm.Configuration.Internals
     protected virtual void ProcessSessions(IConfigurationSection sessionsSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
     }
+
+    
   }
 
   internal sealed class ConfigurationParserContext
