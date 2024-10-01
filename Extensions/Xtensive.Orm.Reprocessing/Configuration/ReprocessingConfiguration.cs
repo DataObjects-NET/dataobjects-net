@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
   /// <summary>
   /// The configuration of the reprocessing system.
   /// </summary>
-  public class ReprocessingConfiguration
+  public class ReprocessingConfiguration : ConfigurationBase
   {
     /// <summary>
     /// Gets default value of the <see cref="DefaultTransactionOpenMode"/> property.
@@ -21,15 +21,46 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// </summary>
     public static readonly Type DefaultDefaultExecuteStrategy = typeof (HandleReprocessableExceptionStrategy);
 
+    private TransactionOpenMode defaultTransactionOpenMode;
+    private Type defaultExecuteStrategy;
+
     /// <summary>
     /// Gets or sets default value of the <see cref="TransactionOpenMode"/> parameter.
     /// </summary>
-    public TransactionOpenMode DefaultTransactionOpenMode { get; set; }
+    public TransactionOpenMode DefaultTransactionOpenMode {
+      get => defaultTransactionOpenMode;
+      set {
+        EnsureNotLocked();
+        defaultTransactionOpenMode = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets default value of the <see cref="IExecuteActionStrategy"/> parameter.
     /// </summary>
-    public Type DefaultExecuteStrategy { get; set; }
+    public Type DefaultExecuteStrategy {
+      get => defaultExecuteStrategy;
+      set {
+        EnsureNotLocked();
+        defaultExecuteStrategy = value;
+      }
+    }
+
+    /// <inheritdoc />
+    protected override ReprocessingConfiguration CreateClone() => new ReprocessingConfiguration();
+
+    /// <inheritdoc />
+    protected override void CopyFrom(ConfigurationBase source)
+    {
+      base.CopyFrom(source);
+
+      var configuration = (ReprocessingConfiguration) source;
+      configuration.DefaultTransactionOpenMode = configuration.DefaultTransactionOpenMode;
+      configuration.DefaultExecuteStrategy = configuration.DefaultExecuteStrategy;
+    }
+
+    /// <inheritdoc />
+    public override ReprocessingConfiguration Clone() =>  (ReprocessingConfiguration) base.Clone();
 
     /// <summary>
     /// Loads the reprocessing configuration from default section in application configuration file.
@@ -84,16 +115,25 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     }
 
     /// <summary>
-    /// Loads the <see cref="ReprocessingConfiguration"/> from given configuration section.
+    /// Loads the <see cref="ReprocessingConfiguration"/> from specified section of configuration root.
     /// </summary>
-    /// <param name="configurationSection"><see cref="IConfigurationSection"/> to load from.</param>
+    /// <param name="configuration"><see cref="IConfiguration"/> to load section from.</param>
+    /// <param name="sectionName">Name of the section where configuration is stored. Not applied if</param>
     /// <returns>Loaded configuration or configuration with default settings.</returns>
-    public static ReprocessingConfiguration Load(IConfigurationSection configurationSection)
+    public static ReprocessingConfiguration Load(IConfiguration configuration, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      return new ReprocessingConfigurationReader().Read(configurationSection);
+      if (configuration is IConfigurationRoot configurationRoot) {
+        return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? ConfigurationSection.DefaultSectionName);
+      }
+      else if (configuration is IConfigurationSection configurationSection) {
+        return new ReprocessingConfigurationReader().Read(configurationSection);
+      }
+
+      throw new NotSupportedException("Type of configuration is not supported");
     }
+
 
     /// <summary>
     /// Loads the <see cref="ReprocessingConfiguration"/> from specified section of configuration root.
@@ -107,6 +147,20 @@ namespace Xtensive.Orm.Reprocessing.Configuration
 
       return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? ConfigurationSection.DefaultSectionName);
     }
+
+    /// <summary>
+    /// Loads the <see cref="ReprocessingConfiguration"/> from given configuration section.
+    /// </summary>
+    /// <param name="configurationSection"><see cref="IConfigurationSection"/> to load from.</param>
+    /// <returns>Loaded configuration or configuration with default settings.</returns>
+    public static ReprocessingConfiguration Load(IConfigurationSection configurationSection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+
+      return new ReprocessingConfigurationReader().Read(configurationSection);
+    }
+
+    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReprocessingConfiguration"/> class.

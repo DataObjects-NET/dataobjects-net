@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Security.Configuration
 {
@@ -17,7 +18,7 @@ namespace Xtensive.Orm.Security.Configuration
   /// The configuration of the security system.
   /// </summary> 
   [Serializable]
-  public class SecurityConfiguration
+  public class SecurityConfiguration : ConfigurationBase
   {
     /// <summary>
     /// Default SectionName value:
@@ -44,6 +45,22 @@ namespace Xtensive.Orm.Security.Configuration
     /// <value>The name of the authentication service.</value>
     [ConfigurationKeyName(AuthenticationServiceElementName)]
     public string AuthenticationServiceName { get; set; }
+
+    /// <inheritdoc />
+    protected override SecurityConfiguration CreateClone() => new SecurityConfiguration();
+
+    /// <inheritdoc />
+    protected override void CopyFrom(ConfigurationBase source)
+    {
+      base.CopyFrom(source);
+
+      var configuration = (SecurityConfiguration) source;
+      configuration.HashingServiceName = configuration.HashingServiceName;
+      configuration.AuthenticationServiceName = configuration.AuthenticationServiceName;
+    }
+
+    /// <inheritdoc />
+    public override SecurityConfiguration Clone() => (SecurityConfiguration) base.Clone();
 
     /// <summary>
     /// Loads the <see cref="SecurityConfiguration"/>
@@ -117,6 +134,47 @@ namespace Xtensive.Orm.Security.Configuration
     /// <summary>
     /// Loads the <see cref="SecurityConfiguration"/> from given configuration section.
     /// </summary>
+    /// <param name="configuration"><see cref="IConfiguration"/> to load section from.</param>
+    /// <param name="sectionName">Name of the section where configuration is stored.</param>
+    /// <returns>Loaded configuration or configuration with default settings.</returns>
+    public static SecurityConfiguration Load(IConfiguration configuration, string sectionName = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      if (configuration is IConfigurationRoot configurationRoot) {
+        return Load(configurationRoot, sectionName);
+      }
+      else if (configuration is IConfigurationSection configurationSection) {
+        return Load(configurationSection);
+      }
+
+      throw new NotSupportedException("Type of configuration is not supported");
+    }
+
+
+    /// <summary>
+    /// Loads the <see cref="SecurityConfiguration"/> from given configuration section.
+    /// </summary>
+    /// <param name="configurationRoot"><see cref="IConfigurationRoot"/> to load section from.</param>
+    /// <param name="sectionName">Name of the section where configuration is stored.</param>
+    /// <returns>Loaded configuration or configuration with default settings.</returns>
+    public static SecurityConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
+      var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      if (configuration != null)
+        return configuration;
+
+      configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      if (configuration != null)
+        return configuration;
+      return new SecurityConfiguration(true);
+    }
+
+    /// <summary>
+    /// Loads the <see cref="SecurityConfiguration"/> from given configuration section.
+    /// </summary>
     /// <param name="configurationSection"><see cref="IConfigurationSection"/> to load from.</param>
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static SecurityConfiguration Load(IConfigurationSection configurationSection)
@@ -128,26 +186,6 @@ namespace Xtensive.Orm.Security.Configuration
         return configuration;
 
       configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationSection);
-      if (configuration != null)
-        return configuration;
-      return new SecurityConfiguration(true);
-    }
-
-    /// <summary>
-    /// Loads the <see cref="SecurityConfiguration"/> from given configuration section.
-    /// </summary>
-    /// <param name="configurationRoot"><see cref="IConfigurationRoot"/> to load section from.</param>
-    /// <param name="sectionName">Name of the section where configuration is stored.</param>
-    /// <returns>Loaded configuration or configuration with default settings.</returns>
-    public static SecurityConfiguration Load(IConfigurationRoot configurationRoot, string sectionName)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
-
-      var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
-      if (configuration != null)
-        return configuration;
-
-      configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
       if (configuration != null)
         return configuration;
       return new SecurityConfiguration(true);

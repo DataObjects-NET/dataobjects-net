@@ -9,6 +9,7 @@ using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Internals;
 using Xtensive.Orm.Internals;
@@ -145,6 +146,7 @@ namespace Xtensive.Orm.Configuration
     private DatabaseConfigurationCollection databases = new();
     private KeyGeneratorConfigurationCollection keyGenerators = new();
     private IgnoreRuleCollection ignoreRules = new();
+    private ExtensionConfigurationCollection extensionConfigurations = new();
     private NamingConvention namingConvention = new();
     private VersioningConvention versioningConvention = new();
     private int keyCacheSize = DefaultKeyCacheSize;
@@ -445,6 +447,18 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets collection of additional configurations (configurations of extensions)
+    /// that might be required during domain build process.
+    /// </summary>
+    public ExtensionConfigurationCollection ExtensionConfigurations {
+      get => extensionConfigurations;
+      set {
+        EnsureNotLocked();
+        extensionConfigurations = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets value indicating whether SQL text of a query
     /// that caused error should be included in exception message.
     /// </summary>
@@ -694,6 +708,7 @@ namespace Xtensive.Orm.Configuration
       keyGenerators.Lock(true);
       ignoreRules.Lock(true);
       versioningConvention.Lock(true);
+      extensionConfigurations.Lock(true);
 
       base.Lock(recursive);
 
@@ -772,6 +787,7 @@ namespace Xtensive.Orm.Configuration
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
+      ExtensionConfigurations = (ExtensionConfigurationCollection) configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>

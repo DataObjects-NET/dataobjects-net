@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Internals;
@@ -17,17 +18,59 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Configuration of logging
   /// </summary>
-  public sealed class LoggingConfiguration
+  public sealed class LoggingConfiguration : ConfigurationBase
   {
+    private string provider;
+    private IList<LogConfiguration> logs;
+
     /// <summary>
     /// Gets or sets external provider. Provider's name specified as assembly qualified name.
     /// </summary>
-    public string Provider { get; set; }
+    public string Provider {
+      get => provider;
+      set {
+        EnsureNotLocked();
+        provider = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets list of <see cref="LogConfiguration"/>
     /// </summary>
-    public IList<LogConfiguration> Logs { get; set; }
+    public IList<LogConfiguration> Logs {
+      get => logs;
+      set { EnsureNotLocked(); logs = value; }
+    }
+
+    public override void Lock(bool recursive)
+    {
+      if (logs is List<LogConfiguration>nativeList) {
+        logs = nativeList.AsReadOnly();
+      }
+      else {
+        logs = logs.ToList().AsReadOnly();
+      }
+      base.Lock(recursive);
+
+      foreach (var log in logs) {
+        log.Lock(recursive);
+      }
+    }
+
+    /// <inheritdoc />
+    protected override LoggingConfiguration CreateClone() => new LoggingConfiguration();
+
+    /// <inheritdoc />
+    protected override void CopyFrom(ConfigurationBase source)
+    {
+      base.CopyFrom(source);
+      var configuration = source as LoggingConfiguration;
+      Logs = new List<LogConfiguration>(configuration.Logs);
+      Provider = configuration.Provider;
+    }
+
+    /// <inheritdoc />
+    public override LoggingConfiguration Clone() => (LoggingConfiguration) base.Clone();
 
     /// <summary>
     /// Loads logging configuration from the default configuration section.
@@ -121,7 +164,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public LoggingConfiguration()
     {
-      Logs = new List<LogConfiguration>();
+      logs = new List<LogConfiguration>();
     }
 
     /// <summary>
@@ -130,8 +173,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="provider">External provider for logging. Provider's name specified as assembly qualified name.</param>
     public LoggingConfiguration(string provider)
     {
-      Provider = provider;
-      Logs = new List<LogConfiguration>();
+      this.provider = provider;
+      logs = new List<LogConfiguration>();
     }
   }
 }

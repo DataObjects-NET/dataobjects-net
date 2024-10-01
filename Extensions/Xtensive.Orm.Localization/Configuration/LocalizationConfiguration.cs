@@ -19,27 +19,43 @@ namespace Xtensive.Orm.Localization.Configuration
   /// The configuration of the localization extension.
   /// </summary> 
   [Serializable]
-  public class LocalizationConfiguration
+  public class LocalizationConfiguration : ConfigurationBase
   {
-    private class LocalizationOptions
-    {
-      public string DefaultCulture { get; set; } = null;
-    }
-
     /// <summary>
     /// Default SectionName value:
     /// "<see langword="Xtensive.Orm.Localization" />".
     /// </summary>
     public const string DefaultSectionName = "Xtensive.Orm.Localization";
 
-    private const string DefaultCultureElementName = "DefaultCulture";
-    private const string CultureNameAttributeName = "name";
+    private CultureInfo culture;
 
     /// <summary>
     /// Gets or sets the default culture.
     /// </summary>
     /// <value>The default culture.</value>
-    public CultureInfo DefaultCulture { get; internal set; }
+    public CultureInfo DefaultCulture {
+      get => culture;
+      internal set {
+        EnsureNotLocked();
+        culture = value;
+      }
+    }
+
+    /// <inheritdoc />
+    protected override LocalizationConfiguration CreateClone() => new LocalizationConfiguration();
+
+    /// <inheritdoc />
+    protected override void CopyFrom(ConfigurationBase source)
+    {
+      base.CopyFrom(source);
+
+      var nativeConfig = source as LocalizationConfiguration;
+      nativeConfig.DefaultCulture = DefaultCulture;
+    }
+
+    /// <inheritdoc />
+    public override LocalizationConfiguration Clone() => (LocalizationConfiguration) base.Clone();
+
 
     /// <summary>
     /// Loads the <see cref="LocalizationConfiguration"/>
@@ -113,6 +129,30 @@ namespace Xtensive.Orm.Localization.Configuration
       catch (CultureNotFoundException) {
       }
       return result;
+    }
+
+    /// <summary>
+    /// Loads <see cref="LocalizationConfiguration"/> from given configuration section of <paramref name="configurationRoot"/>.
+    /// If section name is not provided <see cref="LocalizationConfiguration.DefaultSectionName"/> is used.
+    /// </summary>
+    /// <param name="configuration"><see cref="IConfiguration"/> of sections.</param>
+    /// <param name="sectionName">Custom section name to load from.</param>
+    /// <returns>Loaded configuration or default configuration if loading failed for some reason.</returns>
+    public static LocalizationConfiguration Load(IConfiguration configuration, string sectionName = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      if (configuration is IConfigurationRoot configurationRoot)
+        return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      else if (configuration is IConfigurationSection configurationSection) {
+        if (sectionName.IsNullOrEmpty())
+          return new LocalizationConfigurationReader().Read(configurationSection);
+        else {
+          return new LocalizationConfigurationReader().Read(configurationSection.GetSection(sectionName));
+        }
+      }
+
+      throw new NotSupportedException("Type of configuration is not supported");
     }
 
     /// <summary>
