@@ -10,7 +10,7 @@ using Xtensive.Orm.Localization.Configuration;
 
 namespace Xtensive.Orm.Localization.Tests.Configuration
 {
-  public sealed class JsonConfigurationTest : ModernConfigurationTest
+  public sealed class JsonConfigurationTest : MicrosoftConfigurationTest
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Json;
 
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
     }
   }
 
-  public sealed class XmlConfigurationTest : ModernConfigurationTest
+  public sealed class XmlConfigurationTest : MicrosoftConfigurationTest
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Xml;
 
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
   }
 
   [TestFixture]
-  public abstract class ModernConfigurationTest : TestCommon.ModernConfigurationTestBase
+  public abstract class MicrosoftConfigurationTest : TestCommon.MicrosoftConfigurationTestBase
   {
     protected readonly CultureInfo defaultCulture = new CultureInfo("en-US");
     protected readonly CultureInfo expectedCulture = new CultureInfo("es-ES");

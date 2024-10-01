@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Configuration.TypesToUseInTests
 namespace Xtensive.Orm.Tests.Configuration
 {
   [TestFixture]
-  public sealed class AppConfigStyleConfigurationTest : ConfigurationFileTestBase
+  public sealed class AppConfigStyleConfigurationTest : MicrosoftConfigurationTestBase
   {
     protected override string Postfix => "AppConfig";
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Configuration
   }
 
   [TestFixture]
-  public sealed class XmlConfigurationTest : ConfigurationFileTestBase
+  public sealed class XmlConfigurationTest : MicrosoftConfigurationTestBase
   {
     protected override string Postfix => "Xml";
 
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Configuration
   }
 
   [TestFixture]
-  public sealed class JsonConfigurationTest : ConfigurationFileTestBase
+  public sealed class JsonConfigurationTest : MicrosoftConfigurationTestBase
   {
     protected override string Postfix => "Json";
 
@@ -106,13 +106,11 @@ namespace Xtensive.Orm.Tests.Configuration
     }
   }
 
-  public abstract class ConfigurationFileTestBase
+  public abstract class MicrosoftConfigurationTestBase
   {
-
     private IConfigurationRoot configuration;
     private IConfigurationSection configurationSection;
 
-    
     protected abstract string Postfix { get; }
     protected virtual bool NameAttributeUnique => true;
 

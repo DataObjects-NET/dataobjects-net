@@ -9,7 +9,7 @@ using Xtensive.Orm.Reprocessing.Configuration;
 
 namespace Xtensive.Orm.Reprocessing.Tests.Configuration
 {
-  public sealed class JsonConfigurationTest : ModernConfigurationTest
+  public sealed class JsonConfigurationTest : MicrosoftConfigurationTest
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Json;
 
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
     }
   }
 
-  public sealed class XmlConfigurationTest : ModernConfigurationTest
+  public sealed class XmlConfigurationTest : MicrosoftConfigurationTest
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Xml;
 
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
     }
   }
 
-  public abstract class ModernConfigurationTest : TestCommon.ModernConfigurationTestBase
+  public abstract class MicrosoftConfigurationTest : TestCommon.MicrosoftConfigurationTestBase
   {
     protected ReprocessingConfiguration LoadConfiguration(string sectionName, bool useRoot)
     {

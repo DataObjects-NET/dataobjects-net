@@ -8,7 +8,7 @@ using Xtensive.Orm.Security.Configuration;
 
 namespace Xtensive.Orm.Security.Tests.Configuration
 {
-  public sealed class JsonConfigurationTests : ModernConfigurationTests
+  public sealed class JsonConfigurationTests : MicrosoftConfigurationTests
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Json;
 
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     }
   }
 
-  public sealed class XmlConfigurationTests : ModernConfigurationTests
+  public sealed class XmlConfigurationTests : MicrosoftConfigurationTests
   {
     protected override ConfigTypes ConfigFormat => ConfigTypes.Xml;
 
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Security.Tests.Configuration
 
 
   [TestFixture]
-  public abstract class ModernConfigurationTests : TestCommon.ModernConfigurationTestBase
+  public abstract class MicrosoftConfigurationTests : TestCommon.MicrosoftConfigurationTestBase
   {
     protected SecurityConfiguration LoadConfiguration(string sectionName, bool useRoot)
     {

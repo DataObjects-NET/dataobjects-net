@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace TestCommon
 {
-  public abstract class ModernConfigurationTestBase
+  public abstract class MicrosoftConfigurationTestBase
   {
     protected enum ConfigTypes
     {
