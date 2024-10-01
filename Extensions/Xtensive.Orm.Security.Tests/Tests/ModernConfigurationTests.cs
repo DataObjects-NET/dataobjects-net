@@ -28,84 +28,93 @@ namespace Xtensive.Orm.Security.Tests.Configuration
     }
 
     [Test]
-    public void NameAttributeEmptyNamesTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeEmptyNamesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.NamesEmpty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.NamesEmpty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void NameAttributeEmptyAndNonExistentNameTest1()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeEmptyAndNonExistentNameTest1(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.NameExistPartially1");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.NameExistPartially1", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void NameAttributeEmptyAndNonExistentNameTest2()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeEmptyAndNonExistentNameTest2(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.NameExistPartially2");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.NameExistPartially2", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void NameAttributeAllNamesTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeAllNamesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.AllNames");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.AllNames", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
     [Test]
-    public void NameAttributeOnlyHashingServiceTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeOnlyHashingServiceTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.OnlyHashing");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.OnlyHashing", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void NameAttributeOnlyAuthServiceTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeOnlyAuthServiceTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.OnlyAuth");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.OnlyAuth", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("plain"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
     [Test]
-    public void NameAttributeLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeLowCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.LC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.LC", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
     [Test]
-    public void NameAttributeUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeUpperCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.UC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.UC", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
     [Test]
-    public void NameAttributePascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributePascalCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Security.NameAttribute.PC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration("Xtensive.Orm.Security.NameAttribute.PC", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
@@ -116,129 +125,150 @@ namespace Xtensive.Orm.Security.Tests.Configuration
   [TestFixture]
   public abstract class ModernConfigurationTests : TestCommon.ModernConfigurationTestBase
   {
-    [Test]
-    public void EmptySectionCase()
+    protected SecurityConfiguration LoadConfiguration(string sectionName, bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Empty");
-      var secConfig = SecurityConfiguration.Load(section);
+      return useRoot
+        ? SecurityConfiguration.Load(configurationRoot, sectionName)
+        : SecurityConfiguration.Load(configurationRoot.GetSection(sectionName));
+    }
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptySectionCaseTest(bool useRoot)
+    {
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Empty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void EmptyNames()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyNamesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.AllEmpty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.AllEmpty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyHashingServiceEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceEmptyTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Empty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Empty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyHashingServiceMd5()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceMd5Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Md5");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Md5", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("md5"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceSha1()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceSha1Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha1");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha1", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceSha256()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceSha256Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha256");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha256", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha256"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceSha384()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceSha384Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha384");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha384", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha384"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceSha512()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceSha512Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha512");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyHashing.Sha512", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha512"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyAuthenticationServiceEmptyName()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyAuthenticationServiceEmptyNameTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyAuth.Empty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyAuth.Empty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyAuthenticationServiceNotDefault()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyAuthenticationServiceNotDefaultTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.OnlyAuth");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.OnlyAuth", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("plain"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
-
     #region Naming
+
     [Test]
-    public void NamingInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInLowCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Naming.LC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Naming.LC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NamingInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInUpperCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Naming.UC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Naming.UC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NamingInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInCamelCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Naming.CC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Naming.CC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NamingInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInPascalCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Naming.PC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Naming.PC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
@@ -248,38 +278,44 @@ namespace Xtensive.Orm.Security.Tests.Configuration
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
+
     #endregion
 
     #region mistype cases
+
     [Test]
-    public void MistypeInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInLowCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.LC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.LC", useRoot);
       ValidateMistypeConfigurationResults(secConfig);
     }
 
     [Test]
-    public void MistypeInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInUpperCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.UC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.UC", useRoot);
       ValidateMistypeConfigurationResults(secConfig);
     }
 
     [Test]
-    public void MistypeInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInCamelCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.CC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.CC", useRoot);
       ValidateMistypeConfigurationResults(secConfig);
     }
 
     [Test]
-    public void MistypeInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInPascalCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.PC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.Mistype.PC", useRoot);
       ValidateMistypeConfigurationResults(secConfig);
     }
 
@@ -290,131 +326,145 @@ namespace Xtensive.Orm.Security.Tests.Configuration
 
     #endregion
 
-    #region Name as node 
+    #region Name as node
 
     [Test]
-    public void NoNameNodes()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NoNameNodesTest(bool useRoot)
     {
       IgnoreIfXml();
 
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.Json.NameNode.AllEmpty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.Json.NameNode.AllEmpty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void NameNodesAreEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodesAreEmptyTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.Json.NameNode.NamesEmpty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.Json.NameNode.NamesEmpty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyHashingServiceNameIsEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceNameIsEmptyTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Empty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Empty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyHashingServiceWithNameNodeMd5()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceWithNameNodeMd5Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Md5");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Md5", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("md5"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceWithNameNodeSha1()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceWithNameNodeSha1Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha1");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha1", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha1"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceWithNameNodeSha256()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceWithNameNodeSha256Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha256");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha256", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha256"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceWithNameNodeSha384()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceWithNameNodeSha384Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha384");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha384", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha384"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyHashingServiceWithNameNodeSha512()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyHashingServiceWithNameNodeSha512Test(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha512");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyHashing.Sha512", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("sha512"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("default"));
     }
 
     [Test]
-    public void OnlyAuthenticationServiceWithNameNodeEmptyName()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyAuthenticationServiceWithNameNodeEmptyNameTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyAuth.Empty");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyAuth.Empty", useRoot);
       CheckConfigurationIsDefault(secConfig);
     }
 
     [Test]
-    public void OnlyAuthenticationServiceWithNameNodeNotDefault()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyAuthenticationServiceWithNameNodeNotDefaultTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyAuth");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.OnlyAuth", useRoot);
       Assert.That(secConfig, Is.Not.Null);
       Assert.That(secConfig.HashingServiceName, Is.EqualTo("plain"));
       Assert.That(secConfig.AuthenticationServiceName, Is.EqualTo("notdefault"));
     }
 
     [Test]
-    public void NameNodeInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInLowCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.LC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.LC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NameNodeInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInUpperCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.UC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.UC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NameNodeInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInCamelCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.CC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.CC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 
     [Test]
-    public void NameNodeInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInPascalCaseTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.PC");
-      var secConfig = SecurityConfiguration.Load(section);
+      var secConfig = LoadConfiguration($"Xtensive.Orm.Security.{ConfigFormat}.NameNode.Naming.PC", useRoot);
       ValidateNamingConfigurationResults(secConfig);
     }
 

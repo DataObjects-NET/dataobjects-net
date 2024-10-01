@@ -17,7 +17,7 @@ namespace TestCommon
       Xml,
     }
 
-    protected IConfiguration configuration;
+    protected IConfigurationRoot configurationRoot;
 
     protected abstract ConfigTypes ConfigFormat { get; }
 
@@ -29,7 +29,7 @@ namespace TestCommon
       var configurationBuilder = new ConfigurationBuilder();
       configurationBuilder.SetBasePath(Directory.GetCurrentDirectory());
       AddConfigurationFile(configurationBuilder);
-      configuration = (ConfigurationRoot) configurationBuilder.Build();
+      configurationRoot = (ConfigurationRoot) configurationBuilder.Build();
     }
 
     protected void IgnoreIfXml()
@@ -45,7 +45,7 @@ namespace TestCommon
 
     protected IConfigurationSection GetAndCheckConfigurationSection(string sectionName)
     {
-      var section = configuration.GetSection(sectionName);
+      var section = configurationRoot.GetSection(sectionName);
       Assert.That(section, Is.Not.Null);
       return section;
     }

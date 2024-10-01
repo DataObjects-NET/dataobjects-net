@@ -30,62 +30,68 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
     }
 
     [Test]
-    public void NameAttributeEmptyNameTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeEmptyNameTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.NameEmpty");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.NameEmpty", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void NameAttributeAbsentTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeAbsentTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.None");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.None", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
-
     [Test]
-    public void NameAttributeDefinedTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeDefinedTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.Defined");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.Defined", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
 
     [Test]
-    public void NameAttributeFaultyValueTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeFaultyValueTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.FaultyValue");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.FaultyValue", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void NameAttributeLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.LC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.LC", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
 
     [Test]
-    public void NameAttributeUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributeUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.UC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.UC", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
 
     [Test]
-    public void NameAttributePascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameAttributePascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Localization.NameAttribute.PC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration("Xtensive.Orm.Localization.NameAttribute.PC", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
@@ -105,6 +111,13 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
       
     }
 
+    protected LocalizationConfiguration LoadConfiguration(string sectionName, bool useRoot)
+    {
+      return useRoot
+        ? LocalizationConfiguration.Load(configurationRoot, sectionName)
+        : LocalizationConfiguration.Load(configurationRoot.GetSection(sectionName));
+    }
+
     [SetUp]
     public void SetUp()
     {
@@ -119,69 +132,77 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
     }
 
     [Test]
-    public void EmptySectionCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptySectionCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Empty");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Empty", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void EmptyName()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyName(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameEmpty");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameEmpty", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void NameDefined()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameDefined(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameDefined");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameDefined", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
 
     [Test]
-    public void FaultyValue()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void FaultyValue(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.FaultyValue");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.FaultyValue", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
-
     #region Naming
+
     [Test]
-    public void NamingInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.LC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.LC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NamingInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.UC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.UC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NamingInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInCamelCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.CC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.CC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NamingInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.PC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Naming.PC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
@@ -190,38 +211,44 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
+
     #endregion
 
     #region mistype cases
+
     [Test]
-    public void MistypeInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.LC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.LC", useRoot);
       ValidateMistypeConfigurationResults(locConfig);
     }
 
     [Test]
-    public void MistypeInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.UC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.UC", useRoot);
       ValidateMistypeConfigurationResults(locConfig);
     }
 
     [Test]
-    public void MistypeInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInCamelCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.CC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.CC", useRoot);
       ValidateMistypeConfigurationResults(locConfig);
     }
 
     [Test]
-    public void MistypeInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.PC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.Mistype.PC", useRoot);
       ValidateMistypeConfigurationResults(locConfig);
     }
 
@@ -235,69 +262,77 @@ namespace Xtensive.Orm.Localization.Tests.Configuration
     #region Name as node
 
     [Test]
-    public void NoNameNodes()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NoNameNodes(bool useRoot)
     {
       IgnoreIfXml();
 
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Empty");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Empty", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void NameNodeIsEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeIsEmpty(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.NameEmpty");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.NameEmpty", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void DefinedNameNode()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void DefinedNameNode(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Espaniol");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Espaniol", useRoot);
       Assert.That(locConfig, Is.Not.Null);
       Assert.That(locConfig.DefaultCulture, Is.EqualTo(expectedCulture));
     }
 
     [Test]
-    public void FaultyNameNodeValue()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void FaultyNameNodeValue(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.FaultyValue");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.FaultyValue", useRoot);
       CheckConfigurationIsDefault(locConfig);
     }
 
     [Test]
-    public void NameNodeInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.LC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.LC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NameNodeInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.UC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.UC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NameNodeInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInCamelCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.CC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.CC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 
     [Test]
-    public void NameNodeInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NameNodeInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.PC");
-      var locConfig = LocalizationConfiguration.Load(section);
+      var locConfig = LoadConfiguration($"Xtensive.Orm.Localization.{ConfigFormat}.NameNode.Naming.PC", useRoot);
       ValidateNamingConfigurationResults(locConfig);
     }
 

@@ -29,92 +29,102 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
     }
 
     [Test]
-    public void EmptyNodesTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyNodesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Xml.EmptyNodes");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Xml.EmptyNodes", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void EmptyValuesTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyValuesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.EmptyValues");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.EmptyValues", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void EmptyTransactionModeOnlyTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyTransactionModeOnlyTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.EmptyTMOnly");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.EmptyTMOnly", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void EmptyStrategyOnlyTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyStrategyOnlyTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.EmptyStrategyOnly");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.EmptyStrategyOnly", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void AllAttributesHasValuesTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void AllAttributesHasValuesTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.All");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.All", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
     }
 
     [Test]
-    public void OnlyTMAttributeHasValueTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyTMAttributeHasValueTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.OnlyTM");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.OnlyTM", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleReprocessableExceptionStrategy)));
     }
 
     [Test]
-    public void OnlyStrategyAttributeHasValueTest()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyStrategyAttributeHasValueTest(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.OnlyStrategy");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.OnlyStrategy", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.New));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
     }
 
     [Test]
-    public void AttributesInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void AttributesInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.LC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.LC", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
     }
 
     [Test]
-    public void AttributesInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void AttributesInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.UC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.UC", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
     }
 
     [Test]
-    public void AttributesInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void AttributesInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection("Xtensive.Orm.Reprocessing.Attributes.PC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration("Xtensive.Orm.Reprocessing.Attributes.PC", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
@@ -123,65 +133,80 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
 
   public abstract class ModernConfigurationTest : TestCommon.ModernConfigurationTestBase
   {
-    [Test]
-    public void EmptySectionCase()
+    protected ReprocessingConfiguration LoadConfiguration(string sectionName, bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Empty");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      return useRoot
+        ? ReprocessingConfiguration.Load(configurationRoot, sectionName)
+        : ReprocessingConfiguration.Load(configurationRoot.GetSection(sectionName));
+    }
+
+
+    [Test]
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptySectionCase(bool useRoot)
+    {
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Empty", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void EmptyNames()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void EmptyNames(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.AllEmpty");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.AllEmpty", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void OnlyTransactionOpenModeAndEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyTransactionOpenModeAndEmpty(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Empty");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Empty", useRoot);
       CheckConfigIsDefault(repConfig);
     }
 
     [Test]
-    public void OnlyTransactionOpenModeAuto()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyTransactionOpenModeAuto(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Auto");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Auto", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Auto));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleReprocessableExceptionStrategy)));
     }
 
     [Test]
-    public void OnlyTransactionOpenModeNew()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyTransactionOpenModeNew(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.New");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.New", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.New));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleReprocessableExceptionStrategy)));
     }
 
     [Test]
-    public void OnlyTransactionOpenModeDefault()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyTransactionOpenModeDefault(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Default");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyTM.Default", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.Default));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleReprocessableExceptionStrategy)));
     }
 
     [Test]
-    public void OnlyStrategyAndEmpty()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyStrategyAndEmpty(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.Empty");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.Empty", useRoot);
       CheckConfigIsDefault(repConfig);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.New));
@@ -189,63 +214,72 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
     }
 
     [Test]
-    public void OnlyStrategyHandleReprocessible()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyStrategyHandleReprocessible(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.HandleReprocessible");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.HandleReprocessible", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.New));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleReprocessableExceptionStrategy)));
     }
 
     [Test]
-    public void OnlyStrategyHandleUnique()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyStrategyHandleUnique(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.HandleUnique");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.HandleUnique", useRoot);
       Assert.That(repConfig, Is.Not.Null);
       Assert.That(repConfig.DefaultTransactionOpenMode, Is.EqualTo(TransactionOpenMode.New));
       Assert.That(repConfig.DefaultExecuteStrategy, Is.EqualTo(typeof(HandleUniqueConstraintViolationStrategy)));
     }
 
     [Test]
-    public void OnlyStrategyNonExistent()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void OnlyStrategyNonExistent(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.NonExistent");
-      _ = Assert.Throws<InvalidOperationException>(() => ReprocessingConfiguration.Load(section));
+      _ = Assert.Throws<InvalidOperationException>(
+        () => LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.OnlyStrategy.NonExistent", useRoot));
     }
 
 
     #region Naming
+
     [Test]
-    public void NamingInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.LC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.LC", useRoot);
       ValidateNamingConfigurationResults(repConfig);
     }
 
     [Test]
-    public void NamingInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.UC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.UC", useRoot);
       ValidateNamingConfigurationResults(repConfig);
     }
 
     [Test]
-    public void NamingInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInCamelCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.CC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.CC", useRoot);
       ValidateNamingConfigurationResults(repConfig);
     }
 
     [Test]
-    public void NamingInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void NamingInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.PC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Naming.PC", useRoot);
       ValidateNamingConfigurationResults(repConfig);
     }
 
@@ -258,35 +292,40 @@ namespace Xtensive.Orm.Reprocessing.Tests.Configuration
     #endregion
 
     #region mistype cases
+
     [Test]
-    public void MistypeInLowCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInLowCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.LC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.LC", useRoot);
       ValidateMistypeConfigurationResults(repConfig);
     }
 
     [Test]
-    public void MistypeInUpperCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInUpperCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.UC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.UC", useRoot);
       ValidateMistypeConfigurationResults(repConfig);
     }
 
     [Test]
-    public void MistypeInCamelCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInCamelCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.CC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.CC", useRoot);
       ValidateMistypeConfigurationResults(repConfig);
     }
 
     [Test]
-    public void MistypeInPascalCase()
+    [TestCase(true)]
+    [TestCase(false)]
+    public void MistypeInPascalCase(bool useRoot)
     {
-      var section = GetAndCheckConfigurationSection($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.PC");
-      var repConfig = ReprocessingConfiguration.Load(section);
+      var repConfig = LoadConfiguration($"Xtensive.Orm.Reprocessing.{ConfigFormat}.Mistype.PC", useRoot);
       ValidateMistypeConfigurationResults(repConfig);
     }
 
