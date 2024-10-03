@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Configuration
   /// Default <see cref="IExtensionConfigurationCollection"/> implementation (<see cref="ILockable">lockable</see>).
   /// </summary>
   [Serializable]
-  public sealed class ExtensionConfigurationCollection : LockableBase
+  public sealed class ExtensionConfigurationCollection : LockableBase,
     IEnumerable<ConfigurationBase>
   {
     private Dictionary<Type, ConfigurationBase> extensionConfigurations;
