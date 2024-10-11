@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     // intermediate class for reading section
     private class ReprocessingOptions
     {
-      public TransactionOpenMode DefaultTransactionOpenMode { get; set; }
+      public TransactionOpenMode? DefaultTransactionOpenMode { get; set; }
 
       public string DefaultExecuteStrategy { get; set; }
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
 
       var result = new ReprocessingConfiguration();
       if (reprocessingOptions.DefaultTransactionOpenMode != default) {
-        result.DefaultTransactionOpenMode = reprocessingOptions.DefaultTransactionOpenMode;
+        result.DefaultTransactionOpenMode = reprocessingOptions.DefaultTransactionOpenMode.Value;
       }
       if (!string.IsNullOrEmpty(reprocessingOptions.DefaultExecuteStrategy)) {
         var type = Type.GetType(reprocessingOptions.DefaultExecuteStrategy, false);

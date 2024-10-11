@@ -21,26 +21,29 @@ namespace Xtensive.Orm.Security.Configuration
     [Obsolete("Use SecurityConfiguration.DefaultSectionName instead")]
     public static readonly string DefaultSectionName = "Xtensive.Orm.Security";
 
+    private const string HashingServiceElementName = "hashingService";
+    private const string AuthenticationServiceElementName = "authenticationService";
+
     /// <summary>
     /// Gets or sets the hashing service.
     /// </summary>
     /// <value>The hashing service.</value>
-    [ConfigurationProperty(SecurityConfiguration.HashingServiceElementName, IsRequired = false)]
+    [ConfigurationProperty(HashingServiceElementName, IsRequired = false)]
     public HashingServiceConfigurationElement HashingService
     {
-      get { return (HashingServiceConfigurationElement) this[SecurityConfiguration.HashingServiceElementName]; }
-      set { this[SecurityConfiguration.HashingServiceElementName] = value; }
+      get { return (HashingServiceConfigurationElement) this[HashingServiceElementName]; }
+      set { this[HashingServiceElementName] = value; }
     }
 
     /// <summary>
     /// Gets or sets the authentication service.
     /// </summary>
     /// <value>The authentication service.</value>
-    [ConfigurationProperty(SecurityConfiguration.AuthenticationServiceElementName, IsRequired = false)]
+    [ConfigurationProperty(AuthenticationServiceElementName, IsRequired = false)]
     public AuthenticationServiceConfigurationElement AuthenticationService
     {
-      get { return (AuthenticationServiceConfigurationElement) this[SecurityConfiguration.AuthenticationServiceElementName]; }
-      set { this[SecurityConfiguration.AuthenticationServiceElementName] = value; }
+      get { return (AuthenticationServiceConfigurationElement) this[AuthenticationServiceElementName]; }
+      set { this[AuthenticationServiceElementName] = value; }
     }
   }
 }
