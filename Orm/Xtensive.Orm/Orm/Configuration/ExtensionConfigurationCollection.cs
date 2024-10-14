@@ -1,16 +1,18 @@
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
-  /// Default <see cref="IExtensionConfigurationCollection"/> implementation (<see cref="ILockable">lockable</see>).
+  /// Collection of configurations of extensions.
   /// </summary>
   [Serializable]
   public sealed class ExtensionConfigurationCollection : LockableBase,

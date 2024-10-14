@@ -9,9 +9,7 @@ using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Configuration;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration.Internals;
 using Xtensive.Orm.Internals;
 using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
@@ -19,7 +17,7 @@ namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
-  /// </summary> 
+  /// </summary>
   [Serializable]
   public class DomainConfiguration : ConfigurationBase
   {

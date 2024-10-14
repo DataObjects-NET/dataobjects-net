@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2020 Xtensive LLC.
+// Copyright (C) 2013-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -10,7 +10,6 @@ using System.Configuration;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration.Internals;
 using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration

@@ -12,6 +12,12 @@ namespace Xtensive.Orm.Reprocessing.Configuration
   public class ReprocessingConfiguration : ConfigurationBase
   {
     /// <summary>
+    /// Gets default section name for reprocessing configuration.
+    /// Value is "Xtensive.Orm.Reprocessing".
+    /// </summary>
+    public static readonly string DefaultSectionName = "Xtensive.Orm.Reprocessing";
+
+    /// <summary>
     /// Gets default value of the <see cref="DefaultTransactionOpenMode"/> property.
     /// </summary>
     public static readonly TransactionOpenMode DefaultDefaultTransactionOpenMode = TransactionOpenMode.New;
@@ -68,7 +74,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>The reprocessing configuration.</returns>
     public static ReprocessingConfiguration Load()
     {
-      return Load(ConfigurationSection.DefaultSectionName);
+      return Load(DefaultSectionName);
     }
 
     /// <summary>
@@ -89,7 +95,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>The reprocessing configuration.</returns>
     public static ReprocessingConfiguration Load(System.Configuration.Configuration configuration)
     {
-      return Load(configuration, ConfigurationSection.DefaultSectionName);
+      return Load(configuration, DefaultSectionName);
     }
 
     /// <summary>
@@ -125,13 +131,13 @@ namespace Xtensive.Orm.Reprocessing.Configuration
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
       if (configuration is IConfigurationRoot configurationRoot) {
-        return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? ConfigurationSection.DefaultSectionName);
+        return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
       }
       else if (configuration is IConfigurationSection configurationSection) {
         return new ReprocessingConfigurationReader().Read(configurationSection);
       }
 
-      throw new NotSupportedException("Type of configuration is not supported");
+      throw new NotSupportedException("Type of configuration is not supported.");
     }
 
 
@@ -145,7 +151,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
 
-      return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? ConfigurationSection.DefaultSectionName);
+      return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
     }
 
     /// <summary>
@@ -159,8 +165,6 @@ namespace Xtensive.Orm.Reprocessing.Configuration
 
       return new ReprocessingConfigurationReader().Read(configurationSection);
     }
-
-    
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ReprocessingConfiguration"/> class.

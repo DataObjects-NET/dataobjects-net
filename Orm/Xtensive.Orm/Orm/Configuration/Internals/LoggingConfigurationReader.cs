@@ -8,7 +8,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 
-namespace Xtensive.Orm.Configuration.Internals
+namespace Xtensive.Orm.Configuration
 {
   internal sealed class LoggingConfigurationReader : IConfigurationSectionReader<LoggingConfiguration>
   {
@@ -33,13 +33,17 @@ namespace Xtensive.Orm.Configuration.Internals
     public LoggingConfiguration Read(IConfigurationRoot configurationRoot)
     {
       ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
       return Read(configurationRoot.GetSection(WellKnown.DefaultConfigurationSection));
     }
 
     /// <inheritdoc/>
     public LoggingConfiguration Read(IConfigurationRoot configurationRoot, string sectionName, string nameOfConfiguration)
     {
-      throw new NotSupportedException();
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
+
+      return Read(configurationRoot.GetSection(sectionName));
     }
 
     /// <inheritdoc/>

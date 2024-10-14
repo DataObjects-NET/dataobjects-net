@@ -1,8 +1,6 @@
-// Copyright (C) 2011-2024 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Dmitri Maximov
-// Created:    2012.07.06
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Globalization;
@@ -16,6 +14,9 @@ namespace Xtensive.Orm.Localization.Configuration
 {
   internal sealed class LocalizationConfigurationReader : IConfigurationSectionReader<LocalizationConfiguration>
   {
+    private const string DefaultCultureElementName = "DefaultCulture";
+    private const string CultureNameAttributeName = "name";
+
     public LocalizationConfiguration Read(IConfigurationSection configurationSection) => ReadInternal(configurationSection);
 
     public LocalizationConfiguration Read(IConfigurationSection configurationSection, string nameOfConfiguration) =>
@@ -33,14 +34,13 @@ namespace Xtensive.Orm.Localization.Configuration
     public LocalizationConfiguration Read(IConfigurationRoot configurationRoot, string sectionName, string nameOfConfiguration) =>
       throw new NotSupportedException();
 
-    private const string DefaultCultureElementName = "DefaultCulture";
-    private const string CultureNameAttributeName = "name";
-
     private LocalizationConfiguration ReadInternal(IConfigurationSection configurationSection)
     {
       var defaultCultureSection = configurationSection.GetSection(DefaultCultureElementName);
-      if (defaultCultureSection == null)
-        return new LocalizationConfiguration() { DefaultCulture = Thread.CurrentThread.CurrentCulture };
+      var defaultCulture = Thread.CurrentThread.CurrentCulture;
+      if (defaultCultureSection == null) {
+        return new LocalizationConfiguration() { DefaultCulture = defaultCulture };
+      }
 
       var cultureName = defaultCultureSection.Value;
       if (cultureName == null) {
@@ -52,15 +52,16 @@ namespace Xtensive.Orm.Localization.Configuration
           }
         }
       }
+      if(!cultureName.IsNullOrEmpty()) {
+        try {
+          defaultCulture = CultureInfo.GetCultureInfo(cultureName);
+        }
+        catch(CultureNotFoundException) {
+          // swallow it, this is mark wrong culture name;
+        }
+      }
 
-      if (cultureName.IsNullOrEmpty())
-        return new LocalizationConfiguration() { DefaultCulture = Thread.CurrentThread.CurrentCulture };
-      try {
-        return new LocalizationConfiguration() { DefaultCulture = new CultureInfo(cultureName) };
-      }
-      catch (CultureNotFoundException) {
-        return new LocalizationConfiguration() { DefaultCulture = Thread.CurrentThread.CurrentCulture };
-      }
+      return new LocalizationConfiguration() { DefaultCulture = defaultCulture };
     }
   }
 }

@@ -1,9 +1,11 @@
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Security.Configuration
@@ -12,16 +14,6 @@ namespace Xtensive.Orm.Security.Configuration
   {
     protected override SecurityConfiguration ReadInternal(IConfigurationSection configuration)
     {
-      //  <Xtensive.Orm.Security>
-      //    <hashingService>sha1</hashingService>
-      //    <authenticationService>SomeServiceName</authenticationService>
-      //  </Xtensive.Orm.Security>
-      // or
-      //  "Xtensive.Orm.Security" : {
-      //    "hashingService" :"sha1",
-      //    "authenticationService" : "SomeServiceName"
-      //  }
-
       try {
         var configAsIs = configuration.Get<SecurityConfiguration>();
         if (configAsIs != null && (configAsIs.AuthenticationServiceName ?? configAsIs.HashingServiceName) != null) {
@@ -38,13 +30,10 @@ namespace Xtensive.Orm.Security.Configuration
         return null;
       }
 
-      var children = configuration.GetChildren().ToList();
-      if (!children.Any()) {
-        return new SecurityConfiguration(true);
-      }
-      else {
-        return null;
-      }
+      var children = configuration.GetChildren();
+      return !children.Any()
+        ? new SecurityConfiguration(true)
+        : null;
     }
   }
 
@@ -79,10 +68,13 @@ namespace Xtensive.Orm.Security.Configuration
       }
       if ((hashingServiceName ?? authenticationServiceName) != null) {
         var securityConfiguration = new SecurityConfiguration(true);
-        if (!string.IsNullOrEmpty(hashingServiceName))
+        if (!hashingServiceName.IsNullOrEmpty()) {
           securityConfiguration.HashingServiceName = hashingServiceName.ToLowerInvariant();
-        if (!string.IsNullOrEmpty(authenticationServiceName))
+        }
+
+        if (!authenticationServiceName.IsNullOrEmpty()) {
           securityConfiguration.AuthenticationServiceName = authenticationServiceName.ToLowerInvariant();
+        }
 
         return securityConfiguration;
       }

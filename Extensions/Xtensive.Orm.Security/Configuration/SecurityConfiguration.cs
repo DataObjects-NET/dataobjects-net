@@ -1,6 +1,6 @@
 // Copyright (C) 2011-2024 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
@@ -21,8 +21,7 @@ namespace Xtensive.Orm.Security.Configuration
   public class SecurityConfiguration : ConfigurationBase
   {
     /// <summary>
-    /// Default SectionName value:
-    /// "<see langword="Xtensive.Orm.Security" />".
+    /// Default section in configuration. Used if custom name is not provided.
     /// </summary>
     public const string DefaultSectionName = "Xtensive.Orm.Security";
 
@@ -119,14 +118,16 @@ namespace Xtensive.Orm.Security.Configuration
       var hashingService = configurationSection == null
         ? string.Empty
         : configurationSection.HashingService.Name;
-      if (!string.IsNullOrEmpty(hashingService))
+      if (!string.IsNullOrEmpty(hashingService)) {
         result.HashingServiceName = hashingService.ToLowerInvariant();
+      }
 
       var authenticationService = configurationSection == null
         ? string.Empty
         : configurationSection.AuthenticationService.Name;
-      if (!string.IsNullOrEmpty(authenticationService))
+      if (!string.IsNullOrEmpty(authenticationService)) {
         result.AuthenticationServiceName = authenticationService.ToLowerInvariant();
+      }
 
       return result;
     }
@@ -148,7 +149,7 @@ namespace Xtensive.Orm.Security.Configuration
         return Load(configurationSection);
       }
 
-      throw new NotSupportedException("Type of configuration is not supported");
+      throw new NotSupportedException("Type of configuration is not supported.");
     }
 
 
@@ -163,13 +164,12 @@ namespace Xtensive.Orm.Security.Configuration
       ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
 
       var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
-      if (configuration != null)
+      if (configuration != null) {
         return configuration;
+      }
 
       configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
-      if (configuration != null)
-        return configuration;
-      return new SecurityConfiguration(true);
+      return configuration ?? new SecurityConfiguration(true);
     }
 
     /// <summary>
@@ -182,13 +182,12 @@ namespace Xtensive.Orm.Security.Configuration
       ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
 
       var configuration = new NamelessFormatSecurityConfigurationReader().Read(configurationSection);
-      if (configuration != null)
+      if (configuration != null) {
         return configuration;
+      }
 
       configuration = new BasedOnNamesFormatSecurityConfigurationReader().Read(configurationSection);
-      if (configuration != null)
-        return configuration;
-      return new SecurityConfiguration(true);
+      return configuration ?? new SecurityConfiguration(true);
     }
 
     /// <summary>

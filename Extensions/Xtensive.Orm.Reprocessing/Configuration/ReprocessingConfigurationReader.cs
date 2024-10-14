@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Orm.Configuration;
 
@@ -20,7 +24,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
       throw new NotSupportedException();
 
     public ReprocessingConfiguration Read(IConfigurationRoot configurationRoot) =>
-      Read(configurationRoot, ConfigurationSection.DefaultSectionName);
+      Read(configurationRoot, ReprocessingConfiguration.DefaultSectionName);
 
     public ReprocessingConfiguration Read(IConfigurationRoot configurationRoot, string sectionName)
     {

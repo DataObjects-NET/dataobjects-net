@@ -1,6 +1,6 @@
-// Copyright (C) 2011-2024 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2012.07.06
 
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Localization.Configuration
     }
 
     /// <summary>
-    /// Loads <see cref="LocalizationConfiguration"/> from given configuration section of <paramref name="configurationRoot"/>.
+    /// Loads <see cref="LocalizationConfiguration"/> from given configuration section of <paramref name="configuration"/>.
     /// If section name is not provided <see cref="LocalizationConfiguration.DefaultSectionName"/> is used.
     /// </summary>
     /// <param name="configuration"><see cref="IConfiguration"/> of sections.</param>
@@ -142,17 +142,16 @@ namespace Xtensive.Orm.Localization.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      if (configuration is IConfigurationRoot configurationRoot)
+      if (configuration is IConfigurationRoot configurationRoot) {
         return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
+      }
       else if (configuration is IConfigurationSection configurationSection) {
-        if (sectionName.IsNullOrEmpty())
-          return new LocalizationConfigurationReader().Read(configurationSection);
-        else {
-          return new LocalizationConfigurationReader().Read(configurationSection.GetSection(sectionName));
-        }
+        return sectionName.IsNullOrEmpty()
+          ? new LocalizationConfigurationReader().Read(configurationSection)
+          : new LocalizationConfigurationReader().Read(configurationSection.GetSection(sectionName));
       }
 
-      throw new NotSupportedException("Type of configuration is not supported");
+      throw new NotSupportedException("Type of configuration is not supported.");
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Xtensive.Collections;
 
-namespace Xtensive.Orm.Configuration.Internals
+namespace Xtensive.Orm.Configuration
 {
   internal static class ConfigurationSectionExtensions
   {

@@ -2,7 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Options;
 
-namespace Xtensive.Orm.Configuration.Internals
+namespace Xtensive.Orm.Configuration
 {
   internal sealed class XmlToDomainConfigurationReader : DomainConfigurationReader
   {
@@ -74,8 +73,10 @@ namespace Xtensive.Orm.Configuration.Internals
         return;
       }
       if (TryProcessTypeRegistrationsWithAttributes(typesSection, domainConfigurationOptions)
-        || TryProcessTypeRegistrationsWithNodes(typesSection, domainConfigurationOptions))
+        || TryProcessTypeRegistrationsWithNodes(typesSection, domainConfigurationOptions)) {
         return;
+      }
+
       domainConfigurationOptions.Types = Array.Empty<TypeRegistrationOptions>();
     }
 
@@ -198,6 +199,30 @@ namespace Xtensive.Orm.Configuration.Internals
 
   internal abstract class DomainConfigurationReader : IConfigurationSectionReader<DomainConfiguration>
   {
+    protected sealed class ConfigurationParserContext
+    {
+      public readonly IConfigurationRoot CurrentConfiguration;
+
+      public readonly IConfigurationSection CurrentSection;
+
+      public readonly string SectionName;
+
+      public readonly IDictionary<string, string> ConnectionStrings;
+
+      public ConfigurationParserContext(IConfigurationRoot currentConfiguration, string sectionName)
+      {
+        CurrentConfiguration = currentConfiguration;
+        CurrentSection = currentConfiguration.GetSection(sectionName);
+        ConnectionStrings = currentConfiguration.Get<Dictionary<string, string>>();
+      }
+
+      public ConfigurationParserContext(IConfigurationSection currentSection, IDictionary<string, string> connectionStrings)
+      {
+        CurrentSection = currentSection;
+        ConnectionStrings = connectionStrings;
+      }
+    }
+
     protected const string RuleElementName = "Rule";
     protected const string KeyGeneratorElementName = "KeyGenerator";
     protected const string OldStyleTypeRegistrationElementName = "Add";
@@ -222,27 +247,27 @@ namespace Xtensive.Orm.Configuration.Internals
     /// <summary>
     /// Gets domain configuration with name "Default" from <see cref="WellKnown.DefaultConfigurationSection">default section</see>.
     /// </summary>
-    /// <param name="configurationRoot"></param>
-    /// <returns></returns>
+    /// <param name="configurationRoot">Configration root.</param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Read(IConfigurationRoot configurationRoot) =>
-      Read(configurationRoot, WellKnown.DefaultConfigurationSection, "Default");
+      Read(configurationRoot, WellKnown.DefaultConfigurationSection, WellKnown.DefaultDomainConfigurationName);
 
     /// <summary>
     /// Gets domain configuration with name "Default" from <paramref name="configurationRoot"/>.
     /// </summary>
-    /// <param name="configurationRoot"></param>
-    /// <param name="sectionName"></param>
-    /// <returns></returns>
+    /// <param name="configurationRoot">Configration root</param>
+    /// <param name="sectionName">Custom section name where domains are placed.</param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Read(IConfigurationRoot configurationRoot, string sectionName) =>
-      Read(configurationRoot, sectionName, "Default");
+      Read(configurationRoot, sectionName, WellKnown.DefaultDomainConfigurationName);
 
     /// <summary>
     /// Gets domain configuration with given name from <paramref name="configurationRoot"/>.
     /// </summary>
-    /// <param name="configurationRoot"></param>
-    /// <param name="sectionName"></param>
-    /// <param name="nameOfConfiguration"></param>
-    /// <returns></returns>
+    /// <param name="configurationRoot">Configration root.</param>
+    /// <param name="sectionName">Custom section name where domains are placed.</param>
+    /// <param name="nameOfConfiguration">Name of domain configuration.</param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Read(IConfigurationRoot configurationRoot, string sectionName, string nameOfConfiguration)
     {
       var allDomainsSection = configurationRoot.GetSection(sectionName).GetSection(DomainsSectionName);
@@ -259,15 +284,43 @@ namespace Xtensive.Orm.Configuration.Internals
       return ReadInternal(context);
     }
 
+    /// <summary>
+    /// Gets domain configuration with name "Default" from <paramref name="rootSection"/>.
+    /// </summary>
+    /// <param name="rootSection">Root section where all domain configurations stored, by default <see cref="WellKnown.DefaultConfigurationSection"/></param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Read(IConfigurationSection rootSection) =>
-      Parse(rootSection, "Default", null);
+      Parse(rootSection, WellKnown.DefaultDomainConfigurationName, null);
 
+    /// <summary>
+    /// Gets domain configuration with given name from <paramref name="rootSection"/>.
+    /// </summary>
+    /// <param name="rootSection">Root section where all domain configurations stored, by default <see cref="WellKnown.DefaultConfigurationSection"/></param>
+    /// <param name="nameOfConfiguration">Name of domain configuration.</param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Read(IConfigurationSection rootSection, string nameOfConfiguration) =>
       Parse(rootSection, nameOfConfiguration, null);
 
+    /// <summary>
+    /// Gets domain configuration with name "Default" from <paramref name="rootSection"/>.
+    /// </summary>
+    /// <param name="rootSection">Root section where all domain configurations stored, by default <see cref="WellKnown.DefaultConfigurationSection"/></param>
+    /// <param name="connectionStrings">
+    /// Connection strings in form of dictionary of strings. Required if connection string alias is used in domain configuration connection settings
+    /// </param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Parse(IConfigurationSection rootSection, Dictionary<string, string> connectionStrings)
-      => Parse(rootSection, "Default", connectionStrings);
+      => Parse(rootSection, WellKnown.DefaultDomainConfigurationName, connectionStrings);
 
+    /// <summary>
+    /// Gets domain configuration with given name from <paramref name="rootSection"/>.
+    /// </summary>
+    /// <param name="rootSection">Root section where all domain configurations stored, by default <see cref="WellKnown.DefaultConfigurationSection"/></param>
+    /// <param name="nameOfConfiguration">Name of domain configuration.</param>
+    /// <param name="connectionStrings">
+    /// Connection strings in form of dictionary of strings. Required if connection string alias is used in domain configuration connection settings
+    /// </param>
+    /// <returns>DomainConfiguration instance if it was read successfully, otherwise, <see langword="null"/>.</returns>
     public DomainConfiguration Parse(IConfigurationSection rootSection, string nameOfConfiguration, Dictionary<string, string> connectionStrings)
     {
       var allDomainsSection = rootSection.GetSection(DomainsSectionName);
@@ -341,32 +394,6 @@ namespace Xtensive.Orm.Configuration.Internals
 
     protected virtual void ProcessSessions(IConfigurationSection sessionsSection, DomainConfigurationOptions domainConfiguratonOptions)
     {
-    }
-
-    
-  }
-
-  internal sealed class ConfigurationParserContext
-  {
-    public readonly IConfigurationRoot CurrentConfiguration;
-
-    public readonly IConfigurationSection CurrentSection;
-
-    public readonly string SectionName;
-
-    public readonly IDictionary<string, string> ConnectionStrings;
-
-    public ConfigurationParserContext(IConfigurationRoot currentConfiguration, string sectionName)
-    {
-      CurrentConfiguration = currentConfiguration;
-      CurrentSection = currentConfiguration.GetSection(sectionName);
-      ConnectionStrings = currentConfiguration.Get<Dictionary<string, string>>();
-    }
-
-    public ConfigurationParserContext(IConfigurationSection currentSection, IDictionary<string, string> connectionStrings)
-    {
-      CurrentSection = currentSection;
-      ConnectionStrings = connectionStrings;
     }
   }
 }
