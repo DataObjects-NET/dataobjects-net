@@ -115,7 +115,7 @@ Examples of how to configure extension
 
 Following examples show different ways to configure extension in configuration files of various types.
 
-**Example #1** Confugure in App.config/Web.config
+**Example #1** Confugure default culture in App.config/Web.config
 
 ```xml
 <configuration>
@@ -132,20 +132,20 @@ Following examples show different ways to configure extension in configuration f
 </configuration>
 ```
 
-Such configuration is only compatible with System.Configuration.ConfigurationManager.
-If project still supports such configurations then Localization configuration will be read automatically when it needed to be read.
+Such configuration is usually read with ```System.Configuration.ConfigurationManager```.
+If project still supports such configurations then Localization configuration will be read automatically when it needs to be read.
 Sometimes a work-around is needed to read such configuration, for more read Example #2 and Example #3
 
 
 **Example #2** Reading old-style configuration of an assembly in NET 5 and newer.
 
 Due to new architecture without AppDomain (which among the other things was in charge of gathering configuration files of loaded assemblies
-as it would be one configuration file) System.Configuration.ConfigurationManager now reads only configuration file of actual executable, loaded 
+as it would be one configuration file) ```System.Configuration.ConfigurationManager``` now reads only configuration file of actual executable, loaded 
 assemblies' configuration files stay unreachable by default, though there is need to read some data from them.
 A great example is test projects which are usually get loaded by test runner executable, and the only configuration accessible in this case
 is test runner one.
 
-Extra step is required to read configuration files in such cases. Thankfully ConfigurationManager has methods to get access to assemblies' configurations.
+Extra step is required to read configuration files in such cases. Thankfully, ```ConfigurationManager``` has methods to get access to assemblies' configuration files.
 
 To get access to an assembly configuration file it should be opened explicitly by
 
@@ -165,17 +165,15 @@ The instance returned from ```OpenExeConfiguration``` provides access to section
   domainConfiguration.ExtensionConfigurations.Set(localizationConfig);
 ```
 
-The ```domainConfiguration.ExtensionConfigurations``` is a new unified place from which an extension will try to get its configuration
+The ```domainConfiguration.ExtensionConfigurations``` is a new unified place from which the extension will try to get its configuration
 instead of calling default parameterless ```Load()``` method, which has not a lot of sense now, though the method is kept as a second source
 for backwards compatibility.
 
-For more convenience, DomainConfiguration extensions are provided, which make code more neat and clear.
+For more convenience, ```DomainConfiguration``` extensions are provided, which make code neater.
 For instance,
 
 ```csharp
   var configuration = ConfigurationManager.OpenExeConfiguration(typeof(SomeTypeInConfigOwnerAssembly).Assembly.Location);
-
-  var domainConfiguration = DomainConfiguration.Load(configuration);
 
   // the extension hides getting configuration with LocalizationConfiguration.Load(configuration)
   // and also putting it to ExtensionConfigurations collection.
@@ -189,7 +187,7 @@ Custom section names are also supported if for some reason default section name 
 
 If for some reason there is need to keep the old-style configuration then there is a work-around as well.
 Static configuration manager provides method ```OpenMappedExeConfiguration()``` which allows to get 
-any *.config file as ```System.Configuration.Configuration``` instance. For example
+any *.config file as ```System.Configuration.Configuration``` instance. For example,
 
 ```csharp
   ExeConfigurationFileMap configFileMap = new ExeConfigurationFileMap();
@@ -198,9 +196,7 @@ any *.config file as ```System.Configuration.Configuration``` instance. For exam
 ```
 
 After that, as in previous example, the instance can be passed to ```Load``` method of ```LocalizationConfiguration``` to read extension configuration
-and later put it to ```DomainConfiguration.ExtensionConfigurations```.
-After ```System.Configuration.Configuration``` instance is provided it is possible to pass it into Load method of different DataObjects.Net configurations,
-including ```LocalizationConfiguration```. Then put localization configuration to ```DomainConfiguration.ExtensionConfigurations``` collection.
+and later put it to ```DomainConfiguration.ExtensionConfigurations```
 
 ```csharp
   var localizationConfiguration = LocalizationConfiguration.Load(configuration);
@@ -208,7 +204,7 @@ including ```LocalizationConfiguration```. Then put localization configuration t
   domainConfiguration.ExtensionConfigurations.Set(localizationConfiguration);
 ```
 
-or to extension method
+Extension usage will look like
 
 ```csharp
   domainConfiguration.ConfigureLocalizationExtension(configuration);
@@ -220,7 +216,7 @@ or to extension method
 This API allows to have configurations in various forms including JSON and XML formats.
 Loading of such files may differ depending on .NET version, check Microsoft manuals for instructions.
 
-Allowed Json and Xml configuration definition look like below
+Allowed JSON and XML configuration definition look like below
 
 ```xml
 <configuration>
@@ -238,14 +234,13 @@ Allowed Json and Xml configuration definition look like below
 }
 ```
 
-The API has certain issues with Xml elements with attributes so it is recommended to use
+The API has certain issues with XML elements with attributes so it is recommended to use
 more up-to-date attributeless nodes.
-For JSON it is pretty clear.
+For JSON it is pretty clear, almost averyone knows its format.
 
-```LocalizationConfiguration.Load``` method can accept different types of abstractions from the
-API, including 
-- ```Microsoft.Extensions.Configuration.IConfiguration```,
-- ```Microsoft.Extensions.Configuration.IConfigurationRoot```
+```LocalizationConfiguration.Load``` method can accept different types of abstractions from the API, including
+- ```Microsoft.Extensions.Configuration.IConfiguration```;
+- ```Microsoft.Extensions.Configuration.IConfigurationRoot```;
 - ```Microsoft.Extensions.Configuration.IConfigurationSection```.
 
 Loading of configuration may look like
@@ -254,18 +249,22 @@ Loading of configuration may look like
   
   var app = builder.Build();
 
+  //...
+
   // tries to load from default section "Xtensive.Orm.Localization"
   var localizationConfig = LocalizationConfiguration.Load(app.Configuration);
 
   domainConfiguration.ExtensionConfigurations.Set(localizationConfig);
 ```
 
-or, with use of extension
+or, with use of extension, like
 
 
 ```csharp
   
   var app = builder.Build();
+
+  //...
 
   // tries to load from default section "Xtensive.Orm.Localization"
   // and additionally adds Xtensive.Orm.Localization assembly to domain types.
@@ -301,17 +300,17 @@ Loading of configuration may look like
   
   var app = builder.Build();
 
+  //...
+
   var localizationConfig = LocalizationConfiguration.Load(app.Configuration, "Orm.Localization");
 
   domainConfiguration.ExtensionConfigurations.Set(localizationConfig);
 ```
 
-or with use of extension
+or, with use of extension, like
 
 ```csharp
-  
   var app = builder.Build();
-
   domainConfiguration.ConfigureLocalizationExtension(app.Configuration, "Orm.Localization");
 ```
 
@@ -348,6 +347,8 @@ Then section must be provided manually, code may look like
   
   var app = builder.Build();
 
+  //...
+
   var configurationRoot = app.Configuration;
   var extensionsGroupSection = configurationRoot.GetSection("Orm.Extensions");
   var localizationSection = extensionsGroupSection.GetSection("Xtensive.Orm.Localization");
@@ -356,11 +357,13 @@ Then section must be provided manually, code may look like
   domainConfiguration.ExtensionConfigurations.Set(localizationConfig);
 ```
 
-or with use of extension method
+or, with use of extension method, like
 
 ```csharp
   
   var app = builder.Build();
+
+  //...
 
   var configurationRoot = app.Configuration;
   var extensionsGroupSection = configurationRoot.GetSection("Orm.Extensions");
