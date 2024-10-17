@@ -18,6 +18,10 @@ namespace Xtensive.Orm.Configuration
   public class NamingConvention : LockableBase,
     ICloneable
   {
+    public const LetterCasePolicy DefaultLetterCasePolicy = LetterCasePolicy.Default;
+    public const NamespacePolicy DefaultNamespacePolicy = NamespacePolicy.Default;
+    public const NamingRules DefaultNamingRules = NamingRules.Default;
+
     private LetterCasePolicy letterCasePolicy;
     private NamespacePolicy namespacePolicy;
     private NamingRules namingRules;

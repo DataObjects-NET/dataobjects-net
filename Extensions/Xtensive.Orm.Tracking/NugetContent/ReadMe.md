@@ -1,4 +1,4 @@
-﻿Xtensive.Orm.Tracking
+Xtensive.Orm.Tracking
 =====================
 
 Summary
@@ -7,7 +7,7 @@ Provides tracking/auditing funtionality on Session/Domain level.
 
 Prerequisites
 -------------
-DataObjects.Net 7.0.x or later (http://dataobjects.net)
+DataObjects.Net 7.1.x or later (http://dataobjects.net)
 
 Implementation
 --------------

@@ -1,4 +1,4 @@
-// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011-2024 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Security.Configuration
     /// Gets default section name for security configuration.
     /// Value is "Xtensive.Orm.Security".
     /// </summary>
+    [Obsolete("Use SecurityConfiguration.DefaultSectionName instead")]
     public static readonly string DefaultSectionName = "Xtensive.Orm.Security";
 
     private const string HashingServiceElementName = "hashingService";

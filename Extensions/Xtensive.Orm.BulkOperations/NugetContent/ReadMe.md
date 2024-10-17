@@ -8,7 +8,7 @@ to server-side UPDATE or DELETE commands.
 
 Prerequisites
 -------------
-DataObjects.Net 7.0.x (http://dataobjects.net)
+DataObjects.Net 7.1.x (http://dataobjects.net)
 
 
 Examples of usage

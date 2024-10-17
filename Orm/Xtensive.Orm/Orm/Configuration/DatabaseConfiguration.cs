@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets type ID minimal value
     /// for types mapped to this database.
-    /// Default value is 100.
+    /// Default value is <see cref="TypeInfo.MinTypeId"/>.
     /// </summary>
     public int MinTypeId
     {

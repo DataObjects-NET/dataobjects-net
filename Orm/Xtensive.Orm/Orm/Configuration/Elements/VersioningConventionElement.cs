@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2018-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2018.03.14
 
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string DenyEntitySetOwnerVersionChangeElementName = "denyEntitySetOwnerVersionChange";
 
     /// <summary>
-    /// <see cref="VersioningConvention.EntityVersioningPolicy" copy="true"/>
+    /// <see cref="VersioningConvention.EntityVersioningPolicy" />
     /// </summary>
     [ConfigurationProperty(EntityVersioningPolicyElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
     public string EntityVersioningPolicy
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="VersioningConvention.DenyEntitySetOwnerVersionChange" copy="true"/>
+    /// <see cref="VersioningConvention.DenyEntitySetOwnerVersionChange" />
     /// </summary>
     [ConfigurationProperty(DenyEntitySetOwnerVersionChangeElementName, IsRequired = false, IsKey = false, DefaultValue = false)]
     public bool DenyEntitySetOwnerVersionChange

@@ -1,4 +1,4 @@
-// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Configuration.Elements
         Index ?? string.Empty);
 
     /// <summary>
-    /// <see cref="IgnoreRule.Database" copy="true"/>
+    /// <see cref="IgnoreRule.Database" />
     /// </summary>
     [ConfigurationProperty(DatabaseElementName)]
     public string Database
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="IgnoreRule.Schema" copy="true"/>
+    /// <see cref="IgnoreRule.Schema" />
     /// </summary>
     [ConfigurationProperty(SchemaElementName)]
     public string Schema
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="IgnoreRule.Table" copy="true"/>
+    /// <see cref="IgnoreRule.Table" />
     /// </summary>
     [ConfigurationProperty(TableElementName)]
     public string Table

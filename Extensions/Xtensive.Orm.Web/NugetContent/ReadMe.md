@@ -1,4 +1,4 @@
-﻿Xtensive.Orm.Web
+Xtensive.Orm.Web
 ================
 
 Summary
@@ -11,7 +11,7 @@ by default unless an exeption appeared. (more info on https://dataobjects.net)
 
 Prerequisites
 -------------
-DataObjects.Net 7 or later (https://dataobjects.net)
+DataObjects.Net 7.1 or later (https://dataobjects.net)
 
 Usage of action filter
 ----------------------
