@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string NamespaceSynonymsElementName = "namespaceSynonyms";
 
     /// <summary>
-    /// <see cref="NamingConvention.LetterCasePolicy" copy="true"/>
+    /// <see cref="NamingConvention.LetterCasePolicy" />
     /// </summary>
     [ConfigurationProperty(LetterCasePolicyElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
     public string LetterCasePolicy
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="NamingConvention.NamespacePolicy" copy="true"/>
+    /// <see cref="NamingConvention.NamespacePolicy" />
     /// </summary>
     [ConfigurationProperty(NamespacePolicyElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
     public string NamespacePolicy
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="NamingConvention.NamingRules" copy="true"/>
+    /// <see cref="NamingConvention.NamingRules" />
     /// </summary>
     [ConfigurationProperty(NamingRulesElementName, IsRequired = false, IsKey = false, DefaultValue = "Default")]
     public string NamingRules
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="NamingConvention.NamespaceSynonyms" copy="true"/>
+    /// <see cref="NamingConvention.NamespaceSynonyms" />
     /// </summary>
     [ConfigurationProperty(NamespaceSynonymsElementName, IsRequired = false, IsKey = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<NamespaceSynonymElement>), AddItemName = "synonym")]

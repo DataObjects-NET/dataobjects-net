@@ -1,5 +1,6 @@
 using System;
 using System.Transactions;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Reprocessing.Configuration;
 
 namespace Xtensive.Orm.Reprocessing
@@ -190,7 +191,8 @@ namespace Xtensive.Orm.Reprocessing
       IExecuteActionStrategy strategy,
       Func<Session, T> func)
     {
-      var config = domain.GetReprocessingConfiguration();
+      var config = domain.Configuration.ExtensionConfigurations.Get<ReprocessingConfiguration>()
+        ?? domain.GetReprocessingConfiguration();
       if (strategy == null) {
         strategy = ExecuteActionStrategy.GetSingleton(config.DefaultExecuteStrategy);
       }
@@ -208,7 +210,8 @@ namespace Xtensive.Orm.Reprocessing
       IExecuteActionStrategy strategy,
       Func<Session, T> func)
     {
-      var config = domain.GetReprocessingConfiguration();
+      var config = domain.Configuration.ExtensionConfigurations.Get<ReprocessingConfiguration>()
+        ?? domain.GetReprocessingConfiguration();
       if (strategy == null) {
         strategy = ExecuteActionStrategy.GetSingleton(config.DefaultExecuteStrategy);
       }

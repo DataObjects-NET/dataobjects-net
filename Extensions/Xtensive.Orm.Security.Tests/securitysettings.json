@@ -1,0 +1,147 @@
+{
+  "Xtensive.Orm.Security.Json.Empty": {
+
+  },
+
+  "Xtensive.Orm.Security.Json.AllEmpty": {
+    "HashingService": "",
+    "AuthenticationService": ""
+  },
+
+  "Xtensive.Orm.Security.Json.OnlyHashing.Sha1": {
+    "HashingService": "sha1"
+  },
+  "Xtensive.Orm.Security.Json.OnlyHashing.Sha256": {
+    "HashingService": "sha256"
+  },
+  "Xtensive.Orm.Security.Json.OnlyHashing.Sha384": {
+    "HashingService": "sha384"
+  },
+  "Xtensive.Orm.Security.Json.OnlyHashing.Sha512": {
+    "HashingService": "sha512"
+  },
+  "Xtensive.Orm.Security.Json.OnlyHashing.Md5": {
+    "HashingService": "md5"
+  },
+  "Xtensive.Orm.Security.Json.OnlyHashing.Empty": {
+    "HashingService": ""
+  },
+
+  "Xtensive.Orm.Security.Json.OnlyAuth": {
+    "AuthenticationService": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.OnlyAuth.Empty": {
+    "AuthenticationService": ""
+  },
+
+  "Xtensive.Orm.Security.Json.Naming.LC": {
+    "hashingservice": "sha1",
+    "authenticationservice": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Naming.UC": {
+    "HASHINGSERVICE": "sha1",
+    "AUTHENTICATIONSERVICE": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Naming.CC": {
+    "hashingService": "sha1",
+    "authenticationService": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Naming.PC": {
+    "HashingService": "sha1",
+    "AuthenticationService": "NotDefault"
+  },
+
+  "Xtensive.Orm.Security.Json.Mistype.LC": {
+    "hashiingservice": "sha1",
+    "authentticationservice": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Mistype.UC": {
+    "HASHIINGSERVICE": "sha1",
+    "AUTHENTTICATIONSERVICE": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Mistype.CC": {
+    "hashiingService": "sha1",
+    "authentticationService": "NotDefault"
+  },
+  "Xtensive.Orm.Security.Json.Mistype.PC": {
+    "HashiingSeervice": "sha1",
+    "AuthentticationService": "NotDefault"
+  },
+
+
+  "Xtensive.Orm.Security.Json.NameNode.AllEmpty": {
+    "HashingService": {
+    },
+    "AuthenticationService": {
+    }
+  },
+
+  "Xtensive.Orm.Security.Json.NameNode.NamesEmpty": {
+    "HashingService": {
+      "Name": ""
+    },
+    "AuthenticationService": {
+      "Name": ""
+    }
+  },
+
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Sha1": {
+    "HashingService": {
+      "Name": "sha1"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Sha256": {
+    "HashingService": {
+      "Name": "sha256"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Sha384": {
+    "HashingService": {
+      "Name": "sha384"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Sha512": {
+    "HashingService": {
+      "Name": "sha512"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Md5": {
+    "HashingService": {
+      "Name": "md5"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyHashing.Empty": {
+    "HashingService": {
+      "Name": ""
+    }
+  },
+
+  "Xtensive.Orm.Security.Json.NameNode.OnlyAuth": {
+    "AuthenticationService": {
+      "Name": "NotDefault"
+    }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.OnlyAuth.Empty": {
+    "AuthenticationService": {
+      "Name": ""
+    }
+  },
+
+
+  "Xtensive.Orm.Security.Json.NameNode.Naming.LC": {
+    "HashingService": { "name": "sha1" },
+    "AuthenticationService": { "name": "NotDefault" }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.Naming.UC": {
+    "HashingService": { "NAME": "sha1" },
+    "AuthenticationService": { "NAME": "NotDefault" }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.Naming.CC": {
+    "HashingService": { "naMe": "sha1" },
+    "AuthenticationService": { "naMe": "NotDefault" }
+  },
+  "Xtensive.Orm.Security.Json.NameNode.Naming.PC": {
+    "HashingService": { "NaMe": "sha1" },
+    "AuthenticationService": { "NaMe": "NotDefault" }
+  }
+}

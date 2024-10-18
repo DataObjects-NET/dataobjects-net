@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2011.05.22
 
+using System;
 using System.Security.Principal;
 using Xtensive.Core;
 using Xtensive.Orm.Security;
@@ -12,6 +13,7 @@ using IPrincipal = Xtensive.Orm.Security.IPrincipal;
 
 namespace Xtensive.Orm
 {
+
   /// <summary>
   /// Session extension methods for security-related stuff.
   /// </summary>
@@ -24,12 +26,16 @@ namespace Xtensive.Orm
     /// <returns><see cref="SecurityConfiguration"/> instance.</returns>
     public static SecurityConfiguration GetSecurityConfiguration(this Session session)
     {
-      var result = session.Domain.Extensions.Get<SecurityConfiguration>();
-      if (result == null) {
-        result = SecurityConfiguration.Load();
-        session.Domain.Extensions.Set(result);
+      var fromNewSource = session.Domain.Configuration.ExtensionConfigurations.Get<SecurityConfiguration>();
+      if (fromNewSource!=null)
+        return fromNewSource;
+      
+      var fromOldSource = session.Domain.Extensions.Get<SecurityConfiguration>();
+      if (fromOldSource == null) {
+        fromOldSource = SecurityConfiguration.Load();
+        session.Domain.Extensions.Set(fromOldSource);
       }
-      return result;
+      return fromOldSource;
     }
 
     /// <summary>
