@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -77,9 +77,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
 
-      var attributes = mc.Object.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
-      var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
-      var indexerProperty = mc.Object.Type.GetProperty(indexerPropertyName);
+      var indexerProperty = mc.Object.Type.GetProperty(Reflection.WellKnown.IndexerPropertyName);
       if (indexerProperty!=null)
         return Expression.MakeIndex(mc.Object, indexerProperty, new[] {Expression.Constant(name)});
       throw new InvalidOperationException(String.Format(Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
@@ -95,7 +93,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         return false;
       }
       var method = methodCallExpression.Method;
-      return method.Name == "get_Item"
+      return method.Name == Reflection.WellKnown.IndexerPropertyGetterName
         && method.DeclaringType switch { var declaringType => declaringType == WellKnownOrmTypes.Persistent || declaringType == WellKnownOrmInterfaces.Entity }
         && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }

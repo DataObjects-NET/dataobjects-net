@@ -90,6 +90,8 @@ namespace Xtensive.Orm.Building.Builders
         return BuildEntityCheck(field, b.NodeType);
       if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
         return BuildEntityCheck(field, b.NodeType);
+      if (entityAccessMap.TryGetValue(left, out var _) && entityAccessMap.TryGetValue(right, out var _))
+        throw UnableToTranslate(b, Strings.ComparisonOfTwoEntityFieldsIsNotSupported);
 
       return base.VisitBinary(b);
 

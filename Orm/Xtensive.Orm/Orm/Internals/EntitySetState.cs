@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Internals
       if (!addedKeys.Remove(key)) {
         removedKeys[key] = key;
       }
-      if (TotalItemCount!=null) {
+      if (TotalItemCount != null) {
         TotalItemCount--;
       }
 

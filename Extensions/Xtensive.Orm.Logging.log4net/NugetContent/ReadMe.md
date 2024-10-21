@@ -1,4 +1,3 @@
-﻿============================
 Xtensive.Orm.Logging.log4net
 ============================
 
@@ -8,14 +7,15 @@ The extension provides integration points between DataObjects.Net internal loggi
 
 Prerequisites
 -------------
-DataObjects.Net Core 0.1 or later (http://dataobjects.net)
-log4net 2.0.8 or later (http://logging.apache.org/log4net/)
+DataObjects.Net 7.1.x (http://dataobjects.net)
+log4net 2.0.10 or later (http://logging.apache.org/log4net/)
 
 Implementation
 --------------
-1. Add reference to Xtensive.Orm.Logging.log4net assembly
-2. Set up log provider in Xtensive.Orm configuration section
 
+Set up log provider in Xtensive.Orm configuration section
+
+```xml
   <Xtensive.Orm>
     <domains>
       <domain ... >
@@ -23,9 +23,11 @@ Implementation
     </domains>
     <logging provider="Xtensive.Orm.Logging.log4net.LogProvider, Xtensive.Orm.Logging.log4net">
   </Xtensive.Orm>
+```
 
-3. Configure log4net (http://logging.apache.org/log4net/release/manual/configuration.html), e.g.:
+Configure log4net (http://logging.apache.org/log4net/release/manual/configuration.html), e.g.:
 
+```xml
   <?xml version="1.0" encoding="utf-8" ?>
   <configuration>
     <configSections>
@@ -53,6 +55,7 @@ Implementation
       </logger>
     </log4net>
   </configuration>
+```
 
 You can choose from the following predefined internal loggers:
  - "Xtensive.Orm"
@@ -60,7 +63,3 @@ You can choose from the following predefined internal loggers:
  - "Xtensive.Orm.Building"
  - "Xtensive.Orm.Core"
  - "Xtensive.Orm.Sql"
-
-References
-----------
-http://doextensions.codeplex.com

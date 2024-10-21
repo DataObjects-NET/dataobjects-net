@@ -21,8 +21,8 @@ namespace Xtensive.Sql
   public static class SqlDml
   {
     private static readonly Type
-      SqlArrayType = typeof(SqlArray<>),
-      SqlLiteralType = typeof(SqlLiteral<>);
+      SqlArrayOfTType = typeof(SqlArray<>),
+      SqlLiteralOfTType = typeof(SqlLiteral<>);
 
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
@@ -154,11 +154,29 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = SqlArrayType.CachedMakeGenericType(itemType);
+      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
         null, new object[] {valueList}, null);
+      return (SqlArray) result;
+    }
+
+    public static SqlArray Array(object[] values)
+    {
+      if (values.Length == 0)
+        return Array(System.Array.Empty<int>());
+      var itemType = values[0].GetType();
+      foreach (var t in values.Select(value => value.GetType())) {
+        if (!itemType.IsAssignableFrom(t))
+          throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
+      }
+
+      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
+      var result = Activator.CreateInstance(
+        resultType,
+        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new object[] { values }, null);
       return (SqlArray) result;
     }
 
@@ -1160,7 +1178,7 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      var resultType = SqlLiteralType.CachedMakeGenericType(valueType);
+      var resultType = SqlLiteralOfTType.CachedMakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,

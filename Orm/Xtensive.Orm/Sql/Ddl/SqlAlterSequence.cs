@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,29 +10,18 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlAlterSequence : SqlStatement, ISqlCompileUnit
   {
-    private Sequence sequence;
-    private SequenceDescriptor sequenceDescriptor;
+    private readonly Sequence sequence;
+    private readonly SequenceDescriptor sequenceDescriptor;
     private SqlAlterIdentityInfoOptions infoOption = SqlAlterIdentityInfoOptions.All;
 
-    public Sequence Sequence {
-      get {
-        return sequence;
-      }
-    }
+    public Sequence Sequence => sequence;
 
-    public SequenceDescriptor SequenceDescriptor {
-      get {
-        return sequenceDescriptor;
-      }
-    }
+    public SequenceDescriptor SequenceDescriptor => sequenceDescriptor;
 
-    public SqlAlterIdentityInfoOptions InfoOption {
-      get {
-        return infoOption;
-      }
-      set {
-        infoOption = value;
-      }
+    public SqlAlterIdentityInfoOptions InfoOption
+    {
+      get => infoOption;
+      set => infoOption = value;
     }
 
     internal override SqlAlterSequence Clone(SqlNodeCloneContext context) =>

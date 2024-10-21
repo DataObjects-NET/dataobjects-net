@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,14 +10,9 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropView : SqlStatement, ISqlCompileUnit
   {
-    private View view;
     private bool cascade = true;
 
-    public View View {
-      get {
-        return view;
-      }
-    }
+    public View View { get; }
 
     public bool Cascade {
       get {
@@ -30,7 +25,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlDropView Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlDropView(t.view));
+        new SqlDropView(t.View));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -39,12 +34,12 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropView(View view) : base(SqlNodeType.Drop)
     {
-      this.view = view;
+      View = view;
     }
 
     internal SqlDropView(View view, bool cascade) : base(SqlNodeType.Drop)
     {
-      this.view = view;
+      View = view;
       this.cascade = cascade;
     }
   }

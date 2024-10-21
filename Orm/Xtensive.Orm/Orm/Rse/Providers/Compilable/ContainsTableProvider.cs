@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2022 Xtensive LLC.
+// Copyright (C) 2016-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -53,8 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))
-        .ToList(targetColumns.Count)
+      TargetColumns = targetColumns.SelectToList(tc => index.Columns.First(c => c.Column == tc))
         .AsReadOnly();
       TopN = topNByRank;
       if (FullFeatured) {
@@ -68,12 +67,12 @@ namespace Xtensive.Orm.Rse.Providers
         if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = primaryIndexKeyColumns
-          .Select(columnInfo => columnInfo.Key.ValueType)
+          .Select(static columnInfo => columnInfo.Key.ValueType)
           .Append(WellKnownTypes.Double)
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
-          .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
+          .Select(static (c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
           .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
           .ToArray(primaryIndexKeyColumns.Count + 1);;
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);

@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -25,7 +26,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Requests to execute.
     /// </summary>
-    public readonly IEnumerable<PersistRequest> RequestSequence;
+    public readonly IReadOnlyCollection<PersistRequest> RequestSequence;
 
     /// <summary>
     /// A tuple that stores changed column values.
@@ -58,24 +59,36 @@ namespace Xtensive.Orm.Providers
 
     public SqlPersistTask(PersistRequest request, Tuple tuple = null)
     {
-      RequestSequence = EnumerableUtils.One(request);
+      RequestSequence = new PersistRequest[1] { request };
       Tuple = tuple;
     }
 
     public SqlPersistTask(PersistRequest request, IReadOnlyList<Tuple> tuples)
     {
-      RequestSequence = EnumerableUtils.One(request);
+      RequestSequence = new PersistRequest[1] { request };
       Tuples = tuples;
     }
 
+    [Obsolete]
     public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)
+      : this(key, (requestSequence as IReadOnlyCollection<PersistRequest>)?? requestSequence.ToList(), tuple)
+    {
+    }
+
+    [Obsolete]
+    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
+      : this(key, (requestSequence as IReadOnlyCollection<PersistRequest>) ?? requestSequence.ToList(), tuple, originalTuple, validateRowCount)
+    {
+    }
+
+    public SqlPersistTask(Key key, IReadOnlyCollection<PersistRequest> requestSequence, Tuple tuple)
     {
       EntityKey = key;
       RequestSequence = requestSequence;
       Tuple = tuple;
     }
 
-    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
+    public SqlPersistTask(Key key, IReadOnlyCollection<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
     {
       EntityKey = key;
       RequestSequence = requestSequence;

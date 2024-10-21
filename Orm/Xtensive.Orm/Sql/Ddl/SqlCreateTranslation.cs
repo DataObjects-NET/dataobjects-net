@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,17 +10,11 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateTranslation : SqlStatement, ISqlCompileUnit
   {
-    private Translation translation;
-
-    public Translation Translation {
-      get {
-        return translation;
-      }
-    }
+    public Translation Translation { get; }
 
     internal override SqlCreateTranslation Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlCreateTranslation(t.translation));
+        new SqlCreateTranslation(t.Translation));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -29,7 +23,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateTranslation(Translation translation) : base(SqlNodeType.Create)
     {
-      this.translation = translation;
+      Translation = translation;
     }
   }
 }

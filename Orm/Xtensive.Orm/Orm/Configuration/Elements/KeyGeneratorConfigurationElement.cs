@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.28
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGeneratorConfiguration.Name" copy="true"/>
+    /// <see cref="KeyGeneratorConfiguration.Name" />
     /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true)]
     public string Name
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGeneratorConfiguration.Database" copy="true"/>
+    /// <see cref="KeyGeneratorConfiguration.Database" />
     /// </summary>
     [ConfigurationProperty(DatabaseElementName, IsKey = true)]
     public string Database
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGeneratorConfiguration.Seed" copy="true"/>
+    /// <see cref="KeyGeneratorConfiguration.Seed" />
     /// </summary>
     [ConfigurationProperty(SeedElementName, DefaultValue = 0L)]
     public long Seed
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="KeyGeneratorConfiguration.CacheSize" copy="true" />
+    /// <see cref="KeyGeneratorConfiguration.CacheSize" />
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName, DefaultValue = (long) DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     public long CacheSize

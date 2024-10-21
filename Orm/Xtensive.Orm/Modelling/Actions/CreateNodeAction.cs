@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.23
 
@@ -102,8 +102,8 @@ namespace Xtensive.Modelling.Actions
     protected Node TryConstructor(IModel model, params object[] arguments)
     {
       if (parameters!=null)
-        arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
-      var argTypes = arguments.Select(a => a.GetType()).ToArray();
+        arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray(arguments.Length + parameters.Length);
+      var argTypes = arguments.SelectToArray(a => a.GetType());
       var ci = type.GetConstructor(argTypes);
       if (ci==null)
         return null;

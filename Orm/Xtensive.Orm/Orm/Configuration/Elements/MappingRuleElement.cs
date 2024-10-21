@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.07
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="MappingRule.Assembly" copy="true"/>
+    /// <see cref="MappingRule.Assembly" />
     /// </summary>
     [ConfigurationProperty(AssemblyElementName, IsKey = true)]
     public string Assembly
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="MappingRule.Namespace" copy="true"/>
+    /// <see cref="MappingRule.Namespace" />
     /// </summary>
     [ConfigurationProperty(NamespaceElementName, IsKey = true)]
     public string Namespace
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="MappingRule.Database" copy="true"/>
+    /// <see cref="MappingRule.Database" />
     /// </summary>
     [ConfigurationProperty(DatabaseElementName)]
     public string Database
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="MappingRule.Schema" copy="true"/>
+    /// <see cref="MappingRule.Schema" />
     /// </summary>
     [ConfigurationProperty(SchemaElementName)]
     public string Schema

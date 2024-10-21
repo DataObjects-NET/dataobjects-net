@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-
 
 namespace Xtensive.Modelling
 {
@@ -221,7 +220,7 @@ namespace Xtensive.Modelling
     internal void Add(Node node)
     {
       EnsureNotLocked();
-      if (node.Index!=list.Count)
+      if (node.Index != list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
       int count = list.Count;
@@ -234,9 +233,9 @@ namespace Xtensive.Modelling
           NotifyCollectionChangedAction.Add, node.Index));
       }
       catch {
-        if (list.Count>count)
+        if (list.Count > count)
           list.RemoveAt(count);
-        if (nameIndex.Count>count)
+        if (nameIndex.Count > count)
           nameIndex.Remove(name);
         throw;
       }

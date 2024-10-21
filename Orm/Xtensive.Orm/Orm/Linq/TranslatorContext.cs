@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -116,8 +116,7 @@ namespace Xtensive.Orm.Linq
 
     public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
     {
-      if (!queryReuses.ContainsKey(memberInfo))
-        queryReuses.Add(memberInfo, 0);
+      _ = queryReuses.TryAdd(memberInfo, 0);
     }
 
     public bool CheckIfQueryReusePossible(MemberInfo memberInfo)

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public override object Identifier { get { return Name; } }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Name" copy="true"/>
+    /// <see cref="DomainConfiguration.Name" />
     /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true, DefaultValue = "")]
     public string Name
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
+    /// <see cref="DomainConfiguration.ConnectionInfo" />
     /// </summary>
     [ConfigurationProperty(ConnectionUrlElementName, DefaultValue = null)]
     public string ConnectionUrl
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
+    /// <see cref="DomainConfiguration.ConnectionInfo" />
     /// </summary>
     [ConfigurationProperty(ConnectionStringElementName, DefaultValue = null)]
     public string ConnectionString
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ConnectionInfo" copy="true"/>
+    /// <see cref="DomainConfiguration.ConnectionInfo" />
     /// </summary>
     [ConfigurationProperty(ProviderElementName, DefaultValue = WellKnown.Provider.SqlServer)]
     public string Provider
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Types" copy="true"/>
+    /// <see cref="DomainConfiguration.Types" />
     /// </summary>
     [ConfigurationProperty(TypesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.NamingConvention" copy="true"/>
+    /// <see cref="DomainConfiguration.NamingConvention" />
     /// </summary>
     [ConfigurationProperty(NamingConventionElementName)]
     public NamingConventionElement NamingConvention
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.KeyCacheSize" copy="true"/>
+    /// <see cref="DomainConfiguration.KeyCacheSize" />
     /// </summary>
     [ConfigurationProperty(KeyCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.KeyGeneratorCacheSize" copy="true"/>
+    /// <see cref="DomainConfiguration.KeyGeneratorCacheSize" />
     /// </summary>
     [ConfigurationProperty(KeyGeneratorCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.QueryCacheSize" copy="true"/>
+    /// <see cref="DomainConfiguration.QueryCacheSize" />
     /// </summary>
     [ConfigurationProperty(QueryCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultQueryCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.RecordSetMappingCacheSize" copy="true"/>
+    /// <see cref="DomainConfiguration.RecordSetMappingCacheSize" />
     /// </summary>
     [ConfigurationProperty(RecordSetMappingCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultRecordSetMappingCacheSize)]
     [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.UpgradeMode" copy="true"/>
+    /// <see cref="DomainConfiguration.UpgradeMode" />
     /// </summary>
     [ConfigurationProperty(UpgradeModeElementName, DefaultValue = "Default")]
     public string UpgradeMode
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.SchemaSyncExceptionFormat" copy="true"/>
+    /// <see cref="DomainConfiguration.SchemaSyncExceptionFormat" />
     /// </summary>
     [ConfigurationProperty(SchemaSyncExceptionFormatElementName, DefaultValue = "Default")]
     public string SchemaSyncExceptionFormat
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ForeignKeyMode" copy="true"/>
+    /// <see cref="DomainConfiguration.ForeignKeyMode" />
     /// </summary>
     [ConfigurationProperty(ForeignKeyModeElementName, DefaultValue = "Default")]
     public string ForeignKeyMode
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.FullTextChangeTrackingMode" copy="true"/>
+    /// <see cref="DomainConfiguration.FullTextChangeTrackingMode" />
     /// </summary>
     [ConfigurationProperty(FullTextChangeTrackingModeElementName, DefaultValue = "Default")]
     public string FullTextChangeTrackingMode
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Collation" copy="true"/>
+    /// <see cref="DomainConfiguration.Collation" />
     /// </summary>
     [ConfigurationProperty(CollationElementName)]
     public string Collation
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Sessions" copy="true"/>
+    /// <see cref="DomainConfiguration.Sessions" />
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.MappingRules" copy="true"/>
+    /// <see cref="DomainConfiguration.MappingRules" />
     /// </summary>
     [ConfigurationProperty(MappingRulesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<MappingRuleElement>), AddItemName = "rule")]
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Databases" copy="true"/>
+    /// <see cref="DomainConfiguration.Databases" />
     /// </summary>
     [ConfigurationProperty(DatabasesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "database")]
@@ -243,17 +243,17 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
+    /// <see cref="DomainConfiguration.KeyGenerators" />
     /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
+    [ConfigurationCollection(typeof (ConfigurationCollection<KeyGeneratorConfigurationElement>), AddItemName = "keyGenerator")]
     public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
     {
       get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
+    /// <see cref="DomainConfiguration.ServiceContainerType" />
     /// </summary>
     [ConfigurationProperty(ServiceContainerTypeElementName, DefaultValue = null)]
     public string ServiceContainerType
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.DefaultSchema" copy="true"/>
+    /// <see cref="DomainConfiguration.DefaultSchema" />
     /// </summary>
     [ConfigurationProperty(DefaultSchemaElementName)]
     public string DefaultSchema
@@ -273,7 +273,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.DefaultDatabase" copy="true"/>
+    /// <see cref="DomainConfiguration.DefaultDatabase" />
     /// </summary>
     [ConfigurationProperty(DefaultDatabaseElementName)]
     public string DefaultDatabase
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.IncludeSqlInExceptions" copy="true"/>
+    /// <see cref="DomainConfiguration.IncludeSqlInExceptions" />
     /// </summary>
     [ConfigurationProperty(IncludeSqlInExceptionsElementName,
       DefaultValue = DomainConfiguration.DefaultIncludeSqlInExceptions)]
@@ -294,9 +294,10 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.AllowCyclicDatabaseDependencies" copy="true"/>
+    /// <see cref="DomainConfiguration.AllowCyclicDatabaseDependencies" />
     /// </summary>
-    [ConfigurationProperty(AllowCyclicDatabaseDependenciesElementName, DefaultValue = false)]
+    [ConfigurationProperty(AllowCyclicDatabaseDependenciesElementName,
+      DefaultValue = DomainConfiguration.DefaultAllowCyclicDatabaseDependencies)]
     public bool AllowCyclicDatabaseDependencies
     {
       get { return (bool) this[AllowCyclicDatabaseDependenciesElementName]; }
@@ -304,7 +305,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.BuildInParallel" copy="true"/>
+    /// <see cref="DomainConfiguration.BuildInParallel" />
     /// </summary>
     [ConfigurationProperty(BuildInParallelElementName,
       DefaultValue = DomainConfiguration.DefaultBuildInParallel)]
@@ -315,7 +316,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ForcedServerVersion" copy="true" />
+    /// <see cref="DomainConfiguration.ForcedServerVersion" />
     /// </summary>
     [ConfigurationProperty(ForcedServerVersionElementName)]
     public string ForcedServerVersion
@@ -325,7 +326,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ConnectionInitializationSql" copy="true" />
+    /// <see cref="DomainConfiguration.ConnectionInitializationSql" />
     /// </summary>
     [ConfigurationProperty(ConnectionInitializationSqlElementName)]
     public string ConnectionInitializationSql
@@ -335,7 +336,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.IgnoreRules" copy="true"/>
+    /// <see cref="DomainConfiguration.IgnoreRules" />
     /// </summary>
     [ConfigurationProperty(IgnoreRulesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
@@ -345,7 +346,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.MultidatabaseKeys" copy="true"/>
+    /// <see cref="DomainConfiguration.MultidatabaseKeys"/>
     /// </summary>
     [ConfigurationProperty(MultidatabaseKeysElementName,
       DefaultValue = DomainConfiguration.DefaultMultidatabaseKeys)]
@@ -356,7 +357,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.Options" copy="true"/>
+    /// <see cref="DomainConfiguration.Options"/>
     /// </summary>
     [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
     public string Options
@@ -366,7 +367,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ShareStorageSchemaOverNodes" copy="true"/>
+    /// <see cref="DomainConfiguration.ShareStorageSchemaOverNodes"/>
     /// </summary>
     [ConfigurationProperty(ShareStorageSchemaOverNodesElementName, DefaultValue = false)]
     public bool ShareStorageSchemaOverNodes
@@ -376,7 +377,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.NamingConvention" copy="true"/>
+    /// <see cref="DomainConfiguration.NamingConvention"/>
     /// </summary>
     [ConfigurationProperty(VersioningConventionElementName)]
     public VersioningConventionElement VersioningConvention
@@ -386,7 +387,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.EnsureConnectionIsAlive" copy="true"/>
+    /// <see cref="DomainConfiguration.EnsureConnectionIsAlive"/>
     /// </summary>
     [ConfigurationProperty(EnsureConnectionIsAliveElementName, DefaultValue = true)]
     public bool EnsureConnectionIsAlive
@@ -396,7 +397,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.TagsLocation" copy="true"/>.
+    /// <see cref="DomainConfiguration.TagsLocation"/>.
     /// </summary>
     [ConfigurationProperty(TagsLocationElementName, DefaultValue = "Default")]
     public string TagsLocation
@@ -406,7 +407,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.PreferTypeIdsAsQueryParameters" copy="true"/>
+    /// <see cref="DomainConfiguration.PreferTypeIdsAsQueryParameters"/>
     /// </summary>
     [ConfigurationProperty(PreferTypeIdsAsQueryParametersElementName, DefaultValue = true)]
     public bool PreferTypeIdsAsQueryParameters

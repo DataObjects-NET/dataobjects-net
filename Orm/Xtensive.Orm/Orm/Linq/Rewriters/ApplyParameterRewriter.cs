@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         || newItemProjectorBody != projectionExpression.ItemProjector.Item
           || newKeyExpression != expression.KeyExpression) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
-        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
+        var newProjectionExpression = projectionExpression.ApplyItemProjector(newItemProjector);
         return new GroupingExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression,
           expression.ApplyParameter, expression.KeyExpression, expression.SelectManyInfo);
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         || newItemProjectorBody != projectionExpression.ItemProjector.Item) {
         var newItemProjector = new ItemProjectorExpression(
           newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
-        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
+        var newProjectionExpression = projectionExpression.ApplyItemProjector(newItemProjector);
         return new SubQueryExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression,
           expression.ApplyParameter, expression.ExtendedType);

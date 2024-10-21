@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,14 +10,9 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropSequence : SqlStatement, ISqlCompileUnit
   {
-    private Sequence sequence;
     private bool cascade = true;
 
-    public Sequence Sequence {
-      get {
-        return sequence;
-      }
-    }
+    public Sequence Sequence { get; }
 
     public bool Cascade {
       get {
@@ -30,7 +25,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlDropSequence Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlDropSequence(t.sequence));
+        new SqlDropSequence(t.Sequence));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -40,13 +35,13 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropSequence(Sequence sequence)
       : base(SqlNodeType.Drop)
     {
-      this.sequence = sequence;
+      Sequence = sequence;
     }
 
     internal SqlDropSequence(Sequence sequence, bool cascade)
       : base(SqlNodeType.Drop)
     {
-      this.sequence = sequence;
+      Sequence = sequence;
       this.cascade = cascade;
     }
   }

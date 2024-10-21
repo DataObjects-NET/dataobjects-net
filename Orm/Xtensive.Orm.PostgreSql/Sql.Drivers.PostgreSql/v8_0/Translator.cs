@@ -350,7 +350,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         _ = output.Append(TranslateByteArrayLiteral((byte[]) literalValue));
       }
       else if (literalType == WellKnownTypes.GuidType) {
-        TranslateString(output, SqlHelper.GuidToString((Guid) literalValue));
+        _ = output.Append($"uuid '{SqlHelper.GuidToString((Guid) literalValue)}'");
       }
       else if (literalType == WellKnownTypes.DateTimeOffsetType) {
         _ = output.Append(((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString));

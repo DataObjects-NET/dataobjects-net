@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -8,16 +8,16 @@ using System;
 using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration.Elements;
 using Xtensive.Orm.Internals;
-using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
+using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
-  /// </summary> 
+  /// </summary>
   [Serializable]
   public class DomainConfiguration : ConfigurationBase
   {
@@ -67,12 +67,12 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="ShareStorageSchemaOverNodes"/> value:
-    /// <see langword="false"/>
+    /// <see langword="false"/>.
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
-    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />
+    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />.
     /// </summary>
     public const bool DefaultAllowCyclicDatabaseDependencies = false;
 
@@ -89,7 +89,13 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value.
     /// </summary>
+    [Obsolete ("User DefaultForeignKeyMode")]
     public const ForeignKeyMode DefauktForeignKeyMode = ForeignKeyMode.Default;
+
+    /// <summary>
+    /// Default <see cref="ForeignKeyMode"/> value.
+    /// </summary>
+    public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
     /// <summary>
     /// Default <see cref="FullTextChangeTrackingMode"/> value.
@@ -132,6 +138,7 @@ namespace Xtensive.Orm.Configuration
     private DatabaseConfigurationCollection databases = new();
     private KeyGeneratorConfigurationCollection keyGenerators = new();
     private IgnoreRuleCollection ignoreRules = new();
+    private ExtensionConfigurationCollection extensionConfigurations = new();
     private NamingConvention namingConvention = new();
     private VersioningConvention versioningConvention = new();
     private int keyCacheSize = DefaultKeyCacheSize;
@@ -149,7 +156,7 @@ namespace Xtensive.Orm.Configuration
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
-    private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
+    private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private FullTextChangeTrackingMode fullTextChangeTrackingMode = DefaultFullTextChangeTrackingMode;
     private DomainOptions options = DefaultDomainOptions;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
@@ -342,6 +349,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets a value indicating change tracking mode of full-text indexes.
     /// The property may have no effect for certain storages where there is no support for such option.
+    /// Default value is <see cref="DomainConfiguration.DefaultFullTextChangeTrackingMode"/>.
     /// </summary>
     public FullTextChangeTrackingMode FullTextChangeTrackingMode
     {
@@ -428,6 +436,18 @@ namespace Xtensive.Orm.Configuration
       set {
         EnsureNotLocked();
         serviceContainerType = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets collection of additional configurations (configurations of extensions)
+    /// that might be required during domain build process.
+    /// </summary>
+    public ExtensionConfigurationCollection ExtensionConfigurations {
+      get => extensionConfigurations;
+      set {
+        EnsureNotLocked();
+        extensionConfigurations = value;
       }
     }
 
@@ -578,7 +598,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets versioning convention.
+    /// Gets or sets rules of entity versioning.
     /// </summary>
     public VersioningConvention VersioningConvention
     {
@@ -591,6 +611,13 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Enables extra check if connection is not broken on its opening.
+    /// For some RDBMSs physical connection may become broken but connection pool, which
+    /// is in charge of logical connections, is not aware of it.
+    /// In such cases connection pool provides connection
+    /// which is dead on arrival and causes exception on first use of it.
+    /// Such connection should be re-created and re-opened. The extra check
+    /// tests connection by making "first use" of it, if check failed connection
+    /// will be restored automatically.
     /// </summary>
     public bool EnsureConnectionIsAlive
     {
@@ -660,6 +687,10 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IsMultischema => isMultischema ?? GetIsMultischema();
 
+    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
+
+    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
+
     private bool GetIsMultidatabase()
     {
       return !string.IsNullOrEmpty(DefaultDatabase)
@@ -696,6 +727,7 @@ namespace Xtensive.Orm.Configuration
       keyGenerators.Lock(true);
       ignoreRules.Lock(true);
       versioningConvention.Lock(true);
+      extensionConfigurations.Lock(true);
 
       base.Lock(recursive);
 
@@ -782,6 +814,7 @@ namespace Xtensive.Orm.Configuration
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
+      extensionConfigurations = (ExtensionConfigurationCollection) configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>
@@ -789,6 +822,8 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <returns>The clone of this configuration.</returns>
     public new DomainConfiguration Clone() => (DomainConfiguration) base.Clone();
+
+    #region Static DomainConfiguration.Load() methods
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -869,11 +904,6 @@ namespace Xtensive.Orm.Configuration
       return LoadConfigurationFromSection(section, name);
     }
 
-    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
-
-    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
-
-
     private static DomainConfiguration LoadConfigurationFromSection(ConfigurationSection section, string name)
     {
       var domainElement = section.Domains[name];
@@ -883,6 +913,70 @@ namespace Xtensive.Orm.Configuration
       }
       return domainElement.ToNative();
     }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="configurationSection">Root configuration section where domain configurations are placed</param>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>Domain configuration.</returns>
+    /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
+    public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string sectionName, string name)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    #endregion
 
     // Constructors
 

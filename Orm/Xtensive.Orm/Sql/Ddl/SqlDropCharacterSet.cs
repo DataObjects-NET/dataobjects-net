@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,17 +10,11 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropCharacterSet : SqlStatement, ISqlCompileUnit
   {
-    private CharacterSet characterSet;
-
-    public CharacterSet CharacterSet {
-      get {
-        return characterSet;
-      }
-    }
+    public CharacterSet CharacterSet { get; }
 
     internal override SqlDropCharacterSet Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlDropCharacterSet(t.characterSet));
+        new SqlDropCharacterSet(t.CharacterSet));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -29,7 +23,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropCharacterSet(CharacterSet characterSet) : base(SqlNodeType.Drop)
     {
-      this.characterSet = characterSet;
+      CharacterSet = characterSet;
     }
   }
 }

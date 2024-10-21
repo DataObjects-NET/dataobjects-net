@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -11,17 +11,12 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlDropIndex : SqlStatement, ISqlCompileUnit
   {
-    private Index index;
     //private bool? online;
     //private byte? maxDegreeOfParallelism;
     //private IPartitionDescriptor partitioningDescriptor;
     //private string tableSpace;
 
-    public Index Index {
-      get {
-        return index;
-      }
-    }
+    public Index Index { get; }
 
     //public bool? Online {
     //  get {
@@ -61,7 +56,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlDropIndex Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlDropIndex(t.index));
+        new SqlDropIndex(t.Index));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -71,7 +66,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropIndex(Index index)
       : base(SqlNodeType.Drop)
     {
-      this.index = index;
+      Index = index;
     }
   }
 }

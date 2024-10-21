@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Security.Tests
     [Test]
     public void HashingServiceNameTest()
     {
-      var section = (Configuration.ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.WithName");
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.WithName");
       Assert.That(section, Is.Not.Null);
       Assert.That(section.HashingService, Is.Not.Null);
       Assert.That(section.HashingService.Name, Is.Not.Null);
@@ -29,9 +29,26 @@ namespace Xtensive.Orm.Security.Tests
     }
 
     [Test]
+    public void HashingServiceAndAuthenticationServiceNameTest()
+    {
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.AllDeclared");
+      Assert.That(section, Is.Not.Null);
+      Assert.That(section.HashingService, Is.Not.Null);
+      Assert.That(section.HashingService.Name, Is.Not.Null);
+      Assert.That(section.HashingService.Name, Is.EqualTo("sha1"));
+      Assert.That(section.AuthenticationService.Name, Is.Not.Null);
+      Assert.That(section.AuthenticationService.Name, Is.EqualTo("notdefault"));
+
+      var config = SecurityConfiguration.Load(Configuration, "Xtensive.Orm.Security.AllDeclared");
+      Assert.That(config, Is.Not.Null);
+      Assert.That(config.HashingServiceName, Is.EqualTo("sha1"));
+      Assert.That(config.AuthenticationServiceName, Is.EqualTo("notdefault"));
+    }
+
+    [Test]
     public void HashingServiceEmptyTest()
     {
-      var section = (Configuration.ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.WithoutName");
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.WithoutName");
       Assert.That(section, Is.Not.Null);
       Assert.That(section.HashingService, Is.Not.Null);
       Assert.That(section.HashingService.Name, Is.Null.Or.Empty);
@@ -44,7 +61,7 @@ namespace Xtensive.Orm.Security.Tests
     [Test]
     public void HashingServiceAbsentTest()
     {
-      var section = (Configuration.ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.Empty");
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.Empty");
       Assert.That(section, Is.Not.Null);
       Assert.That(section.HashingService, Is.Not.Null);
       Assert.That(section.HashingService.Name, Is.Null.Or.Empty);
@@ -57,7 +74,7 @@ namespace Xtensive.Orm.Security.Tests
     [Test]
     public void HashingServiceNoConfigTest()
     {
-      var section = (Configuration.ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.XXX");
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security.XXX");
       Assert.That(section, Is.Null);
 
       var config = SecurityConfiguration.Load(Configuration, "Xtensive.Orm.Security.XXX");
@@ -68,7 +85,7 @@ namespace Xtensive.Orm.Security.Tests
     [Test]
     public void HashingServiceDefaultTest()
     {
-      var section = (Configuration.ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security");
+      var section = (ConfigurationSection) Configuration.GetSection("Xtensive.Orm.Security");
       Assert.That(section, Is.Not.Null);
       Assert.That(section.HashingService, Is.Not.Null);
       Assert.That(section.HashingService.Name, Is.Not.Null.Or.Empty);

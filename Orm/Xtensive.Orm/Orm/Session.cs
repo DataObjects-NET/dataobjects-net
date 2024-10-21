@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -71,10 +71,9 @@ namespace Xtensive.Orm
     private const string FullNameFormat = "{0}, #{1}";
 
     private static readonly Type
-      typeofSession = typeof(Session),
-      typeofSessionConfiguration = typeof(SessionConfiguration),
-      typeofSessionHandler = typeof(SessionHandler),
-      typeofServiceContainer = typeof(ServiceContainer);
+      SessionConfigurationType = typeof(SessionConfiguration),
+      SessionHandlerType = typeof(SessionHandler),
+      ServiceContainerType = typeof(ServiceContainer);
 
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
@@ -308,9 +307,9 @@ namespace Xtensive.Orm
     private IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeofSession, this),
-        new ServiceRegistration(typeofSessionConfiguration, Configuration),
-        new ServiceRegistration(typeofSessionHandler, Handler),
+        new ServiceRegistration(WellKnownOrmTypes.Session, this),
+        new ServiceRegistration(SessionConfigurationType, Configuration),
+        new ServiceRegistration(SessionHandlerType, Handler),
       };
       Handler.AddSystemServices(registrations);
       return new ServiceContainer(registrations, Domain.Services);
@@ -318,7 +317,7 @@ namespace Xtensive.Orm
 
     private IServiceContainer CreateServices()
     {
-      var userContainerType = Configuration.ServiceContainerType ?? typeofServiceContainer;
+      var userContainerType = Configuration.ServiceContainerType ?? ServiceContainerType;
       var registrations = Domain.Configuration.Types.ServiceRegistrations;
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);

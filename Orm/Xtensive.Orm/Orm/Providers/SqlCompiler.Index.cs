@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -42,16 +42,6 @@ namespace Xtensive.Orm.Providers
     }
 
     private TypeMapping int32TypeMapping;
-
-    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
-    {
-      throw new NotSupportedException();
-    }
-
-    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
-    {
-      throw new NotSupportedException();
-    }
 
     /// <inheritdoc/>
     protected override SqlProvider VisitIndex(IndexProvider provider)
@@ -116,7 +106,7 @@ namespace Xtensive.Orm.Providers
       ISqlQueryExpression result = null;
       List<QueryParameterBinding> resultBindings = null;
 
-      var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery).ToList();
+      var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
       foreach (var select in baseQueries) {
         result = result==null
           ? (ISqlQueryExpression) select.Query
@@ -144,7 +134,7 @@ namespace Xtensive.Orm.Providers
       var keyColumnCount = index.KeyColumns.Count;
       var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
 
-      var sourceTables = new List<SqlTable>();
+      var sourceTables = new List<SqlTable>(index.UnderlyingIndexes.Count);
       List<QueryParameterBinding> resultBindings = null;
       if(index.UnderlyingIndexes.Any(i => i.IsVirtual)) {
         foreach(var item in underlyingQueries) {
@@ -229,17 +219,18 @@ namespace Xtensive.Orm.Providers
           .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
-        var values = filterByTypes
-          .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue));
-        if (filterByTypes.Count == 1) {
+        
+        if (filterByTypesCount == 1) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, filterByTypes.First().TypeDiscriminatorValue);
           filter = discriminatorColumn == SqlDml.Literal(discriminatorValue);
         }
         else {
+          var values = filterByTypes
+            .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue)).ToArray(filterByTypesCount);
           filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
           if (containsDefault) {
             var allValues = discriminatorMap
-              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First));
+              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First)).ToArray(discriminatorMap.Count);
             filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
           }
         }

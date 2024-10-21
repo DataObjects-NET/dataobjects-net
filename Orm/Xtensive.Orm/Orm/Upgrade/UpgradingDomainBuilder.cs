@@ -50,7 +50,11 @@ namespace Xtensive.Orm.Upgrade
         configuration.Lock();
       }
 
-      LogManager.Default.AutoInitialize();
+      var logConfiguration = configuration.ExtensionConfigurations.Get<LoggingConfiguration>();
+      if (logConfiguration != null)
+        LogManager.Default.Initialize(logConfiguration);
+      else
+        LogManager.Default.AutoInitialize();
 
       var context = new UpgradeContext(configuration);
 
@@ -72,7 +76,11 @@ namespace Xtensive.Orm.Upgrade
         configuration.Lock();
       }
 
-      LogManager.Default.AutoInitialize();
+      var logConfiguration = configuration.ExtensionConfigurations.Get<LoggingConfiguration>();
+      if (logConfiguration != null)
+        LogManager.Default.Initialize(logConfiguration);
+      else
+        LogManager.Default.AutoInitialize();
 
       var context = new UpgradeContext(configuration);
 

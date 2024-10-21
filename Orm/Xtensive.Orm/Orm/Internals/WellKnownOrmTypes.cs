@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2022 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -36,7 +36,9 @@ namespace Xtensive.Orm.Internals
 
     public static readonly Type Tuple = typeof(Tuple);
 
+    public static readonly Type Session = typeof(Session);
     public static readonly Type Query = typeof(Query);
+    public static readonly Type QueryEndpoint = typeof(QueryEndpoint);
     public static readonly Type QueryProvider = typeof(QueryProvider);
 
     public static readonly Type TranslatedQuery = typeof(TranslatedQuery);

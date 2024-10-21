@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -803,16 +803,17 @@ namespace Xtensive.Orm.Building.Builders
     private ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
+      var indexKeyColumns = index.KeyColumns;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).ToList(index.KeyColumns.Count)
-        : index.KeyColumns
+        ? (IReadOnlyList<int>) CollectionUtils.RangeToArray(0, indexKeyColumns.Count)
+        : indexKeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
             .Select(static (c, i) => (c, i))
             .Where(static arg => arg.c.IsPrimaryKey)
             .Select(static arg => arg.i)
             .ToList();
-      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count);
+      var columns = CollectionUtils.RangeToArray(0, indexKeyColumns.Count + index.ValueColumns.Count);
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 

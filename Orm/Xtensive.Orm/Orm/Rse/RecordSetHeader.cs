@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -98,7 +98,18 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(Column column)
     {
-      return Add(EnumerableUtils.One(column));
+      var newColumns = new List<Column>(Columns.Count + 1);
+      newColumns.AddRange(Columns);
+      newColumns.Add(column);
+
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
+
+      return new RecordSetHeader(
+        newTupleDescriptor,
+        newColumns,
+        ColumnGroups,
+        OrderTupleDescriptor,
+        Order);
     }
 
     /// <summary>
@@ -111,10 +122,28 @@ namespace Xtensive.Orm.Rse
       var newColumns = new List<Column>(Columns);
       newColumns.AddRange(columns);
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
-        newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
+
+      return new RecordSetHeader(
+        newTupleDescriptor,
+        newColumns,
+        ColumnGroups,
+        OrderTupleDescriptor,
+        Order);
+    }
+
+    /// <summary>
+    /// Adds the specified columns to header.
+    /// </summary>
+    /// <param name="columns">The columns to add.</param>
+    /// <returns>The constructed header.</returns>
+    public RecordSetHeader Add(IReadOnlyList<Column> columns)
+    {
+      var newColumns = new List<Column>(Columns.Count + columns.Count);
+      newColumns.AddRange(Columns);
+      newColumns.AddRange(columns);
+
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
       return new RecordSetHeader(
         newTupleDescriptor,
@@ -138,22 +167,21 @@ namespace Xtensive.Orm.Rse
         newColumns.Add(c.Clone(columnCount + c.Index));
       }
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
-        newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
+      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
       var columnGroupCount = ColumnGroups.Count;
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<int>(g.Keys.Count);
+        var keys = new int[g.Keys.Count];
+        var ai = 0;
         foreach (var i in g.Keys) {
-          keys.Add(columnCount + i);
+          keys[ai++] = columnCount + i;
         }
-        var columns = new List<int>(g.Columns.Count);
+        var columns = new int[g.Columns.Count];
+        ai = 0;
         foreach (var i in g.Columns) {
-          columns.Add(columnCount + i);
+          columns[ai++] = columnCount + i;
         }
         groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
       }
@@ -173,8 +201,11 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IEnumerable<int> selectedColumns)
     {
-      var columns = new List<int>(selectedColumns);
-      var columnsMap = new List<int>(Enumerable.Repeat(-1, Columns.Count));
+      var columns = (selectedColumns is IReadOnlyList<int> rList) ? rList : new List<int>(selectedColumns);
+
+      var columnsMap = new int[Columns.Count];
+      Array.Fill(columnsMap, -1);
+
       for (int newIndex = 0; newIndex < columns.Count; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
@@ -185,7 +216,7 @@ namespace Xtensive.Orm.Rse
       var resultOrder = new DirectionCollection<int>(
         Order
           .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
-          .TakeWhile(o => o.Key >= 0));
+          .TakeWhile(static o => o.Key >= 0));
 
       var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex)).ToArray(columns.Count);
 
@@ -196,7 +227,7 @@ namespace Xtensive.Orm.Rse
             g.Keys.Select(k => columnsMap[k]),
             g.Columns
               .Select(c => columnsMap[c])
-              .Where(c => c >= 0)));
+              .Where(static c => c >= 0)));
 
       return new RecordSetHeader(
         resultTupleDescriptor,
@@ -240,24 +271,25 @@ namespace Xtensive.Orm.Rse
       var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray(indexInfoColumns.Count);
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
-      var keyOrder = new List<KeyValuePair<int, Direction>>(
-        indexInfoKeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+      var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<int, Direction>(i, p.Value));
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
-        keyOrder.AddRange(
-          indexInfo.ValueColumns
-            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
-            .Where(pair => pair.First.IsPrimaryKey)
+        var offset = indexInfoKeyColumns.Count;
+        keyOrderEnumerable = keyOrderEnumerable
+          .Concat(indexInfo.ValueColumns
+            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + offset))
+            .Where(static pair => pair.First.IsPrimaryKey)
             .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }
-      var order = new DirectionCollection<int>(keyOrder);
+      var order = new DirectionCollection<int>(keyOrderEnumerable);
 
       var keyFieldTypes = indexInfoKeyColumns
-        .Select(columnInfo => columnInfo.Key.ValueType)
-        .ToArray(indexInfoKeyColumns.Count);
+        .SelectToArray(static columnInfo => columnInfo.Key.ValueType);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
-      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i,c.ValueType)).ToArray(indexInfoColumns.Count);
+      var resultColumns = indexInfoColumns
+        .Select(static (c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i, c.ValueType))
+        .ToArray(indexInfoColumns.Count);
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(
@@ -266,6 +298,16 @@ namespace Xtensive.Orm.Rse
         resultGroups,
         keyDescriptor,
         order);
+    }
+
+    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+    private static TupleDescriptor CreateTupleDescriptor(List<Column> newColumns)
+    {
+      var newFieldTypes = new Type[newColumns.Count];
+      for (var i = 0; i < newColumns.Count; i++) {
+        newFieldTypes[i] = newColumns[i].Type;
+      }
+      return TupleDescriptor.Create(newFieldTypes);
     }
 
     /// <inheritdoc/>

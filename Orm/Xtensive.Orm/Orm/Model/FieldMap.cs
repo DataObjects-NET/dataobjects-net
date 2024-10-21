@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2007.12.27
 
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Model
         interfaceFields.Add(interfaceField);
       }
       else
-        reversedMap.Add(typeField, new HashSet<FieldInfo> {interfaceField});
+        reversedMap.Add(typeField, new HashSet<FieldInfo> { interfaceField });
     }
 
     public void Override(FieldInfo interfaceField, FieldInfo typeField)

@@ -1,4 +1,3 @@
-================
 Xtensive.Orm.Web
 ================
 
@@ -12,13 +11,14 @@ by default unless an exeption appeared. (more info on https://dataobjects.net)
 
 Prerequisites
 -------------
-DataObjects.Net 7 or later (https://dataobjects.net)
+DataObjects.Net 7.1 or later (https://dataobjects.net)
 
 Usage of action filter
 ----------------------
 
 To start using action filter it should be added to action filters collection like so
 
+```csharp
 public class Startup
 {
   public Startup(IConfiguration configuration)
@@ -216,6 +216,7 @@ public class Startup
     });
   }
 }
+```
 
 And then in actual pages you can use SessionAccessor like below
 

@@ -185,10 +185,10 @@ namespace Xtensive.Orm.Rse.Providers
       if (resultParameters == null) {
         var acd = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
         acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)));
-        return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
+        return new AggregateProvider(source, provider.GroupColumnIndexes, acd);
       }
       var result = (Pair<int[], AggregateColumnDescriptor[]>) resultParameters;
-      return new AggregateProvider(source, result.First, result.Second);
+      return new AggregateProvider(source, result.First, (IReadOnlyList<AggregateColumnDescriptor>) result.Second);
     }
 
     /// <inheritdoc/>

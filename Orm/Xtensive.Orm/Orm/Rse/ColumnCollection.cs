@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -81,6 +81,18 @@ namespace Xtensive.Orm.Rse
     /// <param name="fullName">Full name of the <see cref="Column"/> to find.</param>
     public Column this[string fullName] =>
       nameIndex.TryGetValue(fullName, out var index) ? columns[index] : null;
+
+    /// <summary>
+    /// Determines whether the collecton contains specified column
+    /// </summary>
+    /// <param name="column"></param>
+    /// <returns></returns>
+    public bool Contains(Column column)
+    {
+      if (columns is ICollection<Column> colColumns)
+        return colColumns.Contains(column);
+      return columns.Contains(column);
+    }
 
     /// <summary>
     /// Joins this collection with specified the column collection.
