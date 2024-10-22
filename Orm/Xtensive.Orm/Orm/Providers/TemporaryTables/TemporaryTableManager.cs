@@ -24,8 +24,14 @@ namespace Xtensive.Orm.Providers
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
-    // Preallocated array of 1 column name
-    private static readonly string[] ColumnNames1 = new[] { string.Format(ColumnNamePattern, 0) };
+    // Preallocated array of 8 column names
+    // to get parts of it
+    private readonly string[] columnNames8 = new[] {
+      string.Format(ColumnNamePattern, 0), string.Format(ColumnNamePattern, 1),
+      string.Format(ColumnNamePattern, 2), string.Format(ColumnNamePattern, 3),
+      string.Format(ColumnNamePattern, 4), string.Format(ColumnNamePattern, 5),
+      string.Format(ColumnNamePattern, 6), string.Format(ColumnNamePattern, 7),
+    };
 
     private TemporaryTableBackEnd backEnd;
     private bool useTruncate;
@@ -42,7 +48,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="name">The name of the temporary table.</param>
     /// <param name="source">The source.</param>
     /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source)
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, in TupleDescriptor source)
     {
       return BuildDescriptor(modelMapping, name, source, null);
     }
@@ -55,7 +61,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="source">The source.</param>
     /// <param name="fieldNames">The names of field in temporary table.</param>
     /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source, string[] fieldNames)
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, in TupleDescriptor source, string[] fieldNames)
     {
       EnsureTemporaryTablesSupported();
 
@@ -70,14 +76,14 @@ namespace Xtensive.Orm.Providers
         ? new Collation(schema, modelMapping.TemporaryTableCollation)
         : null;
 
-      fieldNames ??= BuildFieldNames(source);
+      var resultFieldNames = fieldNames ?? BuildFieldNamesAsSegment(source);
 
       var typeMappings = source
         .Select(driver.GetTypeMapping)
         .ToArray();
 
       // table
-      var table = CreateTemporaryTable(schema, name, source, typeMappings, fieldNames, collation);
+      var table = CreateTemporaryTable(schema, name, source, typeMappings, resultFieldNames, collation);
       var tableRef = SqlDml.TableRef(table);
 
       // select statement
@@ -163,16 +169,20 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
     }
 
-    private string[] BuildFieldNames(in TupleDescriptor source) =>
-      source.Count == 1
-        ? ColumnNames1
+    private ArraySegment<string> BuildFieldNamesAsSegment(TupleDescriptor source)
+    {
+      var count = source.Count;
+      return count <= 8
+        ? new ArraySegment<string>(columnNames8, 0, count)
         : Enumerable.Range(0, source.Count)
           .Select(i => string.Format(ColumnNamePattern, i))
           .ToArray();
+    }
 
-    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[] fieldNames, Collation collation)
+    private Table CreateTemporaryTable(Schema schema,
+      string tempTableName, in TupleDescriptor source, TypeMapping[] typeMappings, ArraySegment<string> fieldNames, Collation collation)
     {
-      var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
+      var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, tempTableName));
       var table = backEnd.CreateTemporaryTable(schema, tableName);
 
       if (source.Count > 0) {
