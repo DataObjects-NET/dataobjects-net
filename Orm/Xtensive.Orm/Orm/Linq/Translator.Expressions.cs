@@ -463,7 +463,7 @@ namespace Xtensive.Orm.Linq
             return VisitQuerySingle(mc);
           }
 
-          throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+          throw new InvalidOperationException(string.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
         // Visit QueryEndpoint.
         if (methodDeclaringType == WellKnownOrmTypes.QueryEndpoint) {
@@ -498,33 +498,33 @@ namespace Xtensive.Orm.Linq
             return VisitSequence(mc.Arguments[0].StripQuotes().Body, mc);
           }
 
-          throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+          throw new InvalidOperationException(string.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
 #pragma warning restore 612,618
 
         // Visit Queryable extensions.
         if (methodDeclaringType == typeof(QueryableExtensions)) {
           return methodName switch {
-            nameof(QueryableExtensions.LeftJoin) => VisitLeftJoin(mc),
-            "In" => VisitIn(mc),
-            nameof(QueryableExtensions.Lock) => VisitLock(mc),
-            nameof(QueryableExtensions.Take) => VisitTake(mc.Arguments[0], mc.Arguments[1]),
-            nameof(QueryableExtensions.Skip) => VisitSkip(mc.Arguments[0], mc.Arguments[1]),
-            nameof(QueryableExtensions.ElementAt) => VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, false),
-            nameof(QueryableExtensions.ElementAtOrDefault) => VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, true),
-            nameof(QueryableExtensions.Count) => VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc),
-            nameof(QueryableExtensions.Tag) => VisitTag(mc),
-            _ => throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)))
+            Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
+            Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
+            Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),
+            Reflection.WellKnown.QueryableExtensions.Take => VisitTake(mc.Arguments[0], mc.Arguments[1]),
+            Reflection.WellKnown.QueryableExtensions.Skip => VisitSkip(mc.Arguments[0], mc.Arguments[1]),
+            Reflection.WellKnown.QueryableExtensions.ElementAt => VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, false),
+            Reflection.WellKnown.QueryableExtensions.ElementAtOrDefault => VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, true),
+            Reflection.WellKnown.QueryableExtensions.Count => VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc),
+            Reflection.WellKnown.QueryableExtensions.Tag => VisitTag(mc),
+            _ => throw new InvalidOperationException(string.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)))
           };
         }
         // Visit Collection extensions
         if (methodDeclaringType == typeof(CollectionExtensionsEx)) {
           switch (methodName) {
-            case nameof(CollectionExtensionsEx.ContainsAny):
+            case Reflection.WellKnown.CollectionExtensions.ContainsAny:
               return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
-            case nameof(CollectionExtensionsEx.ContainsAll):
+            case Reflection.WellKnown.CollectionExtensions.ContainsAll:
               return VisitContainsAll(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
-            case nameof(CollectionExtensionsEx.ContainsNone):
+            case Reflection.WellKnown.CollectionExtensions.ContainsNone:
               return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           }
         }
@@ -535,8 +535,8 @@ namespace Xtensive.Orm.Linq
           // IList.Contains
           // List.Contains
           // Array.Contains
-          ParameterInfo[] parameters = method.GetParameters();
-          if (methodName=="Contains" && parameters.Length==1)
+          var parameters = method.GetParameters();
+          if (methodName == nameof(ICollection<int>.Contains) && parameters.Length == 1)
             return VisitContains(mc.Object, mc.Arguments[0], false);
         }
 
@@ -544,7 +544,7 @@ namespace Xtensive.Orm.Linq
         if (result != mc && result.NodeType == ExpressionType.Call) {
           var visitedMethodCall = (MethodCallExpression) result;
           if (visitedMethodCall.Arguments.Any(arg => arg.IsProjection()))
-            throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
+            throw new InvalidOperationException(string.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
         return result;
       }
