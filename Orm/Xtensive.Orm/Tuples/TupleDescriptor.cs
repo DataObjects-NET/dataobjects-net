@@ -25,7 +25,7 @@ namespace Xtensive.Tuples
   [Serializable]
   public readonly struct TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
   {
-    private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
+    public static readonly TupleDescriptor Empty = new TupleDescriptor(Array.Empty<Type>());
 
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
@@ -35,18 +35,6 @@ namespace Xtensive.Tuples
     
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
-
-    private int FieldCount => FieldTypes.Length;
-
-    /// <summary>
-    /// Gets the empty tuple descriptor.
-    /// </summary>
-    /// <value>The empty tuple descriptor.</value>
-    public static TupleDescriptor Empty
-    {
-      [DebuggerStepThrough]
-      get => EmptyDescriptor;
-    }
 
     #region IList members
 
@@ -61,13 +49,13 @@ namespace Xtensive.Tuples
     public int Count
     {
       [DebuggerStepThrough]
-      get => FieldCount;
+      get => FieldTypes.Length;
     }
 
     /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
-      for (var index = 0; index < FieldCount; index++) {
+      for (int index = 0, count = Count; index < count; index++) {
         yield return FieldTypes[index];
       }
     }
@@ -89,11 +77,11 @@ namespace Xtensive.Tuples
       if (FieldTypes == null) {
         return other.FieldTypes == null;
       }
-      if (other.FieldTypes == null || FieldCount != other.FieldCount) {
+      if (other.FieldTypes == null || Count != other.Count) {
         return false;
       }
 
-      for (int i = 0; i < FieldCount; i++) {
+      for (int i = 0, count = Count; i < count; i++) {
         if (FieldTypes[i] != other.FieldTypes[i]) {
           return false;
         }
@@ -108,35 +96,42 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int result = FieldCount;
-      for (int i = 0; i < FieldCount; i++)
+      int result = Count;
+      for (int i = 0, count = Count; i < count; i++)
         result = unchecked (FieldTypes[i].GetHashCode() + 29 * result);
       return result;
     }
 
-    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
-    public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
+    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right)
+    {
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right)
+    {
+      return !(left == right);
+    }
 
     #endregion
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("ValuesLength", ValuesLength);
-      info.AddValue("ObjectsLength", ObjectsLength);
+      info.AddValue(nameof(ValuesLength), ValuesLength);
+      info.AddValue(nameof(ObjectsLength), ObjectsLength);
 
       var typeNames = new string[FieldTypes.Length];
       for (var i = 0; i < typeNames.Length; i++)
         typeNames[i] = FieldTypes[i].ToSerializableForm();
 
-      info.AddValue("FieldTypes", typeNames);
-      info.AddValue("FieldDescriptors", FieldDescriptors);
+      info.AddValue(nameof(FieldTypes), typeNames);
+      info.AddValue(nameof(FieldDescriptors), FieldDescriptors);
     }
 
     /// <inheritdoc/>
     public override string ToString()
     {
       var sb = new ValueStringBuilder(stackalloc char[4096]);
-      for (int i = 0; i < FieldCount; i++) {
+      for (int i = 0, count = Count; i < count; i++) {
         if (i > 0)
           sb.Append(", ");
         sb.Append(FieldTypes[i].GetShortName());
@@ -177,7 +172,7 @@ namespace Xtensive.Tuples
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
       if (fieldTypes.Length == 0) {
-        return EmptyDescriptor;
+        return Empty;
       }
       return new TupleDescriptor(fieldTypes);
     }
@@ -285,12 +280,12 @@ namespace Xtensive.Tuples
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      ValuesLength = info.GetInt32("ValuesLength");
-      ObjectsLength = info.GetInt32("ObjectsLength");
+      ValuesLength = info.GetInt32(nameof(ValuesLength));
+      ObjectsLength = info.GetInt32(nameof(ObjectsLength));
 
-      var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
+      var typeNames = (string[]) info.GetValue(nameof(FieldTypes), typeof(string[]));
       FieldDescriptors = (PackedFieldDescriptor[])info.GetValue(
-        "FieldDescriptors", typeof(PackedFieldDescriptor[]));
+        nameof(FieldDescriptors), typeof(PackedFieldDescriptor[]));
 
       FieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
