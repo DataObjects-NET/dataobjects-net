@@ -55,7 +55,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
-      for (var index = 0; index < Count; index++) {
+      for (int index = 0, count = Count; index < count; index++) {
         yield return FieldTypes[index];
       }
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Tuples
         return false;
       }
 
-      for (int i = 0; i < Count; i++) {
+      for (int i = 0, count = Count; i < count; i++) {
         if (FieldTypes[i] != other.FieldTypes[i]) {
           return false;
         }
@@ -97,7 +97,7 @@ namespace Xtensive.Tuples
     public override int GetHashCode()
     {
       int result = Count;
-      for (int i = 0; i < Count; i++)
+      for (int i = 0, count = Count; i < count; i++)
         result = unchecked (FieldTypes[i].GetHashCode() + 29 * result);
       return result;
     }
@@ -131,7 +131,7 @@ namespace Xtensive.Tuples
     public override string ToString()
     {
       var sb = new ValueStringBuilder(stackalloc char[4096]);
-      for (int i = 0; i < Count; i++) {
+      for (int i = 0, count = Count; i < count; i++) {
         if (i > 0)
           sb.Append(", ");
         sb.Append(FieldTypes[i].GetShortName());
