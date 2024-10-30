@@ -365,10 +365,10 @@ namespace Xtensive.Orm
                 exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
               }
             }, TaskContinuationOptions.NotOnCanceled | TaskContinuationOptions.ExecuteSynchronously)
-            .ConfigureAwait(false);
+            .ConfigureAwaitFalse();
         }
         catch (OperationCanceledException) {
-          await session.DisposeSafelyAsync().ConfigureAwait(false);
+          await session.DisposeSafelyAsync().ConfigureAwaitFalse();
           throw;
         }
         finally {
@@ -469,8 +469,8 @@ namespace Xtensive.Orm
 
       var driver = Handlers.StorageDriver;
       if (isAsync) {
-        await driver.CloseConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
-        await driver.DisposeConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
+        await driver.CloseConnectionAsync(null, singleConnectionLocal).ConfigureAwaitFalse();
+        await driver.DisposeConnectionAsync(null, singleConnectionLocal).ConfigureAwaitFalse();
       }
       else {
         driver.CloseConnection(null, singleConnectionLocal);

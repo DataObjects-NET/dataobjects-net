@@ -152,7 +152,7 @@ namespace Xtensive.Core
       }
 
       try {
-        await action(argument).ConfigureAwait(false);
+        await action(argument).ConfigureAwaitFalse();
       }
       catch (Exception e) {
         HandleException(e);

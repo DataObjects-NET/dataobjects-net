@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.IoC;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -98,11 +99,11 @@ namespace Xtensive.Orm.Providers
     {
       pendingTransaction = null;
       if (connection.ActiveTransaction != null && !transactionIsExternal) {
-        await driver.CommitTransactionAsync(Session, connection).ConfigureAwait(false);
+        await driver.CommitTransactionAsync(Session, connection).ConfigureAwaitFalse();
       }
 
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwaitFalse();
       }
     }
 
@@ -124,11 +125,11 @@ namespace Xtensive.Orm.Providers
     {
       pendingTransaction = null;
       if (connection.ActiveTransaction != null && !transactionIsExternal) {
-        await driver.RollbackTransactionAsync(Session, connection).ConfigureAwait(false);
+        await driver.RollbackTransactionAsync(Session, connection).ConfigureAwaitFalse();
       }
 
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwaitFalse();
       }
     }
 
@@ -142,8 +143,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override async ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
-      await driver.MakeSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
+      await driver.MakeSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwaitFalse();
     }
 
     /// <inheritdoc/>
@@ -156,8 +157,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override async ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
-      await driver.RollbackToSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
+      await driver.RollbackToSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwaitFalse();
     }
 
     /// <inheritdoc/>
@@ -170,8 +171,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override async ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
-      await driver.ReleaseSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
+      await driver.ReleaseSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwaitFalse();
     }
 
     /// <inheritdoc/>
@@ -222,17 +223,17 @@ namespace Xtensive.Orm.Providers
     private async Task PrepareAsync(CancellationToken cancellationToken)
     {
       Session.EnsureNotDisposed();
-      await driver.EnsureConnectionIsOpenAsync(Session, connection, cancellationToken).ConfigureAwait(false);
+      await driver.EnsureConnectionIsOpenAsync(Session, connection, cancellationToken).ConfigureAwaitFalse();
 
       try {
         foreach (var initializationSqlScript in initializationSqlScripts) {
           var command = connection.CreateCommand(initializationSqlScript);
-          await using var commandAwaiter = command.ConfigureAwait(false);
-          await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
+          await using var commandAwaiter = command.ConfigureAwaitFalse();
+          await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwaitFalse();
         }
       }
       catch (OperationCanceledException) {
-        await connection.CloseAsync().ConfigureAwait(false);
+        await connection.CloseAsync().ConfigureAwaitFalse();
         throw;
       }
 
@@ -245,7 +246,7 @@ namespace Xtensive.Orm.Providers
       if (connection.ActiveTransaction == null) {
         // Handle external transactions
         var isolationLevel = IsolationLevelConverter.Convert(transaction.IsolationLevel);
-        await driver.BeginTransactionAsync(Session, connection, isolationLevel, cancellationToken).ConfigureAwait(false);
+        await driver.BeginTransactionAsync(Session, connection, isolationLevel, cancellationToken).ConfigureAwaitFalse();
       }
     }
 
@@ -286,7 +287,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
 
       var nonBatchedTasks = new List<QueryTask>();
       foreach (var task in queryTasks) {
@@ -301,15 +302,15 @@ namespace Xtensive.Orm.Providers
       CommandProcessorContext context;
       if (nonBatchedTasks.Count==0) {
         context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution);
-        await using var contextAwaiter = context.ConfigureAwait(false);
-        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+        await using var contextAwaiter = context.ConfigureAwaitFalse();
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwaitFalse();
 
         return;
       }
 
       context = Session.CommandProcessorContextProvider.ProvideContext();
-      await using (context.ConfigureAwait(false)) {
-        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+      await using (context.ConfigureAwaitFalse()) {
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwaitFalse();
       }
 
       foreach (var task in nonBatchedTasks) {
@@ -339,12 +340,12 @@ namespace Xtensive.Orm.Providers
     public override async Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution,
       CancellationToken token)
     {
-      await PrepareAsync(token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwaitFalse();
       domainHandler.Persister.Persist(registry, commandProcessor);
 
       var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution);
-      await using var contextAwaiter = context.ConfigureAwait(false);
-      await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+      await using var contextAwaiter = context.ConfigureAwaitFalse();
+      await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwaitFalse();
     }
 
     /// <inheritdoc/>
@@ -370,8 +371,8 @@ namespace Xtensive.Orm.Providers
 
       isDisposed = true;
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
-        await driver.DisposeConnectionAsync(Session, connection).ConfigureAwait(false);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwaitFalse();
+        await driver.DisposeConnectionAsync(Session, connection).ConfigureAwaitFalse();
       }
     }
 

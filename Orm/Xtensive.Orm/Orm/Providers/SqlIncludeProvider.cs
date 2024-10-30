@@ -76,13 +76,13 @@ namespace Xtensive.Orm.Providers
 
     protected internal override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
-      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwaitFalse();
       var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
         case IncludeAlgorithm.Auto:
           var filterData = filterDataSource.Invoke(parameterContext).ToList();
           if (filterData.Count > DomainHandler.Domain.Configuration.MaxNumberOfConditions)
-            await LockAndStoreAsync(context, filterData, token).ConfigureAwait(false);
+            await LockAndStoreAsync(context, filterData, token).ConfigureAwaitFalse();
           else
             parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);
           break;
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Providers
           // nothing
           break;
         case IncludeAlgorithm.TemporaryTable:
-          await LockAndStoreAsync(context, filterDataSource.Invoke(parameterContext), token).ConfigureAwait(false);
+          await LockAndStoreAsync(context, filterDataSource.Invoke(parameterContext), token).ConfigureAwaitFalse();
           break;
         default:
           throw new ArgumentOutOfRangeException("Origin.Algorithm");

@@ -26,15 +26,15 @@ namespace Xtensive.Orm.Upgrade
       var result = new SqlWorkerResult();
       var executor = new SqlExecutor(services.StorageDriver, services.Connection);
       if ((task & SqlWorkerTask.DropSchema) > 0) {
-        await DropSchemaAsync(services, executor, token).ConfigureAwait(false);
+        await DropSchemaAsync(services, executor, token).ConfigureAwaitFalse();
       }
 
       if ((task & SqlWorkerTask.ExtractSchema) > 0) {
-        result.Schema = await ExtractSchemaAsync(services, executor, token).ConfigureAwait(false);
+        result.Schema = await ExtractSchemaAsync(services, executor, token).ConfigureAwaitFalse();
       }
 
       if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0) {
-        await ExtractMetadataAsync(services, executor, result, task, token).ConfigureAwait(false);
+        await ExtractMetadataAsync(services, executor, result, task, token).ConfigureAwaitFalse();
       }
 
       return result;
@@ -51,15 +51,15 @@ namespace Xtensive.Orm.Upgrade
         .Where(metadataTask => !ShouldSkipMetadataExtraction(mapping, result, metadataTask))) {
         try {
           if (task.HasFlag(SqlWorkerTask.ExtractMetadataAssemblies)) {
-            await metadataExtractor.ExtractAssembliesAsync(set, metadataTask, token).ConfigureAwait(false);
+            await metadataExtractor.ExtractAssembliesAsync(set, metadataTask, token).ConfigureAwaitFalse();
           }
 
           if (task.HasFlag(SqlWorkerTask.ExtractMetadataTypes)) {
-            await metadataExtractor.ExtractTypesAsync(set, metadataTask, token).ConfigureAwait(false);
+            await metadataExtractor.ExtractTypesAsync(set, metadataTask, token).ConfigureAwaitFalse();
           }
 
           if (task.HasFlag(SqlWorkerTask.ExtractMetadataExtension)) {
-            await metadataExtractor.ExtractExtensionsAsync(set, metadataTask, token).ConfigureAwait(false);
+            await metadataExtractor.ExtractExtensionsAsync(set, metadataTask, token).ConfigureAwaitFalse();
           }
         }
         catch (Exception exception) {
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Upgrade
       UpgradeServiceAccessor services, ISqlExecutor executor, CancellationToken token)
     {
       var extractionTasks = services.MappingResolver.GetSchemaTasks();
-      var extractionResult = await executor.ExtractAsync(extractionTasks, token).ConfigureAwait(false);
+      var extractionResult = await executor.ExtractAsync(extractionTasks, token).ConfigureAwaitFalse();
       var schema = new SchemaExtractionResult(extractionResult);
       return new IgnoreRulesHandler(schema, services.Configuration, services.MappingResolver).Handle();
     }
@@ -111,14 +111,14 @@ namespace Xtensive.Orm.Upgrade
       UpgradeServiceAccessor services, ISqlExecutor executor, CancellationToken token)
     {
       var driver = services.StorageDriver;
-      var extractionResult = await ExtractSchemaAsync(services, executor, token).ConfigureAwait(false);
+      var extractionResult = await ExtractSchemaAsync(services, executor, token).ConfigureAwaitFalse();
       var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToList();
       var tables = schemas.SelectMany(s => s.Tables).ToList();
       var sequences = schemas.SelectMany(s => s.Sequences);
 
-      await DropForeignKeysAsync(driver, tables, executor, token).ConfigureAwait(false);
-      await DropTablesAsync(driver, tables, executor, token).ConfigureAwait(false);
-      await DropSequencesAsync(driver, sequences, executor,token).ConfigureAwait(false);
+      await DropForeignKeysAsync(driver, tables, executor, token).ConfigureAwaitFalse();
+      await DropTablesAsync(driver, tables, executor, token).ConfigureAwaitFalse();
+      await DropSequencesAsync(driver, sequences, executor,token).ConfigureAwaitFalse();
     }
 
     private static Task DropSequencesAsync(

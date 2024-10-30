@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Providers
     public async ValueTask DisposeAsync()
     {
       // Dispose the reader first, at least firebird provider requires it
-      await Reader.DisposeAsync().ConfigureAwait(false);
-      await Command.DisposeAsync().ConfigureAwait(false);
+      await Reader.DisposeAsync().ConfigureAwaitFalse();
+      await Command.DisposeAsync().ConfigureAwaitFalse();
     }
 
     // Constructors
