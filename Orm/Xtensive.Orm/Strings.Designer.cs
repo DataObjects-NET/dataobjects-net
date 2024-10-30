@@ -7121,11 +7121,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SQL error occured..
+        ///   Looks up a localized string similar to SQL error occurred..
         /// </summary>
         internal static string SqlErrorOccured {
             get {
-                return ResourceManager.GetString("SqlErrorOccured", resourceCulture);
+                return ResourceManager.GetString("SqlErrorOccurred", resourceCulture);
             }
         }
         

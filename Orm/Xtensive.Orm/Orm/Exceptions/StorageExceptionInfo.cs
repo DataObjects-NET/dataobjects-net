@@ -20,11 +20,11 @@ namespace Xtensive.Orm
   public class StorageExceptionInfo
   {
     /// <summary>
-    /// Type in which error occured (if any).
+    /// Type in which error occurred (if any).
     /// </summary>
     public TypeInfo Type { get; private set; }
     /// <summary>
-    /// Field in which error occured (if any).
+    /// Field in which error occurred (if any).
     /// </summary>
     public FieldInfo Field { get; private set; }
     /// <summary>
