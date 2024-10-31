@@ -583,6 +583,23 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual("Leonie", result2[0]);
     }
 
+    [Test]
+    public void UnusedLetImpactsQueryTest()
+    {
+      var allIds = Session.Query.All<Invoice>().Select(o => o.InvoiceId).ToArray();
+      var existingIds = allIds.Take(2).ToArray();
+      var nonExistingIds = new[] { allIds.Max() + 1 };
+      var count1 = (from invoice in Session.Query.All<Invoice>()
+                    where invoice.InvoiceId.In(existingIds)
+                    select invoice).Count();
+      var count2 = (from invoice in Session.Query.All<Invoice>()
+                    let foo = invoice.InvoiceId.In(nonExistingIds)
+                    where invoice.InvoiceId.In(existingIds)
+                    select invoice).Count();
+      Assert.Greater(count1, 0);
+      Assert.Greater(count2, 0);
+    }
+
     private IEnumerable<Customer> GetCustomers(params string[] customerNames)
     {
       return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
