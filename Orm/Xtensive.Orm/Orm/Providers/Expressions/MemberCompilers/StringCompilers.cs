@@ -139,17 +139,38 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Trim(_this);
     }
 
+    [Compiler(typeof(string), nameof(string.TrimStart))]
+    public static SqlExpression StringTrimStart(SqlExpression _this)
+    {
+      return SqlDml.Trim(_this, SqlTrimType.Leading);
+    }
+
+    [Compiler(typeof(string), nameof(string.TrimEnd))]
+    public static SqlExpression StringTrimEnd(SqlExpression _this)
+    {
+      return SqlDml.Trim(_this, SqlTrimType.Trailing);
+    }
+
     private static SqlExpression GenericTrim(SqlExpression _this, SqlExpression trimChars, SqlTrimType trimType)
     {
-      if (trimChars is SqlNull)
+      if (trimChars is SqlNull) {
         return SqlDml.Trim(_this, trimType);
-      if (!(trimChars is SqlContainer container))
-        throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
-      if (!(container.Value is char[] chars))
-        throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
-      return chars.Length==0
-        ? SqlDml.Trim(_this, trimType)
-        : SqlDml.Trim(_this, trimType, new string(chars));
+      }
+      if (trimChars is SqlLiteral<char> oneChar) {
+        return SqlDml.Trim(_this, trimType, oneChar.Value.ToString());
+      }
+      if (trimChars is SqlContainer container && container.Value is char[] chars) {
+        if (chars.Length == 0) {
+          return SqlDml.Trim(_this, trimType);
+        }
+
+        var context = ExpressionTranslationContext.Current;
+        var provider = context.ProviderInfo.ProviderName;
+        return provider.Equals(WellKnown.Provider.Firebird, StringComparison.Ordinal)
+          ? chars.Aggregate(_this, (current, @char) => SqlDml.Trim(current, trimType, @char.ToString()))
+          :  SqlDml.Trim(_this, trimType, new string(chars));
+      }
+      throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
     }
 
     [Compiler(typeof(string), nameof(string.Trim))]
@@ -159,6 +180,13 @@ namespace Xtensive.Orm.Providers
       return GenericTrim(_this, trimChars, SqlTrimType.Both);
     }
 
+    [Compiler(typeof(string), nameof(string.Trim))]
+    public static SqlExpression StringTrimOneChar(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression trimChar)
+    {
+      return GenericTrim(_this, trimChar, SqlTrimType.Both);
+    }
+
     [Compiler(typeof(string), nameof(string.TrimStart))]
     public static SqlExpression StringTrimStart(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
@@ -166,11 +194,25 @@ namespace Xtensive.Orm.Providers
       return GenericTrim(_this, trimChars, SqlTrimType.Leading);
     }
 
+    [Compiler(typeof(string), nameof(string.TrimStart))]
+    public static SqlExpression StringTrimStartOneChar(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression trimChar)
+    {
+      return GenericTrim(_this, trimChar, SqlTrimType.Leading);
+    }
+
     [Compiler(typeof(string), nameof(string.TrimEnd))]
     public static SqlExpression StringTrimEnd(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return GenericTrim(_this, trimChars, SqlTrimType.Trailing);
+    }
+
+    [Compiler(typeof(string), nameof(string.TrimEnd))]
+    public static SqlExpression StringTrimEndOneChar(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression trimChar)
+    {
+      return GenericTrim(_this, trimChar, SqlTrimType.Trailing);
     }
 
     [Compiler(typeof(string), nameof(string.Length), TargetKind.PropertyGet)]
