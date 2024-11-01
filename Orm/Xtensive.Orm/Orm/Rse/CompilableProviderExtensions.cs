@@ -212,5 +212,12 @@ namespace Xtensive.Orm.Rse
     {
       return new VoidProvider(source.Header);
     }
+
+    internal static bool CheckIfUseLeftJoin(this CompilableProvider provider)
+    {
+      var sourceToCheck = (provider is FilterProvider filterProvider) ? filterProvider.Source : provider;
+      return (sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
+        (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter);
+    }
   }
 }

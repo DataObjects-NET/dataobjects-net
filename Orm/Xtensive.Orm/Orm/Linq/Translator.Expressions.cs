@@ -1650,7 +1650,8 @@ namespace Xtensive.Orm.Linq
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
-      var newDataSource = entityExpression.IsNullable
+
+      var newDataSource = entityExpression.IsNullable || oldDataSource.CheckIfUseLeftJoin()
         ? itemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
         : itemProjector.DataSource.Join(joinedRs, keyPairs);
       itemProjector.DataSource = newDataSource;
@@ -1675,15 +1676,15 @@ namespace Xtensive.Orm.Linq
 
       var oldDataSource = originalItemProjector.DataSource;
       var offset = oldDataSource.Header.Length;
-      var shouldUseLeftJoin = false;
+      //var shouldUseLeftJoin = false;
 
-      var sourceToCheck = (oldDataSource is FilterProvider filterProvider) ? filterProvider.Source : oldDataSource;
-      if ((sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
-          (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter)) {
-        shouldUseLeftJoin = true;
-      }
+      //var sourceToCheck = (oldDataSource is FilterProvider filterProvider) ? filterProvider.Source : oldDataSource;
+      //if ((sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
+      //    (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter)) {
+      //  shouldUseLeftJoin = true;
+      //}
 
-      var newDataSource = entityFieldExpression.IsNullable || shouldUseLeftJoin
+      var newDataSource = entityFieldExpression.IsNullable || oldDataSource.CheckIfUseLeftJoin()
         ? oldDataSource.LeftJoin(joinedRs, keyPairs)
         : oldDataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;
