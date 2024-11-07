@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private const int OrderCount = 100;
 
-    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
 
     protected override DomainConfiguration BuildConfiguration()
     {
