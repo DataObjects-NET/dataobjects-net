@@ -522,7 +522,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         catalog.DefaultSchema = schema;
       }
 
-      schema.Owner = context.UserLookup[owner];
+      if (context.UserLookup.TryGetValue(owner, out var ownerName)) {
+        schema.Owner = ownerName;
+      }
+      else {
+        throw new InvalidOperationException(string.Format(Resources.Strings.ExCantFindSchemaXOwnerWithIdYInTheListOfUsers, name, owner));
+      }
       context.SchemaMap[oid] = schema;
       context.ReversedSchemaMap[schema] = oid;
     }
