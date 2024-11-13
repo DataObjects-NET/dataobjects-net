@@ -61,11 +61,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t find schema &apos;{0}&apos; owner with oid &apos;{1}&apos; in the list of users..
+        ///   Looks up a localized string similar to Can&apos;t find schema &apos;{0}&apos; owner with oid &apos;{1}&apos; in the list of roles..
         /// </summary>
-        internal static string ExCantFindSchemaXOwnerWithIdYInTheListOfUsers {
+        internal static string ExCantFindSchemaXOwnerWithIdYInTheListOfRoles {
             get {
-                return ResourceManager.GetString("ExCantFindSchemaXOwnerWithIdYInTheListOfUsers", resourceCulture);
+                return ResourceManager.GetString("ExCantFindSchemaXOwnerWithIdYInTheListOfRoles", resourceCulture);
             }
         }
         

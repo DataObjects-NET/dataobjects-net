@@ -135,7 +135,7 @@
   <data name="ExSchemaXDoesNotExistOrBelongsToAnotherUser" xml:space="preserve">
     <value>Schema '{0}' either does not exist or belongs to another user.</value>
   </data>
-  <data name="ExCantFindSchemaXOwnerWithIdYInTheListOfUsers" xml:space="preserve">
-    <value>Can't find schema '{0}' owner with oid '{1}' in the list of users.</value>
+  <data name="ExCantFindSchemaXOwnerWithIdYInTheListOfRoles" xml:space="preserve">
+    <value>Can't find schema '{0}' owner with oid '{1}' in the list of roles.</value>
   </data>
 </root>
