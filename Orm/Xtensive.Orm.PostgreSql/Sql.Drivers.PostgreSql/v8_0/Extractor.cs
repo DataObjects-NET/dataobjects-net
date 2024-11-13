@@ -630,8 +630,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       select.Columns.Add(relationsTable["relnamespace"]);
       select.Columns.Add(tablespacesTable["spcname"]);
       select.Columns.Add(new Func<SqlCase>(() => {
-        var defCase = SqlDml.Case(relationsTable["relkind"]);
-        defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
+        var defCase = SqlDml.Case(relationsTable["relkind"])
+          .Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
         return defCase;
       })(), "definition");
       return select;
@@ -777,7 +777,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       else {
         var view = viewMap[columnOwnerId];
-        view.CreateColumn(columnName);
+        _ = view.CreateColumn(columnName);
       }
     }
 
@@ -948,8 +948,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         else {
           for (int j = 0; j < indexKey.Length; j++) {
             int colIndex = indexKey[j];
-            if (colIndex > 0)
-              index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+            if (colIndex > 0) {
+              _ = index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+            }
             else {
               //column index is 0
               //this means that this index column is an expression
@@ -1003,12 +1004,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var exprIndexInfo = expressionIndexMap[Convert.ToInt64(dataReader[1])];
       for (var j = 0; j < exprIndexInfo.Columns.Length; j++) {
         int colIndex = exprIndexInfo.Columns[j];
-        if (colIndex > 0) {
-          exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
-        }
-        else {
-          exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
-        }
+        _ = colIndex > 0
+          ? exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true)
+          : exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
       }
     }
 
