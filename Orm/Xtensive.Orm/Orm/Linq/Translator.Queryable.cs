@@ -33,7 +33,9 @@ namespace Xtensive.Orm.Linq
     private readonly TranslatorContext context;
     private readonly bool tagsEnabled;
 
-    internal TranslatorState State { get; private set; } = TranslatorState.InitState;
+    internal TranslatorState State { get; private set; } = new(TranslatorState.InitState) {
+      NonVisitableExpressions = new()
+    };
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
