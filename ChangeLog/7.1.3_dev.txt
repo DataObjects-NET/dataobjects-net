@@ -1,0 +1,1 @@
+[postgresql] Improved database structucture extraction
