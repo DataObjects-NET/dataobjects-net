@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
@@ -119,6 +120,14 @@ namespace Xtensive.Orm.Tests.Linq
         join e in Session.Query.All<Employee>() on i.DesignatedEmployee equals e
         select e;
       Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
+    }
+    
+    [Test]
+    public async Task ToListAsyncTest()
+    {
+      var customer = GetCustomer();
+      var invoices = await customer.Invoices.ToListAsync();
+      Assert.AreEqual(customer.Invoices.Count, invoices.Count);
     }
 
     private Customer GetCustomer()
