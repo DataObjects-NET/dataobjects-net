@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Linq
 
 
     /// <summary>
-    /// Expessions that were constructed during original expression translation
+    /// Expressions that were constructed during original expression translation
     /// and aim to replace original parts so they are avoidable to visit by Linq translator.
     /// </summary>
     /// <remarks>
