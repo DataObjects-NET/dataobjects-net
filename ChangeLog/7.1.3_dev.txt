@@ -1,1 +1,2 @@
 [main] Addressed race condition issue with TranslatorState.NonVisitableExpressions
+[postgresql] Improved database structucture extraction
