@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.12.02
 
@@ -89,6 +89,11 @@ namespace Xtensive.Orm.Linq
       return false;
     }
 
+    public static bool IsExtendedExpression(this Expression expression)
+    {
+      return (ExtendedExpressionType) expression.StripMarkers().NodeType >= ExtendedExpressionType.Projection;
+    }
+
     public static bool IsItemProjector(this Expression expression)
     {
       expression = expression.StripMarkers();
@@ -151,12 +156,16 @@ namespace Xtensive.Orm.Linq
 
     public static Expression StripMarkers(this Expression e)
     {
-      var ee = e as ExtendedExpression;
-      if (ee!=null && ee.ExtendedType==ExtendedExpressionType.Marker) {
-        var marker = (MarkerExpression) ee;
-        return marker.Target;
+      if ((ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Marker) {
+        return ((MarkerExpression) e).Target;
       }
       return e;
+      //var ee = e as ExtendedExpression;
+      //if (ee!=null && ee.ExtendedType==ExtendedExpressionType.Marker) {
+      //  var marker = (MarkerExpression) ee;
+      //  return marker.Target;
+      //}
+      //return e;
     }
 
     public static bool IsMarker(this Expression e)
