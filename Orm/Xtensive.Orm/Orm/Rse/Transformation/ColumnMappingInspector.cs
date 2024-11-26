@@ -42,7 +42,10 @@ namespace Xtensive.Orm.Rse.Transformation
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
+
+      var currentMapping = mappings[provider.Source];
+      var calulatedColumn = provider.Header.Columns.Last();
+      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(calulatedColumn.Index));
       if (source == provider.Source) {
         return provider;
       }
@@ -110,14 +113,36 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
-      var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      var gatheredMappings = mappingsGatherer.Gather(provider.Predicate);
+      var originalMappingsOfProvider = mappings[provider];
+      var mergedMappings = Merge(originalMappingsOfProvider, gatheredMappings);
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      mappings[provider.Source] = mergedMappings;
+      var newSourceProvider = VisitCompilable(provider.Source);
+      var updatedSourceMappings = mappings[provider.Source];
+      mappings[provider] = updatedSourceMappings;
+
+      var newPredicate = TranslateLambda(provider, provider.Predicate);
+      return newSourceProvider == provider.Source && newPredicate == provider.Predicate
         ? provider
-        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
+
+
+      //var isProviderTheSame = newSourceProvider == provider.Source;
+      //if (isProviderTheSame) {
+      //  // If new source provider is the same as old provider.Source then there must be no changes in its mappings.
+      //  // No remap needed for predicate.
+      //  //if (TranslateLambda(provider, provider.Predicate) != provider.Predicate)
+      //  //  throw new Exception("AAAA!!!! Mappings went wrong!!!");
+      //  return provider;
+      //}
+      //else {
+      //  // otherwise, there is a chance that new mappings should be applied to predicate
+      //  var newPredicate = TranslateLambda(provider, provider.Predicate);
+      //  return newPredicate == provider.Predicate
+      //    ? provider
+      //    : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
+      //}
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
