@@ -1,0 +1,1 @@
+[main] In addition to previous version, more cases of incorrect join type usage addressed
