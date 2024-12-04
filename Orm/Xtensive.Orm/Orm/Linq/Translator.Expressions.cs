@@ -1343,26 +1343,41 @@ namespace Xtensive.Orm.Linq
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
         var argument = newExpression.Arguments[memberIndex];
-        var currentLambda = state.CurrentLambda;
-        if (!(currentLambda is null) && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection)) {
-          // Here, we try to detect whether the expression has already visited, in such cases
-          // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
-          // gets projection of already visited source and substitutes parameter 'x' access with 
-          // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
-          // of OrderBy visiting, because it is the only place that sets 'true' to the property,
-          // but we can't rely on it for future-proof solution.
 
-          // Knowing that parameter-to-projection binding happens when expression has visited,
-          // we assume this check is enough for certain cases, probably not for all of them.
-          // We can't deny visiting of the argument for all the cases because of chance to break
-          // some cases we could not imagine at the time of changes
-          switch (argument.NodeType) {
-            case ExpressionType.TypeAs:
-            case ExpressionType.Convert:
-            case ExpressionType.ConvertChecked:
-              if (argument.Type == typeof(object) && state.ShouldOmitConvertToObject)
-                argument = argument.StripCasts();
-              break;
+        if (state.GroupingKey || state.OrderingKey) {
+          var requireVisit = !argument.IsExtendedExpression() && argument.NodeType switch {
+            ExpressionType.New => true,
+            ExpressionType.Call => true,
+            ExpressionType.Coalesce => true,
+            ExpressionType.Conditional => true,
+            _ => false
+          };
+
+          var currentLambda = state.CurrentLambda;
+          if (!(currentLambda is null) && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection) 
+            && !requireVisit) {
+            // Here, we try to detect whether the expression has already visited, in such cases
+            // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
+            // gets projection of already visited source and substitutes parameter 'x' access with 
+            // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
+            // of OrderBy visiting, because it is the only place that sets 'true' to the property,
+            // but we can't rely on it for future-proof solution.
+
+            // Knowing that parameter-to-projection binding happens when expression has visited,
+            // we assume this check is enough for certain cases, probably not for all of them.
+            // We can't deny visiting of the argument for all the cases because of chance to break
+            // some cases we could not imagine at the time of changes
+            switch (argument.NodeType) {
+              case ExpressionType.TypeAs:
+              case ExpressionType.Convert:
+              case ExpressionType.ConvertChecked:
+                if (argument.Type == typeof(object) && state.ShouldOmitConvertToObject)
+                  argument = argument.StripCasts();
+                break;
+            }
+          }
+          else {
+            argument = Visit(argument);
           }
         }
         else {

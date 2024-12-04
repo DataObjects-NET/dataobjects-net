@@ -25,7 +25,8 @@ namespace Xtensive.Orm.Linq
       ShouldOmitConvertToObject = 1 << 6,
       RequestCalculateExpressions = 1 << 7,
       RequestCalculateExpressionsOnce = 1 << 8,
-      SkipNullableColumnsDetectionInGroupBy = 1 << 9
+      SkipNullableColumnsDetectionInGroupBy = 1 << 9,
+      IsOrderingKey = 1 << 10,
     }
 
     internal readonly ref struct TranslatorScope
@@ -103,6 +104,14 @@ namespace Xtensive.Orm.Linq
       set => flags = value
         ? flags | TranslatorStateFlags.IsGroupingKey
         : flags & ~TranslatorStateFlags.IsGroupingKey;
+    }
+
+    public bool OrderingKey
+    {
+      get => (flags & TranslatorStateFlags.IsOrderingKey) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.IsOrderingKey
+        : flags & ~TranslatorStateFlags.IsOrderingKey;
     }
 
     public bool IsTailMethod

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.22
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, BoolType));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, Source.Header.Length, BoolType));
       var fieldTypes = new Type[FilteredColumns.Count];
       for (var index = 0; index < fieldTypes.Length; index++) {
         fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
