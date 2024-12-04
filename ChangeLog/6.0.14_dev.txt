@@ -1,1 +1,3 @@
+[main] Addressed issue of not visiting grouping expression correctly which appeared in previous version
+[main] Addressed certain issues of incorrect query optimization when it contains multiple In() calls
 [main] In addition to previous version, more cases of incorrect join type usage addressed
