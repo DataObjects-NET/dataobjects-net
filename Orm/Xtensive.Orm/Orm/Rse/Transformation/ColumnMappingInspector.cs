@@ -126,23 +126,6 @@ namespace Xtensive.Orm.Rse.Transformation
       return newSourceProvider == provider.Source && newPredicate == provider.Predicate
         ? provider
         : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
-
-
-      //var isProviderTheSame = newSourceProvider == provider.Source;
-      //if (isProviderTheSame) {
-      //  // If new source provider is the same as old provider.Source then there must be no changes in its mappings.
-      //  // No remap needed for predicate.
-      //  //if (TranslateLambda(provider, provider.Predicate) != provider.Predicate)
-      //  //  throw new Exception("AAAA!!!! Mappings went wrong!!!");
-      //  return provider;
-      //}
-      //else {
-      //  // otherwise, there is a chance that new mappings should be applied to predicate
-      //  var newPredicate = TranslateLambda(provider, provider.Predicate);
-      //  return newPredicate == provider.Predicate
-      //    ? provider
-      //    : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
-      //}
     }
 
     protected override Provider VisitJoin(JoinProvider provider)

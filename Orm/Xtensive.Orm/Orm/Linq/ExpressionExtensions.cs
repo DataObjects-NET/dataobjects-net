@@ -156,16 +156,10 @@ namespace Xtensive.Orm.Linq
 
     public static Expression StripMarkers(this Expression e)
     {
-      if ((ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Marker) {
+      if ((ExtendedExpressionType) e.NodeType == ExtendedExpressionType.Marker) {
         return ((MarkerExpression) e).Target;
       }
       return e;
-      //var ee = e as ExtendedExpression;
-      //if (ee!=null && ee.ExtendedType==ExtendedExpressionType.Marker) {
-      //  var marker = (MarkerExpression) ee;
-      //  return marker.Target;
-      //}
-      //return e;
     }
 
     public static bool IsMarker(this Expression e)
