@@ -1116,6 +1116,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case10Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
@@ -1211,6 +1213,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case11Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
@@ -1304,6 +1308,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case12Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
@@ -1399,6 +1405,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case13Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
@@ -1492,6 +1500,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case14Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
@@ -1577,6 +1587,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case15Test()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
       var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
