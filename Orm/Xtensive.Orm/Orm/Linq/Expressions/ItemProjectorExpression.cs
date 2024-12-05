@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Linq.Expressions
             rightIndex++;
           }
           var offset = dataSource.Header.Length;
-          dataSource = entityExpression.IsNullable || dataSource.CheckIfUseLeftJoin()
+          dataSource = entityExpression.IsNullable || dataSource.CheckIfLeftJoinPrefered()
             ? dataSource.LeftJoin(joinedRs, keyPairs)
             : dataSource.Join(joinedRs, keyPairs);
           EntityExpression.Fill(entityExpression, offset);
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Linq.Expressions
             rightIndex++;
           }
           var offset = dataSource.Header.Length;
-          dataSource = entityFieldExpression.IsNullable || dataSource.CheckIfUseLeftJoin()
+          dataSource = entityFieldExpression.IsNullable || dataSource.CheckIfLeftJoinPrefered()
             ? dataSource.LeftJoin(joinedRs, keyPairs)
             : dataSource.Join(joinedRs, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);

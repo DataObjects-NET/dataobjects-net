@@ -1666,7 +1666,7 @@ namespace Xtensive.Orm.Linq
       int offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
 
-      var newDataSource = entityExpression.IsNullable || oldDataSource.CheckIfUseLeftJoin()
+      var newDataSource = entityExpression.IsNullable || oldDataSource.CheckIfLeftJoinPrefered()
         ? itemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
         : itemProjector.DataSource.Join(joinedRs, keyPairs);
       itemProjector.DataSource = newDataSource;
@@ -1691,7 +1691,7 @@ namespace Xtensive.Orm.Linq
 
       var oldDataSource = originalItemProjector.DataSource;
       var offset = oldDataSource.Header.Length;
-      var newDataSource = entityFieldExpression.IsNullable || oldDataSource.CheckIfUseLeftJoin()
+      var newDataSource = entityFieldExpression.IsNullable || oldDataSource.CheckIfLeftJoinPrefered()
         ? oldDataSource.LeftJoin(joinedRs, keyPairs)
         : oldDataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;
