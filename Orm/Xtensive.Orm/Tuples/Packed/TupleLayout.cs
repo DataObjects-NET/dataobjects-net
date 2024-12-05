@@ -32,7 +32,7 @@ namespace Xtensive.Tuples.Packed
       public int Val128Counter;
     }
 
-        private static class ValueFieldAccessorResolver
+    private static class ValueFieldAccessorResolver
     {
       private static readonly ValueFieldAccessor BoolAccessor = new BooleanFieldAccessor();
       private static readonly ValueFieldAccessor ByteAccessor = new ByteFieldAccessor();
