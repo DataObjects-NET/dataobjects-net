@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
 
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
     }
 
     protected override void PopulateData()
