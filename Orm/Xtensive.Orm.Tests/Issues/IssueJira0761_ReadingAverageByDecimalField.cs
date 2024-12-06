@@ -1,19 +1,129 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.02.14
 
-using System;
-using System.Data.SqlTypes;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel;
-using Xtensive.Sql.Drivers.SqlServer;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel
 {
+  [HierarchyRoot]
+  public class DecimalValueStructureEntityByRefCase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public DecimalValueStructureCase Ref { get; set; }
+
+    public DecimalValueStructureEntityByRefCase(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  public class DecimalValueStructure : Structure
+  {
+    [Field(Precision = 19, Scale = 5)]
+    public decimal Value { get; set; }
+
+    [Field]
+    public int Code { get; set; }
+
+    public DecimalValueStructure(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class DecimalValueStructureCase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public DecimalValueStructure Struct { get; set; }
+
+    [Field(Precision = 19, Scale = 5)]
+    public decimal AdditionalValue { get; set; }
+
+    public DecimalValueStructureCase(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class KeyValueByEntityRefCase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public KeyExpressionCase Ref { get; set; }
+
+    public KeyValueByEntityRefCase(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class KeyExpressionCase : Entity
+  {
+    [Field(Precision = 19, Scale = 5), Key]
+    public decimal Id { get; private set; }
+
+    [Field]
+    public int SomeValue { get; set; }
+
+    [Field(Precision = 19, Scale = 5)]
+    public decimal AdditionalValue { get; set; }
+
+    public KeyExpressionCase(Session session, decimal id)
+      : base(session, id)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class ValueByEntityRefCase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public DirectFieldValueCase Ref { get; set; }
+
+    public ValueByEntityRefCase(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class DirectFieldValueCase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field(Precision = 19, Scale = 5)]
+    public decimal Accepted { get; set; }
+
+    [Field(Precision = 19, Scale = 5)]
+    public decimal AdditionalValue { get; set; }
+
+    public DirectFieldValueCase(Session session)
+      : base(session)
+    {
+    }
+  }
+
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -91,12 +201,33 @@ namespace Xtensive.Orm.Tests.Issues
           };
         }
 
+        foreach (var i in Enumerable.Range(1, 1000)) {
+          _ = new ValueByEntityRefCase(session) {
+            Ref = new DirectFieldValueCase(session) {
+              Accepted = 163767
+            }
+          };
+
+          _ = new KeyValueByEntityRefCase(session) {
+            Ref = new KeyExpressionCase(session, 163767 + i)
+          };
+
+          _ = new DecimalValueStructureEntityByRefCase(session) {
+            Ref = new DecimalValueStructureCase(session) {
+              Struct = new DecimalValueStructure(session) {
+                Value = 163767,
+                Code = i
+              }
+            }
+          };
+        }
+
         tx.Complete();
       }
     }
 
     [Test]
-    public void AverageTest()
+    public void AverageComplexTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -143,7 +274,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void SumTest()
+    public void SumComplexTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -186,6 +317,62 @@ namespace Xtensive.Orm.Tests.Issues
         queryResult = session.Query.All<Order>().Sum(o => o.Sum10);
         localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum10);
         Assert.That(queryResult, Is.EqualTo(localResult));
+      }
+    }
+
+    [Test]
+    public void DirectFieldValueCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<DirectFieldValueCase>().Sum(a => a.Accepted);
+        results = session.Query.All<DirectFieldValueCase>().Sum(a => a.Accepted + a.AdditionalValue);
+        results = session.Query.All<DirectFieldValueCase>().Sum(a => a.Accepted + 1m);
+      }
+    }
+
+    [Test]
+    public void ValueByEntityRefCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<ValueByEntityRefCase>().Sum(a => a.Ref.Accepted);
+      }
+    }
+
+    [Test]
+    public void KeyExpressionCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<KeyExpressionCase>().Sum(a => a.Id);
+      }
+    }
+
+    [Test]
+    public void KeyValueByEntityRefCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<KeyValueByEntityRefCase>().Sum(a => a.Ref.Id);
+      }
+    }
+
+    [Test]
+    public void DecimalValueStructureCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<DecimalValueStructureCase>().Sum(a => a.Struct.Value);
+      }
+    }
+
+    [Test]
+    public void DecimalValueStructureEntityByRefCase()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var results = session.Query.All<DecimalValueStructureEntityByRefCase>().Sum(a => a.Ref.Struct.Value);
       }
     }
   }
