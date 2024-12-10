@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.27
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -18,6 +19,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
+    private static readonly Type DecimalType = typeof(decimal);
+
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       var rankColumnName = provider.Header.Columns[provider.Header.Columns.Count - 1].Name;
@@ -55,12 +58,18 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-      if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
+      var aggregateType = aggregateColumn.AggregateType;
+      var originCalculateColumn = source.Origin.Header.Columns[aggregateColumn.SourceIndex];
+      if (aggregateType == AggregateType.Sum || aggregateType == AggregateType.Avg) {
+        if (!IsCalculatedColumn(originCalculateColumn) && aggregateColumn.Type == DecimalType) {
+            return result;
+        }
         result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
       }
-
       return result;
     }
+
+    private bool IsCalculatedColumn(Column column) => column is CalculatedColumn;
 
     public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
       : base(handlers, configuration)
