@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -206,7 +206,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -316,7 +318,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ByteValue + i.ByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -327,7 +329,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ByteValue + (float) i.ByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ByteValue + (float) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -404,7 +406,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.ByteValue + i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.ByteValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -514,7 +516,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.SByteValue + i.SByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -525,7 +527,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.SByteValue + (float) i.SByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.SByteValue + (float) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -613,7 +615,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.SByteValue + i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.SByteValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -701,7 +703,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ShortValue + i.ShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -712,7 +714,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ShortValue + (float) i.ShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ShortValue + (float) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -800,7 +802,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.ShortValue + i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.ShortValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -888,7 +890,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.UShortValue + i.UShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -899,7 +901,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.UShortValue + (float) i.UShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.UShortValue + (float) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -987,7 +989,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.UShortValue + i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.UShortValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1053,7 +1055,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.IntValue * i.IntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.IntValue * i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1064,7 +1066,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.IntValue * (float) i.IntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.IntValue * (float) i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1141,7 +1143,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.IntValue * i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.IntValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1207,7 +1209,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.UIntValue * i.UIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.UIntValue * i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1218,7 +1220,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.UIntValue * (float) i.UIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.UIntValue * (float) i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1295,7 +1297,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.UIntValue * i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.UIntValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1339,7 +1341,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.LongValue * i.LongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.LongValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1350,7 +1352,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.LongValue * (float) i.LongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.LongValue * (float) i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1405,7 +1407,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.LongValue * i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.LongValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1438,7 +1440,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ULongValue * i.ULongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ULongValue * i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1449,7 +1451,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float) i.ULongValue * (float) i.ULongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ULongValue * (float) i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1504,7 +1506,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.ULongValue * i.FloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.ULongValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1713,7 +1715,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableByteValue + i.NullableByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1724,7 +1728,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableByteValue + (float?) i.NullableByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableByteValue + (float?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1801,7 +1807,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableByteValue + i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableByteValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1911,7 +1919,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableSByteValue + i.NullableSByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -1922,7 +1932,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableSByteValue + (float?) i.NullableSByteValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableSByteValue + (float?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2010,7 +2022,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableSByteValue + i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableSByteValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2098,7 +2112,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableShortValue + i.NullableShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2109,7 +2125,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableShortValue + (float?) i.NullableShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float) i.ShortValue + (float?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2197,7 +2215,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableShortValue + i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableShortValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2285,7 +2305,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableUShortValue + i.NullableUShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2296,7 +2318,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableUShortValue + (float?) i.NullableUShortValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableUShortValue + (float?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2384,7 +2408,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableUShortValue + i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableUShortValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2450,7 +2476,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableIntValue * i.NullableIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableIntValue * i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2461,7 +2489,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableIntValue * (float?) i.NullableIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableIntValue * (float?) i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2538,7 +2568,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableIntValue * i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableIntValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2604,7 +2636,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableUIntValue * i.NullableUIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2615,7 +2649,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableUIntValue * (float?) i.NullableUIntValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableUIntValue * (float?) i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2692,7 +2728,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableUIntValue * i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableUIntValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2736,7 +2774,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableLongValue * i.NullableLongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableLongValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2747,7 +2787,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableLongValue * (float?) i.NullableLongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableLongValue * (float?) i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2802,7 +2844,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableLongValue * i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableLongValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2835,7 +2879,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableULongValue * i.NullableULongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableULongValue * i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2846,7 +2892,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => (float?) i.NullableULongValue * (float?) i.NullableULongValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => (float?) i.NullableULongValue * (float?) i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2901,7 +2949,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableULongValue * i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableULongValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }
 
@@ -2934,6 +2984,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Sum(i => i.NullableFloatValue * i.NullableFloatValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Sum(i => i.NullableFloatValue * i.NullableFloatValue);
+        Assert.That(enumerableResult.HasValue, Is.True);
+        Assert.That(queryableResult.HasValue, Is.True);
         Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
       }
     }

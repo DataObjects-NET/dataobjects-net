@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -1614,7 +1614,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.DoubleValue1 * i.DecimalValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.DoubleValue1 * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DoubleValueAccuracy));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(DoubleValueAccuracy));
       }
     }
 
@@ -1625,7 +1625,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Average(i => i.DecimalValue * i.DecimalValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.DecimalValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
+        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(DecimalValueAccuracy));
       }
     }
 
@@ -3011,7 +3011,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DoubleValueAccuracy));
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(DoubleValueAccuracy));
       }
     }
 

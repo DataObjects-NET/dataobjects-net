@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -15,9 +15,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
 {
   public abstract class AggregatesProblemTestBase : AutoBuildTest
   {
-    protected const decimal FloatValueAccuracy = 0.000001m;
-    protected const decimal DoubleValueAccuracy = 0.00000000000001m;
-    protected const decimal DecimalValueAccuracy = 0.00000000000000001m;
+    private bool refillDatabase = false;
+
+    protected decimal FloatValueAccuracy { get; private set; } = 0.000001m;
+    protected decimal DoubleValueAccuracy { get; private set; } = 0.00000000000001m;
+    protected decimal DecimalValueAccuracy { get; private set; } = 0.00000000000000001m;
+
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
@@ -31,6 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
         throw;
       }
 
+      refillDatabase = true;
       var secondTryConfig = configuration.Clone();
       secondTryConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       return base.BuildDomain(secondTryConfig);
@@ -44,13 +48,24 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       return configuration;
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
-    }
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
 
     protected override void PopulateData()
     {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        // We have to change some scales of result values of average in SQL
+        // because PostgreSQL does not provide ways to read raw value and reduce it
+        // to fit into .NET decimal value, as we reduce scale for values in MS SQL Server provider.
+
+        FloatValueAccuracy = 0.00001m;
+        DoubleValueAccuracy = 0.00001m;
+        DecimalValueAccuracy = 0.00001m;
+      }
+
+      if (!refillDatabase)
+        return;
+
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         _ = new TestEntity() {
