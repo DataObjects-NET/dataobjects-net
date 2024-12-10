@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2019.02.14
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -232,50 +233,52 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var queryResult = session.Query.All<Order>().Average(o => o.Sum);
-        var localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum);
-        Assert.That(queryResult, Is.EqualTo(localResult + 0.03m));
+        var fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.11m).Or.EqualTo(0.12m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum2);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum2);
-        Assert.That(queryResult, Is.EqualTo(localResult + 0.06m));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.3m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum3);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum3);
-        Assert.That(queryResult, Is.EqualTo(localResult + 0.006m));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.33m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum4);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum4);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum5);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum5);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.3333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum6);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum6);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.33333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum7);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum7);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.333333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum8);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum8);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.3333333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum9);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum9);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.33333333m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum10);
-        localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum10);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        fraction = queryResult - Math.Floor(queryResult);
+        Assert.That(fraction, Is.EqualTo(0.333333333m));
       }
     }
 
     [Test]
     public void SumComplexTest()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, " MS SQL Server has scale reduction algorithm, PgSql doesn't");
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var queryResult = session.Query.All<Order>().Sum(o => o.Sum);
@@ -337,6 +340,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var results = session.Query.All<ValueByEntityRefCase>().Sum(a => a.Ref.Accepted);
+        results = session.Query.All<ValueByEntityRefCase>().Sum(a => a.Ref.Accepted + a.Ref.AdditionalValue);
+        results = session.Query.All<ValueByEntityRefCase>().Sum(a => a.Ref.Accepted + 1m);
       }
     }
 
@@ -346,6 +351,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var results = session.Query.All<KeyExpressionCase>().Sum(a => a.Id);
+        results = session.Query.All<KeyExpressionCase>().Sum(a => a.Id + a.AdditionalValue);
+        results = session.Query.All<KeyExpressionCase>().Sum(a => a.Id + 1m);
       }
     }
 
@@ -355,6 +362,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var results = session.Query.All<KeyValueByEntityRefCase>().Sum(a => a.Ref.Id);
+        results = session.Query.All<KeyValueByEntityRefCase>().Sum(a => a.Ref.Id + a.Ref.AdditionalValue);
+        results = session.Query.All<KeyValueByEntityRefCase>().Sum(a => a.Ref.Id + 1m);
       }
     }
 
@@ -364,6 +373,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var results = session.Query.All<DecimalValueStructureCase>().Sum(a => a.Struct.Value);
+        results = session.Query.All<DecimalValueStructureCase>().Sum(a => a.Struct.Value + a.AdditionalValue);
+        results = session.Query.All<DecimalValueStructureCase>().Sum(a => a.Struct.Value + 1m);
       }
     }
 
@@ -373,6 +384,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var results = session.Query.All<DecimalValueStructureEntityByRefCase>().Sum(a => a.Ref.Struct.Value);
+        results = session.Query.All<DecimalValueStructureEntityByRefCase>().Sum(a => a.Ref.Struct.Value + a.Ref.AdditionalValue);
+        results = session.Query.All<DecimalValueStructureEntityByRefCase>().Sum(a => a.Ref.Struct.Value + 1m);
       }
     }
   }
