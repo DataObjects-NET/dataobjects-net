@@ -710,11 +710,23 @@ namespace Xtensive.Orm.Linq
       MethodCallExpression expressionPart)
     {
       var aggregateType = ExtractAggregateType(expressionPart);
+      
       var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
       var originProjection = origin.First;
       var originColumnIndex = origin.Second;
-      var aggregateDescriptor = new AggregateColumnDescriptor(
-        context.GetNextColumnAlias(), originColumnIndex, aggregateType);
+
+      // experiments
+
+      var headerColumns = originProjection.ItemProjector.DataSource.Header.Columns;
+      var aggregatedColumn = headerColumns[originColumnIndex];
+
+      // For decimal type we try to guess result precision and scale to avoid
+      // usage of general values which can create some issues result reading
+      (int precision, int scale)? aggregateTypeHints = TryGuessDecimalPrecisionAndSclale(aggregatedColumn, headerColumns, context.Model);
+
+      var aggregateDescriptor = aggregateTypeHints.HasValue
+        ? new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType, aggregateTypeHints.Value)
+        : new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
       var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
 
@@ -796,6 +808,68 @@ namespace Xtensive.Orm.Linq
         return Expression.Convert(result, resultType);
       }
       return result;
+
+
+      static (int, int)? TryGuessDecimalPrecisionAndSclale(Column aggregatedColumn, Rse.ColumnCollection headerColumns, Orm.Model.DomainModel domainModel)
+      {
+        if (aggregatedColumn.Type != WellKnownTypes.Decimal)
+          return null;
+
+        if (aggregatedColumn is MappedColumn mColumn) {
+          var resolvedColumn = mColumn.ColumnInfoRef.Resolve(domainModel);
+          if (resolvedColumn.Precision.HasValue && resolvedColumn.Scale.HasValue)
+            return (resolvedColumn.Precision.Value, resolvedColumn.Scale.Value);
+        }
+        else if (aggregatedColumn is CalculatedColumn cColumn) {
+          var expression = cColumn.Expression;
+          var usedColumns = new Rse.Transformation.TupleAccessGatherer().Gather(expression);
+
+          var maxFloorDigits = 0;
+          var maxScaleDigits = 0;
+          foreach (var cIndex in usedColumns) {
+            var usedColumn = headerColumns[cIndex];
+            if (usedColumn is MappedColumn mmColumn) {
+              var resolvedColumn = mmColumn.ColumnInfoRef.Resolve(domainModel);
+              var precision = resolvedColumn.Precision;
+              var scale = resolvedColumn.Scale;
+              if (resolvedColumn.ValueType != WellKnownTypes.Decimal) {
+                if (!precision.HasValue) {
+                  precision = Type.GetTypeCode(resolvedColumn.ValueType) switch {
+                    TypeCode.Byte or TypeCode.SByte => 8,
+                    TypeCode.UInt16 or TypeCode.Int16=> 10,
+                    TypeCode.UInt32 => 18,
+                    TypeCode.UInt64 or TypeCode.Int64 => 28,
+                    TypeCode.Int32 => 19,
+                    _ => null
+                  };
+                }
+
+                if (!scale.HasValue) {
+                  scale = Type.GetTypeCode(resolvedColumn.ValueType) switch {
+                    TypeCode.Byte or TypeCode.SByte or TypeCode.UInt16 or TypeCode.Int16 => 5,
+                    TypeCode.UInt32 or TypeCode.Int32 or TypeCode.UInt64 or TypeCode.Int64 => 8,
+                    _ => null
+                  };
+                }
+              }
+
+              if (precision.HasValue && scale.HasValue) {
+                if (maxScaleDigits < scale.Value)
+                  maxScaleDigits = scale.Value;
+                var floorDigits = precision.Value - scale.Value;
+                if (maxFloorDigits < floorDigits)
+                  maxFloorDigits = floorDigits;
+              }
+            }
+          }
+          if (maxFloorDigits == 0 && maxScaleDigits == 0)
+            return null;
+          if (maxFloorDigits + maxScaleDigits <= 28)
+            return (maxFloorDigits + maxScaleDigits, maxScaleDigits);
+        }
+
+        return null;
+      }
     }
 
     private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right,
