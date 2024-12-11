@@ -8,7 +8,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
+namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   public sealed class AverageProcessingTest : AggregatesProblemTestBase
   {

@@ -11,7 +11,7 @@ using System.Text;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
+namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   public abstract class AggregatesProblemTestBase : AutoBuildTest
   {
