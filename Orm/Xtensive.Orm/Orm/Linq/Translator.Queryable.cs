@@ -824,45 +824,32 @@ namespace Xtensive.Orm.Linq
           var expression = cColumn.Expression;
           var usedColumns = new Rse.Transformation.TupleAccessGatherer().Gather(expression);
 
-          var maxFloorDigits = 0;
-          var maxScaleDigits = 0;
-          foreach (var cIndex in usedColumns) {
+          var maxFloorDigits = -1;
+          var maxScaleDigits = -1;
+          foreach (var cIndex in usedColumns.Distinct()) {
             var usedColumn = headerColumns[cIndex];
             if (usedColumn is MappedColumn mmColumn) {
               var resolvedColumn = mmColumn.ColumnInfoRef.Resolve(domainModel);
-              var precision = resolvedColumn.Precision;
-              var scale = resolvedColumn.Scale;
-              if (resolvedColumn.ValueType != WellKnownTypes.Decimal) {
-                if (!precision.HasValue) {
-                  precision = Type.GetTypeCode(resolvedColumn.ValueType) switch {
-                    TypeCode.Byte or TypeCode.SByte => 8,
-                    TypeCode.UInt16 or TypeCode.Int16=> 10,
-                    TypeCode.UInt32 => 18,
-                    TypeCode.UInt64 or TypeCode.Int64 => 28,
-                    TypeCode.Int32 => 19,
-                    _ => null
-                  };
-                }
 
-                if (!scale.HasValue) {
-                  scale = Type.GetTypeCode(resolvedColumn.ValueType) switch {
-                    TypeCode.Byte or TypeCode.SByte or TypeCode.UInt16 or TypeCode.Int16 => 5,
-                    TypeCode.UInt32 or TypeCode.Int32 or TypeCode.UInt64 or TypeCode.Int64 => 8,
-                    _ => null
-                  };
-                }
-              }
+              (int? p, int? s) @params = Type.GetTypeCode(resolvedColumn.ValueType) switch {
+                TypeCode.Decimal => (resolvedColumn.Precision, resolvedColumn.Scale),
+                TypeCode.Int32 or TypeCode.UInt32 => (19, 8),
+                TypeCode.Int64 or TypeCode.UInt64 => (28, 8),
+                TypeCode.Byte  or TypeCode.SByte => (8, 5),
+                TypeCode.Int16 or TypeCode.UInt16 => (10, 5),
+                _ => (null, null),
+              };
 
-              if (precision.HasValue && scale.HasValue) {
-                if (maxScaleDigits < scale.Value)
-                  maxScaleDigits = scale.Value;
-                var floorDigits = precision.Value - scale.Value;
+              if (@params.p.HasValue && @params.s.HasValue) {
+                if (maxScaleDigits < @params.s.Value)
+                  maxScaleDigits = @params.s.Value;
+                var floorDigits = @params.p.Value - @params.s.Value;
                 if (maxFloorDigits < floorDigits)
                   maxFloorDigits = floorDigits;
               }
             }
           }
-          if (maxFloorDigits == 0 && maxScaleDigits == 0)
+          if (maxFloorDigits == -1 || maxScaleDigits == -1)
             return null;
           if (maxFloorDigits + maxScaleDigits <= 28)
             return (maxFloorDigits + maxScaleDigits, maxScaleDigits);
