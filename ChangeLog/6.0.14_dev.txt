@@ -1,4 +1,9 @@
 [main] Addressed issue of not visiting grouping expression correctly which appeared in previous version
 [main] Addressed certain issues of incorrect query optimization when it contains multiple In() calls
 [main] In addition to previous version, more cases of incorrect join type usage addressed
+[firebird] Updated client library package to version 6.7.0
+[mysql] Updated client library package to version  6.10.9
+[oracle] Updated client library package to version 2.18.151
 [postgresql] Updated Npgsql package to version 4.0.17 which patches some vulnerablity issues
+[sqlserver] Updated client library package to version 4.8.6
+[sqlite] Updated client library package to version 1.0.119
