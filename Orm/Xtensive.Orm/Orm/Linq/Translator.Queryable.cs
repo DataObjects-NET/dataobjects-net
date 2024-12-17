@@ -1103,6 +1103,7 @@ namespace Xtensive.Orm.Linq
         using (state.CreateScope()) {
           state.ShouldOmitConvertToObject = true;
           state.CalculateExpressions = true;
+          state.OrderingKey = true;
           var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
           var columns = orderByProjector
             .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct);
