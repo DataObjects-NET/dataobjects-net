@@ -1,2 +1,3 @@
+[main] Addressed issue of not visiting grouping expression correctly which appeared in previous version
 [mysql] Updated client library package to version 8.0.31
 [postgresql] Updated client library package to version 4.1.14
