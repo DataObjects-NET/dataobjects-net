@@ -1,0 +1,2 @@
+[mysql] Updated client library package to version 8.0.31
+[postgresql] Updated client library package to version 4.1.14
