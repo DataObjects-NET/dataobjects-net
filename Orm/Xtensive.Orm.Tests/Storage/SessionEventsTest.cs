@@ -10,7 +10,7 @@ using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.SessionEventsTestModel;
 using System.Threading.Tasks;
-using Renci.SshNet;
+//using Renci.SshNet;
 using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
