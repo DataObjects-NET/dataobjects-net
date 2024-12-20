@@ -19,6 +19,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
+    private const int MaxDotnetDecimalPrecision = 28;
+
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       var rankColumnName = provider.Header.Columns[provider.Header.Columns.Count - 1].Name;
@@ -102,7 +104,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       }
       var typeHintValue = typeHint.Value;
 
-      if (typeHintValue.precision == 28) {
+      if (typeHintValue.precision == MaxDotnetDecimalPrecision) {
         // No room for adjust, otherwise we'll lose floor part data
         precision = typeHintValue.precision;
         scale = typeHintValue.scale;
@@ -116,10 +118,16 @@ namespace Xtensive.Orm.Providers.PostgreSql
       // sometimes we need bigger floor part, and sometimes bigger fractional part.
       // This algorithm is a trade-off.
       scale = aggregateType switch {
-        AggregateType.Avg => (typeHintValue.precision < 28) ? typeHintValue.scale + Math.Max((precision - typeHintValue.precision) / 2, 1) : typeHintValue.scale + 1,
-        AggregateType.Sum => (typeHintValue.precision < 27) ? typeHintValue.scale + 2 : typeHintValue.scale + 1,
-        AggregateType.Min => (typeHintValue.precision < 27) ? typeHintValue.scale + 2 : typeHintValue.scale + 1,
-        AggregateType.Max => (typeHintValue.precision < 27) ? typeHintValue.scale + 2 : typeHintValue.scale + 1,
+        AggregateType.Avg =>
+          (typeHintValue.precision < MaxDotnetDecimalPrecision)
+            ? typeHintValue.scale + Math.Max((precision - typeHintValue.precision) / 2, 1)
+            : typeHintValue.scale + 1,
+        AggregateType.Sum or
+          AggregateType.Min or
+          AggregateType.Max =>
+            (typeHintValue.precision < MaxDotnetDecimalPrecision - 1)
+              ? typeHintValue.scale + 2
+              : typeHintValue.scale + 1,
         _ => typeHintValue.scale,
       };
       return true;
