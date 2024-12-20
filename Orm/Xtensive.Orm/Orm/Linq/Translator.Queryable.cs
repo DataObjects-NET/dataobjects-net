@@ -1178,7 +1178,7 @@ namespace Xtensive.Orm.Linq
         var direction = item.Value;
         var sortParameter = sortExpression.Parameters[0];
         using (context.Bindings.Add(sortParameter, projection))
-        using (CreateScope(new TranslatorState(State) { ShouldOmitConvertToObject = true, CalculateExpressions = true })) {
+        using (CreateScope(new TranslatorState(State) { ShouldOmitConvertToObject = true, CalculateExpressions = true, OrderingKey = true })) {
           var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
           var columns = orderByProjector
             .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct);

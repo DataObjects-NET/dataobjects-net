@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
     public const string OracleUrl1     = @"oracle://user:password@localhost/MyDatabase";
     public const string OracleUrl2     = @"oracle://user:password@dbServer:5511/MyDatabase";
     public const string PostrgeSqlUrl1 = @"postgresql://user:password@127.0.0.1:8032/MyDatabase?Encoding=Unicode";
-    public const string PostrgeSqlUrl2 = @"postgresql://user:password@dbServer/MyDatabase?Pooling=on&MinPoolSize=1&MaxPoolSize=5";
+    public const string PostrgeSqlUrl2 = @"postgresql://user:password@dbServer/MyDatabase?Pooling=True&MinPoolSize=1&MaxPoolSize=5";
     public const string InMemoryUrl    = @"memory://localhost/MyDatabase";
     
     #endregion
