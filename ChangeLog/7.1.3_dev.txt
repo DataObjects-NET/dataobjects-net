@@ -1,3 +1,4 @@
 [main] Addressed race condition issue with TranslatorState.NonVisitableExpressions
+[main] Improved working with nullable enum constants in queries
 [postgresql] Improved database structucture extraction
 [postgresql] Addressed certain cases of decimal results of aggregate operations being unable to fit to .NET decimal
