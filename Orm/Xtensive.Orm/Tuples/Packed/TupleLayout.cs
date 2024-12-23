@@ -60,7 +60,7 @@ namespace Xtensive.Tuples.Packed
       public static ValueFieldAccessor GetValue(Type probeType)
       {
         return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
-          ? (ResolveByNullableType(probeType) ?? TryResolveEnum(probeType))
+          ? (ResolveByNullableType(probeType) ?? TryResolveNullableEnum(probeType))
           : (ResolveByType(probeType) ?? TryResolveEnum(probeType));
       }
 
