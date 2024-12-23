@@ -1,15 +1,17 @@
+// Copyright (C) 2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq.Expressions;
-using System.Collections.Generic;
-using System.Text;
+using NUnit.Framework;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using NUnit.Framework;
-using System.Linq;
+
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {
-  public class EnumRewriterTest 
+  public class EnumRewriterTest
   {
     private enum ByteBasedEnum : byte
     {
@@ -52,39 +54,59 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
 
-    private Expression[] Expressions;
+    private Expression[] ConstExpressions;
+    private Expression[] NonNullableExpressions;
+    private Expression[] NullableExpressions;
+    private Expression[] NullExpressions;
 
     [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
-      Expressions = new[] {
+      ConstExpressions = new[] {
         // non-enum constants
         Expression.Constant(1, typeof(int)),
         Expression.Constant(2, typeof(int?)),
         Expression.Constant(null, typeof(int?)),
+      };
 
-        //short enums
+      NonNullableExpressions = new[] {
+        Expression.Constant(ByteBasedEnum.Value1, typeof(ByteBasedEnum)),
+        Expression.Constant(SByteBasedEnum.Value1, typeof(SByteBasedEnum)),
         Expression.Constant(ShortBasedEnum.Value1, typeof(ShortBasedEnum)),
-        Expression.Constant(ShortBasedEnum.Value1, typeof(ShortBasedEnum)),
-        Expression.Constant(ShortBasedEnum.Value1, typeof(ShortBasedEnum)),
-        Expression.Constant(ShortBasedEnum.Value1, typeof(ShortBasedEnum)),
-        Expression.Constant(IntBasedEnum.Value1, typeof(IntBasedEnum)),
+        Expression.Constant(UShortBasedEnum.Value1, typeof(UShortBasedEnum)),
+        Expression.Constant(IntBasedEnum.Value1,  typeof(IntBasedEnum)),
+        Expression.Constant(UIntBasedEnum.Value1,  typeof(UIntBasedEnum)),
         Expression.Constant(LongBasedEnum.Value1, typeof(LongBasedEnum)),
+        Expression.Constant(ULongBasedEnum.Value1, typeof(ULongBasedEnum)),
+      };
 
+      NullableExpressions = new[] {
+        Expression.Constant(ByteBasedEnum.Value2, typeof(ByteBasedEnum?)),
+        Expression.Constant(SByteBasedEnum.Value2, typeof(SByteBasedEnum?)),
         Expression.Constant(ShortBasedEnum.Value2, typeof(ShortBasedEnum?)),
-        Expression.Constant(IntBasedEnum.Value2, typeof(IntBasedEnum?)),
+        Expression.Constant(UShortBasedEnum.Value2, typeof(UShortBasedEnum?)),
+        Expression.Constant(IntBasedEnum.Value2,  typeof(IntBasedEnum?)),
+        Expression.Constant(UIntBasedEnum.Value2,  typeof(UIntBasedEnum?)),
         Expression.Constant(LongBasedEnum.Value2, typeof(LongBasedEnum?)),
+        Expression.Constant(ULongBasedEnum.Value2, typeof(ULongBasedEnum?)),
+      };
 
+      NullExpressions = new[] {
+        Expression.Constant(null, typeof(ByteBasedEnum?)),
+        Expression.Constant(null, typeof(SByteBasedEnum?)),
         Expression.Constant(null, typeof(ShortBasedEnum?)),
+        Expression.Constant(null, typeof(UShortBasedEnum?)),
         Expression.Constant(null, typeof(IntBasedEnum?)),
+        Expression.Constant(null, typeof(UIntBasedEnum?)),
         Expression.Constant(null, typeof(LongBasedEnum?)),
+        Expression.Constant(null, typeof(ULongBasedEnum?)),
       };
     }
 
     [Test]
     public void NonEnumValuesTest()
     {
-      foreach (var exp in Expressions.Take(3)) {
+      foreach (var exp in ConstExpressions) {
         var rewrited = EnumRewriter.Rewrite(exp);
         Assert.That(rewrited, Is.EqualTo(exp));
       }
@@ -93,7 +115,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void NonNullableEnumsTest()
     {
-      foreach (var exp in Expressions.Skip(3).Take(3)) {
+      foreach (var exp in NonNullableExpressions) {
         var rewrited = EnumRewriter.Rewrite(exp);
         var expType = exp.Type;
         var enumType = expType.StripNullable();
@@ -112,7 +134,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void NullableEnumsTest()
     {
-      foreach (var exp in Expressions.Skip(6).Take(3)) {
+      foreach (var exp in NullableExpressions) {
         var rewrited = EnumRewriter.Rewrite(exp);
         var expType = exp.Type;
         var enumType = expType.StripNullable();
@@ -134,7 +156,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void NullsAsNullableEnumsTest()
     {
-      foreach (var exp in Expressions.Skip(9).Take(3)) {
+      foreach (var exp in NullExpressions) {
 
         var rewrited = EnumRewriter.Rewrite(exp);
         var expType = exp.Type;
@@ -152,35 +174,5 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(constant.Value, Is.Null);
       }
     }
-
-    //[Test]
-    //public void ComplexTest()
-    //{
-    //  foreach (var exp in Expressions) {
-    //    var rewrited = EnumRewriter.Rewrite(exp);
-    //    var expType = exp.Type;
-    //    if (exp is ConstantExpression testExp && expType.StripNullable().IsEnum) {
-    //      var isNullable = expType.IsNullable();
-    //      var enumType = expType.StripNullable();
-    //      if (isNullable) {
-
-    //      }
-    //      else {
-    //        Assert.That(rewrited, Is.InstanceOf<UnaryExpression>());
-    //        var convert = rewrited as UnaryExpression;
-    //        Assert.That(convert.NodeType, Is.EqualTo(ExpressionType.Convert));
-    //        Assert.That(convert.Type, Is.EqualTo(expType));
-    //        var operand = convert.Operand;
-    //        Assert.That(operand, Is.InstanceOf<ConstantExpression>());
-    //        var constant = operand as ConstantExpression;
-    //        Assert.That(constant.Type, Is.Not.EqualTo(enumType));
-    //        Assert.That(constant.Type, Is.EqualTo(Enum.GetUnderlyingType(enumType)));
-    //      }
-    //    }
-    //    else {
-    //      Assert.That(rewrited, Is.EqualTo(exp));
-    //    }
-    //  }
-    //}
   }
 }
