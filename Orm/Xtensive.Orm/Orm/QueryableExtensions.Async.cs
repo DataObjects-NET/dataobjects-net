@@ -22,6 +22,32 @@ namespace Xtensive.Orm
   public static partial class QueryableExtensions
   {
     /// <summary>
+    /// A wrapper to transform non-<see cref="IAsyncEnumerable{T}"/>, yet based on <see cref="QueryProvider"/>,
+    /// <see cref="IQueryable{T}"/> implementation, such as <see cref="EntitySet{TItem}"/>, into <see cref="IAsyncEnumerable{T}"/>.
+    /// </summary>
+    private sealed class QueryAsAsyncEnumerable<T> : IAsyncEnumerable<T>
+    {
+      private readonly QueryProvider queryProvider;
+      private readonly Expression expression;
+
+      /// <inheritdoc/>
+      public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+      {
+        var result = await queryProvider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwait(false);
+        var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+        await foreach (var element in asyncSource) {
+          yield return element;
+        }
+      }
+
+      public QueryAsAsyncEnumerable(QueryProvider queryProvider, Expression expression)
+      {
+        this.queryProvider = queryProvider;
+        this.expression = expression;
+      }
+    }
+
+    /// <summary>
     /// Asynchronously determines whether all the elements of a sequence satisfy a condition.
     /// </summary>
     /// <remarks>Multiple active operations in the same session instance are not supported. Use
@@ -1654,8 +1680,12 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
-        return asyncEnumerable;
+      if (source is IAsyncEnumerable<TSource> nativeAsyncEnumerable) {
+        return nativeAsyncEnumerable;
+      }
+
+      if (source.Provider is QueryProvider doProvider) {
+        return new QueryAsAsyncEnumerable<TSource>(doProvider, source.Expression);
       }
 
       throw new InvalidOperationException("Query can't be executed asynchronously.");
