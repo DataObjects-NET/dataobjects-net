@@ -1,4 +1,5 @@
 [main] Addressed race condition issue with TranslatorState.NonVisitableExpressions
 [main] Improved working with nullable enum constants in queries
+[main] Improved compatibility of .ToListAsync/.ToArrayAsync/.ToHashSetAsync/.AsAsyncEnumerable extension methods with EntitySet
 [postgresql] Improved database structucture extraction
 [postgresql] Addressed certain cases of decimal results of aggregate operations being unable to fit to .NET decimal
