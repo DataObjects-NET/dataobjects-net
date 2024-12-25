@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find schema &apos;{0}&apos; owner with oid &apos;{1}&apos; in the list of roles..
+        /// </summary>
+        internal static string ExCantFindSchemaXOwnerWithIdYInTheListOfRoles {
+            get {
+                return ResourceManager.GetString("ExCantFindSchemaXOwnerWithIdYInTheListOfRoles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FreeText search on custom columns not supported..
         /// </summary>
         internal static string ExFreeTextSearchOnCustomColumnsNotSupported {

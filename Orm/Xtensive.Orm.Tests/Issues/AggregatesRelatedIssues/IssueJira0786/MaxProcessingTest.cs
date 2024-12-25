@@ -6,14 +6,9 @@
 
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using Xtensive.Orm.Configuration;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
+namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   public sealed class MaxProcessingTest : AggregatesProblemTestBase
   {
