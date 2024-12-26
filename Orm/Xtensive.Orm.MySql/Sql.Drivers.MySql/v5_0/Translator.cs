@@ -101,7 +101,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.CurrentUser:
           _ = output.Append("CURRENT_USER()"); break;
         case SqlFunctionType.SessionUser: _ = output.Append("SESSION_USER()"); break;
-        case SqlFunctionType.NullIf: _ = output.Append("IFNULL"); break;
+        //case SqlFunctionType.NullIf: _ = output.Append("IFNULL"); break;
         //datetime/timespan
         case SqlFunctionType.DateTimeTruncate: _ = output.Append("DATE"); break;
         case SqlFunctionType.CurrentDate: _ = output.Append("CURDATE()"); break;
