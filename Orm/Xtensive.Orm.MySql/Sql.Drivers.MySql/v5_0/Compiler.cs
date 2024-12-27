@@ -160,7 +160,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
-          SqlHelper.GenericPad(node).AcceptVisitor(this);
+          SqlHelper.GenericPad(node, true).AcceptVisitor(this);
           return;
         case SqlFunctionType.Rand:
           SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.Rand)).AcceptVisitor(this);
