@@ -151,10 +151,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var arguments = node.Arguments;
       switch (node.FunctionType) {
         case SqlFunctionType.CharLength:
-          (SqlDml.FunctionCall("LENGTH", arguments) / 2).AcceptVisitor(this);
+          SqlDml.FunctionCall("LENGTH", arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
+          Visit(EmulateLpadOrRpad(arguments, node.FunctionType is SqlFunctionType.PadLeft));
           return;
         case SqlFunctionType.Concat:
           var nod = arguments[0];
@@ -630,6 +631,42 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         _ => throw SqlHelper.NotSupported($"Converting {dateTimeOffsetPart} to SqlDateTimePart"),
       };
     }
+
+    private static SqlCase EmulateLpadOrRpad(IReadOnlyList<SqlExpression> arguments, bool isLpad)
+    {
+      var operand = arguments[0];
+      var charcount = arguments[1];
+      if (charcount is not SqlLiteral<int> intWidth) {
+        // Since we emulate function with  contatination, we need to know total width
+        // to calculate prefix
+        throw SqlHelper.NotSupported("PadLeft/PadRight with expressions as total width.");
+      }
+      var totalWidth = intWidth.Value;
+
+      var padChar = arguments switch {
+        _ when arguments.Count == 3 && arguments[2] is SqlLiteral<char> charLiteral => charLiteral.Value,
+        _ when arguments.Count == 2 => ' ',
+        _ => throw new NotSupportedException()
+      };
+
+      var paddingString = SqlDml.Literal(new string(Enumerable.Repeat(padChar, intWidth.Value).ToArray()));
+
+      var padExpression = isLpad
+        ? SqlDml.Substring(
+            SqlDml.Concat(paddingString, operand),
+            SqlDml.Literal(-totalWidth - 1),// handles '+1' operation in translation of substring function call
+            SqlDml.Literal(totalWidth))
+        : SqlDml.Substring(
+            SqlDml.Concat(operand, paddingString),
+            SqlDml.Literal(0), // handles '+1' operation in translation of substring function call
+            SqlDml.Literal(totalWidth));
+
+      var @case = SqlDml.Case();
+      _ = @case.Add(SqlDml.CharLength(operand) >= charcount, operand);
+      @case.Else = padExpression;
+      return @case;
+    }
+
 
     // Constructors
 
