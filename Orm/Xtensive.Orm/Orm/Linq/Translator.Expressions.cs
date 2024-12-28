@@ -1400,26 +1400,41 @@ namespace Xtensive.Orm.Linq
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
         var argument = newExpression.Arguments[memberIndex];
-        var currentLambda = State.CurrentLambda;
-        if (!(currentLambda is null) && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection)) {
-          // Here, we try to detect whether the expression has already visited, in such cases
-          // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
-          // gets projection of already visited source and substitutes parameter 'x' access with 
-          // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
-          // of OrderBy visiting, because it is the only place that sets 'true' to the property,
-          // but we can't rely on it for future-proof solution.
 
-          // Knowing that parameter-to-projection binding happens when expression has visited,
-          // we assume this check is enough for certain cases, probably not for all of them.
-          // We can't deny visiting of the argument for all the cases because of chance to break
-          // some cases we could not imagine at the time of changes
-          switch (argument.NodeType) {
-            case ExpressionType.TypeAs:
-            case ExpressionType.Convert:
-            case ExpressionType.ConvertChecked:
-              if (argument.Type == WellKnownTypes.Object && State.ShouldOmitConvertToObject)
-                argument = argument.StripCasts();
-              break;
+        if (State.GroupingKey || State.OrderingKey) {
+          var requireVisit = !argument.IsExtendedExpression() && argument.NodeType switch {
+            ExpressionType.New
+              or ExpressionType.Call
+              or ExpressionType.Coalesce
+              or ExpressionType.Conditional => true,
+            _ => false
+          };
+
+          var currentLambda = State.CurrentLambda;
+          if (currentLambda is not null && context.Bindings.TryGetValue(currentLambda.Parameters[0], out var projection) 
+            && !requireVisit) {
+            // Here, we try to detect whether the expression has already visited, in such cases
+            // re-visiting it may cause issues. For instance, .OrderBy(x=>x.SomeField) translation
+            // gets projection of already visited source and substitutes parameter 'x' access with 
+            // that projection. For now TranslatorState.ShouldOmitConvertToObject == true, is a marker
+            // of OrderBy visiting, because it is the only place that sets 'true' to the property,
+            // but we can't rely on it for future-proof solution.
+
+            // Knowing that parameter-to-projection binding happens when expression has visited,
+            // we assume this check is enough for certain cases, probably not for all of them.
+            // We can't deny visiting of the argument for all the cases because of chance to break
+            // some cases we could not imagine at the time of changes
+            switch (argument.NodeType) {
+              case ExpressionType.TypeAs:
+              case ExpressionType.Convert:
+              case ExpressionType.ConvertChecked:
+                if (argument.Type == typeof(object) && State.ShouldOmitConvertToObject)
+                  argument = argument.StripCasts();
+                break;
+            }
+          }
+          else {
+            argument = Visit(argument);
           }
         }
         else {
@@ -1704,7 +1719,8 @@ namespace Xtensive.Orm.Linq
         .ToArray();
       int offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
-      var newDataSource = entityExpression.IsNullable
+
+      var newDataSource = entityExpression.IsNullable || oldDataSource.CheckIfLeftJoinPrefered()
         ? itemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
         : itemProjector.DataSource.Join(joinedRs, keyPairs);
       itemProjector.DataSource = newDataSource;
@@ -1729,15 +1745,7 @@ namespace Xtensive.Orm.Linq
 
       var oldDataSource = originalItemProjector.DataSource;
       var offset = oldDataSource.Header.Length;
-      var shouldUseLeftJoin = false;
-
-      var sourceToCheck = (oldDataSource is FilterProvider filterProvider) ? filterProvider.Source : oldDataSource;
-      if ((sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
-          (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter)) {
-        shouldUseLeftJoin = true;
-      }
-
-      var newDataSource = entityFieldExpression.IsNullable || shouldUseLeftJoin
+      var newDataSource = entityFieldExpression.IsNullable || oldDataSource.CheckIfLeftJoinPrefered()
         ? oldDataSource.LeftJoin(joinedRs, keyPairs)
         : oldDataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;

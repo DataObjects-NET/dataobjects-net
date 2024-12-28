@@ -42,7 +42,10 @@ namespace Xtensive.Orm.Rse.Transformation
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
+
+      var currentMapping = mappings[provider.Source];
+      var calulatedColumn = provider.Header.Columns.Last();
+      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(calulatedColumn.Index));
       if (source == provider.Source) {
         return provider;
       }
@@ -110,14 +113,19 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override FilterProvider VisitFilter(FilterProvider provider)
     {
-      mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
-      var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      var gatheredMappings = mappingsGatherer.Gather(provider.Predicate);
+      var originalMappingsOfProvider = mappings[provider];
+      var mergedMappings = Merge(originalMappingsOfProvider, gatheredMappings);
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      mappings[provider.Source] = mergedMappings;
+      var newSourceProvider = VisitCompilable(provider.Source);
+      var updatedSourceMappings = mappings[provider.Source];
+      mappings[provider] = updatedSourceMappings;
+
+      var newPredicate = TranslateLambda(provider, provider.Predicate);
+      return newSourceProvider == provider.Source && newPredicate == provider.Predicate
         ? provider
-        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
     }
 
     protected override JoinProvider VisitJoin(JoinProvider provider)

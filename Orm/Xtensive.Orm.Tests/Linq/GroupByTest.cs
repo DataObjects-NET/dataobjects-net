@@ -1051,6 +1051,20 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(falseResult, result.Single(i => !i.Value).Count);
       Assert.AreEqual(trueResult, result.Single(i => i.Value).Count);
     }
+    
+    [Test]
+    public void GroupByEnumTernaryWithNonNullConstTest()
+    {
+      var query = Session.Query.All<Invoice>()
+        .GroupBy(c => c.Total < 0 ? (InvoiceStatus?) InvoiceStatus.Completed : c.Status).ToArray();
+    }
+
+    [Test]
+    public void GroupByEnumTernaryWithNullConstTest()
+    {
+      var query = Session.Query.All<Invoice>()
+        .GroupBy(c => c.Total < 0 ? (InvoiceStatus?) null : c.Status).ToArray();
+    }
 
     private void DumpGrouping<TKey, TValue>(IQueryable<IGrouping<TKey, TValue>> result)
     {

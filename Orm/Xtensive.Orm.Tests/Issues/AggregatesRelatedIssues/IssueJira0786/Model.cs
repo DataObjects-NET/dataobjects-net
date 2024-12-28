@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
+namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   [HierarchyRoot]
   public class TestEntity : Entity

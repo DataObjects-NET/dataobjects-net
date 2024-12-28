@@ -111,19 +111,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       // We support 8.3, 8.4 and any 9.0+
 
-      if (version.Major == 8) {
-        return version.Minor == 3 ? new v8_3.Driver(coreServerInfo) : new v8_4.Driver(coreServerInfo);
-      }
-
-      if (version.Major == 9) {
-        return version.Minor == 0 ? new v9_0.Driver(coreServerInfo) : new v9_1.Driver(coreServerInfo);
-      }
-
-      if (version.Major < 12) {
-        return new v10_0.Driver(coreServerInfo);
-      }
-
-      return new v12_0.Driver(coreServerInfo);
+      return version.Major switch {
+        8 when version.Minor == 3 => new v8_3.Driver(coreServerInfo),
+        8 when version.Minor > 3  => new v8_4.Driver(coreServerInfo),
+        9 when version.Minor == 0 => new v9_0.Driver(coreServerInfo),
+        9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo),
+        10 => new v10_0.Driver(coreServerInfo),
+        11 => new v10_0.Driver(coreServerInfo),
+        _ => new v12_0.Driver(coreServerInfo)
+      };
     }
 
     /// <inheritdoc/>
