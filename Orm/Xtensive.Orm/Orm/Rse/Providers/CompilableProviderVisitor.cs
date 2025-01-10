@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
       if (!translated && source == provider.Source)
         return provider;
-      return new CalculateProvider(source, descriptors);
+      return source.Calculate(descriptors);
     }
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
