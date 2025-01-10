@@ -88,5 +88,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 
     [Field(Precision = 20, Scale = 1)]
     public decimal? NullableDecimalValue { get; set; }
+
+    public TestEntity(Session session)
+      : base(session)
+    {
+    }
   }
 }

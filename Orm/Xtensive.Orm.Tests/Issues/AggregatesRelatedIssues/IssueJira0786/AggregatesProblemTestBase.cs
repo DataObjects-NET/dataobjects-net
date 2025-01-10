@@ -21,24 +21,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
     protected decimal DoubleValueAccuracy { get; private set; } = 0.00000000000001m;
     protected decimal DecimalValueAccuracy { get; private set; } = 0.00000000000000001m;
 
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      var firstTryConfig = configuration.Clone();
-      firstTryConfig.UpgradeMode = DomainUpgradeMode.Validate;
-      try {
-        return base.BuildDomain(firstTryConfig);
-      }
-      catch (SchemaSynchronizationException) { }
-      catch (Exception) {
-        throw;
-      }
-
-      refillDatabase = true;
-      var secondTryConfig = configuration.Clone();
-      secondTryConfig.UpgradeMode = DomainUpgradeMode.Recreate;
-      return base.BuildDomain(secondTryConfig);
-    }
+    protected Session GlobalSession { get; private set; }
+    protected TransactionScope GlobalTransaction { get; private set; }
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -62,93 +46,88 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
         DecimalValueAccuracy = 0.00001m;
       }
 
-      if (!refillDatabase)
-        return;
+      (GlobalSession, GlobalTransaction) = CreateSessionAndTransaction();
 
+      _ = new TestEntity(GlobalSession) {
+        ByteValue = 2,
+        SByteValue = 4,
+        ShortValue = 8,
+        UShortValue = 9,
+        IntValue = 10,
+        UIntValue = 11,
+        LongValue = 20,
+        ULongValue = 25,
+        FloatValue = 0.1f,
+        DecimalValue = 1.2m,
+        DoubleValue1 = 2.0,
+        DoubleValue2 = 3.0,
+        NullableByteValue = 2,
+        NullableSByteValue = 4,
+        NullableShortValue = 8,
+        NullableUShortValue = 9,
+        NullableIntValue = 30,
+        NullableUIntValue = 31,
+        NullableLongValue = 40,
+        NullableULongValue = 45,
+        NullableFloatValue = 0.4f,
+        NullableDecimalValue = 4.2m,
+        NullableDoubleValue1 = 5.0,
+        NullableDoubleValue2 = 6.0
+      };
+      _ = new TestEntity(GlobalSession) {
+        ByteValue = 3,
+        SByteValue = 5,
+        ShortValue = 9,
+        UShortValue = 10,
+        IntValue = 11,
+        UIntValue = 12,
+        LongValue = 21,
+        ULongValue = 26,
+        FloatValue = 0.2f,
+        DecimalValue = 1.3m,
+        DoubleValue1 = 2.1,
+        DoubleValue2 = 3.1,
+        NullableByteValue = 3,
+        NullableSByteValue = 5,
+        NullableShortValue = 9,
+        NullableUShortValue = 10,
+        NullableIntValue = 31,
+        NullableUIntValue = 32,
+        NullableLongValue = 41,
+        NullableULongValue = 46,
+        NullableFloatValue = 0.5f,
+        NullableDecimalValue = 4.3m,
+        NullableDoubleValue1 = 5.1,
+        NullableDoubleValue2 = 6.1
+      };
+      _ = new TestEntity(GlobalSession) {
+        ByteValue = 4,
+        SByteValue = 6,
+        ShortValue = 10,
+        UShortValue = 11,
+        IntValue = 12,
+        UIntValue = 13,
+        LongValue = 22,
+        ULongValue = 27,
+        FloatValue = 0.3f,
+        DecimalValue = 1.4m,
+        DoubleValue1 = 2.3,
+        DoubleValue2 = 3.3,
+        NullableByteValue = 4,
+        NullableSByteValue = 6,
+        NullableShortValue = 10,
+        NullableUShortValue = 11,
+        NullableIntValue = 32,
+        NullableUIntValue = 33,
+        NullableLongValue = 42,
+        NullableULongValue = 47,
+        NullableFloatValue = 0.6f,
+        NullableDecimalValue = 4.4m,
+        NullableDoubleValue1 = 5.3,
+        NullableDoubleValue2 = 6.3
+      };
 
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        _ = new TestEntity() {
-          ByteValue = 2,
-          SByteValue = 4,
-          ShortValue = 8,
-          UShortValue = 9,
-          IntValue = 10,
-          UIntValue = 11,
-          LongValue = 20,
-          ULongValue = 25,
-          FloatValue = 0.1f,
-          DecimalValue = 1.2m,
-          DoubleValue1 = 2.0,
-          DoubleValue2 = 3.0,
-          NullableByteValue = 2,
-          NullableSByteValue = 4,
-          NullableShortValue = 8,
-          NullableUShortValue = 9,
-          NullableIntValue = 30,
-          NullableUIntValue = 31,
-          NullableLongValue = 40,
-          NullableULongValue = 45,
-          NullableFloatValue = 0.4f,
-          NullableDecimalValue = 4.2m,
-          NullableDoubleValue1 = 5.0,
-          NullableDoubleValue2 = 6.0
-        };
-        _ = new TestEntity() {
-          ByteValue = 3,
-          SByteValue = 5,
-          ShortValue = 9,
-          UShortValue = 10,
-          IntValue = 11,
-          UIntValue = 12,
-          LongValue = 21,
-          ULongValue = 26,
-          FloatValue = 0.2f,
-          DecimalValue = 1.3m,
-          DoubleValue1 = 2.1,
-          DoubleValue2 = 3.1,
-          NullableByteValue = 3,
-          NullableSByteValue = 5,
-          NullableShortValue = 9,
-          NullableUShortValue = 10,
-          NullableIntValue = 31,
-          NullableUIntValue = 32,
-          NullableLongValue = 41,
-          NullableULongValue = 46,
-          NullableFloatValue = 0.5f,
-          NullableDecimalValue = 4.3m,
-          NullableDoubleValue1 = 5.1,
-          NullableDoubleValue2 = 6.1
-        };
-        _ = new TestEntity() {
-          ByteValue = 4,
-          SByteValue = 6,
-          ShortValue = 10,
-          UShortValue = 11,
-          IntValue = 12,
-          UIntValue = 13,
-          LongValue = 22,
-          ULongValue = 27,
-          FloatValue = 0.3f,
-          DecimalValue = 1.4m,
-          DoubleValue1 = 2.3,
-          DoubleValue2 = 3.3,
-          NullableByteValue = 4,
-          NullableSByteValue = 6,
-          NullableShortValue = 10,
-          NullableUShortValue = 11,
-          NullableIntValue = 32,
-          NullableUIntValue = 33,
-          NullableLongValue = 42,
-          NullableULongValue = 47,
-          NullableFloatValue = 0.6f,
-          NullableDecimalValue = 4.4m,
-          NullableDoubleValue1 = 5.3,
-          NullableDoubleValue2 = 6.3
-        };
-
-        tx.Complete();
-      }
+      GlobalSession.SaveChanges();
     }
   }
 }

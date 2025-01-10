@@ -1,4 +1,4 @@
-// Copyright (C) 2020-2024 Xtensive LLC.
+// Copyright (C) 2020-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -7,3023 +7,1310 @@
 using NUnit.Framework;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   public sealed class AverageProcessingTest : AggregatesProblemTestBase
   {
     [Test]
-    public void ByteFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldTest() => TestAverage(i => i.ByteValue);
 
     [Test]
-    public void SByteFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldTest() => TestAverage(i => i.SByteValue);
 
     [Test]
-    public void ShortFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldTest() => TestAverage(i => i.ShortValue);
 
     [Test]
-    public void UShortFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldTest() => TestAverage(i => i.UShortValue);
 
     [Test]
-    public void IntFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldTest() => TestAverage(i => i.IntValue);
 
     [Test]
-    public void UIntFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldTest() => TestAverage(i => i.UIntValue);
 
     [Test]
-    public void LongFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldTest() => TestAverage(i => i.LongValue);
 
     [Test]
-    public void FloatFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void FloatFieldTest() => TestAverage(i => i.FloatValue);
 
     [Test]
-    public void DoubleFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.DoubleValue1 + 1.0);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.DoubleValue1 + 1.0);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void DoubleFieldTest() => TestAverage(i => i.DoubleValue1 + 1.0);
 
     [Test]
-    public void DecimalFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.DecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void DecimalFieldTest() => TestAverage(i => i.DecimalValue);
 
     [Test]
-    public void NullableByteFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldTest() => TestAverage(i => i.NullableByteValue);
 
     [Test]
-    public void NullableSByteFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldTest() => TestAverage(i => i.NullableSByteValue);
 
     [Test]
-    public void NullableShortFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldTest() => TestAverage(i => i.NullableShortValue);
 
     [Test]
-    public void NullableUShortFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldTest() => TestAverage(i => i.NullableUShortValue);
 
     [Test]
-    public void NullableIntFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldTest() => TestAverage(i => i.NullableIntValue);
 
     [Test]
-    public void NullableUIntFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldTest() => TestAverage(i => i.NullableUIntValue);
 
     [Test]
-    public void NullableLongFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldTest() => TestAverage(i => i.NullableLongValue);
 
     [Test]
-    public void NullableFloatFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableFloatFieldTest() => TestAverage(i => i.NullableFloatValue);
 
     [Test]
-    public void NullableDoubleFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableDoubleFieldTest() => TestAverage(i => i.NullableDoubleValue1);
 
     [Test]
-    public void NullableDecimalFieldTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableDecimalFieldTest() => TestAverage(i => i.NullableDecimalValue);
 
     [Test]
-    public void ByteFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest01() => TestAverage(i => i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest02() =>
+      TestAverage(i => (short) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short) i.ByteValue + (short) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short) i.ByteValue + (short) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest03() =>
+      TestAverage(i => (short) i.ByteValue + (short) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest04() =>
+      TestAverage(i => (int) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.ByteValue + (int) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.ByteValue + (int) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest05() =>
+      TestAverage(i => (int) i.ByteValue + (int) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest06() =>
+      TestAverage(i => (long) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.ByteValue + (long) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.ByteValue + (long) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest07() =>
+      TestAverage(i => (long) i.ByteValue + (long) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest08() =>
+      TestAverage(i => (float) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ByteValue + (float) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ByteValue + (float) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest09() =>
+      TestAverage(i => (float) i.ByteValue + (float) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest10() =>
+      TestAverage(i => (double) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ByteValue + (double) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ByteValue + (double) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest11() =>
+      TestAverage(i => (double) i.ByteValue + (double) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ByteValue + i.ByteValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void ByteFieldExpressionTest12() =>
+      TestAverageWithAccuracy(i => (decimal) i.ByteValue + i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ByteValue + (decimal) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ByteValue + (decimal) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest13() =>
+      TestAverage(i => (decimal) i.ByteValue + (decimal) i.ByteValue);
 
     [Test]
-    public void ByteFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest14() => TestAverage(i => i.ByteValue + i.IntValue);
 
     [Test]
-    public void ByteFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest15() => TestAverage(i => i.ByteValue + i.LongValue);
 
     [Test]
-    public void ByteFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest16() => TestAverage(i => i.ByteValue + i.FloatValue);
 
     [Test]
-    public void ByteFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest17() => TestAverage(i => i.ByteValue + i.DoubleValue1);
 
     [Test]
-    public void ByteFieldExpressionTest18()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ByteValue + i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ByteValue + i.DecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ByteFieldExpressionTest18() => TestAverage(i => i.ByteValue + i.DecimalValue);
 
     [Test]
-    public void SByteFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest01() => TestAverage(i => i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest02() =>
+      TestAverage(i => (short) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short) i.SByteValue + (short) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short) i.SByteValue + (short) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest03() =>
+      TestAverage(i => (short) i.SByteValue + (short) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest04() =>
+      TestAverage(i => (int) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.SByteValue + (int) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.SByteValue + (int) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest05() =>
+      TestAverage(i => (int) i.SByteValue + (int) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest06() =>
+      TestAverage(i => (long) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.SByteValue + (long) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.SByteValue + (long) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest07() =>
+      TestAverage(i => (long) i.SByteValue + (long) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest08() =>
+      TestAverage(i => (float) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.SByteValue + (float) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.SByteValue + (float) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest09() =>
+      TestAverage(i => (float) i.SByteValue + (float) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest10() =>
+      TestAverage(i => (double) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.SByteValue + (double) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.SByteValue + (double) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest11() =>
+      TestAverage(i => (double) i.SByteValue + (double) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.SByteValue + i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.SByteValue + i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest12() =>
+      TestAverage(i => (decimal) i.SByteValue + i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.SByteValue + (decimal) i.SByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.SByteValue + (decimal) i.SByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest13() =>
+      TestAverage(i => (decimal) i.SByteValue + (decimal) i.SByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest14() => TestAverage(i => i.SByteValue + i.ByteValue);
 
     [Test]
-    public void SByteFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest15() => TestAverage(i => i.SByteValue + i.IntValue);
 
     [Test]
-    public void SByteFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest16() => TestAverage(i => i.SByteValue + i.LongValue);
 
     [Test]
-    public void SByteFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest17() => TestAverage(i => i.SByteValue + i.FloatValue);
 
     [Test]
-    public void SByteFieldExpressionTest18()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest18() => TestAverage(i => i.SByteValue + i.DoubleValue1);
 
     [Test]
-    public void SByteFieldExpressionTest19()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.SByteValue + i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.SByteValue + i.DecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void SByteFieldExpressionTest19() => TestAverage(i => i.SByteValue + i.DecimalValue);
 
     [Test]
-    public void ShortFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest01() => TestAverage(i => i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest02() =>
+      TestAverage(i => (int) i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.ShortValue + (int) i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.ShortValue + (int) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest03() =>
+      TestAverage(i => (int) i.ShortValue + (int) i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest04() =>
+      TestAverage(i => (long) i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.ShortValue + (long) i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.ShortValue + (long) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest05() =>
+      TestAverage(i => (long) i.ShortValue + (long) i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest06() =>
+      TestAverage(i => (float) i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ShortValue + (float) i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ShortValue + (float) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest07() =>
+      TestAverage(i => (float) i.ShortValue + (float) i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest08() =>
+      TestAverage(i => (double) i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ShortValue + (double) i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ShortValue + (double) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest09() =>
+      TestAverage(i => (double) i.ShortValue + (double) i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest10() =>
+      TestAverage(i => (decimal) i.ShortValue + i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ShortValue + (decimal) i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ShortValue + (decimal) i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest11() =>
+      TestAverage(i => (decimal) i.ShortValue + (decimal) i.ShortValue);
 
     [Test]
-    public void ShortFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest12() =>
+      TestAverage(i => i.ShortValue + i.ByteValue);
 
     [Test]
-    public void ShortFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest13() =>
+      TestAverage(i => i.ShortValue + i.IntValue);
 
     [Test]
-    public void ShortFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest14() =>
+      TestAverage(i => i.ShortValue + i.LongValue);
 
     [Test]
-    public void ShortFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest15() =>
+      TestAverage(i => i.ShortValue + i.FloatValue);
 
     [Test]
-    public void ShortFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest16() =>
+      TestAverage(i => i.ShortValue + i.DoubleValue1);
 
     [Test]
-    public void ShortFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.DecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ShortFieldExpressionTest17() =>
+      TestAverage(i => i.ShortValue + i.DecimalValue);
 
     [Test]
-    public void UShortFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ShortValue + i.ShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ShortValue + i.ShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest01() =>
+      TestAverage(i => i.ShortValue + i.ShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.UShortValue + i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest02() =>
+      TestAverage(i => (int) i.UShortValue + i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int) i.UShortValue + (int) i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int) i.UShortValue + (int) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest03() =>
+      TestAverage(i => (int) i.UShortValue + (int) i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.UShortValue + i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest04() =>
+      TestAverage(i => (long) i.UShortValue + i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.UShortValue + (long) i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.UShortValue + (long) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest05() =>
+      TestAverage(i => (long) i.UShortValue + (long) i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.UShortValue + i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest06() =>
+      TestAverage(i => (float) i.UShortValue + i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.UShortValue + (float) i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.UShortValue + (float) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest07() =>
+      TestAverage(i => (float) i.UShortValue + (float) i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.UShortValue + i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest08() =>
+      TestAverage(i => (double) i.UShortValue + i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.UShortValue + (double) i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.UShortValue + (double) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest09() =>
+      TestAverage(i => (double) i.UShortValue + (double) i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.UShortValue + i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.UShortValue + i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest10() =>
+      TestAverage(i => (decimal) i.UShortValue + i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.UShortValue + (decimal) i.UShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.UShortValue + (decimal) i.UShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest11() =>
+      TestAverage(i => (decimal) i.UShortValue + (decimal) i.UShortValue);
 
     [Test]
-    public void UShortFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest12() =>
+      TestAverage(i => i.UShortValue + i.ByteValue);
 
     [Test]
-    public void UShortFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest13() =>
+      TestAverage(i => i.UShortValue + i.IntValue);
 
     [Test]
-    public void UShortFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest14() =>
+      TestAverage(i => i.UShortValue + i.LongValue);
 
     [Test]
-    public void UShortFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest15() =>
+      TestAverage(i => i.UShortValue + i.FloatValue);
 
     [Test]
-    public void UShortFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest16() =>
+      TestAverage(i => i.UShortValue + i.DoubleValue1);
 
     [Test]
-    public void UShortFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UShortValue + i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UShortValue + i.DecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UShortFieldExpressionTest17() =>
+      TestAverage(i => i.UShortValue + i.DecimalValue);
 
     [Test]
-    public void IntFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest01() =>
+      TestAverage(i => i.IntValue * i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.IntValue * i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.IntValue * i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest02() =>
+      TestAverage(i => (long) i.IntValue * i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.IntValue * (long) i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.IntValue * (long) i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest03() =>
+      TestAverage(i => (long) i.IntValue * (long) i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.IntValue * i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.IntValue * i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest04() =>
+      TestAverage(i => (float) i.IntValue * i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.IntValue * (float) i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.IntValue * (float) i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest05() =>
+      TestAverage(i => (float) i.IntValue * (float) i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.IntValue * i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.IntValue * i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest06() =>
+      TestAverage(i => (double) i.IntValue * i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.IntValue * (double) i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.IntValue * (double) i.IntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest07() =>
+      TestAverage(i => (double) i.IntValue * (double) i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.IntValue * i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.IntValue * i.IntValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void IntFieldExpressionTest08() =>
+      TestAverageWithAccuracy(i => (decimal) i.IntValue * i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.IntValue * (decimal) i.IntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.IntValue * (decimal) i.IntValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void IntFieldExpressionTest09() =>
+      TestAverageWithAccuracy(i => (decimal) i.IntValue * (decimal) i.IntValue);
 
     [Test]
-    public void IntFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest10() =>
+      TestAverage(i => i.IntValue * i.ByteValue);
 
     [Test]
-    public void IntFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest11() =>
+      TestAverage(i => i.IntValue * i.LongValue);
 
     [Test]
-    public void IntFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest12() =>
+      TestAverage(i => i.IntValue * i.FloatValue);
 
     [Test]
-    public void IntFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void IntFieldExpressionTest13() =>
+      TestAverage(i => i.IntValue * i.DoubleValue1);
 
     [Test]
-    public void IntFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.IntValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.IntValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void IntFieldExpressionTest14() =>
+      TestAverageWithAccuracy(i => i.IntValue * i.DecimalValue);
 
     [Test]
-    public void UIntFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue * i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue * i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest01() =>
+      TestAverage(i => i.UIntValue * i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.UIntValue * i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.UIntValue * i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest02() =>
+      TestAverage(i => (long) i.UIntValue * i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long) i.UIntValue * (long) i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long) i.UIntValue * (long) i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest03() =>
+      TestAverage(i => (long) i.UIntValue * (long) i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.UIntValue * i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.UIntValue * i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest04() =>
+      TestAverage(i => (float) i.UIntValue * i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.UIntValue * (float) i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.UIntValue * (float) i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest05() =>
+      TestAverage(i => (float) i.UIntValue * (float) i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.UIntValue * i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.UIntValue * i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest06() =>
+      TestAverage(i => (double) i.UIntValue * i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.UIntValue * (double) i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.UIntValue * (double) i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest07() =>
+      TestAverage(i => (double) i.UIntValue * (double) i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.UIntValue * i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.UIntValue * i.UIntValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void UIntFieldExpressionTest08() =>
+      TestAverageWithAccuracy(i => (decimal) i.UIntValue * i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.UIntValue * (decimal) i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.UIntValue * (decimal) i.UIntValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void UIntFieldExpressionTest09() =>
+      TestAverageWithAccuracy(i => (decimal) i.UIntValue * (decimal) i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue + i.UIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue + i.UIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest10() =>
+      TestAverage(i => i.UIntValue + i.UIntValue);
 
     [Test]
-    public void UIntFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest11() =>
+      TestAverage(i => i.UIntValue * i.LongValue);
 
     [Test]
-    public void UIntFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest12() =>
+      TestAverage(i => i.UIntValue * i.FloatValue);
 
     [Test]
-    public void UIntFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue * i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void UIntFieldExpressionTest13() =>
+      TestAverage(i => i.UIntValue * i.DoubleValue1);
 
     [Test]
-    public void UIntFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.UIntValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.UIntValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void UIntFieldExpressionTest14() =>
+      TestAverageWithAccuracy(i => i.UIntValue * i.DecimalValue);
 
     [Test]
-    public void LongFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.LongValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.LongValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest01() =>
+      TestAverage(i => i.LongValue * i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.LongValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.LongValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest02() =>
+      TestAverage(i => (float) i.LongValue * i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.LongValue * (float) i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.LongValue * (float) i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest03() =>
+      TestAverage(i => (float) i.LongValue * (float) i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.LongValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.LongValue * i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest04() =>
+      TestAverage(i => (double) i.LongValue * i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.LongValue * (double) i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.LongValue * (double) i.LongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest05() =>
+      TestAverage(i => (double) i.LongValue * (double) i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.LongValue * i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.LongValue * i.LongValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void LongFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal) i.LongValue * i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.LongValue * (decimal) i.LongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.LongValue * (decimal) i.LongValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void LongFieldExpressionTest07() =>
+      TestAverageWithAccuracy(i => (decimal) i.LongValue * (decimal) i.LongValue);
 
     [Test]
-    public void LongFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.LongValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.LongValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest08() =>
+      TestAverage(i => i.LongValue * i.FloatValue);
 
     [Test]
-    public void LongFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.LongValue * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.LongValue * i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void LongFieldExpressionTest09() =>
+      TestAverage(i => i.LongValue * i.DoubleValue1);
 
     [Test]
-    public void LongFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.LongValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.LongValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void LongFieldExpressionTest10() =>
+      TestAverageWithAccuracy(i => i.LongValue * i.DecimalValue);
 
     [Test]
-    public void ULongFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ULongValue * i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ULongValue * i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest02() =>
+      TestAverage(i => (float) i.ULongValue * i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float) i.ULongValue * (float) i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ULongValue * (float) i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest03() =>
+      TestAverage(i => (float) i.ULongValue * (float) i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ULongValue * i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ULongValue * i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest04() =>
+      TestAverage(i => (double) i.ULongValue * i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ULongValue * (double) i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ULongValue * (double) i.ULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest05() =>
+      TestAverage(i => (double) i.ULongValue * (double) i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ULongValue * i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ULongValue * i.ULongValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void ULongFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal) i.ULongValue * i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.ULongValue * (decimal) i.ULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.ULongValue * (decimal) i.ULongValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void ULongFieldExpressionTest07() =>
+      TestAverageWithAccuracy(i => (decimal) i.ULongValue * (decimal) i.ULongValue);
 
     [Test]
-    public void ULongFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ULongValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ULongValue * i.FloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest08() =>
+      TestAverage(i => i.ULongValue * i.FloatValue);
 
     [Test]
-    public void ULongFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ULongValue * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ULongValue * i.DoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void ULongFieldExpressionTest09() =>
+      TestAverage(i => i.ULongValue * i.DoubleValue1);
 
     [Test]
-    public void ULongFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.ULongValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.ULongValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void ULongFieldExpressionTest10() =>
+      TestAverageWithAccuracy(i => i.ULongValue * i.DecimalValue);
 
     [Test]
-    public void FloatFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.FloatValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.FloatValue * i.FloatValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest01() =>
+      TestAverageWithAccuracy(i => i.FloatValue * i.FloatValue, FloatValueAccuracy);
 
     [Test]
-    public void FloatFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.FloatValue * i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.FloatValue * i.FloatValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest02() =>
+      TestAverageWithAccuracy(i => (double) i.FloatValue * i.FloatValue, FloatValueAccuracy);
 
     [Test]
-    public void FloatFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.FloatValue * (double) i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.FloatValue * (double) i.FloatValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest03() =>
+      TestAverageWithAccuracy(i => (double) i.FloatValue * (double) i.FloatValue, FloatValueAccuracy);
 
     [Test]
-    public void FloatFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.FloatValue * (decimal) i.FloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.FloatValue * (decimal) i.FloatValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest04() =>
+      TestAverageWithAccuracy(i => (decimal) i.FloatValue * (decimal) i.FloatValue, FloatValueAccuracy);
 
     [Test]
-    public void FloatFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.FloatValue * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.FloatValue * i.DoubleValue1);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest05() =>
+      TestAverageWithAccuracy(i => i.FloatValue * i.DoubleValue1, FloatValueAccuracy);
 
     [Test]
-    public void FloatFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.FloatValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.FloatValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(FloatValueAccuracy));
-      }
-    }
+    public void FloatFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal) i.FloatValue * i.DecimalValue, FloatValueAccuracy);
 
     [Test]
-    public void DoubleFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.DoubleValue1 * i.DoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.DoubleValue1 * i.DoubleValue1);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(DoubleValueAccuracy));
-      }
-    }
+    public void DoubleFieldExpressionTest01() =>
+      TestAverageWithAccuracy(i => i.DoubleValue1 * i.DoubleValue1, DoubleValueAccuracy);
 
     [Test]
-    public void DoubleFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal) i.DoubleValue1 * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal) i.DoubleValue1 * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(DoubleValueAccuracy));
-      }
-    }
+    public void DoubleFieldExpressionTest02() =>
+      TestAverageWithAccuracy(i => (decimal) i.DoubleValue1 * i.DecimalValue, DoubleValueAccuracy);
 
     [Test]
-    public void DecimalFieldExpressionTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.DecimalValue * i.DecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.DecimalValue * i.DecimalValue);
-        Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void DecimalFieldExpressionTest() =>
+      TestAverageWithAccuracy(i => i.DecimalValue * i.DecimalValue, DecimalValueAccuracy);
 
     [Test]
-    public void NullableByteFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest01() =>
+      TestAverage(i => i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short?) i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest02() =>
+      TestAverage(i => (short?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short?) i.NullableByteValue + (short?) i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short?) i.NullableByteValue + (short?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest03() =>
+      TestAverage(i => (short?) i.NullableByteValue + (short?) i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest04() =>
+      TestAverage(i => (int?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableByteValue + (int?) i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableByteValue + (int?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest05() =>
+      TestAverage(i => (int?) i.NullableByteValue + (int?) i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest06() =>
+      TestAverage(i => (long?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableByteValue + (long?) i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableByteValue + (long?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest07() =>
+      TestAverage(i => (long?) i.NullableByteValue + (long?) i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest08() =>
+      TestAverage(i => (float?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableByteValue + (float?) i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableByteValue + (float?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest09() =>
+      TestAverage(i => (float?) i.NullableByteValue + (float?) i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest10() =>
+      TestAverage(i => (double?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double) i.ByteValue + (double) i.ByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double) i.ByteValue + (double) i.ByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest11() =>
+      TestAverage(i => (double) i.ByteValue + (double) i.ByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest12() =>
+      TestAverage(i => (decimal?) i.NullableByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableByteValue + (decimal?) i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableByteValue + (decimal?) i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest13() =>
+      TestAverage(i => (decimal?) i.NullableByteValue + (decimal?) i.NullableByteValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest14() =>
+      TestAverage(i => i.NullableByteValue + i.NullableIntValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest15() =>
+      TestAverage(i => i.NullableByteValue + i.NullableLongValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest16() =>
+      TestAverage(i => i.NullableByteValue + i.NullableFloatValue);
 
     [Test]
-    public void NullableByteFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest17() =>
+      TestAverage(i => i.NullableByteValue + i.NullableDoubleValue1);
 
     [Test]
-    public void NullableByteFieldExpressionTest18()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableByteValue + i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableByteValue + i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableByteFieldExpressionTest18() =>
+      TestAverage(i => i.NullableByteValue + i.NullableDecimalValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest01() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest02() =>
+      TestAverage(i => (short?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (short?) i.NullableSByteValue + (short?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (short?) i.NullableSByteValue + (short?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest03() =>
+      TestAverage(i => (short?) i.NullableSByteValue + (short?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest04() =>
+      TestAverage(i => (int?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableSByteValue + (int?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableSByteValue + (int?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest05() =>
+      TestAverage(i => (int?) i.NullableSByteValue + (int?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest06() =>
+      TestAverage(i => (long?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableSByteValue + (long?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableSByteValue + (long?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest07() =>
+      TestAverage(i => (long?) i.NullableSByteValue + (long?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest08() =>
+      TestAverage(i => (float?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableSByteValue + (float?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableSByteValue + (float?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest09() =>
+      TestAverage(i => (float?) i.NullableSByteValue + (float?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest10() =>
+      TestAverage(i => (double?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableSByteValue + (double?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableSByteValue + (double?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest11() =>
+      TestAverage(i => (double?) i.NullableSByteValue + (double?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableSByteValue + i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableSByteValue + i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest12() =>
+      TestAverage(i => (decimal?) i.NullableSByteValue + i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableSByteValue + (decimal?) i.NullableSByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableSByteValue + (decimal?) i.NullableSByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest13() =>
+      TestAverage(i => (decimal?) i.NullableSByteValue + (decimal?) i.NullableSByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest14() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableByteValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest15() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableIntValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest16() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableLongValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest17() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableFloatValue);
 
     [Test]
-    public void NullableSByteFieldExpressionTest18()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest18() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableDoubleValue1);
 
     [Test]
-    public void NullableSByteFieldExpressionTest19()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableSByteValue + i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableSByteValue + i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableSByteFieldExpressionTest19() =>
+      TestAverage(i => i.NullableSByteValue + i.NullableDecimalValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest01() =>
+      TestAverage(i => i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest02() =>
+      TestAverage(i => (int?) i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableShortValue + (int?) i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableShortValue + (int?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest03() =>
+      TestAverage(i => (int?) i.NullableShortValue + (int?) i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest04() =>
+      TestAverage(i => (long?) i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableShortValue + (long?) i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableShortValue + (long?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest05() =>
+      TestAverage(i => (long?) i.NullableShortValue + (long?) i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest06() =>
+      TestAverage(i => (float?) i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableShortValue + (float?) i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float) i.ShortValue + (float?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest07() =>
+      TestAverage(i => (float?) i.NullableShortValue + (float?) i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest08() =>
+      TestAverage(i => (double?) i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableShortValue + (double?) i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableShortValue + (double?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest09() =>
+      TestAverage(i => (double?) i.NullableShortValue + (double?) i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableShortValue + i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableShortValue + i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest10() =>
+      TestAverage(i => (decimal?) i.NullableShortValue + i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableShortValue + (decimal?) i.NullableShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableShortValue + (decimal?) i.NullableShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest11() =>
+      TestAverage(i => (decimal?) i.NullableShortValue + (decimal?) i.NullableShortValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest12() =>
+      TestAverage(i => i.NullableShortValue + i.NullableByteValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest13() =>
+      TestAverage(i => i.NullableShortValue + i.NullableIntValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest14() =>
+      TestAverage(i => i.NullableShortValue + i.NullableLongValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest15() =>
+      TestAverage(i => i.NullableShortValue + i.NullableFloatValue);
 
     [Test]
-    public void NullableShortFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest16() =>
+      TestAverage(i => i.NullableShortValue + i.NullableDoubleValue1);
 
     [Test]
-    public void NullableShortFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableShortValue + i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableShortValue + i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableShortFieldExpressionTest17() =>
+      TestAverage(i => i.NullableShortValue + i.NullableDecimalValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest01() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest02() =>
+      TestAverage(i => (int?) i.NullableUShortValue + i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (int?) i.NullableUShortValue + (int?) i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (int?) i.NullableUShortValue + (int?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest03() =>
+      TestAverage(i => (int?) i.NullableUShortValue + (int?) i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest04() =>
+      TestAverage(i => (long?) i.NullableUShortValue + i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableUShortValue + (long?) i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableUShortValue + (long?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest05() =>
+      TestAverage(i => (long?) i.NullableUShortValue + (long?) i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest06() =>
+      TestAverage(i => (float?) i.NullableUShortValue + i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableUShortValue + (float?) i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableUShortValue + (float?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest07() =>
+      TestAverage(i => (float?) i.NullableUShortValue + (float?) i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest08() =>
+      TestAverage(i => (double?) i.NullableUShortValue + i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableUShortValue + (double?) i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableUShortValue + (double?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest09() =>
+      TestAverage(i => (double?) i.NullableUShortValue + (double?) i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableUShortValue + i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableUShortValue + i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest10() =>
+      TestAverage(i => (decimal?) i.NullableUShortValue + i.NullableUShortValue);
 
+
     [Test]
-    public void NullableUShortFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableUShortValue + (decimal?) i.NullableUShortValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableUShortValue + (decimal?) i.NullableUShortValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest11() =>
+      TestAverage(i => (decimal?) i.NullableUShortValue + (decimal?) i.NullableUShortValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest12() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableByteValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest13() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableIntValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest14() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableLongValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest15()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest15() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableFloatValue);
 
     [Test]
-    public void NullableUShortFieldExpressionTest16()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest16() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableDoubleValue1);
 
     [Test]
-    public void NullableUShortFieldExpressionTest17()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUShortValue + i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUShortValue + i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUShortFieldExpressionTest17() =>
+      TestAverage(i => i.NullableUShortValue + i.NullableDecimalValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest01() =>
+      TestAverage(i => i.NullableIntValue * i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableIntValue * i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableIntValue * i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest02() =>
+      TestAverage(i => (long?) i.NullableIntValue * i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableIntValue * (long?) i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableIntValue * (long?) i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest03() =>
+      TestAverage(i => (long?) i.NullableIntValue * (long?) i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableIntValue * i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableIntValue * i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest04() =>
+      TestAverage(i => (float?) i.NullableIntValue * i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableIntValue * (float?) i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableIntValue * (float?) i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest05() =>
+      TestAverage(i => (float?) i.NullableIntValue * (float?) i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableIntValue * i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableIntValue * i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest06() =>
+      TestAverage(i => (double?) i.NullableIntValue * i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableIntValue * (double?) i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableIntValue * (double?) i.NullableIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest07() =>
+      TestAverage(i => (double?) i.NullableIntValue * (double?) i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableIntValue * i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableIntValue * i.NullableIntValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableIntFieldExpressionTest08() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableIntValue * i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableIntValue * (decimal?) i.NullableIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableIntValue * (decimal?) i.NullableIntValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableIntFieldExpressionTest09() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableIntValue * (decimal?) i.NullableIntValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableByteValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableByteValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest10() =>
+      TestAverage(i => i.NullableIntValue * i.NullableByteValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest11() =>
+      TestAverage(i => i.NullableIntValue * i.NullableLongValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest12() =>
+      TestAverage(i => i.NullableIntValue * i.NullableFloatValue);
 
     [Test]
-    public void NullableIntFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableIntFieldExpressionTest13() =>
+      TestAverage(i => i.NullableIntValue * i.NullableDoubleValue1);
 
     [Test]
-    public void NullableIntFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableIntValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableIntValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableIntFieldExpressionTest14() =>
+      TestAverageWithAccuracy(i => i.NullableIntValue * i.NullableDecimalValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue * i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest01() =>
+      TestAverage(i => i.NullableUIntValue * i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableUIntValue * i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest02() =>
+      TestAverage(i => (long?) i.NullableUIntValue * i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (long?) i.NullableUIntValue * (long?) i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (long?) i.NullableUIntValue * (long?) i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest03() =>
+      TestAverage(i => (long?) i.NullableUIntValue * (long?) i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableUIntValue * i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest04() =>
+      TestAverage(i => (float?) i.NullableUIntValue * i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableUIntValue * (float?) i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableUIntValue * (float?) i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest05() =>
+      TestAverage(i => (float?) i.NullableUIntValue * (float?) i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableUIntValue * i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest06() =>
+      TestAverage(i => (double?) i.NullableUIntValue * i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableUIntValue * (double?) i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableUIntValue * (double?) i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest07() =>
+      TestAverage(i => (double?) i.NullableUIntValue * (double?) i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableUIntValue * i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableUIntValue * i.NullableUIntValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableUIntFieldExpressionTest08() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableUIntValue * i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableUIntValue * (decimal?) i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableUIntValue * (decimal?) i.NullableUIntValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableUIntFieldExpressionTest09() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableUIntValue * (decimal?) i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue + i.NullableUIntValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue + i.NullableUIntValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest10() =>
+      TestAverage(i => i.NullableUIntValue + i.NullableUIntValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest11()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest11() =>
+      TestAverage(i => i.NullableUIntValue * i.NullableLongValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest12()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest12() =>
+      TestAverage(i => i.NullableUIntValue * i.NullableFloatValue);
 
     [Test]
-    public void NullableUIntFieldExpressionTest13()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableUIntFieldExpressionTest13() =>
+      TestAverage(i => i.NullableUIntValue * i.NullableDoubleValue1);
 
     [Test]
-    public void NullableUIntFieldExpressionTest14()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableUIntValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableUIntValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableUIntFieldExpressionTest14() =>
+      TestAverageWithAccuracy(i => i.NullableUIntValue * i.NullableDecimalValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableLongValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableLongValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest01() =>
+      TestAverage(i => i.NullableLongValue * i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableLongValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableLongValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest02() =>
+      TestAverage(i => (float?) i.NullableLongValue * i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableLongValue * (float?) i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableLongValue * (float?) i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest03() =>
+      TestAverage(i => (float?) i.NullableLongValue * (float?) i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest04()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableLongValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableLongValue * i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest04() =>
+      TestAverage(i => (double?) i.NullableLongValue * i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest05()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableLongValue * (double?) i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableLongValue * (double?) i.NullableLongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest05() =>
+      TestAverage(i => (double?) i.NullableLongValue * (double?) i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest06()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableLongValue * i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableLongValue * i.NullableLongValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableLongFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableLongValue * i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest07()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableLongValue * (decimal?) i.NullableLongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableLongValue * (decimal?) i.NullableLongValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableLongFieldExpressionTest07() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableLongValue * (decimal?) i.NullableLongValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest08()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableLongValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableLongValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest08() =>
+      TestAverage(i => i.NullableLongValue * i.NullableFloatValue);
 
     [Test]
-    public void NullableLongFieldExpressionTest09()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableLongValue * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableLongValue * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
-    }
+    public void NullableLongFieldExpressionTest09() =>
+      TestAverage(i => i.NullableLongValue * i.NullableDoubleValue1);
 
     [Test]
-    public void NullableLongFieldExpressionTest10()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableLongValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableLongValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
-    }
+    public void NullableLongFieldExpressionTest10() =>
+      TestAverageWithAccuracy(i => i.NullableLongValue * i.NullableDecimalValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest02() =>
+      TestAverage(i => (float?) i.NullableULongValue * i.NullableULongValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest03() =>
+      TestAverage(i => (float?) i.NullableULongValue * (float?) i.NullableULongValue);
 
+
+    [Test]
+    public void NullableULongFieldExpressionTest04() =>
+      TestAverage(i => (double?) i.NullableULongValue * i.NullableULongValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest05() =>
+      TestAverage(i => (double?) i.NullableULongValue * (double?) i.NullableULongValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableULongValue * i.NullableULongValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest07() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableULongValue * (decimal?) i.NullableULongValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest08() =>
+      TestAverage(i => i.NullableULongValue * i.NullableFloatValue);
+
+    [Test]
+    public void NullableULongFieldExpressionTest09() =>
+      TestAverage(i => i.NullableULongValue * i.NullableDoubleValue1);
+
+    [Test]
+    public void NullableULongFieldExpressionTest10() =>
+      TestAverageWithAccuracy(i => i.NullableULongValue * i.NullableDecimalValue);
+
+    [Test]
+    public void NullableFloatFieldExpressionTest01() =>
+      TestAverageWithAccuracy(i => i.NullableFloatValue * i.NullableFloatValue, FloatValueAccuracy);
+
+    [Test]
+    public void NullableFloatFieldExpressionTest02() =>
+      TestAverageWithAccuracy(i => (double?) i.NullableFloatValue * i.NullableFloatValue, FloatValueAccuracy);
+
+    [Test]
+    public void NullableFloatFieldExpressionTest03() =>
+      TestAverageWithAccuracy(i => (double?) i.NullableFloatValue * (double?) i.NullableFloatValue, FloatValueAccuracy);
+
     [Test]
-    public void NullableULongFieldExpressionTest02()
+    public void NullableFloatFieldExpressionTest04() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableFloatValue * (decimal?) i.NullableFloatValue, FloatValueAccuracy);
+
+    [Test]
+    public void NullableFloatFieldExpressionTest05() =>
+      TestAverageWithAccuracy(i => i.NullableFloatValue * i.NullableDoubleValue1, FloatValueAccuracy);
+
+    [Test]
+    public void NullableFloatFieldExpressionTest06() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableFloatValue * i.NullableDecimalValue, FloatValueAccuracy);
+
+    [Test]
+    public void NullableDoubleFieldExpressionTest01() =>
+      TestAverage(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
+
+    [Test]
+    public void NullableDoubleFieldExpressionTest02() =>
+      TestAverageWithAccuracy(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue, DoubleValueAccuracy);
+
+    [Test]
+    public void NullableDecimalFieldExpressionTest() =>
+      TestAverageWithAccuracy(i => i.NullableDecimalValue * i.NullableDecimalValue);
+
+
+
+    private void TestAverage(Expression<Func<TestEntity, int>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableULongValue * i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableULongValue * i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest03()
+    private void TestAverage(Expression<Func<TestEntity, int?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (float?) i.NullableULongValue * (float?) i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (float?) i.NullableULongValue * (float?) i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest04()
+    private void TestAverage(Expression<Func<TestEntity, long>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableULongValue * i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableULongValue * i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest05()
+    private void TestAverage(Expression<Func<TestEntity, long?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableULongValue * (double?) i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableULongValue * (double?) i.NullableULongValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest06()
+    private void TestAverage(Expression<Func<TestEntity, float>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableULongValue * i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableULongValue * i.NullableULongValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest07()
+    private void TestAverage(Expression<Func<TestEntity, float?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableULongValue * (decimal?) i.NullableULongValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableULongValue * (decimal?) i.NullableULongValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest08()
+    private void TestAverage(Expression<Func<TestEntity, double>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableULongValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableULongValue * i.NullableFloatValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest09()
+    private void TestAverage(Expression<Func<TestEntity, double?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableULongValue * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableULongValue * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableULongFieldExpressionTest10()
+    private void TestAverage(Expression<Func<TestEntity, decimal>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableULongValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableULongValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest01()
+    private void TestAverage(Expression<Func<TestEntity, decimal?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableFloatValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableFloatValue * i.NullableFloatValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(queryableResult, Is.EqualTo(enumerableResult), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest02()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, float>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableFloatValue * i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableFloatValue * i.NullableFloatValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest03()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, float?>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (double?) i.NullableFloatValue * (double?) i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (double?) i.NullableFloatValue * (double?) i.NullableFloatValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest04()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, double>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableFloatValue * (decimal?) i.NullableFloatValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableFloatValue * (decimal?) i.NullableFloatValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest05()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, double?>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableFloatValue * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableFloatValue * i.NullableDoubleValue1);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableFloatFieldExpressionTest06()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, decimal>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableFloatValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableFloatValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(FloatValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult - enumerableResult), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableDoubleFieldExpressionTest01()
+    private void TestAverageWithAccuracy<TAccuracy>(Expression<Func<TestEntity, decimal?>> selector, TAccuracy accuracy)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(accuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableDoubleFieldExpressionTest02()
+    private void TestAverageWithAccuracy(Expression<Func<TestEntity, decimal>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(DoubleValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult - decimal.Round(enumerableResult, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Select(selector).Average(t => t)");
     }
 
-    [Test]
-    public void NullableDecimalFieldExpressionTest()
+    private void TestAverageWithAccuracy(Expression<Func<TestEntity, decimal?>> selector)
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var queryableResult = session.Query.All<TestEntity>().Average(i => i.NullableDecimalValue * i.NullableDecimalValue);
-        var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Average(i => i.NullableDecimalValue * i.NullableDecimalValue);
-        Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy));
-      }
+      var queryableResult = GlobalSession.Query.All<TestEntity>().Average(selector);
+      var enumerableResult = GlobalSession.Query.All<TestEntity>().AsEnumerable().Average(selector.Compile());
+      Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Average(selector)");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average();
+      Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Select(selector).Average()");
+
+      queryableResult = GlobalSession.Query.All<TestEntity>().Select(selector).Average(t => t);
+      Assert.That(Math.Abs(queryableResult.Value - decimal.Round(enumerableResult.Value, 19)), Is.LessThan(DecimalValueAccuracy), "Failed on Select(selector).Average(t => t)");
     }
   }
 }
