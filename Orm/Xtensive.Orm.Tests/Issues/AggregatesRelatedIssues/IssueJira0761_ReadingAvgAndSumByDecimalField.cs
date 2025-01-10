@@ -8,9 +8,9 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAvgAndSumByDecimalFieldModel;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAvgAndSumByDecimalFieldModel
 {
   [HierarchyRoot]
   public class DecimalValueStructureEntityByRefCase : Entity
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldMo
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class IssueJira0761_ReadingAverageByDecimalField : AutoBuildTest
+  public class IssueJira0761_ReadingAvgAndSumByDecimalField : AutoBuildTest
   {
     private const int OrderCount = 100;
 
