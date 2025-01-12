@@ -397,14 +397,14 @@ namespace Xtensive.Orm.Providers
     #region Sync Execute methods
 
     public int ExecuteNonQuery(Session session, DbCommand command) =>
-      ExecuteCommand(session, command, CommandBehavior.Default, (c, cb) => c.ExecuteNonQuery());
+      ExecuteCommand(session, command, CommandBehavior.Default, static (c, cb) => c.ExecuteNonQuery());
 
     public object ExecuteScalar(Session session, DbCommand command) =>
-      ExecuteCommand(session, command, CommandBehavior.Default, (c, cb) => c.ExecuteScalar());
+      ExecuteCommand(session, command, CommandBehavior.Default, static (c, cb) => c.ExecuteScalar());
 
     public DbDataReader ExecuteReader(Session session, DbCommand command,
       CommandBehavior behavior = CommandBehavior.Default) =>
-      ExecuteCommand(session, command, behavior, (c, cb) => c.ExecuteReader(cb));
+      ExecuteCommand(session, command, behavior, static (c, cb) => c.ExecuteReader(cb));
 
     #endregion
 
@@ -412,11 +412,11 @@ namespace Xtensive.Orm.Providers
 
     public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, CommandBehavior.Default, cancellationToken,
-        (c, cb, ct) => c.ExecuteNonQueryAsync(ct));
+        static (c, cb, ct) => c.ExecuteNonQueryAsync(ct));
 
     public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, CommandBehavior.Default, cancellationToken,
-        (c, cb, ct) => c.ExecuteScalarAsync(ct));
+        static (c, cb, ct) => c.ExecuteScalarAsync(ct));
 
     public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command,
       CancellationToken cancellationToken = default) =>
@@ -425,18 +425,27 @@ namespace Xtensive.Orm.Providers
     public Task<DbDataReader> ExecuteReaderAsync(
       Session session, DbCommand command, CommandBehavior behavior, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, behavior, cancellationToken,
-        (c, cb, ct) => c.ExecuteReaderAsync(cb, ct));
+        static (c, cb, ct) => c.ExecuteReaderAsync(cb, ct));
 
     #endregion
 
-    private TResult ExecuteCommand<TResult>(
-      Session session, DbCommand command, CommandBehavior commandBehavior, Func<DbCommand, CommandBehavior, TResult> action)
+    private void PreDbCommandExecuting(Session session, DbCommand command, CancellationToken ct = default)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
       }
 
-      session?.Events.NotifyDbCommandExecuting(command);
+      ct.ThrowIfCancellationRequested();
+      if (session is not null) {
+        session.Transaction?.CheckForTimeout(command);
+        session.Events.NotifyDbCommandExecuting(command);
+      }
+    }
+
+    private TResult ExecuteCommand<TResult>(
+      Session session, DbCommand command, CommandBehavior commandBehavior, Func<DbCommand, CommandBehavior, TResult> action)
+    {
+      PreDbCommandExecuting(session, command);
 
       TResult result;
       try {
@@ -457,12 +466,7 @@ namespace Xtensive.Orm.Providers
       DbCommand command, CommandBehavior commandBehavior,
       CancellationToken cancellationToken, Func<DbCommand, CommandBehavior, CancellationToken, Task<TResult>> action)
     {
-      if (isLoggingEnabled) {
-        SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
-      }
-
-      cancellationToken.ThrowIfCancellationRequested();
-      session?.Events.NotifyDbCommandExecuting(command);
+      PreDbCommandExecuting(session, command, cancellationToken);
 
       TResult result;
       try {
