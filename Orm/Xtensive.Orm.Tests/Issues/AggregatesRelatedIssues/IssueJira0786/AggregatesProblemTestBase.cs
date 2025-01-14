@@ -15,14 +15,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 {
   public abstract class AggregatesProblemTestBase : AutoBuildTest
   {
-    private bool refillDatabase = false;
-
     protected decimal FloatValueAccuracy { get; private set; } = 0.000001m;
     protected decimal DoubleValueAccuracy { get; private set; } = 0.00000000000001m;
     protected decimal DecimalValueAccuracy { get; private set; } = 0.00000000000000001m;
 
-    protected Session GlobalSession { get; private set; }
-    protected TransactionScope GlobalTransaction { get; private set; }
+    protected override bool InitGlobalSession => true;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -45,8 +42,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
         DoubleValueAccuracy = 0.00001m;
         DecimalValueAccuracy = 0.00001m;
       }
-
-      (GlobalSession, GlobalTransaction) = CreateSessionAndTransaction();
 
       _ = new TestEntity(GlobalSession) {
         ByteValue = 2,

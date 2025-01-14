@@ -19,9 +19,22 @@ namespace Xtensive.Orm.Tests
   {
     private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
     private DisposableSet disposables;
+    private (Session session, TransactionScope transaction) globalSessionAndTransaction;
+
+    /// <summary>
+    /// If set to <see langword="true"/>, global session and transaction will be opened
+    /// to use one session accross all test methods.
+    /// </summary>
+    protected virtual bool InitGlobalSession => false;
 
     protected ProviderInfo ProviderInfo { get; set; }
     protected Domain Domain { get; set; }
+
+    // Use these two for read-only tests only, don't change them, they are controlled by AutoBuildTest.
+    // If there is need to change Session/Transactionscope or add/modify/remove entities
+    // then open dedicated Session/TransactionScope within test
+    protected Session GlobalSession => InitGlobalSession ? globalSessionAndTransaction.session : throw new Exception("Set UseGlobalSession to true");
+    protected TransactionScope GlobalTransaction => InitGlobalSession ? globalSessionAndTransaction.transaction : throw new Exception("Set UseGlobalSession to true");
 
     [OneTimeSetUp]
     public virtual void TestFixtureSetUp()
@@ -58,10 +71,16 @@ namespace Xtensive.Orm.Tests
 
       var config = BuildConfiguration();
       Domain = BuildDomain(config);
-      PopulateData();
-
-      if (Domain!=null)
+      if (Domain != null) {
         ProviderInfo = Domain.StorageProviderInfo;
+        if (InitGlobalSession) {
+          globalSessionAndTransaction = CreateSessionAndTransaction();
+        }
+      }
+      else {
+        ProviderInfo = StorageProviderInfo.Instance.Info;
+      }
+      PopulateData();
     }
 
     protected virtual void PopulateData()
@@ -74,8 +93,10 @@ namespace Xtensive.Orm.Tests
 
     protected (Session, TransactionScope) CreateSessionAndTransaction()
     {
+      var initDisposable = disposables is null;
       try {
-        disposables = new DisposableSet();
+        if (initDisposable)
+          disposables = new DisposableSet();
         var session = Domain.OpenSession();
         var transaction = session.OpenTransaction();
         _ = disposables.Add(session);
@@ -83,8 +104,10 @@ namespace Xtensive.Orm.Tests
         return (session, transaction);
       }
       catch {
-        disposables.DisposeSafely();
-        disposables = null;
+        if (initDisposable) {
+          disposables.DisposeSafely();
+          disposables = null;
+        }
         throw;
       }
     }

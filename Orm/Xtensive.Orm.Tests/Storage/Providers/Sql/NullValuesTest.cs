@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2023 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -18,22 +18,23 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   {
     private bool emptyStringIsNull;
 
+    protected override bool InitGlobalSession => true;
+
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      _ = CreateSessionAndTransaction();
       emptyStringIsNull = ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       
-      new X {FString = "Xtensive"};
-      new X {FString = null};
-      new X {FString = string.Empty};
+      _ = new X(GlobalSession) {FString = "Xtensive"};
+      _ = new X(GlobalSession) {FString = null};
+      _ = new X(GlobalSession) {FString = string.Empty};
     }
 
     [Test]
     public void CompareWithEmptyStringParameterTest()
     {
       var value = string.Empty;
-      var result = Session.Demand().Query.All<X>().Where(x => x.FString==value).ToList();
+      var result = GlobalSession.Query.All<X>().Where(x => x.FString==value).ToList();
       if (emptyStringIsNull)
         CheckIsNull(result, 2);
       else
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void CompareWithNullStringParameterTest()
     {
       string value = null;
-      var result = Session.Demand().Query.All<X>().Where(x => x.FString==value).ToList();
+      var result = GlobalSession.Query.All<X>().Where(x => x.FString==value).ToList();
       CheckIsNull(result, emptyStringIsNull ? 2 : 1);
     }
 
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void CompareWithEmptyStringConstantTest()
     {
       // NOTE: string.Empty should not be used here, because it is translated via string parameter
-      var result = Session.Demand().Query.All<X>().Where(x => x.FString=="").ToList();
+      var result = GlobalSession.Query.All<X>().Where(x => x.FString=="").ToList();
       if (emptyStringIsNull)
         CheckIsNull(result, 2);
       else
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void CompareWithNullStringConstantTest()
     {
-      var result = Session.Demand().Query.All<X>().Where(x => x.FString==null).ToList();
+      var result = GlobalSession.Query.All<X>().Where(x => x.FString==null).ToList();
       CheckIsNull(result, emptyStringIsNull ? 2 : 1);
     }
 
@@ -70,7 +71,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void SelectNullStringParameter()
     {
       string value = null;
-      var result = Session.Demand().Query.All<X>().Select(x => new {x.Id, Value = value}).ToList();
+      var result = GlobalSession.Query.All<X>().Select(x => new {x.Id, Value = value}).ToList();
       foreach (var item in result)
         Assert.IsNull(item.Value);
     }

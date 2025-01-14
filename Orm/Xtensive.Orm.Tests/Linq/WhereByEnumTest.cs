@@ -171,8 +171,7 @@ namespace Xtensive.Orm.Tests.Linq
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      CreateSessionAndTransaction();
-      sharedSession = Session.Current;
+      sharedSession = CreateSessionAndTransaction().Item1;
       castSign = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)
         ? "::"
         : "CAST";
