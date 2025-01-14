@@ -715,18 +715,8 @@ namespace Xtensive.Orm.Linq
       var originProjection = origin.First;
       var originColumnIndex = origin.Second;
 
-      // experiments
-
-      var headerColumns = originProjection.ItemProjector.DataSource.Header.Columns;
-      var aggregatedColumn = headerColumns[originColumnIndex];
-
-      // For decimal type we try to guess result precision and scale to avoid
-      // usage of general values which can create some issues result reading
-      (int precision, int scale)? aggregateTypeHints = TryGuessDecimalPrecisionAndSclale(aggregatedColumn, headerColumns, context.Model);
-
-      var aggregateDescriptor = aggregateTypeHints.HasValue
-        ? new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType, aggregateTypeHints.Value)
-        : new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType);
+      var aggregateDescriptor = new AggregateColumnDescriptor(
+        context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
       var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
 
@@ -808,55 +798,6 @@ namespace Xtensive.Orm.Linq
         return Expression.Convert(result, resultType);
       }
       return result;
-
-
-      static (int, int)? TryGuessDecimalPrecisionAndSclale(Column aggregatedColumn, Rse.ColumnCollection headerColumns, Orm.Model.DomainModel domainModel)
-      {
-        if (aggregatedColumn.Type != WellKnownTypes.Decimal)
-          return null;
-
-        if (aggregatedColumn is MappedColumn mColumn) {
-          var resolvedColumn = mColumn.ColumnInfoRef.Resolve(domainModel);
-          if (resolvedColumn.Precision.HasValue && resolvedColumn.Scale.HasValue)
-            return (resolvedColumn.Precision.Value, resolvedColumn.Scale.Value);
-        }
-        else if (aggregatedColumn is CalculatedColumn cColumn) {
-          var expression = cColumn.Expression;
-          var usedColumns = new Rse.Transformation.TupleAccessGatherer().Gather(expression);
-
-          var maxFloorDigits = -1;
-          var maxScaleDigits = -1;
-          foreach (var cIndex in usedColumns.Distinct()) {
-            var usedColumn = headerColumns[cIndex];
-            if (usedColumn is MappedColumn mmColumn) {
-              var resolvedColumn = mmColumn.ColumnInfoRef.Resolve(domainModel);
-
-              (int? p, int? s) @params = Type.GetTypeCode(resolvedColumn.ValueType) switch {
-                TypeCode.Decimal => (resolvedColumn.Precision, resolvedColumn.Scale),
-                TypeCode.Int32 or TypeCode.UInt32 => (19, 8),
-                TypeCode.Int64 or TypeCode.UInt64 => (28, 8),
-                TypeCode.Byte  or TypeCode.SByte => (8, 5),
-                TypeCode.Int16 or TypeCode.UInt16 => (10, 5),
-                _ => (null, null),
-              };
-
-              if (@params.p.HasValue && @params.s.HasValue) {
-                if (maxScaleDigits < @params.s.Value)
-                  maxScaleDigits = @params.s.Value;
-                var floorDigits = @params.p.Value - @params.s.Value;
-                if (maxFloorDigits < floorDigits)
-                  maxFloorDigits = floorDigits;
-              }
-            }
-          }
-          if (maxFloorDigits == -1 || maxScaleDigits == -1)
-            return null;
-          if (maxFloorDigits + maxScaleDigits <= 28)
-            return (maxFloorDigits + maxScaleDigits, maxScaleDigits);
-        }
-
-        return null;
-      }
     }
 
     private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right,
