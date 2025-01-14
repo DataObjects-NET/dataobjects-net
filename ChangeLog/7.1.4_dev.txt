@@ -1,0 +1,1 @@
+[main] Addressed IndexOutOfRangeException on translation of certain queries with aggregates
