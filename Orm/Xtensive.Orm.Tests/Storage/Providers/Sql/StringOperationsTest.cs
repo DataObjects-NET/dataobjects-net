@@ -19,6 +19,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     private bool emptyStringIsNull;
 
+    protected override bool InitGlobalSession => true;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -29,7 +31,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      _ = CreateSessionAndTransaction();
       emptyStringIsNull = ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       var testValues = new[] {
         // test values for TrimStart, TrimEnd, Trim
@@ -76,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void LengthTest()
     {
-      var results = Session.Demand().Query.All<X>().Select(x => new {
+      var results = GlobalSession.Query.All<X>().Select(x => new {
         String = x.FString,
         Length = x.FString.Length
       }).ToList();
@@ -89,7 +90,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void TrimSpaceTest()
     {
-      var results = Session.Demand().Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrim = x.FString.Trim(),
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void TrimOtherCharTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServer | StorageProvider.SqlServerCe);
-      var results = Session.Demand().Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingLargePLetter = x.FString.TrimStart('P'),
@@ -137,7 +138,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void TrimMultipleCharsTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe);
-      var results = Session.Demand().Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingZeroAndOne = x.FString.TrimStart('0', '1'),
@@ -154,7 +155,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void StartsWithTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         StartsWithA = x.FString.StartsWith("A"),
@@ -181,7 +182,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void EndsWithTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         EndsWithA = x.FString.EndsWith("A"),
@@ -208,7 +209,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void ContainsTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         ContainsA = x.FString.Contains("A"),
@@ -239,7 +240,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void PaddingTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         PadLeft = x.FString.PadLeft(10),
