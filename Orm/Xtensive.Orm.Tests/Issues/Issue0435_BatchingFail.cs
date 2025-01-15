@@ -1,4 +1,4 @@
-// Copyright (C) 2009-20223 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -28,17 +28,13 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue0435_BatchingFail : AutoBuildTest
   {
+    protected override bool InitGlobalSession => true;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (MyEntity));
       return configuration;
-    }
-
-    public override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      _ = CreateSessionAndTransaction();
     }
 
     [Test]
@@ -52,7 +48,7 @@ namespace Xtensive.Orm.Tests.Issues
         Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      foreach (var e in Session.Demand().Query.All<MyEntity>()) // Batch is sent
+      foreach (var e in GlobalSession.Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 
     }
 
@@ -67,9 +63,9 @@ namespace Xtensive.Orm.Tests.Issues
           Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      var futureCount = Session.Demand().Query.CreateDelayedQuery(qe => qe.All<MyEntity>().Count());
+      var futureCount = GlobalSession.Query.CreateDelayedQuery(qe => qe.All<MyEntity>().Count());
 
-      foreach (var e in Session.Demand().Query.All<MyEntity>()) // Batch is sent
+      foreach (var e in GlobalSession.Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 
       Console.WriteLine("Count: {0}", futureCount.Value);
     }

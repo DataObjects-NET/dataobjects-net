@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Xtensive LLC.
+// Copyright (C) 2019-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -10,15 +10,12 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class CommandProcessorContextProviderTest : AutoBuildTest
   {
-    protected override void PopulateData()
-    {
-      _ = CreateSessionAndTransaction();
-    }
+    protected override bool InitGlobalSession => true;
 
     [Test]
     public void GetContextTest()
     {
-      var session = Session.Demand();
+      var session = GlobalSession;
       var provider = session.CommandProcessorContextProvider;
       var context = provider.ProvideContext();
 
@@ -36,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void GetContextForPartialExecutionTest()
     {
-      var session = Session.Demand();
+      var session = GlobalSession;
       var provider = session.CommandProcessorContextProvider;
       var context = provider.ProvideContext(true);
 

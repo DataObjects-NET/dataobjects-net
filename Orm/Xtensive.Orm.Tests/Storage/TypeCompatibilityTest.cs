@@ -241,6 +241,15 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public EULong? FNEULong { get; set; }
 
+    public X(Session session)
+      : base(session)
+    {
+    }
+
+    public X()
+      : base()
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -254,6 +263,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field(Precision = 18, Scale = 0)]
     public decimal d18_0 { get; set; }
+
+    public DecimalContainer(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -264,6 +278,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field]
     public double FDouble { get; set; }
+
+    public DoubleContainer(Session session)
+      : base(session)
+    {
+    }
   }
 }
 
@@ -388,7 +407,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Key key;
         using (var transactionScope = session.OpenTransaction()) {
-          var container = new DecimalContainer() {
+          var container = new DecimalContainer(session) {
             d18_9 = d18_9,
             d18_0 = d18_0
           };

@@ -164,6 +164,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAvgAndSumByDecimalField
 
     [Field(Precision = 10, Scale = 0)]
     public decimal Count { get; set; }
+
+    public Order(Session session)
+      : base(session)
+    {
+    }
   }
 }
 
@@ -173,7 +178,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private const int OrderCount = 100;
 
-    private Session globalSession;
+    protected override bool InitGlobalSession => true;
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
 
@@ -187,11 +192,8 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void PopulateData()
     {
-      var sAndT = CreateSessionAndTransaction();
-      globalSession = sAndT.Item1;
-
       for (var i = 0; i < OrderCount; i++) {
-        _ = new Order() {
+        _ = new Order(GlobalSession) {
           Sum = (i % 2 == 0) ? 100000000000000000000000000.11m : 100000000000000000000000000.12m,
           Sum2 = 100000000000000000000000000.3m,
           Sum3 = 10000000000000000000000000.33m,
@@ -207,19 +209,19 @@ namespace Xtensive.Orm.Tests.Issues
       }
 
       foreach (var i in Enumerable.Range(1, 1000)) {
-        _ = new ValueByEntityRefCase(globalSession) {
-          Ref = new DirectFieldValueCase(globalSession) {
+        _ = new ValueByEntityRefCase(GlobalSession) {
+          Ref = new DirectFieldValueCase(GlobalSession) {
             Accepted = 163767
           }
         };
 
-        _ = new KeyValueByEntityRefCase(globalSession) {
-          Ref = new KeyExpressionCase(globalSession, 163767 + i)
+        _ = new KeyValueByEntityRefCase(GlobalSession) {
+          Ref = new KeyExpressionCase(GlobalSession, 163767 + i)
         };
 
-        _ = new DecimalValueStructureEntityByRefCase(globalSession) {
-          Ref = new DecimalValueStructureCase(globalSession) {
-            Struct = new DecimalValueStructure(globalSession) {
+        _ = new DecimalValueStructureEntityByRefCase(GlobalSession) {
+          Ref = new DecimalValueStructureCase(GlobalSession) {
+            Struct = new DecimalValueStructure(GlobalSession) {
               Value = 163767,
               Code = i
             }
@@ -227,11 +229,11 @@ namespace Xtensive.Orm.Tests.Issues
         };
       }
 
-      globalSession.SaveChanges();
+      GlobalSession.SaveChanges();
 
 #if DEBUG
       // just to keep data in database
-      sAndT.Item2.Complete();
+      GlobalTransaction.Complete();
 #endif
     }
 
@@ -240,43 +242,43 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AverageComplexTest()
     {
-      var queryResult = globalSession.Query.All<Order>().Average(o => o.Sum);
+      var queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum);
       var fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.11m).Or.EqualTo(0.12m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum2);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum2);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.3m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum3);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum3);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.33m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum4);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum4);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum5);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum5);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.3333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum6);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum6);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.33333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum7);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum7);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.333333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum8);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum8);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.3333333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum9);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum9);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.33333333m));
 
-      queryResult = globalSession.Query.All<Order>().Average(o => o.Sum10);
+      queryResult = GlobalSession.Query.All<Order>().Average(o => o.Sum10);
       fraction = queryResult - Math.Floor(queryResult);
       Assert.That(fraction, Is.EqualTo(0.333333333m));
     }
@@ -332,10 +334,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AvgDecimalExpressionInSourceExpressionsCase()
     {
-      var results = globalSession.Query.All<DirectFieldValueCase>()
+      var results = GlobalSession.Query.All<DirectFieldValueCase>()
         .GroupBy(e => e.Id, e => new { Split = e.Accepted * 0.01M })
         .Select(g => g.Select(x => x.Split).Distinct().Average()).ToList();
-      var localResults = globalSession.Query.All<DirectFieldValueCase>().AsEnumerable()
+      var localResults = GlobalSession.Query.All<DirectFieldValueCase>().AsEnumerable()
         .GroupBy(e => e.Id, e => new { Split = e.Accepted * 0.01M })
         .Select(g => g.Select(x => x.Split).Distinct().Average()).ToList();
 
@@ -345,16 +347,16 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void TestAverage<TEntity>(Expression<Func<TEntity, decimal>> selector) where TEntity : Entity
     {
-      var results = globalSession.Query.All<TEntity>().Average(selector);
-      var localResults = globalSession.Query.All<TEntity>().AsEnumerable().Average(selector.Compile());
+      var results = GlobalSession.Query.All<TEntity>().Average(selector);
+      var localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Average(selector.Compile());
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Average({selector})");
 
-      results = globalSession.Query.All<TEntity>().Select(selector).Average();
-      localResults = globalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Average();
+      results = GlobalSession.Query.All<TEntity>().Select(selector).Average();
+      localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Average();
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Select({selector}).Average()");
 
-      results = globalSession.Query.All<TEntity>().Select(selector).Distinct().Average();
-      localResults = globalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Distinct().Average();
+      results = GlobalSession.Query.All<TEntity>().Select(selector).Distinct().Average();
+      localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Distinct().Average();
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Select({selector}).Distinct().Average()");
     }
 
@@ -367,44 +369,44 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Require.ProviderIs(StorageProvider.SqlServer, " MS SQL Server has scale reduction algorithm, PgSql doesn't");
 
-      var queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum);
-      var localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum);
+      var queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum);
+      var localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum);
       Assert.That(queryResult, Is.EqualTo(localResult + 3));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum2);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum2);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum2);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum2);
       Assert.That(queryResult, Is.EqualTo(localResult + 6));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum3);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum3);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum3);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum3);
       Assert.That(queryResult, Is.EqualTo(localResult + 0.6m));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum4);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum4);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum4);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum4);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum5);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum5);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum5);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum5);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum6);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum6);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum6);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum6);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum7);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum7);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum7);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum7);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum8);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum8);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum8);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum8);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum9);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum9);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum9);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum9);
       Assert.That(queryResult, Is.EqualTo(localResult));
 
-      queryResult = globalSession.Query.All<Order>().Sum(o => o.Sum10);
-      localResult = globalSession.Query.All<Order>().ToArray().Sum(o => o.Sum10);
+      queryResult = GlobalSession.Query.All<Order>().Sum(o => o.Sum10);
+      localResult = GlobalSession.Query.All<Order>().ToArray().Sum(o => o.Sum10);
       Assert.That(queryResult, Is.EqualTo(localResult));
     }
 
@@ -459,10 +461,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void SumDecimalExpressionInSourceExpressionsCase()
     {
-      var results = globalSession.Query.All<DirectFieldValueCase>()
+      var results = GlobalSession.Query.All<DirectFieldValueCase>()
         .GroupBy(e => e.Id, e => new { Split = e.Accepted * 0.01M })
         .Select(g => g.Select(x => x.Split).Distinct().Sum()).ToList();
-      var localResults = globalSession.Query.All<DirectFieldValueCase>().AsEnumerable()
+      var localResults = GlobalSession.Query.All<DirectFieldValueCase>().AsEnumerable()
         .GroupBy(e => e.Id, e => new { Split = e.Accepted * 0.01M })
         .Select(g => g.Select(x => x.Split).Distinct().Sum()).ToList();
 
@@ -472,16 +474,16 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void TestSum<TEntity>(Expression<Func<TEntity, decimal>> selector) where TEntity : Entity
     {
-      var results = globalSession.Query.All<TEntity>().Sum(selector);
-      var localResults = globalSession.Query.All<TEntity>().AsEnumerable().Sum(selector.Compile());
+      var results = GlobalSession.Query.All<TEntity>().Sum(selector);
+      var localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Sum(selector.Compile());
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Sum({selector})");
 
-      results = globalSession.Query.All<TEntity>().Select(selector).Sum();
-      localResults = globalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Sum();
+      results = GlobalSession.Query.All<TEntity>().Select(selector).Sum();
+      localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Sum();
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Select({selector}).Sum()");
 
-      results = globalSession.Query.All<TEntity>().Select(selector).Distinct().Sum();
-      localResults = globalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Distinct().Sum();
+      results = GlobalSession.Query.All<TEntity>().Select(selector).Distinct().Sum();
+      localResults = GlobalSession.Query.All<TEntity>().AsEnumerable().Select(selector.Compile()).Distinct().Sum();
       Assert.That(results, Is.EqualTo(localResults), $"Failed on Select({selector}).Distinct().Sum()");
     }
 
