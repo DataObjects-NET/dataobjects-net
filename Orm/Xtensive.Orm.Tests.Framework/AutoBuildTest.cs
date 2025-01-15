@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Tests
   public abstract class AutoBuildTest : HasConfigurationAccessTest
   {
     private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
+    private const string ErrorNotInitializedGlobalSession = "Set InitGlobalSession to true";
+
     private DisposableSet disposables;
     private (Session session, TransactionScope transaction) globalSessionAndTransaction;
 
@@ -33,8 +35,8 @@ namespace Xtensive.Orm.Tests
     // Use these two for read-only tests only, don't change them, they are controlled by AutoBuildTest.
     // If there is need to change Session/Transactionscope or add/modify/remove entities
     // then open dedicated Session/TransactionScope within test
-    protected Session GlobalSession => InitGlobalSession ? globalSessionAndTransaction.session : throw new Exception("Set UseGlobalSession to true");
-    protected TransactionScope GlobalTransaction => InitGlobalSession ? globalSessionAndTransaction.transaction : throw new Exception("Set UseGlobalSession to true");
+    protected Session GlobalSession => InitGlobalSession ? globalSessionAndTransaction.session : throw new Exception(ErrorNotInitializedGlobalSession);
+    protected TransactionScope GlobalTransaction => InitGlobalSession ? globalSessionAndTransaction.transaction : throw new Exception(ErrorNotInitializedGlobalSession);
 
     [OneTimeSetUp]
     public virtual void TestFixtureSetUp()
