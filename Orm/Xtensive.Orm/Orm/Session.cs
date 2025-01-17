@@ -263,8 +263,8 @@ namespace Xtensive.Orm
 
     internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
-      await PersistAsync(PersistReason.Query, token).ConfigureAwait(false);
-      _ = await ProcessUserDefinedDelayedQueriesAsync(true, token).ConfigureAwait(false);
+      await PersistAsync(PersistReason.Query, token).ConfigureAwaitFalse();
+      _ = await ProcessUserDefinedDelayedQueriesAsync(true, token).ConfigureAwaitFalse();
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
@@ -637,7 +637,7 @@ namespace Xtensive.Orm
 
         Services.DisposeSafely();
         if (isAsync) {
-          await Handler.DisposeSafelyAsync().ConfigureAwait(false);
+          await Handler.DisposeSafelyAsync().ConfigureAwaitFalse();
         }
         else {
           Handler.DisposeSafely();

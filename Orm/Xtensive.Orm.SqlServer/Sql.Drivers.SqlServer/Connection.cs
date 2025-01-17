@@ -10,6 +10,7 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
@@ -143,11 +144,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       try {
         if (!IsTransactionZombied()) {
-          await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+          await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();
         }
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();
         ClearActiveTransaction();
       }
     }
@@ -265,12 +266,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
-        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         try {
           var command = underlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = checkQueryString;
-            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
           }
           connectionChecked = true;
         }
@@ -308,27 +309,27 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
         await SqlHelper.NotifyConnectionOpeningAsync(accessors,
             UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
-          .ConfigureAwait(false);
+          .ConfigureAwaitFalse();
 
-        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         try {
           await SqlHelper.NotifyConnectionInitializingAsync(accessors,
               UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered), cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwaitFalse();
 
           var command = underlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = checkQueryString;
-            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
           }
           connectionChecked = true;
           await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwaitFalse();
         }
         catch (Exception exception) {
           await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors,
               UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered), cancellationToken)
-            .ConfigureAwait(false);
+            .ConfigureAwaitFalse();
 
           if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered) {

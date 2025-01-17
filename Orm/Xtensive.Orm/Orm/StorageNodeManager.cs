@@ -43,7 +43,7 @@ namespace Xtensive.Orm
     public async Task<bool> AddNodeAsync([NotNull] NodeConfiguration configuration, CancellationToken token = default)
     {
       var node = await UpgradingDomainBuilder.BuildNodeAsync(handlers.Domain, configuration, token)
-        .ConfigureAwait(false);
+        .ConfigureAwaitFalse();
       return handlers.StorageNodeRegistry.Add(node);
     }
 

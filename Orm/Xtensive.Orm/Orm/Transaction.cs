@@ -183,7 +183,7 @@ namespace Xtensive.Orm
 
     internal async ValueTask BeginAsync(CancellationToken token)
     {
-      await Session.BeginTransactionAsync(this, token).ConfigureAwait(false);
+      await Session.BeginTransactionAsync(this, token).ConfigureAwaitFalse();
       if (Outer != null) {
         Outer.inner = this;
       }
@@ -200,10 +200,10 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
         }
 
-        await Session.CommitTransaction(this, isAsync).ConfigureAwait(false);
+        await Session.CommitTransaction(this, isAsync).ConfigureAwaitFalse();
       }
       catch {
-        await Rollback(isAsync).ConfigureAwait(false);
+        await Rollback(isAsync).ConfigureAwaitFalse();
         throw;
       }
 
@@ -228,11 +228,11 @@ namespace Xtensive.Orm
       try {
         try {
           if (inner != null) {
-            await inner.Rollback(isAsync).ConfigureAwait(false);
+            await inner.Rollback(isAsync).ConfigureAwaitFalse();
           }
         }
         finally {
-          await Session.RollbackTransaction(this, isAsync).ConfigureAwait(false);
+          await Session.RollbackTransaction(this, isAsync).ConfigureAwaitFalse();
         }
       }
       finally {
