@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0555_KeyRemapBugModel
   }
 
   [HierarchyRoot]
-  [KeyGenerator]
+  [KeyGenerator(KeyGeneratorKind.None)]
   public class TestEntity2 : Entity
   {
     private static int Increment = 1;
