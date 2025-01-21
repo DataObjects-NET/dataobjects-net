@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Model
       // Such "correction" makes Domain seem functional but exceptions can happen
       // while working with domain.
 
-      // This benifits in short term but in long term creates another "caviar" for user to remember
+      // This benifits in short term but in long term creates another caveat for user to remember
       // along his project live, newcomers will probably not know this which can cause instability.
 
       Domain domain = null;
@@ -363,7 +363,7 @@ namespace Xtensive.Orm.Tests.Model
       // Such "correction" makes Domain seem functional but exceptions can happen
       // while working with domain.
 
-      // This benifits in short term but in long term creates another "caviar" for user to remember
+      // This benifits in short term but in long term creates another caveat for user to remember
       // along his project live, newcomers will probably not know this which can cause instability.
 
       Domain domain = null;
@@ -396,7 +396,7 @@ namespace Xtensive.Orm.Tests.Model
       // Such "correction" makes Domain seem functional but exceptions can happen
       // while working with domain.
 
-      // This benifits in short term but in long term creates another "caviar" for user to remember
+      // This benifits in short term but in long term creates another caveat for user to remember
       // along his project live, newcomers will probably not know this which can cause instability.
 
       Domain domain = null;
@@ -606,7 +606,7 @@ namespace Xtensive.Orm.Tests.Model
       // Such "correction" makes Domain seem functional but exceptions can happen
       // while working with domain.
 
-      // This benifits in short term but in long term creates another "caviar" for user to remember
+      // This benifits in short term but in long term creates another caveat for user to remember
       // along his project live, newcomers will probably not know this which can cause instability.
 
       Domain domain = null;
@@ -1024,7 +1024,7 @@ namespace Xtensive.Orm.Tests.Model
       // Such "correction" makes Domain seem functional but exceptions can happen
       // while working with domain.
 
-      // This benifits in short term but in long term creates another "caviar" for user to remember
+      // This benifits in short term but in long term creates another caveat for user to remember
       // along his project live, newcomers will probably not know this which can cause instability.
 
       Domain domain = null;
