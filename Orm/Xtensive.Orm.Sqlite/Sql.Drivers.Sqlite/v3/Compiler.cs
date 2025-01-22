@@ -155,7 +155,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
-          Visit(EmulateLpadOrRpad(arguments, node.FunctionType is SqlFunctionType.PadLeft));
+          Visit(EmulateLpadRpad(arguments, node.FunctionType is SqlFunctionType.PadLeft));
           return;
         case SqlFunctionType.Concat:
           var nod = arguments[0];
@@ -632,7 +632,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       };
     }
 
-    private static SqlCase EmulateLpadOrRpad(IReadOnlyList<SqlExpression> arguments, bool isLpad)
+    private static SqlCase EmulateLpadRpad(IReadOnlyList<SqlExpression> arguments, bool isLpad)
     {
       var operand = arguments[0];
       var charcount = arguments[1];
