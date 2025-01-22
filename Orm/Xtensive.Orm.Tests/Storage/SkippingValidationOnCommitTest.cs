@@ -45,10 +45,10 @@ namespace Xtensive.Orm.Tests.Storage
         _ = new FutureTestEntity3() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
         _ = new FutureTestEntity4() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
 
-        _ = new LenghtTestEntity1() { NeverValidatedField = "Length", StringField = "too short" };
-        _ = new LenghtTestEntity2() { NeverValidatedField = "Length", StringField = "too short" };
-        _ = new LenghtTestEntity3() { NeverValidatedField = "Length", StringField = "too short" };
-        _ = new LenghtTestEntity4() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LengthTestEntity1() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LengthTestEntity2() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LengthTestEntity3() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LengthTestEntity4() { NeverValidatedField = "Length", StringField = "too short" };
 
         _ = new NotEmptyTestEntity1() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
         _ = new NotEmptyTestEntity2() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
@@ -383,21 +383,21 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity1>().First();
+        var entity = session.Query.All<LengthTestEntity1>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity1>().First();
+        var entity = session.Query.All<LengthTestEntity1>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity1>().First();
+        var entity = session.Query.All<LengthTestEntity1>().First();
         entity.NeverValidatedField += "(changed)";
         var errors = session.ValidateAndGetErrors();
         Assert.That(errors.Count, Is.EqualTo(1));
@@ -406,7 +406,7 @@ namespace Xtensive.Orm.Tests.Storage
       _ = Assert.Throws<ValidationFailedException>(() => {
         using (var session = Domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<LenghtTestEntity1>().First();
+          var entity = session.Query.All<LengthTestEntity1>().First();
           entity.NeverValidatedField += "(changed)";
           transaction.Complete();
           //exception on commit
@@ -419,21 +419,21 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity2>().First();
+        var entity = session.Query.All<LengthTestEntity2>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity2>().First();
+        var entity = session.Query.All<LengthTestEntity2>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity2>().First();
+        var entity = session.Query.All<LengthTestEntity2>().First();
         entity.NeverValidatedField += "(changed)";
         var errors = session.ValidateAndGetErrors();
         Assert.That(errors.Count, Is.EqualTo(1));
@@ -441,7 +441,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity2>().First();
+        var entity = session.Query.All<LengthTestEntity2>().First();
         entity.NeverValidatedField += "(changed)";
         transaction.Complete();
         //no exception on commit
@@ -453,21 +453,21 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity3>().First();
+        var entity = session.Query.All<LengthTestEntity3>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity3>().First();
+        var entity = session.Query.All<LengthTestEntity3>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity3>().First();
+        var entity = session.Query.All<LengthTestEntity3>().First();
         entity.NeverValidatedField += "(changed)";
         var errors = session.ValidateAndGetErrors();
         Assert.That(errors.Count, Is.EqualTo(1));
@@ -476,7 +476,7 @@ namespace Xtensive.Orm.Tests.Storage
       _ = Assert.Throws<ValidationFailedException>(() => {
         using (var session = Domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<LenghtTestEntity3>().First();
+          var entity = session.Query.All<LengthTestEntity3>().First();
           entity.NeverValidatedField += "(changed)";
           transaction.Complete();
           //exception on commit
@@ -489,21 +489,21 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity4>().First();
+        var entity = session.Query.All<LengthTestEntity4>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity4>().First();
+        var entity = session.Query.All<LengthTestEntity4>().First();
         entity.NeverValidatedField += "(changed)";
         _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity4>().First();
+        var entity = session.Query.All<LengthTestEntity4>().First();
         entity.NeverValidatedField += "(changed)";
         var errors = session.ValidateAndGetErrors();
         Assert.That(errors.Count, Is.EqualTo(1));
@@ -511,7 +511,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<LenghtTestEntity4>().First();
+        var entity = session.Query.All<LengthTestEntity4>().First();
         entity.NeverValidatedField += "(changed)";
         transaction.Complete();
         //no exception on commit
@@ -519,7 +519,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        _ = new LenghtTestEntity4() { NeverValidatedField = "", StringField = "not email" };//no exception
+        _ = new LengthTestEntity4() { NeverValidatedField = "", StringField = "not email" };//no exception
         transaction.Complete();
         // no exception
       }
@@ -1446,7 +1446,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
   }
 
   [HierarchyRoot]
-  public class LenghtTestEntity1 : BaseEntity
+  public class LengthTestEntity1 : BaseEntity
   {
     [Field]
     [LengthConstraint(IsImmediate = true, Min = 16)]
@@ -1522,7 +1522,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
   }
 
   [HierarchyRoot]
-  public class LenghtTestEntity2 : BaseEntity
+  public class LengthTestEntity2 : BaseEntity
   {
     [Field]
     [LengthConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 16)]
@@ -1598,7 +1598,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
   }
 
   [HierarchyRoot]
-  public class LenghtTestEntity3 : BaseEntity
+  public class LengthTestEntity3 : BaseEntity
   {
     [Field]
     [LengthConstraint(IsImmediate = false, Min = 16)]
@@ -1674,7 +1674,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
   }
 
   [HierarchyRoot]
-  public class LenghtTestEntity4 : BaseEntity
+  public class LengthTestEntity4 : BaseEntity
   {
     [Field]
     [LengthConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 16)]
