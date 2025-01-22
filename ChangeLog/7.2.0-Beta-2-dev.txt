@@ -1,1 +1,6 @@
 [main] Upgrade hints change names of constructors' string parameters for better understanding of what suppose to be in them.
+[main] Improved string operations Trim/TrimStart/TrimEnd support
+[mysql] SqlDml.NullIf function now correctly translated
+[mysql] Improved support for string.PadLeft/PadRight opertaions
+[sqlite] Fixed string.Lenght translation
+[sqlite] Added support for string.PadLeft/PadRight operations
