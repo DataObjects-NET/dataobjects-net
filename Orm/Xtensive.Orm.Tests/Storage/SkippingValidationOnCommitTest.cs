@@ -379,7 +379,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void LenghtConstraintImmediateNotSkippedTest()
+    public void LengthConstraintImmediateNotSkippedTest()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -415,7 +415,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void LenghtConstraintImmediateSkippedTest()
+    public void LengthConstraintImmediateSkippedTest()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -449,7 +449,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void LenghtConstraintNotImmidiateNotSkippedTest()
+    public void LengthConstraintNotImmidiateNotSkippedTest()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -485,7 +485,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void LenghtConstraintNotImmediateSkippedTest()
+    public void LengthConstraintNotImmediateSkippedTest()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
