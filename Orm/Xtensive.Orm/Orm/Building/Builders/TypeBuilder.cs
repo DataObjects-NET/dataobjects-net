@@ -527,6 +527,10 @@ namespace Xtensive.Orm.Building.Builders
         }
       }
 
+      if (generatorKind != hierarchyDef.KeyGeneratorKind && generatorKind == KeyGeneratorKind.None) {
+        BuildLog.Warning(string.Format(Strings.LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone, root.Name));
+      }
+
       if (generatorKind == KeyGeneratorKind.None) {
         // No key generator is attached.
         // Each hierarchy has it's own equality identifier.

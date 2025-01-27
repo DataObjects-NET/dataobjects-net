@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -23,16 +23,26 @@ namespace Xtensive.Orm.Rse
   /// </summary>
   public static class CompilableProviderExtensions
   {
-    public static CompilableProvider Calculate(this CompilableProvider source,
+    public static CalculateProvider Calculate(this CompilableProvider source,
       params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns);
+      return new CalculateProvider(source, columns, false);
     }
 
-    public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
+    public static CalculateProvider Calculate(this CompilableProvider source, bool isInlined,
       params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns, isInlined);
+      return new CalculateProvider(source, columns, isInlined);
+    }
+
+    public static CalculateProvider Calculate(this CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columns)
+    {
+      return new CalculateProvider(source, columns);
+    }
+
+    public static CalculateProvider Calculate(this CompilableProvider source, bool isInlined, IReadOnlyList<CalculatedColumnDescriptor> columns)
+    {
+      return new CalculateProvider(source, columns, isInlined);
     }
 
     public static CompilableProvider RowNumber(this CompilableProvider source, string columnName)

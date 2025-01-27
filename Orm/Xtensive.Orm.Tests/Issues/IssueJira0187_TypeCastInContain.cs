@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2023 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -43,6 +43,8 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class Issue_TypeCastInContain : AutoBuildTest
   {
+    protected override bool InitGlobalSession => true;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -50,52 +52,46 @@ namespace Xtensive.Orm.Tests.Issues
       return config;
     }
 
-    public override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      _ = CreateSessionAndTransaction();
-    }
-
     [Test]
     public void ParentsContainsChildWithImplicitCastTest()
     {
-      var parents = Query.All<Parent>().ToArray();
-      var result = Query.All<Child>().Where(child => parents.Contains(child)).ToArray();
+      var parents = GlobalSession.Query.All<Parent>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(child => parents.Contains(child)).ToArray();
     }
 
     [Test]
     public void ParentsContainsChildWithExplicitCastTest()
     {
-      var parents = Query.All<Parent>().ToArray();
-      var result = Query.All<Child>().Where(child => parents.Contains(child as Parent)).ToArray();
+      var parents = GlobalSession.Query.All<Parent>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(child => parents.Contains(child as Parent)).ToArray();
     }
 
     [Test]
     public void ChildInParentsTest()
     {
-      var parents = Query.All<Parent>().ToArray();
-      var result = Query.All<Child>().Where(child => child.In(parents)).ToArray();
+      var parents = GlobalSession.Query.All<Parent>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(child => child.In(parents)).ToArray();
     }
 
     [Test]
     public void ChildContainsParentWithImplicitCast()
     {
-      var children = Query.All<Child>().ToArray();
-      var result = Query.All<Child>().Where(a => children.Contains(a.Parent)).ToArray();
+      var children = GlobalSession.Query.All<Child>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(a => children.Contains(a.Parent)).ToArray();
     }
 
     [Test]
     public void ChildContainsParentWithExplicitCast()
     {
-      var children = Query.All<Child>().ToArray();
-      var result = Query.All<Child>().Where(a => (children as IEnumerable<Parent>).Contains(a.Parent)).ToArray();
+      var children = GlobalSession.Query.All<Child>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(a => (children as IEnumerable<Parent>).Contains(a.Parent)).ToArray();
     }
 
     [Test]
     public void ParentInChildrenTest()
     {
-      var children = Query.All<Child>().ToArray();
-      var result = Query.All<Child>().Where(a => a.Parent.In(children)).ToArray();
+      var children = GlobalSession.Query.All<Child>().ToArray();
+      var result = GlobalSession.Query.All<Child>().Where(a => a.Parent.In(children)).ToArray();
     }
   }
 }

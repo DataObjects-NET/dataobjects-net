@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Transformation;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
@@ -20,6 +21,12 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
       new SqlCompiler(Handlers, configuration);
+
+    protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
+    {
+      var decimalAggregateCorrector = new AggregateOverDecimalColumnCorrector(Handlers.Domain.Model);
+      return new CompositePreCompiler(decimalAggregateCorrector, base.CreatePreCompiler(configuration));
+    }
 
     /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()

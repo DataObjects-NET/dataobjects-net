@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2023 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -32,6 +32,8 @@ namespace Xtensive.Orm.Tests.Linq
 {
   public class ConvariantQueriesTest : AutoBuildTest
   {
+    protected override bool InitGlobalSession => true;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -39,24 +41,18 @@ namespace Xtensive.Orm.Tests.Linq
       return config;
     }
 
-    public override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      _ = CreateSessionAndTransaction();
-    }
-
     [Test]
     public void ConcatTest()
     {
-      var q1 = Query.All<MyBaseEntity>().Concat(Query.All<MyChildEntity>()).ToList();
-      var q2 = Query.All<MyChildEntity>().Concat(Query.All<MyBaseEntity>()).ToList();
+      var q1 = GlobalSession.Query.All<MyBaseEntity>().Concat(GlobalSession.Query.All<MyChildEntity>()).ToList();
+      var q2 = GlobalSession.Query.All<MyChildEntity>().Concat(GlobalSession.Query.All<MyBaseEntity>()).ToList();
     }
 
     [Test]
     public void UnionTest()
     {
-      var q1 = Query.All<MyBaseEntity>().Union(Query.All<MyChildEntity>()).ToList();
-      var q2 = Query.All<MyChildEntity>().Union(Query.All<MyBaseEntity>()).ToList();
+      var q1 = GlobalSession.Query.All<MyBaseEntity>().Union(GlobalSession.Query.All<MyChildEntity>()).ToList();
+      var q2 = GlobalSession.Query.All<MyChildEntity>().Union(GlobalSession.Query.All<MyBaseEntity>()).ToList();
     }
 
     [Test]
@@ -64,8 +60,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       //some storages does not support Intersect operation
       Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
-      var q1 = Query.All<MyBaseEntity>().Intersect(Query.All<MyChildEntity>()).ToList();
-      var q2 = Query.All<MyChildEntity>().Intersect(Query.All<MyBaseEntity>()).ToList();
+      var q1 = GlobalSession.Query.All<MyBaseEntity>().Intersect(GlobalSession.Query.All<MyChildEntity>()).ToList();
+      var q2 = GlobalSession.Query.All<MyChildEntity>().Intersect(GlobalSession.Query.All<MyBaseEntity>()).ToList();
     }
 
     [Test]
@@ -73,29 +69,29 @@ namespace Xtensive.Orm.Tests.Linq
     {
       //Some storages does not support Except operation 
       Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
-      var q1 = Query.All<MyBaseEntity>().Except(Query.All<MyChildEntity>()).ToList();
-      var q2 = Query.All<MyChildEntity>().Except(Query.All<MyBaseEntity>()).ToList();
+      var q1 = GlobalSession.Query.All<MyBaseEntity>().Except(GlobalSession.Query.All<MyChildEntity>()).ToList();
+      var q2 = GlobalSession.Query.All<MyChildEntity>().Except(GlobalSession.Query.All<MyBaseEntity>()).ToList();
     }
 
     [Test]
     public void ContainsTest()
     {
-      var q1 = Query.All<MyBaseEntity>()
-        .Where(baseEntity => Query.All<MyChildEntity>().Contains(baseEntity))
+      var q1 = GlobalSession.Query.All<MyBaseEntity>()
+        .Where(baseEntity => GlobalSession.Query.All<MyChildEntity>().Contains(baseEntity))
         .ToList();
-      var q2 = Query.All<MyChildEntity>()
-        .Where(childEntity => Query.All<MyBaseEntity>().Contains(childEntity))
+      var q2 = GlobalSession.Query.All<MyChildEntity>()
+        .Where(childEntity => GlobalSession.Query.All<MyBaseEntity>().Contains(childEntity))
         .ToList();
     }
 
     [Test]
     public void InTest()
     {
-      var q1 = Query.All<MyBaseEntity>()
-        .Where(baseEntity => baseEntity.In(Query.All<MyChildEntity>()))
+      var q1 = GlobalSession.Query.All<MyBaseEntity>()
+        .Where(baseEntity => baseEntity.In(GlobalSession.Query.All<MyChildEntity>()))
         .ToList();
-      var q2 = Query.All<MyChildEntity>()
-        .Where(childEntity => childEntity.In(Query.All<MyBaseEntity>()))
+      var q2 = GlobalSession.Query.All<MyChildEntity>()
+        .Where(childEntity => childEntity.In(GlobalSession.Query.All<MyBaseEntity>()))
         .ToList();
     }
   }

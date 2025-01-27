@@ -1,0 +1,3 @@
+[main] Addressed IndexOutOfRangeException on translation of certain queries with aggregates
+[main] Notification to BuildLog when a hierarchy changes KeyGeneratorKind value to None
+[postgresql] Added explicit nulls setting for both column order directions to improve OrderBy/OrderByDescending performance
