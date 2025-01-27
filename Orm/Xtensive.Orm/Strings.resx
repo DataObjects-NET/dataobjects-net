@@ -2612,4 +2612,7 @@ Error: {1}</value>
   <data name="ExMaxNumberOfConditionsShouldBeBetweenXAndY" xml:space="preserve">
     <value>DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included).</value>
   </data>
+  <data name="LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone" xml:space="preserve">
+    <value>Key generator kind for hierarchy with root '{0}' has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors.</value>
+  </data>
 </root>

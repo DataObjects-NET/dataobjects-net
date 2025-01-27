@@ -396,7 +396,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var ccds = provider.CalculatedColumns
         .SelectToArray(
           column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) ccds);
+      return source.Calculate(ccds);
     }
 
     private CalculateProvider RewriteCalculateColumnExpressions(
@@ -412,7 +412,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var currentName = columnCollection.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) ccd);
+      return source.Calculate(ccd);
     }
 
     #endregion

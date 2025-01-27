@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
       return !translated && source == provider.Source
         ? provider
-        : new CalculateProvider(source, descriptors.ToArray());
+        : new CalculateProvider(source, descriptors);
     }
 
     /// <inheritdoc/>

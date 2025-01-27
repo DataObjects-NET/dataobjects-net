@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2023 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -56,11 +56,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     private bool emptyStringIsNull;
     private bool autoTrimWhiteSpaces;
     private bool whitespaceStringAsEmptyString;
-    
 
-    private Session globalSession;
-    private TransactionScope globalTransaction;
-
+    protected override bool InitGlobalSession => true;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -74,16 +71,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       base.TestFixtureSetUp();
       InitStringRules();
 
-      var sessionAndTransaction = CreateSessionAndTransaction();
-      globalSession = sessionAndTransaction.Item1;
-      globalTransaction = sessionAndTransaction.Item2;
-
       var fStrings = emptyStringIsNull ? testValues : testValues.Append(string.Empty);
       foreach (var value in fStrings) {
         _ = new X { FString = value };
       }
 
-      globalSession.SaveChanges();
+      GlobalSession.SaveChanges();
     }
 
     private void InitStringRules()
@@ -102,7 +95,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void LengthTest()
     {
-      var results = globalSession.Query.All<X>().Select(x => new {
+      var results = GlobalSession.Query.All<X>().Select(x => new {
         String = x.FString,
         Length = x.FString.Length
       }).ToList();
@@ -115,7 +108,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void LengthServerSideTest()
     {
       foreach (var value in testValues) {
-        Assert.That(globalSession.Query.All<X>().Where(x => x.FString == value && x.FString.Length == value.Length).Count(),
+        Assert.That(GlobalSession.Query.All<X>().Where(x => x.FString == value && x.FString.Length == value.Length).Count(),
           Is.EqualTo(1), $"Failed for '{value}'.Length");
       }
     }
@@ -123,7 +116,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void CharsTest()
     {
-      var results = globalSession.Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Where(x => x.Id > 5 && x.Id < 11)
         .Select(x => new {
           String = x.FString,
@@ -141,10 +134,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void CharsServerSideTest()
     {
       foreach (var value in testValues.Where(t => t[0] != ' ' && t.Length >= 2)) {
-        Assert.That(globalSession.Query.All<X>().Where(x => x.FString == value && x.FString[0] == value[0]).Count(),
+        Assert.That(GlobalSession.Query.All<X>().Where(x => x.FString == value && x.FString[0] == value[0]).Count(),
           Is.EqualTo(1), $"Failed for '{value}'[0]");
 
-        Assert.That(globalSession.Query.All<X>().Where(x => x.FString == value && x.FString[1] == value[1]).Count(),
+        Assert.That(GlobalSession.Query.All<X>().Where(x => x.FString == value && x.FString[1] == value[1]).Count(),
           Is.EqualTo(1), $"Failed for '{value}'[1]");
       }
     }
@@ -154,7 +147,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void TrimSpaceTest()
     {
-      var results = globalSession.Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrim = x.FString.Trim(),
@@ -191,39 +184,39 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Trim() == value.Trim()).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.Trim()");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimStart() == value.TrimStart()).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimStart()");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimEnd() == value.TrimEnd()).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimEnd()");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Trim(null) == value.Trim(null)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.Trim(null)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimStart(null) == value.TrimStart(null)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimStart(null)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimEnd(null) == value.TrimEnd(null)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimEnd(null)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Trim(' ') == value.Trim(' ')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for {value}.Trim(' ')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimStart(' ') == value.TrimStart(' ')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for {value}.TrimStart(' ')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimEnd(' ') == value.TrimEnd(' ')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for {value}.TrimEnd(' ')");
       }
@@ -236,7 +229,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         StorageProvider.SqlServer | StorageProvider.SqlServerCe,
         "Can't trim anything except spaces");
 
-      var results = globalSession.Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingLargePLetter = x.FString.TrimStart('P'),
@@ -263,15 +256,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimStart('P') == value.TrimStart('P')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimStart('P')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Trim('o') == value.Trim('o')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.Trim('o')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimEnd(')') == value.TrimEnd(')')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimEnd(')')");
       }
@@ -284,7 +277,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         StorageProvider.SqlServer | StorageProvider.Oracle | StorageProvider.SqlServerCe | StorageProvider.MySql,
         "No support for trimming multiple characters");
 
-      var results = globalSession.Query.All<X>()
+      var results = GlobalSession.Query.All<X>()
         .Select(x => new {
           String = x.FString,
           StringTrimLeadingZeroAndOne = x.FString.TrimStart('0', '1'),
@@ -305,7 +298,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && (emptyStringIsNull || autoTrimWhiteSpaces || whitespaceStringAsEmptyString)
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.TrimStart('0', '1') == value.TrimStart('0', '1')).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimStart('0', '1')");
       }
@@ -318,7 +311,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void StartsWithTest()
     {
-      var result = globalSession.Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         StartsWithA = x.FString.StartsWith("A"),
@@ -353,35 +346,35 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("A") == value.StartsWith("A")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"A\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("%") == value.StartsWith("%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("_") == value.StartsWith("_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("%_") == value.StartsWith("%_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("_%") == value.StartsWith("_%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("^") == value.StartsWith("^")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"^\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("[") == value.StartsWith("[")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"[\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.StartsWith("]") == value.StartsWith("]")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"]\")");
       }
@@ -390,7 +383,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void EndsWithTest()
     {
-      var result = globalSession.Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         EndsWithA = x.FString.EndsWith("A"),
@@ -425,35 +418,35 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("A") == value.EndsWith("A")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"A\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("%") == value.EndsWith("%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("_") == value.EndsWith("_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("%_") == value.EndsWith("%_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("_%") == value.EndsWith("_%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("^") == value.EndsWith("^")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"^\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("[") == value.EndsWith("[")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"[\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("]") == value.EndsWith("]")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"]\")");
       }
@@ -462,7 +455,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void ContainsTest()
     {
-      var result = globalSession.Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         ContainsA = x.FString.Contains("A"),
@@ -497,35 +490,35 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("A") == value.Contains("A")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"A\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("%") == value.Contains("%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("_") == value.Contains("_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("%_") == value.Contains("%_")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"%_\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("_%") == value.Contains("_%")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"_%\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("^") == value.Contains("^")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"^\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.Contains("[") == value.Contains("[")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"[\")");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.EndsWith("]") == value.EndsWith("]")).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.StartsWith(\"]\")");
       }
@@ -538,7 +531,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void PaddingTest()
     {
-      var result = globalSession.Query.All<X>().Select(x => new {
+      var result = GlobalSession.Query.All<X>().Select(x => new {
         x.Id,
         String = x.FString,
         PadLeft = x.FString.PadLeft(10),
@@ -567,19 +560,19 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && checkForWhitespaceString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10) == value.PadLeft(10)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.PadLeft(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10) == value.PadRight(10)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.PadRight(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10, 'X') == value.PadLeft(10, 'X')).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadLeft(10, 'X')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10, 'X') == value.PadRight(10, 'X')).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadRight(10, 'X')");
       }
@@ -591,37 +584,37 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       Require.ProviderIs(StorageProvider.Firebird, "Cuts-off length of result string if it is bigger than endlength in LPAD/RPAD");
 
       foreach (var value in testValues.Where(s => s != StringOfWhiteSpaces)) {
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10) == value.PadLeft(10).Substring(0, 10)).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadLeft(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10) == value.PadRight(10).Substring(0, 10)).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadRight(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10, 'X') == value.PadLeft(10, 'X').Substring(0, 10)).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadLeft(10, 'X')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10, 'X') == value.PadRight(10, 'X').Substring(0, 10)).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadRight(10, 'X')");
       }
 
       foreach (var value in testValues.Where(s => s == StringOfWhiteSpaces)) {
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10) == string.Empty.PadLeft(10)).Count();
         Assert.That(result, Is.EqualTo(2), $"Failed for '{value}'.PadLeft(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10) == string.Empty.PadRight(10)).Count();
         Assert.That(result, Is.EqualTo(2), $"Failed for '{value}'.PadRight(10)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadLeft(10, 'X') == string.Empty.PadLeft(10, 'X')).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadLeft(10, 'X')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.PadRight(10, 'X') == string.Empty.PadRight(10, 'X')).Count();
         Assert.That(result, Is.EqualTo(1), $"Failed for '{value}'.PadRight(10, 'X')");
       }
@@ -641,7 +634,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       };
 
       var _char = 'o';
-      var baseQuery = globalSession.Query.All<X>().Where(x => x.FString != string.Empty);
+      var baseQuery = GlobalSession.Query.All<X>().Where(x => x.FString != string.Empty);
       if (emptyStringIsNull || autoTrimWhiteSpaces) {
         baseQuery = baseQuery.Where(x => x.FString != null);
       }
@@ -683,27 +676,27 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var expectedValue = value == StringOfWhiteSpaces && whitespaceStringAsEmptyString
           ? 2 : 1;
 
-        var result = globalSession.Query.All<X>()
+        var result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char) == value.IndexOf(_char.ToString(), comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.IndexOf(_char)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char, 1) == value.IndexOf(_char.ToString(), 1, comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.IndexOf(_char, 1)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char, 1, 1) == value.IndexOf(_char.ToString(), 1, 1, comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.TrimStart('0', '1')");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char.ToString()) == value.IndexOf(_char.ToString(), comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.IndexOf(_char.ToString())");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char.ToString(), 1) == value.IndexOf(_char.ToString(), 1, comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.IndexOf(_char.ToString(), 1)");
 
-        result = globalSession.Query.All<X>()
+        result = GlobalSession.Query.All<X>()
           .Where(x => x.FString == value && x.FString.IndexOf(_char.ToString(), 1, 1) == value.IndexOf(_char.ToString(), 1, 1, comparison)).Count();
         Assert.That(result, Is.EqualTo(expectedValue), $"Failed for '{value}'.IndexOf(_char.ToString(), 1, 1)");
       }
@@ -716,7 +709,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
       var _char = 'o';
       var exception = Assert.Throws<QueryTranslationException>(() =>
-        globalSession.Query.All<X>()
+        GlobalSession.Query.All<X>()
           .Where(x => x.FString.IndexOf(_char) > 0)
           .ToList());
       Assert.That(exception.InnerException, Is.InstanceOf<NotSupportedException>());
