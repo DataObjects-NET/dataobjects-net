@@ -61,7 +61,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup Label="Packages">
-    <PackageReference Include="BitFaster.Caching" Version="2.3.3" />
+    <PackageReference Include="BitFaster.Caching" Version="2.5.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
   </ItemGroup>
