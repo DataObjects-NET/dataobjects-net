@@ -69,18 +69,6 @@ namespace Xtensive.Orm.Providers
       Tuples = tuples;
     }
 
-    [Obsolete]
-    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)
-      : this(key, (requestSequence as IReadOnlyCollection<PersistRequest>)?? requestSequence.ToList(), tuple)
-    {
-    }
-
-    [Obsolete]
-    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
-      : this(key, (requestSequence as IReadOnlyCollection<PersistRequest>) ?? requestSequence.ToList(), tuple, originalTuple, validateRowCount)
-    {
-    }
-
     public SqlPersistTask(Key key, IReadOnlyCollection<PersistRequest> requestSequence, Tuple tuple)
     {
       EntityKey = key;

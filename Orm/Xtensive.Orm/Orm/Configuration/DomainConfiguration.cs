@@ -89,12 +89,6 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value.
     /// </summary>
-    [Obsolete ("User DefaultForeignKeyMode")]
-    public const ForeignKeyMode DefauktForeignKeyMode = ForeignKeyMode.Default;
-
-    /// <summary>
-    /// Default <see cref="ForeignKeyMode"/> value.
-    /// </summary>
     public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
     /// <summary>
