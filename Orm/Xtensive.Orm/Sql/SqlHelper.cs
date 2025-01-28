@@ -331,7 +331,7 @@ namespace Xtensive.Sql
           days, hours, minutes, seconds, milliseconds);
     }
 
-    public static SqlExpression GenericPad(SqlFunctionCall node)
+    public static SqlExpression GenericPad(SqlFunctionCall node, bool padStringRequired = false)
     {
       string paddingFunction;
       switch (node.FunctionType) {
@@ -346,9 +346,12 @@ namespace Xtensive.Sql
       }
       var operand = node.Arguments[0];
       var result = SqlDml.Case();
-      result.Add(
-        SqlDml.CharLength(operand) < node.Arguments[1],
-        SqlDml.FunctionCall(paddingFunction, node.Arguments));
+      var lenghtCheck = SqlDml.CharLength(operand) < node.Arguments[1];
+      var paddingItself = (padStringRequired && node.Arguments.Count < 3)
+        ? SqlDml.FunctionCall(paddingFunction, operand, node.Arguments[1], SqlDml.Literal(" "))
+        : SqlDml.FunctionCall(paddingFunction, node.Arguments);
+
+      _ = result.Add(lenghtCheck, paddingItself);
       result.Else = operand;
       return result;
     }
