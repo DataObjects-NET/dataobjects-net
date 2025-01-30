@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Rse
     {
       if (isErrorOnServerSide) {
         // Possible connection closing because of server-side error, like operation timeout,
-        // which makes finish of some providers imposible, like ones that work with tempoerary tables and require clean-up.
+        // which makes finish of some providers imposible, like ones that work with temporary tables and require clean-up.
         // Exception may happen but we must prevent overlaping original exception with new one.
         if (!enumerated) {
           try {
