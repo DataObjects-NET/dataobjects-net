@@ -15,6 +15,7 @@ using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using System.Threading.Tasks;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 {
@@ -911,6 +912,40 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TempTableCleanupAfterTimeout()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql | StorageProvider.SqlServer, "Uses database-specific syntax.");
+
+      var localItems = GetLocalItems(100);
+
+      var sessionConfig = new SessionConfiguration(SessionOptions.Default | SessionOptions.AutoActivation);
+      sessionConfig.BatchSize = 1;
+      sessionConfig.DefaultCommandTimeout = 10;
+
+      using (var session = Domain.OpenSession(sessionConfig))
+      using (var tx = session.OpenTransaction()) {
+        session.Events.DbCommandExecuting += Events_DbCommandExecuting;
+
+        var storeQueryable = session.Query.Store(localItems);
+        _ = Assert.Throws<OperationTimeoutException>(() => session.Query.All<Invoice>()
+          .Where(invoice => invoice.Commission > storeQueryable.Max(poco => poco.Value2)).ToArray());
+
+        session.Events.DbCommandExecuting -= Events_DbCommandExecuting;
+      }
+
+      static void Events_DbCommandExecuting(object sender, DbCommandEventArgs e)
+      {
+        // makes query to delay more than current setting of command timeout
+        var originalCommandText = e.Command.CommandText;
+        if (originalCommandText.Contains("Select", StringComparison.OrdinalIgnoreCase)) {
+          var session = ((SessionEventAccessor) sender).Session;
+          e.Command.CommandText = GetFakeDelayedCommandTest(session, originalCommandText);
+        }
+      }
+    }
+
+
+    [Test]
     [Ignore("Very long")]
     public void VeryLongTest()
     {
@@ -935,7 +970,18 @@ namespace Xtensive.Orm.Tests.Linq
             Value3 = Guid.NewGuid().ToString()
           }
         )
-        .ToList();
+        .ToList(count);
+    }
+
+    private static string GetFakeDelayedCommandTest(Session session, string originalCommandText)
+    {
+      var currentCommandTimeout = session.CommandTimeout.Value;
+
+      return StorageProviderInfo.Instance.Provider switch {
+        StorageProvider.SqlServer => $"WAITFOR DELAY '{TimeSpan.FromSeconds(currentCommandTimeout + 2).ToString("hh:mm.ss")}'" + originalCommandText,
+        StorageProvider.PostgreSql => $"SELECT pg_sleep({currentCommandTimeout + 2});" + originalCommandText,
+        _ => throw new ArgumentOutOfRangeException()
+      };
     }
   }
 }
