@@ -136,6 +136,77 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.AreEqual(0, OtherService3.InstanceCount);
     }
 
+
+    public class SomeConfig
+    {
+      public int Id { get; set; }
+
+      public static volatile int InstanceCount;
+
+      public SomeConfig()
+      {
+        _ = Interlocked.Increment(ref InstanceCount);
+      }
+
+      ~SomeConfig()
+      {
+        _ = Interlocked.Decrement(ref InstanceCount);
+      }
+    }
+
+    public class ItemDto
+    {
+      public int ItemId { get; set; }
+
+      public ItemDto(SomeConfig config)
+      {
+      }
+    }
+
+    public class Service4
+    {
+      public Session Session;
+
+      private readonly SomeConfig configuration = new SomeConfig() { Id = 1 };
+
+      public ItemDto DelayedQueryWithDTOCtorParamweter(int id)
+      {
+        ItemDto model = null;
+        {  // This curly brace does matter. Without it the Closure is different
+          var item2 = Session.Query.Single<Item>(id);
+          var query = Session.Query.CreateDelayedQuery(
+            q => {
+              return (from inv in q.All<Item>().Where(o => o == item2)
+                      select new ItemDto(configuration) {
+                        ItemId = inv.Id
+                      }).Single();
+            }
+          );
+          model = query.Value;
+        }
+        var invoice2 = Session.Query.All<Item>().Single(i => i.Id == model.ItemId);
+        return model;
+      }
+    }
+
+    [Test]
+    public void DelayedQueryWithDtoCtorParamTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item = new Item { Tag = 10 };
+        DelayedQueryWithDTOCtorParamweter(session);
+        t.Complete();
+      }
+      TestHelper.CollectGarbage(true);
+      Assert.AreEqual(0, SomeConfig.InstanceCount);
+    }
+
+    private void DelayedQueryWithDTOCtorParamweter(Session session)
+    {
+      _ = new Service4() { Session = session }.DelayedQueryWithDTOCtorParamweter(1);
+    }
+
     private void DelayedQueryWithEquality(Session session)
     {
       var id = 1;
