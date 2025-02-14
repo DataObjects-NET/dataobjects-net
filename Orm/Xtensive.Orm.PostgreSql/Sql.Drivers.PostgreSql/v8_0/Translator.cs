@@ -410,11 +410,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       switch (section) {
         case ExtractSection.Entry:
-          _ = context.Output.AppendOpeningPunctuation(isSecond ? "(trunc(extract(" : "(extract(");
+          _ = context.Output.AppendOpeningPunctuation(isSecond || isMillisecond ? "(trunc(extract(" : "(extract(");
           break;
         case ExtractSection.Exit:
           _ = context.Output.Append(isMillisecond
-           ? ")::int8 % 1000)"
+           ? "))::int8 % 1000)"
            : isSecond ? ")))" : ")::int8)"
           );
           break;
