@@ -569,9 +569,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     // Constructors
 
-    protected internal Compiler(SqlDriver driver)
+    protected internal Compiler(PostgreSql.Driver driver)
       : base(driver)
     {
+      infinityAliasForDatesEnabled = driver.PostgreServerInfo.InfinityAliasForDatesEnabled;
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_1
   {
     // Constructors
 
-    public Compiler(SqlDriver driver)
+    public Compiler(PostgreSql.Driver driver)
       : base(driver)
     {
     } 

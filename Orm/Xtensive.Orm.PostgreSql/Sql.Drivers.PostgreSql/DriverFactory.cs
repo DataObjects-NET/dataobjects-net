@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -22,6 +22,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   public class DriverFactory : SqlDriverFactory
   {
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
+
+    private readonly static bool InfinityAliasForDatesEnabled;
+    private readonly static bool LegacyTimestamptBehaviorEnabled;
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -74,6 +77,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     protected override async Task<SqlDriver> CreateDriverAsync(
       string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {
+      // these settings needed to be read before any connection happens
+      var useInfinityAliasForDateTime = InfinityAliasForDatesEnabled;
+      var legacyTimestampBehavior = LegacyTimestamptBehaviorEnabled;
+
       var connection = new NpgsqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
         if (configuration.DbConnectionAccessors.Count > 0)
@@ -105,6 +112,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         DefaultSchemaName = defaultSchema.Schema,
       };
 
+      var pgsqlServerInfo = new PostgreServerInfo() {
+        InfinityAliasForDatesEnabled = InfinityAliasForDatesEnabled,
+        LegacyTimestampBehavior = LegacyTimestamptBehaviorEnabled
+      };
+
       if (version.Major < 8 || (version.Major == 8 && version.Minor < 3)) {
         throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
       }
@@ -112,13 +124,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       // We support 8.3, 8.4 and any 9.0+
 
       return version.Major switch {
-        8 when version.Minor == 3 => new v8_3.Driver(coreServerInfo),
-        8 when version.Minor > 3  => new v8_4.Driver(coreServerInfo),
-        9 when version.Minor == 0 => new v9_0.Driver(coreServerInfo),
-        9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo),
-        10 => new v10_0.Driver(coreServerInfo),
-        11 => new v10_0.Driver(coreServerInfo),
-        _ => new v12_0.Driver(coreServerInfo)
+        8 when version.Minor == 3 => new v8_3.Driver(coreServerInfo, pgsqlServerInfo),
+        8 when version.Minor > 3  => new v8_4.Driver(coreServerInfo, pgsqlServerInfo),
+        9 when version.Minor == 0 => new v9_0.Driver(coreServerInfo, pgsqlServerInfo),
+        9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo, pgsqlServerInfo),
+        10 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
+        11 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
+        _ => new v12_0.Driver(coreServerInfo, pgsqlServerInfo)
       };
     }
 
@@ -187,6 +199,55 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           throw;
         }
       }
+    }
+
+    private static bool SetOrGetExistingDisableInfinityAliasForDatesSwitch(bool valueToSet) =>
+      GetSwitchValueOrSet(Orm.PostgreSql.WellKnown.DateTimeToInfinityConversionSwitchName, valueToSet);
+
+    private static bool SetOrGetExistingLegacyTimeStampBehaviorSwitch(bool valueToSet) =>
+      GetSwitchValueOrSet(Orm.PostgreSql.WellKnown.LegacyTimestampBehaviorSwitchName, valueToSet);
+
+    private static bool GetSwitchValueOrSet(string switchName, bool valueToSet)
+    {
+      if (!AppContext.TryGetSwitch(switchName, out var currentValue)) {
+        AppContext.SetSwitch(switchName, valueToSet);
+        return valueToSet;
+      }
+      else {
+        return currentValue;
+      }
+    }
+
+    static DriverFactory()
+    {
+      // Starging from Npgsql 6.0 they broke compatibility by forcefully replacing
+      // DateTime.MinValue/MaxValue of parameters with -Infinity and Infinity values.
+      // This new "feature", though doesn't affect reading/writing of values and equality/inequality
+      // filters, breaks some of operations such as parts extraction, default values for columns
+      // (which are constants and declared on high levels of abstraction) and some others.
+
+      // We turn it off to make current code work as before and make current data of
+      // the user be compatible with algorighms as long as possible.
+      // But if the user sets the switch then we work with what we have.
+      // Usage of such aliases makes us to create extra statements in SQL queries to provide
+      // the same results the queries which are already written, which may make queries a bit slower.
+
+      // DO NOT REPLACE method call with constant value when debugging, CHANGE THE PARAMETER VALUE.
+      InfinityAliasForDatesEnabled = !SetOrGetExistingDisableInfinityAliasForDatesSwitch(valueToSet: true);
+
+      // Legacy timestamp behavoir turns off certain parameter value binding requirements
+      // and makes Npgsql work like v4 or older.
+      // Current behavior require manual specification of unspecified kind for DateTime values,
+      // because Local or Utc kind now meand that underlying type of value to Timestamp without time zone 
+      // and Timestamp with time zone respectively.
+      // It also affects DateTimeOffsets, now there is a requirement to move timezone of value to Utc
+      // this forces us to use only local timezone when reading values, which basically ignores
+      // Postgre's setting SET TIME ZONE for database session.
+
+      // We have to use current mode, not the legacy one, because there is a chance of legacy mode elimination.
+
+      // DO NOT REPLACE method call with constant value when debugging, CHANGE THE PARAMETER VALUE.
+      LegacyTimestamptBehaviorEnabled = SetOrGetExistingLegacyTimeStampBehaviorSwitch(valueToSet: false);
     }
   }
 }
