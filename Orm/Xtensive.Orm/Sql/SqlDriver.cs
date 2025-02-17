@@ -179,17 +179,17 @@ namespace Xtensive.Sql
       var result = new SqlExtractionResult();
 
       foreach (var (catalogName, sqlExtractionTasks) in taskGroups) {
-        var extractor = await BuildExtractorAsync(connection, token).ConfigureAwait(false);
+        var extractor = await BuildExtractorAsync(connection, token).ConfigureAwaitFalse();
         if (sqlExtractionTasks.All(t => !t.AllSchemas)) {
           // extracting all the schemes we need
           var schemasToExtract = sqlExtractionTasks.Select(t => t.Schema).ToArray();
-          var catalog = await extractor.ExtractSchemesAsync(catalogName, schemasToExtract, token).ConfigureAwait(false);
+          var catalog = await extractor.ExtractSchemesAsync(catalogName, schemasToExtract, token).ConfigureAwaitFalse();
           CleanSchemas(catalog, schemasToExtract);
           result.Catalogs.Add(catalog);
         }
         else {
           // Extracting whole catalog
-          var catalog = await extractor.ExtractCatalogAsync(catalogName, token).ConfigureAwait(false);
+          var catalog = await extractor.ExtractCatalogAsync(catalogName, token).ConfigureAwaitFalse();
           result.Catalogs.Add(catalog);
         }
       }
@@ -223,9 +223,9 @@ namespace Xtensive.Sql
     /// </returns>
     public async Task<Catalog> ExtractCatalogAsync(SqlConnection connection, CancellationToken token = default)
     {
-      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwaitFalse();
       var task = new SqlExtractionTask(defaultSchema.Database);
-      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false)).Catalogs.Single();
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwaitFalse()).Catalogs.Single();
     }
 
     /// <summary>
@@ -253,9 +253,9 @@ namespace Xtensive.Sql
     /// </returns>
     public async Task<Schema> ExtractDefaultSchemaAsync(SqlConnection connection, CancellationToken token = default)
     {
-      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwaitFalse();
       return await ExtractSchemaAsync(connection, defaultSchema.Database, defaultSchema.Schema, token)
-        .ConfigureAwait(false);
+        .ConfigureAwaitFalse();
     }
 
     /// <summary>
@@ -286,8 +286,8 @@ namespace Xtensive.Sql
     public async Task<Schema> ExtractSchemaAsync(
       SqlConnection connection, string schemaName, CancellationToken token = default)
     {
-      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
-      return await ExtractSchemaAsync(connection, defaultSchema.Database, schemaName, token).ConfigureAwait(false);
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwaitFalse();
+      return await ExtractSchemaAsync(connection, defaultSchema.Database, schemaName, token).ConfigureAwaitFalse();
     }
 
     /// <summary>
@@ -462,7 +462,7 @@ namespace Xtensive.Sql
     private async Task<Extractor> BuildExtractorAsync(SqlConnection connection, CancellationToken token = default)
     {
       var extractor = CreateExtractor();
-      await extractor.InitializeAsync(connection, token).ConfigureAwait(false);
+      await extractor.InitializeAsync(connection, token).ConfigureAwaitFalse();
       return extractor;
     }
 
@@ -486,7 +486,7 @@ namespace Xtensive.Sql
       CancellationToken token = default)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
-      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false))
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwaitFalse())
         .Catalogs[databaseName].Schemas.FirstOrDefault(el => el.Name == schemaName);
     }
 

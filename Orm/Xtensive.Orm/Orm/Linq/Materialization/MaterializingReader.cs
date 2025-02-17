@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public async ValueTask<bool> MoveNextAsync()
     {
-      while (await recordSetReader.MoveNextAsync().ConfigureAwait(false)) {
+      while (await recordSetReader.MoveNextAsync().ConfigureAwaitFalse()) {
         if (itemMaterializer.CanMaterialize(recordSetReader.Current)) {
           return true;
         }

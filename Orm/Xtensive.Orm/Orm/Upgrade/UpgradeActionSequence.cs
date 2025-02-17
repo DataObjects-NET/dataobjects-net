@@ -127,15 +127,15 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, nameof(nonTransactionalProcessor));
 
       if (NonTransactionalPrologCommands.Count > 0) {
-        await nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands, token).ConfigureAwait(false);
+        await nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands, token).ConfigureAwaitFalse();
       }
 
       foreach (var batch in EnumerateTransactionalCommandBatches()) {
-        await regularProcessor.Invoke(batch, token).ConfigureAwait(false);
+        await regularProcessor.Invoke(batch, token).ConfigureAwaitFalse();
       }
 
       if (NonTransactionalEpilogCommands.Count > 0) {
-        await nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands, token).ConfigureAwait(false);
+        await nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands, token).ConfigureAwaitFalse();
       }
     }
 

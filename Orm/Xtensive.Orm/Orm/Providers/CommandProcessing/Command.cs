@@ -71,13 +71,13 @@ namespace Xtensive.Orm.Providers
     public async Task<int> ExecuteNonQueryAsync(CancellationToken token)
     {
       _ = Prepare();
-      return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
+      return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token).ConfigureAwaitFalse();
     }
 
     public async Task ExecuteReaderAsync(CancellationToken token)
     {
       _ = Prepare();
-      reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
+      reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwaitFalse();
     }
 
     public bool NextResult()
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Providers
     public async Task<bool> NextResultAsync(CancellationToken token = default)
     {
       try {
-        return await reader.NextResultAsync(token).ConfigureAwait(false);
+        return await reader.NextResultAsync(token).ConfigureAwaitFalse();
       }
       catch(Exception exception) {
         throw TranslateException(exception);
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Providers
     public async ValueTask<bool> NextRowAsync(CancellationToken token = default)
     {
       try {
-        return await reader.ReadAsync(token).ConfigureAwait(false);
+        return await reader.ReadAsync(token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw TranslateException(exception);
@@ -157,9 +157,9 @@ namespace Xtensive.Orm.Providers
     {
       if (!isDisposed) {
         isDisposed = true;
-        await reader.DisposeSafelyAsync().ConfigureAwait(false);
-        await resources.DisposeSafelyAsync().ConfigureAwait(false);
-        await underlyingCommand.DisposeSafelyAsync().ConfigureAwait(false);
+        await reader.DisposeSafelyAsync().ConfigureAwaitFalse();
+        await resources.DisposeSafelyAsync().ConfigureAwaitFalse();
+        await underlyingCommand.DisposeSafelyAsync().ConfigureAwaitFalse();
       }
     }
 

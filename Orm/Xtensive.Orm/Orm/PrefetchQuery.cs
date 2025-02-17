@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Orm.Internals.Prefetch;
 
@@ -82,7 +83,7 @@ namespace Xtensive.Orm
     {
       var list = new List<TElement>();
       var asyncEnumerable = new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes);
-      await foreach (var element in asyncEnumerable.WithCancellation(token).ConfigureAwait(false)) {
+      await foreach (var element in asyncEnumerable.WithCancellation(token).ConfigureAwaitFalse()) {
         list.Add(element);
       }
 

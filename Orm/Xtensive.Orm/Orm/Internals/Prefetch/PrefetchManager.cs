@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       IReadOnlyList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
     {
       var prefetchTask = Prefetch(key, type, descriptors, true, token);
-      return await prefetchTask.ConfigureAwait(false);
+      return await prefetchTask.ConfigureAwaitFalse();
     }
 
     private async ValueTask<StrongReferenceContainer> Prefetch(
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         StrongReferenceContainer container = null;
         if (graphContainers.Count >= MaxContainerCount) {
-          container = await ExecuteTasks(false, isAsync, token).ConfigureAwait(false);
+          container = await ExecuteTasks(false, isAsync, token).ConfigureAwaitFalse();
         }
 
         if (referenceContainer != null) {
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       ExecuteTasks(skipPersist, false, default).GetAwaiter().GetResult();
 
     public async Task<StrongReferenceContainer> ExecuteTasksAsync(bool skipPersist, CancellationToken token = default) =>
-      await ExecuteTasks(skipPersist, true, token).ConfigureAwait(false);
+      await ExecuteTasks(skipPersist, true, token).ConfigureAwaitFalse();
 
     private async ValueTask<StrongReferenceContainer> ExecuteTasks(bool skipPersist, bool isAsync, CancellationToken token)
     {
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
       try {
         var batchExecuted =
-          await fetcher.ExecuteTasks(graphContainers.Values, skipPersist, isAsync, token).ConfigureAwait(false);
+          await fetcher.ExecuteTasks(graphContainers.Values, skipPersist, isAsync, token).ConfigureAwaitFalse();
         TaskExecutionCount += batchExecuted;
         foreach (var graphContainer in graphContainers.Values) {
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();

@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Providers
     public async Task<SqlExtractionResult> ExtractAsync(
       SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token)
     {
-      var result = await underlyingDriver.ExtractAsync(connection, tasks, token).ConfigureAwait(false);
+      var result = await underlyingDriver.ExtractAsync(connection, tasks, token).ConfigureAwaitFalse();
       FixExtractionResult(result);
       return result;
     }
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Providers
       };
 
       var driver = await driverFactory.GetDriverAsync(configuration.ConnectionInfo, driverConfiguration, token)
-        .ConfigureAwait(false);
+        .ConfigureAwaitFalse();
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
       return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);

@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Providers
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      return await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwait(false);
+      return await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwaitFalse();
     }
 
     #region ToString related methods
