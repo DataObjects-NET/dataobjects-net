@@ -4,13 +4,23 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.06.06
 
+using Xtensive.Sql.Dml;
+
 namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class Compiler : v8_4.Compiler
   {
     // Constructors
 
-    public Compiler(SqlDriver driver)
+    protected override void VisitIntervalToMilliseconds(SqlFunctionCall node)
+    {
+      AppendSpaceIfNecessary();
+      _ = context.Output.Append("(EXTRACT(EPOCH FROM (");
+      node.Arguments[0].AcceptVisitor(this);
+      _ = context.Output.Append(")) * 1000)");
+      
+    }
+
     public Compiler(PostgreSql.Driver driver)
       : base(driver)
     {

@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2023 Xtensive LLC.
+// Copyright (C) 2012-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -404,11 +404,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       switch (section) {
         case ExtractSection.Entry:
-          _ = context.Output.AppendOpeningPunctuation(isSecond ? "(trunc(extract(" : "(extract(");
+          _ = context.Output.AppendOpeningPunctuation(isSecond || isMillisecond ? "(trunc(extract(" : "(extract(");
           break;
         case ExtractSection.Exit:
           _ = context.Output.Append(isMillisecond
-           ? ")::int8 % 1000)"
+           ? "))::int8 % 1000)"
            : isSecond ? ")))" : ")::int8)"
           );
           break;
