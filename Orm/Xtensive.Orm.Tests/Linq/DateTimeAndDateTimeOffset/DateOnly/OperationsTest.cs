@@ -23,6 +23,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     }
 
     [Test]
+    public void AddYearsToMinMaxValuesTest()
+    {
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddYears(1) == DateOnly.MinValue.AddYears(1));
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddYears(-33) == DateOnly.MaxValue.AddYears(-33));
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddYears(1) == DateOnly.MinValue.AddYears(2));
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddYears(-33) == DateOnly.MaxValue.AddYears(-34));
+      });
+    }
+
+    [Test]
     public void AddMonthsTest()
     {
       ExecuteInsideSession((s) => {
@@ -35,6 +47,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     }
 
     [Test]
+    public void AddMonthsToMinMaxValues()
+    {
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddMonths(1) == DateOnly.MinValue.AddMonths(1));
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddMonths(-33) == DateOnly.MaxValue.AddMonths(-33));
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddMonths(1) == DateOnly.MinValue.AddMonths(2));
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddMonths(-33) == DateOnly.MaxValue.AddMonths(-34));
+      });
+    }
+
+    [Test]
     public void AddDaysTest()
     {
       ExecuteInsideSession((s) => {
@@ -43,6 +67,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.DateOnly.AddDays(1) == FirstDateOnly.AddDays(2));
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.NullableDateOnly.Value.AddDays(33) == NullableDateOnly.AddDays(44));
+      });
+    }
+
+    [Test]
+    public void AddDaysToMinMaxValues()
+    {
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddDays(1) == DateOnly.MinValue.AddDays(1));
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddDays(-33) == DateOnly.MaxValue.AddDays(-33));
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddDays(1) == DateOnly.MinValue.AddDays(2));
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddDays(-33) == DateOnly.MaxValue.AddDays(-34));
       });
     }
   }

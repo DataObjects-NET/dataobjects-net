@@ -75,7 +75,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected void RunTest<T>(Session session, Expression<Func<T, bool>> filter, int rightCount = 1)
       where T : Entity
     {
+      session.Events.DbCommandExecuting += Events_DbCommandExecuting;
       var count = session.Query.All<T>().Count(filter);
+      session.Events.DbCommandExecuting -= Events_DbCommandExecuting;
       Assert.AreEqual(rightCount, count);
     }
 
@@ -89,6 +91,21 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       where T : Entity
     {
       RunTest(session, filter, 0);
+    }
+
+    private void Events_DbCommandExecuting(object sender, DbCommandEventArgs e)
+    {
+      var command = e.Command;
+      var commandText = command.CommandText;
+      Console.WriteLine("No Modifications SQL Text:");
+      Console.WriteLine(commandText);
+      var parameters = command.Parameters;
+
+      Console.Write(" Parameters: ");
+      for (int i = 0, count = parameters.Count; i < count; i++) {
+        var parameter = parameters[i];
+        Console.WriteLine($"{parameter.ParameterName} = {parameter.Value}");
+      }
     }
   }
 }

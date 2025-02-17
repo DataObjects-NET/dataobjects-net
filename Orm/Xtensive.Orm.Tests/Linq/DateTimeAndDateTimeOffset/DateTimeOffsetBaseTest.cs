@@ -42,6 +42,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       configuration.Types.Register(typeof (MillisecondDateTimeOffsetEntity));
       configuration.Types.Register(typeof (NullableDateTimeOffsetEntity));
       configuration.Types.Register(typeof (DateTimeEntity));
+      configuration.Types.Register(typeof(MinMaxDateTimeOffsetEntity));
     }
 
     protected override void InitializeCustomSettings(DomainConfiguration configuration)
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected override void PopulateEntities(Session session)
     {
-      new SingleDateTimeOffsetEntity {
+      _ = new SingleDateTimeOffsetEntity(session) {
         DateTimeOffset = FirstDateTimeOffset,
         MillisecondDateTimeOffset = FirstMillisecondDateTimeOffset,
         NullableDateTimeOffset = NullableDateTimeOffset
@@ -98,50 +99,56 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         FirstMillisecondDateTime.Add(new TimeSpan(987, 23, 34, 45)),
       };
 
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(FirstOffset) };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(SecondOffset) };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(TimeSpan.Zero) };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.Date };
-      new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
-      new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(FirstOffset) };
-      new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(SecondOffset) };
-      new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.Date };
-      new DateTimeOffsetEntity { DateTimeOffset = FirstDateTime };
-      new DateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(FirstDateTime, TimeSpan.Zero) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(FirstOffset) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(SecondOffset) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(TimeSpan.Zero) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.Date };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(FirstOffset) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(SecondOffset) };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.Date };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = FirstDateTime };
+      _ = new DateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(FirstDateTime, TimeSpan.Zero) };
 
       var index = 0;
-      foreach (var dateTime in dateTimes)
-        new DateTimeOffsetEntity(dateTime, ++index % 3==0 ? FirstOffset : SecondOffset);
-      
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(FirstOffset) };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(SecondOffset) };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(TimeSpan.Zero) };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.Date };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(FirstOffset) };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(SecondOffset) };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.Date };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTime };
-      new MillisecondDateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(SecondDateTime, TimeSpan.Zero) };
+      foreach (var dateTime in dateTimes) {
+        _ = new DateTimeOffsetEntity(dateTime, ++index % 3 == 0 ? FirstOffset : SecondOffset);
+      }
+
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(FirstOffset) };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(SecondOffset) };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(TimeSpan.Zero) };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.Date };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(FirstOffset) };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(SecondOffset) };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.Date };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTime };
+      _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(SecondDateTime, TimeSpan.Zero) };
 
       index = 0;
-      foreach (var dateTime in dateTimesWithMilliseconds)
-        new MillisecondDateTimeOffsetEntity(dateTime, ++index % 3==0 ? FirstOffset : SecondOffset);
+      foreach (var dateTime in dateTimesWithMilliseconds) {
+        _ = new MillisecondDateTimeOffsetEntity(dateTime, ++index % 3 == 0 ? FirstOffset : SecondOffset);
+      }
 
       var dateTimeOffset = FirstMillisecondDateTimeOffset.AddYears(10);
-      for (var i = 0; i < 1000; ++i)
-        new MillisecondDateTimeOffsetEntity { DateTimeOffset = dateTimeOffset.AddMilliseconds(i) };
+      for (var i = 0; i < 1000; ++i) {
+        _ = new MillisecondDateTimeOffsetEntity { DateTimeOffset = dateTimeOffset.AddMilliseconds(i) };
+      }
 
-      foreach (var dateTimeEntity in Query.All<DateTimeOffsetEntity>())
-        new NullableDateTimeOffsetEntity(dateTimeEntity);
+      foreach (var dateTimeEntity in Query.All<DateTimeOffsetEntity>()) {
+        _ = new NullableDateTimeOffsetEntity(dateTimeEntity);
+      }
 
-      new NullableDateTimeOffsetEntity { DateTimeOffset = null };
-      new NullableDateTimeOffsetEntity { DateTimeOffset = null };
+      _ = new NullableDateTimeOffsetEntity { DateTimeOffset = null };
+      _ = new NullableDateTimeOffsetEntity { DateTimeOffset = null };
+
+      _ = new MinMaxDateTimeOffsetEntity(session) { MinValue = DateTimeOffset.MinValue, MaxValue = DateTimeOffset.MaxValue };
     }
 
     protected DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
