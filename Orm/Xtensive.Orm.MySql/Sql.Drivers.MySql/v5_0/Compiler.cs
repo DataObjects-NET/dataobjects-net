@@ -258,15 +258,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     protected override void VisitSelectLimitOffset(SqlSelect node)
     {
       if (node.Limit is not null) {
-        AppendTranslated(node, SelectSection.Limit);
+        translator.SelectLimit(context, node);
         node.Limit.AcceptVisitor(this);
       }
       if (node.Offset is not null) {
         if (node.Limit is null) {
-          AppendTranslated(node, SelectSection.Limit);
+          translator.SelectLimit(context, node);
           _ = context.Output.Append(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
         }
-        AppendTranslated(node, SelectSection.Offset);
+        translator.SelectOffset(context, node);
         node.Offset.AcceptVisitor(this);
       }
     }
@@ -437,7 +437,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.RawConcat(
             operand,
             SqlDml.Native("AS SIGNED"))));
-    
+
 
     #endregion
 

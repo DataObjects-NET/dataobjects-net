@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
         return; // Nothing to process.
       }
 
-      AppendTranslated(node, SelectSection.Offset);
+      translator.SelectOffset(context, node);
 
       if (node.HasOffset) {
         node.Offset.AcceptVisitor(this);
@@ -35,14 +35,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
         _ = context.Output.Append("0");
       }
 
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, SelectSection.OffsetEnd);
+      translator.SelectOffsetEnd(context, node);
 
       if (node.HasLimit) {
-        AppendTranslated(node, SelectSection.Limit);
+        translator.SelectLimit(context, node);
         node.Limit.AcceptVisitor(this);
-        AppendSpaceIfNecessary();
-        translator.Translate(context, node, SelectSection.LimitEnd);
+        translator.SelectLimitEnd(context, node);
       }
     }
 

@@ -13,13 +13,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class Translator : v10.Translator
   {
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      if (section == NodeSection.Exit) {
-        _ = context.Output.Append(node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
-      }
-    }
+    public override void OrderExit(SqlCompilerContext context, SqlOrder node) =>
+      context.Output.Append(node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
 
     /// <inheritdoc/>
     public override string Translate(SqlValueType type)
