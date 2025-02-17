@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -10,11 +10,15 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
+using System;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal class Connection : SqlConnection
   {
+    private static readonly Func<NpgsqlTransaction, bool> TransactionIsCompleteAccessor;
+
     private NpgsqlConnection underlyingConnection;
     private NpgsqlTransaction activeTransaction;
 
@@ -52,9 +56,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureTransactionIsActive();
 
       try {
-        if (!IsTransactionCompleted()) {
+        if(!IsTransactionCompleted())
           ActiveTransaction.Commit();
-        }
       }
       finally {
         ActiveTransaction.Dispose();
@@ -67,9 +70,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        if (!IsTransactionCompleted()) {
+        if (!IsTransactionCompleted())
           await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
-        }
       }
       finally {
         await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
@@ -83,9 +85,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureTransactionIsActive();
 
       try {
-        if (!IsTransactionCompleted()) {
+        if (!IsTransactionCompleted())
           ActiveTransaction.Rollback();
-        }
       }
       finally {
         ActiveTransaction.Dispose();
@@ -98,9 +99,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        if (!IsTransactionCompleted()) {
+        if (!IsTransactionCompleted())
           await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
-        }
       }
       finally {
         await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
@@ -185,7 +185,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     private bool IsTransactionCompleted()
     {
-      return activeTransaction != null && activeTransaction.IsCompleted;
+      return activeTransaction != null && TransactionIsCompleteAccessor(activeTransaction);
     }
 
     // Constructors
@@ -195,6 +195,20 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       : base(driver)
     {
       underlyingConnection = new NpgsqlConnection();
+    }
+
+    static Connection()
+    {
+      // We have to use reflection to keep current behavior.
+      // The prop was public but they changed it to internal though it is read-only
+      // and didn't harm internal state.
+      // But it is important for us to know whether active transaction was completed
+      // to not try to make some actions.
+      var isCompletedProp = typeof(NpgsqlTransaction)
+        .GetProperty("IsCompleted", BindingFlags.Instance | BindingFlags.NonPublic)
+        ?? throw new NullReferenceException();
+
+      TransactionIsCompleteAccessor = (Func<NpgsqlTransaction, bool>) Delegate.CreateDelegate(typeof(Func<NpgsqlTransaction, bool>), isCompletedProp.GetMethod);
     }
   }
 }
