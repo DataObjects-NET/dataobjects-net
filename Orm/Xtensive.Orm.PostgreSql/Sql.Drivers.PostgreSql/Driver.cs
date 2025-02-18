@@ -100,6 +100,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           }
         }
       }
+      if (innerException is TimeoutException timeoutException) {
+        return SqlExceptionType.OperationTimeout;
+      }
       return SqlExceptionType.Unknown;
     }
 
