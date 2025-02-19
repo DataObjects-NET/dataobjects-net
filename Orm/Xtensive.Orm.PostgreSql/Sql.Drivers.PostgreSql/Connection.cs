@@ -52,13 +52,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
-
       try {
-        if(!IsTransactionCompleted())
-          ActiveTransaction.Commit();
+        if(!IsTransactionCompleted()) {
+          activeTransaction.Commit();
+        }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -68,11 +68,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        if (!IsTransactionCompleted())
-          await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
+        if (!IsTransactionCompleted()) {
+          await activeTransaction.CommitAsync(token).ConfigureAwait(false);
+        }
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await activeTransaction.DisposeAsync().ConfigureAwait(false);
         ClearActiveTransaction();
       }
     }
@@ -81,13 +82,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
-
       try {
-        if (!IsTransactionCompleted())
-          ActiveTransaction.Rollback();
+        if (!IsTransactionCompleted()) {
+          activeTransaction.Rollback();
+        }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -97,11 +98,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
-        if (!IsTransactionCompleted())
-          await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+        if (!IsTransactionCompleted()) {
+          await activeTransaction.RollbackAsync(token).ConfigureAwait(false);
+        }
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await activeTransaction.DisposeAsync().ConfigureAwait(false);
         ClearActiveTransaction();
       }
     }
@@ -167,7 +169,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureTransactionIsActive();
 
       using var command = CreateCommand(commandText);
-      command.ExecuteNonQuery();
+      _ = command.ExecuteNonQuery();
     }
 
     private async Task ExecuteNonQueryAsync(string commandText, CancellationToken token)
@@ -177,14 +179,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       var command = CreateCommand(commandText);
       await using (command.ConfigureAwait(false)) {
-        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
     }
 
-    private bool IsTransactionCompleted()
-    {
-      return activeTransaction != null && activeTransaction.Connection == null;
-    }
+    private bool IsTransactionCompleted() => activeTransaction.Connection == null;
 
     // Constructors
 
