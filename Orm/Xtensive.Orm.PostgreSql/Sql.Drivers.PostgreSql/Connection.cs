@@ -17,8 +17,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal class Connection : SqlConnection
   {
-    private static readonly Func<NpgsqlTransaction, bool> TransactionIsCompleteAccessor;
-
     private NpgsqlConnection underlyingConnection;
     private NpgsqlTransaction activeTransaction;
 
@@ -185,7 +183,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     private bool IsTransactionCompleted()
     {
-      return activeTransaction != null && TransactionIsCompleteAccessor(activeTransaction);
+      return activeTransaction != null && activeTransaction.Connection == null;
     }
 
     // Constructors
@@ -195,20 +193,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       : base(driver)
     {
       underlyingConnection = new NpgsqlConnection();
-    }
-
-    static Connection()
-    {
-      // We have to use reflection to keep current behavior.
-      // The prop was public but they changed it to internal though it is read-only
-      // and didn't harm internal state.
-      // But it is important for us to know whether active transaction was completed
-      // to not try to make some actions.
-      var isCompletedProp = typeof(NpgsqlTransaction)
-        .GetProperty("IsCompleted", BindingFlags.Instance | BindingFlags.NonPublic)
-        ?? throw new NullReferenceException();
-
-      TransactionIsCompleteAccessor = (Func<NpgsqlTransaction, bool>) Delegate.CreateDelegate(typeof(Func<NpgsqlTransaction, bool>), isCompletedProp.GetMethod);
     }
   }
 }
