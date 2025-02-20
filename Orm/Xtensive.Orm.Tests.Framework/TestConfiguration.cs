@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
@@ -16,6 +16,9 @@ namespace Xtensive.Orm.Tests
     private const string StorageKey = "DO_STORAGE";
     private const string StorageFileKey = "DO_STORAGE_FILE";
     private const string ConfigurationFileKey = "DO_CONFIG_FILE";
+
+    private const string InfinityAliasesKey = "DO_PG_INFINITY_ALIASES";
+    private const string LegacyTimestapmKey = "DO_PG_LEGACY_TIMESTAMP";
 
     private const string DefaultStorage = "default";
 
@@ -51,6 +54,30 @@ namespace Xtensive.Orm.Tests
       if (items.Length!=2)
         throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", value));
       return new ConnectionInfo(items[0], items[1]);
+    }
+
+    public void InitAppContextSwitches()
+    {      
+      if (configuration.TryGetValue(Storage + "cs", out var info)) {
+        var items = info.Split(new[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
+        if (items.Length != 2)
+          throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", info));
+        var provider = items[0];
+        if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.OrdinalIgnoreCase))
+          InitPostgreSqlSwitches();
+      }
+    }
+
+    private void InitPostgreSqlSwitches()
+    {
+      var infinityAliasesValue = GetEnvironmentVariable(InfinityAliasesKey);
+      if (bool.TryParse(infinityAliasesValue, out var bbb)) {
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", !bbb);
+      }
+      var legacyTimestampsValue = GetEnvironmentVariable(LegacyTimestapmKey);
+      if (bool.TryParse(legacyTimestampsValue, out var ccc)) {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", ccc);
+      }
     }
 
     private string GetEnvironmentVariable(string key)
