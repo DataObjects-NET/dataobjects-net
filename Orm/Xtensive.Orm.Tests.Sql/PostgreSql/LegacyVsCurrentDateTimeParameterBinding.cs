@@ -19,19 +19,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected override void CheckRequirements()
     {
-      // do not check provider here.
-      // Require class uses driver creation which casues AppContext switch setup before TestFixtureSetup() method called
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
     protected override void TestFixtureSetUp()
     {
-      // use one or enother
-      EnableLegacyTimestampBehavior();
-      // or
-      //DisableLegacyTimestampBehavior();
-
-      Require.ProviderIs(StorageProvider.PostgreSql);
-
       base.TestFixtureSetUp();
 
       longTypeMapping = Driver.TypeMappings[typeof(long)];
@@ -43,7 +35,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteUtcKindDateTimeValueLegacy()
     {
       CheckLegacyTurnedOn();
@@ -65,7 +56,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteLocalKindDateTimeValueLegacy()
     {
       CheckLegacyTurnedOn();
@@ -89,7 +79,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteUnspecifiedKindDateTimeValueLegacy()
     {
       CheckLegacyTurnedOn();
@@ -114,7 +103,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteUtcKindDateTimeValue()
     {
       CheckLegacyTurnedOff();
@@ -136,7 +124,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteLocalKindDateTimeValue()
     {
       CheckLegacyTurnedOff();
@@ -158,7 +145,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void WriteUnspecifiedKindDateTimeValue()
     {
       CheckLegacyTurnedOff();

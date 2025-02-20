@@ -25,14 +25,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected override void CheckRequirements()
     {
-      // DO NOT check provider here.
-      // Require class uses driver creation which casues AppContext switch setup before TestFixtureSetup() method called
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      Require.ProviderIs(StorageProvider.PostgreSql);
 
       longTypeMapping = Driver.TypeMappings[typeof(long)];
       dateOnlyTypeMapping = Driver.TypeMappings[typeof(DateOnly)];
@@ -78,7 +76,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateTimeSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
@@ -87,7 +84,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateTimeSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
@@ -196,7 +192,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MaxDateTimeSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
@@ -205,7 +200,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MaxDateTimeSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
@@ -313,7 +307,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateOnlySelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
@@ -322,7 +315,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateOnlySelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
@@ -397,7 +389,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MaxDateOnlySelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
@@ -406,7 +397,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MaxDateOnlySelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
@@ -481,7 +471,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateTimeOffsetSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
@@ -490,7 +479,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
     public void MinDateTimeOffsetSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
