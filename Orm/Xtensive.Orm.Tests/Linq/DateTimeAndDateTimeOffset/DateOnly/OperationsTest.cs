@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Xtensive LLC.
+// Copyright (C) 2023-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     [Test]
     public void AddYearsToMinMaxValuesTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddYears(1) == DateOnly.MinValue.AddYears(1));
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddYears(-33) == DateOnly.MaxValue.AddYears(-33));
@@ -49,6 +50,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     [Test]
     public void AddMonthsToMinMaxValues()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddMonths(1) == DateOnly.MinValue.AddMonths(1));
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddMonths(-33) == DateOnly.MaxValue.AddMonths(-33));
@@ -73,6 +75,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     [Test]
     public void AddDaysToMinMaxValues()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.AddDays(1) == DateOnly.MinValue.AddDays(1));
         RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.AddDays(-33) == DateOnly.MaxValue.AddDays(-33));

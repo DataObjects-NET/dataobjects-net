@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2016-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractYearTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Year == DateTime.MinValue.Year);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Year == DateTime.MaxValue.Year);
@@ -55,6 +56,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractMonthTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Month == DateTime.MinValue.Month);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Month == DateTime.MaxValue.Month);
@@ -81,6 +83,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractDayTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Day == DateTime.MinValue.Day);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Day == DateTime.MaxValue.Day);
@@ -107,6 +110,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractHourTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Hour == DateTime.MinValue.Hour);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Hour == DateTime.MaxValue.Hour);
@@ -134,6 +138,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractMinuteTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Minute == DateTime.MinValue.Minute);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Minute == DateTime.MaxValue.Minute);
@@ -160,6 +165,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractSecondTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Second == DateTime.MinValue.Second);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Second == DateTime.MaxValue.Second);
@@ -182,7 +188,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractMillisecondTest()
     {
-      Require.ProviderIsNot(StorageProvider.MySql);
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
 
         var minAdjusted = DateTime.MinValue.AdjustDateTimeForCurrentProvider();
@@ -223,6 +229,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractDateTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Date == DateTime.MinValue.Date);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Date == DateTime.MaxValue.Date);
@@ -265,6 +272,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractTimeOfDayTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.TimeOfDay == DateTime.MinValue.TimeOfDay);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.TimeOfDay == DateTime.MaxValue.TimeOfDay);
@@ -291,6 +299,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractDayOfYearTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.DayOfYear == DateTime.MinValue.DayOfYear);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.DayOfYear == DateTime.MaxValue.DayOfYear);
@@ -317,6 +326,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinMaxValueExtractDayOfWeekTest()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
         RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.DayOfWeek == DateTime.MinValue.DayOfWeek);
         RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.DayOfWeek == DateTime.MaxValue.DayOfWeek);

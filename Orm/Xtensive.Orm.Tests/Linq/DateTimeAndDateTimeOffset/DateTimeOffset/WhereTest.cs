@@ -187,7 +187,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var compiledOrderByExpression = orderByExpression.Compile();
 
       var session = Session.Current;
-      session.Events.DbCommandExecuting += Events_DbCommandExecuting;
 
       var whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
       var whereByServer = session.Query.All<T>().Where(whereExpression).OrderBy(orderByExpression).ToArray();
@@ -199,26 +198,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       whereByServer = session.Query.All<T>().Where(whereExpression).OrderByDescending(orderByExpression).ToArray();
       whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
 
-      session.Events.DbCommandExecuting -= Events_DbCommandExecuting;
-
       Assert.That(whereLocal.Length, Is.Not.EqualTo(0));
       Assert.That(whereByServer.Length, Is.Not.EqualTo(0));
       Assert.IsFalse(whereLocal.SequenceEqual(whereByServer));
-    }
-
-    private void Events_DbCommandExecuting(object sender, DbCommandEventArgs e)
-    {
-      var command = e.Command;
-      var commandText = command.CommandText;
-      Console.WriteLine("No Modifications SQL Text:");
-      Console.WriteLine(commandText);
-      var parameters = command.Parameters;
-
-      Console.Write(" Parameters: ");
-      for (int i = 0, count = parameters.Count; i < count; i++) {
-        var parameter = parameters[i];
-        Console.WriteLine($"{parameter.ParameterName} = {parameter.Value}");
-      }
     }
   }
 }
