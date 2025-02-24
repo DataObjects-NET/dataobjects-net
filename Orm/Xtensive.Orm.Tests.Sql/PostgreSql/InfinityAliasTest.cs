@@ -3,7 +3,10 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
@@ -18,10 +21,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     private const string DateTimeOffsetMinValueTable = "DateTimeOffsetTable1";
     private const string DateTimeOffsetMaxValueTable = "DateTimeOffsetTable2";
 
-    private Xtensive.Sql.TypeMapping longTypeMapping;
-    private Xtensive.Sql.TypeMapping dateOnlyTypeMapping;
-    private Xtensive.Sql.TypeMapping dateTimeTypeMapping;
-    private Xtensive.Sql.TypeMapping dateTimeOffsetTypeMapping;
+    private readonly Dictionary<string, SqlSelect> templates = new();
+
+    private TypeMapping longTypeMapping;
+    private TypeMapping dateOnlyTypeMapping;
+    private TypeMapping dateTimeTypeMapping;
+    private TypeMapping dateTimeOffsetTypeMapping;
 
     protected override void CheckRequirements()
     {
@@ -44,10 +49,32 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       CreateTablesForDateTimeTests();
       CreateTablesForDateOnlyTests();
       CreateTablesForDateTimeOffsetTests();
+
+      var schema = ExtractDefaultSchema();
+
+      templates.Add(DateOnlyMinValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateOnlyMinValueTable])));
+
+      templates.Add(DateOnlyMaxValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateOnlyMaxValueTable])));
+
+
+      templates.Add(DateTimeMinValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateTimeMinValueTable])));
+
+      templates.Add(DateTimeMaxValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateTimeMaxValueTable])));
+
+
+      templates.Add(DateTimeOffsetMinValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateTimeOffsetMinValueTable])));
+
+      templates.Add(DateTimeOffsetMaxValueTable,
+        SqlDml.Select(SqlDml.TableRef(schema.Tables[DateTimeOffsetMaxValueTable])));
     }
 
     [Test]
-    public void MinDateTimeSelectNoFilterTest()
+    public void DateTimeMinSelectNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateTimeMinValueTable}\"");
       using (command)
@@ -59,10 +86,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           Assert.That(datetimeValue, Is.EqualTo(DateTime.MinValue));
         }
       }
+
+      var select = templates[DateTimeMinValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var datetimeValue = dateTimeTypeMapping.ReadValue(reader, 1);
+          Assert.That(datetimeValue, Is.EqualTo(DateTime.MinValue));
+        }
+      }
     }
 
     [Test]
-    public void MinDateTimeSelectByEqualityTest()
+    public void DateTimeMinSelectByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateTimeMinValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
@@ -76,93 +118,171 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void MinDateTimeSelectDatePartInfinityTest()
+    public void DateTimeMinSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMinDateTimeSelectDatePart();
+      TestMinDateTimeSelectDatePart(true);
     }
 
     [Test]
-    public void MinDateTimeSelectDatePartDateTest()
+    public void DateTimeMinSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMinDateTimeSelectDatePart();
+      TestMinDateTimeSelectDatePart(false);
     }
 
-    private void TestMinDateTimeSelectDatePart()
+    private void TestMinDateTimeSelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
+      var template = templates[DateTimeMinValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Year));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Year, isOn);
         }
       }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using(command)
+      using(var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Year, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Month));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Month, isOn);
         }
       }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Month, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Day));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Day, isOn);
         }
       }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Day, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (HOUR FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Hour));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Hour, isOn);
         }
       }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Hour, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MINUTE FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Minute));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Minute, isOn);
         }
       }
 
-      command = Connection.CreateCommand($"SELECT EXTRACT (SECOND FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, select.From.Columns["Value"]));
 
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Minute, isOn);
+        }
+      }
+
+
+      command = Connection.CreateCommand($"SELECT EXTRACT (SECOND FROM \"Value\") FROM public.\"{DateTimeMinValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.Not.EqualTo(DateTime.MinValue.Second));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Second, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MinValue.Second, isOn);
         }
       }
     }
 
 
     [Test]
-    public void MaxDateTimeSelectNoFilterTest()
+    public void DateTimeMaxSelectNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateTimeMaxValueTable}\"");
       using (command)
@@ -175,10 +295,26 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           Assert.That(difference, Is.LessThanOrEqualTo(TimeSpan.FromMilliseconds(0.001)));
         }
       }
+
+      var select = templates[DateTimeMaxValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var datetimeValue = (DateTime) dateTimeTypeMapping.ReadValue(reader, 1);
+          var difference = (datetimeValue - DateTime.MaxValue).Duration();
+          Assert.That(difference, Is.LessThanOrEqualTo(TimeSpan.FromMilliseconds(0.001)));
+        }
+      }
     }
 
     [Test]
-    public void MaxDateTimeSelectByEqualityTest()
+    public void DateTimeMaxSelectByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateTimeMaxValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
@@ -192,93 +328,170 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void MaxDateTimeSelectDatePartInfinityTest()
+    public void DateTimeMaxSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMaxDateTimeSelectDatePart();
+      TestMaxDateTimeSelectDatePart(true);
     }
 
     [Test]
-    public void MaxDateTimeSelectDatePartDateTest()
+    public void DateTimeMaxSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMaxDateTimeSelectDatePart();
+      TestMaxDateTimeSelectDatePart(false);
     }
 
-    private void TestMaxDateTimeSelectDatePart()
+    private void TestMaxDateTimeSelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
+      var template = templates[DateTimeMaxValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Year));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Year, isOn);
         }
       }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Year, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Month));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Month, isOn);
         }
       }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Month, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Day));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Day, isOn);
         }
       }
 
-      command = Connection.CreateCommand($"SELECT EXTRACT (HOUR FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, select.From.Columns["Value"]));
 
+      command = Connection.CreateCommand(select);
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Hour));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Day, isOn);
+        }
+      }
+
+
+      command = Connection.CreateCommand($"SELECT EXTRACT (HOUR FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Hour, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Hour, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MINUTE FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Minute));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Minute, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Minute, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (SECOND FROM \"Value\") FROM public.\"{DateTimeMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateTime.MaxValue.Second));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Second, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTime.MaxValue.Second, isOn);
         }
       }
     }
 
 
     [Test]
-    public void MinDateOnlyNoFilterTest()
+    public void DateOnlyMinNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateOnlyMinValueTable}\"");
       using (command)
@@ -290,10 +503,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           Assert.That(datetimeValue, Is.EqualTo(DateOnly.MinValue));
         }
       }
+
+      var select = templates[DateOnlyMinValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var datetimeValue = dateOnlyTypeMapping.ReadValue(reader, 1);
+          Assert.That(datetimeValue, Is.EqualTo(DateOnly.MinValue));
+        }
+      }
     }
 
     [Test]
-    public void MinDateOnlyByEqualityTest()
+    public void DateOnlyMinByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateOnlyMinValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
@@ -307,60 +535,98 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void MinDateOnlySelectDatePartInfinityTest()
+    public void DateOnlyMinSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMinDateOnlySelectDatePart();
+      TestMinDateOnlySelectDatePart(true);
     }
 
     [Test]
-    public void MinDateOnlySelectDatePartDateTest()
+    public void DateOnlyMinSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMinDateOnlySelectDatePart();
+      TestMinDateOnlySelectDatePart(false);
     }
 
-    private void TestMinDateOnlySelectDatePart()
+    private void TestMinDateOnlySelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateOnlyMinValueTable}\"");
+      var template = templates[DateOnlyMinValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateOnlyMinValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MinValue.Year));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Year, isOn);
         }
       }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Year, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateOnlyMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MinValue.Month));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Month, isOn);
         }
       }
 
-      command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateOnlyMinValueTable}\"");
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Month, select.From.Columns["Value"]));
 
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Month, isOn);
+        }
+      }
+
+
+      command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateOnlyMinValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MinValue.Day));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Day, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Day, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MinValue.Day, isOn);
         }
       }
     }
 
 
     [Test]
-    public void MaxDateOnlyNoFilterTest()
+    public void DateOnlyMaxNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateOnlyMaxValueTable}\"");
       using (command)
@@ -372,10 +638,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           Assert.That(datetimeValue, Is.EqualTo(DateOnly.MaxValue));
         }
       }
+
+      var select = templates[DateTimeMaxValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var datetimeValue = dateOnlyTypeMapping.ReadValue(reader, 1);
+          Assert.That(datetimeValue, Is.EqualTo(DateOnly.MaxValue));
+        }
+      }
     }
 
     [Test]
-    public void MaxDateOnlyByEqualityTest()
+    public void DateOnlyMaxByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateOnlyMaxValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
@@ -389,60 +670,111 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void MaxDateOnlySelectDatePartInfinityTest()
+    public void DateOnlyMaxSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMaxDateOnlySelectDatePart();
+      TestMaxDateOnlySelectDatePart(true);
     }
 
     [Test]
-    public void MaxDateOnlySelectDatePartDateTest()
+    public void DateOnlyMaxSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMaxDateOnlySelectDatePart();
+      TestMaxDateOnlySelectDatePart(false);
     }
 
-    private void TestMaxDateOnlySelectDatePart()
+    private void TestMaxDateOnlySelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateOnlyMaxValueTable}\"");
+      var template = templates[DateOnlyMaxValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateOnlyMaxValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MaxValue.Year));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Year, isOn);
         }
       }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Year, isOn);
+        }
+      }
+
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateOnlyMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MaxValue.Month));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Month, isOn);
         }
       }
 
-      command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateOnlyMaxValueTable}\"");
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Month, select.From.Columns["Value"]));
 
+      command = Connection.CreateCommand(select);
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetDouble(0);
-          Assert.That(yearPart, Is.EqualTo(DateOnly.MaxValue.Day));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Month, isOn);
+        }
+      }
+
+
+      command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateOnlyMaxValueTable}\"");
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Day, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDatePart.Day, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateOnly.MaxValue.Day, isOn);
         }
       }
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     [Test]
-    public void MinDateTimeOffsetSelectNoFilterTest()
+    public void DateTimeOffsetMinSelectNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateTimeOffsetMinValueTable}\"");
       using (command)
@@ -450,19 +782,34 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           var id = reader.GetInt64(0);
-          var datetimeValue = reader.GetDateTime(1);
-          Assert.That(datetimeValue, Is.EqualTo(DateTimeOffset.MinValue.DateTime));
+          var dateTimeOffsetValue = (DateTimeOffset) reader.GetFieldValue<DateTimeOffset>(1);
+          Assert.That(dateTimeOffsetValue, Is.EqualTo(DateTimeOffset.MinValue));
+        }
+      }
+
+      var select = templates[DateTimeOffsetMinValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var dateTimeOffsetValue = dateTimeOffsetTypeMapping.ReadValue(reader, 1);
+          Assert.That(dateTimeOffsetValue, Is.EqualTo(DateTimeOffset.MinValue));
         }
       }
     }
 
     [Test]
-    public void MinDateTimeOffsetSelectByEqualityTest()
+    public void DateTimeOffsetMinSelectByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateTimeOffsetMinValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
       dateTimeOffsetTypeMapping.BindValue(filterP, DateTimeOffset.MinValue);
-      command.Parameters.Add(filterP);
+      _ = command.Parameters.Add(filterP);
 
       using (command) {
         var count = (long) command.ExecuteScalar();
@@ -471,93 +818,173 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void MinDateTimeOffsetSelectDatePartInfinityTest()
+    public void DateTimeOffsetMinSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMinDateTimeOffsetSelectDatePart();
+      TestMinDateTimeOffsetSelectDatePart(true);
     }
 
     [Test]
-    public void MinDateTimeOffsetSelectDatePartDateTest()
+    public void DateTimeOffsetMinSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMinDateTimeOffsetSelectDatePart();
+      TestMinDateTimeOffsetSelectDatePart(false);
     }
 
-    private void TestMinDateTimeOffsetSelectDatePart()
+    private void TestMinDateTimeOffsetSelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
+      var template = templates[DateTimeOffsetMinValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Year));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTimeOffset.MinValue.Year, isOn);
+        }
+      }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTimeOffset.MinValue.Year, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Month));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTimeOffset.MinValue.Month, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Month, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPart(partValue, DateTimeOffset.MinValue.Month, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Day));
+          var partValue = reader.GetDouble(0);
+          CheckPartNative(partValue, DateTimeOffset.MinValue.Day, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Day, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          CheckPart(partValue, DateTimeOffset.MinValue.Day, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (HOUR FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Hour));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, 4, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Hour, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MinValue.Hour : 4, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MINUTE FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Minute));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, 2, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Minute, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MinValue.Minute : 2, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (SECOND FROM \"Value\") FROM public.\"{DateTimeOffsetMinValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MinValue.Second));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, 33, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Second, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MinValue.Second : 33, isOn);
         }
       }
     }
 
 
     [Test]
-    public void MaxDateTimeOffsetSelectNoFilterTest()
+    public void DateTimeOffsetMaxSelectNoFilterTest()
     {
       var command = Connection.CreateCommand($"SELECT \"Id\", \"Value\" FROM public.\"{DateTimeOffsetMaxValueTable}\"");
       using (command)
@@ -565,20 +992,36 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           var id = reader.GetInt64(0);
-          var datetimeValue = reader.GetDateTime(1);
-          var difference = (datetimeValue - DateTimeOffset.MaxValue).Duration();
+          var dateTimeOffsetValue = (DateTimeOffset) reader.GetFieldValue<DateTimeOffset>(1);
+          var difference = (dateTimeOffsetValue - DateTimeOffset.MaxValue).Duration();
+          Assert.That(difference, Is.LessThanOrEqualTo(TimeSpan.FromMilliseconds(0.001)));
+        }
+      }
+
+      var select = templates[DateTimeOffsetMaxValueTable].Clone(new SqlNodeCloneContext());
+      select.Columns.Add(select.From.Columns["Id"]);
+      select.Columns.Add(select.From.Columns["Value"]);
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var id = longTypeMapping.ReadValue(reader, 0);
+          var dateTimeOffsetValue = (DateTimeOffset) dateTimeOffsetTypeMapping.ReadValue(reader, 1);
+          var difference = (dateTimeOffsetValue - DateTimeOffset.MaxValue).Duration();
           Assert.That(difference, Is.LessThanOrEqualTo(TimeSpan.FromMilliseconds(0.001)));
         }
       }
     }
 
     [Test]
-    public void MaxDateTimeOffsetSelectByEqualityTest()
+    public void DateTimeOffsetMaxSelectByEqualityTest()
     {
       var command = Connection.CreateCommand($"SELECT Count(*) FROM public.\"{DateTimeOffsetMaxValueTable}\" WHERE \"Value\" = $1");
       var filterP = Connection.CreateParameter();
       dateTimeOffsetTypeMapping.BindValue(filterP, DateTimeOffset.MaxValue);
-      command.Parameters.Add(filterP);
+      _ = command.Parameters.Add(filterP);
 
       using (command) {
         var count = (long) command.ExecuteScalar();
@@ -587,89 +1030,194 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
-    public void MaxDateTimeOffsetSelectDatePartInfinityTest()
+    public void DateTimeOffsetMaxSelectDatePartInfinityTest()
     {
       CheckIfInfinityAliasTurnedOn();
 
-      TestMaxDateTimeOffsetSelectDatePart();
+      TestMaxDateTimeOffsetSelectDatePart(true);
     }
 
     [Test]
-    [Explicit("Require manual set of AppContext switch")]
-    public void MaxDateTimeOffsetSelectDatePartDateTest()
+    public void DateTimeOffsetMaxSelectDatePartDateTest()
     {
       CheckIfInfinityAliasTurnedOff();
 
-      TestMaxDateTimeOffsetSelectDatePart();
+      TestMaxDateTimeOffsetSelectDatePart(false);
     }
 
-    private void TestMaxDateTimeOffsetSelectDatePart()
+    private void TestMaxDateTimeOffsetSelectDatePart(bool isOn)
     {
-      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
+      var template = templates[DateTimeOffsetMaxValueTable];
 
+      var command = Connection.CreateCommand($"SELECT EXTRACT (YEAR FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Year));
+          var partValue = reader.GetDouble(0);
+          // There is overflow of year because of PostgreSQL time zone functionality
+          CheckPartNative(partValue, DateTimeOffset.MaxValue.Year + 1, isOn);
+        }
+      }
+
+      var select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Year, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // There is overflow of year because of PostgreSQL time zone functionality
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MaxValue.Year : DateTimeOffset.MaxValue.Year + 1, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MONTH FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Month));
+          var partValue = reader.GetDouble(0);
+          // there is value overflow to 01
+          CheckPartNative(partValue, DateTimeOffset.MinValue.Month, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Month, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // there is value overflow to 01 in case of no aliases
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MaxValue.Month : DateTimeOffset.MinValue.Month, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (DAY FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Day));
+          var partValue = reader.GetDouble(0);
+          // there is value overflow to 01
+          CheckPartNative(partValue, DateTime.MinValue.Day, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Day, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // there is value overflow to 01 in case of no aliases
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MaxValue.Day : DateTimeOffset.MinValue.Day, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (HOUR FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Hour));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, 4, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Hour, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, (isOn) ? DateTimeOffset.MaxValue.Hour : 4, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (MINUTE FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Minute));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, 59, isOn);
+        }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Minute, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, DateTimeOffset.MaxValue.Minute, isOn);
         }
       }
 
       command = Connection.CreateCommand($"SELECT EXTRACT (SECOND FROM \"Value\") FROM public.\"{DateTimeOffsetMaxValueTable}\"");
-
       using (command)
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var yearPart = reader.GetInt64(0);
-          Assert.That(yearPart, Is.EqualTo(DateTimeOffset.MaxValue.Second));
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPartNative(partValue, DateTimeOffset.MaxValue.Second, isOn);
         }
+      }
+
+      select = template.Clone(new SqlNodeCloneContext());
+      select.Columns.Add(SqlDml.Extract(SqlDateTimeOffsetPart.Second, select.From.Columns["Value"]));
+
+      command = Connection.CreateCommand(select);
+      using (command)
+      using (var reader = command.ExecuteReader()) {
+
+        while (reader.Read()) {
+          var partValue = reader.GetDouble(0);
+          // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+          CheckPart(partValue, DateTimeOffset.MaxValue.Second, isOn);
+        }
+      }
+    }
+
+
+    private void CheckPartNative(double partValue, int refPartValue, bool aliasesOn)
+    {
+      if (aliasesOn) {
+        Assert.That(partValue, Is.EqualTo(double.PositiveInfinity).Or.EqualTo(double.NegativeInfinity));
+      }
+      else {
+        Assert.That((int) partValue, Is.EqualTo(refPartValue));
+      }
+    }
+
+    private void CheckPart(double partValue, int refPartValue, bool aliasesOn)
+    {
+      if (aliasesOn) {
+        Assert.That(partValue, Is.Not.EqualTo(double.PositiveInfinity).And.Not.EqualTo(double.NegativeInfinity));
+        Assert.That(partValue, Is.EqualTo(refPartValue));
+      }
+      else {
+        Assert.That((int) partValue, Is.EqualTo(refPartValue));
       }
     }
 
