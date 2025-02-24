@@ -28,7 +28,7 @@ namespace Xtensive.Sql
       return result;
     }
 
-    public SqlNodeCloneContext(bool _)
+    public SqlNodeCloneContext()
     {
       nodeMapping = new();
     }
