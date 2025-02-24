@@ -18,6 +18,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+    // 6 fractions instead of .NET's 7
+    private const long DateTimeMaxValueAdjustedTicks = 3155378975999999990; 
+
     protected readonly bool legacyTimestampBehaviorEnabled;
 
     public override bool IsParameterCastRequired(Type type)
@@ -236,11 +239,34 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return nativeReader.GetDecimal(index);
     }
 
+    public override object ReadDateTime(DbDataReader reader, int index)
+    {
+      var value = reader.GetDateTime(index);
+      if (value.Ticks == 0)
+        return DateTime.MinValue;
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // To not ruin possible comparisons with defined value,
+        // it is better to return definded value,
+        // not the 6-digit version from PostgreSQL
+        return DateTime.MaxValue;
+      }
+      return value;
+    }
+
     [SecuritySafeCritical]
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // To not ruin possible comparisons with defined values,
+        // it is better to return definded value,
+        // not the 6-fractions version from PostgreSQL
+        return DateTimeOffset.MaxValue;
+      }
+      if (value.Ticks == 0)
+        return DateTimeOffset.MinValue;
+
       if (legacyTimestampBehaviorEnabled) {
         // Npgsql 4 or older behavior
         return value;
@@ -256,8 +282,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         // 'SET TIME ZONE' statement :-)
         //
         // We'll use local time, that's it! SET TIME ZONE will not work!
-        if (value == DateTimeOffset.MinValue || value == DateTimeOffset.MaxValue)
-          return value;
         return value.ToLocalTime();
       }
     }
