@@ -256,9 +256,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override object ReadDateTime(DbDataReader reader, int index)
     {
       var value = reader.GetDateTime(index);
-      if (value.Ticks == 0)
-        return DateTime.MinValue;
+      if (value == DateTime.MinValue || value == DateTime.MaxValue)
+        return value;
       if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // When Infinity aliases are disabled.
         // To not ruin possible comparisons with defined value,
         // it is better to return definded value,
         // not the 6-digit version from PostgreSQL
@@ -272,14 +273,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
-      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks ) {
+        // When Infinity aliases are disabled.
         // To not ruin possible comparisons with defined values,
         // it is better to return definded value,
         // not the 6-fractions version from PostgreSQL
         return DateTimeOffset.MaxValue;
       }
-      if (value.Ticks == 0)
-        return DateTimeOffset.MinValue;
+      if (value == DateTimeOffset.MaxValue || value == DateTimeOffset.MaxValue)
+        return value;
 
       if (legacyTimestampBehaviorEnabled) {
         // Npgsql 4 or older behavior
