@@ -71,12 +71,12 @@ namespace Xtensive.Orm.Tests
     private void InitPostgreSqlSwitches()
     {
       var infinityAliasesValue = GetEnvironmentVariable(InfinityAliasesKey);
-      if (bool.TryParse(infinityAliasesValue, out var bbb)) {
-        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", !bbb);
+      if (bool.TryParse(infinityAliasesValue, out var switch1Value)) {
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", !switch1Value);
       }
       var legacyTimestampsValue = GetEnvironmentVariable(LegacyTimestapmKey);
-      if (bool.TryParse(legacyTimestampsValue, out var ccc)) {
-        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", ccc);
+      if (bool.TryParse(legacyTimestampsValue, out var switch2Value)) {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", switch2Value);
       }
     }
 
