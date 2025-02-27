@@ -452,8 +452,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         _ = delayedExtractOperations.Add(node);
         (SqlExpression min, SqlExpression max) minMaxValues = ExtractMinMaxValuesForPart(node);
         var @case = SqlDml.Case();
-        @case[node.Operand == Infinity] = minMaxValues.min;
-        @case[node.Operand == NegativeInfinity] = minMaxValues.max;
+        @case[node.Operand == Infinity] = minMaxValues.max;
+        @case[node.Operand == NegativeInfinity] = minMaxValues.min;
         @case.Else = node;
         @case.AcceptVisitor(this);
       }
