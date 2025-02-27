@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Security;
@@ -22,6 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const long DateTimeMaxValueAdjustedTicks = 3155378975999999990; 
 
     protected readonly bool legacyTimestampBehaviorEnabled;
+    protected readonly TimeSpan? defaultTimeZone;
 
     public override bool IsParameterCastRequired(Type type)
     {
@@ -122,7 +124,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       nativeParameter.NpgsqlValue = value is null
         ? DBNull.Value
         : value is TimeSpan timeSpanValue
-          ? (object) CreateNativeIntervalFromTimeSpan(timeSpanValue)
+          ? (object) PostgreSqlHelper.CreateNativeIntervalFromTimeSpan(timeSpanValue)
           : throw ValueNotOfTypeError(nameof(WellKnownTypes.TimeSpanType));
     }
 
@@ -229,7 +231,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       // support for full-range of Timespans required us to use raw type
       // and construct timespan from its' values.
-      return ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
+      return PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
     }
 
     [SecuritySafeCritical]
@@ -272,57 +274,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return value;
       }
       else {
-        // Probably the "mastermind" who made parameter conversion before setting value to parameter be required
-        // also forgot about PostgreSQL's built-in "SET TIME ZONE" feature for session, which affects values of TimeStampTz
-        // Now applications have to use either local/utc timezone everywhere OR somehow "remember" what they've set in SET TIME ZONE
-        // for being able to get values in the timezone they've set. (facapalm)
-        //
-        // BTW, Npgsql has no API that would provide us current connection timezone so we could apply it to values,
-        // there is internal setting in NpgsqlConnection but it is null no matter what is set by
-        // 'SET TIME ZONE' statement :-)
-        //
-        // We'll use local time, that's it! SET TIME ZONE will not work!
-        return value.ToLocalTime();
+        // Here we try to apply connection timezone.
+        // To not get it from internal connection of DbDataReader
+        // we assume that time zone switch happens (if happens)
+        // in DomainConfiguration.ConnectionInitializationSql and
+        // we cache time zone of native connection after the script
+        // has been executed.
+
+        return (defaultTimeZone.HasValue)
+          ? value.ToOffset(defaultTimeZone.Value)
+          : value.ToLocalTime();
       }
-    }
-
-    protected internal static NpgsqlInterval CreateNativeIntervalFromTimeSpan(in TimeSpan timeSpan)
-    {
-      // Previous Npgsql versions used days and time, no months.
-      // Thought we can write everything as time, we keep days and time format
-
-      var ticks = timeSpan.Ticks;
-
-      var days = timeSpan.Days;
-      var timeTicks = ticks - (days * TimeSpan.TicksPerDay);
-#if NET7_0_OR_GREATER
-      var microseconds = timeTicks / TimeSpan.TicksPerMicrosecond;
-#else
-      var microseconds = timeTicks / 10L; // same as TimeSpan.TicksPerMicrosecond available in .NET7+
-#endif
-      // no months!
-      return new NpgsqlInterval(0, days, microseconds);
-    }
-
-    protected internal static TimeSpan ResurrectTimeSpanFromNpgsqlInterval(in NpgsqlInterval npgsqlInterval)
-    {
-      // We don't write "Months" part of NpgsqlInterval to database
-      // because days in months is variable measure in PostgreSQL.
-      // We better use exact number of days.
-      // But if for some reason, there is Months value > 0 we treat it like each month has 30 days,
-      // it seems that Npgsql did the same assumption internally.
-
-      var days = (npgsqlInterval.Months != 0)
-        ? npgsqlInterval.Months * WellKnown.IntervalDaysInMonth + npgsqlInterval.Days
-        : npgsqlInterval.Days;
-
-      var ticksOfDays = days * TimeSpan.TicksPerDay;
-#if NET7_0_OR_GREATER
-      var overallTicks = ticksOfDays + (npgsqlInterval.Time * TimeSpan.TicksPerMicrosecond);
-#else
-      var overallTicks = ticksOfDays + (npgsqlInterval.Time * 10); //same as TimeSpan.TicksPerMicrosecond available in .NET7+
-#endif
-      return TimeSpan.FromTicks(overallTicks);
     }
 
     internal protected ArgumentException ValueNotOfTypeError(string typeName)
@@ -335,7 +297,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public TypeMapper(PostgreSql.Driver driver)
       : base(driver)
     {
-      legacyTimestampBehaviorEnabled = driver.PostgreServerInfo.LegacyTimestampBehavior;
+      var postgreServerInfo = driver.PostgreServerInfo;
+      legacyTimestampBehaviorEnabled = postgreServerInfo.LegacyTimestampBehavior;
+      defaultTimeZone = postgreServerInfo.ServerTimeZones.TryGetValue(
+          PostgreSqlHelper.TryGetZoneFromPosix(postgreServerInfo.DefaultTimeZone), out var offset)
+        ? offset
+        : null;
+      ;
     }
   }
 }

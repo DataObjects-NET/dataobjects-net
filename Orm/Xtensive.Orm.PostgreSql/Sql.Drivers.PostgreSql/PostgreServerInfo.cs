@@ -2,6 +2,9 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
+using System.Collections.Generic;
+
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
   /// <summary>
@@ -22,5 +25,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     /// The setting has effect on parameter binding and also value reading from DbDataReader.
     /// </summary>
     public bool LegacyTimestampBehavior { get; init; }
+
+    /// <summary>
+    /// Contains server timezone names and their base Utc offset (including abbreviations).
+    /// </summary>
+    public IReadOnlyDictionary<string, TimeSpan> ServerTimeZones { get; init; }
+
+    /// <summary>
+    /// Gets time zone of connection after connection initialization script was executed.
+    /// </summary>
+    public string DefaultTimeZone { get; init; }
   }
 }

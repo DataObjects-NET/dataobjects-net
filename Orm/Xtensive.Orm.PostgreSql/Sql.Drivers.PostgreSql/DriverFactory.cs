@@ -13,6 +13,7 @@ using Npgsql;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -66,8 +67,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       else
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var version = GetVersion(configuration, connection);
+      var serverTimezones = GetServerTimeZones(connection, false).GetAwaiter().GetResult();
       var defaultSchema = GetDefaultSchema(connection);
-      return CreateDriverInstance(connectionString, version, defaultSchema);
+      return CreateDriverInstance(connectionString, version, defaultSchema, serverTimezones, connection.Timezone);
     }
 
     /// <inheritdoc/>
@@ -85,8 +87,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var version = GetVersion(configuration, connection);
+        var serverTimezones = await GetServerTimeZones(connection, true, token).ConfigureAwait(false);
         var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
-        return CreateDriverInstance(connectionString, version, defaultSchema);
+        return CreateDriverInstance(connectionString, version, defaultSchema, serverTimezones, connection.Timezone);
       }
     }
 
@@ -99,7 +102,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     }
 
     private static SqlDriver CreateDriverInstance(
-      string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+      string connectionString, Version version, DefaultSchemaInfo defaultSchema,
+      Dictionary<string, TimeSpan> timezones, string defaultTimeZone)
     {
       var coreServerInfo = new CoreServerInfo {
         ServerVersion = version,
@@ -111,7 +115,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       var pgsqlServerInfo = new PostgreServerInfo() {
         InfinityAliasForDatesEnabled = InfinityAliasForDatesEnabled,
-        LegacyTimestampBehavior = LegacyTimestamptBehaviorEnabled
+        LegacyTimestampBehavior = LegacyTimestamptBehaviorEnabled,
+        ServerTimeZones = timezones,
+        DefaultTimeZone = defaultTimeZone
       };
 
       if (version.Major < 8 || (version.Major == 8 && version.Minor < 3)) {
@@ -194,6 +200,45 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         catch (Exception ex) {
           await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
           throw;
+        }
+      }
+    }
+
+    private static async ValueTask<Dictionary<string, TimeSpan>> GetServerTimeZones(NpgsqlConnection connection, bool isAsync, CancellationToken token = default)
+    {
+      var resultZones = new Dictionary<string, TimeSpan>();
+
+      var command = connection.CreateCommand();
+      command.CommandText = "SELECT \"name\", \"abbrev\", \"utc_offset\", \"is_dst\" FROM pg_timezone_names";
+      if (isAsync) {
+        await using(command)
+        await using(var reader = await command.ExecuteReaderAsync()) {
+          while(await reader.ReadAsync()) {
+            ReadTimezoneRow(reader, resultZones);
+          }
+        }
+      }
+      else {
+        using (command)
+        using (var reader = command.ExecuteReader()) {
+          while (reader.Read()) {
+            ReadTimezoneRow(reader, resultZones);
+          }
+        }
+      }
+      return resultZones;
+
+
+      static void ReadTimezoneRow(NpgsqlDataReader reader, Dictionary<string, TimeSpan> zones)
+      {
+        var name = reader.GetString(0);
+        var abbrev = reader.GetString(1);
+        var utcOffset = PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(reader.GetFieldValue<NpgsqlTypes.NpgsqlInterval>(2));
+
+        _ = zones.TryAdd(name, utcOffset);
+        //flatten results for search convinience
+        if (!string.IsNullOrEmpty(abbrev)) {
+          _ = zones.TryAdd(abbrev, utcOffset);
         }
       }
     }
