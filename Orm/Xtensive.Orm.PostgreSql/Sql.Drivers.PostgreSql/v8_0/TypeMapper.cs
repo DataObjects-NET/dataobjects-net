@@ -135,6 +135,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     [SecuritySafeCritical]
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? (DateOnly) value : DBNull.Value;
+    }
+
+    [SecuritySafeCritical]
     public override void BindDateTime(DbParameter parameter, object value)
     {
       if (legacyTimestampBehaviorEnabled) {
@@ -239,6 +246,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return nativeReader.GetDecimal(index);
+    }
+
+    public override object ReadDateOnly(DbDataReader reader, int index)
+    {
+      return reader.GetFieldValue<DateOnly>(index);
     }
 
     public override object ReadDateTime(DbDataReader reader, int index)
