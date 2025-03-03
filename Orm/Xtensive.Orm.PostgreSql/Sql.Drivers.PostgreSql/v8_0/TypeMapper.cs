@@ -20,7 +20,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
   internal class TypeMapper : Sql.TypeMapper
   {
     // 6 fractions instead of .NET's 7
-    private const long DateTimeMaxValueAdjustedTicks = 3155378975999999990; 
+    private const long DateTimeMaxValueAdjustedTicks = 3155378975999999990;
+
+    // 6 fractions instead of .NET's 7
+    private const long TimeSpanMinValueAdjustedTicks = -9223372036854775800;
+    private const long TimeSpanMaxValueAdjustedTicks = 9223372036854775800;
 
     protected readonly bool legacyTimestampBehaviorEnabled;
     protected readonly TimeSpan? defaultTimeZone;
@@ -236,9 +240,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var nativeReader = (NpgsqlDataReader) reader;
       var nativeInterval = nativeReader.GetFieldValue<NpgsqlInterval>(index);
 
-      // support for full-range of Timespans required us to use raw type
+      // support for full-range of TimeSpans requires us to use raw type
       // and construct timespan from its' values.
-      return PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
+      var result = PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
+
+      // for confinience of comparison in .NET we lose 7th fractional point and treat several
+      // .Net values as one, Min or Max value.
+      if (result == TimeSpan.MinValue || result.Ticks == TimeSpanMinValueAdjustedTicks)
+        return TimeSpan.MinValue;
+      if (result == TimeSpan.MaxValue || result.Ticks == TimeSpanMaxValueAdjustedTicks)
+        return TimeSpan.MaxValue;
+      return result;
     }
 
     [SecuritySafeCritical]
@@ -259,10 +271,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       if (value == DateTime.MinValue || value == DateTime.MaxValue)
         return value;
       if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
-        // When Infinity aliases are disabled.
+        // Applied when Infinity aliases are disabled.
         // To not ruin possible comparisons with defined value,
         // it is better to return definded value,
-        // not the 6-digit version from PostgreSQL
+        // not the 6-digit version from PostgreSQL.
         return DateTime.MaxValue;
       }
       return value;
@@ -273,11 +285,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
-      if (value.Ticks == DateTimeMaxValueAdjustedTicks ) {
-        // When Infinity aliases are disabled.
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // Applied when Infinity aliases are disabled.
         // To not ruin possible comparisons with defined values,
         // it is better to return definded value,
-        // not the 6-fractions version from PostgreSQL
+        // not the 6-fractions version from PostgreSQL.
         return DateTimeOffset.MaxValue;
       }
       if (value == DateTimeOffset.MaxValue || value == DateTimeOffset.MaxValue)
@@ -288,7 +300,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return value;
       }
       else {
-        // Here we try to apply connection timezone.
+        // Here, we try to apply connection timezone to the values we read.
         // To not get it from internal connection of DbDataReader
         // we assume that time zone switch happens (if happens)
         // in DomainConfiguration.ConnectionInitializationSql and
