@@ -327,12 +327,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           var id = reader.GetInt64(0);
-          var datetimeValue = DateOnly.FromDateTime(reader.GetDateTime(1));
+          var datetimeValue = reader.GetFieldValue<DateOnly>(1);
           Assert.That(datetimeValue, Is.EqualTo(DateOnly.MaxValue));
         }
       }
 
-      var select = templates[DateTimeMaxValueTable].Clone(new SqlNodeCloneContext());
+      var select = templates[DateOnlyMaxValueTable].Clone(new SqlNodeCloneContext());
       select.Columns.Add(select.From.Columns["Id"]);
       select.Columns.Add(select.From.Columns["Value"]);
 
@@ -587,8 +587,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var partValue = reader.GetDouble(0);
-          CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          if (aliasesEnabled && part != SqlDatePart.Year) {
+            // year from +-infinity -> +-infinity
+            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
+            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
+              Assert.That(reader.IsDBNull(0));
+            }
+            else {
+              var partValue = reader.GetDouble(0);
+              Assert.That(partValue, Is.Zero);
+            }
+          }
+          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+            var partValue = reader.GetDouble(0);
+            Assert.That(partValue, Is.Zero);
+          }
+          else {
+            var partValue = reader.GetDouble(0);
+            CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          }
         }
       }
 
@@ -615,8 +632,24 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var partValue = reader.GetDouble(0);
-          CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          if (aliasesEnabled && part != SqlDateTimePart.Year) {
+            // year from +-infinity -> +-infinity
+            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
+            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96)
+              Assert.That(reader.IsDBNull(0));
+            else {
+              var partValue = reader.GetDouble(0);
+              Assert.That(partValue, Is.Zero);
+            }
+          }
+          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+            var partValue = reader.GetDouble(0);
+            Assert.That(partValue, Is.Zero);
+          }
+          else {
+            var partValue = reader.GetDouble(0);
+            CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          }
         }
       }
 
@@ -643,8 +676,24 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          var partValue = reader.GetDouble(0);
-          CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          if (aliasesEnabled && part != SqlDateTimeOffsetPart.Year) {
+            // year from +-infinity -> +-infinity
+            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
+            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96 )
+              Assert.That(reader.IsDBNull(0));
+            else {
+              var partValue = reader.GetDouble(0);
+              Assert.That(partValue, Is.Zero);
+            }
+          }
+          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+            var partValue = reader.GetDouble(0);
+            Assert.That(partValue, Is.Zero);
+          }
+          else {
+            var partValue = reader.GetDouble(0);
+            CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
+          }
         }
       }
 
@@ -658,16 +707,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         while (reader.Read()) {
           var partValue = reader.GetDouble(0);
           CheckPart(partValue, expectedValueDml, aliasesEnabled);
-        }
-      }
-
-      command = Connection.CreateCommand($"SELECT EXTRACT (TIMEZONE FROM \"Value\") FROM public.\"{table}\"");
-      using (command)
-      using (var reader = command.ExecuteReader()) {
-
-        while (reader.Read()) {
-          var partValue = reader.GetDouble(0);
-          Console.WriteLine($"TIMEZONE: {partValue}");
         }
       }
     }
