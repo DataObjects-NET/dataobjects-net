@@ -14,9 +14,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
     protected override void VisitIntervalToMilliseconds(SqlFunctionCall node)
     {
       AppendSpaceIfNecessary();
-      _ = context.Output.Append("(EXTRACT(EPOCH FROM (");
+      _ = context.Output.Append("(TRUNC(EXTRACT(EPOCH FROM (");
       node.Arguments[0].AcceptVisitor(this);
-      _ = context.Output.Append(")) * 1000)");
+      _ = context.Output.Append(")) * 1000))");
 
     }
 
