@@ -6,7 +6,7 @@ Supported databases:
 - MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019, 2022
 - MS Azure SQL Database
 - Oracle 10g, 11g
-- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11, 12, 13, 14, 15
+- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11, 12, 13, 14, 15, 16, 17
 - MySQL 5.6, 5.7, 8.0
 - Firebird 2.5, 4.0
 - Sqlite 3
