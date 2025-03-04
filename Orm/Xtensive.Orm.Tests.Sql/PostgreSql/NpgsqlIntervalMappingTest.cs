@@ -15,6 +15,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     private const string ValueColumnName = "Value";
     private const string TableName = "NpgsqlIntervalTest";
 
+    private TypeMapping longMapping;
+    private TypeMapping timeSpanMapping;
+
     #region Test case sources
     private static TimeSpan[] SecondsCases
     {
@@ -199,10 +202,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
     #endregion
 
-    private TypeMapping longMapping;
-    private TypeMapping timeSpanMapping;
-
-
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.PostgreSql);
 
     protected override void TestFixtureSetUp()
@@ -313,10 +312,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       longMapping.BindValue(pId, id);
       _ = command.Parameters.Add(pId);
 
-      TimeSpan result = default;
       using (command)
       using (var reader = command.ExecuteReader()) {
-        while (reader.Read() || result == default) {
+        while (reader.Read()) {
           var idFromDb = (long) longMapping.ReadValue(reader, 0);
           var valueFromDb = (TimeSpan) timeSpanMapping.ReadValue(reader, 1);
           return (idFromDb, valueFromDb);
