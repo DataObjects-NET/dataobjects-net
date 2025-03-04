@@ -47,9 +47,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static readonly SqlNative DateTimeMaxValue = SqlDml.Native("'9999-12-31 23:59:59.999999'::timestamp(6)");
 
     private static readonly SqlNative DateTimeOffsetMinValue = SqlDml.Native("'0001-01-01 00:00:00.000000+00:00'::timestamp(6) with time zone");
-    private static readonly SqlNative DateTimeOffsetMaxValue = SqlDml.Native("'9999-12-31 23:59:59.999999+00:00'::timestamp(6)");
+    private static readonly SqlNative DateTimeOffsetMaxValue = SqlDml.Native("'9999-12-31 23:59:59.999999+00:00'::timestamp(6) with time zone");
 
-    private static readonly SqlNative Infinity = SqlDml.Native("'Infinity'");
+    private static readonly SqlNative PositiveInfinity = SqlDml.Native("'Infinity'");
     private static readonly SqlNative NegativeInfinity = SqlDml.Native("'-Infinity'");
 
 
@@ -308,15 +308,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime, in string isoFormat, bool infinityEnabled)
     {
-      var conversionExpression = SqlDml.FunctionCall("TO_CHAR", dateTime, isoFormat);
-      if (infinityEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = SqlDml.FunctionCall("TO_CHAR", DateTimeMaxValue, isoFormat);
-        @case[dateTime == NegativeInfinity] = SqlDml.FunctionCall("TO_CHAR", DateTimeMinValue, isoFormat);
-        @case.Else = conversionExpression;
-        return @case;
-      }
-      return conversionExpression;
+      var operand = infinityEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.FunctionCall("TO_CHAR", operand, isoFormat);
     }
 
     private static SqlExpression IntervalToIsoString(SqlExpression interval, bool signed)
@@ -391,34 +386,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               SqlDml.Native(")")))));
     }
 
-    // it might be moved to context as some kind of extension
-    private readonly HashSet<SqlExtract> delayedExtractOperations = new();
-
-    private (SqlExpression min, SqlExpression max) ExtractMinMaxValuesForPart(SqlExtract node)
-    {
-      var actualPart = (SqlDateTimeOffsetPart) (node.IsDateTimePart
-        ? (int) node.DateTimePart
-        : node.IsDatePart
-          ? (int) node.DatePart
-          : node.IsDateTimeOffsetPart
-            ? (int) node.DateTimeOffsetPart
-            : throw new ArgumentOutOfRangeException());
-
-      return actualPart switch {
-        SqlDateTimeOffsetPart.Year => (SqlDml.Literal(1), SqlDml.Literal(9999)),
-        SqlDateTimeOffsetPart.Month => (SqlDml.Literal(1), SqlDml.Literal(12)),
-        SqlDateTimeOffsetPart.Day => (SqlDml.Literal(1), SqlDml.Literal(31)),
-        SqlDateTimeOffsetPart.DayOfWeek => (SqlDml.Literal(1), SqlDml.Literal(5)), // Monday and Friday
-        SqlDateTimeOffsetPart.DayOfYear => (SqlDml.Literal(1), SqlDml.Literal(365)),
-        SqlDateTimeOffsetPart.Hour => (SqlDml.Literal(0), SqlDml.Literal(23)),
-        SqlDateTimeOffsetPart.Minute or SqlDateTimeOffsetPart.Second => (SqlDml.Literal(0), SqlDml.Literal(59)),
-        SqlDateTimeOffsetPart.Millisecond => (SqlDml.Literal(0), SqlDml.Literal(999)),
-        SqlDateTimeOffsetPart.Nanosecond => (SqlDml.Literal(0), SqlDml.Literal(900)),
-        SqlDateTimeOffsetPart.TimeZoneHour or SqlDateTimeOffsetPart.TimeZoneMinute => (SqlDml.Literal(0), SqlDml.Literal(0)),
-        _ => throw new ArgumentOutOfRangeException()
-      };
-    }
-
     public override void Visit(SqlExtract node)
     {
       if (node.IsDateTimeOffsetPart) {
@@ -442,23 +409,46 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         }
       }
 
-      if (infinityAliasForDatesEnabled
-        && (node.IsDatePart || node.IsDateTimePart || node.IsDateTimeOffsetPart)
-        && !delayedExtractOperations.Remove(node)) {
-        // If DateTime.MinValue => -Infinity and DateTime.MaxValue => Infinity conversion happens
-        // in Npgsql driver then we have to use SQL case statement to return correct values to the user.
-        // In this case we use original expression in ELSE part of CASE statement and postpone visiting
-
-        _ = delayedExtractOperations.Add(node);
-        (SqlExpression min, SqlExpression max) minMaxValues = ExtractMinMaxValuesForPart(node);
-        var @case = SqlDml.Case();
-        @case[node.Operand == Infinity] = minMaxValues.max;
-        @case[node.Operand == NegativeInfinity] = minMaxValues.min;
-        @case.Else = node;
-        @case.AcceptVisitor(this);
+      using (context.EnterScope(node)) {
+        AppendTranslatedEntry(node);
+        if (node.IsDateTimePart) {
+          translator.Translate(context.Output, node.DateTimePart);
+        }
+        else if (node.IsIntervalPart) {
+          translator.Translate(context.Output, node.IntervalPart);
+        }
+        else if (node.IsDatePart) {
+          translator.Translate(context.Output, node.DatePart);
+        }
+        else if (node.IsTimePart) {
+          translator.Translate(context.Output, node.TimePart);
+        }
+        else {
+          translator.Translate(context.Output, node.DateTimeOffsetPart);
+        }
+        AppendTranslated(node, ExtractSection.From);
+        if (infinityAliasForDatesEnabled && (node.IsDatePart || node.IsDateTimePart || node.IsDateTimeOffsetPart)) {
+          var minMaxValues = GetMinMaxValuesForPart(node);
+          CreateInfinityCheckExpression(node.Operand, minMaxValues.max, minMaxValues.min)
+            .AcceptVisitor(this);
+        }
+        else {
+          node.Operand.AcceptVisitor(this);
+        }
+        AppendTranslatedExit(node);
       }
-      else {
-        base.Visit(node);
+
+
+      (SqlExpression min, SqlExpression max) GetMinMaxValuesForPart(SqlExtract node)
+      {
+        if (node.IsDateTimePart)
+          return (DateTimeMinValue, DateTimeMaxValue);
+        if (node.IsDatePart)
+          return (DateMinValue, DateMaxValue);
+        if (node.IsDateTimeOffsetPart)
+          return (DateTimeOffsetMinValue, DateTimeOffsetMaxValue);
+
+        throw new ArgumentOutOfRangeException("Can't define min and max values for given extract statement");
       }
     }
 
@@ -474,17 +464,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           DateTime dtValue => dtValue == DateTime.MinValue
             ? NegativeInfinity
             : dtValue == DateTime.MaxValue
-              ? Infinity
+              ? PositiveInfinity
               : null,
           DateOnly dtValue => dtValue == DateOnly.MinValue
             ? NegativeInfinity
             : dtValue == DateOnly.MaxValue
-              ? Infinity
+              ? PositiveInfinity
               : null,
           DateTimeOffset dtValue => dtValue == DateTimeOffset.MinValue
             ? NegativeInfinity
             : dtValue == DateTimeOffset.MaxValue
-              ? Infinity
+              ? PositiveInfinity
               : null,
           _ => null
         };
@@ -566,122 +556,74 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression DateTimeAddXxx(SqlExpression dateTime, SqlExpression addPart)
     {
-      var resultExpression = (dateTime + addPart);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = DateTimeMaxValue + addPart;
-        @case[dateTime == NegativeInfinity] = DateTimeMinValue + addPart;
-        @case.Else = resultExpression;
-        return @case;
-      }
-      return resultExpression;
+      var operand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return (operand + addPart);
     }
 
     protected SqlExpression DateTimeTruncate(SqlExpression dateTime)
     {
-      var truncateExpression = SqlDml.FunctionCall("date_trunc", "day", dateTime);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = SqlDml.Cast(DateMaxValue, SqlType.DateTime);
-        @case[dateTime == NegativeInfinity] = SqlDml.Cast(DateMinValue, SqlType.DateTime);
-        @case.Else = truncateExpression;
-        return @case;
-      }
-      return truncateExpression;
+      var operand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.FunctionCall("date_trunc", "day", operand);
     }
 
     protected SqlExpression DateAddXxx(SqlExpression date, SqlExpression addPart)
     {
-      var resultExpression = (date + addPart);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[date == Infinity]         = DateMaxValue + addPart;
-        @case[date == NegativeInfinity] = DateMinValue + addPart;
-        @case.Else = resultExpression;
-        return @case;
-      }
-      return (date + addPart);
+      var operand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(date, DateMaxValue, DateMinValue)
+        : date;
+      return (operand + addPart);
     }
 
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
     {
-      var extractExpression = SqlDml.FunctionCall("DATE", timestamp);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[timestamp == Infinity]         = DateMaxValue;
-        @case[timestamp == NegativeInfinity] = DateMinValue;
-        @case.Else = extractExpression;
-        return @case;
-      }
-      return extractExpression;
+      var extractOperand = (infinityAliasForDatesEnabled)
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
+      return SqlDml.FunctionCall("DATE", timestamp);
     }
 
     protected SqlExpression DateTimeOffsetExtractDateTime(SqlExpression timestamp)
     {
-      var extractExpression = SqlDml.Cast(timestamp, SqlType.DateTime);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[timestamp == Infinity]         = DateTimeMaxValue;
-        @case[timestamp == NegativeInfinity] = DateTimeMinValue;
-        @case.Else = extractExpression;
-        return @case;
-      }
-
-      return extractExpression;
+      return DateTimeOffsetToDateTime(timestamp, infinityAliasForDatesEnabled);
     }
 
     protected SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression timestamp)
     {
-      var extractExpression = GetDateTimeInTimeZone(timestamp, TimeSpan.Zero);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[timestamp == Infinity]         = DateTimeMaxValue;
-        @case[timestamp == NegativeInfinity] = DateTimeMinValue;
-        @case.Else = extractExpression;
-        return @case;
-      }
-      return extractExpression;
+      var convertOperand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
+      return GetDateTimeInTimeZone(convertOperand, TimeSpan.Zero);
     }
 
     protected SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression timestamp)
     {
-      var extractExpression = SqlDml.Cast(timestamp, SqlType.DateTime);
-      if (infinityAliasForDatesEnabled) {
-        var @case = SqlDml.Case();
-        @case[timestamp == Infinity]         = DateTimeMaxValue;
-        @case[timestamp == NegativeInfinity] = DateTimeMinValue;
-        @case.Else = extractExpression;
-        return @case;
-      }
-
-      return extractExpression;
+      var extractOperand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
+      return  SqlDml.Cast(extractOperand, SqlType.DateTime);
     }
 
     protected void DateTimeOffsetExtractOffset(SqlExtract node)
     {
-      if (infinityAliasForDatesEnabled && !delayedExtractOperations.Remove(node)) {
-        // If DateTime.MinValue => -Infinity and DateTime.MaxValue => Infinity conversion happens
-        // in Npgsql driver then we have to use SQL case statement to return correct values to the user.
-        // In this case we use original expression in ELSE part of CASE statement and postpone visiting
-
-        _ = delayedExtractOperations.Add(node);
-        var @case = SqlDml.Case();
-        @case[node.Operand == Infinity]         = SqlDml.Native("'00:00'");
-        @case[node.Operand == NegativeInfinity] = SqlDml.Native("'00:00'");
-        @case.Else = node;
-        @case.AcceptVisitor(this);
-      }
-      else {
-        using (context.EnterScope(node)) {
-          AppendTranslatedEntry(node);
-          translator.Translate(context.Output, node.DateTimeOffsetPart);
-          AppendTranslated(node, ExtractSection.From);
-          node.Operand.AcceptVisitor(this);
-          AppendSpace();
-          AppendTranslatedExit(node);
-          AppendTranslated(SqlNodeType.Multiply);
-          OneSecondInterval.AcceptVisitor(this);
+      using (context.EnterScope(node)) {
+        AppendTranslatedEntry(node);
+        translator.Translate(context.Output, node.DateTimeOffsetPart);
+        AppendTranslated(node, ExtractSection.From);
+        if (infinityAliasForDatesEnabled) {
+          CreateInfinityCheckExpression(node.Operand, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+            .AcceptVisitor(this);
         }
+        else {
+          node.Operand.AcceptVisitor(this);
+        }
+        AppendSpace();
+        AppendTranslatedExit(node);
+        AppendTranslated(SqlNodeType.Multiply);
+        OneSecondInterval.AcceptVisitor(this);
       }
     }
 
@@ -690,8 +632,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var resultExpression = DateTimeOffsetSubstract(timestamp, SqlDml.DateTimeTruncate(timestamp));
       if (infinityAliasForDatesEnabled) {
         var @case = SqlDml.Case();
-        @case[timestamp == Infinity]         = SqlDml.Cast(MaxTimeLiteral, SqlType.Interval);
-        @case[timestamp == NegativeInfinity] = SqlDml.Cast(ZeroTimeLiteral, SqlType.Interval);
+        @case[timestamp == PositiveInfinity] = DateTimeOffsetSubstract(DateTimeOffsetMaxValue, SqlDml.DateTimeTruncate(DateTimeOffsetMaxValue));
+        @case[timestamp == NegativeInfinity] = DateTimeOffsetSubstract(DateTimeOffsetMinValue, SqlDml.DateTimeTruncate(DateTimeOffsetMinValue));
         @case.Else = resultExpression;
         return @case;
       }
@@ -730,67 +672,42 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTime, SqlType.DateTimeOffset);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = DateTimeOffsetMaxValue;
-        @case[dateTime == NegativeInfinity] = DateTimeOffsetMinValue;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.Cast(convertOperand, SqlType.DateTimeOffset);
     }
 
     private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTimeOffset == Infinity]         = DateTimeMaxValue;
-        @case[dateTimeOffset == NegativeInfinity] = DateTimeMinValue;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTimeOffset, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : dateTimeOffset;
+      return SqlDml.Cast(convertOperand, SqlType.DateTime);
     }
 
     private static SqlExpression DateTimeToDate(SqlExpression dateTime, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTime, SqlType.Date);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = DateMaxValue;
-        @case[dateTime == NegativeInfinity] = DateMinValue;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.Cast(convertOperand, SqlType.Date);
     }
 
     private static SqlExpression DateToDateTime(SqlExpression date, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(date, SqlType.DateTime);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[date == Infinity]         = MaxTimeLiteral;
-        @case[date == NegativeInfinity] = ZeroTimeLiteral;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(date, DateMaxValue, DateMinValue)
+        : date;
+      return SqlDml.Cast(convertOperand, SqlType.DateTime);
     }
 
     private static SqlExpression DateTimeToTime(SqlExpression dateTime, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTime, SqlType.Time);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTime == Infinity]         = MaxTimeLiteral;
-        @case[dateTime == NegativeInfinity] = ZeroTimeLiteral;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.Cast(convertOperand, SqlType.Time);
     }
 
     private static SqlExpression TimeToDateTime(SqlExpression time) =>
@@ -798,41 +715,37 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTimeOffset, SqlType.Date);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTimeOffset == Infinity]         = DateMaxValue;
-        @case[dateTimeOffset == NegativeInfinity] = DateMinValue;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTimeOffset, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : dateTimeOffset;
+      return SqlDml.Cast(convertOperand, SqlType.Date);
     }
 
     private static SqlExpression DateToDateTimeOffset(SqlExpression date, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(date, SqlType.DateTimeOffset);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[date == Infinity]         = DateTimeOffsetMaxValue;
-        @case[date == NegativeInfinity] = DateTimeOffsetMinValue;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(date, DateMaxValue, DateMinValue)
+        : date;
+      return SqlDml.Cast(convertOperand, SqlType.DateTimeOffset);
     }
 
     private static SqlExpression DateTimeOffsetToTime(SqlExpression dateTimeOffset, bool infinityAliasEnabled)
     {
-      var convertExpression = SqlDml.Cast(dateTimeOffset, SqlType.Time);
-      if (infinityAliasEnabled) {
-        var @case = SqlDml.Case();
-        @case[dateTimeOffset == Infinity]         = MaxTimeLiteral;
-        @case[dateTimeOffset == NegativeInfinity] = ZeroTimeLiteral;
-        @case.Else = convertExpression;
-        return @case;
-      }
-      return convertExpression;
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTimeOffset, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : dateTimeOffset;
+      return SqlDml.Cast(convertOperand, SqlType.Time);
+    }
+
+    private static SqlCase CreateInfinityCheckExpression(SqlExpression baseExpression,
+      SqlExpression ifPositiveInfinity, SqlExpression ifNegativeInfinity)
+    {
+      var @case = SqlDml.Case();
+      @case[baseExpression == PositiveInfinity] = ifPositiveInfinity;
+      @case[baseExpression == NegativeInfinity] = ifNegativeInfinity;
+      @case.Else = baseExpression;
+
+      return @case;
     }
 
     private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
