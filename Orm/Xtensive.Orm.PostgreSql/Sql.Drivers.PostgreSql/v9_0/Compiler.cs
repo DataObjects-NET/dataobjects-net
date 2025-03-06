@@ -17,8 +17,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
       AppendSpaceIfNecessary();
       _ = context.Output.Append("(TRUNC(EXTRACT(EPOCH FROM (");
       node.Arguments[0].AcceptVisitor(this);
-      _ = context.Output.Append(")) * 1000))");
-      
+      _ = context.Output.Append("))::double precision * 1000))");
     }
 
     public Compiler(PostgreSql.Driver driver)
