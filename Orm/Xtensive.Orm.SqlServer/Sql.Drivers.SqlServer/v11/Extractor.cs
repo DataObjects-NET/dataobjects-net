@@ -68,7 +68,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     is_cycling,
     current_value
   FROM {CATALOG}.sys.sequences
-  WHERE schema_id {SCHEMA_FILTER}
+  WHERE schema_id {SCHEMA_FILTER} AND {SYSOBJECT_FILTER}
   ORDER BY
     schema_id,
     object_id";
