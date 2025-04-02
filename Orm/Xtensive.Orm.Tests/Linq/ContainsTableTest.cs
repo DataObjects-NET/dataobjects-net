@@ -1,15 +1,17 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.12.09
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -25,8 +27,31 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      Thread.Sleep(TimeSpan.FromSeconds(6));
+      if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          var sqlAccessor = session.Services.Get<DirectSqlAccessor>();
+          var timeout = DateTime.UtcNow.AddSeconds(20);
+          while (!CheckFtIndexesPopulated(sqlAccessor.CreateCommand()) && DateTime.UtcNow < timeout) {
+            Console.WriteLine("There are unpopulated FT indexes. Waiting");
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+          }
+          return domain;
+        }
+      }
+      else {
+        Thread.Sleep(TimeSpan.FromSeconds(6));
+      }
       return domain;
+
+
+      static bool CheckFtIndexesPopulated(DbCommand sqlCommand)
+      {
+        using (sqlCommand) {
+          sqlCommand.CommandText = $"SELECT COUNT(*) FROM [{WellKnownDatabases.MultiDatabase.MainDb}].sys.fulltext_indexes WHERE has_crawl_completed=0";
+          return ((int) sqlCommand.ExecuteScalar()) == 0;
+        }
+      }
     }
 
     [Test]

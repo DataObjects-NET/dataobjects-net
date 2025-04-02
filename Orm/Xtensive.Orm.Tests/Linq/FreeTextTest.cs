@@ -1,17 +1,19 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.12.14
 
 using System;
+using System.Data.Common;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {
@@ -25,8 +27,30 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      Thread.Sleep(TimeSpan.FromSeconds(6));
+      if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          var sqlAccessor = session.Services.Get<DirectSqlAccessor>();
+          var timeout = DateTime.UtcNow.AddSeconds(20);
+          while (!CheckFtIndexesPopulated(sqlAccessor.CreateCommand()) && DateTime.UtcNow < timeout) {
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+          }
+          return domain;
+        }
+      }
+      else {
+        Thread.Sleep(TimeSpan.FromSeconds(6));
+      }
       return domain;
+
+
+      static bool CheckFtIndexesPopulated(DbCommand sqlCommand)
+      {
+        using (sqlCommand) {
+          sqlCommand.CommandText = $"SELECT COUNT(*) FROM [{WellKnownDatabases.MultiDatabase.MainDb}].sys.fulltext_indexes WHERE has_crawl_completed=0";
+          return ((int) sqlCommand.ExecuteScalar()) == 0;
+        }
+      }
     }
 
     [Test]
