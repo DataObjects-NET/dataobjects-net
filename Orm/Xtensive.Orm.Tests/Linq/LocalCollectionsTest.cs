@@ -978,7 +978,7 @@ namespace Xtensive.Orm.Tests.Linq
       var currentCommandTimeout = session.CommandTimeout.Value;
 
       return StorageProviderInfo.Instance.Provider switch {
-        StorageProvider.SqlServer => $"WAITFOR DELAY '{TimeSpan.FromSeconds(currentCommandTimeout + 2).ToString("hh:mm.ss")}'" + originalCommandText,
+        StorageProvider.SqlServer => $"WAITFOR DELAY '{TimeSpan.FromSeconds(currentCommandTimeout + 2).ToString(@"hh\:mm\:ss")}'" + originalCommandText,
         StorageProvider.PostgreSql => $"SELECT pg_sleep({currentCommandTimeout + 2});" + originalCommandText,
         _ => throw new ArgumentOutOfRangeException()
       };
