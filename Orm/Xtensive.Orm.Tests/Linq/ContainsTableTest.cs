@@ -5,13 +5,10 @@
 // Created:    2016.12.09
 
 using System;
-using System.Data.Common;
 using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -27,52 +24,29 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
-        using (var session = domain.OpenSession())
-        using (var tx = session.OpenTransaction()) {
-          var sqlAccessor = session.Services.Get<DirectSqlAccessor>();
-          var timeout = DateTime.UtcNow.AddSeconds(20);
-          while (!CheckFtIndexesPopulated(sqlAccessor.CreateCommand()) && DateTime.UtcNow < timeout) {
-            Console.WriteLine("There are unpopulated FT indexes. Waiting");
-            Thread.Sleep(TimeSpan.FromSeconds(2));
-          }
-          return domain;
-        }
-      }
-      else {
-        Thread.Sleep(TimeSpan.FromSeconds(6));
-      }
+      StorageTestHelper.WaitFullTextIndexesPopulated(domain, TimeSpan.FromSeconds(20));
       return domain;
-
-
-      static bool CheckFtIndexesPopulated(DbCommand sqlCommand)
-      {
-        using (sqlCommand) {
-          sqlCommand.CommandText = $"SELECT COUNT(*) FROM [{WellKnownDatabases.MultiDatabase.MainDb}].sys.fulltext_indexes WHERE has_crawl_completed=0";
-          return ((int) sqlCommand.ExecuteScalar()) == 0;
-        }
-      }
     }
 
     [Test]
     public void SearchByTypeWithoutFulltextIndexTest()
     {
-      Assert.Throws<QueryTranslationException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text")).Run());
-      Assert.Throws<QueryTranslationException>(() => Query.ContainsTable<Artist> (e => e.SimpleTerm("some text")).Run());
+      _ = Assert.Throws<QueryTranslationException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text")).Run());
+      _ = Assert.Throws<QueryTranslationException>(() => Query.ContainsTable<Artist> (e => e.SimpleTerm("some text")).Run());
     }
 
     [Test]
     public void NullSearchConditionBuilderTest()
     {
-      Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Artist>(null).Run());
-      Assert.Throws<ArgumentNullException>(() => Query.ContainsTable<Artist>(null).Run());
+      _ = Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Artist>(null).Run());
+      _ = Assert.Throws<ArgumentNullException>(() => Query.ContainsTable<Artist>(null).Run());
     }
 
     [Test]
     public void NegativeRank()
     {
-      Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
-      Assert.Throws<ArgumentOutOfRangeException>(() => Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
     }
 
     [Test]
