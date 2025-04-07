@@ -19,7 +19,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup Label="Nuget content">
-    <Content Include="$(ProjectDir)NuGetContent\**">
+    <Content Include="$(ProjectDir)NugetContent\**">
       <PackagePath>.</PackagePath>
     </Content>
   </ItemGroup>
