@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class Compiler : v8_4.Compiler
   {
-    // Constructors
+    
     protected override void VisitIntervalToMilliseconds(SqlFunctionCall node)
     {
       AppendSpaceIfNecessary();
@@ -18,6 +18,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
       node.Arguments[0].AcceptVisitor(this);
       _ = context.Output.Append("))::double precision * 1000))");
     }
+
+    // Constructors
 
     public Compiler(SqlDriver driver)
       : base(driver)
