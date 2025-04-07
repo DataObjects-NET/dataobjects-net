@@ -15,7 +15,7 @@
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup Label="Nuget content">
-    <Content Include="$(ProjectDir)NuGetContent\**">
+    <Content Include="$(ProjectDir)NugetContent\**">
       <PackagePath>.</PackagePath>
     </Content>
   </ItemGroup>
