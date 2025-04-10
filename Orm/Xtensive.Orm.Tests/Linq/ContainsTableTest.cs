@@ -1,12 +1,11 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.12.09
 
 using System;
 using System.Linq;
-using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
@@ -25,29 +24,29 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      Thread.Sleep(TimeSpan.FromSeconds(6));
+      StorageTestHelper.WaitFullTextIndexesPopulated(domain, TimeSpan.FromSeconds(20));
       return domain;
     }
 
     [Test]
     public void SearchByTypeWithoutFulltextIndexTest()
     {
-      Assert.Throws<QueryTranslationException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text")).Run());
-      Assert.Throws<QueryTranslationException>(() => Query.ContainsTable<Artist> (e => e.SimpleTerm("some text")).Run());
+      _ = Assert.Throws<QueryTranslationException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text")).Run());
+      _ = Assert.Throws<QueryTranslationException>(() => Query.ContainsTable<Artist> (e => e.SimpleTerm("some text")).Run());
     }
 
     [Test]
     public void NullSearchConditionBuilderTest()
     {
-      Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Artist>(null).Run());
-      Assert.Throws<ArgumentNullException>(() => Query.ContainsTable<Artist>(null).Run());
+      _ = Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Artist>(null).Run());
+      _ = Assert.Throws<ArgumentNullException>(() => Query.ContainsTable<Artist>(null).Run());
     }
 
     [Test]
     public void NegativeRank()
     {
-      Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
-      Assert.Throws<ArgumentOutOfRangeException>(() => Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Query.ContainsTable<Artist>(e => e.SimpleTerm("some text"), -1).Run());
     }
 
     [Test]

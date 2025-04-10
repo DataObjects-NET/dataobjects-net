@@ -1390,7 +1390,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-      var margin = 2;
       var results = Session.Query.All<InventoryAction>()
         .OrderBy(p => p.LogisticFlow == sharedFlow)
         .ToArray();
@@ -1407,7 +1406,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-      var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
         .OrderBy(p => p.InventoryAction.LogisticFlow == sharedFlow)
         .ToArray();
@@ -1422,7 +1420,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EqualsInOrderByEntityFieldAndRemoteEntityTest()
     {
-      var margin = 2;
       var results = Session.Query.All<InventoryAction>()
         .OrderBy(p => p.LogisticFlow == p.NullFlow)
         .ToArray();
@@ -1437,7 +1434,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EqualsInOrderByChainOfFieldsAndRemoteEntityTest()
     {
-      var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
         .OrderBy(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow)
         .ToArray();
@@ -1658,7 +1654,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-      var margin = 2;
       var results = Session.Query.All<InventoryAction>()
         .GroupBy(p => p.LogisticFlow == sharedFlow)
         .ToArray();
@@ -1671,7 +1666,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var sharedFlow = Session.Query.All<LogisticFlow>().First(l => l.Id == 1000);
 
-      var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
         .GroupBy(p => p.InventoryAction.LogisticFlow == sharedFlow)
         .ToArray();
@@ -1682,7 +1676,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EqualsInGroupByEntityFieldAndRemoteEntityTest()
     {
-      var margin = 2;
       var results = Session.Query.All<InventoryAction>()
         .GroupBy(p => p.LogisticFlow == p.NullFlow)
         .ToArray();
@@ -1693,7 +1686,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EqualsInGroupByChainOfFieldsAndRemoteEntityTest()
     {
-      var margin = 2;
       var results = Session.Query.All<PickingProductRequirement>()
         .GroupBy(p => p.InventoryAction.LogisticFlow == p.InventoryAction.NullFlow)
         .ToArray();

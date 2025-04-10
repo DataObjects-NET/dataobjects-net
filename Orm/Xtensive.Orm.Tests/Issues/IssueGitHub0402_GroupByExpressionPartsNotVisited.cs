@@ -386,7 +386,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void Case03Test()
     {
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
@@ -588,7 +587,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void Case05Test()
     {
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
@@ -796,7 +794,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void Case07Test()
     {
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
@@ -1010,7 +1007,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void Case09Test()
     {
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
@@ -1216,7 +1212,6 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
 
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
@@ -1408,7 +1403,6 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
 
       var accessibleBusinessUnitIds = accessibleBusinessUnits.ToList();
-      var businessUnitId = 10;
       var allBusinessUnitsAccessible = !accessibleBusinessUnitIds.Any(id => id != 0);
 
       using (var session = Domain.OpenSession())
