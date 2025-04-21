@@ -5,13 +5,11 @@
 // Created:    2009.06.23
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Security;
 using Npgsql;
 using NpgsqlTypes;
-using Xtensive.Orm.PostgreSql;
 using Xtensive.Reflection.PostgreSql;
 
 
@@ -27,7 +25,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const long TimeSpanMaxValueAdjustedTicks = 9223372036854775800;
 
     protected readonly bool legacyTimestampBehaviorEnabled;
-    protected readonly TimeSpan? defaultTimeZone;
+    protected readonly TimeZoneInfo defaultTimeZone;
 
     public override bool IsParameterCastRequired(Type type)
     {
@@ -158,7 +156,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         // in Npgsql 6+, though both types have the same range of values and resolution.
         //
         // If no explicit type declared it seems to be identified by DateTime value's Kind,
-        // so now we have to unbox-box value to change kind of value because of this "talanted" person.
+        // so now we have to unbox-box value to change kind of value.
         nativeParameter.NpgsqlDbType = NpgsqlDbType.Timestamp;
         nativeParameter.Value = value is null
           ? DBNull.Value
@@ -180,7 +178,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
 
         // Manual switch to universal time is required by Npgsql from now on,
-        // Npgsql team "untaught" the library to do it.
         nativeParameter.NpgsqlValue = value is null
           ? DBNull.Value
           : value is DateTimeOffset dateTimeOffset
@@ -300,23 +297,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return value;
       }
       else {
-        // Here, we try to apply connection timezone to the values we read.
-        // To not get it from internal connection of DbDataReader
-        // we assume that time zone switch happens (if happens)
-        // in DomainConfiguration.ConnectionInitializationSql and
-        // we cache time zone of native connection after the script
-        // has been executed.
-
-        return (defaultTimeZone.HasValue)
-          ? value.ToOffset(defaultTimeZone.Value)
-          : value.ToLocalTime();
+        // Here, we try to apply connection time zone (if it was recongized on client-side)
+        // to the values we read.
+        // If any time zone change happens, we assume that DomainConfiguration.ConnectionInitializationSql
+        // is used to make such change and we cache time zone info on first connection in driver factory
+        // after initialization has happened.
+        // If connection time zone has not been recognized we transform value to local offset
+        // on the assumption that database server is usually in the same region.
+        return defaultTimeZone is not null
+          ?  TimeZoneInfo.ConvertTime(value, defaultTimeZone)
+          : (object) value.ToLocalTime();
       }
     }
 
-    internal protected ArgumentException ValueNotOfTypeError(string typeName)
-    {
-      return new ArgumentException($"Value is not of '{typeName}' type.");
-    }
+    internal protected ArgumentException ValueNotOfTypeError(string typeName) =>
+      new($"Value is not of '{typeName}' type.");
+
 
     // Constructors
 
@@ -325,11 +321,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var postgreServerInfo = driver.PostgreServerInfo;
       legacyTimestampBehaviorEnabled = postgreServerInfo.LegacyTimestampBehavior;
-      defaultTimeZone = postgreServerInfo.ServerTimeZones.TryGetValue(
-          PostgreSqlHelper.TryGetZoneFromPosix(postgreServerInfo.DefaultTimeZone), out var offset)
-        ? offset
-        : null;
-      ;
+      defaultTimeZone = postgreServerInfo.DefaultTimeZone;
     }
   }
 }

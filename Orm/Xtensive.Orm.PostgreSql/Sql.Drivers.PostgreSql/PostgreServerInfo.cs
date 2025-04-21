@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -27,13 +28,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     public bool LegacyTimestampBehavior { get; init; }
 
     /// <summary>
-    /// Contains server timezone names and their base Utc offset (including abbreviations).
+    /// Gets the <see cref="TimeZoneInfo"/> to which <see cref="DateTimeOffset"/> values
+    /// will be converted on reading from database.
+    /// <see langword="null"/> if no local equivalent of server time zone.
     /// </summary>
-    public IReadOnlyDictionary<string, TimeSpan> ServerTimeZones { get; init; }
-
-    /// <summary>
-    /// Gets time zone of connection after connection initialization script was executed.
-    /// </summary>
-    public string DefaultTimeZone { get; init; }
+    public TimeZoneInfo DefaultTimeZone { get; init; }
   }
 }
