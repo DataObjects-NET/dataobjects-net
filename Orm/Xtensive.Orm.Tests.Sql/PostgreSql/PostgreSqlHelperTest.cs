@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Npgsql;
 using NUnit.Framework;
 using Xtensive.Sql.Drivers.PostgreSql;
+using PostgreSqlDriver = Xtensive.Sql.Drivers.PostgreSql.Driver;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture]
   public sealed class PostgreSqlHelperTest : SqlTest
   {
-    private IReadOnlyDictionary<string, TimeSpan> serverTimeZones;
-
-    private string[] testTimezones;
+    private string[] timezoneIdsWithWinAnalogue;
+    private string[] timezoneIdsWithoutWinAnalogue;
 
     public static TimeSpan[] Intervals
     {
@@ -44,61 +43,73 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       };
     }
 
+    public static string[] PosixOffsetFormatValues
+    {
+      get => new[] {
+        "<+02>-02",
+        "<+05>-05",
+        "<+07>-07",
+        "<-02>+02",
+        "<-05>+05",
+        "<-07>+07",
+        "<-0730>+0730"
+      };
+    }
+
+    public static string[] PseudoPosixOffsetFormatValues
+    {
+      get => new[] {
+        "<+2>-2",
+        "<+5>-5",
+        "<+7>-7",
+        "<-2>+2",
+        "<-5>+5",
+        "<-7>+7",
+        "<ulalala>not-ulalala"
+      };
+    }
+
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.PostgreSql);
 
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      var nativeDriver = (Xtensive.Sql.Drivers.PostgreSql.Driver) Driver;
 
-      serverTimeZones = nativeDriver.PostgreServerInfo.ServerTimeZones;
-      testTimezones = serverTimeZones.Keys.Union(new[] {
-        "<+02>-02",
-        "<+2>-2",
-        "<+05>-05",
-        "<+5>-5",
-        "<+07>-07",
-        "<+7>-7",
-        "<-02>+02",
-        "<-2>+2",
-        "<-05>+05",
-        "<-5>+5",
-        "<-07>+07",
-        "<-7>+7"
-      } ).ToArray();
+      LoadServerTimeZones(Connection, out timezoneIdsWithWinAnalogue, out timezoneIdsWithoutWinAnalogue);
 
       Connection.Close();
     }
 
     [Test]
-    public void TimeZoneRecognitionTest()
+    [TestCaseSource(nameof(PosixOffsetFormatValues))]
+    public void PosixOffsetRecognitionTest(string offset)
     {
-      foreach(var timezone in testTimezones) {
+      var systemTimezone = PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(offset);
+      Assert.That(systemTimezone, Is.Not.Null);
+      Assert.That(systemTimezone.Id.Contains("UTC"));
+    }
 
-        if (timezone.StartsWith('<')) {
-          if (timezone.Contains('0')) {
+    [Test]
+    [TestCaseSource(nameof(PseudoPosixOffsetFormatValues))]
+    public void PseudoPosixOffsetRecognitionTest(string offset)
+    {
+      var systemTimezone = PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(offset);
+      Assert.That(systemTimezone, Is.Null);
+    }
 
-          
-          Assert.That(serverTimeZones.TryGetValue(timezone, out var result1), Is.False);
-          Assert.That(serverTimeZones.TryGetValue(PostgreSqlHelper.TryGetZoneFromPosix(timezone), out var result2), Is.True);
-          Assert.That(result2, Is.EqualTo(TimeSpan.FromHours(2))
-            .Or.EqualTo(TimeSpan.FromHours(5))
-            .Or.EqualTo(TimeSpan.FromHours(7))
-            .Or.EqualTo(TimeSpan.FromHours(-2))
-            .Or.EqualTo(TimeSpan.FromHours(-5))
-            .Or.EqualTo(TimeSpan.FromHours(-7)));
-          }
-          else {
-            Assert.That(serverTimeZones.TryGetValue(timezone, out var result1), Is.False);
-            Assert.That(serverTimeZones.TryGetValue(PostgreSqlHelper.TryGetZoneFromPosix(timezone), out var result2), Is.False);
-          }
+    [Test]
+    public void ResolvableTimeZonesTest()
+    {
+      foreach (var tz in timezoneIdsWithWinAnalogue) {
+        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Not.Null);
+      }
+    }
 
-        }
-        else {
-          Assert.That(serverTimeZones.TryGetValue(timezone, out var result1), Is.True);
-          Assert.That(serverTimeZones.TryGetValue(PostgreSqlHelper.TryGetZoneFromPosix(timezone), out var result2), Is.True);
-          Assert.That(result1, Is.EqualTo(result2));
-        }
+    [Test]
+    public void UnresolvableTimeZonesTest()
+    {
+      foreach(var tz in timezoneIdsWithoutWinAnalogue) {
+        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Null);
       }
     }
 
@@ -109,6 +120,65 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var nativeInterval = PostgreSqlHelper.CreateNativeIntervalFromTimeSpan(testValue);
       var backToTimeSpan = PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
       Assert.That(backToTimeSpan, Is.EqualTo(testValue));
+    }
+
+
+    private static void LoadServerTimeZones(Xtensive.Sql.SqlConnection connection,
+      out string[] timezoneIdsWithWinAnalogue,
+      out string[] timezoneIdsWithoutWinAnalogue)
+    {
+      var timezoneIdsWithWinAnalogueList = new List<string>();
+      var timezoneIdsWithoutWinAnalogueList = new List<string>();
+
+      var existing = new HashSet<string>();
+      var serverTimeZoneAbbrevs = new HashSet<string>();
+      using (var command = connection.CreateCommand("SELECT \"name\", \"abbrev\" FROM pg_catalog.pg_timezone_names"))
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var name = reader.GetString(0);
+          var abbrev = reader.GetString(1);
+
+          if (name.Equals("ZULU", StringComparison.OrdinalIgnoreCase)
+            || abbrev.Equals("ZULU", StringComparison.OrdinalIgnoreCase))
+            continue;
+
+          if (TimeZoneInfo.TryConvertIanaIdToWindowsId(name, out var winAnalogue))
+            timezoneIdsWithWinAnalogueList.Add(name);
+          else
+            timezoneIdsWithoutWinAnalogueList.Add(name);
+
+          if (abbrev[0] != '-' && abbrev[0] != '+' && existing.Add(abbrev)) {
+            if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue1))
+              timezoneIdsWithWinAnalogueList.Add(abbrev);
+            else
+              timezoneIdsWithoutWinAnalogueList.Add(abbrev);
+          }
+        }
+      }
+
+      using (var command = connection.CreateCommand("SELECT \"abbrev\" FROM pg_catalog.pg_timezone_abbrevs"))
+      using (var reader = command.ExecuteReader()) {
+        while (reader.Read()) {
+          var abbrev = reader.GetString(0);
+
+          if (abbrev.Equals("ZULU", StringComparison.OrdinalIgnoreCase) || !existing.Add(abbrev))
+            continue;
+
+          if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue))
+            timezoneIdsWithWinAnalogueList.Add(abbrev);
+          else
+            timezoneIdsWithoutWinAnalogueList.Add(abbrev);
+
+          if (abbrev[0] != '-' && abbrev[0] != '+' && existing.Add(abbrev)) {
+            if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue1))
+              timezoneIdsWithWinAnalogueList.Add(abbrev);
+            else
+              timezoneIdsWithoutWinAnalogueList.Add(abbrev);
+          }
+        }
+      }
+      timezoneIdsWithoutWinAnalogue = timezoneIdsWithoutWinAnalogueList.ToArray();
+      timezoneIdsWithWinAnalogue = timezoneIdsWithWinAnalogueList.ToArray();
     }
   }
 }

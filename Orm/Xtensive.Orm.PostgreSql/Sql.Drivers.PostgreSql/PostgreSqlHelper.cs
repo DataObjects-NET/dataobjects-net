@@ -3,8 +3,8 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
-using Npgsql;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using NpgsqlTypes;
 using Xtensive.Orm.PostgreSql;
 
@@ -52,20 +52,81 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     }
 
     /// <summary>
-    /// Checks if timezone is declared in POSIX format (example  &lt;+07&gt;-07 )
-    /// and returns number between '&lt;' and '&gt;' as timezone.
+    /// Gets system time zone info for server time zone, if such zone exists.
     /// </summary>
-    /// <param name="timezone">Timezone in possible POSIX format</param>
-    /// <returns>Timezone shift declared in oritinal POSIX format as timezone or original value.</returns>
-    internal static string TryGetZoneFromPosix(string timezone)
+    /// <param name="connectionTimezone">Time zone from connection</param>
+    /// <returns>Instance of <see cref="TimeZoneInfo"/> if such found, or <see langword="null"/>.</returns>
+    /// <exception cref="ArgumentException">Server timezone offset can't be recognized.</exception>
+    public static TimeZoneInfo GetTimeZoneInfoForServerTimeZone(string connectionTimezone)
     {
-      if (timezone.StartsWith('<')) {
-        // if POSIX format 
-        var closing = timezone.IndexOf('>');
-        var result =  timezone.Substring(1, closing - 1);
+      if (string.IsNullOrEmpty(connectionTimezone)) {
+        return null;
+      }
+
+      // Try to get zone as is, conversion from IANA format identifier
+      // happens inside the TimeZoneInfo.FindSystemTimeZoneById().
+      // Postgres uses IANA timezone format identifier, not windows one.
+      if (TryFindSystemTimeZoneById(connectionTimezone, out var result)) {
         return result;
       }
-      return timezone;
+
+      // If zone was set as certain offset, then it will be returned to us in form of 
+      // POSIX offset, e.g. '<+03>-03' for UTC+03 or '<+1030>-1030' for UTC+10:30
+      if (Regex.IsMatch(connectionTimezone, "^<[+|-]\\d{2,4}>[-|+]\\d{2,4}$")) {
+        var closingBracketIndex = connectionTimezone.IndexOf('>');
+        var utcOffset = connectionTimezone.Substring(1, closingBracketIndex - 1);
+
+        var utcOffsetString = utcOffset.Length switch {
+          3 => utcOffset,
+          5 => utcOffset.Insert(3, ":"),
+          _ => string.Empty
+        };
+
+        //Here, we rely on server validation of zone existance for the offset required by user
+
+        var utcIdentifier = $"UTC{utcOffsetString}";
+
+        if (utcIdentifier.Length == 3)
+          throw new ArgumentException($"Server connection time zone '{connectionTimezone}' cannot be recongized.");
+
+        if (TryFindSystemTimeZoneById(utcIdentifier, out var utcTimeZone)) {
+          return utcTimeZone;
+        }
+        else {
+          var parsingCulture = CultureInfo.InvariantCulture;
+          TimeSpan baseOffset;
+          if (utcOffsetString.StartsWith("-")) {
+            if (!TimeSpan.TryParseExact(utcOffsetString, "\\-hh\\:mm", parsingCulture, TimeSpanStyles.AssumeNegative, out baseOffset))
+              if(!TimeSpan.TryParseExact(utcOffsetString, "\\-hh", parsingCulture, TimeSpanStyles.AssumeNegative, out baseOffset))
+                throw new ArgumentException($"Server connection time zone '{connectionTimezone}' cannot be recongized.");
+          }
+          else {
+            if (!TimeSpan.TryParseExact(utcOffsetString, "\\+hh\\:mm", parsingCulture, TimeSpanStyles.None, out baseOffset))
+              if (!TimeSpan.TryParseExact(utcOffsetString, "\\+hh", parsingCulture, TimeSpanStyles.None, out baseOffset))
+                throw new ArgumentException($"Server connection time zone '{connectionTimezone}' cannot be recongized.");
+          }
+
+          return TimeZoneInfo.CreateCustomTimeZone(utcIdentifier, baseOffset, "Coordinated Universal Time" + utcOffsetString, utcIdentifier);
+        }
+      }
+
+      return null;
+    }
+
+    private static bool TryFindSystemTimeZoneById(string id, out TimeZoneInfo timeZoneInfo)
+    {
+#if NET8_0_OR_GREATER
+      return TimeZoneInfo.TryFindSystemTimeZoneById(id, out timeZoneInfo);
+#else
+      try {
+        timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(id);
+        return true;
+      }
+      catch {
+        timeZoneInfo = null;
+        return false;
+      }
+#endif
     }
   }
 }
