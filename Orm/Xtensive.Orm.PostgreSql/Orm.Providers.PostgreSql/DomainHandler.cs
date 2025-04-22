@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
       new SqlCompiler(Handlers, configuration);
 
+    /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
       var decimalAggregateCorrector = new AggregateOverDecimalColumnCorrector(Handlers.Domain.Model);

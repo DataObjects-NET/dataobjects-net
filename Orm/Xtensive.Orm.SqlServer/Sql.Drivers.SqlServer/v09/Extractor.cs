@@ -72,6 +72,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     }
 
     protected const string SysTablesFilterPlaceholder = "{SYSTABLE_FILTER}";
+    protected const string SysObjectFilterPlaceholder = "{SYSOBJECT_FILTER}";
     protected const string CatalogPlaceholder = "{CATALOG}";
     protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
 
@@ -125,6 +126,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       context.RegisterReplacement(SchemaFilterPlaceholder, MakeSchemaFilter(context));
       context.RegisterReplacement(SysTablesFilterPlaceholder, "1 > 0");
+      context.RegisterReplacement(SysObjectFilterPlaceholder, "is_ms_shipped = 0");
     }
 
     private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
@@ -303,7 +305,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       name,
       0 type
     FROM {CATALOG}.sys.tables
-    WHERE {SYSTABLE_FILTER}
+    WHERE {SYSTABLE_FILTER} AND {SYSOBJECT_FILTER}
     UNION 
     SELECT
       schema_id,
@@ -311,6 +313,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       name,
       1 type
     FROM {CATALOG}.sys.views
+    WHERE {SYSOBJECT_FILTER}
     ) AS t
   WHERE t.schema_id {SCHEMA_FILTER}
   ORDER BY t.schema_id, t.object_id";
@@ -411,13 +414,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       object_id,
       0 as type
     FROM {CATALOG}.sys.tables
-    WHERE {SYSTABLE_FILTER}
+    WHERE {SYSTABLE_FILTER} AND {SYSOBJECT_FILTER}
     UNION
     SELECT
       schema_id,
       object_id,
       1 AS type
     FROM {CATALOG}.sys.views
+    WHERE {SYSOBJECT_FILTER}
     ) AS t ON c.object_id = t.object_id
   LEFT OUTER JOIN {CATALOG}.sys.default_constraints AS dc
     ON c.object_id = dc.parent_object_id 
@@ -501,6 +505,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     AND increment_value IS NOT NULL
     AND {SYSTABLE_FILTER}
     AND t.schema_id {SCHEMA_FILTER}
+    AND t.{SYSOBJECT_FILTER}
   ORDER BY
     t.schema_id,
     ic.object_id";
@@ -560,13 +565,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       object_id,
       0 AS type
     FROM {CATALOG}.sys.tables
-    WHERE {SYSTABLE_FILTER}
+    WHERE {SYSTABLE_FILTER} AND {SYSOBJECT_FILTER}
     UNION
     SELECT
       schema_id,
       object_id,
       1 AS type
     FROM {CATALOG}.sys.views
+    WHERE {SYSOBJECT_FILTER}
     ) AS t
       ON i.object_id = t.object_id
   INNER JOIN {CATALOG}.sys.index_columns ic
@@ -839,7 +845,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ON fic.object_id = i.object_id
       AND fi.unique_index_id = i.index_id
   WHERE {SYSTABLE_FILTER}
-    AND t.schema_id {SCHEMA_FILTER}
+    AND t.schema_id {SCHEMA_FILTER} AND t.{SYSOBJECT_FILTER}
   ORDER BY
     t.schema_id,
     fic.object_id,
