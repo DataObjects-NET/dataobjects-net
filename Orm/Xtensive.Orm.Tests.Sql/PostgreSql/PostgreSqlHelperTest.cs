@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public void ResolvableTimeZonesTest()
     {
       foreach (var tz in timezoneIdsWithWinAnalogue) {
-        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Not.Null);
+        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Not.Null, tz);
       }
     }
 
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public void UnresolvableTimeZonesTest()
     {
       foreach(var tz in timezoneIdsWithoutWinAnalogue) {
-        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Null);
+        Assert.That(PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(tz), Is.Null, tz);
       }
     }
 
