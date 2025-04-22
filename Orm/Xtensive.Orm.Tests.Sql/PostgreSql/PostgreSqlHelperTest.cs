@@ -138,17 +138,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           var name = reader.GetString(0);
           var abbrev = reader.GetString(1);
 
-          if (name.Equals("ZULU", StringComparison.OrdinalIgnoreCase)
-            || abbrev.Equals("ZULU", StringComparison.OrdinalIgnoreCase))
-            continue;
-
-          if (TimeZoneInfo.TryConvertIanaIdToWindowsId(name, out var winAnalogue))
+          if (TryFindSystemTimeZoneById(name, out var winAnalogue))
             timezoneIdsWithWinAnalogueList.Add(name);
           else
             timezoneIdsWithoutWinAnalogueList.Add(name);
 
           if (abbrev[0] != '-' && abbrev[0] != '+' && existing.Add(abbrev)) {
-            if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue1))
+            if (TryFindSystemTimeZoneById(abbrev, out var winAnalogue1))
               timezoneIdsWithWinAnalogueList.Add(abbrev);
             else
               timezoneIdsWithoutWinAnalogueList.Add(abbrev);
@@ -161,16 +157,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         while (reader.Read()) {
           var abbrev = reader.GetString(0);
 
-          if (abbrev.Equals("ZULU", StringComparison.OrdinalIgnoreCase) || !existing.Add(abbrev))
-            continue;
-
-          if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue))
+          if (TryFindSystemTimeZoneById(abbrev, out var winAnalogue))
             timezoneIdsWithWinAnalogueList.Add(abbrev);
           else
             timezoneIdsWithoutWinAnalogueList.Add(abbrev);
 
-          if (abbrev[0] != '-' && abbrev[0] != '+' && existing.Add(abbrev)) {
-            if (TimeZoneInfo.TryConvertIanaIdToWindowsId(abbrev, out var winAnalogue1))
+          if (existing.Add(abbrev)) {
+            if (TryFindSystemTimeZoneById(abbrev, out var winAnalogue1))
               timezoneIdsWithWinAnalogueList.Add(abbrev);
             else
               timezoneIdsWithoutWinAnalogueList.Add(abbrev);
@@ -179,6 +172,22 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       timezoneIdsWithoutWinAnalogue = timezoneIdsWithoutWinAnalogueList.ToArray();
       timezoneIdsWithWinAnalogue = timezoneIdsWithWinAnalogueList.ToArray();
+    }
+
+    private static bool TryFindSystemTimeZoneById(string id, out TimeZoneInfo timeZoneInfo)
+    {
+#if NET8_0_OR_GREATER
+      return TimeZoneInfo.TryFindSystemTimeZoneById(id, out timeZoneInfo);
+#else
+      try {
+        timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(id);
+        return true;
+      }
+      catch {
+        timeZoneInfo = null;
+        return false;
+      }
+#endif
     }
   }
 }
