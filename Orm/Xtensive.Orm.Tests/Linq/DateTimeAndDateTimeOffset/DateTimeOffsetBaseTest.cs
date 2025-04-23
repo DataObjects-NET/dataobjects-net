@@ -37,12 +37,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected override void RegisterTypes(DomainConfiguration configuration)
     {
-      configuration.Types.Register(typeof (SingleDateTimeOffsetEntity));
-      configuration.Types.Register(typeof (DateTimeOffsetEntity));
-      configuration.Types.Register(typeof (MillisecondDateTimeOffsetEntity));
-      configuration.Types.Register(typeof (NullableDateTimeOffsetEntity));
-      configuration.Types.Register(typeof (DateTimeEntity));
-      configuration.Types.Register(typeof(MinMaxDateTimeOffsetEntity));
+      configuration.Types.Register(typeof(SingleDateTimeOffsetEntity));
+      configuration.Types.Register(typeof(DateTimeOffsetEntity));
+      configuration.Types.Register(typeof(MillisecondDateTimeOffsetEntity));
+      configuration.Types.Register(typeof(NullableDateTimeOffsetEntity));
+      configuration.Types.Register(typeof(DateTimeEntity));
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        configuration.Types.Register(typeof(MinMaxDateTimeOffsetEntity));
+      }
     }
 
     protected override void InitializeCustomSettings(DomainConfiguration configuration)
@@ -148,7 +150,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       _ = new NullableDateTimeOffsetEntity { DateTimeOffset = null };
       _ = new NullableDateTimeOffsetEntity { DateTimeOffset = null };
 
-      _ = new MinMaxDateTimeOffsetEntity(session) { MinValue = DateTimeOffset.MinValue, MaxValue = DateTimeOffset.MaxValue };
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        _ = new MinMaxDateTimeOffsetEntity(session) { MinValue = DateTimeOffset.MinValue, MaxValue = DateTimeOffset.MaxValue };
+      }
     }
 
     protected DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)

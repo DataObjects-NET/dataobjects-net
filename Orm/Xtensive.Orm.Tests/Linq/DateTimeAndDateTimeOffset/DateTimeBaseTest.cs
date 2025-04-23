@@ -45,11 +45,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       configuration.Types.Register(typeof(DateTimeEntity));
       configuration.Types.Register(typeof(MillisecondDateTimeEntity));
       configuration.Types.Register(typeof(NullableDateTimeEntity));
-      configuration.Types.Register(typeof(MinMaxDateTimeEntity));
+      
       configuration.Types.Register(typeof(AllPossiblePartsEntity));
       configuration.Types.Register(typeof(DateOnlyEntity));
       configuration.Types.Register(typeof(SingleDateOnlyEntity));
-      configuration.Types.Register(typeof(MinMaxDateOnlyEntity));
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        configuration.Types.Register(typeof(MinMaxDateOnlyEntity));
+        configuration.Types.Register(typeof(MinMaxDateTimeEntity));
+      }
       configuration.Types.Register(typeof(TimeOnlyEntity));
       configuration.Types.Register(typeof(SingleTimeOnlyEntity));
     }
@@ -201,8 +204,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       _ = AllPossiblePartsEntity.FromDateTime(session, FirstMillisecondDateTime, 321);
 
-      _ = new MinMaxDateOnlyEntity(session) { MinValue = DateOnly.MinValue, MaxValue = DateOnly.MaxValue };
-      _ = new MinMaxDateTimeEntity(session) { MinValue = DateTime.MinValue, MaxValue = DateTime.MaxValue };
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        // values are out of range
+        _ = new MinMaxDateOnlyEntity(session) { MinValue = DateOnly.MinValue, MaxValue = DateOnly.MaxValue };
+        _ = new MinMaxDateTimeEntity(session) { MinValue = DateTime.MinValue, MaxValue = DateTime.MaxValue };
+      }
     }
   }
 }
