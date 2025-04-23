@@ -21,14 +21,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 
     // Constructors
 
-    protected override void VisitIntervalToMilliseconds(SqlFunctionCall node)
-    {
-      AppendSpaceIfNecessary();
-      _ = context.Output.Append("(TRUNC(EXTRACT(EPOCH FROM (");
-      node.Arguments[0].AcceptVisitor(this);
-      _ = context.Output.Append("))::double precision * 1000))");
-    }
-
     public Compiler(PostgreSql.Driver driver)
       : base(driver)
     {
