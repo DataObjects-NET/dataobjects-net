@@ -196,18 +196,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
-    [Obsolete]
-    public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
-      : this(source, groupIndexes, (IReadOnlyList<AggregateColumnDescriptor>) columnDescriptors)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="groupIndexes">The column indexes to group by.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {

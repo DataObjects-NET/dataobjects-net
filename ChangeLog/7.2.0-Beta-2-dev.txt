@@ -1,5 +1,9 @@
 [main] Upgrade hints change names of constructors' string parameters for better understanding of what suppose to be in them.
 [main] Improved string operations Trim/TrimStart/TrimEnd support
+[main] Obsolete DomainConfiguration.DefauktForeignKeyMode const removed, the correctly named constant still exists
+[main] Obsolete SqlPersistTask constructors removed
+[main] Obsolete AggregateProvider constructor removed
+[main] Obsolete CalculateProvider constructor removed
 [mysql] SqlDml.NullIf function now correctly translated
 [mysql] Improved support for string.PadLeft/PadRight opertaions
 [sqlite] Fixed string.Lenght translation
