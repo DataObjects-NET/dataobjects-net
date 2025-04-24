@@ -116,7 +116,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           ((node.Arguments[0] / SqlDml.Literal(nanosecondsPerSecond)) * OneSecondInterval).AcceptVisitor(this);
           return;
         case SqlFunctionType.IntervalToMilliseconds:
-          SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
+          VisitIntervalToMilliseconds(node);
           return;
         case SqlFunctionType.IntervalToNanoseconds:
           SqlHelper.IntervalToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
@@ -282,6 +282,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return;
       }
       base.Visit(node);
+    }
+
+    protected virtual void VisitIntervalToMilliseconds(SqlFunctionCall node)
+    {
+      SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
     }
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime, in string isoFormat) =>

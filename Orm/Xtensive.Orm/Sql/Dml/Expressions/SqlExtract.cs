@@ -61,19 +61,11 @@ namespace Xtensive.Sql.Dml
       internalValue = replacingExpression.internalValue;
       typeMarker = replacingExpression.typeMarker;
       typeHasTime = replacingExpression.typeHasTime;
-      //DateTimePart = replacingExpression.DateTimePart;
-      //DateTimeOffsetPart = replacingExpression.DateTimeOffsetPart;
-      //IntervalPart = replacingExpression.IntervalPart;
       Operand = replacingExpression.Operand;
     }
 
     internal override SqlExtract Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new SqlExtract(t.internalValue, t.typeMarker, t.Operand.Clone(c)));
-        //t.DateTimePart != SqlDateTimePart.Nothing
-        //  ? new SqlExtract(t.DateTimePart, t.Operand.Clone(c))
-        //  : t.IntervalPart != SqlIntervalPart.Nothing
-        //    ? new SqlExtract(t.IntervalPart, t.Operand.Clone(c))
-        //    : new SqlExtract(t.DateTimeOffsetPart, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -88,10 +80,6 @@ namespace Xtensive.Sql.Dml
       internalValue = dateTimePart.ToDtoPartFast();
       typeMarker = DateTimeTypeId;
       typeHasTime = true;
-
-      //DateTimePart = dateTimePart;
-      //DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      //IntervalPart = SqlIntervalPart.Nothing;
       Operand = operand;
     }
 
@@ -101,10 +89,6 @@ namespace Xtensive.Sql.Dml
       internalValue = intervalPart.ToDtoPartFast();
       typeMarker = IntervalTypeId;
       typeHasTime = true;
-
-      //DateTimePart = SqlDateTimePart.Nothing;
-      //DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      //IntervalPart = intervalPart;
       Operand = operand;
     }
 

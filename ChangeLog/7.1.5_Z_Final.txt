@@ -1,0 +1,4 @@
+[main] Addressed certain cases of overlaping server-side error by new one when temporary tables are used in query
+[postgresql] Improved .Milliseconds translation for types which have this part
+[postgresql] Improved TimeSpan.TotalMilliseconds translation
+[sqlserver] Database schema objects which are "microsoft shipped", e.g. created for replication mechanisms, are excluded from extraction
