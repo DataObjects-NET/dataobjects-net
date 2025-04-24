@@ -124,7 +124,7 @@ namespace Xtensive.Sql.Dml
     {
       this.internalValue = internalValue;
       this.typeMarker = typeMarker;
-      typeHasTime = typeMarker == DateTimeTypeId || typeMarker == DateTimeOffsetTypeId || typeMarker == TimeTypeId || typeMarker == IntervalTypeId;
+      typeHasTime = typeMarker is DateTimeTypeId or DateTimeOffsetTypeId or TimeTypeId or IntervalTypeId;
       Operand = operand;
     }
   }

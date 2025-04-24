@@ -43,6 +43,35 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public DateTimeOffset? NullableDateTimeOffset { get; set; }
+
+    public SingleDateTimeOffsetEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateTimeOffsetEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateTimeOffset MinValue { get; set; }
+
+    [Field]
+    public DateTimeOffset MaxValue { get; set; }
+
+    [Field]
+    public DateTimeOffset? NullableMinValue { get; set; }
+
+    [Field]
+    public DateTimeOffset? NullableMaxValue { get; set; }
+
+    public MinMaxDateTimeOffsetEntity(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -90,6 +119,30 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     public DateTime? DateTime { get; set; }
 
     public NullableDateTimeEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateTimeEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateTime MinValue { get; set; }
+
+    [Field]
+    public DateTime MaxValue { get; set; }
+
+    [Field]
+    public DateTime? NullableMinValue { get; set; }
+
+    [Field]
+    public DateTime? NullableMaxValue { get; set; }
+
+    public MinMaxDateTimeEntity(Session session)
       : base(session)
     {
     }
@@ -276,6 +329,30 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
       : base(session)
     {
 
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateOnlyEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateOnly MinValue { get; set; }
+
+    [Field]
+    public DateOnly MaxValue { get; set; }
+
+    [Field]
+    public DateOnly? NullableMinValue { get; set; }
+
+    [Field]
+    public DateOnly? NullableMaxValue { get; set; }
+
+    public MinMaxDateOnlyEntity(Session session)
+      : base(session)
+    {
     }
   }
 

@@ -24,9 +24,9 @@ namespace Xtensive.Sql
     /// <returns>
     /// A new object that is a copy of this instance.
     /// </returns>
-    public virtual SqlNode Clone() => Clone(new SqlNodeCloneContext(false));
+    public virtual SqlNode Clone() => Clone(new SqlNodeCloneContext());
 
-    object ICloneable.Clone() => Clone(new SqlNodeCloneContext(false));
+    object ICloneable.Clone() => Clone(new SqlNodeCloneContext());
 
     internal abstract SqlNode Clone(SqlNodeCloneContext context);
 

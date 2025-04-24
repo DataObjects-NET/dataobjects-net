@@ -2,6 +2,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
@@ -184,15 +186,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var compiledWhereExpression = whereExpression.Compile();
       var compiledOrderByExpression = orderByExpression.Compile();
 
-      var whereLocal = Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
-      var whereByServer = Query.All<T>().Where(whereExpression).OrderBy(orderByExpression).ToArray();
+      var session = Session.Current;
+
+      var whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
+      var whereByServer = session.Query.All<T>().Where(whereExpression).OrderBy(orderByExpression).ToArray();
 
       Assert.That(whereLocal.Length, Is.Not.EqualTo(0));
       Assert.That(whereByServer.Length, Is.Not.EqualTo(0));
       Assert.IsTrue(whereLocal.SequenceEqual(whereByServer));
 
-      whereByServer = Query.All<T>().Where(whereExpression).OrderByDescending(orderByExpression).ToArray();
-      whereLocal = Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
+      whereByServer = session.Query.All<T>().Where(whereExpression).OrderByDescending(orderByExpression).ToArray();
+      whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
 
       Assert.That(whereLocal.Length, Is.Not.EqualTo(0));
       Assert.That(whereByServer.Length, Is.Not.EqualTo(0));

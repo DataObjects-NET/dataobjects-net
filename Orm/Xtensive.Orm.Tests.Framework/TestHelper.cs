@@ -53,6 +53,14 @@ namespace Xtensive.Orm.Tests
       return instanceOfTypeFromAssembly.GetType().Assembly.GetAssemblyConfiguration();
     }
 
+    public static DateTimeOffset AdjustDateTimeOffsetForCurrentProvider(this DateTimeOffset origin)
+    {
+      var baseDateTime = origin.DateTime;
+      var offset = origin.Offset;
+
+      return new DateTimeOffset(baseDateTime.AdjustDateTimeForCurrentProvider(), offset);
+    }
+
     /// <summary>
     /// Cuts down resolution of <see cref="DateTime"/> value if needed, according to current <see cref="StorageProviderInfo.Instance"/>.
     /// </summary>

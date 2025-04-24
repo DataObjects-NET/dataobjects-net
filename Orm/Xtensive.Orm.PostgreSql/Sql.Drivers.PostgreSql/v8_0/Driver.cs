@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -51,8 +51,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     // Constructors
 
-    public Driver(CoreServerInfo coreServerInfo)
-      : base(coreServerInfo)
+    public Driver(CoreServerInfo coreServerInfo, PostgreServerInfo pgServerInfo)
+      : base(coreServerInfo, pgServerInfo)
     {
     }
   }
