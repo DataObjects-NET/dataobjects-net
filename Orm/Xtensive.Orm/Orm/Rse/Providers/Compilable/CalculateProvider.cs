@@ -65,37 +65,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    [Obsolete]
-    public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
-      : this(source, false, columnDescriptors)
-    {
-    }
-
-    /// <summary>
-    /// 	Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    [Obsolete]
-    public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
-      : base(ProviderType.Calculate, source)
-    {
-      IsInlined = isInlined;
-      var columns = new CalculatedColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);
-        columns.SetValue(col, i);
-      }
-      CalculatedColumns = columns;
-      Initialize();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)

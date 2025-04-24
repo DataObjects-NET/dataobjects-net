@@ -1,5 +1,9 @@
 [main] Upgrade hints change names of constructors' string parameters for better understanding of what suppose to be in them.
 [main] Improved string operations Trim/TrimStart/TrimEnd support
+[main] Obsolete DomainConfiguration.DefauktForeignKeyMode const removed, the correctly named constant still exists
+[main] Obsolete SqlPersistTask constructors removed
+[main] Obsolete AggregateProvider constructor removed
+[main] Obsolete CalculateProvider constructor removed
 [main] Updated BitFaster.Caching to version 2.5.3
 [firebird] Updated client library to version 10.3.2
 [mysql] SqlDml.NullIf function now correctly translated
