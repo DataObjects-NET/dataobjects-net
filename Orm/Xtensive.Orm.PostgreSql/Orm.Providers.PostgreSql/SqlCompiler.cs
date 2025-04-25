@@ -21,6 +21,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     private const int MaxDotnetDecimalPrecision = 28;
 
+    private readonly bool canRemoveInsignificantZerosInDecimal;
+
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       var rankColumnName = provider.Header.Columns[provider.Header.Columns.Count - 1].Name;
@@ -61,6 +63,11 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var aggregateType = aggregateColumn.AggregateType;
       var originCalculateColumn = source.Origin.Header.Columns[aggregateColumn.SourceIndex];
       if (AggregateRequiresDecimalAdjustments(aggregateColumn)) {
+        if (canRemoveInsignificantZerosInDecimal) {
+          return (IsCalculatedColumn(originCalculateColumn))
+            ? PostgresqlSqlDml.DecimalTrimScale(SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type)))
+            : PostgresqlSqlDml.DecimalTrimScale(result);
+        }
         if (!IsCalculatedColumn(originCalculateColumn)) {
           // this is aggregate by one column, result will be defined by the precision and scale of the column
           return result;
@@ -138,6 +145,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
       : base(handlers, configuration)
     {
+      canRemoveInsignificantZerosInDecimal = handlers.ProviderInfo.StorageVersion.Major >= 13;
     }
   }
 }
