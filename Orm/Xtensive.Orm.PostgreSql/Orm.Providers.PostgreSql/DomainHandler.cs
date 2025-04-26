@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -18,6 +18,12 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class DomainHandler : Providers.DomainHandler
   {
+    /// <summary>
+    /// <see langword="true"/> if storage can trim insignificant zeros in numeric values
+    /// </summary>
+    protected bool HasNativeTrimOfInsignificantZerosInDecimals =>
+      Handlers.ProviderInfo.StorageVersion.Major >= 13;
+
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
       new SqlCompiler(Handlers, configuration);
@@ -25,8 +31,11 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
-      var decimalAggregateCorrector = new AggregateOverDecimalColumnCorrector(Handlers.Domain.Model);
-      return new CompositePreCompiler(decimalAggregateCorrector, base.CreatePreCompiler(configuration));
+      if (!HasNativeTrimOfInsignificantZerosInDecimals) {
+        var decimalAggregateCorrector = new AggregateOverDecimalColumnCorrector(Handlers.Domain.Model);
+        return new CompositePreCompiler(decimalAggregateCorrector, base.CreatePreCompiler(configuration));
+      }
+      return base.CreatePreCompiler(configuration);
     }
 
     /// <inheritdoc/>

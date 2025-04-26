@@ -21,6 +21,7 @@
 [postgresql] DateTimeOffset values '0001.01.01 00:00:00.00000+00:00' and '9999.12.31 23:59:59.99999+00:00' will be read as MinValue and MaxValue accordingly
 [postgresql] When legacy timestamp behavior is disabled, connection time zone is applied to DateTimeOffset values if possible, otherwise, to local one
 [postgresql] TimeSpans based on values lower than -9223372036854775800L and higher 92233720368547758xxL will be read as MinValue and MaxValue accordingly
+[postgresql] For PostgreSQL 13+ apply 'trim_scale' function to results of aggregation to improve compatibility with .NET decimal
 [oracle] Updated client library to version 23.7.0
 [sqlite] Fixed string.Lenght translation
 [sqlite] Added support for string.PadLeft/PadRight operations
