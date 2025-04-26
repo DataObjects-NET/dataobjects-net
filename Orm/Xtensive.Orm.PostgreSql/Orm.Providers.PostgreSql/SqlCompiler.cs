@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   internal class SqlCompiler : Providers.SqlCompiler
   {
     private const int MaxDotnetDecimalPrecision = 28;
+
+    private readonly bool canRemoveInsignificantZerosInDecimals;
 
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -61,6 +63,11 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var aggregateType = aggregateColumn.AggregateType;
       var originCalculateColumn = source.Origin.Header.Columns[aggregateColumn.SourceIndex];
       if (AggregateRequiresDecimalAdjustments(aggregateColumn)) {
+        if (canRemoveInsignificantZerosInDecimals) {
+          return (IsCalculatedColumn(originCalculateColumn))
+            ? PostgresqlSqlDml.DecimalTrimScale(SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type)))
+            : PostgresqlSqlDml.DecimalTrimScale(result);
+        }
         if (!IsCalculatedColumn(originCalculateColumn)) {
           // this is aggregate by one column, result will be defined by the precision and scale of the column
           return result;
@@ -138,6 +145,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
       : base(handlers, configuration)
     {
+      canRemoveInsignificantZerosInDecimals = handlers.ProviderInfo.StorageVersion.Major >= 13;
     }
   }
 }

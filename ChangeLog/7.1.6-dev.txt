@@ -1,0 +1,1 @@
+[postgresql] For PostgreSQL 13+ apply 'trim_scale' function to results of aggregation to improve compatibility with .NET decimal
