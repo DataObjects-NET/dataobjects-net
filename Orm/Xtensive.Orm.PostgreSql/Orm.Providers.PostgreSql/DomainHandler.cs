@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <summary>
     /// <see langword="true"/> if storage can trim insignificant zeros in numeric values
     /// </summary>
-    protected bool HasNativeTrimOfInsignificantDecimalPoints =>
-      Handlers.ProviderInfo.StorageVersion.Major < 13;
+    protected bool HasNativeTrimOfInsignificantZerosInDecimals =>
+      Handlers.ProviderInfo.StorageVersion.Major >= 13;
 
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     /// <inheritdoc/>
     protected override IPreCompiler CreatePreCompiler(CompilerConfiguration configuration)
     {
-      if (HasNativeTrimOfInsignificantDecimalPoints) {
+      if (!HasNativeTrimOfInsignificantZerosInDecimals) {
         var decimalAggregateCorrector = new AggregateOverDecimalColumnCorrector(Handlers.Domain.Model);
         return new CompositePreCompiler(decimalAggregateCorrector, base.CreatePreCompiler(configuration));
       }

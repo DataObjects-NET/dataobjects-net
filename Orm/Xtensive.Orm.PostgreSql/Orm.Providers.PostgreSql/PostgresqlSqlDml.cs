@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
   public class PostgresqlSqlDml
   {
     /// <summary>
-    /// Creates expression for native "trim_scale" function call. The function is supported starting from PostgreSQL 13
+    /// Creates an expression for native "trim_scale" function call. The function is supported starting from PostgreSQL 13
     /// </summary>
     public static SqlExpression DecimalTrimScale(SqlExpression operand)
     {
