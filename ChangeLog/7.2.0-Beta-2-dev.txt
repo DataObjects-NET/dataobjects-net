@@ -9,7 +9,7 @@
 [mysql] SqlDml.NullIf function now correctly translated
 [mysql] Improved support for string.PadLeft/PadRight opertaions
 [mysql] Updated client library to version 8.4.0
-[postgresql] Updated client library to version 8.0.6
+[postgresql] Updated client library to version 9.0.3
 [postgresql] Improved .Milliseconds part translation for types that have the part
 [postgresql] Improved TimeSpan.TotalMilliseconds translation
 [postgresql] AppContext switch "Npgsql.EnableLegacyTimestampBehavior" is turned off if user hasn't set it before Domain build
