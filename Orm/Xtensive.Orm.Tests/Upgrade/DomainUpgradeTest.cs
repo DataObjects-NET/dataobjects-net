@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -154,6 +155,26 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    public async Task UpgradeModeAsyncTest()
+    {
+      var syncedTypeSet = ThreeTypesSet;
+      var missingTypeSet = TwoTypesSet;
+
+      (await BuildDomainAsync(1, DomainUpgradeMode.Recreate, missingTypeSet).ConfigureAwait(false)).DisposeSafely();
+
+      (await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, syncedTypeSet).ConfigureAwait(false)).DisposeSafely();
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
+        await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, missingTypeSet));
+
+      (await BuildDomainAsync(1, DomainUpgradeMode.Validate, syncedTypeSet).ConfigureAwait(false)).DisposeSafely();
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
+        await BuildDomainAsync(1, DomainUpgradeMode.Validate, missingTypeSet));
+
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
+        await BuildDomainAsync(1, DomainUpgradeMode.Validate, OrdersModelTypeSet));
+    }
+
+    [Test]
     public void UpgradeGeneratorsTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
@@ -210,48 +231,56 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public async Task UpgradeGeneratorsFirebirdAsyncTest()
+    public async Task UpgradeGeneratorsAsyncTest()
     {
-      Require.ProviderIs(StorageProvider.Firebird);
+      Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
+
+      var isFirebird = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird);
 
       var generatorCacheSize = 3;
-      await BuildDomainAsync("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession())
+      using (var initDomain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, TwoTypesSet, generatorCacheSize).ConfigureAwait(false))
+      using (var session = initDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (var i = 0; i < generatorCacheSize; i++) {
-          _ = new Person {
-            Address = new Address { City = "City", Country = "Country" }
+          _ = new M1.Person {
+            Address = new M1.Address { City = "City", Country = "Country" }
           };
         }
-
-        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
-        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
+        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 4);
+        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 3);
         t.Complete();
       }
 
-      await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession())
+      using (var upgradedDomain = await BuildDomainAsync(1, DomainUpgradeMode.Perform, TwoTypesSet, generatorCacheSize).ConfigureAwait(false))
+      using (var session = upgradedDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        for (var i = 0; i < generatorCacheSize; i++) {
-          _ = new Person {
-            Address = new Address { City = "City", Country = "Country" }
+        for (int i = 0; i < generatorCacheSize; i++) {
+          _ = new M1.Person {
+            Address = new M1.Address { City = "City", Country = "Country" }
           };
         }
 
-        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
-        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
+        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 8);
+        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 6);
         t.Complete();
       }
 
-      generatorCacheSize = 2;// ignored because Firebird sequences has no increment support
-      await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession())
+      generatorCacheSize = 2;
+      using (var upgradedDomain = await BuildDomainAsync(1, DomainUpgradeMode.Perform, TwoTypesSet, generatorCacheSize).ConfigureAwait(false))
+      using (var session = upgradedDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
-        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
-        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
-        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 10);
-        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 9);
+        _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
+        _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
+        _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
+
+        if (isFirebird) {
+          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 10);
+          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 9);
+        }
+        else {
+          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 13);
+          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 12);
+        }
         t.Complete();
       }
     }
@@ -271,6 +300,33 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       using (var upgradedDomain = BuildDomain(1, DomainUpgradeMode.PerformSafely, ThreeTypesSet))
+      using (var session = upgradedDomain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var businessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == $"{NamespaceForVersion[1]}.BusinessContact").Id;
+        var newPersonTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == $"{NamespaceForVersion[1]}.Person").Id;
+
+        Assert.AreEqual(personTypeId, newPersonTypeId);
+        Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
+      }
+    }
+
+    [Test]
+    public async Task UpdateTypeIdAsyncTest()
+    {
+      int personTypeId;
+      int maxTypeId;
+
+      using (var initDomain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, TwoTypesSet).ConfigureAwait(false))
+      using (var session = initDomain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        personTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == $"{NamespaceForVersion[1]}.Person").Id;
+        maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
+      }
+
+      using (var upgradedDomain = await BuildDomainAsync(1, DomainUpgradeMode.PerformSafely, ThreeTypesSet).ConfigureAwait(false))
       using (var session = upgradedDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var businessContactTypeId = session.Query.All<Metadata.Type>()
@@ -321,21 +377,22 @@ namespace Xtensive.Orm.Tests.Upgrade
       int personTypeId;
       int businessContactTypeId;
 
-      using (var session = domain.OpenSession())
+      using (var initDomain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate).ConfigureAwait(false))
+      using (var session = initDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
         personTypeId = session.Query.All<Metadata.Type>()
-          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+          .First(type => type.Name == $"{NamespaceForVersion[1]}.Person").Id;
         businessContactTypeId = session.Query.All<Metadata.Type>()
-          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
+          .First(type => type.Name == $"{NamespaceForVersion[1]}.BusinessContact").Id;
       }
 
-      await BuildDomainAsync("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession())
+      using (var upgradedDomain = await BuildDomainAsync(2, DomainUpgradeMode.Perform).ConfigureAwait(false))
+      using (var session = upgradedDomain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
-          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
+          .First(type => type.Name == $"{NamespaceForVersion[2]}.BusinessContact").Id;
         var newPersonTypeId = session.Query.All<Metadata.Type>()
-          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
+          .First(type => type.Name == $"{NamespaceForVersion[2]}.Person").Id;
 
         Assert.AreEqual(personTypeId, newBusinessContactTypeId);
         Assert.AreEqual(businessContactTypeId, newPersonTypeId);
@@ -351,6 +408,18 @@ namespace Xtensive.Orm.Tests.Upgrade
       FillData(domain);
 
       domain = BuildDomain(2, DomainUpgradeMode.Perform);
+      TestComplexModelUpgradedData(domain);
+    }
+
+    [Test]
+    public async Task UpgradeToVersion2AsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate).ConfigureAwait(false);
+      FillData(domain);
+
+      domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform).ConfigureAwait(false);
       TestComplexModelUpgradedData(domain);
     }
 
@@ -387,6 +456,23 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test, Explicit]
+    public async Task OrderPartAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.Order).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Order).ConfigureAwait(false)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestOrdersPart(session);
+        }
+      }
+    }
+
+    [Test, Explicit]
     public void ProductPartTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -396,6 +482,23 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       using (var domain = BuildDomain(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Product)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestProductPart(session);
+        }
+      }
+    }
+
+    [Test, Explicit]
+    public async Task ProductPartAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.Product).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Product).ConfigureAwait(false)) {
         using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           TestProductPart(session);
@@ -421,6 +524,23 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test, Explicit]
+    public async Task BoyGirlPartAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.BoyGirl).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.BoyGirl).ConfigureAwait(false)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestBoyGirlPart(session);
+        }
+      }
+    }
+
+    [Test, Explicit]
     public void CrazyAssociationsTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -436,6 +556,24 @@ namespace Xtensive.Orm.Tests.Upgrade
         }
       }
     }
+
+    [Test, Explicit]
+    public async Task CrazyAssociationsAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.CrazyAssociations).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.CrazyAssociations).ConfigureAwait(false)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestCrazyAssociationsPart(session);
+        }
+      }
+    }
+
 
     [Test, Explicit]
     public void ComplexFieldCopyTest()
@@ -455,15 +593,49 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test, Explicit]
+    public async Task ComplexFieldCopyAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.ComplexFieldCopy).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.ComplexFieldCopy).ConfigureAwait(false)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestComplexFieldCopy(session);
+        }
+      }
+    }
+
+    [Test, Explicit]
     public void GenericsTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
 
-      using (var domain = BuildDomain(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.Generics)) {
+      using (var domain = BuildDomain(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.Generics | Upgrader.ModelParts.Order | Upgrader.ModelParts.BoyGirl)) {
         FillData(domain);
       }
 
-      using (var domain = BuildDomain(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Generics)) {
+      using (var domain = BuildDomain(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Generics | Upgrader.ModelParts.Order | Upgrader.ModelParts.BoyGirl)) {
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          TestGenericsPart(session);
+        }
+      }
+    }
+
+    [Test, Explicit]
+    public async Task GenericsAsyncTest()
+    {
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
+      using (var domain = await BuildDomainAsync(1, DomainUpgradeMode.Recreate, modelParts: Upgrader.ModelParts.Generics | Upgrader.ModelParts.Order | Upgrader.ModelParts.BoyGirl).ConfigureAwait(false)) {
+        FillData(domain);
+      }
+
+      using (var domain = await BuildDomainAsync(2, DomainUpgradeMode.Perform, modelParts: Upgrader.ModelParts.Generics | Upgrader.ModelParts.Order | Upgrader.ModelParts.BoyGirl).ConfigureAwait(false)) {
         using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           TestGenericsPart(session);
@@ -472,7 +644,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     #endregion
-
 
     private static void TestOrdersPart(Session session)
     {
@@ -569,7 +740,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     private Domain BuildDomain(int version, DomainUpgradeMode upgradeMode)
     {
       using (Upgrader.EnableForVersion(version)) {
-        return BuildDomainFromConfig(CreateConfiguration(version, upgradeMode));
+        return BuildDomainFromConfig(CreateConfiguration(version, upgradeMode), false).GetAwaiter().GetResult();
+      }
+    }
+
+    private async Task<Domain> BuildDomainAsync(int version, DomainUpgradeMode upgradeMode)
+    {
+      using (Upgrader.EnableForVersion(version)) {
+        return await BuildDomainFromConfig(CreateConfiguration(version, upgradeMode), true).ConfigureAwait(false);
       }
     }
 
@@ -581,7 +759,19 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
 
       using (Upgrader.EnableForVersion(version, modelParts)) {
-        return BuildDomainFromConfig(configuration);
+        return BuildDomainFromConfig(configuration, false).GetAwaiter().GetResult();
+      }
+    }
+
+    private async Task<Domain> BuildDomainAsync(int version, DomainUpgradeMode upgradeMode, Upgrader.ModelParts modelParts = Upgrader.ModelParts.All, int? keyCacheSize = null)
+    {
+      var types = (version == 1)
+        ? ModelPartsV1[modelParts]
+        : ModelPartsV2[modelParts];
+      var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
+
+      using (Upgrader.EnableForVersion(version, modelParts)) {
+        return await BuildDomainFromConfig(configuration, true).ConfigureAwait(false);
       }
     }
 
@@ -590,7 +780,16 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
 
       using (Upgrader.EnableForVersion(version)) {
-        return BuildDomainFromConfig(configuration);
+        return BuildDomainFromConfig(configuration, false).GetAwaiter().GetResult();
+      }
+    }
+
+    private async Task<Domain> BuildDomainAsync(int version, DomainUpgradeMode upgradeMode, IReadOnlyList<Type> types, int? keyCacheSize = null)
+    {
+      var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
+
+      using (Upgrader.EnableForVersion(version)) {
+        return await BuildDomainFromConfig(configuration, true).ConfigureAwait(false);
       }
     }
 
@@ -618,32 +817,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       return configuration;
     }
 
-    private Domain BuildDomainFromConfig(DomainConfiguration configuration)
+    private async ValueTask<Domain> BuildDomainFromConfig(DomainConfiguration configuration, bool isAsync)
     {
-      return Domain.Build(configuration);
+      return isAsync
+        ? await Domain.BuildAsync(configuration).ConfigureAwait(false)
+        : Domain.Build(configuration);
     }
 
-    private async Task BuildDomainAsync(string version, DomainUpgradeMode upgradeMode, int? keyCacheSize, params Type[] types)
-    {
-      if (domain != null) {
-        domain.Dispose();
-      }
-
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      foreach (var type in types) {
-        configuration.Types.Register(type);
-      }
-
-      if (keyCacheSize.HasValue) {
-        configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
-      }
-
-      configuration.Types.Register(typeof(Upgrader));
-      using (Upgrader.Enable(version)) {
-        domain = await Domain.BuildAsync(configuration);
-      }
-    }
 
     #region Data filler
 
