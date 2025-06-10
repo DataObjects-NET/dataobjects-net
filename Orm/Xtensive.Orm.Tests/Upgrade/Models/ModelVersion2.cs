@@ -1,14 +1,37 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
 using System;
+using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
+namespace Xtensive.Orm.Tests.Upgrade.Models.Version2
 {
-  #region Address, Person, BusinessContact, Employee
+  // BusinessContact renamed to Person
+  // Person renamed to BusinessContact
+  // Fields LastName and FirstName moved from Employee to BusinessContact (old Person)
+  // Field Order.ProcessingTime removed
+  // Field Order.OrderNumber renamed to Order.Number
+  // Type of field Order.Number chaged to int
+  // Type of field BusinessContact.PassportNumber (old Person.PassportNumber) chaged to int
+
+  // Sync<T> renamed to NewSync<T>
+  // Field Sync<T>.Root renamed to NewSync<T>.NewRoot
+
+  // Product.Name renamed to Product.Title
+  // Category renamed to ProductGroup
+  // Product.Category renamed to Product.Group
+  // Category.Id renamed to ProductGroup.GroupId
+
+  // Boy.FriendlyGirls renamed to Boy.MeetWith
+  // Girl.FrenldyBoys renamed to Girl.MeetWith
+
+  // EntityX.Id renamed to EntityX.Code
+  // StructureX.EX renamed to StructureX.MyEX
+  
+  #region Address, BusinessContact, Person, Employee, Order
 
   [Serializable]
   public class Address : Structure
@@ -21,11 +44,15 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   }
 
   [Serializable]
+  [Index("FirstName")]
   [HierarchyRoot]
-  public class Person : Entity
+  public class BusinessContact : Entity
   {
     [Field, Key]
     public int Id { get; private set; }
+
+    [Field]
+    public int PassportNumber { get; set; }
 
     [Field]
     public Address Address { get; set; }
@@ -33,13 +60,16 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     [Field(Length = 24)]
     public string Phone { get; set; }
 
-    [Field(Length = 10)]
-    public string PassportNumber { get; set; }
-  }
+    [Field(Length = 20)]
+    public string LastName { get; set; }
 
+    [Field(Length = 10)]
+    public string FirstName { get; set; }
+  }
+  
   [Serializable]
   [Index("CompanyName")]
-  public class BusinessContact : Person
+  public class Person : BusinessContact
   {
     [Field(Length = 40)]
     public string CompanyName { get; set; }
@@ -49,16 +79,9 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   }
 
   [Serializable]
-  [Index("FirstName")]
-  [Index("HireDate", "LastName")]
-  public class Employee : Person
+  [Index("HireDate")]
+  public class Employee : BusinessContact
   {
-    [Field(Length = 20)]
-    public string LastName { get; set; }
-
-    [Field(Length = 10)]
-    public string FirstName { get; set; }
-
     [Field]
     public DateTime? HireDate { get; set; }
 
@@ -83,17 +106,11 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field(Length = 10)]
-    public string OrderNumber { get; set; }
-
-    [Field]
-    public TimeSpan? ProcessingTime { get; set; }
-
     [Field]
     public Employee Employee { get; set; }
 
     [Field]
-    public BusinessContact Customer { get; set; }
+    public Person Customer { get; set; }
 
     [Field]
     public DateTime OrderDate { get; set; }
@@ -106,6 +123,9 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
 
     [Field]
     public Address ShippingAddress { get; set; }
+
+    [Field]
+    public int Number { get; set; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -120,31 +140,31 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
 
   [Serializable]
   [HierarchyRoot]
-  public class Sync<T> : Entity
+  public class NewSync<T> : Entity
     where T : Entity
   {
     [Field, Key]
     public int Id { get; private set; }
 
     [Field]
-    public T Root { get; set; }
+    public T NewRoot { get; set; }
   }
 
   #endregion
 
-  #region Category, Product
+  #region ProductGroup, Product
 
   [Serializable]
   [HierarchyRoot]
-  public class Category : Entity
+  public class ProductGroup : Entity
   {
     [Key, Field]
-    public int Id { get; private set; }
+    public int GroupId { get; private set; }
 
     [Field(Length = 100)]
     public string Name { get; set; }
 
-    [Field, Association(PairTo = "Category")]
+    [Field, Association(PairTo = "Group")]
     public EntitySet<Product> Products { get; private set; }
   }
 
@@ -156,13 +176,13 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     public int Id { get; private set; }
 
     [Field(Length = 200)]
-    public string Name { get; set; }
+    public string Title { get; set; }
 
     [Field]
     public bool IsActive { get; set; }
 
     [Field]
-    public Category Category { get; set;}
+    public ProductGroup Group { get; set; }
   }
 
   #endregion
@@ -177,8 +197,8 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     [Key, Field(Length = 20)]
     public string Name { get; private set; }
 
-    [Field, Association(PairTo = "FriendlyBoys")]
-    public EntitySet<Girl> FriendlyGirls { get; private set; }
+    [Field, Association(PairTo = "MeetWith")]
+    public EntitySet<Girl> MeetWith { get; private set; }
 
     public Boy(string name)
       : base(name)
@@ -195,7 +215,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     public string Name { get; private set; }
 
     [Field]
-    public EntitySet<Boy> FriendlyBoys { get; private set; }
+    public EntitySet<Boy> MeetWith { get; private set; }
 
     public Girl(string name)
       : base(name)
@@ -204,8 +224,8 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   }
 
   #endregion
-
-  #region Crazy association/structure nesting
+  
+  #region Crazy association nesting
   
   [Serializable]
   [HierarchyRoot]
@@ -213,7 +233,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   public class Entity1 : Entity
   {
     [Key, Field]
-    public int Id { get; private set; }
+    public int Code { get; private set; }
 
     public Entity1(int id)
       : base(id)
@@ -227,7 +247,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   public class Entity2 : Entity
   {
     [Key(0), Field]
-    public int Id { get; private set; }
+    public int Code { get; private set; }
 
     [Key(1), Field]
     public Entity1 E1 { get; private set; }
@@ -244,7 +264,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   public class Entity3 : Entity
   {
     [Key(0), Field]
-    public int Id { get; private set; }
+    public int Code { get; private set; }
 
     [Key(1), Field]
     public Entity2 E2 { get; private set; }
@@ -261,7 +281,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   public class Entity4 : Entity
   {
     [Key(0), Field]
-    public int Id { get; private set; }
+    public int Code { get; private set; }
 
     [Key(1), Field]
     public Entity3 E3 { get; private set; }
@@ -276,7 +296,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   public class Structure1 : Structure
   {
     [Field]
-    public Entity1 E1 { get; set; }
+    public Entity1 MyE1 { get; set; }
   }
 
   [Serializable]
@@ -286,7 +306,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     public Structure1 S1 { get; set; }
 
     [Field]
-    public Entity2 E2 { get; set; }
+    public Entity2 MyE2 { get; set; }
   }
 
   [Serializable]
@@ -296,7 +316,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     public Structure2 S2 { get; set; }
 
     [Field]
-    public Entity3 E3 { get; set; }
+    public Entity3 MyE3 { get; set; }
   }
 
   [Serializable]
@@ -306,7 +326,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
     public Structure3 S3 { get; set; }
 
     [Field]
-    public Entity4 E4 { get; set; }
+    public Entity4 MyE4 { get; set; }
   }
   
   [Serializable]
@@ -358,25 +378,12 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
   #region Complex field copy
 
   [Serializable]
-  public class MyStructure : Structure
-  {
-    [Field]
-    public int A { get; set; }
-
-    [Field]
-    public int B { get; set; }
-  }
-
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class MyStructureOwner : Entity
   {
     [Key, Field]
     public int Id { get; private set; }
-
-    [Field]
-    public MyStructure Structure { get; set; }
 
     [Field]
     public ReferencedEntity Reference { get; set; }
