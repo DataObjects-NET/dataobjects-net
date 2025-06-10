@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Tests.Upgrade.Model.Version3
+namespace Xtensive.Orm.Tests.Upgrade.Models.Version3
 {
   // BusinessContact replaced with Contact
   // Order.Customer field type changed to Contact

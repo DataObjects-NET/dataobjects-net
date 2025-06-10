@@ -7,15 +7,10 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Collections;
-
-using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Tests.Upgrade.Model.Version2;
 using Xtensive.Orm.Upgrade;
-using M2 = Xtensive.Orm.Tests.Upgrade.Model.Version2;
-using M3 = Xtensive.Orm.Tests.Upgrade.Model.Version3;
+using Xtensive.Orm.Tests.Upgrade.Models.Version2;
 
-namespace Xtensive.Orm.Tests.Upgrade
+namespace Xtensive.Orm.Tests.Upgrade.Models
 {
   [Serializable]
   public class Upgrader : UpgradeHandler
@@ -167,14 +162,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-     private IEnumerable<UpgradeHint> Version1To3Hints
+    private IEnumerable<UpgradeHint> Version1To3Hints
     {
       get
       {
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Model.Version3.Order));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Models.Version3.Order));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(Model.Version3.Person));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(Models.Version3.Person));
       }
     }
   }

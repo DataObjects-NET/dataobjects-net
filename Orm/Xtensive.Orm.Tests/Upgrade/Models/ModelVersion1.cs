@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Tests.Upgrade.Model.Version1
+namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 {
   #region Address, Person, BusinessContact, Employee
 

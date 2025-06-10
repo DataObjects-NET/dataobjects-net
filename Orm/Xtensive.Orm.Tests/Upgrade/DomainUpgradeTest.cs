@@ -10,34 +10,34 @@ using NUnit.Framework;
 using System.Reflection;
 
 using Xtensive.Core;
-using Xtensive.Orm.Tests.Upgrade.Model.Version1;
-using Xtensive.Orm.Tests.Upgrade.Model.Version2;
+using Xtensive.Orm.Tests.Upgrade.Models.Version1;
+using Xtensive.Orm.Tests.Upgrade.Models.Version2;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
-using Address = Xtensive.Orm.Tests.Upgrade.Model.Version1.Address;
-using Boy = Xtensive.Orm.Tests.Upgrade.Model.Version2.Boy;
-using BusinessContact = Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact;
-using Employee = Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee;
-using Entity1 = Xtensive.Orm.Tests.Upgrade.Model.Version2.Entity1;
-using Entity2 = Xtensive.Orm.Tests.Upgrade.Model.Version2.Entity2;
-using Entity3 = Xtensive.Orm.Tests.Upgrade.Model.Version2.Entity3;
-using Entity4 = Xtensive.Orm.Tests.Upgrade.Model.Version2.Entity4;
-using Girl = Xtensive.Orm.Tests.Upgrade.Model.Version2.Girl;
-using M1 = Xtensive.Orm.Tests.Upgrade.Model.Version1;
-using M2 = Xtensive.Orm.Tests.Upgrade.Model.Version2;
-using MyStructureOwner = Xtensive.Orm.Tests.Upgrade.Model.Version2.MyStructureOwner;
-using Order = Xtensive.Orm.Tests.Upgrade.Model.Version1.Order;
-using Person = Xtensive.Orm.Tests.Upgrade.Model.Version1.Person;
-using Product = Xtensive.Orm.Tests.Upgrade.Model.Version2.Product;
-using ReferencedEntity = Xtensive.Orm.Tests.Upgrade.Model.Version2.ReferencedEntity;
-using Structure1 = Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure1;
-using Structure2 = Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure2;
-using Structure3 = Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure3;
-using Structure4 = Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure4;
-using StructureContainer1 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer1;
-using StructureContainer2 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer2;
-using StructureContainer3 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer3;
-using StructureContainer4 = Xtensive.Orm.Tests.Upgrade.Model.Version2.StructureContainer4;
+using Address = Xtensive.Orm.Tests.Upgrade.Models.Version1.Address;
+using Boy = Xtensive.Orm.Tests.Upgrade.Models.Version2.Boy;
+using BusinessContact = Xtensive.Orm.Tests.Upgrade.Models.Version1.BusinessContact;
+using Employee = Xtensive.Orm.Tests.Upgrade.Models.Version1.Employee;
+using Entity1 = Xtensive.Orm.Tests.Upgrade.Models.Version2.Entity1;
+using Entity2 = Xtensive.Orm.Tests.Upgrade.Models.Version2.Entity2;
+using Entity3 = Xtensive.Orm.Tests.Upgrade.Models.Version2.Entity3;
+using Entity4 = Xtensive.Orm.Tests.Upgrade.Models.Version2.Entity4;
+using Girl = Xtensive.Orm.Tests.Upgrade.Models.Version2.Girl;
+using M1 = Xtensive.Orm.Tests.Upgrade.Models.Version1;
+using M2 = Xtensive.Orm.Tests.Upgrade.Models.Version2;
+using MyStructureOwner = Xtensive.Orm.Tests.Upgrade.Models.Version2.MyStructureOwner;
+using Order = Xtensive.Orm.Tests.Upgrade.Models.Version1.Order;
+using Person = Xtensive.Orm.Tests.Upgrade.Models.Version1.Person;
+using Product = Xtensive.Orm.Tests.Upgrade.Models.Version2.Product;
+using ReferencedEntity = Xtensive.Orm.Tests.Upgrade.Models.Version2.ReferencedEntity;
+using Structure1 = Xtensive.Orm.Tests.Upgrade.Models.Version1.Structure1;
+using Structure2 = Xtensive.Orm.Tests.Upgrade.Models.Version1.Structure2;
+using Structure3 = Xtensive.Orm.Tests.Upgrade.Models.Version1.Structure3;
+using Structure4 = Xtensive.Orm.Tests.Upgrade.Models.Version1.Structure4;
+using StructureContainer1 = Xtensive.Orm.Tests.Upgrade.Models.Version2.StructureContainer1;
+using StructureContainer2 = Xtensive.Orm.Tests.Upgrade.Models.Version2.StructureContainer2;
+using StructureContainer3 = Xtensive.Orm.Tests.Upgrade.Models.Version2.StructureContainer3;
+using StructureContainer4 = Xtensive.Orm.Tests.Upgrade.Models.Version2.StructureContainer4;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -236,17 +236,17 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(2, session.Query.All<Model.Version2.Person>().Count());
-        Assert.AreEqual("Island Trading", session.Query.All<Model.Version2.Person>()
+        Assert.AreEqual(2, session.Query.All<Models.Version2.Person>().Count());
+        Assert.AreEqual("Island Trading", session.Query.All<Models.Version2.Person>()
           .First(person => person.ContactName == "Helen Bennett").CompanyName);
-        Assert.AreEqual(5, session.Query.All<Model.Version2.BusinessContact>().Count());
-        Assert.AreEqual("Suyama", session.Query.All<Model.Version2.BusinessContact>()
+        Assert.AreEqual(5, session.Query.All<Models.Version2.BusinessContact>().Count());
+        Assert.AreEqual("Suyama", session.Query.All<Models.Version2.BusinessContact>()
           .First(contact => contact.FirstName == "Michael").LastName);
-        Assert.AreEqual("Fuller", session.Query.All<Model.Version2.Employee>()
+        Assert.AreEqual("Fuller", session.Query.All<Models.Version2.Employee>()
           .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
-        Assert.AreEqual(123, session.Query.All<Model.Version2.Person>()
+        Assert.AreEqual(123, session.Query.All<Models.Version2.Person>()
           .First(person => person.ContactName == "Helen Bennett").PassportNumber);
-        Assert.AreEqual(1, session.Query.All<Model.Version2.Order>()
+        Assert.AreEqual(1, session.Query.All<Models.Version2.Order>()
           .First(order => order.ProductName == "Maxilaku").Number);
 
         _ = session.Query.All<Product>().Single(product => product.Title == "DataObjects.NET");
@@ -322,8 +322,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Model.Version" + version);
-      configuration.Types.Register(typeof(Upgrader));
-      using (Upgrader.Enable(version)) {
+      configuration.Types.Register(typeof(Models.Upgrader));
+      using (Models.Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
     }
@@ -344,8 +344,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
       }
 
-      configuration.Types.Register(typeof (Upgrader));
-      using (Upgrader.Enable(version)) {
+      configuration.Types.Register(typeof (Models.Upgrader));
+      using (Models.Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
     }
@@ -444,40 +444,40 @@ namespace Xtensive.Orm.Tests.Upgrade
         // Products & catgories
         _ = new Category {
           Name = "Web applications",
-          Products = { new Model.Version1.Product { Name = "HelpServer", IsActive = true } }
+          Products = { new Models.Version1.Product { Name = "HelpServer", IsActive = true } }
         };
 
         _ = new Category {
           Name = "Frameworks",
-          Products = { new Model.Version1.Product { Name = "DataObjects.NET", IsActive = true } }
+          Products = { new Models.Version1.Product { Name = "DataObjects.NET", IsActive = true } }
         };
 
         // Boys & girls
-        var alex = new Model.Version1.Boy("Alex");
-        var dmitry = new Model.Version1.Boy("Dmitry");
-        var elena = new Model.Version1.Girl("Elena");
-        var tanya = new Model.Version1.Girl("Tanya");
+        var alex = new Models.Version1.Boy("Alex");
+        var dmitry = new Models.Version1.Boy("Dmitry");
+        var elena = new Models.Version1.Girl("Elena");
+        var tanya = new Models.Version1.Girl("Tanya");
         _ = alex.FriendlyGirls.Add(elena);
         _ = alex.FriendlyGirls.Add(tanya);
         _ = elena.FriendlyBoys.Add(dmitry);
 
         // EntityX
-        var e1 = new Model.Version1.Entity1(1);
-        var e2 = new Model.Version1.Entity2(2, e1);
-        var e3 = new Model.Version1.Entity3(3, e2);
-        var e4 = new Model.Version1.Entity4(4, e3);
+        var e1 = new Models.Version1.Entity1(1);
+        var e2 = new Models.Version1.Entity2(2, e1);
+        var e3 = new Models.Version1.Entity3(3, e2);
+        var e4 = new Models.Version1.Entity4(4, e3);
 
         // StructureContainerX
-        var se1 = new Model.Version1.StructureContainer1 { S1 = new Structure1 { E1 = e1 } };
-        var se2 = new Model.Version1.StructureContainer2 { S2 = new Structure2 { E2 = e2, S1 = se1.S1 } };
-        var se3 = new Model.Version1.StructureContainer3 { S3 = new Structure3 { E3 = e3, S2 = se2.S2 } };
-        var se4 = new Model.Version1.StructureContainer4 { S4 = new Structure4 { E4 = e4, S3 = se3.S3 } };
+        var se1 = new Models.Version1.StructureContainer1 { S1 = new Structure1 { E1 = e1 } };
+        var se2 = new Models.Version1.StructureContainer2 { S2 = new Structure2 { E2 = e2, S1 = se1.S1 } };
+        var se3 = new Models.Version1.StructureContainer3 { S3 = new Structure3 { E3 = e3, S2 = se2.S2 } };
+        var se4 = new Models.Version1.StructureContainer4 { S4 = new Structure4 { E4 = e4, S3 = se3.S3 } };
 
         // MyStructureOwner, ReferencedEntity
-        _ = new Model.Version1.MyStructureOwner(0) { Structure = new MyStructure { A = 1, B = 2 } };
-        _ = new Model.Version1.MyStructureOwner(1) { Structure = new MyStructure { A = 2, B = 3 } };
-        _ = new Model.Version1.ReferencedEntity(1, 2);
-        _ = new Model.Version1.ReferencedEntity(2, 3);
+        _ = new Models.Version1.MyStructureOwner(0) { Structure = new MyStructure { A = 1, B = 2 } };
+        _ = new Models.Version1.MyStructureOwner(1) { Structure = new MyStructure { A = 2, B = 3 } };
+        _ = new Models.Version1.ReferencedEntity(1, 2);
+        _ = new Models.Version1.ReferencedEntity(2, 3);
 
         // Generic types
         _ = new Sync<M1.Person> { Root = helen };

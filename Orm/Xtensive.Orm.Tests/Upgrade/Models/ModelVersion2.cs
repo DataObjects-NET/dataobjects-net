@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Tests.Upgrade.Model.Version2
+namespace Xtensive.Orm.Tests.Upgrade.Models.Version2
 {
   // BusinessContact renamed to Person
   // Person renamed to BusinessContact
