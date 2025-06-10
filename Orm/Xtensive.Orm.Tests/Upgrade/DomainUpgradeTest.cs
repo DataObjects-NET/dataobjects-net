@@ -511,7 +511,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private Domain BuildDomain(int version, DomainUpgradeMode upgradeMode, IReadOnlyList<Type> types, int? keyCacheSize = null)
     {
-      var configuration = CreateConfiguration(upgradeMode, types, null);
+      var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
 
       using (Upgrader.EnableForVersion(version)) {
         return BuildDomainFromConfig(configuration);
