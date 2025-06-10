@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Tests.Upgrade.Models
       All = Order | Product | BoyGirl | CrazyAssociations | ComplexFieldCopy | Generics
     }
 
+    private const string Version1Ns = "Xtensive.Orm.Tests.Upgrade.Models.Version1";
+
     private static bool isEnabled = false;
     private static int? runningVersion;
     private static ModelParts modelParts = ModelParts.All;
@@ -93,70 +95,70 @@ namespace Xtensive.Orm.Tests.Upgrade.Models
         // renaming types
         if (modelParts.HasFlag(ModelParts.Order)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact", typeof(Person));
+            $"{Version1Ns}.BusinessContact", typeof(Person));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
+            $"{Version1Ns}.Person", typeof(BusinessContact));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Address", typeof(Address));
+            $"{Version1Ns}.Address", typeof(Address));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", typeof(Employee));
+            $"{Version1Ns}.Employee", typeof(Employee));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof(Order));
+            $"{Version1Ns}.Order", typeof(Order));
         }
 
         if (modelParts.HasFlag(ModelParts.Product)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Product", typeof(Product));
+            $"{Version1Ns}.Product", typeof(Product));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Category", typeof(ProductGroup));
+            $"{Version1Ns}.Category", typeof(ProductGroup));
         }
 
         if (modelParts.HasFlag(ModelParts.BoyGirl)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Boy", typeof(Boy));
+            $"{Version1Ns}.Boy", typeof(Boy));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Girl", typeof(Girl));
+            $"{Version1Ns}.Girl", typeof(Girl));
         }
 
         if (modelParts.HasFlag(ModelParts.CrazyAssociations)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity1", typeof(Entity1));
+            $"{Version1Ns}.Entity1", typeof(Entity1));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity2", typeof(Entity2));
+            $"{Version1Ns}.Entity2", typeof(Entity2));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity3", typeof(Entity3));
+            $"{Version1Ns}.Entity3", typeof(Entity3));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity4", typeof(Entity4));
+            $"{Version1Ns}.Entity4", typeof(Entity4));
 
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure1", typeof(Structure1));
+            $"{Version1Ns}.Structure1", typeof(Structure1));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure2", typeof(Structure2));
+            $"{Version1Ns}.Structure2", typeof(Structure2));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure3", typeof(Structure3));
+            $"{Version1Ns}.Structure3", typeof(Structure3));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure4", typeof(Structure4));
+            $"{Version1Ns}.Structure4", typeof(Structure4));
 
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer1", typeof(StructureContainer1));
+            $"{Version1Ns}.StructureContainer1", typeof(StructureContainer1));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer2", typeof(StructureContainer2));
+            $"{Version1Ns}.StructureContainer2", typeof(StructureContainer2));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer3", typeof(StructureContainer3));
+            $"{Version1Ns}.StructureContainer3", typeof(StructureContainer3));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer4", typeof(StructureContainer4));
+            $"{Version1Ns}.StructureContainer4", typeof(StructureContainer4));
         }
 
         if (modelParts.HasFlag(ModelParts.ComplexFieldCopy)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof(MyStructureOwner));
+            $"{Version1Ns}.MyStructureOwner", typeof(MyStructureOwner));
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof(ReferencedEntity));
+            $"{Version1Ns}.ReferencedEntity", typeof(ReferencedEntity));
         }
 
         if (modelParts.HasFlag(ModelParts.Generics)) {
           yield return new RenameTypeHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Sync<>", typeof(NewSync<>));
+            $"{Version1Ns}.Sync<>", typeof(NewSync<>));
         }
 
         // renaming fields
@@ -199,13 +201,13 @@ namespace Xtensive.Orm.Tests.Upgrade.Models
         // copying data
         if (modelParts.HasFlag(ModelParts.Order)) {
           yield return new CopyFieldHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof(BusinessContact));
+            $"{Version1Ns}.Employee", "FirstName", typeof(BusinessContact));
           yield return new CopyFieldHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof(BusinessContact));
+            $"{Version1Ns}.Employee", "LastName", typeof(BusinessContact));
         }
         if (!IncludeTypeIdModifier.IsEnabled && modelParts.HasFlag(ModelParts.ComplexFieldCopy))
           yield return new CopyFieldHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof(MyStructureOwner), "Reference");
+            $"{Version1Ns}.MyStructureOwner", "Structure", typeof(MyStructureOwner), "Reference");
 
       }
     }
@@ -214,9 +216,9 @@ namespace Xtensive.Orm.Tests.Upgrade.Models
     {
       get {
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof(Models.Version3.Order));
+          $"{Version1Ns}.Order", typeof(Models.Version3.Order));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(Models.Version3.Person));
+          $"{Version1Ns}.Person", typeof(Models.Version3.Person));
       }
     }
   }
