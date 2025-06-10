@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
+      BuildDomain(1, DomainUpgradeMode.Recreate);
       FillData();
     }
 
@@ -36,17 +36,17 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeModeTest()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Recreate, null, typeof(M1.Address), typeof(M1.Person));
 
-      BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
+      BuildDomain(1, DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person)));
+        BuildDomain(1, DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person)));
 
-      BuildDomain("1", DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
+      BuildDomain(1, DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person)));
+        BuildDomain(1, DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person)));
       AssertEx.Throws<SchemaSynchronizationException>(() =>
-        BuildDomain("1", DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person),
+        BuildDomain(1, DomainUpgradeMode.Validate, null, typeof(M1.Address), typeof(M1.Person),
         typeof(M1.BusinessContact), typeof(M1.Employee), typeof(M1.Order)));
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
 
       var generatorCacheSize = 3;
-      BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Recreate, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (var i = 0; i < generatorCacheSize; i++) {
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         t.Complete();
       }
 
-      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (var i = 0; i < generatorCacheSize; i++) {
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       generatorCacheSize = 2;
-      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Require.ProviderIs(StorageProvider.Firebird);
 
       var generatorCacheSize = 3;
-      BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Recreate, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (var i = 0; i < generatorCacheSize; i++) {
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         t.Complete();
       }
 
-      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         for (var i = 0; i < generatorCacheSize; i++) {
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       generatorCacheSize = 2;// ignored because Firebird sequences has no increment support
-      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Perform, generatorCacheSize, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       int personTypeId;
       int maxTypeId;
 
-      BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof(M1.Address), typeof(M1.Person));
+      BuildDomain(1, DomainUpgradeMode.Recreate, null, typeof(M1.Address), typeof(M1.Person));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         personTypeId = session.Query.All<Metadata.Type>()
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
       }
 
-      BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
+      BuildDomain(1, DomainUpgradeMode.PerformSafely, null, typeof(M1.Address), typeof(M1.Person), typeof(M1.BusinessContact));
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var businessContactTypeId = session.Query.All<Metadata.Type>()
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
       }
 
-      BuildDomain("2", DomainUpgradeMode.Perform);
+      BuildDomain(2, DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
 
-      BuildDomain("2", DomainUpgradeMode.Perform);
+      BuildDomain(2, DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
         Assert.AreEqual(2, session.Query.All< M2.Person >().Count());
@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private void BuildDomain(int version, DomainUpgradeMode upgradeMode)
     {
       if (domain!=null) {
         domain.DisposeSafely();
@@ -297,12 +297,12 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Model.Version" + version);
       configuration.Types.Register(typeof(Models.Upgrader));
-      using (Models.Upgrader.Enable(version)) {
+      using (Models.Upgrader.EnableForVersion(version)) {
         domain = Domain.Build(configuration);
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode, int? keyCacheSize, params Type[] types)
+    private void BuildDomain(int version, DomainUpgradeMode upgradeMode, int? keyCacheSize, params Type[] types)
     {
       if (domain != null) {
         domain.DisposeSafely();
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       configuration.Types.Register(typeof (Models.Upgrader));
-      using (Models.Upgrader.Enable(version)) {
+      using (Models.Upgrader.EnableForVersion(version)) {
         domain = Domain.Build(configuration);
       }
     }
