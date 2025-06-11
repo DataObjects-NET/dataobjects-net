@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Models
 
     public override bool CanUpgradeFrom(string oldVersion) => true;
 
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion == 2)
         Version1To2Hints.ForEach(hint => hints.Add(hint));
