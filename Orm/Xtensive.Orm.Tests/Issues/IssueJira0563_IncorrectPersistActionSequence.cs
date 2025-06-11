@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -2229,7 +2229,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model01Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model1.Customer).Assembly, typeof (model1.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model1.Customer).Assembly, typeof (model1.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2255,7 +2255,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model02Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model2.Customer).Assembly, typeof (model2.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model2.Customer).Assembly, typeof (model2.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2281,7 +2281,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model03Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model3.Customer).Assembly, typeof (model3.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model3.Customer).Assembly, typeof (model3.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2307,7 +2307,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model04Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model4.Customer).Assembly, typeof (model4.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model4.Customer).Assembly, typeof (model4.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2334,7 +2334,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model05Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model5.Customer).Assembly, typeof (model5.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model5.Customer).Assembly, typeof (model5.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2362,7 +2362,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIsNot(StorageProvider.MySql);
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2391,7 +2391,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2419,7 +2419,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model07Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model7.Customer).Assembly, typeof (model7.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model7.Customer).Assembly, typeof (model7.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2445,7 +2445,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model08Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model8.Customer).Assembly, typeof (model8.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model8.Customer).Assembly, typeof (model8.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2471,7 +2471,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model09Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model9.Customer).Assembly, typeof (model9.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model9.Customer).Assembly, typeof (model9.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2497,7 +2497,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model10Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model10.Customer).Assembly, typeof (model10.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model10.Customer).Assembly, typeof (model10.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2523,7 +2523,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model11Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model11.Customer).Assembly, typeof (model11.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model11.Customer).Assembly, typeof (model11.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2550,7 +2550,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model12Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model12.Customer).Assembly, typeof (model12.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model12.Customer).Assembly, typeof (model12.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2578,7 +2578,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIsNot(StorageProvider.MySql);
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2607,7 +2607,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2637,7 +2637,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIsNot(StorageProvider.MySql);
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2667,7 +2667,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
 
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2697,7 +2697,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIsNot(StorageProvider.MySql);
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var configuration = BuildConfiguration();
-      configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
+      configuration.Types.RegisterCaching(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
 
       Assert.Throws<CheckConstraintViolationException>(() => {
         using (var domain = Domain.Build(configuration)) {
@@ -2726,7 +2726,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
 
       var configuration = BuildConfiguration();
-      configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
+      configuration.Types.RegisterCaching(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
 
       Assert.Throws<StorageException>(() => {
         using (var domain = Domain.Build(configuration)) {
@@ -2753,7 +2753,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model16Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model16.Customer).Assembly, typeof (model16.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model16.Customer).Assembly, typeof (model16.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession()) 
@@ -2779,7 +2779,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model17Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model17.Customer).Assembly, typeof (model17.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model17.Customer).Assembly, typeof (model17.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2804,7 +2804,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model18Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model18.Customer).Assembly, typeof (model18.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model18.Customer).Assembly, typeof (model18.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2829,7 +2829,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model19Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model19.Customer).Assembly, typeof (model19.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model19.Customer).Assembly, typeof (model19.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2854,7 +2854,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model20Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model20.Customer).Assembly, typeof (model20.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model20.Customer).Assembly, typeof (model20.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2880,7 +2880,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model21Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model21.Customer).Assembly, typeof (model21.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model21.Customer).Assembly, typeof (model21.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2906,7 +2906,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model22Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model22.Customer).Assembly, typeof (model22.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model22.Customer).Assembly, typeof (model22.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2932,7 +2932,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model23Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model23.Customer).Assembly, typeof (model23.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model23.Customer).Assembly, typeof (model23.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2958,7 +2958,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model24Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model24.Customer).Assembly, typeof (model24.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model24.Customer).Assembly, typeof (model24.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -2984,7 +2984,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model25Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model25.Customer).Assembly, typeof (model25.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model25.Customer).Assembly, typeof (model25.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -3010,7 +3010,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model26Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model26.Customer).Assembly, typeof (model26.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model26.Customer).Assembly, typeof (model26.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())
@@ -3036,7 +3036,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model27Test()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (model27.Customer).Assembly, typeof (model27.Customer).Namespace);
+      config.Types.RegisterCaching(typeof (model27.Customer).Assembly, typeof (model27.Customer).Namespace);
 
       using (var domain = Domain.Build(config)) {
         using (var session = domain.OpenSession())

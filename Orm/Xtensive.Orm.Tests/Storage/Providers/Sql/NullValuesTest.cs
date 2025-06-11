@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      config.Types.RegisterCaching(typeof (X).Assembly, typeof (X).Namespace);
       return config;
     }
 

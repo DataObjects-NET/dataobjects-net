@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Person).Assembly, typeof(Person).Namespace);
       
       Assert.DoesNotThrow(()=> {
         var domain = BuildDomain(domainConfiguration);

@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.BuildAsync(configuration);
     }
 

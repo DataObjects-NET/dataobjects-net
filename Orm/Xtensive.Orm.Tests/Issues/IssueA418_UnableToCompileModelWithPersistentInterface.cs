@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
+      config.Types.RegisterCaching(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())

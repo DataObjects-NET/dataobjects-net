@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (Document).Assembly, typeof (Document).Namespace);
+      config.Types.RegisterCaching(typeof (Document).Assembly, typeof (Document).Namespace);
       return config;
     }
 

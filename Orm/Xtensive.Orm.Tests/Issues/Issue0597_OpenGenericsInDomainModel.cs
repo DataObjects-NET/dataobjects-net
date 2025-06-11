@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(MediaBase).Assembly, typeof(MediaBase).Namespace);
+      config.Types.RegisterCaching(typeof(MediaBase).Assembly, typeof(MediaBase).Namespace);
       return config;
     }
 

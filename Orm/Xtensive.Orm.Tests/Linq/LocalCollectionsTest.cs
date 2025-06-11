@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Node).Assembly, typeof (Node).Namespace);
+      config.Types.RegisterCaching(typeof (Node).Assembly, typeof (Node).Namespace);
       return config;
     }
 

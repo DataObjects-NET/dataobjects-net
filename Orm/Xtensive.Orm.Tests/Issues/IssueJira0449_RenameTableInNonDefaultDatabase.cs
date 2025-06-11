@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       configuration.MappingRules.Map(sampleType.Assembly, sampleType.Namespace).ToDatabase(Database2Name);
       return Domain.Build(configuration);
     }

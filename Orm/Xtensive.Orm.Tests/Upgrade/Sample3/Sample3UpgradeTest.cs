@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(),
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {

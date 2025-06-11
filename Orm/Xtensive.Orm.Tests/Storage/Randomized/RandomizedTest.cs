@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Tree).Assembly, typeof(Tree).Namespace);
+      config.Types.RegisterCaching(typeof(Tree).Assembly, typeof(Tree).Namespace);
       return config;
     }
 

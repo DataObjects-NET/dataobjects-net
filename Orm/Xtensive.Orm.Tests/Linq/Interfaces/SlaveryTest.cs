@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ISlave).Assembly, typeof(ISlave).Namespace);
+      config.Types.RegisterCaching(typeof(ISlave).Assembly, typeof(ISlave).Namespace);
       return config;
     }
 

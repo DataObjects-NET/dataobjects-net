@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
       // Test MoveFieldHint (RemoveFieldHint)
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       Domain domain;
       using (M2.Upgrader.Enable()) {
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Tests.Issues
       
       // Test RemoveTypeHint
       config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);

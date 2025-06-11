@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.SerializationTestModel
     protected override void OnValidate()
     {
       if (string.IsNullOrEmpty(Name) || Company==null)
-        throw new InvalidOperationException("Invalid îbject.");
+        throw new InvalidOperationException("Invalid Ã®bject.");
     }
   }
 
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Company).Assembly, typeof (Company).Namespace);
+      config.Types.RegisterCaching(typeof (Company).Assembly, typeof (Company).Namespace);
       return config;
     }
 

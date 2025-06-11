@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = base.BuildConfiguration();
       var defaultSession = configuration.Sessions.Default;
       defaultSession.Options = defaultSession.Options | SessionOptions.ValidateEntityVersions;
-      configuration.Types.Register(typeof (EntityWithVersion1).Assembly, typeof (EntityWithVersion1).Namespace);
+      configuration.Types.RegisterCaching(typeof (EntityWithVersion1).Assembly, typeof (EntityWithVersion1).Namespace);
       return configuration;
     }
 

@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId3, 300);
 
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.DefaultSchema = DefaultSchema;
       return configuration;

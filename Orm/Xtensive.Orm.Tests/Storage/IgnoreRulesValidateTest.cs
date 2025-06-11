@@ -811,10 +811,10 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sourceType.Assembly, sourceType.Namespace);
+      configuration.Types.RegisterCaching(sourceType.Assembly, sourceType.Namespace);
 
       if (additionalSourceTypes != null) {
-        additionalSourceTypes.ForEach((t) => configuration.Types.Register(t.Assembly, t.Namespace));
+        additionalSourceTypes.ForEach((t) => configuration.Types.RegisterCaching(t.Assembly, t.Namespace));
       }
       if (ignoreRules != null) {
         configuration.IgnoreRules = ignoreRules;
@@ -850,7 +850,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
 
       foreach (var type in firstPartTypes.Union(secondPartTypes)) {
-        config.Types.Register(type.Assembly, type.Namespace);
+        config.Types.RegisterCaching(type.Assembly, type.Namespace);
       }
 
       if (ignoreRules != null) {
@@ -932,8 +932,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
-      configuration.Types.Register(typeof(Model1.Customer).Assembly, typeof(Model1.Customer).Namespace);
-      configuration.Types.Register(typeof(ignorablePart.IgnoredTable).Assembly, typeof(ignorablePart.IgnoredTable).Namespace);
+      configuration.Types.RegisterCaching(typeof(Model1.Customer).Assembly, typeof(Model1.Customer).Namespace);
+      configuration.Types.RegisterCaching(typeof(ignorablePart.IgnoredTable).Assembly, typeof(ignorablePart.IgnoredTable).Namespace);
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {

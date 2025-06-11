@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Interfaces
     public void CompsiteIndexTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
+      config.Types.RegisterCaching(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
       var domain = GetClassTableDomain(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Interfaces
     public void InternalTest(Func<DomainConfiguration, Domain> generator)
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
+      config.Types.RegisterCaching(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
       var domain = generator(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {

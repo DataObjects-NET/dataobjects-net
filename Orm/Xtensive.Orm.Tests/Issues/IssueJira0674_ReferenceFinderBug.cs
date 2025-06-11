@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel;
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestA).Assembly, typeof (TestA).Namespace);
+      configuration.Types.RegisterCaching(typeof (TestA).Assembly, typeof (TestA).Namespace);
       return configuration;
     }
   }

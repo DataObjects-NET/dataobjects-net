@@ -1030,7 +1030,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ASingleTable).Assembly, typeof(ASingleTable).Namespace);
+      config.Types.RegisterCaching(typeof(ASingleTable).Assembly, typeof(ASingleTable).Namespace);
       return config;
     }
   }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Order).Assembly, typeof (Order).Namespace);
+      configuration.Types.RegisterCaching(typeof (Order).Assembly, typeof (Order).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       return configuration;

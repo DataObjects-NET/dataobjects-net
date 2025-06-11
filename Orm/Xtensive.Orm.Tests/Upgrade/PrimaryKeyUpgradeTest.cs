@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel." + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel." + version);
       configuration.Types.Register(typeof(Upgrader));
       using (upgradeMode == DomainUpgradeMode.PerformSafely ? Upgrader.Enable() : null) {
         var domain = Domain.Build(configuration);
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel." + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel." + version);
       configuration.Types.Register(typeof(Upgrader));
       using (upgradeMode == DomainUpgradeMode.PerformSafely ? Upgrader.Enable() : null) {
         var domain = await Domain.BuildAsync(configuration);

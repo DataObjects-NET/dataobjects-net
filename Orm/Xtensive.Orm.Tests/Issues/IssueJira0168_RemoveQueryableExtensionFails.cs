@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Target).Assembly, typeof (Target).Namespace);
+      config.Types.RegisterCaching(typeof (Target).Assembly, typeof (Target).Namespace);
       return config;
     }
 
