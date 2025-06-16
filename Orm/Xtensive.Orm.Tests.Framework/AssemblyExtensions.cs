@@ -16,17 +16,16 @@ namespace Xtensive.Orm.Tests
 {
   public static class AssemblyExtensions
   {
-    private const string MainTestAsseblyNsPrefix = "Xtensive.Orm.Tests."; // keep the dot at the end
-    private const string IssuesNsPrefix = "Xtensive.Orm.Tests.Issues.";// keep the dot at the end
-    private const string UpgradeNsPrefix = "Xtensive.Orm.Tests.Upgrade.";// keep the dot at the end
+    private const string MainTestAsseblyNsPrefix = "Xtensive.Orm.Tests.";
+    private const string IssuesNsPrefix = "Xtensive.Orm.Tests.Issues.";
+    private const string UpgradeNsPrefix = "Xtensive.Orm.Tests.Upgrade.";
 
-    
     private static readonly byte[] ThisAssemblyPkt = typeof(AssemblyExtensions).Assembly.GetName().GetPublicKeyToken();
     
     private static readonly ConcurrentDictionary<Assembly, Type[]> TypesPerAssembly = new();
-    private static readonly ConcurrentDictionary<char, int> XtensiveOrmTestsNsAlphabeticIndex = new();
-    private static readonly ConcurrentDictionary<char, int> MainTestsForUpgrade = new();
-    private static readonly ConcurrentDictionary<char, int> MainTestsForIssues = new();
+    private static readonly ConcurrentDictionary<char, int> MainTestsAssemblyNsAlphabeticIndex = new();
+    private static readonly ConcurrentDictionary<char, int> MainTestsAssemblyIssuesNsAlphabeticIndex = new();
+    private static readonly ConcurrentDictionary<char, int> MainTestsAssemblyUpgradeNsAlphabeticIndex = new();
 
     public static System.Configuration.Configuration GetAssemblyConfiguration(this Assembly assembly)
     {
@@ -36,7 +35,7 @@ namespace Xtensive.Orm.Tests
     public static IReadOnlyList<Type> GetTypesFromNamespaceCaching(this Assembly assembly, string @namespace)
     {
       if (string.IsNullOrWhiteSpace(@namespace))
-        throw new ArgumentException("Namespace cannot be null, empty or contains only white spaces");
+        throw new ArgumentException("Namespace cannot be null, empty or contain only white spaces");
 
       // these two dummy mentionsa are to not forget to sync filtration algorithm here and in the classes,
       // in particular BaseType property, if the property changed then this algorighm should be changed as well
@@ -53,24 +52,22 @@ namespace Xtensive.Orm.Tests
         var list = new List<Type>(allTypes.Length);
         var currentIndex = 0;
         foreach (var t in allTypes) {
-          // we ignore compiler generated types because usuallty they are
-          // at the end of sorted types
+          // we ignore compiler generated types because usuallty they are at the end of sorted types' array
           if (t.IsSubclassOf(objectType) && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) {
             list.Add(t);
             if (isMain) {
               var nSpace = t.Namespace;
               if (nSpace != null && nSpace.StartsWith(MainTestAsseblyNsPrefix, StringComparison.Ordinal)) {
                 var firstLetter = nSpace[MainTestAsseblyNsPrefix.Length];
-                // main test library has 5000+ types, to not enumerate them every type from the beginning
-                // we try to have parts by first letter
-                _ = XtensiveOrmTestsNsAlphabeticIndex.TryAdd(firstLetter, currentIndex);
-                if (firstLetter == 'I'/*ssue*/ && nSpace.StartsWith(IssuesNsPrefix)) {
+
+                _ = MainTestsAssemblyNsAlphabeticIndex.TryAdd(firstLetter, currentIndex);
+                if (firstLetter == 'I'/*ssue*/ && nSpace.StartsWith(IssuesNsPrefix, StringComparison.Ordinal)) {
                   var firstIssuesLetter = nSpace[IssuesNsPrefix.Length];
-                  _ = MainTestsForIssues.TryAdd(firstIssuesLetter, currentIndex);
+                  _ = MainTestsAssemblyIssuesNsAlphabeticIndex.TryAdd(firstIssuesLetter, currentIndex);
                 }
-                if (firstLetter== 'U'/*pdate*/ && nSpace.StartsWith(UpgradeNsPrefix)) {
+                if (firstLetter == 'U'/*pdate*/ && nSpace.StartsWith(UpgradeNsPrefix, StringComparison.Ordinal)) {
                   var firstIssuesLetter = nSpace[UpgradeNsPrefix.Length];
-                  _ = MainTestsForUpgrade.TryAdd(firstIssuesLetter, currentIndex);
+                  _ = MainTestsAssemblyUpgradeNsAlphabeticIndex.TryAdd(firstIssuesLetter, currentIndex);
                 }
               }
             }
@@ -83,42 +80,6 @@ namespace Xtensive.Orm.Tests
       return FindSegment(assemblyTypes, @namespace, isMainTestAssembly);
     }
 
-    private static int GetSearchStartPosition(string ns, bool isMainAssembly)
-    {
-      var searchStart = 0;
-      if (isMainAssembly) {
-        if (ns.StartsWith(IssuesNsPrefix)) {
-          searchStart = MainTestsForIssues[ns[IssuesNsPrefix.Length]];
-        }
-        else if (ns.StartsWith(UpgradeNsPrefix)) {
-          searchStart = MainTestsForUpgrade[ns[UpgradeNsPrefix.Length]];
-        }
-        else if (ns.StartsWith(MainTestAsseblyNsPrefix)) {
-          searchStart = XtensiveOrmTestsNsAlphabeticIndex[ns[MainTestAsseblyNsPrefix.Length]];
-        }
-      }
-
-      return searchStart;
-    }
-
-    private static int FindFirstEntry(Type[] types, in int serachFrom, in string nsAndDot)
-    {
-      var firstHit = -1;
-
-      for (int headIndex = serachFrom, count = types.Length; headIndex < count; headIndex++) {
-        var head = types[headIndex];
-        if (head.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) >= 0) {
-          firstHit = headIndex;
-          break;
-        }
-      }
-
-      if (firstHit == -1)
-        throw new Exception($"There is no any entry for fiven namespace.");
-
-      return firstHit;
-    }
-
     private static IReadOnlyList<Type> FindSegment(Type[] types, string ns, bool isMainAssembly)
     {
       // We rely on the fact that types are sorted by full name.
@@ -129,32 +90,62 @@ namespace Xtensive.Orm.Tests
 
       var searchFrom = GetSearchStartPosition(ns, isMainAssembly);
 
-      var nsAndDot = ns + ".";
-      var startSearchBoundary = FindFirstEntry(types, searchFrom, nsAndDot);
+      var nsWithDot = ns + ".";
+      var startSearchBoundary = FindFirstEntry(types, searchFrom, nsWithDot);
 
-      var wrongNsFound = false;
       var endSearchBoundary = startSearchBoundary;
-      var lastTypeIndex = types.Length - 1;
+      var lastItemIndex = types.Length - 1;
+
+      bool wrongNsFound;
       do {
         endSearchBoundary += windowSize;
-        if (endSearchBoundary > lastTypeIndex)
-          endSearchBoundary = lastTypeIndex;
+        if (endSearchBoundary > lastItemIndex)
+          endSearchBoundary = lastItemIndex;
 
         var tail = types[endSearchBoundary];
-        if (tail.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) < 0)
-          wrongNsFound = true;
+        wrongNsFound = tail.FullName.IndexOf(nsWithDot, StringComparison.InvariantCulture) < 0;
       }
-      while (!wrongNsFound || endSearchBoundary < lastTypeIndex);
+      while (!wrongNsFound || endSearchBoundary < lastItemIndex);
 
       for (var tailIndex = endSearchBoundary; tailIndex >= startSearchBoundary; tailIndex--) {
         var tail = types[tailIndex];
         endSearchBoundary = tailIndex;
-        if (tail.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) >= 0) {
+        if (tail.FullName.IndexOf(nsWithDot, StringComparison.InvariantCulture) >= 0) {
           break;
         }
       }
 
       return new ArraySegment<Type>(types, startSearchBoundary, endSearchBoundary - startSearchBoundary + 1);
+    }
+
+    private static int GetSearchStartPosition(string ns, bool isMainAssembly)
+    {
+      if (!isMainAssembly)
+        return 0;
+      if (ns.StartsWith(IssuesNsPrefix, StringComparison.Ordinal))
+        return MainTestsAssemblyIssuesNsAlphabeticIndex[ns[IssuesNsPrefix.Length]];
+      else if (ns.StartsWith(UpgradeNsPrefix, StringComparison.Ordinal))
+        return MainTestsAssemblyUpgradeNsAlphabeticIndex[ns[UpgradeNsPrefix.Length]];
+      else if (ns.StartsWith(MainTestAsseblyNsPrefix, StringComparison.Ordinal))
+        return MainTestsAssemblyNsAlphabeticIndex [ns[MainTestAsseblyNsPrefix.Length]];
+      return 0;
+    }
+
+    private static int FindFirstEntry(Type[] types, in int serachFrom, in string nsAndDot)
+    {
+      var firstEntryIndex = -1;
+
+      for (int headIndex = serachFrom, count = types.Length; headIndex < count; headIndex++) {
+        var head = types[headIndex];
+        if (head.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) >= 0) {
+          firstEntryIndex = headIndex;
+          break;
+        }
+      }
+
+      if (firstEntryIndex == -1)
+        throw new Exception($"There is no any entry for given namespace.");
+      return firstEntryIndex;
     }
   }
 }
