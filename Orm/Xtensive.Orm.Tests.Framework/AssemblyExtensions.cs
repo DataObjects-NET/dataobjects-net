@@ -1,4 +1,4 @@
-// Copyright (C) 2018 Xtensive LLC.
+// Copyright (C) 2018-2025 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -16,12 +16,17 @@ namespace Xtensive.Orm.Tests
 {
   public static class AssemblyExtensions
   {
-    private static readonly Type ObjectType = typeof(object);
-    private static readonly string MainTestAsseblyNsPrefix = "Xtensive.Orm.Tests."; // keep the dot at the end 
+    private const string MainTestAsseblyNsPrefix = "Xtensive.Orm.Tests."; // keep the dot at the end
+    private const string IssuesNsPrefix = "Xtensive.Orm.Tests.Issues.";// keep the dot at the end
+    private const string UpgradeNsPrefix = "Xtensive.Orm.Tests.Upgrade.";// keep the dot at the end
+
+    
     private static readonly byte[] ThisAssemblyPkt = typeof(AssemblyExtensions).Assembly.GetName().GetPublicKeyToken();
     
     private static readonly ConcurrentDictionary<Assembly, Type[]> TypesPerAssembly = new();
     private static readonly ConcurrentDictionary<char, int> XtensiveOrmTestsNsAlphabeticIndex = new();
+    private static readonly ConcurrentDictionary<char, int> MainTestsForUpgrade = new();
+    private static readonly ConcurrentDictionary<char, int> MainTestsForIssues = new();
 
     public static System.Configuration.Configuration GetAssemblyConfiguration(this Assembly assembly)
     {
@@ -33,7 +38,7 @@ namespace Xtensive.Orm.Tests
       if (string.IsNullOrWhiteSpace(@namespace))
         throw new ArgumentException("Namespace cannot be null, empty or contains only white spaces");
 
-      // these two dummy mentions to not forget to sync filtration algorithm here and in the classes,
+      // these two dummy mentionsa are to not forget to sync filtration algorithm here and in the classes,
       // in particular BaseType property, if the property changed then this algorighm should be changed as well
       _ = nameof(Xtensive.IoC.ServiceTypeRegistrationProcessor.BaseType);
       _ = nameof(Xtensive.Orm.Configuration.DomainTypeRegistrationHandler.BaseType);
@@ -43,19 +48,30 @@ namespace Xtensive.Orm.Tests
 
       var assemblyTypes = TypesPerAssembly.GetOrAdd(assembly, static (a, isMain) => {
         var allTypes = a.GetTypes();
+
+        var objectType = typeof(object);
         var list = new List<Type>(allTypes.Length);
         var currentIndex = 0;
         foreach (var t in allTypes) {
           // we ignore compiler generated types because usuallty they are
           // at the end of sorted types
-          if (t.IsSubclassOf(ObjectType) && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) {
+          if (t.IsSubclassOf(objectType) && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) {
             list.Add(t);
             if (isMain) {
-              if (t.Namespace != null && t.Namespace.StartsWith(MainTestAsseblyNsPrefix, StringComparison.Ordinal)) {
-                var firstLetter = t.Namespace[MainTestAsseblyNsPrefix.Length];
+              var nSpace = t.Namespace;
+              if (nSpace != null && nSpace.StartsWith(MainTestAsseblyNsPrefix, StringComparison.Ordinal)) {
+                var firstLetter = nSpace[MainTestAsseblyNsPrefix.Length];
                 // main test library has 5000+ types, to not enumerate them every type from the beginning
                 // we try to have parts by first letter
                 _ = XtensiveOrmTestsNsAlphabeticIndex.TryAdd(firstLetter, currentIndex);
+                if (firstLetter == 'I'/*ssue*/ && nSpace.StartsWith(IssuesNsPrefix)) {
+                  var firstIssuesLetter = nSpace[IssuesNsPrefix.Length];
+                  _ = MainTestsForIssues.TryAdd(firstIssuesLetter, currentIndex);
+                }
+                if (firstLetter== 'U'/*pdate*/ && nSpace.StartsWith(UpgradeNsPrefix)) {
+                  var firstIssuesLetter = nSpace[UpgradeNsPrefix.Length];
+                  _ = MainTestsForUpgrade.TryAdd(firstIssuesLetter, currentIndex);
+                }
               }
             }
             currentIndex++;
@@ -64,71 +80,81 @@ namespace Xtensive.Orm.Tests
         return list.ToArray();
       }, isMainTestAssembly);
 
-      var range = FindRange(assemblyTypes, @namespace, isMainTestAssembly);
-      return new ArraySegment<Type>(assemblyTypes, range.first, range.last - range.first + 1);
-      
-
-      //type.IsSubclassOf(BaseType) && (ns.IsNullOrEmpty() || (type.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) >= 0));
+      return FindSegment(assemblyTypes, @namespace, isMainTestAssembly);
     }
 
-    private static (int first, int last) FindRange(Type[] types, string ns, bool isMainAssembly)
+    private static int GetSearchStartPosition(string ns, bool isMainAssembly)
     {
-      const int windowSize = 10;
+      var searchStart = 0;
+      if (isMainAssembly) {
+        if (ns.StartsWith(IssuesNsPrefix)) {
+          searchStart = MainTestsForIssues[ns[IssuesNsPrefix.Length]];
+        }
+        else if (ns.StartsWith(UpgradeNsPrefix)) {
+          searchStart = MainTestsForUpgrade[ns[UpgradeNsPrefix.Length]];
+        }
+        else if (ns.StartsWith(MainTestAsseblyNsPrefix)) {
+          searchStart = XtensiveOrmTestsNsAlphabeticIndex[ns[MainTestAsseblyNsPrefix.Length]];
+        }
+      }
 
-      var searchStart = (isMainAssembly)
-        ? (ns.StartsWith(MainTestAsseblyNsPrefix))
-          ? XtensiveOrmTestsNsAlphabeticIndex[ns[MainTestAsseblyNsPrefix.Length]]
-          : 0 //types from root namespace
-        : 0;
+      return searchStart;
+    }
 
-      // we rely on the fact that types are sorted by full name, that means types of same namespace are go one by one
-      // which gives us to optimize search - we find first type that has desired namespace, then we try to find last one
-      // and then we return the part of original array as result
+    private static int FindFirstEntry(Type[] types, in int serachFrom, in string nsAndDot)
+    {
       var firstHit = -1;
-      var lastHit = -1;
 
-      for (int headIndex = searchStart, count = types.Length ; headIndex < count; headIndex++) {
+      for (int headIndex = serachFrom, count = types.Length; headIndex < count; headIndex++) {
         var head = types[headIndex];
-        if (head.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) >= 0) {
+        if (head.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) >= 0) {
           firstHit = headIndex;
           break;
         }
       }
 
-      var isOutOfRange = false;
-      lastHit = firstHit;
-      do {
-        lastHit = lastHit + windowSize;
-        if (lastHit > types.Length - 1) {
-          lastHit = types.Length - 1;
-        }
-        var tail = types[lastHit];
-        if (tail.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) < 0)
-          isOutOfRange = true;
-        if (lastHit < firstHit)
-          throw new Exception("There is something strage in the neighborhood! :-)");
-      }
-      while (!isOutOfRange);
+      if (firstHit == -1)
+        throw new Exception($"There is no any entry for fiven namespace.");
 
-      for (int tailIndex = lastHit; tailIndex >= firstHit; tailIndex--) {
+      return firstHit;
+    }
+
+    private static IReadOnlyList<Type> FindSegment(Type[] types, string ns, bool isMainAssembly)
+    {
+      // We rely on the fact that types are sorted by full name.
+      // That opens an opportunity to optimize search of types from given
+      // namespace and subnamespaces.
+
+      const int windowSize = 6;
+
+      var searchFrom = GetSearchStartPosition(ns, isMainAssembly);
+
+      var nsAndDot = ns + ".";
+      var startSearchBoundary = FindFirstEntry(types, searchFrom, nsAndDot);
+
+      var wrongNsFound = false;
+      var endSearchBoundary = startSearchBoundary;
+      var lastTypeIndex = types.Length - 1;
+      do {
+        endSearchBoundary += windowSize;
+        if (endSearchBoundary > lastTypeIndex)
+          endSearchBoundary = lastTypeIndex;
+
+        var tail = types[endSearchBoundary];
+        if (tail.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) < 0)
+          wrongNsFound = true;
+      }
+      while (!wrongNsFound || endSearchBoundary < lastTypeIndex);
+
+      for (var tailIndex = endSearchBoundary; tailIndex >= startSearchBoundary; tailIndex--) {
         var tail = types[tailIndex];
-        lastHit = tailIndex;
-        if (tail.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) >= 0) {
+        endSearchBoundary = tailIndex;
+        if (tail.FullName.IndexOf(nsAndDot, StringComparison.InvariantCulture) >= 0) {
           break;
         }
       }
 
-      return (firstHit, lastHit);
-    }
-  }
-
-  public static class TypeRegistryExtensions
-  {
-    public static void RegisterCaching(this Xtensive.Orm.Configuration.DomainTypeRegistry _this, Assembly assembly, string @namespace)
-    {
-      foreach (var t in assembly.GetTypesFromNamespaceCaching(@namespace)) {
-        _this.Register(t);
-      }
+      return new ArraySegment<Type>(types, startSearchBoundary, endSearchBoundary - startSearchBoundary + 1);
     }
   }
 }
