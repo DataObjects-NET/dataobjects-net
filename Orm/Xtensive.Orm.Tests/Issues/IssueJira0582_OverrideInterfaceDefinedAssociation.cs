@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (V1.Regime).Assembly, typeof (V1.Regime).Namespace);
+      configuration.Types.RegisterCaching(typeof (V1.Regime).Assembly, typeof (V1.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
         Assert.AreEqual(1, domain.Model.Associations.Count);
         var interfaceAssociation = domain.Model.Types[typeof (V1.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (V2.Regime).Assembly, typeof (V2.Regime).Namespace);
+      configuration.Types.RegisterCaching(typeof (V2.Regime).Assembly, typeof (V2.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
         Assert.AreEqual(2, domain.Model.Associations.Count);
         var interfaceAssociation = domain.Model.Types[typeof(V2.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
@@ -331,7 +331,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (V3.Regime).Assembly, typeof (V3.Regime).Namespace);
+      configuration.Types.RegisterCaching(typeof (V3.Regime).Assembly, typeof (V3.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
         Assert.AreEqual(1, domain.Model.Associations.Count);
         var interfaceAssociation = domain.Model.Types[typeof(V1.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(V4.Regime).Assembly, typeof(V4.Regime).Namespace);
+      configuration.Types.RegisterCaching(typeof(V4.Regime).Assembly, typeof(V4.Regime).Namespace);
       using (var domain = BuildDomain(configuration))
       {
 

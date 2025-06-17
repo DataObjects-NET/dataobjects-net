@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -946,7 +946,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.NamingConvention = GetNamingConvention();
-      configuration.Types.Register(assembly, @namespace);
+      configuration.Types.RegisterCaching(assembly, @namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

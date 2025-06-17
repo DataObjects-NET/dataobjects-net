@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests.Issues
       public class MlRowlevelPermissionDocEntityField : Multilink<RowLevelPermission, Document>
       {
         /// <summary>Initializes a new instance of the <see cref="Multilink{TOwner,TLinked}"/> class.</summary>
-        /// <param name="id">Идентификатор создаваемого элемента.</param>
+        /// <param name="id">Г€Г¤ГҐГ­ГІГЁГґГЁГЄГ ГІГ®Г° Г±Г®Г§Г¤Г ГўГ ГҐГ¬Г®ГЈГ® ГЅГ«ГҐГ¬ГҐГ­ГІГ .</param>
         public MlRowlevelPermissionDocEntityField(Guid id)
           : base(id)
         {
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof(Role).Assembly, typeof(Role).Namespace);
+      config.Types.RegisterCaching(typeof(Role).Assembly, typeof(Role).Namespace);
       return config;
     }
 

@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (StoredMaterialLot).Assembly, typeof (StoredMaterialLot).Namespace);
+      configuration.Types.RegisterCaching(typeof (StoredMaterialLot).Assembly, typeof (StoredMaterialLot).Namespace);
       return configuration;
     }
   }

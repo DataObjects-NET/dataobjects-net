@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
+      config.Types.RegisterCaching(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       return config;
     }
 

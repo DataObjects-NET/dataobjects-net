@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

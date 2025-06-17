@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -459,11 +459,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
     {
       configurationForLaterValidation = DomainConfigurationFactory.Create();
       configurationForLaterValidation.UpgradeMode = DomainUpgradeMode.Perform;
-      configurationForLaterValidation.Types.Register(typeof (model1.Customer).Assembly, typeof (model1.Customer).Namespace);
+      configurationForLaterValidation.Types.RegisterCaching(typeof (model1.Customer).Assembly, typeof (model1.Customer).Namespace);
 
       configurationForImmediateValidation = DomainConfigurationFactory.Create();
       configurationForImmediateValidation.UpgradeMode = DomainUpgradeMode.Perform;
-      configurationForImmediateValidation.Types.Register(typeof (model2.Customer).Assembly, typeof (model2.Customer).Namespace);
+      configurationForImmediateValidation.Types.RegisterCaching(typeof (model2.Customer).Assembly, typeof (model2.Customer).Namespace);
 
       FillData();
     }

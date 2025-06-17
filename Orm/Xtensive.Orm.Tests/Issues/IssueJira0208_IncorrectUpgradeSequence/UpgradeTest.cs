@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {

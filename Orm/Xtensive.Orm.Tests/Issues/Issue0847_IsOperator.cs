@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0847_IsOperator;
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Alex).Assembly, typeof (Alex).Namespace);
+      config.Types.RegisterCaching(typeof (Alex).Assembly, typeof (Alex).Namespace);
       return config;
     }
 

@@ -222,14 +222,14 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "FirstSingleSchemaDomain";
       configuration.DefaultSchema = FirstSchema;
       configurations[0] = configuration;
 
       configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "SecondSingleSchemaDomain";
       configuration.DefaultSchema = SecondSchema;
       configurations[1] = configuration;
@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.DefaultSchema = masterSchema;
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.UpgradeMode = domainUpgradeMode;
       configuration.Name = "MultiNodeDomain";
 

@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Animal).Assembly, typeof (Animal).Namespace);
+      config.Types.RegisterCaching(typeof (Animal).Assembly, typeof (Animal).Namespace);
       config.UpgradeMode = GetUpgradeMode();
       return config;
     }

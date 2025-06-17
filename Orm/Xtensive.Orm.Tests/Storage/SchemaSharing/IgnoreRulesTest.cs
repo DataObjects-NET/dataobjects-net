@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Product).Assembly, typeof(Product).Namespace);
+      configuration.Types.RegisterCaching(typeof(Product).Assembly, typeof(Product).Namespace);
       if (nodeToSchemaMap.Count > 0) {
         configuration.DefaultSchema = nodeToSchemaMap[MainNodeId];
         var nodeConfiguration = new NodeConfiguration(AdditionalNodeId);
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing
       configuration.UpgradeMode = upgradeMode;
       configuration.IgnoreRules = GetIgnoreRules();
       configuration.ShareStorageSchemaOverNodes = shareStorageSchemaOverNodes;
-      configuration.Types.Register(typeof(Product).Assembly, typeof(Product).Namespace);
+      configuration.Types.RegisterCaching(typeof(Product).Assembly, typeof(Product).Namespace);
 
       if (nodeToSchemaMap.Count > 0) {
         configuration.DefaultSchema = nodeToSchemaMap[MainNodeId];

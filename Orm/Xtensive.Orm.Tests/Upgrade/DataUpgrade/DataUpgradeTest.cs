@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(),
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(),
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {

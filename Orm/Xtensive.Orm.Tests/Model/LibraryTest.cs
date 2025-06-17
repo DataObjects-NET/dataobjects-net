@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, "Xtensive.Orm.Tests.Model.LibraryModel");
+      config.Types.RegisterCaching(typeof (Person).Assembly, "Xtensive.Orm.Tests.Model.LibraryModel");
       // config.Builders.Add(typeof (LibraryDomainBuilder));
       return config;
     }

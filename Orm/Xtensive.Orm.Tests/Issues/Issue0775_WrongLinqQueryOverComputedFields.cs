@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Fund).Assembly, typeof (Fund).Namespace);
+      config.Types.RegisterCaching(typeof (Fund).Assembly, typeof (Fund).Namespace);
       return config;
     }
 

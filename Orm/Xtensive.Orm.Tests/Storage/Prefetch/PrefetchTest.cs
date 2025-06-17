@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       var config = base.BuildConfiguration();
       config.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
-      config.Types.Register(typeof(Model.Offer).Assembly, typeof(Model.Offer).Namespace);
+      config.Types.RegisterCaching(typeof(Model.Offer).Assembly, typeof(Model.Offer).Namespace);
       return config;
     }
 

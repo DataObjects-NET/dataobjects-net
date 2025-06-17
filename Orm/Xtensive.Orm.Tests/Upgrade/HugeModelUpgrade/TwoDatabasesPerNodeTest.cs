@@ -28,8 +28,8 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
       var partOneType = typeof(TwoPartsModel.PartOne.TestEntityOne0);
       var partTwoType = typeof(TwoPartsModel.PartTwo.TestEntityTwo0);
-      configuration.Types.Register(partOneType.Assembly, partOneType.Namespace);
-      configuration.Types.Register(partTwoType.Assembly, partTwoType.Namespace);
+      configuration.Types.RegisterCaching(partOneType.Assembly, partOneType.Namespace);
+      configuration.Types.RegisterCaching(partTwoType.Assembly, partTwoType.Namespace);
 
       configuration.MappingRules
         .Map(partOneType.Assembly, partOneType.Namespace)

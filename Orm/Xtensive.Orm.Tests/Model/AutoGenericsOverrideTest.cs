@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Configuration;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Builder).Assembly, typeof (Builder).Namespace);
+      configuration.Types.RegisterCaching(typeof (Builder).Assembly, typeof (Builder).Namespace);
       return configuration;
     }
 

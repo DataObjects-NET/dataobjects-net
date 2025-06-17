@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Zames).Assembly, typeof (Zames).Namespace);
+      config.Types.RegisterCaching(typeof (Zames).Assembly, typeof (Zames).Namespace);
       return config;
     }
 

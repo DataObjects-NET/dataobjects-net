@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
     private static DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (A).Assembly, typeof (A).Namespace);
+      config.Types.RegisterCaching(typeof (A).Assembly, typeof (A).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }

@@ -797,7 +797,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), NamespaceForVersion[version]);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), NamespaceForVersion[version]);
       configuration.Types.Register(typeof(Upgrader));
 
       return configuration;

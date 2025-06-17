@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Runtime;
 using System.Runtime.InteropServices;
@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var confinguration = base.BuildConfiguration();
       confinguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      confinguration.Types.Register(typeof (TestA).Assembly, typeof (TestA).Namespace);
+      confinguration.Types.RegisterCaching(typeof (TestA).Assembly, typeof (TestA).Namespace);
       return confinguration;
     }
   }

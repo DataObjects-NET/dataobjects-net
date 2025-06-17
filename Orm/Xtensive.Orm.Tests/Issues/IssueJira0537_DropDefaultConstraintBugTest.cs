@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Tests.Issues
       domainConfiguration.Databases.Add(coreDatabase);
       domainConfiguration.Databases.Add(wmsDatabase);
 
-      domainConfiguration.Types.Register(typeof(Model2.Upgrader).Assembly, typeof(Model2.Upgrader).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Model2.Upgrader).Assembly, typeof(Model2.Upgrader).Namespace);
 
       domainConfiguration.MappingRules.Map(typeof(Model2.Core.Area).Namespace).ToDatabase(CoreAlias);
       domainConfiguration.MappingRules.Map(typeof(Model2.WMS.StoredObject).Namespace).ToDatabase(WmsAlias);
