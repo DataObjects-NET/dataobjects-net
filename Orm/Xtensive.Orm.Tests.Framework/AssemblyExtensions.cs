@@ -37,13 +37,14 @@ namespace Xtensive.Orm.Tests
       if (string.IsNullOrWhiteSpace(@namespace))
         throw new ArgumentException("Namespace cannot be null, empty or contain only white spaces");
 
-      // these two dummy mentionsa are to not forget to sync filtration algorithm here and in the classes,
-      // in particular BaseType property, if the property changed then this algorighm should be changed as well
+      // These two dummy mentions are here to not forget to sync filtration algorithm here and in the classes,
+      // in particular BaseType property, if the property changed result type then this algorighm should be updated as well
       _ = nameof(Xtensive.IoC.ServiceTypeRegistrationProcessor.BaseType);
       _ = nameof(Xtensive.Orm.Configuration.DomainTypeRegistrationHandler.BaseType);
 
       var assemblyNameInfo = assembly.GetName();
-      var isMainTestAssembly = assemblyNameInfo.Name == "Xtensive.Orm.Tests" && !ThisAssemblyPkt.Except(assemblyNameInfo.GetPublicKeyToken()).Any();
+      var isMainTestAssembly = assemblyNameInfo.Name == "Xtensive.Orm.Tests"
+        && !ThisAssemblyPkt.Except(assemblyNameInfo.GetPublicKeyToken()).Any();
 
       var assemblyTypes = TypesPerAssembly.GetOrAdd(assembly, static (a, isMain) => {
         var allTypes = a.GetTypes();
@@ -52,7 +53,6 @@ namespace Xtensive.Orm.Tests
         var list = new List<Type>(allTypes.Length);
         var currentIndex = 0;
         foreach (var t in allTypes) {
-          // we ignore compiler generated types because usuallty they are at the end of sorted types' array
           if (t.IsSubclassOf(objectType) && t.GetCustomAttribute<CompilerGeneratedAttribute>() == null) {
             list.Add(t);
             if (isMain) {
