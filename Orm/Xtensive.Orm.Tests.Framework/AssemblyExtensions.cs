@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests
         var tail = types[endSearchBoundary];
         wrongNsFound = tail.FullName.IndexOf(nsWithDot, StringComparison.InvariantCulture) < 0;
       }
-      while (!wrongNsFound || endSearchBoundary < lastItemIndex);
+      while (!wrongNsFound && endSearchBoundary < lastItemIndex);
 
       for (var tailIndex = endSearchBoundary; tailIndex >= startSearchBoundary; tailIndex--) {
         var tail = types[tailIndex];
