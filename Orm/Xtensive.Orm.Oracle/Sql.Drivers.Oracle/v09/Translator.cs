@@ -70,24 +70,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       base.TranslateString(output, str);
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      switch (section) {
-        case SelectSection.HintsEntry:
-          _ = context.Output.Append("/*+");
-          break;
-        case SelectSection.HintsExit:
-          _ = context.Output.Append("*/");
-          break;
-        case SelectSection.Limit:
-        case SelectSection.Offset:
-          throw new NotSupportedException();
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) => throw new NotSupportedException();
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => throw new NotSupportedException();
+
+    public override void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("/*+ ");
+
+    public override void SelectHintsExit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("*/ ");
 
     /// <inheritdoc/>
     public override string Translate(SqlJoinMethod method)

@@ -44,14 +44,6 @@ namespace Xtensive.Sql.Compiler
     ForeignKey = 5,
     ReferencedColumns = 6,
   }
-  
-  public enum BetweenSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Between = 2,
-    And = 3,
-  }
 
   public enum CaseSection
   {
@@ -61,13 +53,6 @@ namespace Xtensive.Sql.Compiler
     When = 3,
     Then = 4,
     Else = 5,
-  }
-
-  public enum ColumnSection
-  {
-    Entry = 0,
-    Exit = 1,
-    AliasDeclaration = 2,
   }
 
   public enum CreateDomainSection
@@ -123,13 +108,6 @@ namespace Xtensive.Sql.Compiler
     Limit = 4,
   }
 
-  public enum FetchSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Targets = 2,
-  }
-  
   public enum FunctionCallSection
   {
     Entry = 0,
@@ -151,40 +129,11 @@ namespace Xtensive.Sql.Compiler
     AlterMinValue = 7,
   }
 
-  public enum IfSection
-  {
-    Entry = 0,
-    Exit = 1,
-    True = 2,
-    False = 3,
-  }
-
-  public enum InsertSection
-  {
-    Entry = 0,
-    Exit = 1,
-    ColumnsEntry = 2,
-    ColumnsExit = 4,
-    ValuesEntry = 3,
-    ValuesExit = 5,
-    DefaultValues = 6,
-    From = 7,
-  }
-
   public enum JoinSection
   {
     Entry = 0,
     Exit = 1,
     Specification = 2,
-    Condition = 3,
-  }
-
-  public enum LikeSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Like = 2,
-    Escape = 3,
   }
 
   public enum MatchSection
@@ -192,23 +141,6 @@ namespace Xtensive.Sql.Compiler
     Entry = 0,
     Exit = 1,
     Specification = 2,
-  }
-
-  public enum SelectSection
-  {
-    Entry = 0,
-    Exit = 1,
-    From = 3,
-    Where = 4,
-    GroupBy = 5,
-    Having = 6,
-    OrderBy = 7,
-    HintsEntry = 8,
-    HintsExit = 9,
-    Limit = 10,
-    Offset = 11,
-    LimitEnd = 12,
-    OffsetEnd = 13,
   }
 
   public enum TableSection
@@ -254,23 +186,6 @@ namespace Xtensive.Sql.Compiler
     Entry = 0,
     Exit = 1,
     EmptyArray = 2,
-  }
-
-  public enum UpdateSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Set = 2,
-    From = 3,
-    Where = 4,
-    Limit = 5,
-  }
-
-  public enum WhileSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Statement = 2,
   }
 
   public enum QueryExpressionSection

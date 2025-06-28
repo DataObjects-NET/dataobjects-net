@@ -50,28 +50,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      var output = context.Output;
-      switch (section) {
-        case SelectSection.Limit:
-          _ = output.Append("FETCH NEXT");
-          break;
-        case SelectSection.LimitEnd:
-          _ = output.Append("ROWS ONLY");
-          break;
-        case SelectSection.Offset:
-          _ = output.Append("OFFSET");
-          break;
-        case SelectSection.OffsetEnd:
-          _ = output.Append("ROWS");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("FETCH NEXT ");
+
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("OFFSET ");
+
+    public override void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("ROWS ONLY ");
+
+    public override void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("ROWS ");
 
     private void TranslateSequenceStatement(SqlCompilerContext context, Sequence sequence, string action)
     {

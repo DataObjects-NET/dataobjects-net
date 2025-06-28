@@ -273,6 +273,9 @@ namespace Xtensive.Sql.Compiler
       return AppendSpace();
     }
 
+    public IOutput AppendSpacePrefixed(string text) =>
+      AppendSpaceIfNecessary().Append(text);
+
     /// <inheritdoc/>
     public IOutput AppendNewLine(string text)
     {

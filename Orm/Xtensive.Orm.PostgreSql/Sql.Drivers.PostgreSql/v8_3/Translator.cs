@@ -44,13 +44,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      if (section == NodeSection.Exit) {
-        _ = context.Output.Append(node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
-      }
-    }
+    public override void OrderExit(SqlCompilerContext context, SqlOrder node) =>
+      context.Output.Append(node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
 
     internal protected string GetFulltextVector(SqlCompilerContext context, FullTextIndex index)
     {

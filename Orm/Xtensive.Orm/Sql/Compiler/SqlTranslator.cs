@@ -385,23 +385,17 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlBetween"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Expression to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlBetween node, BetweenSection section)
+    public virtual void BetweenBetween(SqlCompilerContext context, SqlBetween node)
     {
-      switch (section) {
-        case BetweenSection.Between:
-          Translate(context.Output, node.NodeType);
-          break;
-        case BetweenSection.And:
-          _ = context.Output.Append("AND");
-          break;
-      }
+      context.Output.AppendSpaceIfNecessary();
+      Translate(context.Output, node.NodeType);
+      context.Output.AppendSpaceIfNecessary();
     }
+
+    public virtual void BetweenAnd(SqlCompilerContext context, SqlBetween node) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append("AND")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates <see cref="SqlBinary"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -511,23 +505,19 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlColumnRef"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Node to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
+    public virtual void ColumnEntry(SqlCompilerContext context, SqlColumnRef node)
     {
       var output = context.Output;
-      switch (section) {
-        case ColumnSection.Entry:
-          TranslateIdentifier(output, node.Name);
-          break;
-        case ColumnSection.AliasDeclaration when !string.IsNullOrEmpty(node.Name):
-          _ = output.Append(" AS ");
-          TranslateIdentifier(output, node.Name);
-          break;
+      output.AppendSpaceIfNecessary();
+      TranslateIdentifier(output, node.Name);
+      output.AppendSpaceIfNecessary();
+    }
+
+    public virtual void ColumnAliasDeclaration(SqlCompilerContext context, SqlColumnRef node)
+    {
+      if (!string.IsNullOrEmpty(node.Name)) {
+        _ = context.Output.Append(" AS ");
+        TranslateIdentifier(context.Output, node.Name);
       }
     }
 
@@ -1266,26 +1256,14 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlFetch"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
+    public virtual void FetchEntry(SqlCompilerContext context, SqlFetch node) =>
+      context.Output.Append("FETCH ").Append(node.Option.ToString());
+
+    public virtual void FetchTarget(SqlCompilerContext context, SqlFetch node)
     {
-      switch (section) {
-        case FetchSection.Entry:
-          _ = context.Output.Append("FETCH ")
-            .Append(node.Option.ToString());
-          break;
-        case FetchSection.Targets:
-          _ = context.Output.Append("FROM ")
-            .Append(node.Cursor.Name);
-          if (node.Targets.Count != 0) {
-            _ = context.Output.Append(" INTO");
-          }
-          break;
+      _ = context.Output.AppendSpaceIfNecessary().Append("FROM ").Append(node.Cursor.Name);
+      if (node.Targets.Count != 0) {
+        _ = context.Output.Append(" INTO");
       }
     }
 
@@ -1380,59 +1358,52 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlIf"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Expression to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlIf node, IfSection section)
-    {
-      _ = context.Output.Append(section switch {
-        IfSection.Entry => "IF",
-        IfSection.True => "BEGIN",
-        IfSection.False => "END BEGIN",
-        IfSection.Exit => "END",
-        _ => string.Empty
-      });
-    }
+    public virtual void IfEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("IF");
 
-    /// <summary>
-    /// Translates <see cref="SqlInsert"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    public virtual void IfTrue(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("BEGIN");
+
+    public virtual void IfFalse(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("END BEGIN");
+
+    public virtual void IfExit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("END");
+
+    public virtual void InsertEntry(SqlCompilerContext context) =>
+      context.Output.Append("INSERT INTO");
+
+    public virtual void InsertColumnsEntry(SqlCompilerContext context, SqlInsert node)
     {
-      var output = context.Output;
-      switch (section) {
-        case InsertSection.Entry:
-          _ = output.Append("INSERT INTO");
-          break;
-        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
-          _ = output.AppendOpeningPunctuation("(");
-          break;
-        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
-          _ = output.Append(")");
-          break;
-        case InsertSection.From:
-          _ = output.Append("FROM");
-          break;
-        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
-          _ = output.AppendOpeningPunctuation("VALUES (");
-          break;
-        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
-          _ = output.AppendOpeningPunctuation("VALUES ");
-          break;
-        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
-          _ = output.Append(")");
-          break;
-        case InsertSection.DefaultValues:
-          _ = output.Append("DEFAULT VALUES");
-          break;
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count > 0) {
+        context.Output.Append("(");
       }
     }
+
+    public virtual void InsertColumnsExit(SqlCompilerContext context, SqlInsert node)
+    {
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count > 0) {
+        context.Output.Append(")");
+      }
+    }
+
+    public virtual void InsertValuesEntry(SqlCompilerContext context, SqlInsert node) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation(node.ValueRows.Count == 0 ? "VALUES (" : "VALUES ");
+
+    public virtual void InsertValuesExit(SqlCompilerContext context, SqlInsert node)
+    {
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count == 0) {
+        context.Output.Append(")");
+      }
+    }
+
+    public virtual void InsertDefaultValues(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation("DEFAULT VALUES");
+
+    public virtual void InsertExit(SqlCompilerContext context) { }
 
     /// <summary>
     /// Translates <see cref="SqlJoinExpression"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -1461,39 +1432,30 @@ namespace Xtensive.Sql.Compiler
           Translate(output, node.JoinType);
           _ = output.Append(" JOIN");
           break;
-        case JoinSection.Condition:
-          _ = output.Append(node.JoinType == SqlJoinType.UsingJoin ? "USING" : "ON");
-          break;
         case JoinSection.Exit when explicitJoinOrder:
           _ = output.Append(")");
           break;
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlLike"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
-    {
-      var output = context.Output;
-      switch (section) {
-        case LikeSection.Entry:
-          _ = output.Append("(");
-          break;
-        case LikeSection.Exit:
-          _ = output.AppendClosingPunctuation(")");
-          break;
-        case LikeSection.Like:
-          _ = output.Append(node.Not ? "NOT LIKE" : "LIKE");
-          break;
-        case LikeSection.Escape:
-          _ = output.Append("ESCAPE");
-          break;
-      }
-    }
+    public virtual void JoinCondition(SqlCompilerContext context, SqlJoinExpression node) =>
+      context.Output.AppendSpacePrefixed(node.JoinType == SqlJoinType.UsingJoin ? "USING " : "ON ");
+
+    public virtual void LikeEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("(");
+
+    public virtual void LikeExit(SqlCompilerContext context) =>
+      context.Output.AppendClosingPunctuation(")");
+
+    public virtual void LikeLike(SqlCompilerContext context, SqlLike node) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append(node.Not ? "NOT LIKE" : "LIKE")
+        .AppendSpaceIfNecessary();
+
+    public virtual void LikeEscape(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append("ESCAPE")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates literal values like numbers, string, char, TimeSpan, DateTime values, etc.
@@ -1608,20 +1570,8 @@ namespace Xtensive.Sql.Compiler
     public virtual void Translate(SqlCompilerContext context, SqlOpenCursor node) =>
       context.Output.Append("OPEN ").Append(node.Cursor.Name);
 
-    /// <summary>
-    /// Translates <see cref="SqlOrder"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Node to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      switch (section) {
-        case NodeSection.Exit:
-          TranslateSortOrder(context.Output, node.Ascending);
-          break;
-      }
-    }
+    public virtual void OrderExit(SqlCompilerContext context, SqlOrder node) =>
+      TranslateSortOrder(context.Output, node.Ascending);
 
     /// <summary>
     /// Translates <see cref="SqlQueryExpression"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -1705,26 +1655,35 @@ namespace Xtensive.Sql.Compiler
       TranslateIdentifier(context.Output, node.NewName);
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlSelect"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      _ = context.Output.Append(section switch {
-        SelectSection.Entry => node.Distinct ? "SELECT DISTINCT" : "SELECT",
-        SelectSection.From => "FROM",
-        SelectSection.Where => "WHERE",
-        SelectSection.GroupBy => "GROUP BY",
-        SelectSection.Having => "HAVING",
-        SelectSection.OrderBy => "ORDER BY",
-        SelectSection.Limit => "LIMIT",
-        SelectSection.Offset => "OFFSET",
-        _ => string.Empty
-      });
-    }
+    public virtual void SelectEntry(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.Append(node.Distinct ? "SELECT DISTINCT " : "SELECT ");
+
+    public virtual void SelectFrom(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("FROM ");
+
+    public virtual void SelectWhere(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("WHERE ");
+
+    public virtual void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("LIMIT ");
+
+    public virtual void SelectGroupBy(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("GROUP BY ");
+
+    public virtual void SelectOrderBy(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("ORDER BY ");
+
+    public virtual void SelectHaving(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("HAVING ");
+
+    public virtual void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("OFFSET ");
+
+    public virtual void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectExit(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectHintsExit(SqlCompilerContext context, SqlSelect node) { }
 
     /// <summary>
     /// Translates <see cref="SqlStatementBlock"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -1861,23 +1820,20 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlUpdate"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      _ = context.Output.Append(section switch {
-        UpdateSection.Entry => "UPDATE",
-        UpdateSection.Set => "SET",
-        UpdateSection.From => "FROM",
-        UpdateSection.Where => (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE",
-        UpdateSection.Limit => "LIMIT",
-        _ => string.Empty
-      });
-    }
+    public virtual void UpdateSet(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("SET").AppendSpaceIfNecessary();
+
+    public virtual void UpdateFrom(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("FROM").AppendSpaceIfNecessary();
+
+    public virtual void UpdateWhere(SqlCompilerContext context, SqlUpdate node) =>
+      context.Output.AppendSpaceIfNecessary().Append((node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE").AppendSpaceIfNecessary();
+
+    public virtual void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("LIMIT").AppendSpaceIfNecessary();
+
+    public virtual void UpdateEntry(SqlCompilerContext context, SqlUpdate node) =>
+      context.Output.Append("UPDATE ");
 
     /// <summary>
     /// Translates <see cref="SqlUserColumn"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -1918,26 +1874,20 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Expression to translate.</param>
     public virtual void Translate(SqlCompilerContext context, SqlVariable node) => context.Output.Append("@").Append(node.Name);
 
-    /// <summary>
-    /// Translates <see cref="SqlWhile"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
-    {
-      switch (section) {
-        case WhileSection.Entry:
-          _ = context.Output.AppendOpeningPunctuation("WHILE (");
-          break;
-        case WhileSection.Statement:
-          _ = context.Output.AppendClosingPunctuation(") BEGIN");
-          break;
-        case WhileSection.Exit:
-          _ = context.Output.Append("END");
-          break;
-      }
-    }
+    public virtual void WhileEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendOpeningPunctuation("WHILE (")
+        .AppendSpaceIfNecessary();
+
+    public virtual void WhileStatement(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendClosingPunctuation(") BEGIN")
+        .AppendSpaceIfNecessary();
+
+    public virtual void WhileExit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendClosingPunctuation("END")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates <see cref="SqlCommand"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
