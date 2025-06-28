@@ -11,10 +11,13 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
+using Xtensive.Orm.Upgrade;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -39,6 +42,10 @@ namespace Xtensive.Orm.Model
     /// Value is <see langword="100" />.
     /// </summary>
     public const int MinTypeId = 100;
+
+    private static readonly Type
+      TypeEntity = typeof(Entity),
+      TypeStructure = typeof(Structure);
 
     private static readonly ImmutableHashSet<TypeInfo> EmptyTypes = ImmutableHashSet.Create<TypeInfo>();
 
@@ -67,7 +74,7 @@ namespace Xtensive.Orm.Model
     private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
- 
+
 
     private TypeInfo ancestor;
     private IReadOnlySet<TypeInfo> ancestors;
@@ -421,6 +428,9 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return fields; }
     }
+
+    private FieldInfo[] persistentFields;
+    internal FieldInfo[] PersistentFields => persistentFields ??= BuildPersistentFields();
 
     /// <summary>
     /// Gets the field map for implemented interfaces.
@@ -913,6 +923,67 @@ namespace Xtensive.Orm.Model
           result.Add(new Pair<FieldInfo>(structureField, pair.first), pair.second);
       }
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
+    }
+
+    private static IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields, bool bRoot)
+    {
+      if (type == TypeEntity || type == TypeStructure) {
+        return Array.Empty<FieldInfo>();
+      }
+      var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .ToDictionary(p => p.Name, p => p.MetadataToken);
+
+      return GetBaseFields(type.BaseType, fields, bRoot)
+        .Concat(
+          fields.Select(p => (p, declared.TryGetValue(p.UnderlyingProperty.Name, out var token) ? token : 0))
+            .Where(t => bRoot ? t.Item2 != 0 : t.Item1.UnderlyingProperty.MetadataToken == t.Item2)
+            .OrderBy(t => t.Item2)
+            .Select(t => t.Item1)
+        );
+    }
+
+    private static bool IsOverrideOfVirtual(FieldInfo a, FieldInfo p) =>
+      a.Name == p.Name
+        && a.Name != "TypeId"
+        && p.IsInherited
+        && a.UnderlyingProperty.GetMethod?.IsVirtual == true
+        && p.UnderlyingProperty.GetMethod?.IsVirtual == true;
+
+    private FieldInfo[] BuildPersistentFields()
+    {
+      var propTypeId = IsEntity ? Fields[nameof(Entity.TypeId)] : null;
+      bool isRoot = Hierarchy?.Root == this;
+      var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
+      var recycled = UnderlyingType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .Where(p => p.GetAttribute<RecycledAttribute>() != null && !potentialFields.Any(pf => pf.UnderlyingProperty == p));
+
+      FieldInfo[] baseFields;
+      FieldInfo[] ancestorFields = Array.Empty<FieldInfo>();
+      if (Ancestor != null && Ancestor.UnderlyingType != TypeStructure) {
+        ancestorFields = Ancestor.PersistentFields;
+        baseFields = ancestorFields.Select(p => p != null && Fields.TryGetValue(p.Name, out var f) ? f : null).ToArray();
+      }
+      else {
+        baseFields = !(IsEntity || IsStructure)
+          ? Array.Empty<FieldInfo>()
+          : GetBaseFields(UnderlyingType.BaseType, potentialFields, isRoot).ToArray();
+      }
+      var baseFieldsSet = baseFields.ToHashSet();
+      var props = baseFields.Concat(
+        potentialFields.Where(p => p.UnderlyingProperty.DeclaringType == UnderlyingType
+          && (isRoot
+            || p.IsExplicit
+            || !baseFieldsSet.Contains(p)
+            || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
+          .Select(p => (p, p.UnderlyingProperty.MetadataToken))
+          .Concat(recycled.Select(p => ((FieldInfo)null, p.MetadataToken)))
+          .OrderBy(t => t.Item2)
+          .Select(t => t.Item1)
+      ).Select(p => p?.ReflectedType.IsInterface == true ? FieldMap[p] : p);
+      if (IsEntity && Ancestor == null) {
+        props = props.Prepend(propTypeId);
+      }
+      return props.ToArray();
     }
 
     #endregion
