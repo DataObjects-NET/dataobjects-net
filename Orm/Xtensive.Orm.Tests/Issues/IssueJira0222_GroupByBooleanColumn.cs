@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0222_GroupByBooleanColumnModel
     public int Id { get; private set; }
 
     [Field]
-    public bool IsRecieved { get; set; }
+    public bool IsReceived { get; set; }
   }
 }
 
@@ -38,18 +38,18 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (Domain.OpenSession()) {
         using (var t = Session.Current.OpenTransaction()) {
-          new Message {IsRecieved = true};
-          new Message {IsRecieved = true};
-          new Message {IsRecieved = false};
+          new Message {IsReceived = true};
+          new Message {IsReceived = true};
+          new Message {IsReceived = false};
 
           var result = Query.All<Message>()
-            .GroupBy(m => m.IsRecieved)
+            .GroupBy(m => m.IsReceived)
             .OrderBy(g => g.Key)
-            .Select(g => new {IsRecieved = g.Key, Count = g.Count()})
+            .Select(g => new {IsReceived = g.Key, Count = g.Count()})
             .ToList();
 
-          var trueResult = result.Single(item => item.IsRecieved).Count;
-          var falseResult = result.Single(item => !item.IsRecieved).Count;
+          var trueResult = result.Single(item => item.IsReceived).Count;
+          var falseResult = result.Single(item => !item.IsReceived).Count;
 
           Assert.AreEqual(2, trueResult);
           Assert.AreEqual(1, falseResult);
