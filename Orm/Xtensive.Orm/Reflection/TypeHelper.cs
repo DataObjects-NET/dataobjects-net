@@ -105,6 +105,8 @@ namespace Xtensive.Reflection
 
     #endregion
 
+    private static readonly ConcurrentDictionary<(Type Type, bool UseShortForm), string> MemoizedTypeNames = new();
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
@@ -861,13 +863,15 @@ namespace Xtensive.Reflection
       return $"{declaringType.GetShortName()}+{type.InnerGetTypeName(useShortForm: true)}";
     }
 
-    private static string InnerGetTypeName(this Type type, bool useShortForm)
-    {
-      var result = useShortForm
+    private static string InnerGetTypeName(this Type type, bool useShortForm) =>
+      MemoizedTypeNames.GetOrAdd((type, useShortForm), TypeNameFactory);
+
+    private static readonly Func<(Type Type, bool UseShortForm), string> TypeNameFactory = t => {
+      var (type, useShortForm) = t;
+
+      var result = useShortForm || type.DeclaringType != null // Is nested
         ? type.Name
-        : type.DeclaringType != null // Is nested
-          ? type.Name
-          : type.Namespace + "." + type.Name;
+        : $"{type.Namespace}.{type.Name}";
 
       var arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0) {
@@ -917,7 +921,7 @@ namespace Xtensive.Reflection
         result = sb.ToString();
       }
       return result;
-    }
+    };
 
     /// <summary>
     /// Indicates whether <paramref name="type"/> is a <see cref="Nullable{T}"/> type.
