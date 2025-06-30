@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Web
     /// If no <see cref="Orm.Session"/> instance found, return <see langword="null"/>.
     /// </summary>
     public TransactionScope TransactionScope =>
-      context != null && context.Items.TryGetValue(TransactionScope, out var instance)
+      context != null && context.Items.TryGetValue(ScopeIdentifier, out var instance)
         ? (TransactionScope) instance
         : null;
 
