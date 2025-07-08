@@ -1170,8 +1170,13 @@ namespace Xtensive.Orm.Linq
                   isOuter,
                   expressionPart);
             }
-            else
-              return selectManyInfo.GroupByProjection;
+            else {
+              if (resultSelector == null) {
+                return selectManyInfo.GroupByProjection;
+              }
+
+              throw new NotImplementedException("Result selector is not supported for SelectMany over GroupBy result.");
+            }
           }
 
           var projection = VisitSequence(visitedCollectionSelector, collectionSelector);

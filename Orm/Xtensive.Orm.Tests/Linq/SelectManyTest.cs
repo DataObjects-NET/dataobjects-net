@@ -71,16 +71,13 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
+
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
         .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
-      var expected = Invoices
-        .GroupBy(i => i.Customer)
-        .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
-      var list = result.ToList();
 
-      Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(expected.Except(list).IsNullOrEmpty());
+      var ex = Assert.Throws<QueryTranslationException>(() => result.ToList());
+      Assert.That(ex.InnerException, Is.InstanceOf<NotImplementedException>());
     }
 
     [Test]

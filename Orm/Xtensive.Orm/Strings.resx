@@ -3482,4 +3482,7 @@ Error: {1}</value>
   <data name="ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel" xml:space="preserve">
     <value>The type '{0}',which contains renaming field '{1}', doesn't exist in storage model.</value>
   </data>
+  <data name="ExResultSelectorIsNotSupportedForSelectManyOverGrouping" xml:space="preserve">
+    <value>Result selector is not supported for SelectMany over GroupBy result.</value>
+  </data>
 </root>
