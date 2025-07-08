@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 20082025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.09
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 
@@ -18,74 +19,42 @@ namespace Xtensive.Orm.Tests
   public static class TestInfo
   {
     /// <summary>
-    /// <see langword="True"/>, if performance test is running (i.e. a test with
+    /// <see langword="true"/>, if performance test is running (i.e. a test with
     /// "Performance" category).
     /// </summary>
     /// <remarks>
     /// Currently only NUnit tests are recognized.
     /// </remarks>
-    public static bool IsPerformanceTestRunning
-    {
-      get
-      {
-        foreach (CategoryAttribute attribute in GetMethodAttributes<CategoryAttribute>())
-          if (attribute.Name=="Performance")
-            return true;
-
-        return false;
-      }
-    }
+    public static bool IsPerformanceTestRunning => GetMethodAttributes<CategoryAttribute>().Any(ca => ca.Name == "Performance");
 
     /// <summary>
-    /// <see langword="True"/>, if performance test is running (i.e. a test with
+    /// <see langword="true"/>, if performance test is running (i.e. a test with
     /// "Performance" category).
     /// </summary>
     /// <remarks>
     /// Currently only NUnit tests are recognized.
     /// </remarks>
-    public static bool IsProfileTestRunning
-    {
-      get
-      {
-        foreach (CategoryAttribute attribute in GetMethodAttributes<CategoryAttribute>())
-          if (attribute.Name=="Profile")
-            return true;
-
-        return false;
-      }
-    }
+    public static bool IsProfileTestRunning => GetMethodAttributes<CategoryAttribute>().Any(ca => ca.Name == "Profile");
 
     /// <summary>
     /// Gets a value indicating whether test is running under build server.
     /// </summary>
-    public static bool IsBuildServer {
-      get {
-        return Environment.GetEnvironmentVariable("TEAMCITY_VERSION")!=null;
-      }
-    }
+    public static bool IsBuildServer => Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
 
     /// <summary>
     /// Gets a value indicating whether test is running within GitHub Actions environment.
     /// </summary>
-    public static bool IsGitHubActions
-    {
-      get {
-        return Environment.GetEnvironmentVariable("GITHUB_WORKSPACE") != null;
-      }
-    }
+    public static bool IsGitHubActions => Environment.GetEnvironmentVariable("GITHUB_WORKSPACE") != null;
 
     private static IEnumerable<T> GetMethodAttributes<T>() where T : Attribute
     {
-      StackFrame[] stackFrames = new StackTrace().GetFrames();
-      foreach (StackFrame frame in stackFrames) {
-        MethodBase method = frame.GetMethod();
-        // Ïî÷åìó ñðàçó íå âçÿòü íóæíûå àòðèáóòû, íàïðèìåð, CategoryAttribute?
-        Attribute[] methodAttributes = Attribute.GetCustomAttributes(method, typeof (TestAttribute), false);
-        if (methodAttributes==null || methodAttributes.Length==0)
+      var stackFrames = new StackTrace().GetFrames();
+      foreach (var frame in stackFrames) {
+        var method = frame.GetMethod();
+        if (method.GetCustomAttribute<TestAttribute>(false) == null)
           continue;
-        methodAttributes = Attribute.GetCustomAttributes(method, typeof (T), false);
-        for (int i = 0; i < methodAttributes.Length; i++)
-          yield return (T) methodAttributes[i];
+        foreach (var ca in method.GetCustomAttributes<T>(false))
+          yield return ca;
       }
       yield break;
     }
