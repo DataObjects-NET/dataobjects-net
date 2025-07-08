@@ -64,12 +64,22 @@ namespace Xtensive.Orm.Tests
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether test is running within GitHub Actions environment.
+    /// </summary>
+    public static bool IsGitHubActions
+    {
+      get {
+        return Environment.GetEnvironmentVariable("GITHUB_WORKSPACE") != null;
+      }
+    }
+
     private static IEnumerable<T> GetMethodAttributes<T>() where T : Attribute
     {
       StackFrame[] stackFrames = new StackTrace().GetFrames();
       foreach (StackFrame frame in stackFrames) {
         MethodBase method = frame.GetMethod();
-        // Почему сразу не взять нужные атрибуты, например, CategoryAttribute?
+        // ГЏГ®Г·ГҐГ¬Гі Г±Г°Г Г§Гі Г­ГҐ ГўГ§ГїГІГј Г­ГіГ¦Г­Г»ГҐ Г ГІГ°ГЁГЎГіГІГ», Г­Г ГЇГ°ГЁГ¬ГҐГ°, CategoryAttribute?
         Attribute[] methodAttributes = Attribute.GetCustomAttributes(method, typeof (TestAttribute), false);
         if (methodAttributes==null || methodAttributes.Length==0)
           continue;
