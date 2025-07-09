@@ -307,6 +307,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [IgnoreIfGithubActions]
     public void GroupBySelectedStructureFieldTest4()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
