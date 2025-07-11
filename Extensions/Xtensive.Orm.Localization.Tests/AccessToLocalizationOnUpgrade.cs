@@ -5,6 +5,8 @@ using Xtensive.Orm.Localization.Tests.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Localization.Tests.Model.Upgrader;
 using Xtensive.Orm.Tests;
+using English = Xtensive.Orm.Localization.Tests.WellKnownCultures.English;
+using Spanish = Xtensive.Orm.Localization.Tests.WellKnownCultures.Spanish;
 
 namespace Xtensive.Orm.Localization.Tests.Model.Upgrader
 {
@@ -27,14 +29,6 @@ namespace Xtensive.Orm.Localization.Tests
   [TestFixture]
   public class AccessToLocalizationOnUpgrade
   {
-    public static CultureInfo EnglishCulture = new CultureInfo("en-US");
-    public static string EnglishTitle = "Welcome!";
-    public static string EnglishContent = "My dear guests, welcome to my birthday party!";
-
-    public static CultureInfo SpanishCulture = new CultureInfo("es-ES");
-    public static string SpanishTitle = "Bienvenido!";
-    public static string SpanishContent = "Mis amigos mejores! Bienvenido a mi cumpleanos!";
-
     [OneTimeSetUp]
     public void TestFixtureSetup()
     {
@@ -47,10 +41,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var transaction = session.OpenTransaction()) {
         // populating database
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         transaction.Complete();
       }
@@ -68,7 +62,7 @@ namespace Xtensive.Orm.Localization.Tests
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        _ = session.Query.All<Page>().FirstOrDefault(x => x.Title==EnglishTitle);
+        _ = session.Query.All<Page>().FirstOrDefault(x => x.Title==English.Title);
       }
     }
   }
