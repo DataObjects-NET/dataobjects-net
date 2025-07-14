@@ -13,24 +13,24 @@ namespace Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet
   [Index("Name")]
   public interface INamed : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string Name { get; set; }
   }
 
   [Index("Tag")]
   public interface ITagged : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string Tag { get; set; }
   }
 
   [Index("First")]
   public interface IComposite : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string First { get; set; }
 
-    [Field]
+    [Field(Length = 50)]
     string Second { get; set; }
   }
 
