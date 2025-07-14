@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.MySql);
       ExecuteInsideSession(() => {
-        var firstMillisecondDateTime = FirstMillisecondDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+        var firstMillisecondDateTime = FirstMillisecondDateTime.AdjustDateTimeForProvider(StorageProviderInfo.Instance);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Millisecond == firstMillisecondDateTime.Millisecond);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Second == WrongMillisecondDateTime.Millisecond);
       });
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay == FirstDateTime.TimeOfDay);
-        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.TimeOfDay == FirstMillisecondDateTime.TimeOfDay);
+        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.TimeOfDay == FirstMillisecondDateTime.AdjustDateTimeForCurrentProvider().TimeOfDay);
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.TimeOfDay == NullableDateTime.TimeOfDay);
 
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay == WrongDateTime.TimeOfDay);
