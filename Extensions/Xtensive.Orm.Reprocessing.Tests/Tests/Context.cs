@@ -52,6 +52,9 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
 
     public void Deadlock(bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
+      int firstRunsCount = 0;
+      int secondRunsCount = 0;
+
       domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
         .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
         .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
@@ -60,21 +63,23 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
           if (first) {
             _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-            if (wait1 != null) {
+            if (firstRunsCount == 0) {
               _ = wait1.Set();
               _ = wait2.WaitOne();
-              wait1.Dispose();
-              wait1 = null;
+              _ = Interlocked.Increment(ref firstRunsCount);
+              //wait1.Dispose();
+              //wait1 = null;
             }
             _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
           }
           else {
             _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-            if (wait2 != null) {
+            if (secondRunsCount == 0) {
               _ = wait2.Set();
               _ = wait1.WaitOne();
-              wait2.Dispose();
-              wait2 = null;
+              _ = Interlocked.Increment(ref secondRunsCount);
+              //wait2.Dispose();
+              //wait2 = null;
             }
             _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
           }
