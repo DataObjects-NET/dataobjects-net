@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2023 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -398,6 +398,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         // ignoring "day precision" and "second precision"
         // although they can be read as "scale" and "precision"
         return new SqlValueType(SqlType.Int64);
+      }
+      if (typeName.StartsWith("DATETIME", StringComparison.Ordinal)) {
+        return new SqlValueType(SqlType.DateTime);
       }
 
       if (typeName.StartsWith("TIME")) {
