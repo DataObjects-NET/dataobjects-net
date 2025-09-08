@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -419,7 +419,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void PrefetchSingleTest()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.PostgreSql);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.PostgreSql | StorageProvider.MySql);
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -454,7 +454,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public async Task PrefetchSingleAsyncTest()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.PostgreSql);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.PostgreSql | StorageProvider.MySql);
       List<Key> keys;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {

@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByDescendingTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite, "Different ordering");
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
@@ -115,9 +115,9 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void OrderByDescendingSqliteTest()
+    public void OrderByDescendingAlternativeTest()
     {
-      Require.ProviderIs(StorageProvider.Sqlite, "Different ordering");
+      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .Where(c => !c.Address.Country.StartsWith("U"))
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByExpressionTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite, "Non-English characters cause different order.");
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.MySql | StorageProvider.Firebird, "Non-English characters cause different order.");
 
       IEnumerable<string> serverSide = Session.Query.All<Customer>()
         .OrderBy(c => c.LastName.ToUpper())
@@ -159,9 +159,9 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void OrderByExpressionSqliteTest()
+    public void OrderByExpressionReducedDataTest()
     {
-      Require.ProviderIs(StorageProvider.Sqlite);
+      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.MySql | StorageProvider.Firebird);
 
       // to avoid non-english characters, which cause different order
       // we filter out everything that may have them
@@ -346,7 +346,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectTest()
     {
       var result = Session.Query.All<Customer>().OrderBy(c => c.Phone)
-        .Select(c => c.LastName).ToList();
+        .Select(c => c.LastName)
+        .ToList();
       var expected = Customers.OrderBy(c => c.Phone)
         .Select(c => c.LastName);
       Assert.That(result, Is.Not.Empty);

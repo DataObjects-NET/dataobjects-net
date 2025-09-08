@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -548,6 +548,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(provider: StorageProvider.MySql, reason: "5.7 version and only this version have problems, the same query works in 5.6 and in 8.0+")]
     public void GroupByWithSelectFirstTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);

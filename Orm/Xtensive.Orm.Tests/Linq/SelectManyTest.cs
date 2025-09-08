@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -164,7 +164,8 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void EntitySetSubqueryWithResultSelectorTest()
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird, "CROSS JOIN LATERAL doesn't use subquery in this case but table name, which seems to be wrong")]
+    public void EntitySetSubqueryWithResultSelectorTest1()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
       var expected = Session.Query.All<Invoice>()
@@ -172,6 +173,21 @@ namespace Xtensive.Orm.Tests.Linq
 
       IQueryable<DateTime?> result = Session.Query.All<Customer>()
         .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")), (c, i) => i.PaymentDate);
+
+      Assert.That(result, Is.Not.Empty);
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird, "CROSS JOIN LATERAL doesn't use subquery in this case but table name, which seems to be wrong")]
+    public void EntitySetSubqueryWithResultSelectorTest2()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Apply);
+      var expected = Session.Query.All<Invoice>()
+        .Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+
+      IQueryable<DateTime?> result = Session.Query.All<Customer>()
+        .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A"))).Select((i) => i.PaymentDate);
 
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);

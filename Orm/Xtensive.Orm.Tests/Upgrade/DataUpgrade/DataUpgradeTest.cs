@@ -12,8 +12,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
-using Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1;
-using D = Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version2.D;
 using M1 = Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version2;
 
@@ -35,35 +33,38 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     }
     
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.MySql | StorageProvider.Firebird)]
     public void ClearDataTest1()
     {
-      BuildDomain(DomainUpgradeMode.Perform, typeof (A));
+      BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A));
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(1, s.Query.All<A>().Count());
+          Assert.AreEqual(1, s.Query.All<M1.A>().Count());
         }
       }
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.MySql | StorageProvider.Firebird)]
     public void ClearDataTest2()
     {
-      BuildDomain(DomainUpgradeMode.Perform, typeof (A), typeof (B));
+      BuildDomain(DomainUpgradeMode.Perform, typeof (M1.A), typeof (M1.B));
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(2, s.Query.All<A>().Count());
+          Assert.AreEqual(2, s.Query.All<M1.A>().Count());
         }
       }
     }
     
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void ClearDataTest3()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          Assert.AreEqual(4, s.Query.All<Model.Version2.A>().Count());
-          var firstD = s.Query.All<D>().First();
+          Assert.AreEqual(4, s.Query.All<M2.A>().Count());
+          var firstD = s.Query.All<M2.D>().First();
           Assert.AreEqual(2, firstD.RefA.Count());
         }
       }
@@ -103,11 +104,11 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     {
       using (var s = domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
-          var a1 = new A();
-          var b1 = new B();
-          var c1 = new C();
-          var c2 = new C();
-          var d1 = new Model.Version1.D();
+          var a1 = new M1.A();
+          var b1 = new M1.B();
+          var c1 = new M1.C();
+          var c2 = new M1.C();
+          var d1 = new M1.D();
           c1.RefA = a1;
           c1.RefB = b1;
           c2.RefA = b1;

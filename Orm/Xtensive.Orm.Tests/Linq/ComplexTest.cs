@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CachedQueryTest()
     {
-      Assert.Throws<QueryTranslationException>(() => {
+      _ = Assert.Throws<QueryTranslationException>(() => {
         for (char c = 'A'; c <= 'Z'; c++) {
           string firstChar = c.ToString();
           var builtQuery = GetQuery(Session.Query, firstChar);

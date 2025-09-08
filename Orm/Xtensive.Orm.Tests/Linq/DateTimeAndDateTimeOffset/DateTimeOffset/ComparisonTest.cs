@@ -157,16 +157,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+
     public void CompareToNullableDateTimeOffsetGetUtcDateTimeTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
       ExecuteInsideSession((s) => {
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset != NullableDateTimeOffset.UtcDateTime);
+
       });
     }
 
-    [Test(Description = "Might be failed by reasons described in issue DO-657")]
-    [Explicit]
+    [Test]
     public void CompareToNullableDateTimeOffsetValGetUtcDateTimeTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
@@ -184,8 +185,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
-    [Test(Description = "Might be failed by reasons described in issue DO-657")]
-    [Explicit]
+    [Test]
     public void CompareToNullableDateTimeOffsetValGetLocalDateTimeTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
