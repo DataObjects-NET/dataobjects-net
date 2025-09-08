@@ -34,7 +34,8 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof(ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
+      configuration.Types.Register(typeof(Page).Assembly, typeof(Page).Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
@@ -55,7 +56,7 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof (ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof (LocalizationBaseTest).Assembly, typeof (LocalizationBaseTest).Namespace);
+      configuration.Types.Register(typeof (Page).Assembly, typeof (Page).Namespace);
       configuration.Types.Register(typeof (CustomUpgradeHandler));
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 

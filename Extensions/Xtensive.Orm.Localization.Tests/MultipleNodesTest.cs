@@ -28,14 +28,6 @@ namespace Xtensive.Orm.Localization.Tests
     private const string ThridNodeSchema = WellKnownSchemas.Schema4;
     private const string ForthNodeSchema = WellKnownSchemas.Schema5;
 
-    //private static readonly CultureInfo English.Culture = new CultureInfo("en-US");
-    //private static readonly string English.Title = "Welcome!";
-    //private static readonly string English.Content = "My dear guests, welcome to my birthday party!";
-
-    //private static readonly CultureInfo Spanish.Culture = new CultureInfo("es-ES");
-    //private static readonly string Spanish.Title = "Bienvenido!";
-    //private static readonly string Spanish.Content = "Mis amigos mejores! Bienvenido a mi cumpleanos!";
-
     protected override void CheckRequirements() =>
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Multischema);
 
@@ -52,7 +44,7 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
+      configuration.Types.Register(typeof(Page).Assembly, typeof(Page).Namespace);
       configuration.DefaultSchema = DefaultNodeSchema;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
