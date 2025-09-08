@@ -172,9 +172,6 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
     public void UniqueConstraintViolation(
       bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
-      int firstRunsCount = 0;
-      int secondRunsCount = 0;
-
       domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
         .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
         .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
@@ -200,6 +197,7 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
               //wait2.Dispose();
               w2 = null;
             }
+            _ = new Foo(session) { Name = name };
           }
           session.SaveChanges();
         });
