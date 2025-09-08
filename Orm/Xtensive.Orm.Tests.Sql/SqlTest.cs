@@ -1,14 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.21
 
 using System;
 using System.Data;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
@@ -64,8 +62,12 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected virtual void TestFixtureTearDown()
     {
-      if (Connection!=null && Connection.State==ConnectionState.Open)
-        Connection.Close();
+      if (Connection != null) {
+        if (Connection.State == ConnectionState.Open) {
+          Connection.Close();
+        }
+        Connection.Dispose();
+      }
     }
 
     protected virtual void CheckRequirements()

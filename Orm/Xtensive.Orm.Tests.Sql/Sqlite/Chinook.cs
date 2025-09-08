@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
@@ -37,11 +37,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     public Catalog Catalog { get; protected set; }
 
     [OneTimeSetUp]
-    public virtual void SetUp()
+    public virtual void OneTimeSetUp()
     {
       CheckRequirements();
       sqlDriver = TestSqlDriver.Create(Url);
       sqlConnection = sqlDriver.CreateConnection();
+
       try {
         sqlConnection.Open();
       }
@@ -59,23 +60,42 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
         creator.CreateSchemaContent(sqlConnection, schema);
 
         sqlConnection.Commit();
+        sqlConnection.Close();
       }
       catch {
         sqlConnection.Rollback();
+        sqlConnection.Close();
         throw;
       }
     }
 
     [OneTimeTearDown]
-    public void TearDown()
+    public void OneTimeTearDown()
     {
       try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
+        if (sqlConnection != null) {
+          if (sqlConnection.State != ConnectionState.Closed)
+            sqlConnection.Close();
+          sqlConnection.Dispose();
+          sqlConnection = null;
+        }
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
+        throw;
       }
+    }
+
+    [SetUp]
+    public virtual void SetUp()
+    {
+      sqlConnection.Open();
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+      sqlConnection.Close();
     }
 
     protected virtual void CheckRequirements()
@@ -83,11 +103,13 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Require.ProviderIs(StorageProvider.Sqlite);
     }
 
-    protected static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
     {
-      DbCommandExecutionResult result = new DbCommandExecutionResult();
+      var result = new DbCommandExecutionResult();
+
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         int rowCount = 0;
         int fieldCount = 0;
         string[] fieldNames = new string[0];
@@ -106,27 +128,22 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
         result.FieldCount = fieldCount;
         result.FieldNames = fieldNames;
       }
-        //      catch (Exception e) {
-        //        Console.WriteLine(e);
-        //      }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }
 
-    protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
-      DbCommandExecutionResult result = new DbCommandExecutionResult();
+      var result = new DbCommandExecutionResult();
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         result.RowCount = cmd.ExecuteNonQuery();
       }
-        //      catch (Exception e) {
-        //        Console.WriteLine(e);
-        //      }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }

@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Data;
@@ -915,8 +915,10 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public virtual void FixtureTearDown()
     {
       if (Connection!=null) {
-        if (Connection.State==ConnectionState.Open)
+        if (Connection.State==ConnectionState.Open) {
           Connection.Close();
+        }
+        Connection.Dispose();
       }
     }
 
