@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Malisa Ncube
@@ -427,7 +427,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case ExtractSection.Entry:
           return "(extract(";
         case ExtractSection.Exit:
-          return isMillisecond ? ") % 1000)" : "))";
+          return isMillisecond ? ") / 1000)" : "))";
         default:
           return base.Translate(context, node, section);
       }
