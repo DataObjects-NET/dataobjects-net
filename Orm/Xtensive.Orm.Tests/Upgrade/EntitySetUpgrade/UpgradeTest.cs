@@ -57,34 +57,33 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 
     private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(M1.Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
-
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
-      configuration.Types.Register(typeof(Upgrader));
+      var configuration = BuildDomainConfiguration(version, upgradeMode);
 
       using (Upgrader.Enable(version)) {
-        var domain = Domain.Build(configuration);
-        return domain;
+        return Domain.Build(configuration);
       }
     }
 
     private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(M1.Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
-
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = upgradeMode;
-      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
-      configuration.Types.Register(typeof(Upgrader));
+      var configuration = BuildDomainConfiguration(version, upgradeMode);
 
       using (Upgrader.Enable(version)) {
         var domain = await Domain.BuildAsync(configuration);
         return domain;
       }
+    }
+
+    private static Orm.Configuration.DomainConfiguration BuildDomainConfiguration(string version, DomainUpgradeMode upgradeMode)
+    {
+      var ns = typeof(M1.Person).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
+
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.Register(typeof(Upgrader));
+      return configuration;
     }
   }
 }

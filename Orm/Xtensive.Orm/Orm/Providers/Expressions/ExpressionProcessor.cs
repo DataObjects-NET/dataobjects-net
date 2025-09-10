@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Providers
       if (expression.Method != null) {
         var method = expression.Method;
         if (!method.Name.Equals(Reflection.WellKnown.Operator.Implicit, StringComparison.Ordinal)
-            || method.DeclaringType != typeof(DateTimeOffset)) {
+            || method.DeclaringType != WellKnownTypes.DateTimeOffset) {
           return CompileMember(expression.Method, null, operand);
         }
       }

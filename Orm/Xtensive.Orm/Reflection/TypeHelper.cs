@@ -1155,17 +1155,22 @@ namespace Xtensive.Reflection
 
       // new closure types structure with extra layer of complesity
       // where there is a field with name like 'CS$8__locals1' as actual variables storage.
-      var localsContainerFields = closureTypeFields.Where(f => f.Name.Contains("_locals", StringComparison.Ordinal) && f.FieldType.IsClosure()).ToList();
+      var localsContainerFields = closureTypeFields.Where(f => f.Name.Contains("_locals", StringComparison.Ordinal) && f.FieldType.IsClosure()).ToChainedBuffer();
       if (localsContainerFields.Count == 0) {
         return null;
       }
-      var candidates = new List<(MemberInfo, MemberInfo)>();
+
+      MemberInfo[] memberCallChain = null;
       foreach (var f in localsContainerFields) {
-        var result = f.FieldType.GetFields().FirstOrDefault(field => field.FieldType == fieldType);
-        if (result != null)
-          candidates.Add((f, result));
+        var nestedField = f.FieldType.GetFields().FirstOrDefault(field => field.FieldType == fieldType);
+        if (nestedField != null) {
+          if (memberCallChain == null)
+            memberCallChain = new[] { f, nestedField };
+          else
+            return null;
+        }
       }
-      return candidates.Count == 1 ? new[] { candidates[0].Item1, candidates[0].Item2 } : null;
+      return memberCallChain;
     }
 
     private static string TrimGenericSuffix(string @string)

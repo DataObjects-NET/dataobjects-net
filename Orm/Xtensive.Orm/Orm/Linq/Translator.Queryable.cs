@@ -1305,13 +1305,6 @@ namespace Xtensive.Orm.Linq
                 return selectManyInfo.GroupByProjection;
               }
 
-              throw new NotImplementedException();
-            }
-            else {
-              if (resultSelector == null) {
-                return selectManyInfo.GroupByProjection;
-              }
-
               throw new NotImplementedException(Strings.ExResultSelectorIsNotSupportedForSelectManyOverGrouping);
             }
           }

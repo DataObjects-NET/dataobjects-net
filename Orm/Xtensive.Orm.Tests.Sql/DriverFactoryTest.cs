@@ -273,7 +273,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(accessorInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
       
       var configuration = new SqlDriverConfiguration(accessorsArray);
-      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      _ = await factory.GetDriverAsync(new ConnectionInfo(url), configuration, CancellationToken.None);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(1));
       Assert.That(accessorInstance.OpeningAsyncCounter, Is.EqualTo(1));
       Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(0));
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(accessorInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(accessorsArray) { EnsureConnectionIsAlive = true };
-      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      _ = await factory.GetDriverAsync(new ConnectionInfo(url), configuration, CancellationToken.None);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(2));
       Assert.That(accessorInstance.OpeningAsyncCounter, Is.EqualTo(2));
 
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(accessorInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
-      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      _ = await factory.GetDriverAsync(new ConnectionInfo(url), configuration, CancellationToken.None);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(3));
       Assert.That(accessorInstance.OpeningAsyncCounter, Is.EqualTo(3));
       if (provider == WellKnown.Provider.SqlServer) {
@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = "dummy string to trigger error" };
       try {
-        _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+        _ = await factory.GetDriverAsync(new ConnectionInfo(url), configuration, CancellationToken.None);
       }
       catch {
         //skip it
