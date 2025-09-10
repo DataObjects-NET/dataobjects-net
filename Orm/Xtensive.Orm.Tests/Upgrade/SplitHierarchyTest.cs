@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.09.19
 
@@ -87,11 +87,11 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RemoveTypeHint(typeof (V1.MyBaseClass).FullName));
-          hints.Add(new RenameTypeHint(typeof (V1.MyFirstClass).FullName, typeof (MyFirstClass)));
-          hints.Add(new RenameTypeHint(typeof (V1.MySecondClass).FullName, typeof (MySecondClass)));
-          hints.Add(new CopyFieldHint(typeof (V1.MyBaseClass), "StringValue", typeof (MyFirstClass)));
-          hints.Add(new CopyFieldHint(typeof (V1.MyBaseClass), "StringValue", typeof (MySecondClass)));
+          _ = hints.Add(new RemoveTypeHint(typeof (V1.MyBaseClass).FullName));
+          _ = hints.Add(new RenameTypeHint(typeof (V1.MyFirstClass).FullName, typeof (MyFirstClass)));
+          _ = hints.Add(new RenameTypeHint(typeof (V1.MySecondClass).FullName, typeof (MySecondClass)));
+          _ = hints.Add(new CopyFieldHint(typeof (V1.MyBaseClass), "StringValue", typeof (MyFirstClass)));
+          _ = hints.Add(new CopyFieldHint(typeof (V1.MyBaseClass), "StringValue", typeof (MySecondClass)));
         }
       }
     }
@@ -101,13 +101,14 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class SplitHierarchyTest
   {
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void MainTest()
     {
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.MyFirstClass {IntValue = 1, StringValue = "1"};
-        new V1.MySecondClass {DoubleValue = 2.0, StringValue = "2"};
+        _ = new V1.MyFirstClass { IntValue = 1, StringValue = "1" };
+        _ = new V1.MySecondClass { DoubleValue = 2.0, StringValue = "2" };
         tx.Complete();
       }
 

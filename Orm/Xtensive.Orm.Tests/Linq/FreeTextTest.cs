@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -25,14 +25,14 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      Thread.Sleep(TimeSpan.FromSeconds(6));
+      Thread.Sleep(TimeSpan.FromSeconds(TestInfo.IsGithubActions ? 6 : 15));
       return domain;
     }
 
     [Test]
     public void ReuseFreeText1Test()
     {
-      Assert.Throws<QueryTranslationException>(
+      _ = Assert.Throws<QueryTranslationException>(
         () => {
           var result1 = TakeMatchesIncorrect("black babbath back").Count();
           Assert.AreEqual(3, result1);

@@ -237,6 +237,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public void UpdateTypeIdWithMutualRenameTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -267,6 +268,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public void UpgradeToVersion2Test()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);

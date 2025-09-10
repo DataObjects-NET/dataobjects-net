@@ -1,0 +1,5 @@
+[main] SelectMany with result selector is explicitly not supported when applied after grouping (like .GroupBy(groupingFunc).SelectMany(grouping, selector))
+[main] Addressed issue of inability to delete colums (including such on rename or change type via column recreation) because of undeleted foreign key
+[mysql] Fixed milliseconds extraction for DateTime expressions in queries
+[mysql] Proper support for milliseconds v5.6+, already created columns will remain the same and new ones will have datetime(6) native type
+[bulkoperations] Fixed certain cases of wrong update statements for Firebird provider

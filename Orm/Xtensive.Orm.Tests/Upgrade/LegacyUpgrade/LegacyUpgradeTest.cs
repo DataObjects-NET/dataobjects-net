@@ -1,13 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.11.20
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
-using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model;
 
@@ -218,16 +216,17 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
     {
       var config = BuildConfiguration();
       var driver = TestSqlDriver.Create(config.ConnectionInfo);
-      var connection = driver.CreateConnection();
-      connection.Open();
-      try {
-        using (var cmd = connection.CreateCommand()) {
-          cmd.CommandText = script;
-          cmd.ExecuteNonQuery();
+      using (var connection = driver.CreateConnection()) {
+        connection.Open();
+        try {
+          using (var cmd = connection.CreateCommand()) {
+            cmd.CommandText = script;
+            _ = cmd.ExecuteNonQuery();
+          }
         }
-      }
-      finally {
-        connection.Close();
+        finally {
+          connection.Close();
+        }
       }
     }
   }

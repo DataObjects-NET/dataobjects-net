@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2021-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -670,6 +670,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ULongTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird,
+        "No native support for unsigned numbers. If a number bigger than long.MaxValue saved it becomes negative and corrupts results '<' and '<=' operations");
+
       var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
       var query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField != ULongEnum.Zero);
@@ -727,6 +730,76 @@ namespace Xtensive.Orm.Tests.Linq
       queryString = queryFormatter.ToSqlString(query);
       Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
       Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ULongFirebirdLessThan4Test()
+    {
+      Require.ProviderIs(StorageProvider.Firebird,
+        "No native support for unsigned numbers. If a number bigger than long.MaxValue saved it becomes negative and corrupts results '<' and '<=' operations");
+
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
+
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField != ULongEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField > ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(2));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField >= ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField < ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3)); // overflow happens
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField <= ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(4)); // overflow happens
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField != ULongEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField > ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(2));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField >= ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField < ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3)); // overflow happens
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField <= ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(4)); // overflow happens
 
       query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Max);
       queryString = queryFormatter.ToSqlString(query);

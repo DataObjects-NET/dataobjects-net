@@ -1,24 +1,20 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.02.27
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Collections;
-
 using Xtensive.Core;
-using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1;
-using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;
 using Xtensive.Orm.Upgrade;
-using System.Linq;
-using Author = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Author;
-using Book = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book;
-using Author2 = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely.Author;
-using Book2 = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely.Book;
+using M1 = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1;
+using M2P = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2Perform;
+using M2PS = Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;
+
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -55,11 +51,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       public override void OnUpgrade()
       {
 #pragma warning disable 612,618
-        var authorMap = new Dictionary<Guid, PrimaryKeyModel.Version2PerformSafely.Author>();
-        var rcAuthors = Session.Demand().Query.All<RcAuthor>();
-        var books = Session.Demand().Query.All<PrimaryKeyModel.Version2PerformSafely.Book>();
+        var authorMap = new Dictionary<Guid, M2PS.Author>();
+        var rcAuthors = Session.Demand().Query.All<M2PS.RcAuthor>();
+        var books = Session.Demand().Query.All<M2PS.Book>();
         foreach (var rcAuthor in rcAuthors) {
-          var author = new PrimaryKeyModel.Version2PerformSafely.Author() { Name = rcAuthor.Name };
+          var author = new M2PS.Author() { Name = rcAuthor.Name };
           authorMap.Add(rcAuthor.Id, author);
         }
         foreach (var book in books)
@@ -69,9 +65,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
       {
-        hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(PrimaryKeyModel.Version2PerformSafely.Book)));
-        hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));
-        hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", "Category"));
+        _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(M2PS.Book)));
+        _ = hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));
+        _ = hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", "Category"));
       }
     }
 
@@ -88,13 +84,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildDomain("Version2Perform", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var authorCount = session.Query.All<PrimaryKeyModel.Version2Perform.Author>().Count(a => a.Name == "Jack London");
-        var bookCount = session.Query.All<PrimaryKeyModel.Version2Perform.Book>().Count();
+        var authorCount = session.Query.All<M2P.Author>().Count(a => a.Name == "Jack London");
+        var bookCount = session.Query.All<M2P.Book>().Count();
         // Nothing is kept, since there is no upgrade handler
         Assert.AreEqual(0, authorCount);
         Assert.AreEqual(0, bookCount);
-        var author = session.Query.All<PrimaryKeyModel.Version2Perform.Author>().FirstOrDefault(a => a.Name == "Jack London");
-        var book = session.Query.All<PrimaryKeyModel.Version2Perform.Book>().FirstOrDefault();
+        var author = session.Query.All<M2P.Author>().FirstOrDefault(a => a.Name == "Jack London");
+        var book = session.Query.All<M2P.Book>().FirstOrDefault();
         Assert.IsNull(author);
         Assert.IsNull(book);
         t.Complete();
@@ -102,17 +98,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void PerformSafelyTest()
     {
       BuildDomain("Version2PerformSafely", DomainUpgradeMode.PerformSafely);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var authorCount = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().Count(a => a.Name == "Jack London");
-        var bookCount = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().Count();
+        var authorCount = session.Query.All<M2PS.Author>().Count(a => a.Name == "Jack London");
+        var bookCount = session.Query.All<M2PS.Book>().Count();
         Assert.AreEqual(1, authorCount);
         Assert.AreEqual(1, bookCount);
-        var author = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Author>().FirstOrDefault(a => a.Name == "Jack London");
-        var book = session.Query.All<PrimaryKeyModel.Version2PerformSafely.Book>().FirstOrDefault();
+        var author = session.Query.All<M2PS.Author>().FirstOrDefault(a => a.Name == "Jack London");
+        var book = session.Query.All<M2PS.Book>().FirstOrDefault();
         Assert.IsNotNull(author);
         Assert.IsNotNull(book);
         Assert.AreSame(author, book.Author);
@@ -137,9 +134,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new PrimaryKeyModel.Version1.Book() {
-          Author = new PrimaryKeyModel.Version1.Author() { Name = "Jack London"},
-          Category = new Category() { Name = "Novels"},
+        _ = new M1.Book() {
+          Author = new M1.Author() { Name = "Jack London"},
+          Category = new M1.Category() { Name = "Novels"},
           LongText = "Some text."
         };
 

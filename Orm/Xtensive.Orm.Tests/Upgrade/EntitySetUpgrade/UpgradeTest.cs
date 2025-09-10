@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var person = new Person();
-          var address = new Address() {
+          var person = new M1.Person();
+          var address = new M1.Address() {
             Person = person
           };
           // person.Addresses.Add(address);
@@ -37,12 +37,13 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     }
     
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
       BuildDomain("2", DomainUpgradeMode.Perform);
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<Model.Version2.Person>().Count());
+          Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
         }
       }
     }

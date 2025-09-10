@@ -1,11 +1,9 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Sql;
 using Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes;
@@ -53,8 +51,8 @@ namespace Xtensive.Orm.Tests.Sql
   public class DriverFactoryTest
   {
     private string provider = TestConnectionInfoProvider.GetProvider();
-    protected string Url = TestConnectionInfoProvider.GetConnectionUrl();
-    protected string ConnectionString = TestConnectionInfoProvider.GetConnectionString();
+    private string url = TestConnectionInfoProvider.GetConnectionUrl();
+    private string connectionString = TestConnectionInfoProvider.GetConnectionString();
 
     [Test]
     public void ConnectionUrlTest()
@@ -86,14 +84,14 @@ namespace Xtensive.Orm.Tests.Sql
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
-      var driver = TestSqlDriver.Create(Url);
+      var driver = TestSqlDriver.Create(url);
       Assert.Greater(driver.CoreServerInfo.ServerVersion.Major, 8);
     }
 
     [Test]
     public void ProviderTest()
     {
-      TestProvider(provider, ConnectionString, Url);
+      TestProvider(provider, connectionString, url);
     }
 
     [Test]
@@ -104,32 +102,32 @@ namespace Xtensive.Orm.Tests.Sql
       var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
 
       var configuration = new SqlDriverConfiguration() { EnsureConnectionIsAlive = false };
-      var driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      var driver = factory.GetDriver(new ConnectionInfo(url), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(url), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.True);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling=false"), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(provider, connectionString + ";pooling=false"), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling=False"), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(provider, connectionString + ";Pooling=False"), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling = false"), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(provider, connectionString + ";pooling = false"), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling = False"), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(provider, connectionString + ";Pooling = False"), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
     }
 
@@ -147,14 +145,14 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
       var configuration = new SqlDriverConfiguration(accessorsArray);
-      _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      _ = factory.GetDriver(new ConnectionInfo(url), configuration);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(1));
       Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(0));
       Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(1));
       Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(accessorsArray) { EnsureConnectionIsAlive = true };
-      _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      _ = factory.GetDriver(new ConnectionInfo(url), configuration);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(2));
       if (provider == WellKnown.Provider.SqlServer)
         Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(1));
@@ -164,7 +162,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
-      _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      _ = factory.GetDriver(new ConnectionInfo(url), configuration);
       Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(3));
       if (provider == WellKnown.Provider.SqlServer)
         Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(2));
@@ -175,7 +173,7 @@ namespace Xtensive.Orm.Tests.Sql
 
       configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = "dummy string to trigger error" };
       try {
-        _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
+        _ = factory.GetDriver(new ConnectionInfo(url), configuration);
       }
       catch {
         //skip it

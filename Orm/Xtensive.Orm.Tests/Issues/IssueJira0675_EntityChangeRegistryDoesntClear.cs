@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2021 Xtensive LLC.
+// Copyright (C) 2016-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -232,11 +232,16 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void UpdateEntities(int instanceId)
     {
+      var deadlockDetected = false;
       for (var i = 0; i < MaxEntities; i++) {
         using (var session = Domain.OpenSession()) {
-          var retryCount = 3;
+          var retryCount = 10;
           for (var retry = 0; ; retry++) {
             var initialValue = 0;
+            if (deadlockDetected) {
+              deadlockDetected = false;
+              Thread.Sleep(30);
+            }
             try {
               initialValue = GetEntityValue(session, i);
               UpdateEntity(session, i);
@@ -247,6 +252,7 @@ namespace Xtensive.Orm.Tests.Issues
                   ex is TransactionSerializationFailureException ||
                   (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException)))
               {
+                deadlockDetected = true;
                 if (retry + 1 < retryCount) {
                   Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
                   var currentValue = GetEntityValue(session, i);
@@ -313,7 +319,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       int initialValue;
       using (var t = session.OpenTransaction()) {
-        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        var entity = session.Query.All<TestEntity>().Single(e => e.Index == i);
         initialValue = entity.Value;
         t.Complete();
       }
@@ -323,7 +329,7 @@ namespace Xtensive.Orm.Tests.Issues
     private void UpdateEntity(Session session, int i)
     {
       using (var t = session.OpenTransaction()) {
-        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        var entity = session.Query.All<TestEntity>().Single(e => e.Index == i);
         var initialValue = entity.Value;
         entity.Value++;
         t.Complete(); // rollback

@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Diagnostics;
 using NUnit.Framework;
@@ -35,8 +35,23 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       dbCommand.CommandText = commandText;
 
       DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteDataReaderResult(dbCommand);
-      r2 = GetExecuteDataReaderResult(sqlCommand);
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteDataReaderResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteDataReaderResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -65,8 +80,23 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       dbCommand.CommandText = commandText;
 
       DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteNonQueryResult(dbCommand);
-      r2 = GetExecuteNonQueryResult(sqlCommand);
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteNonQueryResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteNonQueryResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -120,8 +150,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     public void TearDown()
     {
       try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
+        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed) {
           sqlConnection.Close();
+        }
+        sqlConnection?.Dispose();
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);

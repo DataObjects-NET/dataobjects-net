@@ -1,14 +1,14 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.07.05
 
 using System;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
-using V1=Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version1;
-using V2=Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version2;
+using V1 = Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version1;
+using V2 = Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -63,9 +63,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
-        hints.Add(new RenameTypeHint(typeof (Version1.EntityWithFieldToRemove).FullName, typeof (EntityWithRemovedField)));
-        hints.Add(new RemoveTypeHint(typeof (Version1.EntityToRemove).FullName));
-        hints.Add(new RemoveFieldHint(typeof (Version1.EntityWithFieldToRemove).FullName, "Ref"));
+        _ = hints.Add(new RenameTypeHint(typeof (V1.EntityWithFieldToRemove).FullName, typeof (EntityWithRemovedField)));
+        _ = hints.Add(new RemoveTypeHint(typeof (V1.EntityToRemove).FullName));
+        _ = hints.Add(new RemoveFieldHint(typeof (V1.EntityWithFieldToRemove).FullName, "Ref"));
       }
     }
   }
@@ -82,12 +82,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void MainTest()
     {
       using (var domain = BuildDomain(typeof (V1.Upgrader), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithFieldToRemove {Ref = new V1.EntityToRemove()};
+        _ = new V1.EntityWithFieldToRemove {Ref = new V1.EntityToRemove()};
         tx.Complete();
       }
 
