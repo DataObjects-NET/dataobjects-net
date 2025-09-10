@@ -1175,7 +1175,7 @@ namespace Xtensive.Orm.Linq
                 return selectManyInfo.GroupByProjection;
               }
 
-              throw new NotImplementedException("Result selector is not supported for SelectMany over GroupBy result.");
+              throw new NotImplementedException(Strings.ExResultSelectorIsNotSupportedForSelectManyOverGrouping);
             }
           }
 
