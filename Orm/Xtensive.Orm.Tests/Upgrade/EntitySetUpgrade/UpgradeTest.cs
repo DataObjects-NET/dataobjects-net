@@ -7,23 +7,19 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
+using NUnit.Framework;
 using M1 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
-using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 {
   [TestFixture]
   public class UpgradeTest
   {
-    private Domain domain;
-
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
+      using (BuildDomain("1", DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
           var person = new M1.Person();
@@ -40,7 +36,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Perform);
+      using (BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
@@ -48,13 +44,10 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
-      string ns = typeof(Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(M1.Person).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
@@ -62,7 +55,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
   }
