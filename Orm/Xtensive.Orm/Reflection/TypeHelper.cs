@@ -1138,12 +1138,35 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="closureType">Closure type.</param>
     /// <param name="fieldType">Type of field in closure.</param>
-    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns
-    /// <see cref="MemberInfo"/> of that field, otherwise, <see langword="null"/>.</returns>
-    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type fieldType) =>
-      closureType.IsClosure()
-        ? closureType.GetFields().FirstOrDefault(field => field.FieldType == fieldType)
-        : null;
+    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns one
+    /// or a chain of <see cref="MemberInfo"/>s to access needed field, otherwise, <see langword="null"/>.</returns>
+    internal static MemberInfo[] TryGetFieldInfoFromClosure(this Type closureType, Type fieldType)
+    {
+      if (!closureType.IsClosure())
+        return null;
+
+      var closureTypeFields = closureType.GetFields();
+
+      // this is old closure types structure check, keep it for older assemblies
+      var resultForOldStructure = closureTypeFields.FirstOrDefault(field => field.FieldType == fieldType);
+      if (resultForOldStructure != null) {
+        return new[] { resultForOldStructure };
+      }
+
+      // new closure types structure with extra layer of complesity
+      // where there is a field with name like 'CS$8__locals1' as actual variables storage.
+      var localsContainerFields = closureTypeFields.Where(f => f.Name.Contains("_locals", StringComparison.Ordinal) && f.FieldType.IsClosure()).ToList();
+      if (localsContainerFields.Count == 0) {
+        return null;
+      }
+      var candidates = new List<(MemberInfo, MemberInfo)>();
+      foreach (var f in localsContainerFields) {
+        var result = f.FieldType.GetFields().FirstOrDefault(field => field.FieldType == fieldType);
+        if (result != null)
+          candidates.Add((f, result));
+      }
+      return candidates.Count == 1 ? new[] { candidates[0].Item1, candidates[0].Item2 } : null;
+    }
 
     private static string TrimGenericSuffix(string @string)
     {

@@ -5475,6 +5475,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Result selector is not supported for SelectMany over GroupBy result..
+        /// </summary>
+        internal static string ExResultSelectorIsNotSupportedForSelectManyOverGrouping {
+            get {
+                return ResourceManager.GetString("ExResultSelectorIsNotSupportedForSelectManyOverGrouping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value of &apos;{0}&apos; type cannot be assigned to property of &apos;{1}&apos; type..
         /// </summary>
         internal static string ExResultTypeIncorrect {

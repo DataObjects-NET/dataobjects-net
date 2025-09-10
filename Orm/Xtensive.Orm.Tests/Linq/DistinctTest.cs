@@ -325,11 +325,11 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
         .Distinct()
-        .OrderBy(c => c.LastName)
+        .OrderBy(c => c.Phone)
         .Skip(5);
       var expected = Customers
         .Distinct()
-        .OrderBy(c => c.LastName)
+        .OrderBy(c => c.Phone)
         .Skip(5);
 
       Assert.IsTrue(expected.SequenceEqual(result));

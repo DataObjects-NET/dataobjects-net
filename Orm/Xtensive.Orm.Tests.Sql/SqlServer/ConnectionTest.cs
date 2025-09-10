@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2018-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2018.10.30
 
@@ -35,11 +35,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var configuration = new SqlDriverConfiguration {EnsureConnectionIsAlive = true};
       var driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
 
-      var connection = driver.CreateConnection();
-      connection.Open();
+      using (var connection = driver.CreateConnection())
+        connection.Open();
 
-      var anotherConnection = driver.CreateConnection();
-      anotherConnection.OpenAndInitialize("Use [DO-Tests-1]");
+      using (var anotherConnection = driver.CreateConnection())
+        anotherConnection.OpenAndInitialize("Use [DO-Tests-1]");
     }
   }
 }

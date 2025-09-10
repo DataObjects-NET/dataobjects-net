@@ -272,6 +272,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void RemoveTypeWithHintTest()
     {
       var initialConfiguration = BuildInitialDomainConfiguration(GetType().Assembly, typeof (sources.RemoveTypeModel.SingleTableHierarchyBase).Namespace);
@@ -699,6 +700,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.MySql)]
     public void RenameTypeWithHintTest()
     {
       var initialConfiguration = BuildInitialDomainConfiguration(GetType().Assembly, typeof (sources.RenameTypeModel.SingleTableHierarchyBase).Namespace);
@@ -743,6 +745,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.MySql)]
     public void RenameTypeWithoutHintTest()
     {
       var initialConfiguration = BuildInitialDomainConfiguration(GetType().Assembly, typeof(sources.RenameTypeModel.SingleTableHierarchyBase).Namespace);

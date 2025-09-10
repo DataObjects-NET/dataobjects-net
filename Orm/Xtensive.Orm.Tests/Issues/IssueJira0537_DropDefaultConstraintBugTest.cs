@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -282,9 +282,9 @@ namespace Xtensive.Orm.Tests.Issues
 
     private ConnectionInfo connectionInfo;
 
-    private static string multiDatabaseConnectionString;
-    private static string singleDatabaseConnectionStringDatabase1;
-    private static string singleDatabaseConnectionStringDatabase2;
+    private string multiDatabaseConnectionString;
+    private string singleDatabaseConnectionStringDatabase1;
+    private string singleDatabaseConnectionStringDatabase2;
 
     protected override void  CheckRequirements()
     {
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Tests.Issues
       BuildMultipleDomain(Database2Name, Database1Name);
     }
 
-    private static void BuildMultipleDomain(string coreDatabaseName, string wmsDatabaseName)
+    private void BuildMultipleDomain(string coreDatabaseName, string wmsDatabaseName)
     {
       var domainConfiguration = new DomainConfiguration(multiDatabaseConnectionString) {
         DefaultDatabase = WmsAlias,
@@ -336,7 +336,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = Domain.Build(domainConfiguration)) { }
     }
 
-    private static void BuildSingleDomain(string wmsDatabaseName)
+    private void BuildSingleDomain(string wmsDatabaseName)
     {
       var domainConfiguration = new DomainConfiguration(singleDatabaseConnectionStringDatabase1) {
         UpgradeMode = DomainUpgradeMode.Recreate,
@@ -406,8 +406,10 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void InitializeConnectionStrings()
     {
-      
       connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
+      if (connectionInfo == null) {
+        connectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
+      }
 
       var connectionUrl = connectionInfo.ConnectionUrl;
 

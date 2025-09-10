@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2010.02.08
 
@@ -37,12 +37,14 @@ namespace Xtensive.Orm.Tests.Sql
     {
       base.TestFixtureSetUp();
       schema = ExtractDefaultSchema();
+      Connection.BeginTransaction();
       EnsureTableNotExists(schema, TimeoutTableName);
       EnsureTableNotExists(schema, DeadlockTableName);
       EnsureTableNotExists(schema, SlaveTableName);
       EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, UniqueTableName);
       EnsureTableNotExists(schema, CheckedTableName);
+      Connection.Commit();
     }
 
     public override void TearDown()
@@ -222,9 +224,13 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public virtual void TimeoutTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "For Some reason one of transactions \"sees\" uncommited insert and no timeout happens");
+
+      Connection.BeginTransaction();
       var table = schema.CreateTable(TimeoutTableName);
       CreatePrimaryKey(table);
       ExecuteNonQuery(SqlDdl.Create(table));
+      Connection.Commit();
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);

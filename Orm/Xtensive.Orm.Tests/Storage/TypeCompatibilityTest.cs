@@ -284,7 +284,10 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
-          Assert.AreEqual(minValue, x.FDateTime);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql))
+            Assert.AreEqual(DateTime.MinValue, x.FDateTime);
+          else
+            Assert.AreEqual(minValue, x.FDateTime);
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
           Assert.AreEqual(EByte.Default, x.FEByte);

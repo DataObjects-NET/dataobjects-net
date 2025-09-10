@@ -11,14 +11,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int MaxIdentifierLength = 30;
+    private const int Fb25MaxIdentifierLength = 30;
     private const int DoNotKnow = int.MaxValue;
     private const int MaxCharLength = 2000; // physical constraint=32762, but because of http://tracker.firebirdsql.org/browse/CORE-1117;
     // The limit is 64kB for statement text, 64kB for compiled BLR and 48kB for execution plan.
     private const int MaxTextLength = int.MaxValue;
 
-    private readonly string databaseName;
-    private readonly string defaultSchemaName;
+    protected virtual int MaxIdentifierLength => Fb25MaxIdentifierLength;
 
     public override EntityInfo GetCollationInfo()
     {

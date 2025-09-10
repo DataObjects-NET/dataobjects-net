@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2010-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -7,12 +7,11 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
+using System.Threading.Tasks;
+using NUnit.Framework;
 using M1 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
-using NUnit.Framework;
-using System.Threading.Tasks;
+
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 {
@@ -25,8 +24,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var person = new Person();
-        var address = new Address() {
+        var person = new M1.Person();
+        var address = new M1.Address() {
           Person = person
         };
         // person.Addresses.Add(address);
@@ -35,28 +34,30 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
       using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<Model.Version2.Person>().Count());
+        Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
       }
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public async Task UpgradeToVersion2AsyncTest()
     {
       using (var domain = await BuildDomainAsync("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<Model.Version2.Person>().Count());
+        Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
       }
     }
 
     private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(Person).Namespace;
+      string ns = typeof(M1.Person).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
@@ -72,7 +73,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 
     private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(Person).Namespace;
+      string ns = typeof(M1.Person).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();

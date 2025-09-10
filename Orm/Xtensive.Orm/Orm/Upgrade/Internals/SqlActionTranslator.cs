@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<string> enforceChangedColumns = new List<string>();
     private readonly ISqlExecutor sqlExecutor;
     private readonly bool allowCreateConstraints;
+    private readonly bool removeFkBeforeIndex;
 
     private readonly string collationName;
     private readonly ActionSequence actions;
@@ -63,6 +64,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>();
     private readonly Dictionary<string, SequenceDescriptor> removedGeneratorDescriptors = new Dictionary<string, SequenceDescriptor>();
+    private readonly List<(Table, string)> removedForeignKeysDueToIndexes = new List<(Table, string)>();
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -564,8 +566,16 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       var index = table.Indexes[secondaryIndexInfo.Name];
+      if (removeFkBeforeIndex && secondaryIndexInfo.Parent.ForeignKeys.TryGetValue(secondaryIndexInfo.Name, out var dependantFk)) {
+        var foreignKey = table.TableConstraints[dependantFk.Name];
+        if (foreignKey != null) {
+          removedForeignKeysDueToIndexes.Add((table, foreignKey.Name));
+          preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
+          _ = table.TableConstraints.Remove(foreignKey);
+        }
+      }
       preCleanupDataOutput.RegisterCommand(SqlDdl.Drop(index));
-      table.Indexes.Remove(index);
+      _ = table.Indexes.Remove(index);
     }
 
     private void VisitAlterSecondaryIndexAction(NodeAction action)
@@ -596,9 +606,14 @@ namespace Xtensive.Orm.Upgrade
       if (table==null)
         return;
 
+      if (removeFkBeforeIndex && removedForeignKeysDueToIndexes.Contains((table, foreignKeyInfo.Name))) {
+        // index removal already causes FK removal
+        return;
+      }
+
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
       preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
-      table.TableConstraints.Remove(foreignKey);
+      _ = table.TableConstraints.Remove(foreignKey);
     }
 
     private void VisitAlterForeignKeyAction(NodeAction action)
@@ -1269,7 +1284,6 @@ namespace Xtensive.Orm.Upgrade
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
-      providerInfo = handlers.ProviderInfo;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
       this.resolver = resolver;
@@ -1285,6 +1299,9 @@ namespace Xtensive.Orm.Upgrade
         var collation = handlers.Domain.Configuration.Collation;
         if (!string.IsNullOrEmpty(collation))
           collationName = collation;
+      }
+      if (providerInfo.ProviderName == WellKnown.Provider.MySql) {
+        removeFkBeforeIndex = true;
       }
     }
   }

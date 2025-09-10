@@ -428,7 +428,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case ExtractSection.Entry:
           return "(extract(";
         case ExtractSection.Exit:
-          return isMillisecond ? ") % 1000)" : "))";
+          return isMillisecond ? ") / 1000)" : "))";
         default:
           return base.Translate(context, node, section);
       }

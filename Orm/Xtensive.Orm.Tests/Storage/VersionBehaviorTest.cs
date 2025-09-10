@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.08.05
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [HierarchyRoot]
-    public class Auto : Base
+    public class DateTimeVersionAuto : Base
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -95,7 +95,25 @@ namespace Xtensive.Orm.Tests.Storage
       public DateTime Date { get; set; }
     }
 
-    public class AutoInheritor : Auto
+    public class DateTimeAutoInheritor : DateTimeVersionAuto
+    {
+      [Field]
+      [Version(VersionMode.Auto)]
+      public Guid Uid { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class LongVersionAuto : Base
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      [Version(VersionMode.Auto)]
+      public long Version { get; set; }
+    }
+
+    public class LongAutoInheritor : LongVersionAuto
     {
       [Field]
       [Version(VersionMode.Auto)]
@@ -315,24 +333,26 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void AutoTest()
     {
+      Require.ProviderIsNot(StorageProvider.MySql, "DateTime type has less precision on server side");
+
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof (Base));
-      config.Types.Register(typeof (Auto));
-      config.Types.Register(typeof (AutoInheritor));
+      config.Types.Register(typeof (DateTimeVersionAuto));
+      config.Types.Register(typeof (DateTimeAutoInheritor));
       var domain = Domain.Build(config);
-      var autoTypeInfo = domain.Model.Types[typeof(Auto)];
-      var autoInheritorTypeInfo = domain.Model.Types[typeof(AutoInheritor)];
+      var autoTypeInfo = domain.Model.Types[typeof(DateTimeVersionAuto)];
+      var autoInheritorTypeInfo = domain.Model.Types[typeof(DateTimeAutoInheritor)];
       Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
       Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
-        Auto auto;
-        AutoInheritor autoInheritor;
+        DateTimeVersionAuto auto;
+        DateTimeAutoInheritor autoInheritor;
         using (VersionCapturer.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
-          auto = new Auto() { Content = "Content", Tag = "Tag"};
-          autoInheritor = new AutoInheritor() { Content = "Content", Tag = "Tag"};
+          auto = new DateTimeVersionAuto() { Content = "Content", Tag = "Tag"};
+          autoInheritor = new DateTimeAutoInheritor() { Content = "Content", Tag = "Tag"};
           t.Complete();
         }
         using (VersionCapturer.Attach(session, updatedVersions))
@@ -363,11 +383,11 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = domain.OpenSession())
       using (VersionCapturer.Attach(session, allVersions))
       using (VersionValidator.Attach(session, allVersions)) {
-        Auto auto;
-        AutoInheritor autoInheritor;
+        DateTimeVersionAuto auto;
+        DateTimeAutoInheritor autoInheritor;
         using (var t = session.OpenTransaction()) {
-          auto = new Auto() { Content = "Content", Tag = "Tag"};
-          autoInheritor = new AutoInheritor() { Content = "Content", Tag = "Tag"};
+          auto = new DateTimeVersionAuto() { Content = "Content", Tag = "Tag"};
+          autoInheritor = new DateTimeAutoInheritor() { Content = "Content", Tag = "Tag"};
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
@@ -384,7 +404,83 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
       }
+    }
 
+    [Test]
+    public void AutoTestNoDateTime()
+    {
+      Require.ProviderIs(StorageProvider.MySql, "DateTime type has less precision on server side");
+
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Base));
+      config.Types.Register(typeof(LongVersionAuto));
+      config.Types.Register(typeof(LongAutoInheritor));
+      var domain = Domain.Build(config);
+      var autoTypeInfo = domain.Model.Types[typeof(LongVersionAuto)];
+      var autoInheritorTypeInfo = domain.Model.Types[typeof(LongAutoInheritor)];
+      Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
+      Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
+      using (var session = domain.OpenSession()) {
+        var versions = new VersionSet();
+        var updatedVersions = new VersionSet();
+        LongVersionAuto auto;
+        LongAutoInheritor autoInheritor;
+        using (VersionCapturer.Attach(session, versions))
+        using (var t = session.OpenTransaction()) {
+          auto = new LongVersionAuto() { Content = "Content", Tag = "Tag" };
+          autoInheritor = new LongAutoInheritor() { Content = "Content", Tag = "Tag" };
+          t.Complete();
+        }
+        using (VersionCapturer.Attach(session, updatedVersions))
+        using (VersionValidator.Attach(session, versions))
+        using (var t = session.OpenTransaction()) {
+          auto.Content = "AnotherContent";
+          auto.Content = "AnotherContetnCorrect";
+          autoInheritor.Content = "AnotherContent";
+          autoInheritor.Content = "AnotherContetnCorrect";
+          t.Complete();
+        }
+        AssertEx.Throws<VersionConflictException>(() => {
+          using (VersionValidator.Attach(session, versions))
+          using (var t = session.OpenTransaction()) {
+            auto.Tag = "AnotherTag";
+            autoInheritor.Tag = "AnotherTag";
+            t.Complete();
+          }
+        });
+
+        using (VersionValidator.Attach(session, updatedVersions))
+        using (var t = session.OpenTransaction()) {
+          auto.Tag = "AnotherTag";
+          autoInheritor.Tag = "AnotherTag";
+          t.Complete();
+        }
+      }
+      var allVersions = new VersionSet();
+      using (var session = domain.OpenSession())
+      using (VersionCapturer.Attach(session, allVersions))
+      using (VersionValidator.Attach(session, allVersions)) {
+        LongVersionAuto auto;
+        LongAutoInheritor autoInheritor;
+        using (var t = session.OpenTransaction()) {
+          auto = new LongVersionAuto() { Content = "Content", Tag = "Tag" };
+          autoInheritor = new LongAutoInheritor() { Content = "Content", Tag = "Tag" };
+          t.Complete();
+        }
+        using (var t = session.OpenTransaction()) {
+          auto.Content = "AnotherContent";
+          auto.Content = "AnotherContetnCorrect";
+          autoInheritor.Content = "AnotherContent";
+          autoInheritor.Content = "AnotherContetnCorrect";
+          t.Complete();
+        }
+
+        using (var t = session.OpenTransaction()) {
+          auto.Tag = "AnotherTag";
+          autoInheritor.Tag = "AnotherTag";
+          t.Complete();
+        }
+      }
     }
 
     [Test]

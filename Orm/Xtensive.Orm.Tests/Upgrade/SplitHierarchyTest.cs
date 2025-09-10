@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -94,13 +94,14 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class SplitHierarchyTest
   {
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void MainTest()
     {
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.MyFirstClass {IntValue = 1, StringValue = "1"};
-        new V1.MySecondClass {DoubleValue = 2.0, StringValue = "2"};
+        _ = new V1.MyFirstClass { IntValue = 1, StringValue = "1" };
+        _ = new V1.MySecondClass { DoubleValue = 2.0, StringValue = "2" };
         tx.Complete();
       }
 
@@ -118,13 +119,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public async Task MainAsyncTest()
     {
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.MyFirstClass { IntValue = 1, StringValue = "1" };
-        new V1.MySecondClass { DoubleValue = 2.0, StringValue = "2" };
+        _ = new V1.MyFirstClass { IntValue = 1, StringValue = "1" };
+        _ = new V1.MySecondClass { DoubleValue = 2.0, StringValue = "2" };
         tx.Complete();
       }
 

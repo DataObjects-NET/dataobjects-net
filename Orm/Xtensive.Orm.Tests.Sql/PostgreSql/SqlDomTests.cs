@@ -916,8 +916,10 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public virtual void FixtureTearDown()
     {
       if (Connection!=null) {
-        if (Connection.State==ConnectionState.Open)
+        if (Connection.State==ConnectionState.Open) {
           Connection.Close();
+        }
+        Connection.Dispose();
       }
     }
 

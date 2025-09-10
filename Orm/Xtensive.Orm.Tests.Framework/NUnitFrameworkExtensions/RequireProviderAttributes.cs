@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 
 namespace Xtensive.Orm.Tests
@@ -9,7 +6,7 @@ namespace Xtensive.Orm.Tests
   /// <summary>
   /// Base attribute for test storage requirement
   /// </summary>
-  public abstract class RequireProvderAttribute : Attribute, ITestAction
+  public abstract class RequireProvderAttribute : NUnitTestCustomAttribute
   {
     private Version minVersion = null;
     private Version maxVersion = null;
@@ -46,9 +43,7 @@ namespace Xtensive.Orm.Tests
 
     protected abstract StorageProvider RequiredProviders { get; }
 
-    public ActionTargets Targets => ActionTargets.Test;
-
-    public void AfterTest(ITest test)
+    protected override void OnBeforeTestCheck(ITest test)
     {
       Require.ProviderIs(RequiredProviders);
       if (minVersion != null)
@@ -56,47 +51,38 @@ namespace Xtensive.Orm.Tests
       if (maxVersion != null)
         Require.ProviderVersionAtMost(maxVersion);
     }
-
-    public void BeforeTest(ITest test) { }
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireSqlServerAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.SqlServer;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequirePostgreSqlAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.PostgreSql;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireMySqlAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.MySql;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireFirebirdAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.Firebird;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireOracleSqlAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.Oracle;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireSqliteAttribute : RequireProvderAttribute
   {
     protected override StorageProvider RequiredProviders => StorageProvider.Sqlite;
   }
 
-  [AttributeUsage(AttributeTargets.Method)]
   public class RequireSeveralProvidersAttribute : RequireProvderAttribute
   {
     private readonly StorageProvider providers;
