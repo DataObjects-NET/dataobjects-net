@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Tests
 
     public static Version MySql55 = new Version(5, 5);
     public static Version MySql56 = new Version(5, 6);
+    public static Version MySql57 = new Version(5, 7);
 
     public static Version Firebird25 = new Version(2, 5);
     public static Version Firebird30 = new Version(3, 0);
