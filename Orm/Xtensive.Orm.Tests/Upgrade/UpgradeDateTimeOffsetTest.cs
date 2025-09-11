@@ -125,6 +125,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public async Task UpgradeDateTimeOffsetAndDateTimeAsyncTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToLocalTime is not supported");
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
