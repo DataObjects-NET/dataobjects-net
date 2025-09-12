@@ -122,7 +122,8 @@ namespace Xtensive.Sql.Drivers.MySql
         5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
         5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
         5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
-        _ => new v5_6.Driver(coreServerInfo)
+        5 when version.Minor == 7 => new v5_7.Driver(coreServerInfo),
+        _ => new v5_7.Driver(coreServerInfo)
       };
     }
 
