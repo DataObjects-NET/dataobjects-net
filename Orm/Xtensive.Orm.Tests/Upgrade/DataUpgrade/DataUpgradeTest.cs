@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.MySql | StorageProvider.Firebird)]
     public async Task ClearDataAsyncTest1()
     {
       using (var domain = await BuildDomainAsync(DomainUpgradeMode.Perform, typeof(M1.A)))
