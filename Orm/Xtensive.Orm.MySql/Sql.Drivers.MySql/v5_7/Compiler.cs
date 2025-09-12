@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
     /// <inheritdoc/>
     public override void Visit(SqlQueryExpression node)
     {
-      base.Visit(node);
       using (context.EnterScope(node)) {
         var wrapLeft = node.Left is SqlSelect sL
            && (sL.OrderBy.Count > 0 || sL.HasLimit || sL.Lock != SqlLockType.Empty);
@@ -40,7 +39,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
           context.Output.AppendText(")");
         }
         else {
-          node.Left.AcceptVisitor(this);
+          node.Right.AcceptVisitor(this);
         }
 
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
