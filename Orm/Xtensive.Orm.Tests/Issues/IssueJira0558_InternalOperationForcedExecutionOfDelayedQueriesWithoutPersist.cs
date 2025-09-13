@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (MembershipType).Assembly, typeof (MembershipType).Namespace);
+      configuration.Types.RegisterCaching(typeof (MembershipType).Assembly, typeof (MembershipType).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

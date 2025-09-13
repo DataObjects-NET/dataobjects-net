@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Root).Assembly, typeof (Root).Namespace);
+      config.Types.RegisterCaching(typeof (Root).Assembly, typeof (Root).Namespace);
       return config;
     }
 

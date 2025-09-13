@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.ForeignKeyMode = ForeignKeyMode.Reference;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
       configuration.Types.Register(typeof (Handler));
 
       Domain.DisposeSafely();

@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     {
       // Just to ensure schema is ready
       var config = DomainConfigurationFactory.CreateForCrudTest(TestConfiguration.Instance.Storage);
-      config.Types.Register(
+      config.Types.RegisterCaching(
         typeof (CrudModel.Simplest).Assembly, typeof (CrudModel.Simplest).Namespace);
       return config;
     }

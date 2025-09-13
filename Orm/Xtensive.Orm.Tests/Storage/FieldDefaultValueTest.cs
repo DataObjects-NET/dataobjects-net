@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid FGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float FFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid? FNGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float? FNFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -363,7 +363,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FEUInt);
           Assert.AreEqual(EULong.Max, x.FEULong);
           Assert.AreEqual(EUShort.Max, x.FEUShort);
-          Assert.AreEqual(float.MaxValue, x.FFloat);
+          Assert.AreEqual(float.Epsilon, x.FFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FNEUInt);
           Assert.AreEqual(EULong.Max, x.FNEULong);
           Assert.AreEqual(EUShort.Max, x.FNEUShort);
-          Assert.AreEqual(float.MaxValue, x.FNFloat);
+          Assert.AreEqual(float.Epsilon, x.FNFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FNGuid);
           Assert.AreEqual(int.MaxValue, x.FNInt);
           Assert.AreEqual(long.MaxValue, x.FNLong);

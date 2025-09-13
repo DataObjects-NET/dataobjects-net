@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.Types.Register(typeof(Invoice).Assembly, typeof(Invoice).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Invoice).Assembly, typeof(Invoice).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       return domainConfiguration;

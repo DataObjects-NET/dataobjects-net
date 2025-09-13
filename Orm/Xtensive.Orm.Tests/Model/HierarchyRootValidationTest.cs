@@ -1289,7 +1289,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(baseTypeFromNs.Assembly, baseTypeFromNs.Namespace);
+      configuration.Types.RegisterCaching(baseTypeFromNs.Assembly, baseTypeFromNs.Namespace);
       return configuration;
     }
 

@@ -83,10 +83,10 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       var configuration = DomainConfigurationFactory.Create();
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
-      configuration.Types.Register(typeof(model.Part2.TestEntity3).Assembly, typeof(model.Part2.TestEntity3).Namespace);
-      configuration.Types.Register(typeof(model.Part3.TestEntity5).Assembly, typeof(model.Part3.TestEntity5).Namespace);
-      configuration.Types.Register(typeof(model.Part4.TestEntity7).Assembly, typeof(model.Part4.TestEntity7).Namespace);
+      configuration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(model.Part2.TestEntity3).Assembly, typeof(model.Part2.TestEntity3).Namespace);
+      configuration.Types.RegisterCaching(typeof(model.Part3.TestEntity5).Assembly, typeof(model.Part3.TestEntity5).Namespace);
+      configuration.Types.RegisterCaching(typeof(model.Part4.TestEntity7).Assembly, typeof(model.Part4.TestEntity7).Namespace);
 
       return configuration;
     }

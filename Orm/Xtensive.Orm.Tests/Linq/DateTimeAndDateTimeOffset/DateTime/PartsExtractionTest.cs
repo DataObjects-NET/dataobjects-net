@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2023 Xtensive LLC.
+// Copyright (C) 2016-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.MySql);
       ExecuteInsideSession((s) => {
-        var firstMillisecondDateTime = FirstMillisecondDateTime.AdjustDateTime(0);
+        var firstMillisecondDateTime = FirstMillisecondDateTime.AdjustDateTimeForCurrentProvider();
         RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.Millisecond == firstMillisecondDateTime.Millisecond);
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.Second == WrongMillisecondDateTime.Millisecond);
       });
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       ExecuteInsideSession((s) => {
         RunTest<SingleDateTimeEntity>(s, c => c.DateTime.TimeOfDay == FirstDateTime.TimeOfDay);
-        RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.TimeOfDay == FirstMillisecondDateTime.TimeOfDay);
+        RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.TimeOfDay == FirstMillisecondDateTime.AdjustDateTimeForCurrentProvider().TimeOfDay);
         RunTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.TimeOfDay == NullableDateTime.TimeOfDay);
 
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.TimeOfDay == WrongDateTime.TimeOfDay);

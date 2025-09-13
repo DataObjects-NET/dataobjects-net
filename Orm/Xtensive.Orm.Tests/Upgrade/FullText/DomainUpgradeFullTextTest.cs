@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(),
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.FullText.Model." + version);
       configuration.Types.Register(typeof(Model.Upgrader));
       return configuration;

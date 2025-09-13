@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected Catalog Catalog { get; private set; }
 
     [OneTimeSetUp]
-    public virtual void SetUp()
+    public virtual void OneTimeSetUp()
     {
       CheckRequirements();
       sqlDriver = TestSqlDriver.Create(Url);
@@ -78,23 +78,42 @@ namespace Xtensive.Orm.Tests.Sql
         creator.CreateSchemaContent(sqlConnection, schema);
 
         sqlConnection.Commit();
+        sqlConnection.Close();
       }
       catch {
         sqlConnection.Rollback();
+        sqlConnection.Close();
         throw;
       }
     }
 
     [OneTimeTearDown]
-    public void TearDown()
+    public void OneTimeTearDown()
     {
       try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
+        if (sqlConnection != null) {
+          if (sqlConnection.State != ConnectionState.Closed)
+            sqlConnection.Close();
+          sqlConnection.Dispose();
+          sqlConnection = null;
+        }
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
+        throw;
       }
+    }
+
+    [SetUp]
+    public virtual void SetUp()
+    {
+      sqlConnection.Open();
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+      sqlConnection.Close();
     }
 
     protected virtual void CheckRequirements()

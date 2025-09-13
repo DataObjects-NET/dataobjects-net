@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      config.Types.RegisterCaching(typeof (X).Assembly, typeof (X).Namespace);
       return config;
     }
 
@@ -326,11 +326,20 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
-          Assert.AreEqual(dateTimeMinValue, x.FDateTime);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
+            Assert.AreEqual(DateTime.MinValue, x.FDateTime);
 #if NET6_0_OR_GREATER
-          Assert.AreEqual(dateOnlyMinValue, x.FDateOnly);
-          Assert.AreEqual(timeOnlyMinValue, x.FTimeOnly);
+            Assert.AreEqual(DateOnly.MinValue, x.FDateOnly);
+            Assert.AreEqual(TimeOnly.MinValue, x.FTimeOnly);
 #endif
+          }
+          else {
+            Assert.AreEqual(dateTimeMinValue, x.FDateTime);
+#if NET6_0_OR_GREATER
+            Assert.AreEqual(dateOnlyMinValue, x.FDateOnly);
+            Assert.AreEqual(timeOnlyMinValue, x.FTimeOnly);
+#endif
+          }
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
           Assert.AreEqual(EByte.Default, x.FEByte);

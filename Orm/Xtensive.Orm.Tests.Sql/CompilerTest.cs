@@ -1,6 +1,8 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2015-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
+// Created by: Alexey Kulakov
+// Created:    2015.02.06
 
 using System;
 using System.Linq;
@@ -29,6 +31,18 @@ namespace Xtensive.Orm.Tests.Sql
       DropSchema(initialCatalog);
       Catalog = ExtractCatalog();
       CreateTables(Catalog);
+      Connection.Close();
+      Connection.Open();
+    }
+
+    public override void SetUp()
+    {
+      Connection.BeginTransaction();
+    }
+
+    public override void TearDown()
+    {
+      Connection.Rollback();
     }
 
     [Test]

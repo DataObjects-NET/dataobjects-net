@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       return configuration;
     }
 

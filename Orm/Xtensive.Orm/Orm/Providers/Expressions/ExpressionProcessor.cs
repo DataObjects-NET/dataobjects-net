@@ -131,8 +131,13 @@ namespace Xtensive.Orm.Providers
     {
       var operand = Visit(expression.Operand);
 
-      if (expression.Method!=null)
-        return CompileMember(expression.Method, null, operand);
+      if (expression.Method != null) {
+        var method = expression.Method;
+        if (!method.Name.Equals(Reflection.WellKnown.Operator.Implicit, StringComparison.Ordinal)
+            || method.DeclaringType != WellKnownTypes.DateTimeOffset) {
+          return CompileMember(expression.Method, null, operand);
+        }
+      }
 
       switch (expression.NodeType) {
         case ExpressionType.ArrayLength:

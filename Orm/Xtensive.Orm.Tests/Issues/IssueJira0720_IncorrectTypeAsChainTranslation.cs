@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2024 Xtensive LLC.
+// Copyright (C) 2019-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ITestEntity).Assembly, typeof(ITestEntity).Namespace);
+      config.Types.RegisterCaching(typeof(ITestEntity).Assembly, typeof(ITestEntity).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
@@ -161,6 +161,12 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test4()
     {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
+        if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.MySql56)) {
+          throw new IgnoreException("For some reason exact same queries work in 5.5, broken in 5.6/5.7, and work in 8.0 again");
+        }
+      }
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         _ = new TestEntity1(session);

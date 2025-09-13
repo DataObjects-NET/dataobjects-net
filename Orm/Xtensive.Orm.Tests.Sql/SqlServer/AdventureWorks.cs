@@ -32,43 +32,33 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     protected static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
     {
       DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
-        int rowCount = 0;
-        int fieldCount = 0;
-        string[] fieldNames = new string[0];
-        using (IDataReader reader = cmd.ExecuteReader()) {
-          while (reader.Read()) {
-            if (rowCount==0) {
-              fieldCount = reader.FieldCount;
-              fieldNames = new string[fieldCount];
-              for (int i = 0; i<fieldCount; i++) {
-                fieldNames[i] = reader.GetName(i);
-              }
+
+      int rowCount = 0;
+      int fieldCount = 0;
+      string[] fieldNames = new string[0];
+      using (IDataReader reader = cmd.ExecuteReader()) {
+        while (reader.Read()) {
+          if (rowCount == 0) {
+            fieldCount = reader.FieldCount;
+            fieldNames = new string[fieldCount];
+            for (int i = 0; i < fieldCount; i++) {
+              fieldNames[i] = reader.GetName(i);
             }
-            rowCount++;
+
           }
+          rowCount++;
         }
-        result.RowCount = rowCount;
-        result.FieldCount = fieldCount;
-        result.FieldNames = fieldNames;
       }
-      finally {
-        cmd.Transaction.Rollback();
-      }
+      result.RowCount = rowCount;
+      result.FieldCount = fieldCount;
+      result.FieldNames = fieldNames;
       return result;
     }
 
     protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
       var result = new DbCommandExecutionResult();
-      try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
-        result.RowCount = cmd.ExecuteNonQuery();
-      }
-      finally {
-        cmd.Transaction.Rollback();
-      }
+      result.RowCount = cmd.ExecuteNonQuery();
       return result;
     }
 

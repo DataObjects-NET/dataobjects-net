@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         SessionOptions.ServerProfile
         | SessionOptions.AutoActivation
         | SessionOptions.SuppressRollbackExceptions;
-      config.Types.Register(typeof (Entity1).Assembly, typeof (Entity1).Namespace);
+      config.Types.RegisterCaching(typeof (Entity1).Assembly, typeof (Entity1).Namespace);
       return config;
     }
 

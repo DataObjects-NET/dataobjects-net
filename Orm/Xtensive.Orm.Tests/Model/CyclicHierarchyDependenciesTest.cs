@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(H1).Assembly, typeof(H1).Namespace);
+      config.Types.RegisterCaching(typeof(H1).Assembly, typeof(H1).Namespace);
       var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
       Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }

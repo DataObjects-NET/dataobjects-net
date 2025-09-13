@@ -105,6 +105,9 @@ namespace Xtensive.Orm.BulkOperations
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
       var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
+      if (ex is SqlCast sqlCast) {
+        ex = sqlCast.Operand;
+      }
       var placeholder = ex as SqlPlaceholder;
       if (placeholder == null)
       {

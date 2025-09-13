@@ -86,7 +86,15 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.IntFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        //"If Field is of an integer type, AVG is always rounded towards 0.
+        // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
+        // © Firebird documentation
+        // Funny, isn't it?
+        var expectedValue = (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird))
+          ? Math.Truncate(allFactors.Average())
+          : allFactors.Average();
+
+        Assert.AreEqual(expectedValue, await query.AverageAsync());
       }
     }
 
@@ -113,7 +121,16 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.IntFactor).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.IntFactor));
+
+        //"If Field is of an integer type, AVG is always rounded towards 0.
+        // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
+        // © Firebird documentation
+        // Funny, isn't it?
+        var expectedValue = (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird))
+          ? Math.Truncate(allFactors.Average())
+          : allFactors.Average();
+
+        Assert.AreEqual(expectedValue, await query.AverageAsync(stat => stat.IntFactor));
       }
     }
 
@@ -228,7 +245,16 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.LongFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+
+        //"If Field is of an integer type, AVG is always rounded towards 0.
+        // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
+        // © Firebird documentation
+        // Funny, isn't it?
+        var expectedValue = (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird))
+          ? Math.Truncate(allFactors.Average())
+          : allFactors.Average();
+
+        Assert.AreEqual(expectedValue, await query.AverageAsync());
       }
     }
 
@@ -255,7 +281,16 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.LongFactor));
+
+        //"If Field is of an integer type, AVG is always rounded towards 0.
+        // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
+        // © Firebird documentation
+        // Funny, isn't it?
+        var expectedValue = (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird))
+          ? Math.Truncate(allFactors.Average())
+          : allFactors.Average();
+
+        Assert.AreEqual(expectedValue, await query.AverageAsync(stat => stat.LongFactor));
       }
     }
 
@@ -939,6 +974,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     // Last
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastAsync is not supported yet.")]
     public async Task LastAsyncExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -950,6 +986,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastAsync is not supported yet.")]
     public async Task LastAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -960,6 +997,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastAsync is not supported yet.")]
     public async Task LastAsyncWithPredicateExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -971,6 +1009,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastAsync is not supported yet.")]
     public async Task LastAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -983,6 +1022,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     // LastOrDefault
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastOrDefaultAsync is not supported yet.")]
     public async Task LastOrDefaultAsyncExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -994,6 +1034,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastOrDefaultAsync is not supported yet.")]
     public async Task LastOrDefaultAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -1004,6 +1045,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastOrDefaultAsync is not supported yet.")]
     public async Task LastOrDefaultAsyncWithPredicateExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
@@ -1016,6 +1058,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    [IgnoreIfGithubActions("LastOrDefaultAsync is not supported yet.")]
     public async Task LastOrDefaultAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);

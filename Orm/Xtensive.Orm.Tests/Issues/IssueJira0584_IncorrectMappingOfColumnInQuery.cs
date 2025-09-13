@@ -1347,7 +1347,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(CustomPosting).Assembly, typeof(CustomPosting).Namespace);
+      configuration.Types.RegisterCaching(typeof(CustomPosting).Assembly, typeof(CustomPosting).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
