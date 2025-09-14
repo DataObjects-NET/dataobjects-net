@@ -44,9 +44,19 @@ namespace Xtensive.Orm.Tests
     public static Version MySql55 = new Version(5, 5);
     public static Version MySql56 = new Version(5, 6);
     public static Version MySql57 = new Version(5, 7);
-    public static Version Mysql80 = new Version(8, 0);
+    public static Version MySql80 = new Version(8, 0);
+    public static Version MySql81 = new Version(8, 1);
+    public static Version MySql82 = new Version(8, 2);
+    public static Version MySql83 = new Version(8, 3);
+    public static Version MySql84 = new Version(8, 4);
+    public static Version MySql90 = new Version(9, 0);
+    public static Version MySql91 = new Version(9, 1);
+    public static Version MySql92 = new Version(9, 2);
+    public static Version MySql93 = new Version(9, 3);
 
     public static Version Firebird25 = new Version(2, 5);
     public static Version Firebird30 = new Version(3, 0);
+    public static Version Firebird40 = new Version(4, 0);
+    public static Version Firebird50 = new Version(5, 0);
   }
 }
