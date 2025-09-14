@@ -655,7 +655,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       if (typeName.StartsWith("DATETIME", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.DateTime);
       }
-
 #if NET6_0_OR_GREATER
       if (typeName.Equals("TIME", StringComparison.Ordinal) || typeName.StartsWith("TIME(")) {
         return new SqlValueType(SqlType.Time);
