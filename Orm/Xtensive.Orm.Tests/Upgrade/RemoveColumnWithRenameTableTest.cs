@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildDomain(typeof(V1.Upgrader), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
+        _ = new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
         tx.Complete();
       }
 
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildDomain(typeof(V1.Upgrader), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
+        _ = new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
         tx.Complete();
       }
 

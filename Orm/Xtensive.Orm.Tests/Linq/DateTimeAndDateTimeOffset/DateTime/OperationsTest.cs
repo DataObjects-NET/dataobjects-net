@@ -32,15 +32,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.Firebird);
 
-      ExecuteInsideSession((s) => {
-        RunTest<SingleDateTimeEntity>(s, c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(1));
-        RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddYears(-2) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTime(0, false));
-        RunTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(33));
+      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.Firebird50))
+        ExecuteInsideSession(() => {
+          RunTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(1));
+          RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-2) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTimeForCurrentProvider());
+          RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(33));
 
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(2));
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddYears(-1) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTime(0, false));
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(44));
-      });
+          RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(2));
+          RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-1) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTimeForCurrentProvider());
+          RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(44));
+        });
+      else
+        ExecuteInsideSession(() => {
+          RunTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(1));
+          RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-2) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTime(0, false));
+          RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(33));
+
+          RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(2));
+          RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-1) == FirstMillisecondDateTime.AddYears(-2).AdjustDateTime(0, false));
+          RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(44));
+        });
     }
 
     [Test]
@@ -64,15 +75,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.Firebird);
 
-      ExecuteInsideSession((s) => {
-        RunTest<SingleDateTimeEntity>(s, c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(1));
-        RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddMonths(-2) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTime(0, false));
-        RunTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(33));
+      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.Firebird50))
+        ExecuteInsideSession(() => {
+          RunTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(1));
+          RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-2) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTimeForCurrentProvider());
+          RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(33));
 
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(2));
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddMonths(-1) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTime(0, false));
-        RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(44));
-      });
+          RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(2));
+          RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-1) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTimeForCurrentProvider());
+          RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(44));
+        });
+      else
+        ExecuteInsideSession(() => {
+          RunTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(1));
+          RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-2) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTime(0, false));
+          RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(33));
+
+          RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(2));
+          RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-1) == FirstMillisecondDateTime.AddMonths(-2).AdjustDateTime(0, false));
+          RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(44));
+        });
     }
 
     [Test]

@@ -87,7 +87,10 @@ namespace Xtensive.Orm.Tests.Issues
     public void AddYearsFirebirdTest()
     {
       Require.ProviderIs(StorageProvider.Firebird);
-      RunAllTestsInt(value => e => e.Today.AddYears(value) == today.AddYears(value).AdjustDateTime(0, false));
+      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.Firebird50))
+        RunAllTestsInt(value => e => e.Today.AddYears(value) == today.AddYears(value).AdjustDateTimeForCurrentProvider());
+      else
+        RunAllTestsInt(value => e => e.Today.AddYears(value) == today.AddYears(value).AdjustDateTime(0, false));
     }
 
     [Test]
@@ -101,7 +104,10 @@ namespace Xtensive.Orm.Tests.Issues
     public void AddMonthsFirebirdTest()
     {
       Require.ProviderIs(StorageProvider.Firebird);
-      RunAllTestsInt(value => e => e.Today.AddMonths(value) == today.AddMonths(value).AdjustDateTime(0, false));
+      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.Firebird50))
+        RunAllTestsInt(value => e => e.Today.AddMonths(value) == today.AddMonths(value).AdjustDateTimeForCurrentProvider());
+      else
+        RunAllTestsInt(value => e => e.Today.AddMonths(value) == today.AddMonths(value).AdjustDateTime(0, false));
     }
 
     [Test]

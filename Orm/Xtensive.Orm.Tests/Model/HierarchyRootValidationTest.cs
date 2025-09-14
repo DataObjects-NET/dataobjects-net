@@ -105,16 +105,19 @@ namespace Xtensive.Orm.Tests.Model
         });
       }
 
-      configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.UInt64KeyEntity) });
-      Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
-      Assert.That(domain, Is.Not.Null);
-      using (domain)
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        Assert.DoesNotThrow(() => {
-          _ = new Models.NonPersistentStorageSupporedTypesAsKeys.UInt64KeyEntity(session);
-          session.SaveChanges();
-        });
+      if (StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.MySql)) {
+        // auto-increment column cannot be of decimal type
+        configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.UInt64KeyEntity) });
+        Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
+        Assert.That(domain, Is.Not.Null);
+        using (domain)
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          Assert.DoesNotThrow(() => {
+            _ = new Models.NonPersistentStorageSupporedTypesAsKeys.UInt64KeyEntity(session);
+            session.SaveChanges();
+          });
+        }
       }
 
       configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.LimitedStringKeyEntity) });
@@ -129,16 +132,19 @@ namespace Xtensive.Orm.Tests.Model
         });
       }
 
-      configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.StringKeyEntity) });
-      Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
-      Assert.That(domain, Is.Not.Null);
-      using (domain)
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        Assert.DoesNotThrow(() => {
-          _ = new Models.NonPersistentStorageSupporedTypesAsKeys.StringKeyEntity(session);
-          session.SaveChanges();
-        });
+      if (StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.MySql)) {
+        //PK has column size limit and varchar(4000) breaks it
+        configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.StringKeyEntity) });
+        Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
+        Assert.That(domain, Is.Not.Null);
+        using (domain)
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          Assert.DoesNotThrow(() => {
+            _ = new Models.NonPersistentStorageSupporedTypesAsKeys.StringKeyEntity(session);
+            session.SaveChanges();
+          });
+        }
       }
 
       configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.GuidKeyEntity) });

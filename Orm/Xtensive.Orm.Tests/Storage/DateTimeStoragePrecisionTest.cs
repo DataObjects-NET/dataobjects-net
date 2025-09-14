@@ -95,9 +95,7 @@ namespace Xtensive.Orm.Tests.Storage
     private static DateTime GetExpectedValue(in DateTime baseDateTime)
     {
       var provider = StorageProviderInfo.Instance.Provider;
-      return provider == StorageProvider.MySql
-        ? baseDateTime.AdjustDateTime(0, true)
-        : provider == StorageProvider.Oracle
+      return provider == StorageProvider.Oracle
           ? baseDateTime.AdjustDateTime(6, true)
           : baseDateTime.AdjustDateTimeForCurrentProvider();
     }
