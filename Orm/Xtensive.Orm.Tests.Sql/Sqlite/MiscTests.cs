@@ -85,8 +85,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     public override void OneTimeSetUp()
     {
       base.OneTimeSetUp();
-      sqlDriver = TestSqlDriver.Create(Url);
-      sqlConnection = sqlDriver.CreateConnection();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();

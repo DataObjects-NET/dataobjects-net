@@ -109,16 +109,12 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         int rowCount = 0;
         int fieldCount = 0;
         string[] fieldNames = new string[0];
-        using (IDataReader reader = cmd.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            if (rowCount == 0)
-            {
+        using (IDataReader reader = cmd.ExecuteReader()) {
+          while (reader.Read()) {
+            if (rowCount == 0) {
               fieldCount = reader.FieldCount;
               fieldNames = new string[fieldCount];
-              for (int i = 0; i < fieldCount; i++)
-              {
+              for (int i = 0; i < fieldCount; i++) {
                 fieldNames[i] = reader.GetName(i);
               }
             }
@@ -129,8 +125,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         result.FieldCount = fieldCount;
         result.FieldNames = fieldNames;
       }
-      finally
-      {
+      finally {
         SqlConnection.Rollback();
       }
       return result;
@@ -144,8 +139,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         cmd.Transaction = SqlConnection.ActiveTransaction;
         result.RowCount = cmd.ExecuteNonQuery();
       }
-      finally
-      {
+      finally {
         SqlConnection.Rollback();
       }
       return result;

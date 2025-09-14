@@ -168,16 +168,16 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyAddYearsTest()
     {
       CheckEquality(
-        SqlDml.DateAddYears(DefaultDateOnly, AddYearsConst),
-        DefaultDateOnly.AddYears(AddYearsConst));
+        SqlDml.DateAddYears(PrepareDateLiteral(DefaultDateOnly), AddYearsConst),
+        PrepareDateLiteral(DefaultDateOnly.AddYears(AddYearsConst)));
     }
 
     [Test]
     public virtual void DateOnlyAddMonthsTest()
     {
       CheckEquality(
-        SqlDml.DateAddMonths(DefaultDateOnly, AddMonthsConst),
-        DefaultDateOnly.AddMonths(AddMonthsConst));
+        SqlDml.DateAddMonths(PrepareDateLiteral(DefaultDateOnly), AddMonthsConst),
+        PrepareDateLiteral(DefaultDateOnly.AddMonths(AddMonthsConst)));
     }
 
     [Test]
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDatePart.Year, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Year, PrepareDateLiteral(DefaultDateOnly)),
         DefaultDateOnly.Year);
     }
 
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractMonthTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDatePart.Month, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Month, PrepareDateLiteral(DefaultDateOnly)),
         DefaultDateOnly.Month);
     }
 
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDatePart.Day, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.Day, PrepareDateLiteral(DefaultDateOnly)),
         DefaultDateOnly.Day);
     }
 
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayOfWeekTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDatePart.DayOfWeek, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.DayOfWeek, PrepareDateLiteral(DefaultDateOnly)),
         (int) DefaultDateOnly.DayOfWeek);
     }
 
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateOnlyExtractDayOfYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDatePart.DayOfYear, DefaultDateOnly),
+        SqlDml.Extract(SqlDatePart.DayOfYear, PrepareDateLiteral(DefaultDateOnly)),
         DefaultDateOnly.DayOfYear);
     }
 
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractHourTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlTimePart.Hour, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Hour, PrepareTimeLiteral(DefaultTimeOnly)),
         DefaultTimeOnly.Hour);
     }
 
@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractMinuteTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlTimePart.Minute, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Minute, PrepareTimeLiteral(DefaultTimeOnly)),
         DefaultTimeOnly.Minute);
     }
 
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractSecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlTimePart.Second, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Second, PrepareTimeLiteral(DefaultTimeOnly)),
         DefaultTimeOnly.Second);
     }
 
@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlyExtractMillisecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlTimePart.Millisecond, DefaultTimeOnly),
+        SqlDml.Extract(SqlTimePart.Millisecond, PrepareTimeLiteral(DefaultTimeOnly)),
         DefaultTimeOnly.Millisecond);
     }
 
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void TimeOnlySubtractTimeOnlyTest()
     {
       CheckEquality(
-        SqlDml.TimeMinusTime(DefaultTimeOnly, SecondTimeOnly),
+        SqlDml.TimeMinusTime(PrepareTimeLiteral(DefaultTimeOnly), PrepareTimeLiteral(SecondTimeOnly)),
         DefaultTimeOnly - SecondTimeOnly);
     }
 #endif
@@ -381,5 +381,23 @@ namespace Xtensive.Orm.Tests.Sql
       }
       return SqlDml.Literal(value);
     }
+#if NET6_0_OR_GREATER
+
+    private SqlExpression PrepareDateLiteral(DateOnly value)
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        return SqlDml.Cast(SqlDml.Literal(value), SqlType.Date);
+      }
+      return SqlDml.Literal(value);
+    }
+
+    private SqlExpression PrepareTimeLiteral(TimeOnly value)
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        return SqlDml.Cast(SqlDml.Literal(value), SqlType.Time);
+      }
+      return SqlDml.Literal(value);
+    }
+#endif
   }
 }
