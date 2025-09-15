@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     [SetUp]
     public void SetUp()
     {
-      using (BuildDomain("1", DomainUpgradeMode.Recreate))
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
           var person = new M1.Person();
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
-      using (BuildDomain("2", DomainUpgradeMode.Perform))
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
