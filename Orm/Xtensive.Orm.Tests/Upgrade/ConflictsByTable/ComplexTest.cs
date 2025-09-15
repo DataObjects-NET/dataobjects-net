@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
     {
       var thisType = GetType();
       var ns = $"{thisType.FullName}Model.{@case}";
-      domainConfig.Types.Register(thisType.Assembly, ns);
+      domainConfig.Types.RegisterCaching(thisType.Assembly, ns);
       switch (inheritanceSchema) {
         case InheritanceSchema.ClassTable:
           domainConfig.Types.Register(typeof(Modifiers.MakeClassTable));
