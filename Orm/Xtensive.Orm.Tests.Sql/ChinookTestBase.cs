@@ -120,11 +120,13 @@ namespace Xtensive.Orm.Tests.Sql
     {
     }
 
-    protected static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
     {
       var result = new DbCommandExecutionResult();
+
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         var rowCount = 0;
         var fieldCount = 0;
         var fieldNames = new string[0];
@@ -145,20 +147,21 @@ namespace Xtensive.Orm.Tests.Sql
         result.FieldNames = fieldNames;
       }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }
 
-    protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
       var result = new DbCommandExecutionResult();
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         result.RowCount = cmd.ExecuteNonQuery();
       }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }

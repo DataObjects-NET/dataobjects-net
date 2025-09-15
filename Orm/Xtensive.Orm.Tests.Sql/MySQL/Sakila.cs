@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         DropAllTables(Catalog.DefaultSchema, false);
       if (SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed)
         SqlConnection.Close();
+      SqlConnection?.Dispose();
     }
 
     protected virtual void CheckRequirements()

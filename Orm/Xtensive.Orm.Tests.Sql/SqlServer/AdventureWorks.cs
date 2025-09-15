@@ -44,7 +44,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
             for (int i = 0; i < fieldCount; i++) {
               fieldNames[i] = reader.GetName(i);
             }
-
           }
           rowCount++;
         }
@@ -59,6 +58,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     {
       var result = new DbCommandExecutionResult();
       result.RowCount = cmd.ExecuteNonQuery();
+
       return result;
     }
 

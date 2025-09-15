@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
             _ = context.Output.AppendOpeningPunctuation("CAST(");
             break;
           case NodeSection.Exit:
-            _ = context.Output.Append("AS ").Append(Translate(node.Type)).Append(")");
+            _ = context.Output.Append("AS ").Append(Translate(node.Type)).AppendClosingPunctuation(")");
             break;
           default:
             throw new ArgumentOutOfRangeException(nameof(section));

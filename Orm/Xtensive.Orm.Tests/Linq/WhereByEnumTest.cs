@@ -655,6 +655,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.Firebird,
         "No native support for unsigned numbers. If a number bigger than long.MaxValue saved it becomes negative and corrupts results '<' and '<=' operations");
+
       var query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField != ULongEnum.Zero);
       var queryString = queryFormatter.ToSqlString(query);
       Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
@@ -723,6 +724,79 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIs(StorageProvider.Firebird,
         "No native support for unsigned numbers. If a number bigger than long.MaxValue saved it becomes negative and corrupts results '<' and '<=' operations");
       Require.ProviderVersionAtMost(new Version(4, 0));
+
+      var query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField != ULongEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField > ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(2));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField >= ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField < ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3)); // overflow happens
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField <= ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(4)); // overflow happens
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField != ULongEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField > ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(2));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField >= ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3));
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField < ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(3)); // overflow happens
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField <= ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(4)); // overflow happens
+
+      query = GlobalSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ULongFirebird4AndGreaterTest()
+    {
+      // There is no support for Firbird 4+ native INT128 (which would fit ulong.MaxValue) type at the moment,
+      // so test body is the same as for previous versions.
+      // After support became implemented this test will start failing and should be corrected.
+
+      Require.ProviderIs(StorageProvider.Firebird,
+        "No native support for unsigned numbers. If a number bigger than long.MaxValue saved it becomes negative and corrupts results '<' and '<=' operations");
+      Require.ProviderVersionAtLeast(new Version(4, 0));
 
       var query = GlobalSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField != ULongEnum.Zero);
       var queryString = queryFormatter.ToSqlString(query);

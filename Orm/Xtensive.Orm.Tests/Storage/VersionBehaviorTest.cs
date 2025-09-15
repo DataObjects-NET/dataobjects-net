@@ -490,7 +490,7 @@ namespace Xtensive.Orm.Tests.Storage
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof (Base));
       config.Types.Register(typeof (Skip));
-      config.Types.Register(typeof (VersionBehavior.Model.Version));
+      config.Types.Register(typeof (Version));
       config.Types.Register(typeof (HasVersion));
       config.Types.Register(typeof (HasSkipVersion));
       var domain = Domain.Build(config);

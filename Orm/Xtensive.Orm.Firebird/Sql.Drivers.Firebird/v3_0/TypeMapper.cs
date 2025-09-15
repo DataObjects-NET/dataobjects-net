@@ -1,16 +1,14 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
 using System.Data.Common;
 using System.Numerics;
-using System.Text;
-using FirebirdSql.Data.FirebirdClient;
 
-namespace Xtensive.Sql.Drivers.Firebird.v4_0
+namespace Xtensive.Sql.Drivers.Firebird.v3_0
 {
-  internal class TypeMapper : v3_0.TypeMapper
+  internal class TypeMapper : v2_5.TypeMapper
   {
     private static readonly Type BigIntegerType = typeof(BigInteger);
 
@@ -56,7 +54,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
     public override object ReadLong(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
-      if(typeOfValue == BigIntegerType) {
+      if (typeOfValue == BigIntegerType) {
         var value = reader.GetFieldValue<BigInteger>(index);
         if (value > MaxLongAsBigInteger || value < MinLongAsBigInteger)
           throw new ArgumentOutOfRangeException();

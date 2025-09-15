@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,9 +6,9 @@ using System;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Sql.Drivers.Firebird.v4_0
+namespace Xtensive.Sql.Drivers.Firebird.v3_0
 {
-  internal class Driver : v3_0.Driver
+  internal class Driver : v2_5.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper() => new TypeMapper(this);
 

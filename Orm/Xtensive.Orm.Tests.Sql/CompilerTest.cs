@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now));
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Sql
       var update = SqlDml.Delete(tableRef);
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Sql
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
     protected virtual void CreateTables(Catalog catalog)
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Sql
         if (batch.Count > 0) {
           using (var command = Connection.CreateCommand(batch)) {
             Console.WriteLine(command.CommandText);
-            command.ExecuteNonQuery();
+            _ = command.ExecuteNonQuery();
           }
         }
         return;
@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Tests.Sql
         foreach (var query in batch) {
           using (var command = Connection.CreateCommand((ISqlCompileUnit) query)) {
             Console.WriteLine(command.CommandText);
-            command.ExecuteNonQuery();
+            _ = command.ExecuteNonQuery();
           }
         }
     }
