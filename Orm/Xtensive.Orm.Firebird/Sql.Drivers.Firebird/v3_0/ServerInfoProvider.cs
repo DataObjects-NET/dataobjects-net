@@ -15,14 +15,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
 
     protected override int MaxIdentifierLength => Fb30MaxIdentifierLength;
 
-    //public override QueryInfo GetQueryInfo()
-    //{
-    //  var info = base.GetQueryInfo();
-    //  info.Features |= QueryFeatures.CrossApplyForSubqueriesOnly;
-    //  return info;
-    //}
-
-
 
     public ServerInfoProvider(SqlDriver driver)
       : base(driver)
