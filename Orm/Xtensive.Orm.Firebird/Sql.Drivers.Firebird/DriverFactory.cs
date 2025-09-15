@@ -75,6 +75,8 @@ namespace Xtensive.Sql.Drivers.Firebird
       if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 5) {
         return new v2_5.Driver(coreServerInfo);
       }
+      if (coreServerInfo.ServerVersion.Major == 3)
+        return new v3_0.Driver(coreServerInfo);
 
       return null;
     }
