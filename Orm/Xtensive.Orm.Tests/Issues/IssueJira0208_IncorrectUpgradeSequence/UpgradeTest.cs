@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
           var toRemove1 = new M1.EntityToRemove1();
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
     [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.PerformSafely);
+      using (var domain = BuildDomain("2", DomainUpgradeMode.PerformSafely))
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
           var toKeep1 = session.Query.All<M2.EntityToKeep1>().Single();
@@ -51,13 +51,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
-      string ns = typeof(M1.EntityToKeep1).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(M1.EntityToKeep1).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
@@ -66,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
   }

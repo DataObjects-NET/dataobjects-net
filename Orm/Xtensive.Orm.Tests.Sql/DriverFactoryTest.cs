@@ -50,9 +50,9 @@ namespace Xtensive.Orm.Tests.Sql
   [TestFixture]
   public class DriverFactoryTest
   {
-    private string provider = TestConnectionInfoProvider.GetProvider();
-    private string url = TestConnectionInfoProvider.GetConnectionUrl();
-    private string connectionString = TestConnectionInfoProvider.GetConnectionString();
+    private readonly string provider = TestConnectionInfoProvider.GetProvider();
+    private readonly string url = TestConnectionInfoProvider.GetConnectionUrl();
+    private readonly string connectionString = TestConnectionInfoProvider.GetConnectionString();
 
     [Test]
     public void ConnectionUrlTest()
