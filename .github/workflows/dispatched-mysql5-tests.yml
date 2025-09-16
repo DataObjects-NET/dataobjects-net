@@ -45,8 +45,8 @@ jobs:
     if: ${{ inputs.mysql55 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mysql55
       build_config: Release
@@ -65,8 +65,8 @@ jobs:
     if: ${{ inputs.mysql56 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mysql56
       build_config: Release
@@ -85,8 +85,8 @@ jobs:
     if: ${{ inputs.mysql57 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mysql57
       build_config: Release

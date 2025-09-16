@@ -18,6 +18,16 @@ on:
         type: boolean
         default: true
         required: true
+      firebird40:
+        description: 'Firebird 4.0'
+        type: boolean
+        default: false
+        required: true
+      firebird50:
+        description: 'Firebird 5.0'
+        type: boolean
+        default: false
+        required: true
 
 # new commits with the same key will cancel previously run workflows
 concurrency:
@@ -35,10 +45,50 @@ jobs:
     if: ${{ inputs.firebird30 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: firebird30
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 40
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_firebird40:
+    name: Tests on Firebird 4.0
+    if: ${{ inputs.firebird40 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: firebird40
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 40
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_firebird50:
+    name: Tests on Firebird 5.0
+    if: ${{ inputs.firebird50 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: firebird50
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}

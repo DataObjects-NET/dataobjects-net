@@ -1,5 +1,5 @@
-name: 🛠🐘 PostgreSQL 10+ tests
-run-name: Run database tests on PostgreSQL on dispatch. Run No ${{ github.run_number }}.
+name: 🛠🐬 MySQL 8.x tests
+run-name: Run database tests on MySQL on dispatch. Run No ${{ github.run_number }}.
 on:
   workflow_dispatch:
     inputs:
@@ -13,43 +13,28 @@ on:
         required: false
         default: ''
         type: string
-      pgsql100:
-        description: 'PostgreSQL 10'
+      mysql80:
+        description: 'MySQL 8.0'
         type: boolean
         default: false
         required: true
-      pgsql110:
-        description: 'PostgreSQL 11'
+      mysql81:
+        description: 'MySQL 8.1'
         type: boolean
         default: false
         required: true
-      pgsql120:
-        description: 'PostgreSQL 12'
+      mysql82:
+        description: 'MySQL 8.2'
         type: boolean
         default: false
         required: true
-      pgsql130:
-        description: 'PostgreSQL 13'
-        type: boolean
-        default: true
-        required: true
-      pgsql140:
-        description: 'PostgreSQL 14'
+      mysql83:
+        description: 'MySQL 8.3'
         type: boolean
         default: false
         required: true
-      pgsql150:
-        description: 'PostgreSQL 15'
-        type: boolean
-        default: false
-        required: true
-      pgsql160:
-        description: 'PostgreSQL 16'
-        type: boolean
-        default: false
-        required: true
-      pgsql170:
-        description: 'PostgreSQL 17'
+      mysql84:
+        description: 'MySQL 8.4'
         type: boolean
         default: true
         required: true
@@ -65,15 +50,15 @@ permissions:
   checks: write
 
 jobs:
-  test_on_pgsql100:
-    name: Tests on PostgreSQL 10
-    if: ${{ inputs.pgsql100 }}
+  test_on_mysql80:
+    name: Tests on MySQL 8.0
+    if: ${{ inputs.mysql80 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql100
+      storage: mysql80
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -85,15 +70,15 @@ jobs:
       run_extensions: true
       publish_raw_results: true
 
-  test_on_pgsql110:
-    name: Tests on PostgreSQL 11
-    if: ${{ inputs.pgsql110 }}
+  test_on_mysql81:
+    name: Tests on MySQL 8.1
+    if: ${{ inputs.mysql81 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql110
+      storage: mysql81
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -103,17 +88,17 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: true
+      publish_raw_results: false
 
-  test_on_pgsql120:
-    name: Tests on PostgreSQL 12
-    if: ${{ inputs.pgsql120 }}
+  test_on_mysql82:
+    name: Tests on MySQL 8.2
+    if: ${{ inputs.mysql82 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql120
+      storage: mysql82
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -123,17 +108,17 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: true
+      publish_raw_results: false
 
-  test_on_pgsql130:
-    name: Tests on PostgreSQL 13
-    if: ${{ inputs.pgsql130 }}
+  test_on_mysql83:
+    name: Tests on MySQL 8.3
+    if: ${{ inputs.mysql83 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql130
+      storage: mysql83
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -143,17 +128,17 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: true
+      publish_raw_results: false
 
-  test_on_pgsql140:
-    name: Tests on PostgreSQL 14
-    if: ${{ inputs.pgsql140 }}
+  test_on_mysql84:
+    name: Tests on MySQL 8.4
+    if: ${{ inputs.mysql84 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql140
+      storage: mysql84
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -163,64 +148,4 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: true
-
-  test_on_pgsql150:
-    name: Tests on PostgreSQL 15
-    if: ${{ inputs.pgsql150 }}
-    strategy:
-      matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
-    with:
-      storage: pgsql150
-      build_config: Release
-      target_framework: ${{ matrix.net }}
-      specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
-      test_output_verbosity: minimal
-      test_run_timeout: 30
-      run_main: true
-      run_sql: true
-      run_extensions: true
-      publish_raw_results: true
-
-  test_on_pgsql160:
-    name: Tests on PostgreSQL 16
-    if: ${{ inputs.pgsql160 }}
-    strategy:
-      matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
-    with:
-      storage: pgsql160
-      build_config: Release
-      target_framework: ${{ matrix.net }}
-      specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
-      test_output_verbosity: minimal
-      test_run_timeout: 30
-      run_main: true
-      run_sql: true
-      run_extensions: true
-      publish_raw_results: true
-
-  test_on_pgsql170:
-    name: Tests on PostgreSQL 17
-    if: ${{ inputs.pgsql170 }}
-    strategy:
-      matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
-    with:
-      storage: pgsql170
-      build_config: Release
-      target_framework: ${{ matrix.net }}
-      specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
-      test_output_verbosity: minimal
-      test_run_timeout: 30
-      run_main: true
-      run_sql: true
-      run_extensions: true
-      publish_raw_results: true
+      publish_raw_results: false

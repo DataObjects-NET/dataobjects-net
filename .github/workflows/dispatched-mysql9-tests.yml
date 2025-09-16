@@ -1,5 +1,5 @@
-name: 🛠🐘 PostgreSQL 9.x tests
-run-name: Run database tests on PostgreSQL on dispatch. Run No ${{ github.run_number }}.
+name: 🛠🐬 MySQL 9.x tests
+run-name: Run database tests on MySQL on dispatch. Run No ${{ github.run_number }}.
 on:
   workflow_dispatch:
     inputs:
@@ -13,20 +13,25 @@ on:
         required: false
         default: ''
         type: string
-      pgsql91:
-        description: 'PostgreSQL 9.1'
+      mysql90:
+        description: 'MySQL 9.0'
         type: boolean
         default: false
         required: true
-      pgsql92:
-        description: 'PostgreSQL 9.2'
+      mysql91:
+        description: 'MySQL 9.1'
         type: boolean
         default: false
         required: true
-      pgsql96:
-        description: 'PostgreSQL 9.6'
+      mysql92:
+        description: 'MySQL 9.2'
         type: boolean
-        default: true
+        default: false
+        required: true
+      mysql93:
+        description: 'MySQL 9.3'
+        type: boolean
+        default: false
         required: true
 
 # new commits with the same key will cancel previously run workflows
@@ -40,33 +45,35 @@ permissions:
   checks: write
 
 jobs:
-  # requires special docker registry because the image is based on schema 1, which is depricated
-  #test_on_pgsql90:
-  #  name: Tests on PostgreSQL 9.0
-  #  if: ${{ inputs.pgsql90 }}
-  #  uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
-  #  with:
-  #    storage: pgsql90
-  #    build_config: Release
-  #    target_frameworks: net6.0
-  #    specific_sha: ${{ inputs.specific_sha }}
-  #    fetch_depth: 1
-  #    test_output_verbosity: minimal
-  #    test_run_timeout: 70
-  #    run_main: true
-  #    run_sql: true
-  #    run_extensions: true
-  #    publish_raw_results: false
-
-  test_on_pgsql91:
-    name: Tests on PostgreSQL 9.1
-    if: ${{ inputs.pgsql91 }}
+  test_on_mysql90:
+    name: Tests on MySQL 9.0
+    if: ${{ inputs.mysql90 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql91
+      storage: mysql90
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_mysql91:
+    name: Tests on MySQL 9.1
+    if: ${{ inputs.mysql91 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql91
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -78,15 +85,15 @@ jobs:
       run_extensions: true
       publish_raw_results: false
 
-  test_on_pgsql92:
-    name: Tests on PostgreSQL 9.2
-    if: ${{ inputs.pgsql92 }}
+  test_on_mysql92:
+    name: Tests on MySQL 9.2
+    if: ${{ inputs.mysql92 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql92
+      storage: mysql92
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
@@ -98,15 +105,15 @@ jobs:
       run_extensions: true
       publish_raw_results: false
 
-  test_on_pgsql96:
-    name: Tests on PostgreSQL 9.6
-    if: ${{ inputs.pgsql96 }}
+  test_on_mysql93:
+    name: Tests on MySQL 9.3
+    if: ${{ inputs.mysql93 }}
     strategy:
       matrix:
         net: [ 'net5.0', 'net6.0' ]
     uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql96
+      storage: mysql93
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}

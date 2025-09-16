@@ -45,8 +45,8 @@ jobs:
     if: ${{ inputs.mssql2017 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mssql2017
       build_config: Release
@@ -65,8 +65,8 @@ jobs:
     if: ${{ inputs.mssql2019 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mssql2019
       build_config: Release
@@ -85,8 +85,8 @@ jobs:
     if: ${{ inputs.mssql2022 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mssql2022
       build_config: Release

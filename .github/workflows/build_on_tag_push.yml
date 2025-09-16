@@ -3,7 +3,7 @@ run-name: Build DO on tag '${{ github.ref_name }}'
 on:
   push:
     tags:
-      - '7.0.*'
+      - '7.1.*'
 
 # new commits with the same key will cancel previously run workflows
 #concurrency:
