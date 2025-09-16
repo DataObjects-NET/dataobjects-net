@@ -1,0 +1,31 @@
+FROM mcr.microsoft.com/mssql/server:2022-CU18-ubuntu-22.04
+USER root
+
+# See https://github.com/microsoft/mssql-docker/blob/master/linux/preview/examples/mssql-agent-fts-ha-tools/Dockerfile
+# for details
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    #Actualize time zone database
+    apt-get install -y tzdata && \
+    apt-get install -yq curl apt-transport-https && \
+    apt-get install -y gnupg2 && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list | tee /etc/apt/sources.list.d/mssql-server.list && \
+    apt-get update && \apt-get install -y mssql-server-fts && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists
+
+# Create a config directory
+RUN mkdir -p /usr/config
+WORKDIR /usr/config
+
+# Bundle config source
+COPY configure-db.sh /usr/config/
+COPY entrypoint.sh /usr/config/
+COPY setup.sql /usr/config/
+
+# Grant permissions for to our scripts to be executable
+RUN chmod +x /usr/config/entrypoint.sh
+RUN chmod +x /usr/config/configure-db.sh
+
+ENTRYPOINT ["./entrypoint.sh"]
