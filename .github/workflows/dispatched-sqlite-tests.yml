@@ -35,8 +35,8 @@ jobs:
     if: ${{ inputs.sqlite3 }}
     strategy:
       matrix:
-        net: [ 'netcoreapp2.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+        net: [ 'netcoreapp3.1' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: sqlite3
       build_config: Release
