@@ -1,0 +1,125 @@
+name: Run storage-independant tests
+run-name: Run Core tests
+on:
+  workflow_call:
+    inputs:
+      build_config:
+        description: 'Build configuration'
+        required: true
+        default: 'Release'
+        type: string
+      target_framework:
+        description: 'Target framework'
+        required: true
+        default: 'net6.0'
+        type: string
+      test_output_verbosity:
+        description: 'Verbosity for dotnet test command'
+        required: true
+        default: 'minimal'
+        type: string
+      run_core:
+        description: 'Run Xtensive.Orm.Tests.Core tests'
+        required: true
+        default: true
+        type: boolean
+      run_log4net:
+        description: 'Run Xtensive.Orm.Logging.log4net tests'
+        required: true
+        default: true
+        type: boolean
+      run_nlog:
+        description: 'Run Xtensive.Orm.Logging.NLog tests'
+        required: true
+        default: true
+        type: boolean
+      test_run_timeout:
+        description: 'Timeout for all tests'
+        required: true
+        default: 10
+        type: number
+      publish_raw_results:
+        description: 'Publix TRX files as artifacts'
+        required: false
+        default: false
+        type: boolean
+      reduced_results:
+        description: 'Show failed only tests'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  run_core_tests:
+    name: Run Core tests
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run_core || inputs.run_log4net || inputs.run_nlog }}
+    env:
+      BUILD_NUMBER: ${{ github.run_number }}
+      DO_TargetFrameworks: ${{ inputs.target_framework }}
+      TEST_RESULTS_FOLDER: _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/no-database
+    steps:
+      - name: Downgrade OpenSSL for net5.0
+        if: $${{ contains(inputs.target_framework, 'net5.0') }}
+        timeout-minutes: 3
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+
+      - name: Checkout repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+
+      - name: Build Orm
+        if: ${{ success() }}
+        timeout-minutes: 7
+        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
+
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: ${{ env.DO_TargetFrameworks }}
+
+      - name: Run tests
+        if: ${{ success() }}
+        timeout-minutes: ${{ inputs.test_run_timeout }}
+        uses: ./.github/actions/run-databaseless-tests
+        with:
+          build_config : ${{ inputs.build_config }}
+          test_output_verbosity: ${{ inputs.test_output_verbosity }}
+          test_results_folder: ${{ env.TEST_RESULTS_FOLDER }}
+          run_core: ${{ fromJSON(inputs.run_core) }}
+          run_log4net: ${{ fromJSON(inputs.run_log4net) }}
+          run_nlog: ${{ fromJSON(inputs.run_nlog) }}
+
+      - name: Publish raw test results as files
+        if: ${{ !cancelled() && inputs.publish_raw_results }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: DO_${{ github.ref_name }}_${{ github.run_number }}
+          path: |
+            ${{ env.TEST_RESULTS_FOLDER }}/**
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Make Final Test report
+        if: ${{ !cancelled() }}
+        timeout-minutes: 1
+        uses: dorny/test-reporter@v2.1.1
+        with:
+          name: RESULTS - Core Tests
+          path: ${{ env.TEST_RESULTS_FOLDER }}/*.trx
+          reporter: dotnet-trx
+          fail-on-empty: true
+          #list-suites: 'all'
+          #list-tests: ${{ (inputs.publish_raw_results || inputs.reduced_results) && 'failed' || 'all' }}
+          list-suites: 'failed'
+          list-tests: 'failed'

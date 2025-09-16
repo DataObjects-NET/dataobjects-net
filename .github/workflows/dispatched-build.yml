@@ -1,0 +1,89 @@
+name: 🏗 Build on dispatch
+run-name: Build DO on dispatch (run by ${{ github.actor }}) Run No ${{ github.run_number }} in ${{ inputs.buildConfiguration }} config.
+on:
+  workflow_dispatch:
+    inputs:
+      buildConfiguration:
+        description: 'Build configuration'
+        required: true
+        default: 'Release'
+        type: choice
+        options:
+          - Debug
+          - Release
+      verbosity:
+        description: 'dotnet build verbosity'
+        required: false
+        default: 'minimal'
+        type: choice
+        options:
+          - quiet
+          - minimal
+          - normal
+          - detailed
+          - diagnostic
+      specific_sha:
+        description: 'Commit SHA to checkout(optional)'
+        required: false
+        default: ''
+        type: string
+      fetch_depth:
+        description: 'Depth of repo fetch (change if SHA populated)'
+        required: false
+        default: 1
+        type: number
+      publish_artifacts:
+        description: 'Publish artifacts'
+        required: true
+        default: false
+        type: boolean
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      BUILD_CONFIG: ${{ inputs.buildConfiguration }}
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - name: Checkout repo
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ inputs.fetch_depth }}
+
+      - name: Manual checkout
+        if: ${{ inputs.specific_sha != '' }}
+        run: git checkout ${{ inputs.specific_sha }}          
+
+      - name: Build Orm
+        if: ${{ success() }}
+        run: dotnet build Orm.sln --configuration $BUILD_CONFIG -v ${{ inputs.verbosity }}
+
+      - name: Organize files
+        if: ${{ success() && inputs.buildConfiguration == 'Release' && inputs.publish_artifacts }}
+        run: |
+          mkdir -p _Build/bin/Release/Binaries
+          mkdir -p _Build/bin/Release/Dist
+          cp -r _Build/bin/Release/lib _Build/bin/Release/Binaries/
+          cp -r _Build/bin/Release/tools _Build/bin/Release/Binaries/
+          cp -r _Build/bin/Release/packages _Build/bin/Release/Dist/
+
+      - name: Publish artifacts
+        if: ${{ success() && inputs.buildConfiguration == 'Release' && inputs.publish_artifacts }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: DO_${{ github.ref_name }}_${{ github.run_number }}
+          path: |
+            _Build/bin/Release/Binaries/**
+            _Build/bin/Release/Dist/**
+          if-no-files-found: error
+          retention-days: 1
