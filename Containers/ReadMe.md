@@ -69,6 +69,7 @@ Say, Docker's host has name is "WILLY" and containers run with commands above, t
 ```
 Data Source=WILLY\DO_SQL2017,1417;Initial Catalog=DO-Tests;User Id=dotest;Password=dotest;MultipleActiveResultSets=True;
 ```
+
 ```
 Data Source=WILLY\DO_SQL2019,1419;Initial Catalog=DO-Tests;User Id=dotest;Password=dotest;MultipleActiveResultSets=True;
 ```
@@ -116,6 +117,12 @@ docker buildx build -f do-postgre-14 -t do-postgres:14.0 .
 ```console
 docker buildx build -f do-postgre-15 -t do-postgres:15.0 .
 ```
+```console
+docker buildx build -f do-postgre-16 -t do-postgres:16.0 .
+```
+```console
+docker buildx build -f do-postgre-17 -t do-postgres:17.0 .
+```
 
 
 NOTE Images older than 9.6 are unable to update tzdata so some tests can fail due to specific way of working with offset on ```TIMESTAMP WITH TIMEZONE```.
@@ -155,11 +162,16 @@ docker run --name postgre-14 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HO
 ```console
 docker run --name postgre-15 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54150:5432 -d do-postgres:15.0
 ```
-
+```console
+docker run --name postgre-16 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54160:5432 -d do-postgres:16.0
+```
+```console
+docker run --name postgre-17 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54170:5432 -d do-postgres:17.0
+```
 
 Here,
 
-``` --name postgre-15``` - name of the container
+``` --name postgre-17``` - name of the container
 
 ```-e POSTGRES_PASSWORD=<your password>``` - superuser password, required by base image.
 
@@ -167,7 +179,7 @@ Here,
 
 ```-e TZ=<timezone of host>``` - Some of tests still assume that test runner and storage insance are in the same timezone. If you run and test locally on your machine, set it to host timezone, otherwise false falling tests appear.
 
-```-p 54150:5432``` - host-to-container port mappings. If serveral containers are run on the same host they require to have different ports. We use following pattern - first two digits of standard port (5432) and PostgreSQL version after that e.g. 150 for 15.0, 96 for 9.6.
+```-p 54170:5432``` - host-to-container port mappings. If serveral containers are run on the same host they require to have different ports. We use following pattern - first two digits of standard port (5432) and PostgreSQL version after that e.g. 170 for 17.0, 96 for 9.6.
 
 
 During first run of container database structure and users will be created. By default it creates 'dotest' user, 'dotest' database with several schemas within.
@@ -193,8 +205,11 @@ HOST=WILLY;PORT=54120;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
 ```
 "HOST=WILLY;PORT=54150;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
 ```
+```
+"HOST=WILLY;PORT=54170;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
+```
 
-for containers postgre-9.0, postgre-9.6, postgre-12, postgre-15 respectively, you get the idea.
+for containers postgre-9.0, postgre-9.6, postgre-12, postgre-15, postgre-17 respectively, you get the idea.
 
 
 # MySQL
@@ -218,6 +233,27 @@ docker buildx build -f do-mysq-5_7 -t do-mysql:5.7 .
 ```console
 docker buildx build -f do-mysq-8_0 -t do-mysql:8.0 .
 ```
+```console
+docker buildx build -f do-mysq-8_1 -t do-mysql:8.1 .
+```
+```console
+docker buildx build -f do-mysq-8_2 -t do-mysql:8.2 .
+```
+```console
+docker buildx build -f do-mysq-8_3 -t do-mysql:8.3 .
+```
+```console
+docker buildx build -f do-mysq-8_4 -t do-mysql:8.4 .
+```
+```console
+docker buildx build -f do-mysq-9_0 -t do-mysql:9.0 .
+```
+```console
+docker buildx build -f do-mysq-9_1 -t do-mysql:9.1 .
+```
+```console
+docker buildx build -f do-mysq-9_2 -t do-mysql:9.2 .
+```
 
 
 ### Run container
@@ -235,12 +271,33 @@ docker run --name mysql-5.7 -p 3357:3306 -e MYSQL_ROOT_PASSWORD=<your password> 
 ```console
 docker run --name mysql-8.0 -p 3380:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.0
 ```
+```console
+docker run --name mysql-8.1 -p 3381:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.1
+```
+```console
+docker run --name mysql-8.2 -p 3382:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.2
+```
+```console
+docker run --name mysql-8.3 -p 3383:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.3
+```
+```console
+docker run --name mysql-8.4 -p 3384:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.4
+```
+```console
+docker run --name mysql-9.0 -p 3390:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:9.0
+```
+```console
+docker run --name mysql-9.1 -p 3391:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:9.1
+```
+```console
+docker run --name mysql-9.2 -p 3391:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:9.2
+```
 
 Here,
 
-``` --name mysql-8.0``` - name of container, can be changed, affects nothing
+``` --name mysql-9.2``` - name of container, can be changed, affects nothing
 
-``` -p 3380:3306``` - host-to-container port mapping. We use following pattern - two first digits from default port (3306) folowed by version of MySQL e.g. 55 for MySQL 5.5, 80 for MySQL.
+``` -p 3391:3306``` - host-to-container port mapping. We use following pattern - two first digits from default port (3306) folowed by version of MySQL e.g. 55 for MySQL 5.5, 80 for MySQL, 91 for MySQL 9.1.
 
 ``` -e MYSQL_ROOT_PASSWORD=<your password>``` - root password, required by base image.
 
@@ -271,6 +328,8 @@ Server=WILLY;Port=3357;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Tim
 Server=WILLY;Port=3380;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Timeout=120;
 ```
 
+and so on.
+
 
 # Firebird
 
@@ -278,21 +337,33 @@ Dockerfiles are located in 'firebird' folder.
 
 ### Build image
 
-Assuming commands are executed in context of 'firebird' folder, image can be built with following commands
+Assuming commands are executed in context of 'firebird' folder, images can be built with following commands
 
 
 ```console
 docker buildx build -f do-firebird-3_0 -t do-firebird:3.0 .
 ```
+```console
+docker buildx build -f do-firebird-4_0 -t do-firebird:4.0 .
+```
+```console
+docker buildx build -f do-firebird-5_0 -t do-firebird:5.0 .
+```
 
 
 ### Run container
 
-Assuming the image is built like in the example above container can be run like so
+Assuming the images are built like in examples above containers can be run like so
 
 
 ```console
 docker run --name firebird-3 -p 3053:3050 -e FIREBIRD_ROOT_PASSWORD=<your password> -e FIREBIRD_USER=dotest -e FIREBIRD_PASSWORD=dotest -e FIREBIRD_DATABASE=DOTEST.fdb -e FIREBIRD_DATABASE_PAGE_SIZE=8192 -d do-firebird:3.0
+```
+```console
+docker run --name firebird-4 -p 3054:3050 -e FIREBIRD_ROOT_PASSWORD=<your password> -e FIREBIRD_USER=dotest -e FIREBIRD_PASSWORD=dotest -e FIREBIRD_DATABASE=DOTEST.fdb -e FIREBIRD_DATABASE_PAGE_SIZE=8192 -d do-firebird:4.0
+```
+```console
+docker run --name firebird-5 -p 3055:3050 -e FIREBIRD_ROOT_PASSWORD=<your password> -e FIREBIRD_USER=dotest -e FIREBIRD_PASSWORD=dotest -e FIREBIRD_DATABASE=DOTEST.fdb -e FIREBIRD_DATABASE_PAGE_SIZE=8192 -d do-firebird:5.0
 ```
 
 Here,
@@ -309,7 +380,7 @@ Here,
 
 ``` -e FIREBIRD_DATABASE_PAGE_SIZE=8192``` - page size for database.
 
-```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird.
+```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird, e.g. 3, 4 ,5.
 
 Pair ```FIREBIRD_USER``` / ```FIREBIRD_PASSWORD``` can be omitted, in this case initialization script will handle it and create 'dotest' user with 'dotest' password.
 
@@ -318,11 +389,19 @@ More information about standard options [on official image page on docker hub](h
 
 ### Connect to instance in docker
 
-To access an instance run in docker use host name and port you have mapped container to. If we have docker on the same "WILLY" host then connection string may look like:
+To access an instance run in docker use host name and port you have mapped container to. If we have docker on the same "WILLY" host then connection strings may look like:
 
 ```
 User=dotest;Password=dotest;Database=dotest;DataSource=WILLY;Port=3053;Dialect=3;Charset=UTF8;Role=;Connection lifetime=15;Pooling=true;MinPoolSize=0;MaxPoolSize=50;Packet Size=8192;ServerType=0
 ```
+```
+User=dotest;Password=dotest;Database=dotest;DataSource=WILLY;Port=3054;Dialect=3;Charset=UTF8;Role=;Connection lifetime=15;Pooling=true;MinPoolSize=0;MaxPoolSize=50;Packet Size=8192;ServerType=0
+```
+```
+User=dotest;Password=dotest;Database=dotest;DataSource=WILLY;Port=3055;Dialect=3;Charset=UTF8;Role=;Connection lifetime=15;Pooling=true;MinPoolSize=0;MaxPoolSize=50;Packet Size=8192;ServerType=0
+```
+
+for containers firebird-3, firebird-4, firebird-5 respectively.
 
 If you changed user/password for connections then don't forget to update it in connection string.
 
