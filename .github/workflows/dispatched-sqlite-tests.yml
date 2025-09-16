@@ -1,0 +1,51 @@
+name: 🛠🦅 SQLite tests
+run-name: Run database tests on SQLite on dispatch. Run No ${{ github.run_number }}.
+on:
+  workflow_dispatch:
+    inputs:
+      fetch_depth:
+        description: 'Depth of repo fetch (change if SHA populated)'
+        required: false
+        default: 1
+        type: number
+      specific_sha:
+        description: 'Commit SHA to checkout'
+        required: false
+        default: ''
+        type: string
+      sqlite3:
+        description: 'SQLite 3'
+        type: boolean
+        default: true
+        required: true
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  test_on_sqlite3:
+    name: Tests on SQLite 3
+    if: ${{ inputs.sqlite3 }}
+    strategy:
+      matrix:
+        net: [ 'netcoreapp3.1' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    with:
+      storage: sqlite3
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
