@@ -1,0 +1,76 @@
+name: 🛠📚 MS SQL Server tests
+run-name: Run database tests on MS SQL Server on dispatch. Run No ${{ github.run_number }}.
+on:
+  workflow_dispatch:
+    inputs:
+      fetch_depth:
+        description: 'Depth of repo fetch (change if SHA populated)'
+        required: false
+        default: 1
+        type: number
+      specific_sha:
+        description: 'Commit SHA to checkout'
+        required: false
+        default: ''
+        type: string
+      mssql2017:
+        description: 'MS SQL Server 2017'
+        type: boolean
+        default: false
+        required: true
+      mssql2019:
+        description: 'MS SQL Server 2019'
+        type: boolean
+        default: true
+        required: true
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  test_on_mssql2017:
+    name: Tests on MS SQL Server 2017
+    if: ${{ inputs.mssql2017 }}
+    strategy:
+      matrix:
+        net: [ 'netcoreapp2.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+    with:
+      storage: mssql2017
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 50
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_mssql2019:
+    name: Tests on MS SQL Server 2019
+    if: ${{ inputs.mssql2019 }}
+    strategy:
+      matrix:
+        net: [ 'netcoreapp2.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+    with:
+      storage: mssql2019
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 50
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
