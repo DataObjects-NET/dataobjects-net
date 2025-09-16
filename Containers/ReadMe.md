@@ -19,6 +19,9 @@ docker buildx build -f do-mssql-2017 -t do-mssql:2017 .
 ```console
 docker buildx build -f do-mssql-2019 -t do-mssql:2019 .
 ```
+```console
+docker buildx build -f do-mssql-2022 -t do-mssql:2022 .
+```
 
 Don't forget about the dot at the end.
 
@@ -33,6 +36,9 @@ docker run --name DO_SQL2017 -h DO_SQL2017 -e ACCEPT_EULA=Y -e MSSQL_PID="Develo
 ```
 ```console
 docker run --name DO_SQL2019 -h DO_SQL2019 -e ACCEPT_EULA=Y -e MSSQL_PID="Developer" -e MSSQL_SA_PASSWORD="<your sa password>" -e TZ=<timezone of host> -e MSSQL_INIT_WAIT=60 -p 1419:1433 -d do-mssql:2019
+```
+```console
+docker run --name DO_SQL2022 -h DO_SQL2022 -e ACCEPT_EULA=Y -e MSSQL_PID="Developer" -e MSSQL_SA_PASSWORD="<your sa password>" -e TZ=<timezone of host> -e MSSQL_INIT_WAIT=60 -p 1422:1433 -d do-mssql:2022
 ```
 
 Here,
@@ -66,6 +72,9 @@ Data Source=WILLY\DO_SQL2017,1417;Initial Catalog=DO-Tests;User Id=dotest;Passwo
 ```
 Data Source=WILLY\DO_SQL2019,1419;Initial Catalog=DO-Tests;User Id=dotest;Password=dotest;MultipleActiveResultSets=True;
 ```
+```
+Data Source=WILLY\DO_SQL2022,1422;Initial Catalog=DO-Tests;User Id=dotest;Password=dotest;MultipleActiveResultSets=True;
+```
 
 
 
@@ -95,6 +104,18 @@ docker buildx build -f do-postgre-10 -t do-postgres:10.0 .
 ```console
 docker buildx build -f do-postgre-11 -t do-postgres:11.0 .
 ```
+```console
+docker buildx build -f do-postgre-12 -t do-postgres:12.0 .
+```
+```console
+docker buildx build -f do-postgre-13 -t do-postgres:13.0 .
+```
+```console
+docker buildx build -f do-postgre-14 -t do-postgres:14.0 .
+```
+```console
+docker buildx build -f do-postgre-15 -t do-postgres:15.0 .
+```
 
 
 NOTE Images older than 9.6 are unable to update tzdata so some tests can fail due to specific way of working with offset on ```TIMESTAMP WITH TIMEZONE```.
@@ -122,18 +143,31 @@ docker run --name postgre-10 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HO
 ```console
 docker run --name postgre-11 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54110:5432 -d do-postgres:11.0
 ```
+```console
+docker run --name postgre-12 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54120:5432 -d do-postgres:12.0
+```
+```console
+docker run --name postgre-13 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54130:5432 -d do-postgres:13.0
+```
+```console
+docker run --name postgre-14 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54140:5432 -d do-postgres:14.0
+```
+```console
+docker run --name postgre-15 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HOST_AUTH_METHOD=md5 -e TZ=<timezone of host> -p 54150:5432 -d do-postgres:15.0
+```
+
 
 Here,
 
-``` --name postgre-17``` - name of the container
+``` --name postgre-15``` - name of the container
 
 ```-e POSTGRES_PASSWORD=<your password>``` - superuser password, required by base image.
 
-```-e POSTGRES_HOST_AUTH_METHOD=md5``` - option that controlls 'auth-method'. For test purposes 'md5' is ok.
+```-e POSTGRES_HOST_AUTH_METHOD=md5``` - option that controlls 'auth-method'. For test purposes 'md5' ok.
 
 ```-e TZ=<timezone of host>``` - Some of tests still assume that test runner and storage insance are in the same timezone. If you run and test locally on your machine, set it to host timezone, otherwise false falling tests appear.
 
-```-p 54110:5432``` - host-to-container port mappings. If serveral containers are run on the same host they require to have different ports. We use following pattern - first two digits of standard port (5432) and PostgreSQL version after that e.g. 110 for 11.0, 96 for 9.6.
+```-p 54150:5432``` - host-to-container port mappings. If serveral containers are run on the same host they require to have different ports. We use following pattern - first two digits of standard port (5432) and PostgreSQL version after that e.g. 150 for 15.0, 96 for 9.6.
 
 
 During first run of container database structure and users will be created. By default it creates 'dotest' user, 'dotest' database with several schemas within.
@@ -154,10 +188,13 @@ HOST=WILLY;PORT=5490;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
 HOST=WILLY;PORT=5496;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
 ```
 ```
-HOST=WILLY;PORT=54110;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
+HOST=WILLY;PORT=54120;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
+```
+```
+"HOST=WILLY;PORT=54150;DATABASE=dotest;USER ID=dotest;PASSWORD=dotest;
 ```
 
-for containers postgre-9.0, postgre-9.6, postgre-11 respectively, you get the idea.
+for containers postgre-9.0, postgre-9.6, postgre-12, postgre-15 respectively, you get the idea.
 
 
 # MySQL
@@ -175,6 +212,12 @@ docker buildx build -f do-mysq-5_5 -t do-mysql:5.5 .
 ```console
 docker buildx build -f do-mysq-5_6 -t do-mysql:5.6 .
 ```
+```console
+docker buildx build -f do-mysq-5_7 -t do-mysql:5.7 .
+```
+```console
+docker buildx build -f do-mysq-8_0 -t do-mysql:8.0 .
+```
 
 
 ### Run container
@@ -186,12 +229,18 @@ docker run --name mysql-5.5 -p 3355:3306 -e MYSQL_ROOT_PASSWORD=<your password> 
 ```console
 docker run --name mysql-5.6 -p 3356:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:5.6
 ```
+```console
+docker run --name mysql-5.7 -p 3357:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:5.7
+```
+```console
+docker run --name mysql-8.0 -p 3380:3306 -e MYSQL_ROOT_PASSWORD=<your password> -e MYSQL_DATABASE=dotest -e MYSQL_USER=dotest -e MYSQL_PASSWORD=dotest -d do-mysql:8.0
+```
 
 Here,
 
-``` --name mysql-5.6``` - name of container, can be changed, affects nothing
+``` --name mysql-8.0``` - name of container, can be changed, affects nothing
 
-``` -p 3356:3306``` - host-to-container port mapping. We use following pattern - two first digits from default port (3306) folowed by version of MySQL e.g. 56 for MySQL 5.6.
+``` -p 3380:3306``` - host-to-container port mapping. We use following pattern - two first digits from default port (3306) folowed by version of MySQL e.g. 55 for MySQL 5.5, 80 for MySQL.
 
 ``` -e MYSQL_ROOT_PASSWORD=<your password>``` - root password, required by base image.
 
@@ -215,7 +264,12 @@ Server=WILLY;Port=3355;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Tim
 ```
 Server=WILLY;Port=3356;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Timeout=120;
 ```
-
+```
+Server=WILLY;Port=3357;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Timeout=120;
+```
+```
+Server=WILLY;Port=3380;Database=dotest;Uid=dotest;Pwd=dotest;Default Command Timeout=120;
+```
 
 
 # Firebird
@@ -255,7 +309,7 @@ Here,
 
 ``` -e FIREBIRD_DATABASE_PAGE_SIZE=8192``` - page size for database.
 
-```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird, e.g. 3, 4 ,5.
+```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird.
 
 Pair ```FIREBIRD_USER``` / ```FIREBIRD_PASSWORD``` can be omitted, in this case initialization script will handle it and create 'dotest' user with 'dotest' password.
 
