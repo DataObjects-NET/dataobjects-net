@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Tests.Sql
       StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)
         ? new DateTime(2000, 12, 11, 10, 9, 8)
         : new DateTime(2000, 12, 11, 10, 9, 8, 765);
-#if NET6_0_OR_GREATER
 
     protected static readonly DateOnly DefaultDateOnly = new DateOnly(2001, 2, 3);
     protected static readonly DateOnly SecondDateOnly = new DateOnly(2000, 12, 11);
@@ -378,7 +377,6 @@ namespace Xtensive.Orm.Tests.Sql
       }
       return SqlDml.Literal(value);
     }
-#if NET6_0_OR_GREATER
 
     private SqlExpression PrepareDateLiteral(DateOnly value)
     {
@@ -395,6 +393,5 @@ namespace Xtensive.Orm.Tests.Sql
       }
       return SqlDml.Literal(value);
     }
-#endif
   }
 }

@@ -80,6 +80,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.AddMonths(1) == FirstDateTime.AddMonths(2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddMonths(-1) == FirstMillisecondDateTime.AddMonths(-2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddMonths(33) == NullableDateTime.AddMonths(44));
+      });
+    }
 
     [Test]
     public void MinMaxValueAddMonthsTest()

@@ -20,8 +20,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
         DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
 
       var index = DataTypeFeatures.Indexing | DataTypeFeatures.KeyConstraint;
-
-#if NET6_0_OR_GREATER
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
         "datetime(6)");
@@ -31,11 +29,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
         "date");
 
       types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, ValueRange.TimeOnly, "time(6)");
-#else
-      types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
-         new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
-         "datetime(6)", "time(6)");
-#endif
+
       return types;
     }
 
