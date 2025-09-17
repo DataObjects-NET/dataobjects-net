@@ -41,7 +41,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp2.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@6.0
     with:
       storage: mssql2017
       build_config: Release
@@ -61,7 +61,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp2.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@6.0
     with:
       storage: mssql2019
       build_config: Release
