@@ -62,25 +62,28 @@ namespace Xtensive.Orm.Tests.Sql
           idParameter.DbType = DbType.Int32;
           idParameter.ParameterName = IdParameterName;
           _ = insertCommand.Parameters.Add(idParameter);
-          insertQuery.Values.Add(tableRef[IdColumnName], SqlDml.ParameterRef(IdParameterName));
+
+          var row = new Dictionary<SqlColumn, SqlExpression>(typeMappings.Length + 1);
+          row.Add(tableRef[IdColumnName], SqlDml.ParameterRef(IdParameterName));
           var parameters = new List<DbParameter>();
-          for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
+          for (var columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++) {
             var mapping = typeMappings[columnIndex];
             var parameterName = GetParameterName(columnIndex);
-            SqlExpression parameterExpression = SqlDml.ParameterRef(parameterName);
+            var parameterExpression = (SqlExpression) SqlDml.ParameterRef(parameterName);
             if (mapping.ParameterCastRequired)
               parameterExpression = SqlDml.Cast(parameterExpression, mapping.MapType());
-            insertQuery.Values.Add(tableRef[GetColumnName(columnIndex)], parameterExpression);
+            row.Add(tableRef[GetColumnName(columnIndex)], parameterExpression);
             var parameter = insertCommand.CreateParameter();
             parameter.ParameterName = parameterName;
             parameters.Add(parameter);
             _ = insertCommand.Parameters.Add(parameter);
           }
+          insertQuery.ValueRows.Add(row);
           var insertQueryText = Driver.Compile(insertQuery).GetCommandText();
           insertCommand.CommandText = insertQueryText;
-          for (int rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
+          for (var rowIndex = 0; rowIndex < testValues[0].Length; rowIndex++) {
             idParameter.Value = rowIndex;
-            for (int columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++)
+            for (var columnIndex = 0; columnIndex < typeMappings.Length; columnIndex++)
               typeMappings[columnIndex].BindValue(parameters[columnIndex], testValues[columnIndex][rowIndex]);
             _ = insertCommand.ExecuteNonQuery();
           }
