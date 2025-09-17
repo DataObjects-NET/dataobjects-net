@@ -1,0 +1,151 @@
+name: 🛠🐬 MySQL 8.x tests
+run-name: Run database tests on MySQL on dispatch. Run No ${{ github.run_number }}.
+on:
+  workflow_dispatch:
+    inputs:
+      fetch_depth:
+        description: 'Depth of repo fetch (change if SHA populated)'
+        required: false
+        default: 1
+        type: number
+      specific_sha:
+        description: 'Commit SHA to checkout'
+        required: false
+        default: ''
+        type: string
+      mysql80:
+        description: 'MySQL 8.0'
+        type: boolean
+        default: false
+        required: true
+      mysql81:
+        description: 'MySQL 8.1'
+        type: boolean
+        default: false
+        required: true
+      mysql82:
+        description: 'MySQL 8.2'
+        type: boolean
+        default: false
+        required: true
+      mysql83:
+        description: 'MySQL 8.3'
+        type: boolean
+        default: false
+        required: true
+      mysql84:
+        description: 'MySQL 8.4'
+        type: boolean
+        default: true
+        required: true
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  test_on_mysql80:
+    name: Tests on MySQL 8.0
+    if: ${{ inputs.mysql80 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql80
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_mysql81:
+    name: Tests on MySQL 8.1
+    if: ${{ inputs.mysql81 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql81
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false
+
+  test_on_mysql82:
+    name: Tests on MySQL 8.2
+    if: ${{ inputs.mysql82 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql82
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false
+
+  test_on_mysql83:
+    name: Tests on MySQL 8.3
+    if: ${{ inputs.mysql83 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql83
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false
+
+  test_on_mysql84:
+    name: Tests on MySQL 8.4
+    if: ${{ inputs.mysql84 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql84
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false

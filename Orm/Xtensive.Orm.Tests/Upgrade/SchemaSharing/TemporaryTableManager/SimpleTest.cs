@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
+// Copyright (C) 2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -47,10 +47,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
     protected virtual DomainConfiguration GetDomainConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (model.Part1.TestEntity1).Assembly, typeof (model.Part1.TestEntity1).Namespace);
-      configuration.Types.Register(typeof (model.Part2.TestEntity2).Assembly, typeof (model.Part2.TestEntity2).Namespace);
-      configuration.Types.Register(typeof (model.Part3.TestEntity3).Assembly, typeof (model.Part3.TestEntity3).Namespace);
-      configuration.Types.Register(typeof (model.Part4.TestEntity4).Assembly, typeof (model.Part4.TestEntity4).Namespace);
+      configuration.Types.RegisterCaching(typeof (model.Part1.TestEntity1).Assembly, typeof (model.Part1.TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof (model.Part2.TestEntity2).Assembly, typeof (model.Part2.TestEntity2).Namespace);
+      configuration.Types.RegisterCaching(typeof (model.Part3.TestEntity3).Assembly, typeof (model.Part3.TestEntity3).Namespace);
+      configuration.Types.RegisterCaching(typeof (model.Part4.TestEntity4).Assembly, typeof (model.Part4.TestEntity4).Namespace);
 
       return configuration;
     }

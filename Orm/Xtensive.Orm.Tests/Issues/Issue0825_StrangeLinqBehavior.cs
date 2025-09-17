@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (SevRGas2EPassportCustomerMatchGuess).Assembly, typeof (SevRGas2EPassportCustomerMatchGuess).Namespace);
+      config.Types.RegisterCaching(typeof (SevRGas2EPassportCustomerMatchGuess).Assembly, typeof (SevRGas2EPassportCustomerMatchGuess).Namespace);
       return config;
     }
 

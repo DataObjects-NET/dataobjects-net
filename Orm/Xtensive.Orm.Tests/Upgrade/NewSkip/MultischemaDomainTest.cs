@@ -60,8 +60,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(User).Assembly, typeof(User).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.DefaultSchema = Schema1;
       configuration.ForeignKeyMode = GetForeignKeyMode();
       configuration.MappingRules.Map(typeof(User).Assembly, typeof(User).Namespace).ToSchema(Schema1);

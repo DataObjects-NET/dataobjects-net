@@ -9,7 +9,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Orm.Sql.Tests
+namespace Xtensive.Orm.Tests.Sql
 {
   [TestFixture]
   public class SqlDateTimePartsTest

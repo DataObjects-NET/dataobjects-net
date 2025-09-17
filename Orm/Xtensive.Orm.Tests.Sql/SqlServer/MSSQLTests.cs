@@ -86,6 +86,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) {
           sqlConnection.Close();
         }
+        sqlConnection?.Dispose();
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
@@ -117,8 +118,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteDataReaderResult(dbCommand);
-      var r2 = GetExecuteDataReaderResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteDataReaderResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteDataReaderResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -156,8 +173,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteNonQueryResult(dbCommand);
-      var r2 = GetExecuteNonQueryResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteNonQueryResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteNonQueryResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();

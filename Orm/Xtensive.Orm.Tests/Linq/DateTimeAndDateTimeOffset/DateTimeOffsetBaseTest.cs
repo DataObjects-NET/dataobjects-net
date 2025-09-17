@@ -1,6 +1,6 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.09.15
 
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected static readonly TimeSpan FirstOffset = new TimeSpan(2, 45, 0); // +02:45
     protected static readonly TimeSpan SecondOffset = new TimeSpan(-11, 10, 0); // -11:10
-    protected static readonly TimeSpan WrongOffset = new TimeSpan(4, 35, 0); // +04:35
+    protected static readonly TimeSpan WrongOffset = new TimeSpan(1, 35, 0); // +01:35
 
     protected static readonly DateTimeOffset FirstDateTimeOffset = new DateTimeOffset(FirstDateTime, FirstOffset);
     protected static readonly DateTimeOffset SecondDateTimeOffset = new DateTimeOffset(SecondDateTime, SecondOffset);

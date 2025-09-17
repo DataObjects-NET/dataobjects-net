@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2023 Xtensive LLC.
+// Copyright (C) 2008-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using Xtensive.Sql.Dml;
 
@@ -186,6 +187,19 @@ namespace Xtensive.Orm.Tests
         row.Add(keyValue.column, keyValue.value);
       }
       insert.ValueRows.Add(row);
+    }
+
+    /// <summary>
+    /// Optimized Domain types registration of types from certain namespace.
+    /// </summary>
+    /// <param name="registry"><see cref="Configuration.DomainConfiguration.Types"/> registry</param>
+    /// <param name="assembly">Assembly which types should be registered</param>
+    /// <param name="namespace">Namespace within <paramref name="assembly"/>types should be registered.</param>
+    public static void RegisterCaching(this Xtensive.Orm.Configuration.DomainTypeRegistry registry, Assembly assembly, string @namespace)
+    {
+      foreach (var t in assembly.GetTypesFromNamespaceCaching(@namespace)) {
+        registry.Register(t);
+      }
     }
   }
 }

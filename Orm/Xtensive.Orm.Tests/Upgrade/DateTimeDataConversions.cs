@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void DateTimeToTimeOnlyTest()
     {
       if (StorageProviderInfo.Instance.Provider == StorageProvider.MySql) {
-        UpgradeAndTestData<TimeOnlyEntity, TimeOnly>(timeOnlyInitValue);// datetime in mysql is without fractions
+        UpgradeAndTestData<TimeOnlyEntity, TimeOnly>(TimeOnly.FromDateTime(dateTimeInitValue.AdjustDateTimeForCurrentProvider()));
       }
       else {
         UpgradeAndTestData<TimeOnlyEntity, TimeOnly>(TimeOnly.FromDateTime(dateTimeInitValue));

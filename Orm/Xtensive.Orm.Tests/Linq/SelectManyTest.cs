@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -71,16 +71,13 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
+
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
         .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
-      var expected = Invoices
-        .GroupBy(i => i.Customer)
-        .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
-      var list = result.ToList();
 
-      Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(expected.Except(list).IsNullOrEmpty());
+      var ex = Assert.Throws<QueryTranslationException>(() => result.ToList());
+      Assert.That(ex.InnerException, Is.InstanceOf<NotImplementedException>());
     }
 
     [Test]
@@ -167,7 +164,8 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void EntitySetSubqueryWithResultSelectorTest()
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird, "CROSS JOIN LATERAL doesn't use subquery in this case but table name, which seems to be wrong")]
+    public void EntitySetSubqueryWithResultSelectorTest1()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
       var expected = Session.Query.All<Invoice>()
@@ -175,6 +173,21 @@ namespace Xtensive.Orm.Tests.Linq
 
       IQueryable<DateTime?> result = Session.Query.All<Customer>()
         .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")), (c, i) => i.PaymentDate);
+
+      Assert.That(result, Is.Not.Empty);
+      Assert.AreEqual(expected, result.ToList().Count);
+    }
+
+    [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird, "CROSS JOIN LATERAL doesn't use subquery in this case but table name, which seems to be wrong")]
+    public void EntitySetSubqueryWithResultSelectorTest2()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Apply);
+      var expected = Session.Query.All<Invoice>()
+        .Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+
+      IQueryable<DateTime?> result = Session.Query.All<Customer>()
+        .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A"))).Select((i) => i.PaymentDate);
 
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);

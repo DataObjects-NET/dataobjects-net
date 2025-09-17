@@ -15,11 +15,11 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
   public class Context : IDisposable
   {
     private readonly Domain domain;
+    private readonly AutoResetEvent wait1 = new AutoResetEvent(false);
+    private readonly AutoResetEvent wait2 = new AutoResetEvent(false);
 
     public int Count;
-    private AutoResetEvent wait1 = new AutoResetEvent(false);
-    private AutoResetEvent wait2 = new AutoResetEvent(false);
-
+    
     public bool Disposed { get; private set; }
 
     /// <summary>
@@ -52,6 +52,9 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
 
     public void Deadlock(bool first, IsolationLevel? isolationLevel, TransactionOpenMode? transactionOpenMode)
     {
+      int firstRunsCount = 0;
+      int secondRunsCount = 0;
+
       domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation)
         .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
         .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
@@ -60,21 +63,19 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
           if (first) {
             _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-            if (wait1 != null) {
+            if (firstRunsCount == 0) {
               _ = wait1.Set();
               _ = wait2.WaitOne();
-              wait1.Dispose();
-              wait1 = null;
+              _ = Interlocked.Increment(ref firstRunsCount);
             }
             _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
           }
           else {
             _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-            if (wait2 != null) {
+            if (secondRunsCount == 0) {
               _ = wait2.Set();
               _ = wait1.WaitOne();
-              wait2.Dispose();
-              wait2 = null;
+              _ = Interlocked.Increment(ref secondRunsCount);
             }
             _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
           }
@@ -180,19 +181,21 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
           _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
           var name = "test";
           if (!session.Query.All<Foo>().Any(a => a.Name == name)) {
+            var w1 = wait1;
+            var w2 = wait2;
             if (first) {
-              if (wait1 != null && wait2 != null) {
-                _ = wait1.Set();
-                _ = wait2.WaitOne();
-                wait1.Dispose();
-                wait1 = null;
+              if (w1 != null && w2 != null) {
+                _ = w1.Set();
+                _ = w2.WaitOne();
+                //wait1.Dispose();
+                w1 = null;
               }
             }
-            else if (wait2 != null && wait2 != null) {
-              _ = wait2.Set();
-              _ = wait1.WaitOne();
-              wait2.Dispose();
-              wait2 = null;
+            else if (w2 != null && w2 != null) {
+              _ = w2.Set();
+              _ = w1.WaitOne();
+              //wait2.Dispose();
+              w2 = null;
             }
             _ = new Foo(session) { Name = name };
           }
@@ -218,15 +221,15 @@ namespace Xtensive.Orm.Reprocessing.Tests.ReprocessingContext
               if (w1 != null && w2 != null) {
                 _ = w1.Set();
                 _ = w2.WaitOne();
-                wait1.Dispose();
-                wait1 = null;
+                //wait1.Dispose();
+                w1 = null;
               }
             }
             else if (w1 != null && w2 != null) {
               _ = w2.Set();
               _ = w1.WaitOne();
-              wait2.Dispose();
-              wait2 = null;
+              //wait2.Dispose();
+              w2 = null;
             }
             _ = new Foo(session, id) { Name = Guid.NewGuid().ToString() };
           }

@@ -914,8 +914,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [OneTimeTearDown]
     public virtual void FixtureTearDown()
     {
-      if (Connection != null && Connection.State == ConnectionState.Open) {
-        Connection.Close();
+      if (Connection!=null) {
+        if (Connection.State==ConnectionState.Open) {
+          Connection.Close();
+        }
+        Connection.Dispose();
       }
     }
 

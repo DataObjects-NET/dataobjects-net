@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   public class MiscTests: AdventureWorks
   {
     private SqlConnection sqlConnection;
-    private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
 
     [OneTimeSetUp]
@@ -30,7 +29,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       base.SetUp();
       sqlDriver = TestSqlDriver.Create(Url);
       sqlConnection = sqlDriver.CreateConnection();
-      sqlCommand = sqlConnection.CreateCommand();
     }
 
     [OneTimeTearDown]
@@ -214,8 +212,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
 
       SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0] == tr2[0]).InnerJoin(tr3, tr2[0] == tr3[0]));
-      sqlCommand.CommandText = sqlDriver.Compile(select).GetCommandText();
-      sqlCommand.Prepare();
 
       int i = 0;
       SqlTableRef[] refs = new [] {tr1, tr2, tr3};

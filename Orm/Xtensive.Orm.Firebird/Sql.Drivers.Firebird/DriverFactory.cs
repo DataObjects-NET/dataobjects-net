@@ -72,7 +72,8 @@ namespace Xtensive.Sql.Drivers.Firebird
       return coreServerInfo.ServerVersion switch {
         ({ Major: 2 } and { Minor: < 5 }) or { Major: < 2 } => throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported),
         { Major: 2 } and { Minor: 5 } => new v2_5.Driver(coreServerInfo),
-        { Major: 4 }                  => new v4_0.Driver(coreServerInfo),
+        { Major: 3 } => new v3_0.Driver(coreServerInfo),
+        { Major: 4 or 5 } => new v4_0.Driver(coreServerInfo),
         _ => throw new NotSupportedException()
       };
     }

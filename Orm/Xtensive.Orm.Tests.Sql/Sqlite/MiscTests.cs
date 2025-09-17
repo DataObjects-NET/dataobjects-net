@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2023 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -82,10 +82,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     #region Setup and TearDown
 
     [OneTimeSetUp]
-    public override void SetUp()
+    public override void OneTimeSetUp()
     {
-      
-      base.SetUp();
+      base.OneTimeSetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();

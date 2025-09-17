@@ -6,11 +6,12 @@
 
 using NUnit.Framework;
 using System.Collections.Generic;
-using System.Globalization;
 using TestCommon;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Localization.Tests.Model;
 using Xtensive.Orm.Tests;
+using English = Xtensive.Orm.Localization.Tests.WellKnownCultures.English;
+using Spanish = Xtensive.Orm.Localization.Tests.WellKnownCultures.Spanish;
 
 namespace Xtensive.Orm.Localization.Tests
 {
@@ -26,14 +27,6 @@ namespace Xtensive.Orm.Localization.Tests
     private const string SecondNodeSchema = WellKnownSchemas.Schema3;
     private const string ThridNodeSchema = WellKnownSchemas.Schema4;
     private const string ForthNodeSchema = WellKnownSchemas.Schema5;
-
-    private static readonly CultureInfo EnglishCulture = new CultureInfo("en-US");
-    private static readonly string EnglishTitle = "Welcome!";
-    private static readonly string EnglishContent = "My dear guests, welcome to my birthday party!";
-
-    private static readonly CultureInfo SpanishCulture = new CultureInfo("es-ES");
-    private static readonly string SpanishTitle = "Bienvenido!";
-    private static readonly string SpanishContent = "Mis amigos mejores! Bienvenido a mi cumpleanos!";
 
     protected override void CheckRequirements() =>
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Multischema);
@@ -51,7 +44,7 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
+      configuration.Types.Register(typeof(Page).Assembly, typeof(Page).Namespace);
       configuration.DefaultSchema = DefaultNodeSchema;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
@@ -64,10 +57,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -80,13 +73,13 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        var localization = welcomePage.Localizations[EnglishCulture];
-        localization.Title = EnglishTitle;
-        localization.Content = EnglishContent;
+        var localization = welcomePage.Localizations[English.Culture];
+        localization.Title = English.Title;
+        localization.Content = English.Content;
 
-        localization = welcomePage.Localizations[SpanishCulture];
-        localization.Title = SpanishTitle;
-        localization.Content = SpanishContent;
+        localization = welcomePage.Localizations[Spanish.Culture];
+        localization.Title = Spanish.Title;
+        localization.Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -99,10 +92,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -115,13 +108,13 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        var localization = welcomePage.Localizations[EnglishCulture];
-        localization.Title = EnglishTitle;
-        localization.Content = EnglishContent;
+        var localization = welcomePage.Localizations[English.Culture];
+        localization.Title = English.Title;
+        localization.Content = English.Content;
 
-        localization = welcomePage.Localizations[SpanishCulture];
-        localization.Title = SpanishTitle;
-        localization.Content = SpanishContent;
+        localization = welcomePage.Localizations[Spanish.Culture];
+        localization.Title = Spanish.Title;
+        localization.Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -134,10 +127,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -150,13 +143,13 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        var localization = welcomePage.Localizations[EnglishCulture];
-        localization.Title = EnglishTitle;
-        localization.Content = EnglishContent;
+        var localization = welcomePage.Localizations[English.Culture];
+        localization.Title = English.Title;
+        localization.Content = English.Content;
 
-        localization = welcomePage.Localizations[SpanishCulture];
-        localization.Title = SpanishTitle;
-        localization.Content = SpanishContent;
+        localization = welcomePage.Localizations[Spanish.Culture];
+        localization.Title = Spanish.Title;
+        localization.Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -169,10 +162,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -185,13 +178,13 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        var localization = welcomePage.Localizations[EnglishCulture];
-        localization.Title = EnglishTitle;
-        localization.Content = EnglishContent;
+        var localization = welcomePage.Localizations[English.Culture];
+        localization.Title = English.Title;
+        localization.Content = English.Content;
 
-        localization = welcomePage.Localizations[SpanishCulture];
-        localization.Title = SpanishTitle;
-        localization.Content = SpanishContent;
+        localization = welcomePage.Localizations[Spanish.Culture];
+        localization.Title = Spanish.Title;
+        localization.Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -204,10 +197,10 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        welcomePage.Localizations[English.Culture].Title = English.Title;
+        welcomePage.Localizations[English.Culture].Content = English.Content;
+        welcomePage.Localizations[Spanish.Culture].Title = Spanish.Title;
+        welcomePage.Localizations[Spanish.Culture].Content = Spanish.Content;
 
         session.SaveChanges();
       }
@@ -220,13 +213,13 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
-        var localization = welcomePage.Localizations[EnglishCulture];
-        localization.Title = EnglishTitle;
-        localization.Content = EnglishContent;
+        var localization = welcomePage.Localizations[English.Culture];
+        localization.Title = English.Title;
+        localization.Content = English.Content;
 
-        localization = welcomePage.Localizations[SpanishCulture];
-        localization.Title = SpanishTitle;
-        localization.Content = SpanishContent;
+        localization = welcomePage.Localizations[Spanish.Culture];
+        localization.Title = Spanish.Title;
+        localization.Content = Spanish.Content;
 
         session.SaveChanges();
       }

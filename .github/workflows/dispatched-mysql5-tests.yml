@@ -1,0 +1,101 @@
+name: 🛠🐬 MySQL 5.x tests
+run-name: Run database tests on MySQL on dispatch. Run No ${{ github.run_number }}.
+on:
+  workflow_dispatch:
+    inputs:
+      fetch_depth:
+        description: 'Depth of repo fetch (change if SHA populated)'
+        required: false
+        default: 1
+        type: number
+      specific_sha:
+        description: 'Commit SHA to checkout'
+        required: false
+        default: ''
+        type: string
+      mysql55:
+        description: 'MySQL 5.5'
+        type: boolean
+        default: false
+        required: true
+      mysql56:
+        description: 'MySQL 5.6'
+        type: boolean
+        default: true
+        required: true
+      mysql57:
+        description: 'MySQL 5.7'
+        type: boolean
+        default: true
+        required: true
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  test_on_mysql55:
+    name: Tests on MySQL 5.5
+    if: ${{ inputs.mysql55 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql55
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 20
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false
+
+  test_on_mysql56:
+    name: Tests on MySQL 5.6
+    if: ${{ inputs.mysql56 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql56
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true
+
+  test_on_mysql57:
+    name: Tests on MySQL 5.7
+    if: ${{ inputs.mysql57 }}
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    with:
+      storage: mysql57
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      specific_sha: ${{ inputs.specific_sha }}
+      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      test_output_verbosity: minimal
+      test_run_timeout: 35
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: true

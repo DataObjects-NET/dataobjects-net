@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
 
       if(IsMultischema) {
         configuration.DefaultSchema = GetDefaultSchema(StorageProviderInfo.Instance);
@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = base.BuildConfiguration();
       configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
 
       return configuration;
     }

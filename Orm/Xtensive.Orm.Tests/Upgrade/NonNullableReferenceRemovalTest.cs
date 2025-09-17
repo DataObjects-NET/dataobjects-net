@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
     }
 
@@ -88,18 +88,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.BuildAsync(configuration);
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void UpgradeTest()
     {
       using (var domain1 = BuildDomain(typeof(Model1.Owner), DomainUpgradeMode.Recreate))
       using (var session = domain1.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new Model1.Owner(new Model1.Target());
-        new Model1.Owner(new Model1.Target());
+        _ = new Model1.Owner(new Model1.Target());
+        _ = new Model1.Owner(new Model1.Target());
         tx.Complete();
       }
 
@@ -110,13 +111,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public async Task UpgradeAsyncTest()
     {
       using (var domain1 = BuildDomain(typeof(Model1.Owner), DomainUpgradeMode.Recreate))
       using (var session = domain1.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new Model1.Owner(new Model1.Target());
-        new Model1.Owner(new Model1.Target());
+        _ = new Model1.Owner(new Model1.Target());
+        _ = new Model1.Owner(new Model1.Target());
         tx.Complete();
       }
 

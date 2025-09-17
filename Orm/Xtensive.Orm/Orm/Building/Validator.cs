@@ -213,6 +213,31 @@ namespace Xtensive.Orm.Building
       }
     }
 
+    public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
+    {
+      // TypeId mode must match
+      if (first.IncludeTypeId != second.IncludeTypeId)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ,
+          @interface.Name, first.Root.Name, second.Root.Name));
+
+      // Number of key fields must match
+      if (first.KeyFields.Count != second.KeyFields.Count)
+        throw new DomainBuilderException(string.Format(
+          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
+          @interface.Name, first.Root.Name, second.Root.Name));
+
+      // Type of each key field must match
+      for (int i = 0; i < first.KeyFields.Count; i++) {
+        var masterField = first.Root.Fields[first.KeyFields[i].Name];
+        var candidateField = second.Root.Fields[second.KeyFields[i].Name];
+        if (masterField.ValueType != candidateField.ValueType)
+          throw new DomainBuilderException(string.Format(
+            Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
+            @interface.Name, first.Root.Name, second.Root.Name));
+      }
+    }
+
     internal void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
     }
@@ -266,34 +291,6 @@ namespace Xtensive.Orm.Building
       fieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
       this.validFieldTypes = new HashSet<Type>(validFieldTypes) {WellKnownOrmTypes.Key};
-    }
-
-    public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
-    {
-      // TypeId mode must match
-      if (first.IncludeTypeId != second.IncludeTypeId) {
-        throw new DomainBuilderException(string.Format(
-          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ,
-          @interface.Name, first.Root.Name, second.Root.Name));
-      }
-
-      // Number of key fields must match
-      if (first.KeyFields.Count != second.KeyFields.Count) {
-        throw new DomainBuilderException(string.Format(
-          Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
-          @interface.Name, first.Root.Name, second.Root.Name));
-      }
-
-      // Type of each key field must match
-      for (var i = 0; i < first.KeyFields.Count; i++) {
-        var masterField = first.Root.Fields[first.KeyFields[i].Name];
-        var candidateField = second.Root.Fields[second.KeyFields[i].Name];
-        if (masterField.ValueType != candidateField.ValueType) {
-          throw new DomainBuilderException(string.Format(
-            Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
-            @interface.Name, first.Root.Name, second.Root.Name));
-        }
-      }
     }
   }
 }

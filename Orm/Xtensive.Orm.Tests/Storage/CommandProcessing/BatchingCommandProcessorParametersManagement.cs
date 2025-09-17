@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(ALotOfFieldsEntityValid).Assembly, typeof(ALotOfFieldsEntityValid).Namespace);
+      config.Types.RegisterCaching(typeof(ALotOfFieldsEntityValid).Assembly, typeof(ALotOfFieldsEntityValid).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }

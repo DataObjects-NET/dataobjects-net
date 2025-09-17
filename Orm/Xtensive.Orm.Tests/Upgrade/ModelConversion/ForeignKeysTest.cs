@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.ForeignKeyMode = ForeignKeyMode.Reference;
       var type = typeof (Tests.Model.Association.Root);
-      configuration.Types.Register(type.Assembly, type.Namespace);
+      configuration.Types.RegisterCaching(type.Assembly, type.Namespace);
       return configuration;
     }
   }

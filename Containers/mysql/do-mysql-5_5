@@ -1,0 +1,10 @@
+FROM mysql:5.5.62
+
+RUN echo "sql-mode = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'" >> /etc/mysql/my.cnf
+RUN echo "character-set-server = utf8" >> /etc/mysql/my.cnf
+RUN echo "collation-server = utf8_general_ci" >> /etc/mysql/my.cnf
+RUN echo "lower_case_table_names = 1" >> /etc/mysql/my.cnf
+
+COPY init-mysql-instance-legacy.sh /docker-entrypoint-initdb.d/
+
+RUN chmod +x /docker-entrypoint-initdb.d/init-mysql-instance-legacy.sh

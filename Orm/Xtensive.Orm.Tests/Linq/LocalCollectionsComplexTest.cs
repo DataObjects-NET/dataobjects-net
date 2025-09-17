@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (EntityA).Assembly, typeof (EntityA).Namespace);
+      config.Types.RegisterCaching(typeof (EntityA).Assembly, typeof (EntityA).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }

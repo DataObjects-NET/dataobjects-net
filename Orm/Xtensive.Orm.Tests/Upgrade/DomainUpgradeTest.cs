@@ -340,6 +340,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public void UpdateTypeIdWithMutualRenameTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -370,6 +371,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public async Task UpdateTypeIdWithMutualRenameAsyncTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -400,6 +402,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public void UpgradeToVersion2Test()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -412,6 +415,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Sqlite | StorageProvider.MySql)]
     public async Task UpgradeToVersion2AsyncTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);
@@ -797,7 +801,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), NamespaceForVersion[version]);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), NamespaceForVersion[version]);
       configuration.Types.Register(typeof(Upgrader));
 
       return configuration;

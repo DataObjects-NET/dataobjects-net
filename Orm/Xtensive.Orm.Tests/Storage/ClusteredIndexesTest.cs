@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -360,7 +360,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       foreach (var type in domainTypes)
         config.Types.Register(type);
-      config.Types.Register(typeof (SingleTableSchemaModifier).Assembly, typeof (SingleTableSchemaModifier).Namespace);
+      config.Types.RegisterCaching(typeof (SingleTableSchemaModifier).Assembly, typeof (SingleTableSchemaModifier).Namespace);
 
       config.UpgradeMode = upgradeMode;
       if (inheritanceSchema!=null)
