@@ -44,7 +44,7 @@ jobs:
   #test_on_pgsql90:
   #  name: Tests on PostgreSQL 9.0
   #  if: ${{ inputs.pgsql90 }}
-  #  uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+  #  uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
   #  with:
   #    storage: pgsql90
   #    build_config: Release
@@ -63,8 +63,8 @@ jobs:
     if: ${{ inputs.pgsql91 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql91
       build_config: Release
@@ -83,8 +83,8 @@ jobs:
     if: ${{ inputs.pgsql92 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql92
       build_config: Release
@@ -103,8 +103,8 @@ jobs:
     if: ${{ inputs.pgsql96 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql96
       build_config: Release

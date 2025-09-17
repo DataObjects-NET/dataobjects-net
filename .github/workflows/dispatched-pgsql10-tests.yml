@@ -70,8 +70,8 @@ jobs:
     if: ${{ inputs.pgsql100 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql100
       build_config: Release
@@ -90,8 +90,8 @@ jobs:
     if: ${{ inputs.pgsql110 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql110
       build_config: Release
@@ -110,8 +110,8 @@ jobs:
     if: ${{ inputs.pgsql120 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql120
       build_config: Release
@@ -130,8 +130,8 @@ jobs:
     if: ${{ inputs.pgsql130 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql130
       build_config: Release
@@ -150,8 +150,8 @@ jobs:
     if: ${{ inputs.pgsql140 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql140
       build_config: Release
@@ -170,8 +170,8 @@ jobs:
     if: ${{ inputs.pgsql150 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql150
       build_config: Release
@@ -190,8 +190,8 @@ jobs:
     if: ${{ inputs.pgsql160 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql160
       build_config: Release
@@ -210,8 +210,8 @@ jobs:
     if: ${{ inputs.pgsql170 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: pgsql170
       build_config: Release

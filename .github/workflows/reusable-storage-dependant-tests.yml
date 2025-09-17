@@ -83,13 +83,6 @@ jobs:
       TEST_RESULTS_FOLDER: _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/${{ inputs.storage }}
 
     steps:
-      - name: downgrade OpenSSL for net5.0
-        if: $${{ contains(inputs.target_framework, 'net5.0') }}
-        timeout-minutes: 3
-        run: |
-          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
-          sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
-
       - name: Checkout repo
         timeout-minutes: 1
         uses: actions/checkout@v4
