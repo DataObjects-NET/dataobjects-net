@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: sqlite3
       build_config: Release

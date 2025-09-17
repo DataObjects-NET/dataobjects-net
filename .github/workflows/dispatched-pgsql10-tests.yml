@@ -61,7 +61,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql100
       build_config: Release
@@ -81,7 +81,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql110
       build_config: Release
@@ -101,7 +101,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql120
       build_config: Release
@@ -121,7 +121,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql130
       build_config: Release
@@ -141,7 +141,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql140
       build_config: Release
@@ -161,7 +161,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
-    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql150
       build_config: Release
