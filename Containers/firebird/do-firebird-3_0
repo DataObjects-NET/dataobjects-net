@@ -1,6 +1,8 @@
 FROM firebirdsql/firebird:3.0.10
 
-RUN echo "WireCrypt = Disabled" >> /opt/firebird/firebird.conf
+RUN echo "WireCrypt = Enabled" >> /opt/firebird/firebird.conf
+RUN echo "AuthServer = Srp256, Legacy_Auth" >> /opt/firebird/firebird.conf
+RUN echo "AuthClient = Srp256, Srp, Legacy_Auth" >> /opt/firebird/firebird.conf
 
 COPY init-firebird-instance.sh /docker-entrypoint-initdb.d/
 
