@@ -53,7 +53,7 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_mysql56:
     name: Tests on MySQL 5.6

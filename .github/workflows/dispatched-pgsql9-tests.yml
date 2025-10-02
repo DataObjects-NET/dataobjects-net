@@ -76,7 +76,7 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql92:
     name: Tests on PostgreSQL 9.2
@@ -96,7 +96,7 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql96:
     name: Tests on PostgreSQL 9.6
@@ -116,4 +116,4 @@ jobs:
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
