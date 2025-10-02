@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
   public abstract class Sakila
   {
     private readonly string sakilaDataBackupPath = Path.Combine(
-      Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"MySQL\SakilaDb\sakila-data.sql");
+      Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"MySQL/SakilaDb/sakila-data.sql");
 
     protected ConnectionInfo ConnectionInfo = TestConnectionInfoProvider.GetConnectionInfo();
     protected SqlDriver SqlDriver;
