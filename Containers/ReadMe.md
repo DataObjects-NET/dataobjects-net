@@ -125,7 +125,7 @@ docker run --name postgre-11 -e POSTGRES_PASSWORD=<your password> -e POSTGRES_HO
 
 Here,
 
-``` --name postgre-17``` - name of the container
+``` --name postgre-11``` - name of the container
 
 ```-e POSTGRES_PASSWORD=<your password>``` - superuser password, required by base image.
 
@@ -255,7 +255,7 @@ Here,
 
 ``` -e FIREBIRD_DATABASE_PAGE_SIZE=8192``` - page size for database.
 
-```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird, e.g. 3, 4 ,5.
+```-p 3053:3050``` - host-to-container port mapping. We use following pattern - first three digits of standard port (3050) and  major version of Firebird.
 
 Pair ```FIREBIRD_USER``` / ```FIREBIRD_PASSWORD``` can be omitted, in this case initialization script will handle it and create 'dotest' user with 'dotest' password.
 

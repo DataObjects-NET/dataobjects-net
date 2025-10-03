@@ -267,22 +267,6 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-//      Type itemType = node.ItemType;
-//      object[] values = node.GetValues();
-//      int count = values.Length;
-//      if (count==0)
-//        return "(NULL)";
-//      var buffer = new string[count];
-//      for (int index = 0; index < count; index++)
-//        buffer[index] = Translate(context, (SqlLiteral) SqlDml.Literal(values[index], itemType));
-//      if (count==1)
-//        return "(" + buffer[0] + ")";
-//
-//      buffer[0] = "(" + buffer[0];
-//      buffer[count - 1] += ")";
-//      return String.Join(RowItemDelimiter, buffer);
-//    }
-
     public virtual string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
       switch (section) {
@@ -1825,8 +1809,9 @@ namespace Xtensive.Sql.Compiler
     {
       if (statements.Length==0)
         return string.Empty;
+      var statementEndingLength = BatchItemDelimiter.Length + NewLine.Length;
       var expectedLength = BatchBegin.Length + BatchEnd.Length +
-        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);
+        statements.Sum(statement => statement.Length + statementEndingLength);
       var builder = new StringBuilder(expectedLength);
       builder.Append(BatchBegin);
       foreach (var statement in statements) {

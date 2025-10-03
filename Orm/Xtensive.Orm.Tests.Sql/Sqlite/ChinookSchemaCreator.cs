@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
+// Copyright (C) 2019 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     public void DropSchemaContent(SqlConnection connection, Schema defaultSchema)
     {
+      DropViews(connection, defaultSchema);
       DropTables(connection, defaultSchema);
     }
 
