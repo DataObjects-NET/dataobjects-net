@@ -1807,13 +1807,14 @@ namespace Xtensive.Sql.Compiler
     /// <returns>String containing the whole batch.</returns>
     public virtual string BuildBatch(string[] statements)
     {
-      if (statements.Length==0)
+      if (statements.Length == 0) {
         return string.Empty;
-      var statementEndingLength = BatchItemDelimiter.Length + NewLine.Length;
-      var expectedLength = BatchBegin.Length + BatchEnd.Length +
-        statements.Sum(statement => statement.Length + statementEndingLength);
+      }
+      var expectedLength = BatchBegin.Length + BatchEnd.Length
+        + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Length)
+        + statements.Sum(statement => statement.Length);
       var builder = new StringBuilder(expectedLength);
-      builder.Append(BatchBegin);
+      _ = builder.Append(BatchBegin);
       foreach (var statement in statements) {
         var actualStatement = statement
           .TryCutPrefix(BatchBegin)
@@ -1823,11 +1824,11 @@ namespace Xtensive.Sql.Compiler
           .Trim();
         if (actualStatement.Length==0)
           continue;
-        builder.Append(actualStatement);
-        builder.Append(BatchItemDelimiter);
-        builder.Append(NewLine);
+        _ = builder.Append(actualStatement)
+          .Append(BatchItemDelimiter)
+          .Append(NewLine);
       }
-      builder.Append(BatchEnd);
+      _ = builder.Append(BatchEnd);
       return builder.ToString();
     }
 
