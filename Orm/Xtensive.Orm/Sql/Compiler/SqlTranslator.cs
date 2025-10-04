@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine { get { return "\r\n"; } }
+    public virtual string NewLine { get { return Environment.NewLine; } }
 
     public virtual string OpeningParenthesis { get { return "("; } }
     public virtual string ClosingParenthesis { get { return ")"; } }
