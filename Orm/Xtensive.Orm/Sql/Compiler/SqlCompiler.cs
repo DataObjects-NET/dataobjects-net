@@ -226,10 +226,15 @@ namespace Xtensive.Sql.Compiler
         }
         context.Output.AppendText(translator.BatchBegin);
         using (context.EnterCollectionScope()) {
+          Console.WriteLine("Visit(SqlBatch node) Begin");
           foreach (var item in statements) {
+            Console.WriteLine("Visit(SqlBatch node) ITERATION Begin");
             item.AcceptVisitor(this);
+            Console.WriteLine("Add BatchItemDelimiter in iteration of statements in Visit(SqlBatch node)");
             context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            Console.WriteLine("Visit(SqlBatch node) ITERATION End");
           }
+          Console.WriteLine("Visit(SqlBatch node) End");
         }
         context.Output.AppendText(translator.BatchEnd);
       }
@@ -1327,10 +1332,15 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
         using (context.EnterCollectionScope()) {
+          Console.WriteLine("Visit(SqlStatementBlock node) Begin");
           foreach (SqlStatement item in node) {
+            Console.WriteLine("Visit(SqlStatementBlock node) ITERATION Begin");
             item.AcceptVisitor(this);
+            Console.WriteLine("Add BatchItemDelimiter in iteration of statements in Visit(SqlStatementBlock node)");
             context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            Console.WriteLine("Visit(SqlStatementBlock node) ITERATION End");
           }
+          Console.WriteLine("Visit(SqlStatementBlock node) End");
         }
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
       }
