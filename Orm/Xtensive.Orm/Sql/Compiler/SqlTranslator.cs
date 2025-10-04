@@ -1813,42 +1813,22 @@ namespace Xtensive.Sql.Compiler
       var expectedLength = BatchBegin.Length + BatchEnd.Length +
         statements.Sum(statement => statement.Length + statementEndingLength);
       var builder = new StringBuilder(expectedLength);
-      Console.WriteLine("BuildBatch(string[] statements) Begin");
       builder.Append(BatchBegin);
       foreach (var statement in statements) {
-        Console.WriteLine("BuildBatch(string[] statements) ITERATION Begin");
-        Console.WriteLine($"Raw statement {statement}");
-        var noBatchBeginStatement = statement.TryCutPrefix(BatchBegin);
-        Console.WriteLine($"No BatchBegin statement {noBatchBeginStatement}");
-        var noBatchEndStatement = noBatchBeginStatement.TryCutSuffix(BatchEnd);
-        Console.WriteLine($"No BatchEnd statement {noBatchEndStatement}");
-        var noNewLineStatement = noBatchEndStatement.TryCutSuffix(NewLine);
-        Console.WriteLine($"No NewLine statement {noNewLineStatement}");
-        var noBatchDeliminterStatement = noNewLineStatement.TryCutSuffix(BatchItemDelimiter);
-        Console.WriteLine($"No BatchDelimiter statement {noBatchDeliminterStatement}");
-        var actualStatement = noBatchDeliminterStatement.Trim();
-        //var actualStatement = statement
-        //  .TryCutPrefix(BatchBegin)
-        //  .TryCutSuffix(BatchEnd)
-        //  .TryCutSuffix(NewLine)
-        //  .TryCutSuffix(BatchItemDelimiter)
-        //  .Trim();
+        var actualStatement = statement
+          .TryCutPrefix(BatchBegin)
+          .TryCutSuffix(BatchEnd)
+          .TryCutSuffix(NewLine)
+          .TryCutSuffix(BatchItemDelimiter)
+          .Trim();
         if (actualStatement.Length==0)
           continue;
         builder.Append(actualStatement);
-        Console.WriteLine("Add BatchItemDelimiter in iteration of statements in BuildBatch(string[] statements)");
         builder.Append(BatchItemDelimiter);
         builder.Append(NewLine);
-
-        Console.WriteLine("BuildBatch(string[] statements) ITERATION End");
       }
       builder.Append(BatchEnd);
-      //return builder.ToString();
-      var result = builder.ToString();
-
-      Console.WriteLine();
-      Console.WriteLine("BuildBatch(string[] statements) End");
-      return result;
+      return builder.ToString();
     }
 
     public virtual string TranslateSortOrder(bool ascending)
