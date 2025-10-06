@@ -41,11 +41,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       get { return ";"; }
     }
 
-    /// <inheritdoc/>
-    public override string BatchItemDelimiter
-    {
-      get { return ";\r\n"; }
-    }
+    ///// <inheritdoc/>
+    //public override string BatchItemDelimiter
+    //{
+    //  get { return ";\r\n"; }
+    //}
 
     /// <inheritdoc/>
     public override void Initialize()
