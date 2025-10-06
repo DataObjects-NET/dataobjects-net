@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByDescendingTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql, "Different ordering");
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql | StorageProvider.PostgreSql, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
@@ -109,19 +109,15 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
         .Select(c => c.Address.City)
-        .Where(c => c[0] != 'S').ToList();
-      Assert.That(result.Count, Is.EqualTo(expected.Count));
+        .Where(c => c[0] != 'S');
       Assert.That(result, Is.Not.Empty);
-      for (var i = 0; i < expected.Count; i++) {
-        Console.WriteLine($"{expected[i]} - {result[i]}");
-      }
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
     [Test]
     public void OrderByDescendingAlternativeTest()
     {
-      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql, "Different ordering");
+      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql | StorageProvider.PostgreSql, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .Where(c => !c.Address.Country.StartsWith("U"))
