@@ -110,7 +110,11 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
         .Select(c => c.Address.City)
         .Where(c => c[0] != 'S');
+      Assert.That(result.Count, Is.EqualTo(expected.Count));
       Assert.That(result, Is.Not.Empty);
+      for (var i = 0; i < expected.Count; i++) {
+        Console.WriteLine($"{expected[i]} - {result[i]}");
+      }
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
