@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByDescendingTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByDescendingAlternativeTest()
     {
-      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
+      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird | StorageProvider.MySql, "Different ordering");
 
       var result = Session.Query.All<Customer>()
         .Where(c => !c.Address.Country.StartsWith("U"))
