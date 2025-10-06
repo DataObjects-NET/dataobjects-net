@@ -60,12 +60,12 @@ namespace Xtensive.Core
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder(64);
-      sb.Append(base.ToString())
+      _ = sb.Append(base.ToString())
         .AppendLine()
         .AppendFormat("{0}:", Strings.OriginalExceptions);
       int i = 1;
       foreach (Exception exception in exceptions)
-        sb.AppendLine().AppendFormat("\r\n{0}: {1}", i++, exception);
+        sb.AppendLine().AppendFormat("{0}: {1}", i++, exception);
       return sb.ToString();
     }
 
