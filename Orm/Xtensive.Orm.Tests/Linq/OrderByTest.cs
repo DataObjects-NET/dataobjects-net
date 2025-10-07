@@ -180,12 +180,12 @@ namespace Xtensive.Orm.Tests.Linq
       // to avoid non-english characters, which cause different order
       // we filter out everything that may have them
       var serverSide = Session.Query.All<Customer>()
-        .Where(c => c.Address.Country.In("USA", "Canda", "France", "United Kingdom"))
+        .Where(c => c.Address.Country.In("United States", "Canda", "France", "United Kingdom"))
         .OrderBy(c => c.LastName.ToUpper())
         .Select(c => new { c.LastName, c.Address.Country })
         .ToList();
       var local = Customers
-        .Where(c => c.Address.Country.In("USA", "Canda", "France", "United Kingdom"))
+        .Where(c => c.Address.Country.In("United States", "Canda", "France", "United Kingdom"))
         .OrderBy(c => c.LastName.ToUpper()).Select(c => new { c.LastName, c.Address.Country }).ToList();
       Assert.That(serverSide, Is.Not.Empty);
       Assert.IsTrue(local.SequenceEqual(serverSide));
