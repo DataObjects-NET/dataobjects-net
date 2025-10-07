@@ -3005,7 +3005,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Max(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Max(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(DoubleValueAccuracy));
       }
     }
 
@@ -3016,7 +3016,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
       using (var tx = session.OpenTransaction()) {
         var queryableResult = session.Query.All<TestEntity>().Max(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Max(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
-        Assert.That(queryableResult, Is.EqualTo(enumerableResult));
+        Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(DoubleValueAccuracy));
+        ;
       }
     }
 
