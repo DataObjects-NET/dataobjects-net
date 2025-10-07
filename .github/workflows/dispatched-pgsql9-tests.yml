@@ -21,11 +21,6 @@ on:
       pgsql92:
         description: 'PostgreSQL 9.2'
         type: boolean
-        default: false
-        required: true
-      pgsql96:
-        description: 'PostgreSQL 9.6'
-        type: boolean
         default: true
         required: true
 
@@ -87,26 +82,6 @@ jobs:
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@6.0
     with:
       storage: pgsql92
-      build_config: Release
-      target_framework: ${{ matrix.net }}
-      specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
-      test_output_verbosity: minimal
-      test_run_timeout: 30
-      run_main: true
-      run_sql: true
-      run_extensions: true
-      publish_raw_results: true
-
-  test_on_pgsql96:
-    name: Tests on PostgreSQL 9.6
-    if: ${{ inputs.pgsql96 }}
-    strategy:
-      matrix:
-        net: [ 'netcoreapp2.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@6.0
-    with:
-      storage: pgsql96
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
