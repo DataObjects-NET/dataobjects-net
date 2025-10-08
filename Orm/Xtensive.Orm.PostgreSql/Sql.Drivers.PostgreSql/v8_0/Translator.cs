@@ -43,7 +43,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     public override string DdlStatementDelimiter { get { return ";"; } }
-    public override string BatchItemDelimiter { get { return ";\r\n"; } }
 
     [DebuggerStepThrough]
     public override string QuoteIdentifier(params string[] names)

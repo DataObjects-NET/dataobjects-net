@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeTest(int takeValue)
     {
       var query = Session.Query.All<Customer>()
-        .Where(c => c.Address.Country == "USA")
+        .Where(c => c.Address.Country == "United States")
         .Select(c => c.Key)
         .Take(takeValue);
       if (takeValue <= 0) {
@@ -64,9 +64,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void SkipTest(int skipValue)
     {
       var customersFromGermanyOverallCount = Session.Query.All<Customer>()
-       .Where(c => c.Address.Country == "USA").Count();
+       .Where(c => c.Address.Country == "United States").Count();
       var query = Session.Query.All<Customer>()
-       .Where(c => c.Address.Country == "USA")
+       .Where(c => c.Address.Country == "United States")
        .Select(c => c.Key)
        .Skip(skipValue);
 
