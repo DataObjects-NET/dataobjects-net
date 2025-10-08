@@ -99,34 +99,12 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByDescendingTest()
     {
-      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
-
       var result = Session.Query.All<Customer>()
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
         .Select(c => c.Address.City)
         .AsEnumerable()
         .Where(c => c[0] != 'S').ToList();//There are Cites which cause slight deviation in order accross RDBMSs
       var expected = Customers
-        .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
-        .Select(c => c.Address.City)
-        .Where(c => c[0] != 'S');
-      Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
-    }
-
-    [Test]
-    public void OrderByDescendingAlternativeTest()
-    {
-      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.Firebird, "Different ordering");
-
-      var result = Session.Query.All<Customer>()
-        .Where(c => !c.Address.Country.StartsWith("U"))
-        .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
-        .Select(c => c.Address.City)
-        .AsEnumerable()
-        .Where(c => c[0] != 'S').ToList();//There are Cites which cause slight deviation in order accross RDBMSs
-      var expected = Customers
-        .Where(c => !c.Address.Country.StartsWith('U'))
         .OrderByDescending(c => c.Address.Country).ThenByDescending(c => c.CustomerId)
         .Select(c => c.Address.City)
         .Where(c => c[0] != 'S');
@@ -166,12 +144,12 @@ namespace Xtensive.Orm.Tests.Linq
       // to avoid non-english characters, which cause different order
       // we filter out everything that may have them
       var serverSide = Session.Query.All<Customer>()
-        .Where(c => c.Address.Country.In("USA", "Canda", "France", "United Kingdom"))
+        .Where(c => c.Address.Country.In("United States", "Canda", "France", "United Kingdom"))
         .OrderBy(c => c.LastName.ToUpper())
         .Select(c => new { c.LastName, c.Address.Country })
         .ToList();
       var local = Customers
-        .Where(c => c.Address.Country.In("USA", "Canda", "France", "United Kingdom"))
+        .Where(c => c.Address.Country.In("United States", "Canda", "France", "United Kingdom"))
         .OrderBy(c => c.LastName.ToUpper()).Select(c => new { c.LastName, c.Address.Country }).ToList();
       Assert.That(serverSide, Is.Not.Empty);
       Assert.IsTrue(local.SequenceEqual(serverSide));

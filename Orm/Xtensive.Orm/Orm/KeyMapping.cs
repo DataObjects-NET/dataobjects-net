@@ -61,7 +61,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return  $"{Strings.KeyMapping}:\r\n" + (
+      return  $"{Strings.KeyMapping}:{Environment.NewLine}" + (
         from pair in map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString

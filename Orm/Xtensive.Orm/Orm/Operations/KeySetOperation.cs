@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Operations
     public override string Description {
       get
       {
-        return $"{Title}:\r\n{Keys.ToDelimitedString("\r\n").Indent(2)}";
+        return $"{Title}:{Environment.NewLine}{Keys.ToDelimitedString(Environment.NewLine).Indent(2)}";
       }
     }
 

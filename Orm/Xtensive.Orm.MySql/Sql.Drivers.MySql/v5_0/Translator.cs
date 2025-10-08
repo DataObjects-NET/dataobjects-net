@@ -36,10 +36,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       get { return ";"; }
     }
 
-    public override string BatchItemDelimiter
-    {
-      get { return ";\r\n"; }
-    }
+    public override string NewLine => Environment.NewLine;
 
     public override void Initialize()
     {
