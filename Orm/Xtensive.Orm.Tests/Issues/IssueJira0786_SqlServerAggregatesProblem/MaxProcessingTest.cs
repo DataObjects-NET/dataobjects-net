@@ -3017,7 +3017,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_SqlServerAggregatesProblem
         var queryableResult = session.Query.All<TestEntity>().Max(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
         var enumerableResult = session.Query.All<TestEntity>().AsEnumerable().Max(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
         Assert.That(Math.Abs(queryableResult.Value - enumerableResult.Value), Is.LessThan(DoubleValueAccuracy));
-        ;
       }
     }
 
