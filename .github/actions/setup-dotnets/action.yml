@@ -45,7 +45,7 @@ runs:
       if: ${{ contains(inputs.target_framework, '3.1') }}
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '3.1.402'
+        dotnet-version: '3.1.x'
 
     - name: Setup .NET Core 2.0 (if needed)
       if: ${{ contains(inputs.target_framework, '2.0') }}
