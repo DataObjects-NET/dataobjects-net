@@ -92,7 +92,6 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
       show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 50
