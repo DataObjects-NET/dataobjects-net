@@ -13,6 +13,11 @@ on:
         required: false
         default: ''
         type: string
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: true
       pgsql91:
         description: 'PostgreSQL 9.1'
         type: boolean
@@ -71,12 +76,13 @@ jobs:
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
       fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql92:
     name: Tests on PostgreSQL 9.2
@@ -91,12 +97,13 @@ jobs:
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
       fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql96:
     name: Tests on PostgreSQL 9.6
@@ -111,9 +118,10 @@ jobs:
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
       fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true

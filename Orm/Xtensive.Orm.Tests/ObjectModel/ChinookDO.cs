@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Kudelin
@@ -153,7 +153,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
             StreetAddress = (string) fields["StreetAddress"],
             City = (string) fields["City"],
             State = (string) fields["State"],
-            Country = (string) fields["Country"],
+            // USA and United Kingdom, depending on runtime and/or RDBMS, can be differently ordered
+            // so not having abbreviation should resolve this issue.
+            Country = ((string) fields["Country"]).Replace("USA", "United States", StringComparison.Ordinal),
             PostalCode = (string) fields["PostalCode"],
           },
           Phone = (string) fields["Phone"],
@@ -179,7 +181,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
             StreetAddress = (string) fields["BillingStreetAddress"],
             City = (string) fields["BillingCity"],
             State = (string) fields["BillingState"],
-            Country = (string) fields["BillingCountry"],
+            // USA and United Kingdom, depending on runtime and/or RDBMS, can be differently ordered
+            // so not having abbreviation should resolve this issue.
+            Country = ((string) fields["BillingCountry"]).Replace("USA", "United States", StringComparison.Ordinal),
             PostalCode = (string) fields["BillingPostalCode"],
           },
           Total = (decimal) fields["Total"],
