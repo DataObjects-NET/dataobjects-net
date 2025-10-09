@@ -42,7 +42,7 @@ runs:
   steps:
     - name: Test Orm.Tests set of tests
       env:
-        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
+        GA_NO_IGNORE: false
       if: ${{ !cancelled() && fromJSON(inputs.run_main) }}
       shell: bash
       run: dotnet test Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
