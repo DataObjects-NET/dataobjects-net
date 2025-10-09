@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests
     public void IsGithubActionsTest()
     {
       var githubActions = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE");
-      Console.WriteLine($"GITHUB_WORKSPACE : {githubActions}; IsBuildServer : {TestInfo.IsGithubActions}");
+      Console.WriteLine($"GITHUB_WORKSPACE : {githubActions}; IsGithubActions : {TestInfo.IsGithubActions}");
 
       if (githubActions is null) {
         Assert.That(TestInfo.IsGithubActions, Is.False);
@@ -34,26 +34,24 @@ namespace Xtensive.Orm.Tests
           Assert.That(TestInfo.NoIgnoreOnGithubActions);
       }
       else {
-        Assert.That(TestInfo.IsGithubActions, Is.EqualTo(githubActions.Equals("true", StringComparison.OrdinalIgnoreCase)));
-        if (githubActions.Equals("true", StringComparison.OrdinalIgnoreCase)) {
+        Assert.That(TestInfo.IsGithubActions, Is.True);
 
-          var githubActionsTrigger = Environment.GetEnvironmentVariable("GITHUB_EVENT_NAME");
-          Console.WriteLine($"GITHUB_EVENT_NAME : {githubActionsTrigger} ; GithubActionTrigger : {TestInfo.GithubActionTrigger}");
-          if (githubActionsTrigger is null) {
-            Assert.That(TestInfo.GithubActionTrigger.HasValue, Is.False);
-          }
-          else {
-            Assert.That(TestInfo.GithubActionTrigger.HasValue, Is.True);
-          }
+        var githubActionsTrigger = Environment.GetEnvironmentVariable("GITHUB_EVENT_NAME");
+        Console.WriteLine($"GITHUB_EVENT_NAME : {githubActionsTrigger} ; GithubActionTrigger : {TestInfo.GithubActionTrigger}");
+        if (githubActionsTrigger is null) {
+          Assert.That(TestInfo.GithubActionTrigger.HasValue, Is.False);
+        }
+        else {
+          Assert.That(TestInfo.GithubActionTrigger.HasValue, Is.True);
+        }
 
-          var githbuActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
-          Console.WriteLine($"GA_NO_IGNORE : {githbuActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
-          if (githbuActionsNoIgnore is null) {
-            Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.False);
-          }
-          else {
-            Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.EqualTo(githbuActionsNoIgnore.Equals("true", StringComparison.OrdinalIgnoreCase)));
-          }
+        var githbuActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
+        Console.WriteLine($"GA_NO_IGNORE : {githbuActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
+        if (githbuActionsNoIgnore is null) {
+          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.False);
+        }
+        else {
+          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.EqualTo(githbuActionsNoIgnore.Equals("true", StringComparison.OrdinalIgnoreCase)));
         }
       }
     }

@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Tests
     PullRequest,
     WorkflowDispatch,
     WorkflowCall,
+    WorkflowRun,
     Push,
     Schedule
   }
@@ -100,6 +101,7 @@ namespace Xtensive.Orm.Tests
         "pull_request_target" => GithubActionsEvents.PullRequest,
         "workflow_dispatch" => GithubActionsEvents.WorkflowDispatch,
         "workflow_call" => GithubActionsEvents.WorkflowCall,
+        "workflow_run" => GithubActionsEvents.WorkflowRun,
         "schedule" => GithubActionsEvents.Schedule,
         _ => null
       };
