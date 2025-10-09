@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests
     public void IsGithubActionsTest()
     {
       var githubActions = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE");
-      Console.WriteLine($"TEAMCITY_VERSION : {githubActions}; IsBuildServer : {TestInfo.IsGithubActions}");
+      Console.WriteLine($"GITHUB_WORKSPACE : {githubActions}; IsBuildServer : {TestInfo.IsGithubActions}");
 
       if (githubActions is null) {
         Assert.That(TestInfo.IsGithubActions, Is.False);
