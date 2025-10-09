@@ -27,11 +27,6 @@ on:
         required: false
         default: ''
         type: string
-      fetch_depth:
-        description: 'Depth of repo fetch (change if SHA populated)'
-        required: false
-        default: 1
-        type: number
       publish_artifacts:
         description: 'Publish artifacts'
         required: true
@@ -54,15 +49,25 @@ jobs:
       BUILD_CONFIG: ${{ inputs.buildConfiguration }}
       BUILD_NUMBER: ${{ github.run_number }}
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (last commit)
+        if: ${{ inputs.specific_sha == '' || github.reg_type != 'branch' }}
         timeout-minutes: 1
         uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ inputs.fetch_depth }}
+          ref: ${{ github.ref_name }}
+          
+      - name: Checkout repo (last 50 commit)
+        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 50
 
-      - name: Manual checkout
-        if: ${{ inputs.specific_sha != '' }}
-        run: git checkout ${{ inputs.specific_sha }}          
+       # it leads to detached HEAD, but we don't commit anything anyway
+      - name: Manual commit checkout if required
+        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
+        run: git checkout ${{ inputs.specific_sha }}       
 
       - name: Build Orm
         if: ${{ success() }}
