@@ -7,6 +7,11 @@ inputs:
     required: true
     default: 'Release'
     type: string
+  show_all_fails:
+    description: 'No mute tests'
+    type: boolean
+    default: false
+    required: true
   test_output_verbosity:
     description: 'Verbosity for dotnet test command'
     required: true
@@ -36,21 +41,29 @@ runs:
   using: "composite"
   steps:
     - name: Test Orm.Tests set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_main) }}
       shell: bash
       run: dotnet test Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
 
     - name: Test Orm.Tests.Sql set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_sql) }}
       shell: bash
       run: dotnet test Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Tests.Sql.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
 
     - name: Test BulkOperations extension set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_extensions) }}
       shell: bash
       run: dotnet test Extensions/Xtensive.Orm.BulkOperations.Tests/Xtensive.Orm.BulkOperations.Tests.csproj  -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.BulkOperations.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
 
     - name: Test Localization extension set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_extensions) }}
       shell: bash
       run: dotnet test Extensions/Xtensive.Orm.Localization.Tests/Xtensive.Orm.Localization.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Localization.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
@@ -60,11 +73,15 @@ runs:
      #       step. To not disturb normal tests execution Reprocessing tests moved outside the action.
 
     - name: Test Security extension set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_extensions) }}
       shell: bash
       run: dotnet test Extensions/Xtensive.Orm.Security.Tests/Xtensive.Orm.Security.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Security.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
 
     - name: Test Tracking extension set of tests
+      env:
+        GA_NO_IGNORE: ${{ inputs.show_all_fails }}
       if: ${{ !cancelled() && fromJSON(inputs.run_extensions) }}
       shell: bash
       run: dotnet test Extensions/Xtensive.Orm.Tracking.Tests/Xtensive.Orm.Tracking.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Tracking.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}

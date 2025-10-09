@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Tests
     PullRequest,
     WorkflowDispatch,
     WorkflowCall,
+    WorkflowRun,
     Push,
     Schedule
   }
@@ -33,6 +34,8 @@ namespace Xtensive.Orm.Tests
   {
     private static readonly bool isBuildServer;
     private static readonly bool isGithubActions;
+    private static readonly bool noIgnoreOnGithubActions;
+
     private static readonly GithubActionsEvents? githubActionsTriggeredBy;
 
     /// <summary>
@@ -64,6 +67,11 @@ namespace Xtensive.Orm.Tests
     public static bool IsGithubActions => isGithubActions;
 
     /// <summary>
+    /// In case of run on GinHubActions, no test ignore happens in <see cref="IgnoreIfGithubActionsAttribute"/> nor <see cref="IgnoreOnGithubActionsIfFailedAttribute"/>
+    /// </summary>
+    public static bool NoIgnoreOnGithubActions => noIgnoreOnGithubActions;
+
+    /// <summary>
     /// Gets the event that triggered test run within Github Actions environment.
     /// </summary>
     public static GithubActionsEvents? GithubActionTrigger => githubActionsTriggeredBy;
@@ -93,6 +101,7 @@ namespace Xtensive.Orm.Tests
         "pull_request_target" => GithubActionsEvents.PullRequest,
         "workflow_dispatch" => GithubActionsEvents.WorkflowDispatch,
         "workflow_call" => GithubActionsEvents.WorkflowCall,
+        "workflow_run" => GithubActionsEvents.WorkflowRun,
         "schedule" => GithubActionsEvents.Schedule,
         _ => null
       };
@@ -101,7 +110,8 @@ namespace Xtensive.Orm.Tests
     static TestInfo()
     {
       isBuildServer = Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
-      isGithubActions = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE") != null;
+      isGithubActions = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("GITHUB_WORKSPACE"));
+      noIgnoreOnGithubActions = isGithubActions && string.Equals(Environment.GetEnvironmentVariable("GA_NO_IGNORE"), "true", StringComparison.OrdinalIgnoreCase);
       githubActionsTriggeredBy = TryParseGithubEventName(Environment.GetEnvironmentVariable("GITHUB_EVENT_NAME"));
     }
   }

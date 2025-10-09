@@ -28,6 +28,11 @@ on:
         required: false
         default: 1
         type: number
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: true
       test_output_verbosity:
         description: 'Verbosity for dotnet test command'
         required: true
@@ -129,6 +134,8 @@ jobs:
       # Since composite action syntax does not allow to define step timeout
       # we have to run Reprocessing project here, because it may stuck in forever-loop
       - name: Test Reprocessing extension set of tests
+        env:
+          GA_NO_IGNORE: ${{ inputs.show_all_fails }}
         if: ${{ success() && inputs.run_extensions  }}
         timeout-minutes: 5 # timeout here is VERY important because reprocessing tests concurrent execution which can cause forever loop
         run: dotnet test Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Reprocessing.Tests.trx"  --results-directory ${{ env.TEST_RESULTS_FOLDER }} -v ${{ inputs.test_output_verbosity }}
@@ -139,6 +146,7 @@ jobs:
         uses: ./.github/actions/run-database-tests
         with:
           build_config: ${{ inputs.build_config }}
+          show_all_fails: ${{ inputs.show_all_fails }}
           test_output_verbosity: ${{ inputs.test_output_verbosity }}
           test_results_folder: ${{ env.TEST_RESULTS_FOLDER }}
           run_main: ${{ fromJSON(inputs.run_main) }}
