@@ -23,11 +23,6 @@ on:
         required: false
         default: ''
         type: string
-      fetch_depth:
-        description: 'Depth of repo fetch (change if SHA populated)'
-        required: false
-        default: 1
-        type: number
       show_all_fails:
         description: 'No mute tests'
         type: boolean
@@ -94,12 +89,20 @@ jobs:
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.0.0_1.0.2g-1ubuntu4.20_amd64.deb
           sudo dpkg -i libssl1.0.0_1.0.2g-1ubuntu4.20_amd64.deb
 
-      - name: Checkout repo
+      - name: Checkout repo (last commit)
+        if: ${{ inputs.specific_sha == '' || github.reg_type != 'branch' }}
         timeout-minutes: 1
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
-          fetch-depth: ${{ inputs.fetch_depth }}
+          
+      - name: Checkout repo (last 50 commit)
+        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 50
 
        # it leads to detached HEAD, but we don't commit anything anyway
       - name: Manual commit checkout if required
