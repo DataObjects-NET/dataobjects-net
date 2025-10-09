@@ -13,6 +13,11 @@ on:
         required: false
         default: ''
         type: string
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: true
       mysql55:
         description: 'MySQL 5.5'
         type: boolean
@@ -48,6 +53,7 @@ jobs:
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
       fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 20
       run_main: true
@@ -68,6 +74,7 @@ jobs:
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
       fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
