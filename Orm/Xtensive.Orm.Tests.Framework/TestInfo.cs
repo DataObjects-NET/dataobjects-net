@@ -108,8 +108,8 @@ namespace Xtensive.Orm.Tests
     static TestInfo()
     {
       isBuildServer = Environment.GetEnvironmentVariable("TEAMCITY_VERSION") != null;
-      isGithubActions = Environment.GetEnvironmentVariable("GITHUB_WORKSPACE").Equals("true", StringComparison.OrdinalIgnoreCase);
-      noIgnoreOnGithubActions = isGithubActions && Environment.GetEnvironmentVariable("GA_NO_IGNORE").Equals("true", StringComparison.OrdinalIgnoreCase);
+      isGithubActions = string.Equals(Environment.GetEnvironmentVariable("GITHUB_WORKSPACE"), "true", StringComparison.OrdinalIgnoreCase);
+      noIgnoreOnGithubActions = isGithubActions && string.Equals(Environment.GetEnvironmentVariable("GA_NO_IGNORE"), "true", StringComparison.OrdinalIgnoreCase);
       githubActionsTriggeredBy = TryParseGithubEventName(Environment.GetEnvironmentVariable("GITHUB_EVENT_NAME"));
     }
   }
