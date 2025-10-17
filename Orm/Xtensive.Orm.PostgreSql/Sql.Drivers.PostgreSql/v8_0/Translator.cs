@@ -294,10 +294,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           if (index.IsSpatial) {
             _ = output.Append(" USING GIST");
           }
+          break;
+        case CreateIndexSection.ColumnsEnter:
           _ = output.Append("(");
           break;
-        case CreateIndexSection.StorageOptions:
+        case CreateIndexSection.ColumnsExit:
           _ = output.Append(")");
+          break;
+        case CreateIndexSection.NonkeyColumnsEnter:
+          break;
+        case CreateIndexSection.NonkeyColumnsExit:
+          break;
+        case CreateIndexSection.StorageOptions:
           AppendIndexStorageParameters(output, index);
           if (!string.IsNullOrEmpty(index.Filegroup)) {
             _ = output.Append(" TABLESPACE ");
@@ -305,10 +313,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           }
 
           break;
-        case CreateIndexSection.Exit:
-          break;
         case CreateIndexSection.Where:
           _ = output.Append(" WHERE ");
+          break;
+        case CreateIndexSection.Exit:
           break;
         default:
           break;
