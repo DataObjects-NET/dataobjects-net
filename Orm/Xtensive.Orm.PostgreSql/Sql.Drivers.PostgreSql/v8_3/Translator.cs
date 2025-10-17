@@ -31,7 +31,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
           TranslateIdentifier(output, index.Name);
           _ = output.Append(" ON ");
           Translate(context, index.DataTable);
-          _ = output.Append(" USING gin (");
+          _ = output.Append(" USING gin ");
+          break;
+        case CreateIndexSection.ColumnsEnter:
+          _ = output.Append("(");
           break;
         case CreateIndexSection.ColumnsExit:
           // Add actual columns list
