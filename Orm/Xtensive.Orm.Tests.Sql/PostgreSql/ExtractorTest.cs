@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
           $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
           $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);" +
-          $"\n CREATE UNIQUE INDEX \"{tableName}_index_with_included_columns\" on \"{tableName}\" (\"column1\" asc) include \"column2\");";
+          $"\n CREATE UNIQUE INDEX \"{tableName}_index_with_included_columns\" on \"{tableName}\" (\"column1\" asc) include (\"column2\");";
       }
       else {
         return
