@@ -3,16 +3,16 @@ run-name: Run database tests on PostgreSQL on dispatch. Run No ${{ github.run_nu
 on:
   workflow_dispatch:
     inputs:
-      fetch_depth:
-        description: 'Depth of repo fetch (change if SHA populated)'
-        required: false
-        default: 1
-        type: number
       specific_sha:
         description: 'Commit SHA to checkout'
         required: false
         default: ''
         type: string
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: true
       pgsql91:
         description: 'PostgreSQL 9.1'
         type: boolean
@@ -50,7 +50,6 @@ jobs:
   #    build_config: Release
   #    target_frameworks: net6.0
   #    specific_sha: ${{ inputs.specific_sha }}
-  #    fetch_depth: 1
   #    test_output_verbosity: minimal
   #    test_run_timeout: 70
   #    run_main: true
@@ -70,13 +69,13 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql92:
     name: Tests on PostgreSQL 9.2
@@ -90,13 +89,13 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_pgsql96:
     name: Tests on PostgreSQL 9.6
@@ -110,10 +109,10 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true

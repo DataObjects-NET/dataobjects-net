@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Orm.Configuration;
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Reprocessing
         var ex = e.InnerException as ReflectionTypeLoadException;
         if (ex != null)
           throw new InvalidOperationException(
-              string.Join("\r\n", ex.LoaderExceptions.Select(a => a.Message)), ex);
+              string.Join(Environment.NewLine, ex.LoaderExceptions.Select(a => a.Message)), ex);
         throw;
       }
     }

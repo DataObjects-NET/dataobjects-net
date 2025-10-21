@@ -3,16 +3,16 @@ run-name: Run database tests on MySQL on dispatch. Run No ${{ github.run_number 
 on:
   workflow_dispatch:
     inputs:
-      fetch_depth:
-        description: 'Depth of repo fetch (change if SHA populated)'
-        required: false
-        default: 1
-        type: number
       specific_sha:
         description: 'Commit SHA to checkout'
         required: false
         default: ''
         type: string
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: true
       mysql55:
         description: 'MySQL 5.5'
         type: boolean
@@ -52,13 +52,13 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 20
       run_main: true
       run_sql: true
       run_extensions: true
-      publish_raw_results: false
+      publish_raw_results: true
 
   test_on_mysql56:
     name: Tests on MySQL 5.6
@@ -72,7 +72,7 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 30
       run_main: true
@@ -92,7 +92,7 @@ jobs:
       build_config: Release
       target_framework: ${{ matrix.net }}
       specific_sha: ${{ inputs.specific_sha }}
-      fetch_depth: ${{ fromJSON(inputs.fetch_depth) }}
+      show_all_fails: ${{ fromJSON(inputs.show_all_fails) }}
       test_output_verbosity: minimal
       test_run_timeout: 35
       run_main: true

@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Tests.Sql
 
     public void DropSchemaContent(SqlConnection connection, Schema defaultSchema)
     {
+      DropViews(connection, defaultSchema);
       DropTables(connection, defaultSchema);
       DropViews(connection, defaultSchema);
     }

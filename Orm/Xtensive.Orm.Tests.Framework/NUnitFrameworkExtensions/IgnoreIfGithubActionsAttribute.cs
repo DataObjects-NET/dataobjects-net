@@ -120,10 +120,12 @@ namespace Xtensive.Orm.Tests
 
     private void Check()
     {
+      if (TestInfo.NoIgnoreOnGithubActions) {
+        return;
+      }
       if (Provider.HasValue && !StorageProviderInfo.Instance.CheckProviderIs(Provider.Value)) {
         return;
       }
-
       if (TriggerEvent.HasValue && TriggerEvent != TestInfo.GithubActionTrigger) {
         return;
       }

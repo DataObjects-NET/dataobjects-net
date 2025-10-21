@@ -1,0 +1,129 @@
+name: ⚙ Automated no-database tests
+run-name: Core tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+
+on:
+  push:
+    branches:
+      - '7.1'
+      - '7.1-*'
+    paths:
+      # extensions
+      - 'Extensions/Xtensive.Orm.Logging.log4net/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.log4net.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net.Tests/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog.Tests/**.csproj'
+      # main project
+      - 'Orm/Xtensive.Orm/Arithmetics/**'
+      - 'Orm/Xtensive.Orm/Caching/**'
+      - 'Orm/Xtensive.Orm/Collections/**'
+      - 'Orm/Xtensive.Orm/Comparison/**'
+      - 'Orm/Xtensive.Orm/Conversion/**'
+      - 'Orm/Xtensive.Orm/Ioc/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Tuples/**'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+  pull_request:
+    branches:
+      - '7.1'
+    paths:
+      # extensions
+      - 'Extensions/Xtensive.Orm.Logging.log4net/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.log4net.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net.Tests/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog.Tests/**.csproj'
+      # main project
+      - 'Orm/Xtensive.Orm/Arithmetics/**'
+      - 'Orm/Xtensive.Orm/Caching/**'
+      - 'Orm/Xtensive.Orm/Collections/**'
+      - 'Orm/Xtensive.Orm/Comparison/**'
+      - 'Orm/Xtensive.Orm/Conversion/**'
+      - 'Orm/Xtensive.Orm/Ioc/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Tuples/**'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+  pull_request_review:
+    branches:
+      - '7.1'
+    paths:
+      # extensions
+      - 'Extensions/Xtensive.Orm.Logging.log4net/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.log4net.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.log4net.Tests/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/NuGetContent/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog/**.csproj'
+      - 'Extensions/Xtensive.Orm.Logging.NLog.Tests/**'
+      - '!Extensions/Xtensive.Orm.Logging.NLog.Tests/**.csproj'
+      # main project
+      - 'Orm/Xtensive.Orm/Arithmetics/**'
+      - 'Orm/Xtensive.Orm/Caching/**'
+      - 'Orm/Xtensive.Orm/Collections/**'
+      - 'Orm/Xtensive.Orm/Comparison/**'
+      - 'Orm/Xtensive.Orm/Conversion/**'
+      - 'Orm/Xtensive.Orm/Ioc/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Tuples/**'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  databaseless_tests:
+    name: Core Tests
+    strategy:
+      matrix:
+        net: [ 'net5.0', 'net6.0' ]
+    # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
+    #
+    # push filter - to cover pushes from the team to main branch of major version
+    # first 'pull_request_review' filter - to cover external pull-requests, since there are major security concerns about content of pull-request we cannot allow auto-runs of tests
+    # second 'pull_request_review' - to cover internal pull-requests that were not covered by 'on push' trigger
+    #
+    if: |
+      github.event_name == 'push'
+        || (github.event_name == 'pull_request_review'
+             && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+             && startsWith(github.event.pull_request.base.ref, '7.1')
+             && github.event.review.state == 'approved')
+        || (github.event_name == 'pull_request'
+             && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+             && !startsWith(github.head_ref, '7.1-'))
+
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-independant-tests.yml@7.1
+    with:
+      storage: sqlite3
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      test_output_verbosity: minimal
+      test_run_timeout: 10
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false
