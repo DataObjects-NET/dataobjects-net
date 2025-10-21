@@ -1,37 +1,26 @@
-name: ⚙🐬🔅 Automated MySQL 5.6 tests
+name: ⚙🐬 Automated MySQL 5.6 tests
 run-name: Tests on MySQL 5.6 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
     branches:
-      - '7.0'
-      - '7.0-*'
+      - '7.1'
+      - '7.1-*'
     paths:
       # containers
       - 'Containers/mysql/do-mysql-5_6'
       - 'Containers/mysql/**.sh'
       - 'Containers/mysql/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
-      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
-      - 'Orm/Xtensive.Orm/Orm/Building/**'
-      - 'Orm/Xtensive.Orm/Orm/Linq/**'
-      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
-      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - only most significant parts
+      # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
@@ -40,7 +29,7 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -50,33 +39,22 @@ on:
 
   pull_request:
     branches:
-      - '7.0'
+      - '7.1'
     paths:
       # containers
       - 'Containers/mysql/do-mysql-5_6'
       - 'Containers/mysql/**.sh'
       - 'Containers/mysql/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
-      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
-      - 'Orm/Xtensive.Orm/Orm/Building/**'
-      - 'Orm/Xtensive.Orm/Orm/Linq/**'
-      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
-      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - only most significant parts
+      # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
@@ -85,7 +63,7 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -95,33 +73,22 @@ on:
 
   pull_request_review:
     branches:
-      - '7.0'
+      - '7.1'
     paths:
       # containers
       - 'Containers/mysql/do-mysql-5_6'
       - 'Containers/mysql/**.sh'
       - 'Containers/mysql/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
-      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
-      - 'Orm/Xtensive.Orm/Orm/Building/**'
-      - 'Orm/Xtensive.Orm/Orm/Linq/**'
-      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
-      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - only most significant parts
+      # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
@@ -130,7 +97,7 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -153,7 +120,7 @@ jobs:
     name: Tests on MySQL 5.6
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
+        net: [ 'net6.0' ] # for cold runs we run for one .net
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
@@ -164,12 +131,12 @@ jobs:
       github.event_name == 'push'
         || (github.event_name == 'pull_request_review'
              && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-             && startsWith(github.event.pull_request.base.ref, '7.0')
+             && startsWith(github.event.pull_request.base.ref, '7.1')
              && github.event.review.state == 'approved')
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-             && !startsWith(github.head_ref, '7.0-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+             && !startsWith(github.head_ref, '7.1-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: mysql56
       build_config: Release

@@ -4,8 +4,8 @@ run-name: Tests on PostgreSQL 14.0 tests triggered by '${{ github.event_name }}'
 on:
   push:
     branches:
-      - '7.0'
-      - '7.0-*'
+      - '7.1'
+      - '7.1-*'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-14'
@@ -47,7 +47,7 @@ on:
 
   pull_request:
     branches:
-      - '7.0'
+      - '7.1'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-14'
@@ -89,7 +89,7 @@ on:
 
   pull_request_review:
     branches:
-      - '7.0'
+      - '7.1'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-14'
@@ -144,7 +144,7 @@ jobs:
     name: Tests on PostgreSQL 14.0
     strategy:
       matrix:
-        net: [ 'netcoreapp3.1' ]
+        net: [ 'net5.0', 'net6.0' ]
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
@@ -155,12 +155,12 @@ jobs:
       github.event_name == 'push'
         || (github.event_name == 'pull_request_review'
              && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-             && startsWith(github.event.pull_request.base.ref, '7.0')
+             && startsWith(github.event.pull_request.base.ref, '7.1')
              && github.event.review.state == 'approved')
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-             && !startsWith(github.head_ref, '7.0-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
+             && !startsWith(github.head_ref, '7.1-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
       storage: pgsql140
       build_config: Release

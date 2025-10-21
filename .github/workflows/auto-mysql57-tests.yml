@@ -1,5 +1,5 @@
-name: ⚙🐘 Automated PostgreSQL 9.2 tests
-run-name: Tests on PostgreSQL 9.2 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+name: ⚙🐬🔅 Automated MySQL 5.7 tests
+run-name: Tests on MySQL 5.7 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
@@ -7,29 +7,39 @@ on:
       - '7.1'
       - '7.1-*'
     paths:
-      # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-5_7'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.cnf'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -41,63 +51,83 @@ on:
     branches:
       - '7.1'
     paths:
-      # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-5_7'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.cnf'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
-
+      
   pull_request_review:
     branches:
       - '7.1'
     paths:
-      # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-5_7'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.cnf'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
       # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -116,11 +146,11 @@ permissions:
   checks: write
 
 jobs:
-  test_on_pgsql92:
-    name: Tests on PostgreSQL 9.2
+  test_on_mysql57:
+    name: Tests on MySQL 5.7
     strategy:
       matrix:
-        net: [ 'net6.0' ] # for cold runs we run for one .net
+        net: [ 'net5.0', 'net6.0' ]
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
@@ -138,7 +168,7 @@ jobs:
              && !startsWith(github.head_ref, '7.1-'))
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql92
+      storage: mysql57
       build_config: Release
       target_framework: ${{ matrix.net }}
       test_output_verbosity: minimal

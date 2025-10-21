@@ -4,8 +4,8 @@ run-name: Auto-build run on '${{ github.event_name }}'. Build ${{ github.run_num
 on:
   push:
     branches:
-      - '7.0'
-      - '7.0-*'
+      - '7.1'
+      - '7.1-*'
     paths-ignore:
       - '.github/**'
       - 'ChangeLog/**'
@@ -21,7 +21,7 @@ on:
 
   pull_request:
     branches:
-      - '7.0'
+      - '7.1'
     paths-ignore:
       - '.github/**'
       - 'ChangeLog/**'
@@ -59,7 +59,7 @@ jobs:
       github.event_name == 'push' ||
       (github.event_name == 'pull_request' &&
         (github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name  ||
-         (github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && !startsWith(github.head_ref, '7.0-'))))
+         (github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && !startsWith(github.head_ref, '7.1-'))))
 
     steps:
       - name: Checkout repo

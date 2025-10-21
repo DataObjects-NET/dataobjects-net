@@ -1,5 +1,5 @@
-name: ⚙🐘 Automated PostgreSQL 9.2 tests
-run-name: Tests on PostgreSQL 9.2 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+name: ⚙🐬 Automated MySQL 8.2 tests
+run-name: Tests on MySQL 8.2 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
       - '7.1-*'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-8_2'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
@@ -27,9 +27,9 @@ on:
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -42,15 +42,15 @@ on:
       - '7.1'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-8_2'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
@@ -61,9 +61,9 @@ on:
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -76,15 +76,15 @@ on:
       - '7.1'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-9_2'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mysql/do-mysql-8_2'
+      - 'Containers/mysql/**.sh'
+      - 'Containers/mysql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
-      # provider
+      #provider
       - 'Orm/Xtensive.Orm.MySql/**'
       - '!Orm/Xtensive.Orm.MySql/**.csproj'
       - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
@@ -95,9 +95,9 @@ on:
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
@@ -116,8 +116,8 @@ permissions:
   checks: write
 
 jobs:
-  test_on_pgsql92:
-    name: Tests on PostgreSQL 9.2
+  test_on_mysql82:
+    name: Tests on MySQL 8.2
     strategy:
       matrix:
         net: [ 'net6.0' ] # for cold runs we run for one .net
@@ -136,9 +136,9 @@ jobs:
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
              && !startsWith(github.head_ref, '7.1-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+    uses: DataObjects-NET/github-workflow-playground/.github/workflows/reusable-storage-dependant-tests.yml@7.1
     with:
-      storage: pgsql92
+      storage: mysql82
       build_config: Release
       target_framework: ${{ matrix.net }}
       test_output_verbosity: minimal
