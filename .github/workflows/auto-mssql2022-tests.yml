@@ -1,5 +1,5 @@
-name: ⚙🐘 Automated PostgreSQL 10.0 tests
-run-name: Tests on PostgreSQL 10.0 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+name: ⚙📚 Automated MS SQL Server 2022 tests
+run-name: Tests on MS SQL Server 2022 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
@@ -8,18 +8,18 @@ on:
       - '7.0-*'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mssql/do-mssql-2022'
+      - 'Containers/mssql/**.sh'
+      - 'Containers/mssql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.SqlServer/**'
+      - '!Orm/Xtensive.Orm.SqlServer/**.csproj'
+      - '!Orm/Xtensive.Orm.SqlServer/NuGetContent/**'
       # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
@@ -29,31 +29,30 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
-
   pull_request:
     branches:
       - '7.0'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mssql/do-mssql-2022'
+      - 'Containers/mssql/**.sh'
+      - 'Containers/mssql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.SqlServer/**'
+      - '!Orm/Xtensive.Orm.SqlServer/**.csproj'
+      - '!Orm/Xtensive.Orm.SqlServer/NuGetContent/**'
       # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
@@ -63,9 +62,9 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
       # ability to trigger on demand
@@ -76,18 +75,18 @@ on:
       - '7.0'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
-      - 'Containers/postgres/**.sh'
-      - 'Containers/postgres/**.sql'
+      - 'Containers/mssql/do-mssql-2022'
+      - 'Containers/mssql/**.sh'
+      - 'Containers/mssql/**.sql'
       # main project - most common part, that may have changes that affect
       - 'Orm/Xtensive.Orm/Orm/Providers/**'
       - 'Orm/Xtensive.Orm/Orm/Rse/**'
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.SqlServer/**'
+      - '!Orm/Xtensive.Orm.SqlServer/**.csproj'
+      - '!Orm/Xtensive.Orm.SqlServer/NuGetContent/**'
       # main test project - any code change
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
@@ -97,9 +96,9 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
-      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/PosgreSql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
-      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
       # ability to trigger on demand
@@ -116,8 +115,8 @@ permissions:
   checks: write
 
 jobs:
-  test_on_pgsql100:
-    name: Tests on PostgreSQL 10.0
+  test_on_mssql2022:
+    name: Tests on MS SQL Server 2022
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
@@ -138,11 +137,11 @@ jobs:
              && !startsWith(github.head_ref, '7.0-'))
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
-      storage: pgsql100
+      storage: mssql2022
       build_config: Release
       target_framework: ${{ matrix.net }}
       test_output_verbosity: minimal
-      test_run_timeout: 30
+      test_run_timeout: 50
       run_main: true
       run_sql: true
       run_extensions: true

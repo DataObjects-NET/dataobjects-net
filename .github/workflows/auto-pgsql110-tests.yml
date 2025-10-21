@@ -1,35 +1,29 @@
-name: ⚙🐘🔅 Automated PostgreSQL 11.0 tests
+name: ⚙🐘 Automated PostgreSQL 11.0 tests
 run-name: Tests on PostgreSQL 11.0 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
     branches:
-      - '6.0'
-      - '6.0-*'
+      - '7.0'
+      - '7.0-*'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-11'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
-      #main project
-      - 'Orm/Xtensive.Orm/**'
-      - '!Orm/Xtensive.Orm/**.csproj'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.PostgreSql/**'
-      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
-      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
-      # tests framework
-      - 'Orm/Xtensive.Orm.Framework/**'
-      - '!Orm/Xtensive.Orm.Framework/**.csproj'
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
       # main test project - any code change
-      - 'Orm/Xtensive.Orm.Tests/**'
-      - '!Orm/Xtensive.Orm.Tests/**.csproj'
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
@@ -40,38 +34,30 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
-      # weaver changes
-      - 'Weaver/**'
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
 
   pull_request:
     branches:
-      - '6.0'
+      - '7.0'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-11'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
-      #main project
-      - 'Orm/Xtensive.Orm/**'
-      - '!Orm/Xtensive.Orm/**.csproj'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.PostgreSql/**'
-      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
-      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
-      # tests framework
-      - 'Orm/Xtensive.Orm.Framework/**'
-      - '!Orm/Xtensive.Orm.Framework/**.csproj'
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
       # main test project - any code change
-      - 'Orm/Xtensive.Orm.Tests/**'
-      - '!Orm/Xtensive.Orm.Tests/**.csproj'
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
@@ -82,38 +68,30 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
-      # weaver changes
-      - 'Weaver/**'
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
 
   pull_request_review:
     branches:
-      - '6.0'
+      - '7.0'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-11'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
-      # extensions code only
-      - 'Extensions/**'
-      - '!Extensions/**.csproj'
-      - '!Extensions/**.md'
-      - '!Extensions/**.props'
-      - '!Extensions/**.snk'
-      #main project
-      - 'Orm/Xtensive.Orm/**'
-      - '!Orm/Xtensive.Orm/**.csproj'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.PostgreSql/**'
-      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
-      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
-      # tests framework
-      - 'Orm/Xtensive.Orm.Framework/**'
-      - '!Orm/Xtensive.Orm.Framework/**.csproj'
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
       # main test project - any code change
-      - 'Orm/Xtensive.Orm.Tests/**'
-      - '!Orm/Xtensive.Orm.Tests/**.csproj'
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
       # sql tests - general and provider-specific
       - 'Orm/Xtensive.Orm.Tests.Sql/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
@@ -124,8 +102,6 @@ on:
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
       - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
-      # weaver changes
-      - 'Weaver/**'
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
 
@@ -144,7 +120,7 @@ jobs:
     name: Tests on PostgreSQL 11.0
     strategy:
       matrix:
-        net: [ 'netcoreapp2.0' ]
+        net: [ 'netcoreapp3.1' ]
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
@@ -155,12 +131,12 @@ jobs:
       github.event_name == 'push'
         || (github.event_name == 'pull_request_review'
              && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-             && startsWith(github.event.pull_request.base.ref, '6.0')
+             && startsWith(github.event.pull_request.base.ref, '7.0')
              && github.event.review.state == 'approved')
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-             && !startsWith(github.head_ref, '6.0-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@6.0
+             && !startsWith(github.head_ref, '7.0-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
       storage: pgsql110
       build_config: Release

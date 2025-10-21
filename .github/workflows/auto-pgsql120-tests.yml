@@ -1,5 +1,5 @@
-name: ⚙🐘 Automated PostgreSQL 10.0 tests
-run-name: Tests on PostgreSQL 10.0 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+name: ⚙🐘 Automated PostgreSQL 12.0 tests
+run-name: Tests on PostgreSQL 12.0 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
       - '7.0-*'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
+      - 'Containers/postgres/do-postgres-12'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
       # main project - most common part, that may have changes that affect
@@ -42,7 +42,7 @@ on:
       - '7.0'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
+      - 'Containers/postgres/do-postgres-12'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
       # main project - most common part, that may have changes that affect
@@ -76,7 +76,7 @@ on:
       - '7.0'
     paths:
       # containers
-      - 'Containers/postgres/do-postgres-10'
+      - 'Containers/postgres/do-postgres-12'
       - 'Containers/postgres/**.sh'
       - 'Containers/postgres/**.sql'
       # main project - most common part, that may have changes that affect
@@ -116,8 +116,8 @@ permissions:
   checks: write
 
 jobs:
-  test_on_pgsql100:
-    name: Tests on PostgreSQL 10.0
+  test_on_pgsql120:
+    name: Tests on PostgreSQL 12.0
     strategy:
       matrix:
         net: [ 'netcoreapp3.1' ]
@@ -138,7 +138,7 @@ jobs:
              && !startsWith(github.head_ref, '7.0-'))
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.0
     with:
-      storage: pgsql100
+      storage: pgsql120
       build_config: Release
       target_framework: ${{ matrix.net }}
       test_output_verbosity: minimal
