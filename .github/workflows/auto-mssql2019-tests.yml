@@ -87,7 +87,7 @@ on:
       # ability to trigger on demand
       - 'TestFileForBuildServerTests.txt'
 
-  pull_request:
+  pull_request_review:
     branches:
       - '6.0'
     paths:
