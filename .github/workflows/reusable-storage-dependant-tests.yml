@@ -58,11 +58,6 @@ on:
         required: false
         default: false
         type: boolean
-      reduced_results:
-        description: 'Show failed only tests'
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -91,15 +86,13 @@ jobs:
           sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
       - name: Checkout repo (last commit)
-        if: ${{ inputs.specific_sha == '' || github.reg_type != 'branch' }}
+        if: ${{ github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || inputs.specific_sha == '' || github.ref_type != 'branch' }}
         timeout-minutes: 1
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
           
       - name: Checkout repo (last 50 commit)
-        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
-        timeout-minutes: 1
+        if: ${{ github.event_name != 'pull_request_review' && github.event_name != 'pull_request' && inputs.specific_sha != '' && github.ref_type == 'branch' }}
+        timeout-minutes: 5
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
@@ -138,6 +131,7 @@ jobs:
       # Since composite action syntax does not allow to define step timeout
       # we have to run Reprocessing project here, because it may stuck in forever-loop
       - name: Test Reprocessing extension set of tests
+        id: reprocessing
         env:
           GA_NO_IGNORE: ${{ inputs.show_all_fails }}
         if: ${{ success() && inputs.run_extensions  }}
@@ -145,6 +139,7 @@ jobs:
         run: dotnet test Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Reprocessing.Tests.trx"  --results-directory ${{ env.TEST_RESULTS_FOLDER }} -v ${{ inputs.test_output_verbosity }}
 
       - name: Run tests
+        id: complex_tests
         if: ${{ !cancelled()}}
         timeout-minutes: ${{ inputs.test_run_timeout }}
         uses: ./.github/actions/run-database-tests
@@ -164,7 +159,8 @@ jobs:
           docker stop $(docker ps -a -q)
 
       - name: Publish raw test results as files
-        if: ${{ !cancelled() && inputs.publish_raw_results }}
+        if: |
+          (!cancelled() && inputs.publish_raw_results) || failure()
         timeout-minutes: 1
         uses: actions/upload-artifact@v4
         with:
@@ -175,7 +171,9 @@ jobs:
           retention-days: 1
 
       - name: Make Final Test report
-        if: ${{ !cancelled() }}
+        if: |
+          (github.event_name == 'workflow_dispatch' && (steps.reprocessing.outcome != 'cancelled' || steps.complex_tests.outcome != 'cancelled'))
+            || (github.event_name != 'workflow_dispatch' && (steps.reprocessing.outcome == 'failure' || steps.complex_tests.outcome == 'failure'))
         timeout-minutes: 1
         uses: dorny/test-reporter@v2.1.1
         with:

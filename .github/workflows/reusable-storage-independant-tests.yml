@@ -43,11 +43,6 @@ on:
         required: false
         default: false
         type: boolean
-      reduced_results:
-        description: 'Show failed only tests'
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -71,13 +66,27 @@ jobs:
           wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
           sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
 
-      - name: Checkout repo
+      - name: Checkout repo (last commit)
+        if: ${{ github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || inputs.specific_sha == '' || github.ref_type != 'branch' }}
         timeout-minutes: 1
         uses: actions/checkout@v4
+          
+      - name: Checkout repo (last 50 commit)
+        if: ${{ github.event_name != 'pull_request_review' && github.event_name != 'pull_request' && inputs.specific_sha != '' && github.ref_type == 'branch' }}
+        timeout-minutes: 5
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 50
+
+       # it leads to detached HEAD, but we don't commit anything anyway
+      - name: Manual commit checkout if required
+        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
+        run: git checkout ${{ inputs.specific_sha }}
 
       - name: Build Orm
         if: ${{ success() }}
-        timeout-minutes: 7
+        timeout-minutes: 5
         run: dotnet build Orm.sln -c ${{ inputs.build_config }}
 
       - name: Setup .NETs
@@ -88,6 +97,7 @@ jobs:
           target_framework: ${{ env.DO_TargetFrameworks }}
 
       - name: Run tests
+        id: complex_tests
         if: ${{ success() }}
         timeout-minutes: ${{ inputs.test_run_timeout }}
         uses: ./.github/actions/run-databaseless-tests
@@ -100,7 +110,8 @@ jobs:
           run_nlog: ${{ fromJSON(inputs.run_nlog) }}
 
       - name: Publish raw test results as files
-        if: ${{ !cancelled() && inputs.publish_raw_results }}
+        if: |
+          (!cancelled() && inputs.publish_raw_results) || failure()
         timeout-minutes: 1
         uses: actions/upload-artifact@v4
         with:
@@ -111,7 +122,9 @@ jobs:
           retention-days: 1
 
       - name: Make Final Test report
-        if: ${{ !cancelled() }}
+        if: |
+          (github.event_name == 'workflow_dispatch' && steps.complex_tests.outcome != 'cancelled')
+            || (github.event_name != 'workflow_dispatch' && steps.complex_tests.outcome == 'failure')
         timeout-minutes: 1
         uses: dorny/test-reporter@v2.1.1
         with:
