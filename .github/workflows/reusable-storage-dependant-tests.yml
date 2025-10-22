@@ -184,3 +184,9 @@ jobs:
           list-tests: ${{ inputs.publish_raw_results && 'failed' || 'all' }}
           list-suites: 'failed'
           #list-tests: 'failed'
+
+      - name: Temp log output
+        run: |
+          echo "github event name: ${{ github.event_name }}"
+          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
+          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
