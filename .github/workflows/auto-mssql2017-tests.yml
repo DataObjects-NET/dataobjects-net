@@ -4,8 +4,8 @@ run-name: Tests on MS SQL Server 2017 tests triggered by '${{ github.event_name 
 on:
   push:
     branches:
-      - '7.1'
-      - '7.1-*'
+      - 'master'
+      - 'master-*'
     paths:
       # containers
       - 'Containers/mssql/do-mssql-2017'
@@ -38,7 +38,7 @@ on:
       - 'TestFileForBuildServerTests.txt'
   pull_request:
     branches:
-      - '7.1'
+      - 'master'
     paths:
       # containers
       - 'Containers/mssql/do-mssql-2017'
@@ -72,7 +72,7 @@ on:
 
   pull_request_review:
     branches:
-      - '7.1'
+      - 'master'
     paths:
       # containers
       - 'Containers/mssql/do-mssql-2017'
@@ -119,7 +119,7 @@ jobs:
     name: Tests on MS SQL Server 2017
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
+        net: [ 'net8.0' ]
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
@@ -130,12 +130,12 @@ jobs:
       github.event_name == 'push'
         || (github.event_name == 'pull_request_review'
              && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-             && startsWith(github.event.pull_request.base.ref, '7.1')
+             && startsWith(github.event.pull_request.base.ref, 'master')
              && github.event.review.state == 'approved')
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-             && !startsWith(github.head_ref, '7.1-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+             && !startsWith(github.head_ref, 'master-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mssql2017
       build_config: Release
