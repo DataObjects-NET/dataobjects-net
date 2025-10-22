@@ -1,0 +1,47 @@
+# Runs at 01:00 every tuesday and deletes workflow runs for closed pull requests,
+# inactive workflows' runs or runs older than defined days.
+# Can also be run manually
+
+name: "‼Delete workflow runs‼"
+run-name: Delete workflow run on ${{ github.event_name }}
+
+on:
+  schedule:
+    - cron: "0 1 * * 2"
+  workflow_dispatch:
+    inputs:
+      keepDays:
+        description: 'Keep history existing runs of last X days'
+        required: true
+        default: 6
+        type: number
+
+env:
+  KEEP_DAYS_DEFAULT: '6' # to not let auto-cleanup delete runs during weekend
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  clear:
+    if: github.refs == 'refs/heads/master'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    
+    steps:
+      - name: Get cleanup scripts
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/scripts
+
+      - name: Run workflow history manual cleanup
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: .github/scripts/delete_workflow_runs.ps1 -repo ${{ github.repository }} -token ${{ secrets.GITHUB_TOKEN }} -keepDays ${{ inputs.keepDays }}
+        shell: pwsh
+
+      - name: Run workflow history auto cleanup
+        if: ${{ github.event_name == 'schedule' }}
+        run: .github/scripts/delete_workflow_runs.ps1 -repo ${{ github.repository }} -token ${{ secrets.GITHUB_TOKEN }} -keepDays ${{ env.KEEP_DAYS_DEFAULT }}
+        shell: pwsh
