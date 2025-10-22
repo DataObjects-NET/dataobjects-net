@@ -119,7 +119,7 @@ jobs:
     name: Tests on MS SQL Server 2017
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
+        net: [ 'net6.0' ] # for cold runs we run for one .net
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version
