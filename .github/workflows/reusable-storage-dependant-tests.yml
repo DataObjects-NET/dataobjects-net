@@ -27,7 +27,7 @@ on:
         description: 'No mute tests'
         type: boolean
         default: false
-        required: true
+        required: false
       test_output_verbosity:
         description: 'Verbosity for dotnet test command'
         required: true
