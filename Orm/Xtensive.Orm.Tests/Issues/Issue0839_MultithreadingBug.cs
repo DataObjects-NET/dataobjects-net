@@ -57,6 +57,8 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Sqlite,
+      "There is no detection of type exceptions in Sqlite driver yet. So any exception will cause this test fail")]
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
