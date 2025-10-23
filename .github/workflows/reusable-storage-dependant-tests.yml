@@ -158,6 +158,12 @@ jobs:
         run: |
           docker stop $(docker ps -a -q)
 
+      - name: Temp log output
+        run: |
+          echo "github event name: ${{ github.event_name }}"
+          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
+          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
+
       - name: Publish raw test results as files
         if: |
           (!cancelled() && inputs.publish_raw_results) || failure()
@@ -169,6 +175,12 @@ jobs:
             ${{ env.TEST_RESULTS_FOLDER }}/**
           if-no-files-found: error
           retention-days: 1
+
+      - name: Temp log output
+        run: |
+          echo "github event name: ${{ github.event_name }}"
+          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
+          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
 
       - name: Make Final Test report
         if: |
@@ -187,9 +199,3 @@ jobs:
           list-tests: ${{ inputs.publish_raw_results && 'failed' || 'all' }}
           list-suites: 'failed'
           #list-tests: 'failed'
-          
-      - name: Temp log output
-        run: |
-          echo "github event name: ${{ github.event_name }}"
-          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
-          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
