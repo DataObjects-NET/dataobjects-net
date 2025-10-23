@@ -159,6 +159,7 @@ jobs:
           docker stop $(docker ps -a -q)
 
       - name: Temp log output
+        if: !cancelled()
         run: |
           echo "github event name: ${{ github.event_name }}"
           echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
@@ -177,6 +178,7 @@ jobs:
           retention-days: 1
 
       - name: Temp log output
+        if: !cancelled()
         run: |
           echo "github event name: ${{ github.event_name }}"
           echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
