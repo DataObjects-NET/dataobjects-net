@@ -95,6 +95,7 @@ namespace Xtensive.Orm.Tests
     private static GithubActionsEvents? TryParseGithubEventName(string varValue)
     {
       return varValue switch {
+        "push" => GithubActionsEvents.Push,
         "pull_request" => GithubActionsEvents.PullRequest,
         "pull_request_comment" => GithubActionsEvents.PullRequest,
         "pull_request_review" => GithubActionsEvents.PullRequest,

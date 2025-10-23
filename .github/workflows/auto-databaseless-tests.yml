@@ -118,12 +118,11 @@ jobs:
 
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-independant-tests.yml@7.0
     with:
-      storage: sqlite3
       build_config: Release
       target_framework: ${{ matrix.net }}
       test_output_verbosity: minimal
       test_run_timeout: 10
-      run_main: true
-      run_sql: true
-      run_extensions: true
+      run_core: true
+      run_log4net: true
+      run_nlog: true
       publish_raw_results: false
