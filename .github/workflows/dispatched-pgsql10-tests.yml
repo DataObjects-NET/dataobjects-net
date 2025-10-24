@@ -129,6 +129,7 @@ jobs:
     name: Tests on PostgreSQL 13
     if: ${{ inputs.pgsql130 }}
     strategy:
+      fail-fast: false
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
