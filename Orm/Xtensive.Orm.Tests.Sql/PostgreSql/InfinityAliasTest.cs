@@ -576,8 +576,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var serverSideHours = (localTimezone > TimeSpan.Zero)
         ? localTimezone.Hours - 1  // positive zone
         : (localTimezone < TimeSpan.Zero)
-          ? 24 + localTimezone.Hours // negative zone
-          : 0; // UTC
+          ? 23 + localTimezone.Hours // negative zone
+          : 23; // UTC
 
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Hour,
         serverSideHours,
