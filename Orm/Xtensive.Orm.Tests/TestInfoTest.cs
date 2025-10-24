@@ -26,12 +26,12 @@ namespace Xtensive.Orm.Tests
       if (githubActions is null) {
         Assert.That(TestInfo.IsGithubActions, Is.False);
 
-        var githbuActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
-        Console.WriteLine($"GA_NO_IGNORE : {githbuActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
-        if (githbuActionsNoIgnore is null)
-          Assert.That(TestInfo.NoIgnoreOnGithubActions);
+        var githubActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
+        Console.WriteLine($"GA_NO_IGNORE : {githubActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
+        if (githubActionsNoIgnore is null)
+          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.False);
         else
-          Assert.That(TestInfo.NoIgnoreOnGithubActions);
+          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.EqualTo(githubActionsNoIgnore.Equals("true", StringComparison.OrdinalIgnoreCase)));
       }
       else {
         Assert.That(TestInfo.IsGithubActions, Is.True);
@@ -45,13 +45,13 @@ namespace Xtensive.Orm.Tests
           Assert.That(TestInfo.GithubActionTrigger.HasValue, Is.True);
         }
 
-        var githbuActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
-        Console.WriteLine($"GA_NO_IGNORE : {githbuActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
-        if (githbuActionsNoIgnore is null) {
+        var githubActionsNoIgnore = Environment.GetEnvironmentVariable("GA_NO_IGNORE");
+        Console.WriteLine($"GA_NO_IGNORE : {githubActionsNoIgnore} ; NoIgnoreOnGithubActions : {TestInfo.NoIgnoreOnGithubActions}");
+        if (githubActionsNoIgnore is null) {
           Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.False);
         }
         else {
-          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.EqualTo(githbuActionsNoIgnore.Equals("true", StringComparison.OrdinalIgnoreCase)));
+          Assert.That(TestInfo.NoIgnoreOnGithubActions, Is.EqualTo(githubActionsNoIgnore.Equals("true", StringComparison.OrdinalIgnoreCase)));
         }
       }
     }
