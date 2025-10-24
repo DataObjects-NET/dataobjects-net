@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     private TypeMapping dateTimeTypeMapping;
     private TypeMapping dateTimeOffsetTypeMapping;
 
+    private TimeSpan localTimezone;
+
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
@@ -39,6 +41,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       base.TestFixtureSetUp();
 
       var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+      localTimezone = localZone;
       var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
       var initConnectionCommand = Connection.CreateCommand($"SET TIME ZONE INTERVAL '{localZoneString}' HOUR TO MINUTE");
       _ = initConnectionCommand.ExecuteNonQuery();
@@ -546,27 +549,39 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     private void TestMaxDateTimeOffsetSelectDatePart(bool isOn)
     {
+      var overflowHappens = localTimezone > TimeSpan.Zero;
+
       // There is overflow of year because of PostgreSQL time zone functionality
+      var overflowYearValue = overflowHappens ? 1 : 0;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Year,
-        DateTimeOffset.MaxValue.Year + 1,
-        (isOn) ? DateTimeOffset.MaxValue.Year : DateTimeOffset.MaxValue.Year + 1,
+        DateTimeOffset.MaxValue.Year + overflowYearValue,
+        (isOn) ? DateTimeOffset.MaxValue.Year + overflowYearValue : DateTimeOffset.MaxValue.Year + overflowYearValue,
         isOn);
 
       // there is value overflow to 01 in case of no aliases
+      var serverSideMonths = (localTimezone > TimeSpan.Zero) ? 1 : 12;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Month,
-        1,
-        (isOn) ? DateTimeOffset.MaxValue.Month : 1,
+        serverSideMonths,
+        (isOn) ? serverSideMonths : serverSideMonths,
         isOn);
+
       // there is value overflow to 01 in case of no aliases
+      var serverSideDays = (localTimezone > TimeSpan.Zero) ? 1 : 31;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Day,
-        1,
-        (isOn) ? DateTimeOffset.MaxValue.Day : 1,
+        serverSideDays,
+        (isOn) ? serverSideDays : serverSideDays,
         isOn);
 
       // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
+      var serverSideHours = (localTimezone > TimeSpan.Zero)
+        ? localTimezone.Hours - 1  // positive zone
+        : (localTimezone < TimeSpan.Zero)
+          ? 24 + localTimezone.Hours // negative zone
+          : 0; // UTC
+
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Hour,
-        4,
-        (isOn) ? DateTimeOffset.MaxValue.Hour : 4,
+        serverSideHours,
+        (isOn) ? serverSideHours : serverSideHours,
         isOn);
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Minute,
         DateTimeOffset.MaxValue.Minute,
@@ -686,7 +701,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
               Assert.That(partValue, Is.Zero);
             }
           }
-          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
             var partValue = reader.GetDouble(0);
             Assert.That(partValue, Is.Zero);
           }
