@@ -613,7 +613,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
               Assert.That(partValue, Is.Zero);
             }
           }
-          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
             var partValue = reader.GetDouble(0);
             Assert.That(partValue, Is.Zero);
           }
@@ -657,7 +657,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
               Assert.That(partValue, Is.Zero);
             }
           }
-          if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
+          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
             var partValue = reader.GetDouble(0);
             Assert.That(partValue, Is.Zero);
           }
