@@ -24,6 +24,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   {
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
 
+    private readonly static Guid InstanceIdentifier;
+
     private readonly static bool InfinityAliasForDatesEnabled;
     private readonly static bool LegacyTimestamptBehaviorEnabled;
 
@@ -242,7 +244,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       var buildConfigFolder = libFolder.Parent;//Debug/Release
 
       var tempFilesFolder = buildConfigFolder.CreateSubdirectory(dotnetName);
-      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"Switch_{switchName.Replace('.', '_')}_{Guid.NewGuid()}.log"));
+      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"Switch_{switchName.Replace('.', '_')}_{InstanceIdentifier}.log"));
       return fileToWrite;
     }
 
@@ -261,7 +263,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       var buildConfigFolder = libFolder.Parent;//Debug/Release
 
       var tempFilesFolder = buildConfigFolder.CreateSubdirectory(dotnetName);
-      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"CtorCall_{Guid.NewGuid()}.log"));
+      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"CtorCall_{InstanceIdentifier}.log"));
       return fileToWrite;
     }
 
@@ -269,6 +271,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     static DriverFactory()
     {
+      InstanceIdentifier = Guid.NewGuid();
+
       // Starting from Npgsql 6.0 they broke compatibility by forcefully replacing
       // DateTime.MinValue/MaxValue in parameters with -Infinity and Infinity values.
       // This new "feature", though doesn't affect reading/writing of values and equality/inequality
