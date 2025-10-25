@@ -168,7 +168,7 @@ jobs:
 
       - name: Publish temp log files
         if: |
-          (!cancelled()
+          !cancelled()
         timeout-minutes: 1
         uses: actions/upload-artifact@v4
         with:
