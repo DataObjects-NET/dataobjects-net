@@ -166,6 +166,17 @@ jobs:
           echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
           echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
 
+      - name: Publish temp log files
+        if: |
+          !cancelled()
+        timeout-minutes: 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: Log_PgsqlSwitches_${{ github.ref_name }}_${{ github.run_number }}_${{inputs.target_framework}}
+          path: _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/**
+          if-no-files-found: ignore
+          retention-days: 1
+
       - name: Publish raw test results as files
         if: |
           (!cancelled() && inputs.publish_raw_results) || failure()
