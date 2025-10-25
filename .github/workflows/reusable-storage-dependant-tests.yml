@@ -172,9 +172,8 @@ jobs:
         timeout-minutes: 1
         uses: actions/upload-artifact@v4
         with:
-          name: DO_${{ github.ref_name }}_${{ github.run_number }}_on_${{ inputs.storage }}_${{inputs.target_framework}}
-          path: |
-            _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/**
+          name: Log_PgsqlSwitches_${{ github.ref_name }}_${{ github.run_number }}_${{inputs.target_framework}}
+          path: _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/**
           if-no-files-found: ignore
           retention-days: 1
 
