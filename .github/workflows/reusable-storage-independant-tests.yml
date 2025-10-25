@@ -123,10 +123,9 @@ jobs:
 
       - name: Make Final Test report
         if: |
-          (github.event_name == 'push' && steps.complex_tests.outcome != 'cancelled')
-            || (github.event_name == 'pull_request' &&  steps.complex_tests.outcome != 'cancelled')
-            || (github.event_name == 'workflow_dispatch' && steps.complex_tests.outcome != 'cancelled')
-            || steps.complex_tests.outcome == 'failure'
+          !cancelled() 
+            && ((github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event_name == 'workflow_dispatch')
+              || (steps.reprocessing.outcome == 'failure' || steps.complex_tests.outcome == 'failure'))
         timeout-minutes: 1
         uses: dorny/test-reporter@v2.1.1
         with:
