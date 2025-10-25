@@ -472,7 +472,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMinValueTable, SqlDateTimeOffsetPart.Hour,
         localTimezone.Hours,
-        isOn ? localTimezone.Hours : localTimezone.Hours,
+        localTimezone.Hours,
         isOn);
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMinValueTable, SqlDateTimeOffsetPart.Minute,
         DateTimeOffset.MinValue.Minute,
@@ -555,21 +555,21 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var overflowYearValue = overflowHappens ? 1 : 0;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Year,
         DateTimeOffset.MaxValue.Year + overflowYearValue,
-        (isOn) ? DateTimeOffset.MaxValue.Year + overflowYearValue : DateTimeOffset.MaxValue.Year + overflowYearValue,
+        DateTimeOffset.MaxValue.Year + overflowYearValue,
         isOn);
 
       // there is value overflow to 01 in case of no aliases
       var serverSideMonths = (localTimezone > TimeSpan.Zero) ? 1 : 12;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Month,
         serverSideMonths,
-        (isOn) ? serverSideMonths : serverSideMonths,
+        serverSideMonths,
         isOn);
 
       // there is value overflow to 01 in case of no aliases
       var serverSideDays = (localTimezone > TimeSpan.Zero) ? 1 : 31;
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Day,
         serverSideDays,
-        (isOn) ? serverSideDays : serverSideDays,
+        serverSideDays,
         isOn);
 
       // timezone for DateTimeOffset.MaxValue value in postgre is set to 04:59:59.999999, at least when instance is in UTC+5 timezone
@@ -581,7 +581,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Hour,
         serverSideHours,
-        (isOn) ? serverSideHours : serverSideHours,
+        serverSideHours,
         isOn);
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMaxValueTable, SqlDateTimeOffsetPart.Minute,
         DateTimeOffset.MaxValue.Minute,
