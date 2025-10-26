@@ -23,6 +23,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   {
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
 
+    private readonly static Guid InstanceIdentifier;
+
     private readonly static bool InfinityAliasForDatesEnabled;
     private readonly static bool LegacyTimestamptBehaviorEnabled;
 
@@ -225,8 +227,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     static DriverFactory()
     {
-      // Starging from Npgsql 6.0 they broke compatibility by forcefully replacing
-      // DateTime.MinValue/MaxValue of parameters with -Infinity and Infinity values.
+      InstanceIdentifier = Guid.NewGuid();
+
+      // Starting from Npgsql 6.0 they broke compatibility by forcefully replacing
+      // DateTime.MinValue/MaxValue in parameters with -Infinity and Infinity values.
       // This new "feature", though doesn't affect reading/writing of values and equality/inequality
       // filters, breaks some of operations such as parts extraction, default values for columns
       // (which are constants and declared on high levels of abstraction) and some others.
