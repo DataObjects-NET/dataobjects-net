@@ -13,7 +13,6 @@ using Npgsql;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
-using System.Reflection;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -215,56 +214,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     private static bool GetSwitchValueOrSet(string switchName, bool valueToSet)
     {
-      using (var logWriter = CreateFile(switchName)) {
-        logWriter?.WriteLine($"GetSwitchValueOrSet called for switch '{switchName}' in attempt to set it to {valueToSet}");
-        if (!AppContext.TryGetSwitch(switchName, out var currentValue)) {
-          logWriter?.WriteLine($"Switch '{switchName}' is not set to any value at the moment, setting it to {valueToSet}");
-          AppContext.SetSwitch(switchName, valueToSet);
-          logWriter?.WriteLine($"Switch '{switchName}' is set to {valueToSet}");
-          return valueToSet;
-        }
-        else {
-          logWriter?.WriteLine($"Switch '{switchName}' is already set to value {currentValue}. Setting to {valueToSet} skipped");
-          return currentValue;
-        }
+      if (!AppContext.TryGetSwitch(switchName, out var currentValue)) {
+        AppContext.SetSwitch(switchName, valueToSet);
+        return valueToSet;
       }
-    }
-
-    private static System.IO.TextWriter CreateFile(string switchName)
-    {
-      //F:\Projects\DataObjects.Net\Main Projects\do-public\new-master\_Build\tests\Debug\lib\net6.0
-      var runningDirectory = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      if (!runningDirectory.Contains("_Build/tests") && !runningDirectory.Contains(@"_Build\tests")) {
-        return null;
+      else {
+        return currentValue;
       }
-
-      var dirInfo = new System.IO.DirectoryInfo(runningDirectory);
-      var dotnetName = dirInfo.Name; //net6.0
-      var libFolder = dirInfo.Parent; // lib
-      var buildConfigFolder = libFolder.Parent;//Debug/Release
-
-      var tempFilesFolder = buildConfigFolder.CreateSubdirectory(dotnetName);
-      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"Switch_{switchName.Replace('.', '_')}_{InstanceIdentifier}.log"));
-      return fileToWrite;
-    }
-
-    private static System.IO.TextWriter CreateFile()
-    {
-      //F:\Projects\DataObjects.Net\Main Projects\do-public\new-master\_Build\tests\Debug\lib\net6.0
-      var runningDirectory = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-      if (!runningDirectory.Contains($"_Build{System.IO.Path.DirectorySeparatorChar}tests")
-          && !runningDirectory.Contains($"_Build{System.IO.Path.AltDirectorySeparatorChar}tests")) {
-        return null;
-      }
-
-      var dirInfo = new System.IO.DirectoryInfo(runningDirectory);
-      var dotnetName = dirInfo.Name; //net6.0
-      var libFolder = dirInfo.Parent; // lib
-      var buildConfigFolder = libFolder.Parent;//Debug/Release
-
-      var tempFilesFolder = buildConfigFolder.CreateSubdirectory(dotnetName);
-      var fileToWrite = System.IO.File.CreateText(System.IO.Path.Combine(tempFilesFolder.FullName, $"CtorCall_{InstanceIdentifier}.log"));
-      return fileToWrite;
     }
 
     #endregion
@@ -301,12 +257,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       // DO NOT REPLACE method call with constant value when debugging, CHANGE THE PARAMETER VALUE.
       LegacyTimestamptBehaviorEnabled = SetOrGetExistingLegacyTimeStampBehaviorSwitch(valueToSet: false);
-
-      using(var logWriter = CreateFile()) {
-        logWriter.WriteLine($"Driver factory was initialized with");
-        logWriter.WriteLine($"      InfinityAliasForDatesEnabled = {InfinityAliasForDatesEnabled}");
-        logWriter.WriteLine($"      LegacyTimestamptBehaviorEnabled = {LegacyTimestamptBehaviorEnabled}");
-      }
     }
   }
 }
