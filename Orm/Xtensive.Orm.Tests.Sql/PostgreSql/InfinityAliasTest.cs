@@ -606,22 +606,26 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          if (aliasesEnabled && part != SqlDatePart.Year) {
-            // year from +-infinity -> +-infinity
+          if (aliasesEnabled) {
+            // +-infinify
+            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
             // month from +-infinity -> null (or 0 in case of versions older that 9.6)
             if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
-              Assert.That(reader.IsDBNull(0));
+              if (part != SqlDatePart.Year) {
+                Assert.That(reader.IsDBNull(0));
+              }
+              else {
+                var partValue = reader.GetDouble(0);
+                Assert.That(double.IsInfinity(partValue), Is.True);
+              }
             }
             else {
               var partValue = reader.GetDouble(0);
               Assert.That(partValue, Is.Zero);
             }
           }
-          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
-            var partValue = reader.GetDouble(0);
-            Assert.That(partValue, Is.Zero);
-          }
           else {
+            // pure dates
             var partValue = reader.GetDouble(0);
             CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
           }
@@ -651,21 +655,26 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          if (aliasesEnabled && part != SqlDateTimePart.Year) {
-            // year from +-infinity -> +-infinity
+          if (aliasesEnabled) {
+            // +-infinify
+            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
             // month from +-infinity -> null (or 0 in case of versions older that 9.6)
-            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96)
-              Assert.That(reader.IsDBNull(0));
+            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
+              if (part != SqlDateTimePart.Year) {
+                Assert.That(reader.IsDBNull(0));
+              }
+              else {
+                var partValue = reader.GetDouble(0);
+                Assert.That(double.IsInfinity(partValue), Is.True);
+              }
+            }
             else {
               var partValue = reader.GetDouble(0);
               Assert.That(partValue, Is.Zero);
             }
           }
-          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
-            var partValue = reader.GetDouble(0);
-            Assert.That(partValue, Is.Zero);
-          }
           else {
+            // pure dates
             var partValue = reader.GetDouble(0);
             CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
           }
@@ -695,21 +704,26 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var reader = command.ExecuteReader()) {
 
         while (reader.Read()) {
-          if (aliasesEnabled && part != SqlDateTimeOffsetPart.Year) {
-            // year from +-infinity -> +-infinity
+          if (aliasesEnabled) {
+            // +-infinify
+            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
             // month from +-infinity -> null (or 0 in case of versions older that 9.6)
-            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96 )
-              Assert.That(reader.IsDBNull(0));
+            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
+              if (part != SqlDateTimeOffsetPart.Year) {
+                Assert.That(reader.IsDBNull(0));
+              }
+              else {
+                var partValue = reader.GetDouble(0);
+                Assert.That(double.IsInfinity(partValue), Is.True);
+              }
+            }
             else {
               var partValue = reader.GetDouble(0);
               Assert.That(partValue, Is.Zero);
             }
           }
-          else if (Driver.CoreServerInfo.ServerVersion < StorageProviderVersion.PostgreSql96) {
-            var partValue = reader.GetDouble(0);
-            Assert.That(partValue, Is.Zero);
-          }
           else {
+            // pure dates
             var partValue = reader.GetDouble(0);
             CheckPartNative(partValue, expectedValueNative, aliasesEnabled);
           }
