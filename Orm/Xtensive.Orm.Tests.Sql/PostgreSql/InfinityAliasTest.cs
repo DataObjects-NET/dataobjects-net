@@ -469,10 +469,14 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         DateTimeOffset.MinValue.Day,
         isOn);
 
-      // timezone for DateTimeOffset.MinValue value in postgre is set to 04:02:33, at least when instance is in UTC+5 timezone
+      var serverSideHours = (localTimezone > TimeSpan.Zero)
+        ? localTimezone.Hours  // positive zone
+        : (localTimezone < TimeSpan.Zero)
+          ? 23 + localTimezone.Hours // negative zone
+          : localTimezone.Hours; // UTC
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMinValueTable, SqlDateTimeOffsetPart.Hour,
-        localTimezone.Hours,
-        localTimezone.Hours,
+        serverSideHours,
+        serverSideHours,
         isOn);
       TestDateTimeOffsetPartExtraction(DateTimeOffsetMinValueTable, SqlDateTimeOffsetPart.Minute,
         DateTimeOffset.MinValue.Minute,

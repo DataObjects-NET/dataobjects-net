@@ -176,10 +176,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
       ExecuteInsideSession((s) => {
         var serverSideHours = (localTimezone > TimeSpan.Zero)
-        ? localTimezone.Hours - 1  // positive zone
-        : (localTimezone < TimeSpan.Zero)
-          ? 23 + localTimezone.Hours // negative zone
-          : 23; // UTC
+          ? localTimezone.Hours  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : localTimezone.Hours; // UTC
         RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == serverSideHours);
         RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == DateTimeOffset.MinValue.AddHours(1).Hour);
       });
@@ -192,10 +192,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
       ExecuteInsideSession((s) => {
         var serverSideHours = (localTimezone > TimeSpan.Zero)
-        ? localTimezone.Hours - 1  // positive zone
-        : (localTimezone < TimeSpan.Zero)
-          ? 23 + localTimezone.Hours // negative zone
-          : 23; // UTC
+          ? localTimezone.Hours - 1  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : 23; // UTC
         RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == serverSideHours);
         RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == DateTimeOffset.MaxValue.AddHours(-1).Hour);
       });
