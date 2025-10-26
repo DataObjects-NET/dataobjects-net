@@ -35,6 +35,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly DateTimeOffset SecondMillisecondDateTimeOffset = new DateTimeOffset(SecondMillisecondDateTime, SecondOffset);
     protected static readonly DateTimeOffset WrongMillisecondDateTimeOffset = new DateTimeOffset(WrongMillisecondDateTime, WrongOffset);
 
+    protected static readonly TimeSpan localTimezone = DateTimeOffset.Now.ToLocalTime().Offset;
+
     protected override void RegisterTypes(DomainConfiguration configuration)
     {
       configuration.Types.Register(typeof(SingleDateTimeOffsetEntity));
@@ -51,7 +53,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     {
       var providerInfo = StorageProviderInfo.Instance.Info;
       if (providerInfo.ProviderName==WellKnown.Provider.PostgreSql) {
-        var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+        var localZone = localTimezone;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
         configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
       }
