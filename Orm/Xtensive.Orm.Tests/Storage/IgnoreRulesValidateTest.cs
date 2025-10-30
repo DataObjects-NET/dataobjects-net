@@ -344,6 +344,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private readonly bool createConstraintsWithTable = StorageProviderInfo.Instance.Provider == StorageProvider.Sqlite;
     private readonly bool noExceptionOnIndexKeyColumnDrop = StorageProviderInfo.Instance.Provider.In(StorageProvider.PostgreSql, StorageProvider.MySql);
+    private readonly bool noExceptionOnIndexIncludedColumnDrop = StorageProviderInfo.Instance.Provider.In(StorageProvider.PostgreSql);
     private readonly SqlDriver sqlDriver = TestSqlDriver.Create(GetConnectionInfo());
 
     private Key changedOrderKey;
@@ -646,8 +647,13 @@ namespace Xtensive.Orm.Tests.Storage
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreIndex("IX_Ignored_Index").WhenTable("MyEntity2");
 
-      _ = Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model5Types).Dispose());
+      if (noExceptionOnIndexIncludedColumnDrop) {
+        BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose();
+      }
+      else {
+        _ = Assert.Throws<StorageException>(
+          () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model5Types).Dispose());
+      }
     }
 
     [Test]
