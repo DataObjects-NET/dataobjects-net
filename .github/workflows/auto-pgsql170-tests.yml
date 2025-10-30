@@ -1,0 +1,182 @@
+name: ⚙🐘🔅 Automated PostgreSQL 17.0 tests
+run-name: Tests on PostgreSQL 17.0 tests triggered by '${{ github.event_name }}'. Run No ${{ github.run_number }}.
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'master-*'
+    paths:
+      # containers
+      - 'Containers/postgres/do-postgres-17'
+      - 'Containers/postgres/**.sh'
+      - 'Containers/postgres/**.sql'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
+      # provider
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      # main test project - only most significant parts
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
+      # sql tests - general and provider-specific
+      - 'Orm/Xtensive.Orm.Tests.Sql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+  pull_request:
+    branches:
+      - 'master'
+    paths:
+      # containers
+      - 'Containers/postgres/do-postgres-17'
+      - 'Containers/postgres/**.sh'
+      - 'Containers/postgres/**.sql'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
+      # provider
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      # main test project - only most significant parts
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
+      # sql tests - general and provider-specific
+      - 'Orm/Xtensive.Orm.Tests.Sql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+  pull_request_review:
+    branches:
+      - 'master'
+    paths:
+      # containers
+      - 'Containers/postgres/do-postgres-17'
+      - 'Containers/postgres/**.sh'
+      - 'Containers/postgres/**.sql'
+      # extensions code only
+      - 'Extensions/**'
+      - '!Extensions/**.csproj'
+      - '!Extensions/**.md'
+      - '!Extensions/**.props'
+      - '!Extensions/**.snk'
+      # main project - most common part, that may have changes that affect
+      - 'Orm/Xtensive.Orm/Orm/Attributes/**'
+      - 'Orm/Xtensive.Orm/Orm/Building/**'
+      - 'Orm/Xtensive.Orm/Orm/Linq/**'
+      - 'Orm/Xtensive.Orm/Orm/Metadata/**'
+      - 'Orm/Xtensive.Orm/Orm/Providers/**'
+      - 'Orm/Xtensive.Orm/Orm/Rse/**'
+      - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
+      - 'Orm/Xtensive.Orm/Reflection/**'
+      - 'Orm/Xtensive.Orm/Sql/**'
+      # provider
+      - 'Orm/Xtensive.Orm.MySql/**'
+      - '!Orm/Xtensive.Orm.MySql/**.csproj'
+      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      # main test project - only most significant parts
+      - 'Orm/Xtensive.Orm.Tests/Issues/**'
+      - 'Orm/Xtensive.Orm.Tests/Storage/**'
+      - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
+      # sql tests - general and provider-specific
+      - 'Orm/Xtensive.Orm.Tests.Sql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Firebird/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/MySQL/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Oracle/**'
+      #- '!Orm/Xtensive.Orm.Tests.Sql/PostgreSql/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/Sqlite/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServer/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/SqlServerCe/**'
+      - '!Orm/Xtensive.Orm.Tests.Sql/**.csproj'
+      # ability to trigger on demand
+      - 'TestFileForBuildServerTests.txt'
+
+# new commits with the same key will cancel previously run workflows
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  test_on_pgsql170:
+    name: Tests on PostgreSQL 17.0
+    strategy:
+      matrix:
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
+    #
+    # push filter - to cover pushes from the team to main branch of major version
+    # first 'pull_request_review' filter - to cover external pull-requests, since there are major security concerns about content of pull-request we cannot allow auto-runs of tests
+    # second 'pull_request_review' - to cover internal pull-requests that were not covered by 'on push' trigger
+    #
+    if: |
+      github.event_name == 'push'
+        || (github.event_name == 'pull_request_review'
+             && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+             && startsWith(github.event.pull_request.base.ref, 'master')
+             && github.event.review.state == 'approved')
+        || (github.event_name == 'pull_request'
+             && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+             && !startsWith(github.head_ref, 'master-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    with:
+      storage: pgsql170
+      build_config: Release
+      target_framework: ${{ matrix.net }}
+      test_output_verbosity: minimal
+      test_run_timeout: 30
+      run_main: true
+      run_sql: true
+      run_extensions: true
+      publish_raw_results: false

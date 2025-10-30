@@ -1,5 +1,5 @@
 ## :exclamation: Important :exclamation:
-We discovered a serious issue connected to entity saving to storage for provider that use batching. Though its appearance is rare, version update is **strongly recommended**.
+We discovered a serious issue connected to entity saving to storage for providers that use batching. Though its appearance is rare, version update is **strongly recommended**.
 
 Minimal versions in which the issue is addressed: [6.0.12](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/6.0.12),
 [7.0.4](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.0.4),

@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(User).Assembly, typeof(User).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.DefaultDatabase = DOTests1Db;
       configuration.DefaultSchema = DefaultSchema;
       configuration.ForeignKeyMode = GetForeignKeyMode();

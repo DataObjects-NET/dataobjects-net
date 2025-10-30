@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
 
-      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       Expression<Func<TestEntity, TestEntity2>> exp = e => e.List.FirstOrDefault().Link;

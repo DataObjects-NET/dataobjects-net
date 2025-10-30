@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -597,7 +597,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

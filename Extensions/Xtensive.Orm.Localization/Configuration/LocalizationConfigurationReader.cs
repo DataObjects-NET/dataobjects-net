@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Localization.Configuration
       }
       if(!cultureName.IsNullOrEmpty()) {
         try {
-          defaultCulture = CultureInfo.GetCultureInfo(cultureName);
+          defaultCulture = CultureInfo.GetCultureInfo(cultureName, true);
         }
         catch(CultureNotFoundException) {
           // swallow it, this is mark wrong culture name;

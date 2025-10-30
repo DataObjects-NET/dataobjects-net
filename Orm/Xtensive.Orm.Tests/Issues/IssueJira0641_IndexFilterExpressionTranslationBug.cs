@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (BandwidthCall).Assembly, typeof (BandwidthCall).Namespace);
+      configuration.Types.RegisterCaching(typeof (BandwidthCall).Assembly, typeof (BandwidthCall).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       Domain domain = null;

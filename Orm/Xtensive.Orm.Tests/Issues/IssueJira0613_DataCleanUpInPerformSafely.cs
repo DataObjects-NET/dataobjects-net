@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var inintialConfiguration = DomainConfigurationFactory.Create();
       inintialConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      inintialConfiguration.Types.Register(initialType.Assembly, initialType.Namespace);
+      inintialConfiguration.Types.RegisterCaching(initialType.Assembly, initialType.Namespace);
       using (var initialDomain = Domain.Build(inintialConfiguration))
       using (var session = initialDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       var upgradingConfiguration = DomainConfigurationFactory.Create();
       upgradingConfiguration.UpgradeMode = (isSafelyMode) ? DomainUpgradeMode.PerformSafely : DomainUpgradeMode.Perform;
-      upgradingConfiguration.Types.Register(upgradedType.Assembly, upgradedType.Namespace);
+      upgradingConfiguration.Types.RegisterCaching(upgradedType.Assembly, upgradedType.Namespace);
       if (isSafelyMode) {
         Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradingConfiguration));
       }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (VirtualMedia).Assembly, typeof (VirtualMedia).Namespace);
+      config.Types.RegisterCaching(typeof (VirtualMedia).Assembly, typeof (VirtualMedia).Namespace);
       return config;
     }
 

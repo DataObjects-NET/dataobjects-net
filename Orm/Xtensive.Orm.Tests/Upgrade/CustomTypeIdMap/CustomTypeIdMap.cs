@@ -760,7 +760,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -770,9 +770,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       var secondConfiguration = DomainConfigurationFactory.Create();
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       secondConfiguration.UpgradeMode = DomainUpgradeMode.LegacySkip;
       secondConfiguration.DefaultDatabase = DOTests2Db;
       secondConfiguration.DefaultSchema = dbo;
@@ -854,7 +854,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -864,9 +864,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       var secondConfiguration = DomainConfigurationFactory.Create();
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       secondConfiguration.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       secondConfiguration.DefaultDatabase = DOTests2Db;
       secondConfiguration.DefaultSchema = dbo;
@@ -898,9 +898,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase | ProviderFeatures.Multischema);
       var rightConfiguration = DomainConfigurationFactory.Create();
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       rightConfiguration.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       rightConfiguration.DefaultDatabase = DOTests2Db;
       rightConfiguration.DefaultSchema = dbo;
@@ -917,9 +917,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildDomain(rightConfiguration)) { }
 
       var wrongConfiguration1 = DomainConfigurationFactory.Create();
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration1.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration1.DefaultDatabase = DOTests2Db;
       wrongConfiguration1.DefaultSchema = dbo;
@@ -935,9 +935,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       _ = Assert.Throws<DomainBuilderException>(() => BuildDomain(wrongConfiguration1));
 
       var wrongConfiguration2 = DomainConfigurationFactory.Create();
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration2.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration2.DefaultDatabase = DOTests2Db;
       wrongConfiguration2.DefaultSchema = dbo;
@@ -953,9 +953,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       _ = Assert.Throws<DomainBuilderException>(() => BuildDomain(wrongConfiguration2));
 
       var wrongConfiguration3 = DomainConfigurationFactory.Create();
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration3.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration3.DefaultDatabase = DOTests2Db;
       wrongConfiguration3.DefaultSchema = dbo;
@@ -974,7 +974,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void BuildInitialDomain()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(initialModel.Author).Assembly, typeof(initialModel.Author).Namespace);
+      configuration.Types.RegisterCaching(typeof(initialModel.Author).Assembly, typeof(initialModel.Author).Namespace);
       configuration.Types.Register(typeof(initialModelUpgrader.Upgrader));
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       using (var domain = BuildDomain(configuration)) { }
@@ -983,7 +983,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void BuildInitialDomains()
     {
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -992,7 +992,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       domain1.Dispose();
 
       var secondConfig = DomainConfigurationFactory.Create();
-      secondConfig.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfig.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
       secondConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       secondConfig.DefaultDatabase = DOTests1Db;
       secondConfig.DefaultSchema = dbo;
@@ -1001,7 +1001,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       domain2.Dispose();
 
       var thirdConfig = DomainConfigurationFactory.Create();
-      thirdConfig.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      thirdConfig.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       thirdConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       thirdConfig.DefaultDatabase = DOTests3Db;
       thirdConfig.DefaultSchema = dbo;
@@ -1016,10 +1016,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     private DomainConfiguration BuildConfiguration(Type baseNamespaceType, Type additionalNamespaceType, DomainUpgradeMode mode)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(baseNamespaceType.Assembly, baseNamespaceType.Namespace);
+      configuration.Types.RegisterCaching(baseNamespaceType.Assembly, baseNamespaceType.Namespace);
 
       if (additionalNamespaceType != null) {
-        configuration.Types.Register(additionalNamespaceType.Assembly, additionalNamespaceType.Namespace);
+        configuration.Types.RegisterCaching(additionalNamespaceType.Assembly, additionalNamespaceType.Namespace);
       }
 
       configuration.UpgradeMode = mode;

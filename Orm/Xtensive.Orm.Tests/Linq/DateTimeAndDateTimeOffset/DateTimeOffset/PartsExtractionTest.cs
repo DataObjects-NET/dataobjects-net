@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractYearTest()
     {
       ExecuteInsideSession((s) => {
-        RunTest<SingleDateTimeOffsetEntity>(s ,c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Year==FirstMillisecondDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Year==NullableDateTimeOffset.Year);
 
@@ -40,9 +40,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractYearMaxValueTest()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
+
       ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year + 1);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
       });
     }
 
@@ -51,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       ExecuteInsideSession((s) => {
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==FirstDateTimeOffset.Month);
-        RunTest<SingleDateTimeOffsetEntity>(s ,c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Month==NullableDateTimeOffset.Month);
 
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
@@ -74,9 +82,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractMonthMaxValueTest()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
+
       ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.Month - 11);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 12);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
       });
     }
 
@@ -84,16 +100,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDayTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==firstDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==firstMillisecondDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==nullableDateTimeOffset.Day);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==wrongDateTimeOffset.Day);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==wrongMillisecondDateTimeOffset.Day);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==wrongDateTimeOffset.Day);
@@ -115,9 +133,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
-        // year overflow happens on server side because of timezone
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 1);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
+        else {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 31);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
       });
     }
 
@@ -125,6 +151,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractHourTest()
     {
       ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
@@ -135,6 +162,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Hour==wrongDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Hour==wrongMillisecondDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Hour==wrongDateTimeOffset.Hour);
@@ -147,48 +175,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       Require.ProviderIs(StorageProvider.PostgreSql);
 
       ExecuteInsideSession((s) => {
-        var service = s.Services.Get<Xtensive.Orm.Services.DirectSqlAccessor>();
-
-        var command = service.CreateCommand();
-        command.CommandText = $"SELECT COUNT(*) FROM public.\"MinMaxDateTimeOffsetEntity\" WHERE EXTRACT (HOUR FROM \"MinValue\") = 4";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var rowCount = reader.GetInt32(0);
-            Console.WriteLine($"Rows with HOUR 4 : {rowCount}");
-          }
-        }
-
-        command = service.CreateCommand();
-        command.CommandText = $"SELECT COUNT(*) FROM public.\"MinMaxDateTimeOffsetEntity\" WHERE EXTRACT (HOUR FROM \"MinValue\") = 5";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var rowCount = reader.GetInt32(0);
-            Console.WriteLine($"Rows with HOUR 5 : {rowCount}");
-          }
-        }
-
-        command = service.CreateCommand();
-        command.CommandText = $"SELECT (EXTRACT (TIMEZONE FROM \"MinValue\"))::integer FROM public.\"MinMaxDateTimeOffsetEntity\"";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var timezoneInSeconds = reader.GetDouble(0);
-            Console.WriteLine($"Timezone : {TimeSpan.FromSeconds(timezoneInSeconds)}");
-          }
-        }
-      });
-
-
-      ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == 5);
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : localTimezone.Hours; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == serverSideHours);
         RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == DateTimeOffset.MinValue.AddHours(1).Hour);
       });
     }
@@ -199,47 +191,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       Require.ProviderIs(StorageProvider.PostgreSql);
 
       ExecuteInsideSession((s) => {
-        var service = s.Services.Get<Xtensive.Orm.Services.DirectSqlAccessor>();
-
-        var command = service.CreateCommand();
-        command.CommandText = $"SELECT COUNT(*) FROM public.\"MinMaxDateTimeOffsetEntity\" WHERE EXTRACT (HOUR FROM \"MaxValue\") = 4";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var rowCount = reader.GetInt32(0);
-            Console.WriteLine($"Rows with HOUR 4 : {rowCount}");
-          }
-        }
-
-        command = service.CreateCommand();
-        command.CommandText = $"SELECT COUNT(*) FROM public.\"MinMaxDateTimeOffsetEntity\" WHERE EXTRACT (HOUR FROM \"MaxValue\") = 5";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var rowCount = reader.GetInt32(0);
-            Console.WriteLine($"Rows with HOUR 5 : {rowCount}");
-          }
-        }
-
-        command = service.CreateCommand();
-        command.CommandText = $"SELECT (EXTRACT (TIMEZONE FROM \"MaxValue\"))::integer FROM public.\"MinMaxDateTimeOffsetEntity\"";
-
-        using (command)
-        using (var reader = command.ExecuteReader()) {
-
-          while (reader.Read()) {
-            var timezoneInSeconds = reader.GetDouble(0);
-            Console.WriteLine($"Timezone : {TimeSpan.FromSeconds(timezoneInSeconds)}");
-          }
-        }
-      });
-
-      ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == 4);
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours - 1  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : 23; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == serverSideHours);
         RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == DateTimeOffset.MaxValue.AddHours(-1).Hour);
       });
     }
@@ -248,15 +205,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractMinuteTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==firstDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==firstMillisecondDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==nullableDateTimeOffset.Minute);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==wrongDateTimeOffset.Minute);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==wrongMillisecondDateTimeOffset.Minute);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==wrongDateTimeOffset.Minute);
@@ -287,15 +247,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractSecondTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==firstDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==firstMillisecondDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==nullableDateTimeOffset.Second);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==wrongDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==wrongDateTimeOffset.Second);
@@ -338,15 +301,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDateTest()
     {
       ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==firstDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==firstMillisecondDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==nullableDateTimeOffset.Date);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==wrongDateTimeOffset.Date);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==wrongMillisecondDateTimeOffset.Date);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==wrongDateTimeOffset.Date);
@@ -367,11 +333,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDateMaxValueTest()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
+      
       ExecuteInsideSession((s) => {
-        // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
-        // can't validate
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-1).Date);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
+          // can't validate
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-1).Date);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-2).Date);
+        }
       });
     }
 
@@ -498,8 +472,15 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == 1);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.DayOfYear);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
       });
     }
 
@@ -537,8 +518,15 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
       ExecuteInsideSession((s) => {
-        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek + 1);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
       });
     }
 
@@ -579,8 +567,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       ExecuteInsideSession((s) => {
         // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
         // can't validate
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
-        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+
       });
     }
 

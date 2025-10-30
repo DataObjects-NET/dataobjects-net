@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var c = base.BuildConfiguration();
-      c.Types.Register(typeof(SalesUnitVersion).Assembly, typeof(SalesUnitVersion).Namespace);
+      c.Types.RegisterCaching(typeof(SalesUnitVersion).Assembly, typeof(SalesUnitVersion).Namespace);
       c.UpgradeMode = DomainUpgradeMode.Recreate;
       return c;
     }

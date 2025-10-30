@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.NamingConvention.NamingRules = namingRules;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return configuration;
     }
   }

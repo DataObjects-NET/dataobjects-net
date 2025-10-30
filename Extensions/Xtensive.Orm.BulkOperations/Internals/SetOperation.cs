@@ -134,8 +134,10 @@ namespace Xtensive.Orm.BulkOperations
 
       var request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
       var sqlSelect = request.Query;
-      var exp = sqlSelect.OrderBy[0].Expression;
-
+      SqlExpression exp = sqlSelect.OrderBy[0].Expression;
+      if (exp is SqlCast sqlCast) {
+        exp = sqlCast.Operand;
+      }
       if (exp is not SqlPlaceholder placeholder) {
         parent.Bindings.AddRange(request.ParameterBindings);
         addContext.Values.Add(column, exp);

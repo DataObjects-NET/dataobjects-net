@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void MainTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TheEntity).Assembly, typeof(TheEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(TheEntity).Assembly, typeof(TheEntity).Namespace);
       configuration.ConnectionInfo = new ConnectionInfo(WellKnown.Provider.Sqlite, "Data Source=:memory:");
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
 

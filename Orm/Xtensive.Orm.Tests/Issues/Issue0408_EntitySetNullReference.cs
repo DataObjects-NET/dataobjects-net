@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
         // Load assemblies with persistent classes from configuration :
         TestLog.Info("Loading plugins...");
 
-        domainConfig.Types.Register(typeof(QueueProcessor).Assembly, typeof(QueueProcessor).Namespace);
+        domainConfig.Types.RegisterCaching(typeof(QueueProcessor).Assembly, typeof(QueueProcessor).Namespace);
 
         domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
         domain = Domain.Build(domainConfig);

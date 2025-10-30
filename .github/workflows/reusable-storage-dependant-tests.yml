@@ -1,0 +1,188 @@
+name: Run storage-dependant tests
+run-name: Run tests on ${{ inputs.storage }})
+on:
+  workflow_call:
+    inputs:
+      storage:
+        description: 'Storage name from storage config file'
+        required: true
+        default: 'sqlite3'
+        type: string
+      build_config:
+        description: 'Build configuration'
+        required: true
+        default: 'Release'
+        type: string
+      target_framework:
+        description: 'Target framework'
+        required: true
+        default: 'net8.0'
+        type: string
+      specific_sha:
+        description: 'Commit SHA to checkout'
+        required: false
+        default: ''
+        type: string
+      show_all_fails:
+        description: 'No mute tests'
+        type: boolean
+        default: false
+        required: false
+      test_output_verbosity:
+        description: 'Verbosity for dotnet test command'
+        required: true
+        default: 'minimal'
+        type: string
+      run_main:
+        description: 'Run Xtensive.Orm.Tests tests'
+        required: true
+        default: true
+        type: boolean
+      run_sql:
+        description: 'Run Xtensive.Orm.Tests.Sql tests'
+        required: true
+        default: true
+        type: boolean
+      run_extensions:
+        description: 'Run extension projects tests'
+        required: true
+        default: true
+        type: boolean
+      test_run_timeout:
+        description: 'Timeout for all tests'
+        required: true
+        default: 140
+        type: number
+      publish_raw_results:
+        description: 'Publish TRX files as atrifacts'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
+jobs:
+  run_storage_tests:
+    name: Run storage tests
+    runs-on: ubuntu-latest
+    if: ${{ inputs.run_main || inputs.run_sql || inputs.run_extensions }}
+    env:
+      DO_STORAGE: ${{ inputs.storage }}
+      BUILD_NUMBER: ${{ github.run_number }}
+      DO_TargetFrameworks: ${{ inputs.target_framework }}
+      REQUIRES_DOCKER: ${{ inputs.storage != 'sqlite3' }} #sqlite3 exists within runner
+      DOCKER_SCRIPT_KEY: ''
+      TEST_RESULTS_FOLDER: _Build/tests/${{ inputs.build_config }}/${{ inputs.target_framework }}/${{ inputs.storage }}
+
+    steps:
+      - name: downgrade OpenSSL for net5.0
+        if: $${{ contains(inputs.target_framework, 'net5.0') }}
+        timeout-minutes: 3
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+          sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
+
+      - name: Checkout repo (last commit)
+        if: ${{ github.event_name == 'pull_request_review' || github.event_name == 'pull_request' || inputs.specific_sha == '' || github.ref_type != 'branch' }}
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+          
+      - name: Checkout repo (last 50 commit)
+        if: ${{ github.event_name != 'pull_request_review' && github.event_name != 'pull_request' && inputs.specific_sha != '' && github.ref_type == 'branch' }}
+        timeout-minutes: 5
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 50
+
+       # it leads to detached HEAD, but we don't commit anything anyway
+      - name: Manual commit checkout if required
+        if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
+        run: git checkout ${{ inputs.specific_sha }}
+
+
+      # We start docker before build because in some cases extra time required for storage to init itself
+      # and projects build time is good time delay for database to start.
+      - name: Combine storage key into Docker script key
+        if: ${{ success() && env.REQUIRES_DOCKER=='true' }}
+        run: |
+          echo "DOCKER_SCRIPT_KEY=DOCKER_${DO_STORAGE@U}" >> ${GITHUB_ENV}
+
+      - name: Try get docker script by key and deploy it
+        if: ${{ success() && env.REQUIRES_DOCKER=='true' }}
+        timeout-minutes: 10
+        run: '${{ vars[env.DOCKER_SCRIPT_KEY] }}'
+
+      - name: Build Orm
+        if: ${{ success() }}
+        timeout-minutes: 5
+        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
+
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: ${{ env.DO_TargetFrameworks }}
+
+      # Since composite action syntax does not allow to define step timeout
+      # we have to run Reprocessing project here, because it may stuck in forever-loop
+      - name: Test Reprocessing extension set of tests
+        id: reprocessing
+        env:
+          GA_NO_IGNORE: ${{ inputs.show_all_fails }}
+        if: ${{ success() && inputs.run_extensions  }}
+        timeout-minutes: 5 # timeout here is VERY important because reprocessing tests concurrent execution which can cause forever loop
+        run: dotnet test Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Reprocessing.Tests.trx"  --results-directory ${{ env.TEST_RESULTS_FOLDER }} -v ${{ inputs.test_output_verbosity }}
+
+      - name: Run tests
+        id: complex_tests
+        if: ${{ !cancelled()}}
+        timeout-minutes: ${{ inputs.test_run_timeout }}
+        uses: ./.github/actions/run-database-tests
+        with:
+          build_config: ${{ inputs.build_config }}
+          show_all_fails: ${{ inputs.show_all_fails }}
+          test_output_verbosity: ${{ inputs.test_output_verbosity }}
+          test_results_folder: ${{ env.TEST_RESULTS_FOLDER }}
+          run_main: ${{ fromJSON(inputs.run_main) }}
+          run_sql: ${{ fromJSON(inputs.run_sql) }}
+          run_extensions: ${{ fromJSON(inputs.run_extensions) }}
+
+      - name: Docker. Shut down container
+        if: ${{ !cancelled() && env.REQUIRES_DOCKER=='true' }}
+        timeout-minutes: 1
+        run: |
+          docker stop $(docker ps -a -q)
+
+      - name: Publish raw test results as files
+        if: |
+          (!cancelled() && inputs.publish_raw_results) || failure()
+        timeout-minutes: 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: DO_${{ github.ref_name }}_${{ github.run_number }}_on_${{ inputs.storage }}_${{inputs.target_framework}}
+          path: |
+            ${{ env.TEST_RESULTS_FOLDER }}/**
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Make Final Test report
+        if: |
+          !cancelled() 
+            && ((github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event_name == 'workflow_dispatch')
+              || (steps.reprocessing.outcome == 'failure' || steps.complex_tests.outcome == 'failure'))
+        timeout-minutes: 1
+        uses: dorny/test-reporter@v2.1.1
+        with:
+          name: RESULTS - ${{ inputs.storage }}@${{ inputs.target_framework }} test results
+          path: ${{ env.TEST_RESULTS_FOLDER }}/*.trx
+          reporter: dotnet-trx
+          fail-on-empty: true
+          #list-suites: 'all'
+          list-tests: ${{ inputs.publish_raw_results && 'failed' || 'all' }}
+          list-suites: 'failed'
+          #list-tests: 'failed'

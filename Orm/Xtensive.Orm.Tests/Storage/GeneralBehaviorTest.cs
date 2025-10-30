@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
+      configuration.Types.RegisterCaching(typeof (Customer).Assembly, typeof (Customer).Namespace);
       return configuration;
     }
 

@@ -113,11 +113,16 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
     {
       var thisType = GetType();
       var ns = $"{thisType.FullName}Model.{@case}";
-      domainConfig.Types.Register(thisType.Assembly, ns);
+      domainConfig.Types.RegisterCaching(thisType.Assembly, ns);
       switch (inheritanceSchema) {
-        case InheritanceSchema.ClassTable:    domainConfig.Types.Register(typeof(Modifiers.MakeClassTable)); break;
-        case InheritanceSchema.ConcreteTable: domainConfig.Types.Register(typeof(Modifiers.MakeConcreteTable)); break;
-        default : throw new ArgumentOutOfRangeException();
+        case InheritanceSchema.ClassTable:
+          domainConfig.Types.Register(typeof(Modifiers.MakeClassTable));
+          break;
+        case InheritanceSchema.ConcreteTable:
+          domainConfig.Types.Register(typeof(Modifiers.MakeConcreteTable));
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
     }
 
@@ -141,14 +146,14 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           var dataActions = unsafeActions.OfType<DataAction>().ToList();
           Assert.That(dataActions.Count, Is.EqualTo(6));
 
-          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString()) ));
+          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Middle2") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Leaf4") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
 
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef4-LeafItems-Leaf4") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           break;
@@ -158,12 +163,12 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(unsafeActions.Count, Is.EqualTo(4));
           var dataActions = unsafeActions.OfType<DataAction>().ToList();
           Assert.That(dataActions.Count, Is.EqualTo(4));
-          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Leaf4") && a.DataHint.Identities.Count==0));
+          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Leaf4") && a.DataHint.Identities.Count == 0));
 
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef4-LeafItems-Leaf4") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           break;
@@ -260,8 +265,8 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(unsafeActions.Count, Is.EqualTo(12));
           var dataActions = unsafeActions.OfType<DataAction>().ToList();
           Assert.That(dataActions.Count, Is.EqualTo(12));
-          Assert.That(dataActions.Any( a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
-          Assert.That(dataActions.Any( a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf3.ToString())));
+          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
+          Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Root") && a.DataHint.Identities[0].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Middle2") && a.DataHint.Identities[0].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Middle2") && a.DataHint.Identities[0].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(a => a.Path.Contains("Tables/Leaf3") && a.DataHint.Identities[0].Target.Contains(ids.Leaf3.ToString())));
@@ -272,9 +277,9 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef3-LeafItems-Leaf3") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
@@ -294,9 +299,9 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef3-LeafItems-Leaf3") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
@@ -410,11 +415,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef2-LeafItems-Leaf2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
@@ -439,11 +444,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef2-LeafItems-Leaf2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
@@ -565,13 +570,13 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
@@ -601,13 +606,13 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
@@ -736,15 +741,15 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
@@ -777,15 +782,15 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
@@ -919,17 +924,17 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Middle1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Middle1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
@@ -965,17 +970,17 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Middle1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Middle1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
@@ -1096,11 +1101,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Middle2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf4.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef3-LeafItems-Leaf3") && a.DataHint.Identities[1].Target.Contains(ids.Leaf3.ToString())));
           Assert.That(dataActions.Any(
@@ -1123,11 +1128,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Middle2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
+            a => (a.Path.Contains("Tables/MiddleRef2-MiddleItems-Middle2") || a.Path.Contains("Tables/MiddleRef2-MiddleIH933f6532")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf4")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef3-LeafItems-Leaf3") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf3")));
           Assert.That(dataActions.Any(
@@ -1242,11 +1247,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Middle1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Middle1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[1].Target.Contains(ids.Leaf2.ToString())));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef1-LeafItems-Leaf1") && a.DataHint.Identities[1].Target.Contains(ids.Leaf1.ToString())));
           Assert.That(dataActions.Any(
@@ -1269,11 +1274,11 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/RootRef-RootItems-Root") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Middle1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Middle1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf1")));
           Assert.That(dataActions.Any(
-            a => a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
+            a => (a.Path.Contains("Tables/MiddleRef1-MiddleItems-Middle1") || a.Path.Contains("Tables/MiddleRef1-MiddleIHc6c55f01")) && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(
             a => a.Path.Contains("Tables/LeafRef2-LeafItems-Leaf2") && a.DataHint.Identities[0].Target.Contains("Tables/Leaf2")));
           Assert.That(dataActions.Any(

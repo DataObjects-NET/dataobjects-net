@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine => "\r\n";
+    public virtual string NewLine { get { return Environment.NewLine; } }
 
     public virtual string OpeningParenthesis => "(";
     public virtual string ClosingParenthesis => ")";

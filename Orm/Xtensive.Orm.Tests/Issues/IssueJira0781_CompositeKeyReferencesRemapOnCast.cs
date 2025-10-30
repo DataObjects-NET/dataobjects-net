@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Product).Assembly, typeof(Product).Namespace);
+      configuration.Types.RegisterCaching(typeof(Product).Assembly, typeof(Product).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

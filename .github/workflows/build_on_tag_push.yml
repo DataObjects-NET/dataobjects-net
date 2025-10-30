@@ -1,0 +1,150 @@
+name: 📦🏷 Build on tag push
+run-name: Build DO on tag '${{ github.ref_name }}'
+on:
+  push:
+    tags:
+      - '7.2.*'
+
+# new commits with the same key will cancel previously run workflows
+#concurrency:
+#    group: ${{ github.workflow }}-${{ github.ref }}
+#    cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      IS_PRERELEASE: ${{ contains(github.ref_name, '-') || contains(github.ref_name, '_') }}
+      TAG_PATTERN: ''
+      FILE_SEARCH_PATTERN: ''
+      CHANGELOG_PATH: ''
+    steps:
+      # Examples of how it should work
+      # 6.0.10       -> 6.0.10*Final.txt
+      # 6.0.0-Beta-1 -> 6.0.0*Beta*1.txt
+      # 6.0.0_Beta_1 -> 6.0.0*Beta*1.txt
+      # 6.0.0_Beta-1 -> 6.0.0*Beta*1.txt
+      - name: Prepare tag pattern
+        run: |
+          ORIG="${{ github.ref_name }}"
+          REP1="${ORIG//-/*}"
+          REP2="${REP1//_/*}"
+          echo "TAG_PATTERN=$REP2" >> ${GITHUB_ENV}
+
+      - name: Prepare file search pattern (if pre-release)
+        if: ${{ env.IS_PRERELEASE == 'true' }}
+        run: |
+          echo 'FILE_SEARCH_PATTERN="$TAG_PATTERN.txt"' >> ${GITHUB_ENV}
+
+      - name: Prepare file search pattern (if final)
+        if: ${{ env.IS_PRERELEASE == 'false' }}
+        run: |
+          echo 'FILE_SEARCH_PATTERN="${{ github.ref_name }}*Final.txt"' >> ${GITHUB_ENV}
+
+      - name: Checkout repo
+        if: ${{ success() }}
+        timeout-minutes: 1
+        uses: actions/checkout@v4
+
+      # ensure release file exists, if not then something went wrong and it sources are not release ready and we abort
+      - name: Prepare changelog path
+        if: ${{ success() }}
+        run: |
+          echo 'CHANGELOG_PATH=$(find ChangeLog/ -name "${{ env.FILE_SEARCH_PATTERN }}")' >> ${GITHUB_ENV}
+
+      - name: Ensure changelog exists
+        if: ${{ success() }}
+        run: |
+          if [ -z "$CHANGELOG_PATH" ]; then
+            exit 1
+          fi
+
+      - name: Build Orm
+        if: ${{ success() }}
+        run: dotnet build Orm.sln --configuration Release
+        
+      #check that nuget packages are built, last chance to abort
+      - name: Check package exist
+        if: ${{ success() }}
+        run: |
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Firebird.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.MySql.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Oracle.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.PostgreSql.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Sqlite.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.SqlServer.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.BulkOperations.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Localization.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Logging.log4net.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Logging.NLog.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Reprocessing.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Security.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Tracking.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+          if [ -z $(find _Build/bin/Release/packages -name "Xtensive.Orm.Web.${{ env.TAG_PATTERN }}.nupkg") ]; then exit 1; fi
+
+      - name: Install dotnet-validate
+        if: ${{ success() }}
+        timeout-minutes: 2
+        run: dotnet tool install --global dotnet-validate --version 0.0.1-preview.537
+
+      - name: Validate NuGet packages
+        if: ${{ success() }}
+        timeout-minutes: 1
+        run: |
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Firebird.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.MySql.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Oracle.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.PostgreSql.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Sqlite.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.SqlServer.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.BulkOperations.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Localization.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Logging.log4net.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Logging.NLog.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Reprocessing.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Security.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Tracking.${{ env.TAG_PATTERN }}.nupkg
+          dotnet-validate package local _Build/bin/Release/packages/Xtensive.Orm.Web.${{ env.TAG_PATTERN }}.nupkg
+
+      - name: Organize files
+        if: ${{ success() }}
+        run: |
+          mkdir -p _Build/bin/Release/Binaries
+          mkdir -p _Build/bin/Release/Dist
+          cp -r _Build/bin/Release/lib _Build/bin/Release/Binaries/
+          cp -r _Build/bin/Release/tools _Build/bin/Release/Binaries/
+          cp -r _Build/bin/Release/packages _Build/bin/Release/Dist/
+
+      - name: Publish artifacts
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: DO_${{ github.ref_name}}
+          path: |
+            _Build/bin/Release/Binaries/**
+            _Build/bin/Release/Dist/**
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Create release notes
+        if: ${{ success() }}
+        run: |
+          mkdir -p _Build/tmp
+          sed 's/^/- /' ${{ env.CHANGELOG_PATH }} > _Build/tmp/releasenotes.txt
+
+      - name: Create release draft
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: v${{ github.ref_name }}
+          body_path: _Build/tmp/releasenotes.txt
+          draft: true
+          prerelease: ${{ env.IS_PRERELEASE == 'true' }}

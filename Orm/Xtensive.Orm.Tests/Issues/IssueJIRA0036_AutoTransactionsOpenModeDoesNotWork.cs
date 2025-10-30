@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Firm).Assembly, typeof (Firm).Namespace);
+      config.Types.RegisterCaching(typeof (Firm).Assembly, typeof (Firm).Namespace);
       config.Sessions.Default.Options = SessionOptions.ClientProfile | SessionOptions.ReadRemovedObjects;
       return config;
     }
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var contractor = new Contractor();
       var firm = new Firm(contractor);
-      var f = new Firm(); //тут происходит ошибка
+      var f = new Firm(); //ГІГіГІ ГЇГ°Г®ГЁГ±ГµГ®Г¤ГЁГІ Г®ГёГЁГЎГЄГ 
     }
   }
 }

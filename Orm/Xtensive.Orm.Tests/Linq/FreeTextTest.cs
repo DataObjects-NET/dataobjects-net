@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      StorageTestHelper.WaitFullTextIndexesPopulated(domain, TimeSpan.FromSeconds(20));
+      StorageTestHelper.WaitFullTextIndexesPopulated(domain, TimeSpan.FromSeconds(TestInfo.IsGithubActions ? 6 : 20));
       return domain;
     }
 

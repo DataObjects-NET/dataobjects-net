@@ -1051,11 +1051,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
 
     [Test]
     public void NullableDoubleFieldExpressionTest01() =>
-      TestMax(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
+      TestMaxWithAccuracy(i => i.NullableDoubleValue1 * i.NullableDoubleValue1, DoubleValueAccuracy);
 
     [Test]
     public void NullableDoubleFieldExpressionTest02() =>
-      TestMax(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
+      TestMaxWithAccuracy(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue, DoubleValueAccuracy);
 
     [Test]
     public void NullableDecimalFieldExpressionTest() =>

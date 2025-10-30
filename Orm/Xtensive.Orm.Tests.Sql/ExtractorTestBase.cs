@@ -393,6 +393,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SequenceExtractionTest()
     {
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Sequences);
+      Require.ProviderIsNot(StorageProvider.Firebird, "Sequences in Firebird are very limited in functionality so we set some descriptor values as constants");
 
       var query = GetCheckSequenceExtractionPrepareScript();
       RegisterCleanupScript(GetCheckSequenceExtractionCleanupScript);

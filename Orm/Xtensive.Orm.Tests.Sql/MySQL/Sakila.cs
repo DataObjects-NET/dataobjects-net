@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
@@ -20,7 +21,9 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
   [TestFixture]
   public abstract class Sakila
   {
-    private readonly string sakilaDataBackupPath = Environment.CurrentDirectory + @"\MySQL\SakilaDb\sakila-data.sql";
+    private readonly string sakilaDataBackupPath = Path.Combine(
+      Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"MySQL/SakilaDb/sakila-data.sql");
+
     protected ConnectionInfo ConnectionInfo = TestConnectionInfoProvider.GetConnectionInfo();
     protected SqlDriver SqlDriver;
     protected SqlConnection SqlConnection;
@@ -47,6 +50,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         DropAllTables(Catalog.DefaultSchema, false);
       if (SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed)
         SqlConnection.Close();
+      SqlConnection?.Dispose();
     }
 
     protected virtual void CheckRequirements()

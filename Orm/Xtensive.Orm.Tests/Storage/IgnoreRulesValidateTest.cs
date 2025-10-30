@@ -970,13 +970,17 @@ namespace Xtensive.Orm.Tests.Storage
       using var transaction = session.OpenTransaction();
 
       var author = new Model1.Author {
-        FirstName = "Ivan", LastName = "Goncharov", Birthday = new DateTime(1812, 6, 18)
+        FirstName = "Ivan",
+        LastName = "Goncharov",
+        Birthday = new DateTime(1812, 6, 18)
       };
       var book = new Model1.Book { ISBN = "9780140440409", Title = "Oblomov" };
       _ = book.Authors.Add(author);
 
       var customer = new Model1.Customer {
-        FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(1988, 8, 31)
+        FirstName = "Alexey",
+        LastName = "Kulakov",
+        Birthday = new DateTime(1988, 8, 31)
       };
       var order = new Model1.Order { Book = book, Customer = customer };
       order["SomeIgnoredField"] = "Secret information for FBI :)";
@@ -1058,16 +1062,16 @@ namespace Xtensive.Orm.Tests.Storage
         }
 
         var part1Namespaces = firstPartTypes.Select(t => t.Namespace).Distinct();
-        var part2Namespaces = secondPartTypes.Select(t=>t.Namespace).Distinct();
+        var part2Namespaces = secondPartTypes.Select(t => t.Namespace).Distinct();
 
         if (isMultischemaTest) {
           foreach (var ns in part1Namespaces) {
             configuration.MappingRules.Map(firstPartTypes[0].Assembly, ns).ToSchema(Schema1);
           }
-          foreach(var ns in part2Namespaces) {
+          foreach (var ns in part2Namespaces) {
             configuration.MappingRules.Map(secondPartTypes[0].Assembly, ns).ToSchema(Schema2);
           }
-          
+
           configuration.DefaultSchema = DefaultSchema;
         }
         else {

@@ -149,12 +149,7 @@ namespace Xtensive.Core
         if (origPos > chars.Length - s.Length) {
           Grow(s.Length);
         }
-
-#if NET6_0_OR_GREATER
         s.CopyTo(chars.Slice(origPos));
-#else
-      s.AsSpan().CopyTo(chars.Slice(origPos));
-#endif
         position += s.Length;
       }
     }

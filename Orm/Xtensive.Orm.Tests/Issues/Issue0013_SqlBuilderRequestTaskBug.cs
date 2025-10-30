@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (SqlTaskEntity).Assembly, typeof (SqlTaskEntity).Namespace);
+      config.Types.RegisterCaching(typeof (SqlTaskEntity).Assembly, typeof (SqlTaskEntity).Namespace);
       return config;
     }
 

@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid FGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float FFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid? FNGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float? FNFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -345,7 +345,12 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
 
           Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FDateOnly);
-          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
+          }
+          else {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+          }
 
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
@@ -357,7 +362,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FEUInt);
           Assert.AreEqual(EULong.Max, x.FEULong);
           Assert.AreEqual(EUShort.Max, x.FEUShort);
-          Assert.AreEqual(float.MaxValue, x.FFloat);
+          Assert.AreEqual(float.Epsilon, x.FFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
@@ -374,7 +379,12 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(byte.MaxValue, x.FNByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FNDateTime);
           Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FNDateOnly);
-          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FNTimeOnly);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
+          }
+          else {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+          }
           Assert.AreEqual(12.12M, x.FNDecimal);
           Assert.AreEqual(float.MaxValue, x.FNDouble);
           Assert.AreEqual(EByte.Max, x.FNEByte);
@@ -385,7 +395,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FNEUInt);
           Assert.AreEqual(EULong.Max, x.FNEULong);
           Assert.AreEqual(EUShort.Max, x.FNEUShort);
-          Assert.AreEqual(float.MaxValue, x.FNFloat);
+          Assert.AreEqual(float.Epsilon, x.FNFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FNGuid);
           Assert.AreEqual(int.MaxValue, x.FNInt);
           Assert.AreEqual(long.MaxValue, x.FNLong);

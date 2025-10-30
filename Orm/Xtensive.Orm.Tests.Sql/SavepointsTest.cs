@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2010 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
@@ -63,10 +64,22 @@ namespace Xtensive.Orm.Tests.Sql
     {
       base.TestFixtureSetUp();
       var testSchema = ExtractDefaultSchema();
-      EnsureTableNotExists(testSchema, TestTable);
-      var table = testSchema.CreateTable(TestTable);
-      table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
-      ExecuteNonQuery(SqlDdl.Create(table));
+      Table table;
+      try {
+        Connection.BeginTransaction();
+        EnsureTableNotExists(testSchema, TestTable);
+        table = testSchema.CreateTable(TestTable);
+        _ = table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
+
+        _ = ExecuteNonQuery(SqlDdl.Create(table));
+        Connection.Commit();
+      }
+      catch {
+        if (Connection.ActiveTransaction != null)
+          Connection.Rollback();
+        throw;
+      }
+
       tableRef = SqlDml.TableRef(table);
 
       var select = SqlDml.Select(tableRef);

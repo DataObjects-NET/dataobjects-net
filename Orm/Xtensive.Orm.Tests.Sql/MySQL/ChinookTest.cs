@@ -32,14 +32,26 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     private Schema schema = null;
 
     [OneTimeSetUp]
+    public override void OneTimeSetUp()
+    {
+      base.OneTimeSetUp();
+
+      schema = Catalog.DefaultSchema;
+    }
+
     public override void SetUp()
     {
       base.SetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
+    }
 
-      schema = Catalog.DefaultSchema;
+    public override void TearDown()
+    {
+      dbCommand?.Dispose();
+      sqlCommand?.Dispose();
+      base.TearDown();
     }
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.MySql);
@@ -961,8 +973,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void Test053()
     {
-      Require.ProviderVersionAtLeast(new Version(8, 0));
-
       var nativeSql =
         "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 LIMIT 10)"
         + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 LIMIT 10)"
@@ -1004,8 +1014,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void Test054()
     {
-      Require.ProviderVersionAtLeast(new Version(8, 0));
-
       var nativeSql =
         "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 LIMIT 10 OFFSET 10)"
         + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 LIMIT 10 OFFSET 10)"
@@ -1051,7 +1059,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void Test055()
     {
-      Require.ProviderVersionAtLeast(new Version(8, 0));
+      Require.ProviderVersionAtLeast(StorageProviderVersion.MySql80);
 
       var nativeSql =
         "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 FOR SHARE)"
@@ -1094,7 +1102,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void Test056()
     {
-      Require.ProviderVersionAtLeast(new Version(8, 0));
+      Require.ProviderVersionAtLeast(StorageProviderVersion.MySql57);
 
       var nativeSql =
         "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 ORDER BY ArtistId)"
@@ -1138,8 +1146,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void Test057()
     {
-      Require.ProviderVersionAtLeast(new Version(8, 0));
-
       var nativeSql =
         "SELECT `a`.`ArtistId` FROM (SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 GROUP BY ArtistId"
         + " UNION SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 GROUP BY ArtistId"
