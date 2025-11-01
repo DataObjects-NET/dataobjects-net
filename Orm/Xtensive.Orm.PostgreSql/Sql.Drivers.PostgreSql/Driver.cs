@@ -82,6 +82,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           return SqlExceptionType.Deadlock;
         case "40001": // serialization_failure
           return SqlExceptionType.SerializationFailure;
+        case "57014": {
+          // operation timeout due to statement_timeout setting of postgres (global or per session)
+          if (serverSideException.Message.Contains("statement timeout", StringComparison.OrdinalIgnoreCase))
+            return SqlExceptionType.OperationTimeout;
+          return SqlExceptionType.Unknown;
+        }
       }
 
       return SqlExceptionType.Unknown;
