@@ -27,8 +27,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[string nativeType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         nativeTypes.TryGetValue(nativeType, out result);
         return result;
@@ -41,8 +40,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[SqlType sqlType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         sqlTypes.TryGetValue(sqlType, out result);
         return result;
@@ -57,8 +55,10 @@ namespace Xtensive.Sql.Info
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
       this.EnsureNotLocked();
-      if (!IsLocked)
-        sqlTypes.Add(sqlType, dataTypeInfo);
+      sqlTypes.Add(sqlType, dataTypeInfo);
+      foreach (var nativeType in dataTypeInfo.NativeTypes) {
+        nativeTypes.Add(nativeType, dataTypeInfo);
+      }
     }
 
     /// <summary>
@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Decimal { get; set; }
 
     /// <summary>
-    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from â€“3.40E + 38 through 3.40E + 38. 
     /// Storage size is 4 bytes.
     /// </summary>
     public DataTypeInfo Float { get; set; }
@@ -143,6 +143,17 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
+
+    /// <summary>
+    /// Date data from January 1,1 A.D. through December 31, 9999 A.D.
+    /// Can have various ranges in different RDBMSs.
+    /// </summary>
+    public DataTypeInfo DateOnly { get; set; }
+
+    /// <summary>
+    /// Time data. Values mignt be rounded to some fractions of a second.
+    /// </summary>
+    public DataTypeInfo TimeOnly { get; set; }
 
     /// <summary>
     /// Fixed-length Unicode character data of n characters. 
@@ -195,7 +206,7 @@ namespace Xtensive.Sql.Info
       base.Lock(recursive);
 
       foreach (DataTypeInfo item in this) {
-        if (item==null)
+        if (item == null)
           continue;
         sqlTypes[item.Type] = item;
         foreach (var type in item.NativeTypes)
@@ -236,6 +247,8 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
+      yield return DateOnly;
+      yield return TimeOnly;
       yield break;
     }
 

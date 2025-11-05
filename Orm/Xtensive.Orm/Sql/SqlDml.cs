@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -21,8 +21,8 @@ namespace Xtensive.Sql
   public static class SqlDml
   {
     private static readonly Type
-      SqlArrayType = typeof(SqlArray<>),
-      SqlLiteralType = typeof(SqlLiteral<>);
+      SqlArrayOfTType = typeof(SqlArray<>),
+      SqlLiteralOfTType = typeof(SqlLiteral<>);
 
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
@@ -154,11 +154,29 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = SqlArrayType.CachedMakeGenericType(itemType);
+      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
         null, new object[] {valueList}, null);
+      return (SqlArray) result;
+    }
+
+    public static SqlArray Array(object[] values)
+    {
+      if (values.Length == 0)
+        return Array(System.Array.Empty<int>());
+      var itemType = values[0].GetType();
+      foreach (var t in values.Select(value => value.GetType())) {
+        if (!itemType.IsAssignableFrom(t))
+          throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
+      }
+
+      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
+      var result = Activator.CreateInstance(
+        resultType,
+        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
+        null, new object[] { values }, null);
       return (SqlArray) result;
     }
 
@@ -494,7 +512,7 @@ namespace Xtensive.Sql
 
     #endregion
 
-    # region DateTime functions
+    # region Date and/or Time functions
 
     public static SqlFunctionCall CurrentDate()
     {
@@ -539,17 +557,39 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsArithmeticExpression(operand);
-      if (part==SqlDateTimePart.Nothing)
-        throw new ArgumentException();
+      if (part == SqlDateTimePart.Nothing) {
+        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDateTimePart.Nothing.ToString()));
+      }
       return new SqlExtract(part, operand);
     }
-    
+
+    public static SqlExtract Extract(SqlDatePart part, SqlExpression operand)
+    {
+      ArgumentNullException.ThrowIfNull(operand, nameof(operand));
+      SqlValidator.EnsureIsArithmeticExpression(operand);
+      if (part == SqlDatePart.Nothing) {
+        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDatePart.Nothing.ToString()));
+      }
+      return new SqlExtract(part, operand);
+    }
+
+    public static SqlExtract Extract(SqlTimePart part, SqlExpression operand)
+    {
+      ArgumentNullException.ThrowIfNull(operand, nameof(operand));
+      SqlValidator.EnsureIsArithmeticExpression(operand);
+      if (part == SqlTimePart.Nothing) {
+        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlTimePart.Nothing.ToString()));
+      }
+      return new SqlExtract(part, operand);
+    }
+
     public static SqlExtract Extract(SqlIntervalPart part, SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsArithmeticExpression(operand);
-      if (part==SqlIntervalPart.Nothing)
-        throw new ArgumentException();
+      if (part == SqlIntervalPart.Nothing) {
+        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlIntervalPart.Nothing.ToString()));
+      }
       return new SqlExtract(part, operand);
     }
 
@@ -564,11 +604,61 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
 
+    public static SqlFunctionCall DateConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
+    {
+      ArgumentNullException.ThrowIfNull(year);
+      ArgumentNullException.ThrowIfNull(month);
+      ArgumentNullException.ThrowIfNull(day);
+      SqlValidator.EnsureIsArithmeticExpression(year);
+      SqlValidator.EnsureIsArithmeticExpression(month);
+      SqlValidator.EnsureIsArithmeticExpression(day);
+      return new SqlFunctionCall(SqlFunctionType.DateConstruct, year, month, day);
+    }
+
+    public static SqlFunctionCall TimeConstruct(SqlExpression hour,
+      SqlExpression minute,
+      SqlExpression second,
+      SqlExpression millisecond)
+    {
+      ArgumentNullException.ThrowIfNull(hour);
+      ArgumentNullException.ThrowIfNull(minute);
+      ArgumentNullException.ThrowIfNull(second);
+      ArgumentNullException.ThrowIfNull(millisecond);
+      SqlValidator.EnsureIsArithmeticExpression(hour);
+      SqlValidator.EnsureIsArithmeticExpression(minute);
+      SqlValidator.EnsureIsArithmeticExpression(second);
+      SqlValidator.EnsureIsArithmeticExpression(millisecond);
+
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, hour, minute, second, millisecond);
+    }
+
+    public static SqlFunctionCall TimeConstruct(SqlExpression ticks)
+    {
+      ArgumentNullException.ThrowIfNull(ticks);
+      SqlValidator.EnsureIsArithmeticExpression(ticks);
+
+      return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
+    }
+
     public static SqlBinary DateTimePlusInterval(SqlExpression left, SqlExpression right)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
       return new SqlBinary(SqlNodeType.DateTimePlusInterval, left, right);
+    }
+
+    public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
+      return new SqlBinary(SqlNodeType.TimePlusInterval, left, right);
+    }
+
+    public static SqlBinary TimeMinusTime(SqlExpression left, SqlExpression right)
+    {
+      ArgumentNullException.ThrowIfNull(left, nameof(left));
+      ArgumentNullException.ThrowIfNull(right, nameof(right));
+      return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
     }
 
     public static SqlBinary DateTimeMinusInterval(SqlExpression left, SqlExpression right)
@@ -599,6 +689,95 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
     }
 
+    public static SqlFunctionCall DateTimeToTime(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.DateTimeToTime, expression);
+    }
+
+    public static SqlFunctionCall DateAddYears(SqlExpression source, SqlExpression years)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(years, nameof(years));
+      return new SqlFunctionCall(SqlFunctionType.DateAddYears, source, years);
+    }
+
+    public static SqlFunctionCall DateAddMonths(SqlExpression source, SqlExpression months)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(months, nameof(months));
+      return new SqlFunctionCall(SqlFunctionType.DateAddMonths, source, months);
+    }
+
+    public static SqlFunctionCall DateAddDays(SqlExpression source, SqlExpression days)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(days, nameof(days));
+      return new SqlFunctionCall(SqlFunctionType.DateAddDays, source, days);
+    }
+
+    public static SqlFunctionCall DateToString(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.DateToString, expression);
+    }
+
+    public static SqlFunctionCall DateToDateTime(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.DateToDateTime, expression);
+    }
+
+    public static SqlFunctionCall DateTimeToDate(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.DateTimeToDate, expression);
+    }
+
+    public static SqlFunctionCall DateToDateTimeOffset(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.DateToDateTimeOffset, expression);
+    }
+
+    public static SqlFunctionCall TimeAddHours(SqlExpression source, SqlExpression hours)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(hours, nameof(hours));
+      return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
+    }
+
+    public static SqlFunctionCall TimeAddMinutes(SqlExpression source, SqlExpression minutes)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(minutes, nameof(minutes));
+      return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
+    }
+
+    public static SqlFunctionCall TimeToString(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.TimeToString, expression);
+    }
+
+    public static SqlFunctionCall TimeToDateTime(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.TimeToDateTime, expression);
+    }
+
+    public static SqlExpression TimeToNanoseconds(SqlExpression source)
+    {
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      return new SqlFunctionCall(SqlFunctionType.TimeToNanoseconds, source);
+    }
+
+    public static SqlFunctionCall TimeToDateTimeOffset(SqlExpression expression)
+    {
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      return new SqlFunctionCall(SqlFunctionType.TimeToDateTimeOffset, expression);
+    }
+
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
@@ -620,13 +799,13 @@ namespace Xtensive.Sql
     public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source);
     }
 
     public static SqlFunctionCall IntervalToNanoseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source);
     }
 
     public static SqlFunctionCall IntervalAbs(SqlExpression source)
@@ -726,6 +905,25 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeToDateTimeOffset, dateTime);
     }
 
+    public static SqlFunctionCall DateTimeOffsetToDateTime(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDateTime, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetToTime(SqlExpression dateTimeOffset)
+    {
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToTime, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetToDate(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDate, dateTimeOffset);
+    }
+
     #endregion
 
     #region FunctionCall
@@ -738,16 +936,12 @@ namespace Xtensive.Sql
 
     public static SqlUserFunctionCall FunctionCall(string name, params SqlExpression[] expressions)
     {
-      Collection<SqlExpression> collection = new Collection<SqlExpression>();
-      for (int i = 0, l = expressions.Length; i<l; i++)
-        collection.Add(expressions[i]);
-      return FunctionCall(name, collection);
+      SqlValidator.EnsureAreSqlRowArguments(expressions);
+      return new SqlUserFunctionCall(name, expressions);
     }
 
-    public static SqlUserFunctionCall FunctionCall(string name)
-    {
-      return FunctionCall(name, new Collection<SqlExpression>());
-    }
+    public static SqlUserFunctionCall FunctionCall(string name) =>
+      new SqlUserFunctionCall(name, System.Array.Empty<SqlExpression>());
 
     public static SqlFunctionCall CurrentUser()
     {
@@ -855,7 +1049,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
@@ -865,7 +1059,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
     }
@@ -956,6 +1150,16 @@ namespace Xtensive.Sql
       return new SqlLiteral<DateTime>(value);
     }
 
+    public static SqlLiteral<DateOnly> Literal(DateOnly value)
+    {
+      return new SqlLiteral<DateOnly>(value);
+    }
+
+    public static SqlLiteral<TimeOnly> Literal(TimeOnly value)
+    {
+      return new SqlLiteral<TimeOnly>(value);
+    }
+
     public static SqlLiteral<TimeSpan> Literal(TimeSpan value)
     {
       return new SqlLiteral<TimeSpan>(value);
@@ -974,7 +1178,7 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      var resultType = SqlLiteralType.CachedMakeGenericType(valueType);
+      var resultType = SqlLiteralOfTType.CachedMakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -1158,7 +1362,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Rand(SqlExpression seed)
     {
-      if (!seed.IsNullReference()) {
+      if (seed is not null) {
         SqlValidator.EnsureIsArithmeticExpression(seed);
         return new SqlFunctionCall(SqlFunctionType.Rand, seed);
       }
@@ -1384,15 +1588,14 @@ namespace Xtensive.Sql
 
     public static SqlRow Row(params SqlExpression[] expressions)
     {
-      Collection<SqlExpression> collection = new Collection<SqlExpression>();
-      for (int i = 0, l = expressions.Length; i<l; i++)
-        collection.Add(expressions[i]);
+      var collection = new List<SqlExpression>(expressions.Length);
+      collection.AddRange(expressions);
       return Row(collection);
     }
 
     public static SqlRow Row()
     {
-      return Row(new Collection<SqlExpression>());
+      return Row(new List<SqlExpression>());
     }
 
     #endregion
@@ -1541,7 +1744,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsCharacterExpression(operand);
       if (length<0)
         throw new ArgumentException(Strings.ExLengthShouldBeNotNegativeValue, "length");
-      var arguments = new Collection<SqlExpression>();
+      var arguments = new List<SqlExpression>(3);
       arguments.Add(operand);
       arguments.Add(new SqlLiteral<int>(start));
       if (length.HasValue)
@@ -1550,44 +1753,31 @@ namespace Xtensive.Sql
     }
 
     public static SqlFunctionCall Substring(
-      SqlExpression operand, SqlExpression start)
-    {
-      return Substring(operand, start, null);
-    }
-
-    public static SqlFunctionCall Substring(
-      SqlExpression operand, SqlExpression start, SqlExpression length)
+      SqlExpression operand, SqlExpression start, SqlExpression length = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       ArgumentValidator.EnsureArgumentNotNull(start, "start");
       SqlValidator.EnsureIsCharacterExpression(operand);
       SqlValidator.EnsureIsArithmeticExpression(start);
-      if (length != null)
+      if (length != null) {
         SqlValidator.EnsureIsArithmeticExpression(length);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      arguments.Add(start);
-      if (length != null)
-        arguments.Add(length);
-      return new SqlFunctionCall(SqlFunctionType.Substring, arguments);
+        return new SqlFunctionCall(SqlFunctionType.Substring, operand, start, length);
+      }
+      return new SqlFunctionCall(SqlFunctionType.Substring, operand, start);
     }
 
     public static SqlFunctionCall Upper(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.Upper, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Upper, operand);
     }
 
     public static SqlFunctionCall Lower(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.Lower, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Lower, operand);
     }
 
     public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType, string trimCharacters)
@@ -1719,9 +1909,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsCharacterExpression(operand);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(operand);
-      return new SqlFunctionCall(SqlFunctionType.BinaryLength, arguments);
+      return new SqlFunctionCall(SqlFunctionType.BinaryLength, operand);
     }
 
     public static SqlFunctionCall CharLength(SqlExpression operand)
@@ -1737,10 +1925,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       SqlValidator.EnsureIsCharacterExpression(pattern);
       SqlValidator.EnsureIsCharacterExpression(source);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(pattern);
-      arguments.Add(source);
-      return new SqlFunctionCall(SqlFunctionType.Position, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Position, pattern, source);
     }
 
     public static SqlFunctionCall Replace(SqlExpression text, SqlExpression from, SqlExpression to)
@@ -1751,11 +1936,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsCharacterExpression(text);
       SqlValidator.EnsureIsCharacterExpression(from);
       SqlValidator.EnsureIsCharacterExpression(to);
-      var arguments = new Collection<SqlExpression>();
-      arguments.Add(text);
-      arguments.Add(from);
-      arguments.Add(to);
-      return new SqlFunctionCall(SqlFunctionType.Replace, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Replace, text, from, to);
     }
 
     public static SqlCollate Collate(SqlExpression operand, Collation collation)

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 
@@ -30,12 +30,11 @@ namespace Xtensive.Sql.Dml
     /// <value><see langword="true"/> if ascending; otherwise, <see langword="false"/>.</value>
     public bool Ascending { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = (Expression.IsNullReference()
-            ? new SqlOrder(Position, Ascending)
-            : new SqlOrder((SqlExpression)Expression.Clone(context), Ascending));
+    internal override SqlOrder Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        t.Expression is null
+            ? new SqlOrder(t.Position, t.Ascending)
+            : new SqlOrder(t.Expression.Clone(c), t.Ascending));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

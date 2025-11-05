@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -22,12 +22,11 @@ namespace Xtensive.Sql.Dml
       get { return query; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = query is SqlSelect ss
-          ? new SqlQueryRef((SqlSelect) ss.Clone(context), Name)
-          : new SqlQueryRef((SqlQueryExpression) ((SqlQueryExpression) query).Clone(context), Name);
+    internal override SqlQueryRef Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        t.query is SqlSelect ss
+          ? new SqlQueryRef(ss.Clone(c), t.Name)
+          : new SqlQueryRef(((SqlQueryExpression) t.query).Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -56,7 +55,7 @@ namespace Xtensive.Sql.Dml
 
             if (column is SqlColumnRef columnRef) {
               stubColumn = columnRef.SqlColumn as SqlColumnStub;
-              if (!ReferenceEquals(null, stubColumn)) {
+              if (stubColumn is not null) {
                 column = stubColumn.Column;
               }
             }

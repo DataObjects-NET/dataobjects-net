@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       var personType = typeof(Person);
-      configuration.Types.Register(personType.Assembly, personType.Namespace);
+      configuration.Types.RegisterCaching(personType.Assembly, personType.Namespace);
       return configuration;
     }
 

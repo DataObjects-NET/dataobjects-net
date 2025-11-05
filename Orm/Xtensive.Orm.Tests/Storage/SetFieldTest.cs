@@ -26,6 +26,12 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     public DateTime Date { get; set; }
 
     [Field]
+    public DateOnly DateOnly { get; set; }
+
+    [Field]
+    public TimeOnly TimeOnly { get; set; }
+
+    [Field]
     public Direction? NullableDirection { get; set; }
 
     [Field]
@@ -43,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
+      configuration.Types.RegisterCaching(typeof(Book).Assembly, typeof(Book).Namespace);
       return configuration;
     }
 
@@ -57,19 +63,24 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
         };
 
         var book = new Book();
-        AssertIsCalled   (() => { book.Title = "A"; });
+        AssertIsCalled(() => { book.Title = "A"; });
         AssertIsNotCalled(() => { book.Title = "A"; });
-        AssertIsCalled   (() => { book.Date = new DateTime(1,2,3); });
-        AssertIsNotCalled(() => { book.Date = new DateTime(1,2,3); });
-        
-        var image = new byte[] {1, 2, 3};
-        AssertIsCalled   (() => { book.Image = image; });
-        AssertIsCalled   (() => { book.Image = image; });
+        AssertIsCalled(() => { book.Date = new DateTime(1, 2, 3); });
+        AssertIsNotCalled(() => { book.Date = new DateTime(1, 2, 3); });
+
+        AssertIsCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
+        AssertIsNotCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
+        AssertIsCalled(() => { book.TimeOnly = new TimeOnly(1, 2, 3); });
+        AssertIsNotCalled(() => { book.TimeOnly = new TimeOnly(1, 2, 3); });
+
+        var image = new byte[] { 1, 2, 3 };
+        AssertIsCalled(() => { book.Image = image; });
+        AssertIsCalled(() => { book.Image = image; });
 
         AssertIsNotCalled(() => { book.Pair = null; });
-        AssertIsCalled   (() => { book.Pair = book; });
+        AssertIsCalled(() => { book.Pair = book; });
         AssertIsNotCalled(() => { book.Pair = book; });
-        AssertIsCalled   (() => { book.Pair = null; });
+        AssertIsCalled(() => { book.Pair = null; });
         AssertIsNotCalled(() => { book.Pair = null; });
       }
     }
@@ -89,7 +100,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     {
       int oldCallCount = fieldSetCallCount;
       action.Invoke();
-      if (fieldSetCallCount==oldCallCount)
+      if (fieldSetCallCount == oldCallCount)
         Assert.Fail("Expected event didn't occur.");
     }
 
@@ -97,7 +108,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     {
       int oldCallCount = fieldSetCallCount;
       action.Invoke();
-      if (fieldSetCallCount!=oldCallCount)
+      if (fieldSetCallCount != oldCallCount)
         Assert.Fail("Event occurred, although it shouldn't.");
     }
   }

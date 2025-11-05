@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.08.31
 
@@ -25,23 +25,47 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
+
       catalog = ExtractCatalog();
       schema = catalog.DefaultSchema;
       Table t = schema.Tables[TableName];
-      if (t!=null) {
-        ExecuteNonQuery(SqlDdl.Drop(t));
-        schema.Tables.Remove(t);
-      }
+      try {
+        Connection.BeginTransaction();
+        if (t != null) {
+          _ = ExecuteNonQuery(SqlDdl.Drop(t));
+          _ = schema.Tables.Remove(t);
+        }
 
-      CreateTable();
+        CreateTable();
+        Connection.Commit();
+      }
+      catch {
+        if (Connection.ActiveTransaction != null)
+          Connection.Rollback();
+        Connection.Close();
+        Connection.Dispose();
+        throw;
+
+      }
     }
 
     protected override void TestFixtureTearDown()
     {
-      if (schema!=null) {
+      if (Connection.State != System.Data.ConnectionState.Open)
+        base.TestFixtureSetUp();
+      if (schema != null) {
         Table t = schema.Tables[TableName];
-        if (t!=null)
-          ExecuteNonQuery(SqlDdl.Drop(t));
+        if (t != null) {
+          try {
+            Connection.BeginTransaction();
+            _ = ExecuteNonQuery(SqlDdl.Drop(t));
+            Connection.Commit();
+          }
+          catch {
+            if (Connection.ActiveTransaction != null)
+              Connection.Rollback();
+          }
+        }
       }
       base.TestFixtureTearDown();
     }
@@ -57,11 +81,11 @@ namespace Xtensive.Orm.Tests.Sql
       // Creating index
       var t = schema.Tables[TableName];
       var i = t.CreateIndex(FilteredIndexName);
-      i.CreateIndexColumn(t.TableColumns["first"]);
-      i.CreateIndexColumn(t.TableColumns["second"]);
+      _ = i.CreateIndexColumn(t.TableColumns["first"]);
+      _ = i.CreateIndexColumn(t.TableColumns["second"]);
       var tr = SqlDml.TableRef(t);
       i.Where = SqlDml.IsNotNull(tr["first"]) && SqlDml.IsNotNull(tr["second"]);
-      ExecuteNonQuery(SqlDdl.Create(i));
+      _ = ExecuteNonQuery(SqlDdl.Create(i));
 
       // Extracting index and checking its properties
       var c2 = ExtractCatalog();
@@ -70,7 +94,7 @@ namespace Xtensive.Orm.Tests.Sql
       var i2 = t2.Indexes[FilteredIndexName];
       Assert.IsNotNull(i2);
       Assert.AreEqual(2, i2.Columns.Count);
-      Assert.IsTrue(!i2.Where.IsNullReference());
+      Assert.IsTrue(i2.Where is not null);
     }
   }
 }

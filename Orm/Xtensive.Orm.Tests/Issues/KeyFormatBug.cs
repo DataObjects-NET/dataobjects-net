@@ -49,9 +49,9 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Base).Assembly, typeof (Base).Namespace);
+      config.Types.RegisterCaching(typeof (Base).Assembly, typeof (Base).Namespace);
       var nestedBaseType = typeof (Nested.Base);
-      config.Types.Register(nestedBaseType.Assembly, nestedBaseType.Namespace);
+      config.Types.RegisterCaching(nestedBaseType.Assembly, nestedBaseType.Namespace);
       config.NamingConvention.NamespacePolicy = NamespacePolicy.Synonymize;
 
       var persistentType = typeof(Persistent);

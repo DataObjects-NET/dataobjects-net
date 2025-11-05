@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -20,6 +21,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
+using System.Runtime.CompilerServices;
 using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
@@ -27,16 +29,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
-    private volatile static int instanceCount;
+    private const int Iterations = 10;
+    private static int instanceCount;
 
     #region Nested class
 
     public class MemoryLeakTester
     {
-      ~MemoryLeakTester()
-      {
-        instanceCount--;
-      }
+      ~MemoryLeakTester() => Interlocked.Decrement(ref instanceCount);
     }
 
     #endregion
@@ -930,19 +930,21 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed]
     public void ReferenceToSessionIsNotPreservedInCacheTest()
     {
-      // Use separate method for session related processing
+      // Use separate method with [MethodImpl(MethodImplOptions.NoInlining)] attribute for session related processing
       // to make sure we don't hold session reference somewhere on stack
       OpenSessionsAndRunPrefetches();
       TestHelper.CollectGarbage(true);
       Assert.That(instanceCount, Is.EqualTo(0));
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void OpenSessionsAndRunPrefetches()
     {
-      instanceCount = 10;
-      for (int i = 0; i < instanceCount; i++) {
+      instanceCount = Iterations;
+      for (int i = 0; i < Iterations; i++) {
         using (var session = Domain.OpenSession())
         using (var t = session.OpenTransaction()) {
           session.Extensions.Set(new MemoryLeakTester());

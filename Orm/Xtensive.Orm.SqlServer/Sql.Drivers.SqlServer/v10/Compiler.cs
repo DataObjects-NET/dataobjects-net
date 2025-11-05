@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -45,13 +45,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         SqlDml.Cast(date, new SqlValueType(SqlDateTypeName)),
         new SqlValueType(SqlDateTime2TypeName));
 
-    /// <summary>
-    /// Creates expression that represents subtraction of two <see cref="DateTime"/> expressions.
-    /// </summary>
-    /// <param name="date1">First <see cref="DateTime"/> expression.</param>
-    /// <param name="date2">Second <see cref="DateTime"/> expression.</param>
-    /// <returns>Result expression.</returns>
-    /// <returns></returns>
+    /// <inheritdoc/>
     protected override SqlExpression  DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return base.DateTimeSubtractDateTime(date1, date2)
@@ -138,6 +132,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         case SqlFunctionType.DateTimeToDateTimeOffset:
           DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
           return;
+        case SqlFunctionType.DateTimeOffsetToDateTime:
+          DateTimeOffsetToDateTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateToDateTimeOffset:
+          DateToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.TimeToDateTimeOffset:
+          TimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToTime:
+          DateTimeOffsetToTime(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeOffsetToDate:
+          DateTimeOffsetToDate(node.Arguments[0]).AcceptVisitor(this);
+          return;
       }
 
       base.Visit(node);
@@ -206,6 +215,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
           SqlDml.Native(OffsetPart),
           SqlDml.Native("SYSDATETIMEOFFSET()")));
 
+    private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+
+    private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
+      DateTimeToDateTimeOffset(SqlDml.Cast(date, SqlType.DateTime));
+
+    private static SqlExpression TimeToDateTimeOffset(SqlExpression time) =>
+      DateTimeToDateTimeOffset(SqlDml.Cast(time, SqlType.DateTime));
+
+    private static SqlExpression DateTimeOffsetToTime(SqlExpression dateTimeOffset)=>
+      SqlDml.Cast(dateTimeOffset, SqlType.Time);
+
+    private static SqlExpression DateTimeOffsetToDate(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(dateTimeOffset, SqlType.Date);
+
     #endregion
 
     // Constructors
@@ -216,3 +240,5 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     }
   }
 }
+
+

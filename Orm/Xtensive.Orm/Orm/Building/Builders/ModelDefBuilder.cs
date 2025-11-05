@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Building.Builders
         return typeDef;
       }
 
-      using (BuildLog.InfoRegion(Strings.LogDefiningX, type.GetFullName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogDefiningX), type.GetFullName())) {
         typeDef = DefineType(type);
         if (modelDef.Types.Contains(typeDef.Name)) {
           throw new DomainBuilderException(string.Format(Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         if (hierarchyDef != null) {
-          BuildLog.Info(Strings.LogHierarchyX, typeDef.Name);
+          BuildLog.Info(nameof(Strings.LogHierarchyX), typeDef.Name);
           modelDef.Hierarchies.Add(hierarchyDef);
         }
 
@@ -103,11 +103,7 @@ namespace Xtensive.Orm.Building.Builders
 
         ProcessFullTextIndexes(typeDef);
 
-        var validators = type.GetCustomAttributes(false).OfType<IObjectValidator>();
-        foreach (var validator in validators) {
-          typeDef.Validators.Add(validator);
-        }
-
+        typeDef.Validators.AddRange(type.GetCustomAttributes(WellKnownOrmInterfaces.ObjectValidator, false).Cast<IObjectValidator>());
         return typeDef;
       }
     }
@@ -119,7 +115,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
-      foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
+      foreach (var fieldDef in typeDef.Fields.Where(static f => f.UnderlyingProperty != null)) {
         var fullTextAttribute = fieldDef.UnderlyingProperty
           .GetAttribute<FullTextAttribute>(AttributeSearchOptions.InheritAll);
         if (fullTextAttribute == null) {
@@ -140,14 +136,10 @@ namespace Xtensive.Orm.Building.Builders
 
     public void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      var properties = typeDef.UnderlyingType.GetProperties(
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      var properties = typeDef.UnderlyingType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-      foreach (var propertyInfo in properties) {
-        // Domain builder stage-related filter
-        if (!IsFieldAvailable(propertyInfo)) {
-          continue;
-        }
+      foreach (var propertyInfo in properties
+          .Where(IsFieldAvailable)) {   // Domain builder stage-related filter
 
         // FieldAttribute presence is required
         var reversedFieldAttributes = GetReversedFieldAttributes<FieldAttribute>(propertyInfo);
@@ -160,7 +152,7 @@ namespace Xtensive.Orm.Building.Builders
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
           typeDef.Fields.Add(field);
-          BuildLog.Info(Strings.LogFieldX, field.Name);
+          BuildLog.Info(nameof(Strings.LogFieldX), field.Name);
 
           var keyAttributes = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
           if (keyAttributes != null) {
@@ -170,7 +162,7 @@ namespace Xtensive.Orm.Building.Builders
         // Only declared properties must be processed in other cases
         else if (propertyInfo.DeclaringType == propertyInfo.ReflectedType) {
           typeDef.Fields.Add(field);
-          BuildLog.Info(Strings.LogFieldX, field.Name);
+          BuildLog.Info(nameof(Strings.LogFieldX), field.Name);
         }
 
         // Checking whether property type is registered in model
@@ -189,8 +181,8 @@ namespace Xtensive.Orm.Building.Builders
     {
       // process indexes which defined directly for type
       var ownIndexesOfType = typeDef.Fields
-        .Where(f => f.IsIndexed)
-        .Select(f => new IndexAttribute(f.Name))
+        .Where(static f => f.IsIndexed)
+        .Select(static f => new IndexAttribute(f.Name))
         .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritNone) ??
           Enumerable.Empty<IndexAttribute>());
 
@@ -204,7 +196,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         typeDef.Indexes.Add(index);
-        BuildLog.Info(Strings.LogIndexX, index.Name);
+        BuildLog.Info(nameof(Strings.LogIndexX), index.Name);
       }
 
       //process indexes which inherited from base classes
@@ -224,7 +216,7 @@ namespace Xtensive.Orm.Building.Builders
 
         index.IsInherited = true;
         typeDef.Indexes.Add(index);
-        BuildLog.Info(Strings.LogIndexX, index.Name);
+        BuildLog.Info(nameof(Strings.LogIndexX), index.Name);
       }
     }
 
@@ -327,10 +319,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         // Validators
-        var validators = propertyInfo.GetCustomAttributes(false).OfType<IPropertyValidator>();
-        foreach (var validator in validators) {
-          fieldDef.Validators.Add(validator);
-        }
+        fieldDef.Validators.AddRange(propertyInfo.GetCustomAttributes(WellKnownOrmInterfaces.PropertyValidator, false).Cast<IPropertyValidator>());
       }
 
       return fieldDef;

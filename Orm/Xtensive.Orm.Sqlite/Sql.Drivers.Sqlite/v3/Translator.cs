@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2022 Xtensive LLC.
+// Copyright (C) 2011-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -22,6 +22,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'";
+
+    /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
+
+    /// <inheritdoc/>
+    public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fffffff\'";
 
     public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
 
@@ -306,10 +312,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      _ = context.Output.Append("DROP INDEX ")
-        .Append(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema))
-        .Append(".");
-      TranslateIdentifier(context.Output, node.Index.DbName);
+      var index = node.Index;
+      _ = context.Output.Append("DROP INDEX ");
+      TranslateIdentifier(context.Output, index.DataTable.Schema.DbName, index.DbName);
     }
 
     /// <inheritdoc/>
@@ -336,6 +341,30 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlDateTimePart.Hour: _ = output.Append("'%H'"); break;
         case SqlDateTimePart.Minute: _ = output.Append("'%M'"); break;
         case SqlDateTimePart.Second: _ = output.Append("'%S'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlDatePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlDatePart.Year: _ = output.Append("'%Y'"); break;
+        case SqlDatePart.Month: _ = output.Append("'%m'"); break;
+        case SqlDatePart.Day: _ = output.Append("'%d'"); break;
+        case SqlDatePart.DayOfWeek: _ = output.Append("'%w'"); break;
+        case SqlDatePart.DayOfYear: _ = output.Append("'%j'"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+        case SqlTimePart.Hour: _ = output.Append("'%H'"); break;
+        case SqlTimePart.Minute: _ = output.Append("'%M'"); break;
+        case SqlTimePart.Second: _ = output.Append("'%S'"); break;
         default: base.Translate(output, dateTimePart); break;
       }
     }
@@ -483,12 +512,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       switch (type) {
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
+        case SqlNodeType.TimePlusInterval:
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+        case SqlNodeType.TimeMinusTime:
           _ = output.Append("-");
           break;
         case SqlNodeType.Overlaps:

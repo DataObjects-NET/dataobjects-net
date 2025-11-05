@@ -8,7 +8,7 @@ using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Drivers.Firebird.v4_0
 {
-  internal class Driver : v2_5.Driver
+  internal class Driver : v3_0.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper() => new TypeMapper(this);
 

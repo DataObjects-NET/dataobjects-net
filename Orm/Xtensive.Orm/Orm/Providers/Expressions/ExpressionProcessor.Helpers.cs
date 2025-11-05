@@ -17,13 +17,16 @@ using TypeMapping = Xtensive.Sql.TypeMapping;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class ExpressionProcessor
+  internal partial class ExpressionProcessor
   {
     private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
     {
+      var expressionLeft = expression.Left;
+      var expressionRight = expression.Right;
+
       bool isGoodExpression =
-        expression.Left.NodeType==ExpressionType.Call && expression.Right.NodeType==ExpressionType.Constant ||
-        expression.Right.NodeType==ExpressionType.Call && expression.Left.NodeType==ExpressionType.Constant;
+        expressionLeft.NodeType==ExpressionType.Call && expressionRight.NodeType==ExpressionType.Constant ||
+        expressionRight.NodeType==ExpressionType.Call && expressionLeft.NodeType==ExpressionType.Constant;
 
       if (!isGoodExpression)
         return null;
@@ -32,14 +35,14 @@ namespace Xtensive.Orm.Providers
       ConstantExpression constantExpression;
       bool swapped;
 
-      if (expression.Left.NodeType==ExpressionType.Call) {
-        callExpression = (MethodCallExpression) expression.Left;
-        constantExpression = (ConstantExpression) expression.Right;
+      if (expressionLeft.NodeType == ExpressionType.Call) {
+        callExpression = (MethodCallExpression) expressionLeft;
+        constantExpression = (ConstantExpression) expressionRight;
         swapped = false;
       }
       else {
-        callExpression = (MethodCallExpression) expression.Right;
-        constantExpression = (ConstantExpression) expression.Left;
+        callExpression = (MethodCallExpression) expressionRight;
+        constantExpression = (ConstantExpression) expressionLeft;
         swapped = true;
       }
 
@@ -48,7 +51,7 @@ namespace Xtensive.Orm.Providers
 
       // There no methods in IComparable except CompareTo so checking only DeclatingType.
       bool isCompareTo = methodType==WellKnownInterfaces.Comparable
-        || (methodType.IsGenericType && methodType.GetGenericTypeDefinition()==WellKnownInterfaces.ComparableOfT);
+        || (methodType.IsGenericType && methodType.GetGenericTypeDefinition() == WellKnownInterfaces.ComparableOfT);
 
       bool isVbStringCompare = method.DeclaringType.FullName=="Microsoft.VisualBasic.CompilerServices.Operators" 
         && method.Name=="CompareString" 
@@ -87,8 +90,10 @@ namespace Xtensive.Orm.Providers
         rightComparand = tmp;
       }
 
+      var expressionNodeType = expression.NodeType;
+
       if (constant > 0)
-        switch (expression.NodeType) {
+        switch (expressionNodeType) {
         case ExpressionType.Equal:
         case ExpressionType.GreaterThan:
         case ExpressionType.GreaterThanOrEqual:
@@ -102,7 +107,7 @@ namespace Xtensive.Orm.Providers
         }
 
       if (constant < 0)
-        switch (expression.NodeType) {
+        switch (expressionNodeType) {
         case ExpressionType.NotEqual:
         case ExpressionType.GreaterThan:
         case ExpressionType.GreaterThanOrEqual:
@@ -115,7 +120,7 @@ namespace Xtensive.Orm.Providers
           return null;
         }
 
-      switch (expression.NodeType) {
+      switch (expressionNodeType) {
       case ExpressionType.GreaterThan:
         return SqlDml.GreaterThan(leftComparand, rightComparand);
       case ExpressionType.GreaterThanOrEqual:
@@ -149,7 +154,7 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression TryTranslateEqualitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
+      if (right.NodeType==SqlNodeType.Null || EmptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNull(left);
 
       object id = null;
@@ -165,7 +170,7 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression TryTranslateInequalitySpecialCases(SqlExpression left, SqlExpression right)
     {
-      if (right.NodeType==SqlNodeType.Null || emptyStringIsNull && IsEmptyStringLiteral(right))
+      if (right.NodeType==SqlNodeType.Null || EmptyStringIsNull && IsEmptyStringLiteral(right))
         return SqlDml.IsNotNull(left);
       
       object id = null;
@@ -194,9 +199,8 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
-      var memberCompiler = memberCompilerProvider.GetCompiler(member);
-      if (memberCompiler==null)
-        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
+      var memberCompiler = memberCompilerProvider.GetCompiler(member)
+        ?? throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
     }
 
@@ -216,6 +220,12 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTime);
+
+    private static bool IsDateOnlyExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.DateOnly);
+
+    private static bool IsTimeOnlyExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.TimeOnly);
 
     private static bool IsDateTimeOffsetExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTimeOffset);

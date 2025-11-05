@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2021 Xtensive LLC.
+// Copyright (C) 2003-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -135,6 +136,9 @@ namespace Xtensive.Sql.Compiler
 
     public void AppendPlaceholderWithId(object id) => Add(new PlaceholderNode(id));
 
+    public void AppendSchemaNodePlaceholder(SchemaNode schemaNode, SqlHelper.EscapeSetup escapeSetup, bool databaseNameRequired) =>
+      Add(new SchemaNodePlaceholderNode(schemaNode, escapeSetup, databaseNameRequired));
+
     public void AppendIndent()
     {
       if (Indent > 0) {
@@ -149,7 +153,7 @@ namespace Xtensive.Sql.Compiler
     {
       FlushBuffer();
       children.Add(node);
-      lastNodeIsText = node.IsTextNode;
+      lastNodeIsText = node is TextNode;
     }
 
     internal override void AcceptVisitor(NodeVisitor visitor)
@@ -160,7 +164,7 @@ namespace Xtensive.Sql.Compiler
     internal void FlushBuffer()
     {
       if (stringBuilder.Length > 0) {
-        children.Add(new TextNode(stringBuilder.ToString()));
+        children.Add(TextNode.Create(stringBuilder.ToString()));
         lastNodeIsText = true;
         lastChar = stringBuilder[^1];
         _ = stringBuilder.Clear();

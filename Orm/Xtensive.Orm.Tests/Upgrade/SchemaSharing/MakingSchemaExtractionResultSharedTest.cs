@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Product).Assembly, typeof (Product).Namespace);
+      configuration.Types.RegisterCaching(typeof (Product).Assembly, typeof (Product).Namespace);
       return configuration;
     }
 

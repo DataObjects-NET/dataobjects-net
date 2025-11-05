@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -31,18 +31,17 @@ namespace Xtensive.Sql.Ddl
       set { option = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlAlterPartitionFunction(partitionFunction, boundary, option);
+    internal override SqlAlterPartitionFunction Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlAlterPartitionFunction(t.partitionFunction, t.boundary, t.option));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
       visitor.Visit(this);
     }
 
-    internal SqlAlterPartitionFunction(PartitionFunction partitionFunction, string boundary,
-                                       SqlAlterPartitionFunctionOption option)
+    internal SqlAlterPartitionFunction(
+      PartitionFunction partitionFunction, string boundary, SqlAlterPartitionFunctionOption option)
       : base(SqlNodeType.Alter)
     {
       this.partitionFunction = partitionFunction;

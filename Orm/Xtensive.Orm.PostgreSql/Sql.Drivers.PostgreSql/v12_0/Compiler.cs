@@ -8,7 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
   {
     // Constructors
 
-    public Compiler(SqlDriver driver)
+    public Compiler(PostgreSql.Driver driver)
       : base(driver)
     {
     } 

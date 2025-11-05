@@ -223,7 +223,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public virtual bool Equals(Tuple other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       if (ReferenceEquals(other, this))
         return true;
@@ -267,7 +267,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder(16);
+      var sb = new ValueStringBuilder(stackalloc char[16]);
       for (int i = 0; i < Count; i++) {
         TupleFieldState state;
         var value = GetValue(i, out state);
@@ -281,12 +281,12 @@ namespace Xtensive.Tuples
           if (string.IsNullOrEmpty(value as string))
             sb.Append(Strings.EmptyString);
           else
-            sb.Append(value);
+            sb.Append(value.ToString());
         }
         else
-          sb.Append(value);
+          sb.Append(value.ToString());
       }
-      return string.Format(Strings.TupleFormat, sb);
+      return string.Format(Strings.TupleFormat, sb.ToString());
     }
 
     #endregion
@@ -309,12 +309,10 @@ namespace Xtensive.Tuples
     /// </summary>
     /// <param name="descriptor">The descriptor.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create(TupleDescriptor descriptor)
-    {
-      if (descriptor==null)
-        throw new ArgumentNullException("descriptor");
-      return new PackedTuple(descriptor);
-    }
+    public static RegularTuple Create(TupleDescriptor descriptor) =>
+      descriptor != default
+        ? new PackedTuple(descriptor)
+        : throw new ArgumentNullException("descriptor");
 
     #endregion
 

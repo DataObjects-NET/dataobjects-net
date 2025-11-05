@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      using (BuildLog.InfoRegion(Strings.LogProcessingMappingRules)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogProcessingMappingRules))) {
         new StorageMappingBuilder(context).ProcessAll();
       }
     }
@@ -92,17 +92,18 @@ namespace Xtensive.Orm.Building.Builders
 
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
-        if (verbose)
-          BuildLog.Info(Strings.LogProcessingX, underlyingType.GetShortName());
+        if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
+          BuildLog.Info(nameof(Strings.LogProcessingX), underlyingType.GetShortName());
+        }
         var request = new MappingRequest(underlyingType.Assembly, underlyingType.Namespace);
-        MappingResult result;
-        if (!mappingCache.TryGetValue(request, out result)) {
+        if (!mappingCache.TryGetValue(request, out var result)) {
           result = Process(underlyingType);
           mappingCache.Add(request, result);
         }
         else {
-          if (verbose)
-            BuildLog.Info(Strings.LogReusingCachedMappingInformationForX, underlyingType.GetShortName());
+          if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
+            BuildLog.Info(nameof(Strings.LogReusingCachedMappingInformationForX), underlyingType.GetShortName());
+          }
         }
         type.MappingDatabase = result.MappingDatabase;
         type.MappingSchema = result.MappingSchema;
@@ -116,8 +117,9 @@ namespace Xtensive.Orm.Building.Builders
       var resultDatabase = !string.IsNullOrEmpty(rule.Database) ? rule.Database : defaultDatabase;
       var resultSchema = !string.IsNullOrEmpty(rule.Schema) ? rule.Schema : defaultSchema;
 
-      if (verbose)
-        BuildLog.Info(Strings.ApplyingRuleXToY, rule, type.GetShortName());
+      if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
+        BuildLog.Info(nameof(Strings.ApplyingRuleXToY), rule, type.GetShortName());
+      }
 
       return new MappingResult(resultDatabase, resultSchema);
     }

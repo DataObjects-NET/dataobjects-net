@@ -1,0 +1,28 @@
+[main] Upgrade hints change names of constructors' string parameters for better understanding of what suppose to be in them.
+[main] Improved string operations Trim/TrimStart/TrimEnd support
+[main] Obsolete DomainConfiguration.DefauktForeignKeyMode const removed, the correctly named constant still exists
+[main] Obsolete SqlPersistTask constructors removed
+[main] Obsolete AggregateProvider constructor removed
+[main] Obsolete CalculateProvider constructor removed
+[main] Updated BitFaster.Caching to version 2.5.3
+[firebird] Updated client library to version 10.3.2
+[mysql] SqlDml.NullIf function now correctly translated
+[mysql] Improved support for string.PadLeft/PadRight opertaions
+[mysql] Updated client library to version 8.4.0
+[postgresql] Updated client library to version 9.0.3
+[postgresql] Improved .Milliseconds part translation for types that have the part
+[postgresql] Improved TimeSpan.TotalMilliseconds translation
+[postgresql] AppContext switch "Npgsql.EnableLegacyTimestampBehavior" is turned off if user hasn't set it before Domain build
+[postgresql] Both states of "Npgsql.EnableLegacyTimestampBehavior" AppContext switch are supported
+[postgresql] AppContext switch "Npgsql.DisableDateTimeInfinityConversions" is turned on if user hasn't set it before Domain build
+[postgresql] Supported both states of "Npgsql.DisableDateTimeInfinityConversions" AppContext switch, though "true" is recommended
+[postgresql] When infinity conversions are enabled, extra statements will be applied to certain operations to return expected results
+[postgresql] DateTime values '0001.01.01 00:00:00.00000' and '9999.12.31 23:59:59.99999' will be read as MinValue and MaxValue accordingly
+[postgresql] DateTimeOffset values '0001.01.01 00:00:00.00000+00:00' and '9999.12.31 23:59:59.99999+00:00' will be read as MinValue and MaxValue accordingly
+[postgresql] When legacy timestamp behavior is disabled, connection time zone is applied to DateTimeOffset values if possible, otherwise, to local one
+[postgresql] TimeSpans based on values lower than -9223372036854775800L and higher 92233720368547758xxL will be read as MinValue and MaxValue accordingly
+[postgresql] For PostgreSQL 13+ apply 'trim_scale' function to results of aggregation to improve compatibility with .NET decimal
+[oracle] Updated client library to version 23.7.0
+[sqlite] Fixed string.Lenght translation
+[sqlite] Added support for string.PadLeft/PadRight operations
+[sqlserver] Updated client library to version 5.2.2

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.06
 
@@ -15,19 +15,15 @@ namespace Xtensive.Sql.Dml
 
     public List<SqlExpression> Expressions { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-      var clone = new SqlDynamicFilter(Id);
-      foreach (var expression in Expressions) {
-        clone.Expressions.Add((SqlExpression) expression.Clone(context));
-      }
+    internal override SqlDynamicFilter Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlDynamicFilter(t.Id);
+        foreach (var expression in t.Expressions) {
+          clone.Expressions.Add(expression.Clone(c));
+        }
 
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,9 +32,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlDynamicFilter>(expression, "expression");
-      var replacingExpression = (SqlDynamicFilter) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlDynamicFilter>(expression);
       Id = replacingExpression.Id;
       Expressions.Clear();
       Expressions.AddRange(replacingExpression.Expressions);

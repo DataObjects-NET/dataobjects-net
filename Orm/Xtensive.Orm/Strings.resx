@@ -797,8 +797,8 @@
   <data name="ExColumnNotNullable" xml:space="preserve">
     <value>Unable to assign null to non-nullable column.</value>
   </data>
-  <data name="ExEntityIsRemoved" xml:space="preserve">
-    <value>Entity is removed.</value>
+  <data name="ExEntityOfTypeXIsRemoved" xml:space="preserve">
+    <value>Entity of type '{0}' is removed.</value>
   </data>
   <data name="ExFieldWithNameXIsAlreadyRegistered" xml:space="preserve">
     <value>Field with name '{0}' is already registered.</value>
@@ -2354,8 +2354,8 @@ Error: {1}</value>
   <data name="ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed" xml:space="preserve">
     <value>Non-LINQ calls are not supported within Query.ExecuteDelayed</value>
   </data>
-  <data name="ExIgnoreRuleXMustBeAppliedToColumnOrTable" xml:space="preserve">
-    <value>Ignore rule '{0}' must be applied to column or table.</value>
+  <data name="ExIgnoreRuleXMustBeAppliedToColumnIndexOrTable" xml:space="preserve">
+    <value>Ignore rule '{0}' must be applied to column, index or table.</value>
   </data>
   <data name="ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn" xml:space="preserve">
     <value>Table '{0}' can't be removed due to the foreign key '{1}' of a ignored table or column.</value>
@@ -2390,7 +2390,7 @@ Error: {1}</value>
   <data name="ExDateTimeToStringMethodIsNotSupported" xml:space="preserve">
     <value>DateTime.ToString() method is not supported, use the DateTime.ToString("s").</value>
   </data>
-  <data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported" xml:space="preserve">
+  <data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
     <value>Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString("s").</value>
   </data>
   <data name="ExChainedBufferRemoveMethodIsNotSupported" xml:space="preserve">
@@ -2567,6 +2567,18 @@ Error: {1}</value>
   <data name="ExXExpressionsWithConstantValuesOfYTypeNotSupported" xml:space="preserve">
     <value>{0} expressions with constant values of {1} type are not supported.</value>
   </data>
+  <data name="ComparisonOfTwoEntityFieldsIsNotSupported" xml:space="preserve">
+    <value>Comparison of two entity fields is not supported.</value>
+  </data>
+  <data name="ExJoinHasSameInnerAndOuterParameterInstances" xml:space="preserve">
+    <value>Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported.</value>
+  </data>
+  <data name="ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel" xml:space="preserve">
+    <value>The type '{0}',which contains renaming field '{1}', doesn't exist in storage model.</value>
+  </data>
+  <data name="ExResultSelectorIsNotSupportedForSelectManyOverGrouping" xml:space="preserve">
+    <value>Result selector is not supported for SelectMany over GroupBy result.</value>
+  </data>
   <data name="ExArgumentContainsInvalidCharacters" xml:space="preserve">
     <value>Invalid argument: Argument {0} cannot contain '{1}' characters.</value>
   </data>
@@ -2575,6 +2587,36 @@ Error: {1}</value>
   </data>
   <data name="ExUnsupportedDistinctBy" xml:space="preserve">
     <value>IQueryable.DistinctBy() extension is not supported. Use '.AsEnumerable().DistinctBy()' instead.</value>
+  </data>
+  <data name="LogApplyModelFixesForMySql" xml:space="preserve">
+    <value>Applying changes to Metadata-related types for MySQL</value>
+  </data>
+  <data name="ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters" xml:space="preserve">
+    <value>The given type has no constructor with given parameters or more than one suitable constructor.</value>
+  </data>
+  <data name="ExIgnoreRuleIsAlreadyConfiguredForX" xml:space="preserve">
+    <value>Rule is already configured for {0}.</value>
+  </data>
+  <data name="ExUnableToActualizeSchemaNodeInQuery" xml:space="preserve">
+    <value>Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided.</value>
+  </data>
+  <data name="ExDateOnlyToStringMethodIsNotSupported" xml:space="preserve">
+    <value>DateOnly.ToString() method is not supported, use the DateOnly.ToString("o").</value>
+  </data>
+  <data name="ExTimeOnlyToStringMethodIsNotSupported" xml:space="preserve">
+    <value>TimeOnly.ToString() method is not supported, use the TimeOnly.ToString("o").</value>
+  </data>
+  <data name="ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
+    <value>Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString("s").</value>
+  </data>
+  <data name="ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported" xml:space="preserve">
+    <value>Translation of TimeOnly.ToString(string) with arbitrary arguments is not supported. Use TimeOnly.ToString("s").</value>
+  </data>
+  <data name="ExMaxNumberOfConditionsShouldBeBetweenXAndY" xml:space="preserve">
+    <value>DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included).</value>
+  </data>
+  <data name="LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone" xml:space="preserve">
+    <value>Key generator kind for hierarchy with root '{0}' has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors.</value>
   </data>
   <data name="ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed" xml:space="preserve">
     <value>Session '{0}' is actively persisting changes, persistent objects' changes are not allowed.</value>

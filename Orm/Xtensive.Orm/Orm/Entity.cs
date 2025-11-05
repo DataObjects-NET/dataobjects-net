@@ -138,8 +138,7 @@ namespace Xtensive.Orm
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
         foreach (var columnInfo in versionColumns) {
           if (!tuple.GetFieldState(columnInfo.Field.MappingInfo.Offset).IsAvailable()) {
-            if (columnsToPrefetch==null)
-              columnsToPrefetch = new List<PrefetchFieldDescriptor>();
+            columnsToPrefetch ??= new List<PrefetchFieldDescriptor>(1);
             columnsToPrefetch.Add(new PrefetchFieldDescriptor(columnInfo.Field));
           }
         }
@@ -410,7 +409,7 @@ namespace Xtensive.Orm
     internal void EnsureNotRemoved()
     {
       if (IsRemoved)
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+        throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, TypeInfo.Name));
     }
 
     internal override sealed ValidationResult GetValidationResult()
@@ -486,7 +485,7 @@ namespace Xtensive.Orm
     internal void SystemBeforeRemove(EntityRemoveReason reason)
     {
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
+        OrmLog.Debug(nameof(Strings.LogSessionXRemovingKeyY), Session, Key);
       }
 
       Session.SystemEvents.NotifyEntityRemoving(this, reason);
@@ -533,7 +532,7 @@ namespace Xtensive.Orm
     {
       State.Entity = this;
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXMaterializingYKeyZ, Session, GetType().GetShortName(), State.Key);
+        OrmLog.Debug(nameof(Strings.LogSessionXMaterializingYKeyZ), Session, GetType().GetShortName(), State.Key);
       }
 
       if (Session.IsSystemLogicOnly || materialize)
@@ -621,7 +620,7 @@ namespace Xtensive.Orm
       if (!Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
         EnsureNotRemoved();
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+        OrmLog.Debug(nameof(Strings.LogSessionXGettingValueKeyYFieldZ), Session, Key, field);
       }
 
       EnsureIsFetched(field);
@@ -673,7 +672,7 @@ namespace Xtensive.Orm
       EnsureNotRemoved();
 
       if (Session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+        OrmLog.Debug(nameof(Strings.LogSessionXSettingValueKeyYFieldZ), Session, Key, field);
       }
 
       if (field.IsPrimaryKey)

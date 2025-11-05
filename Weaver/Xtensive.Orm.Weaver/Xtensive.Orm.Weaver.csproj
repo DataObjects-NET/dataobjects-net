@@ -1,12 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
-    <OutputPath>$(BaseOutputPath)tools\weaver\</OutputPath>
+    <OutputPath>$(BaseOutputPath)tools\weaver\$(TargetFramework)\</OutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(TargetFramework)\</IntermediateOutputPath>
     <RollForward>Major</RollForward>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.2" />

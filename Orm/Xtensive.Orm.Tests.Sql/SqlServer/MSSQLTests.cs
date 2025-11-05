@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,6 +15,7 @@ using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
 using System.Linq;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
@@ -85,6 +86,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) {
           sqlConnection.Close();
         }
+        sqlConnection?.Dispose();
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
@@ -116,8 +118,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteDataReaderResult(dbCommand);
-      var r2 = GetExecuteDataReaderResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteDataReaderResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteDataReaderResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -155,8 +173,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteNonQueryResult(dbCommand);
-      var r2 = GetExecuteNonQueryResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteNonQueryResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteNonQueryResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -2703,9 +2737,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       var insert = SqlDml.Insert(unitMeasure);
-      insert.Values[unitMeasure[0]] = "F2";
-      insert.Values[unitMeasure[1]] = "Square Feet";
-      insert.Values[unitMeasure[2]] = SqlDml.CurrentDate();
+      insert.AddValueRow(
+        (unitMeasure[0], "F2"),
+        (unitMeasure[1], "Square Feet"),
+        (unitMeasure[2], SqlDml.CurrentDate())
+      );
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
     }

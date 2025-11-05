@@ -21,7 +21,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString() => $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
 
-    public ProjectionExpression Apply(ItemProjectorExpression itemProjectorExpression) =>
+    /// <summary>
+    /// Creates new <see cref="ProjectionExpression"/> based on this instance. New projection
+    /// inherits all properties but <see cref="ProjectionExpression.ItemProjector"/>, which is
+    /// replaced by the given <paramref name="itemProjectorExpression"/>.
+    /// </summary>
+    /// <param name="itemProjectorExpression">Replacement of <see cref="ProjectionExpression.ItemProjector"/>.</param>
+    /// <returns>New instance with replaced item projector.</returns>
+    public ProjectionExpression ApplyItemProjector(ItemProjectorExpression itemProjectorExpression) =>
       new ProjectionExpression(Type, itemProjectorExpression, TupleParameterBindings, ResultAccessMethod);
 
     // Constructors

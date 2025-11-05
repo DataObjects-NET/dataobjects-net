@@ -56,11 +56,12 @@ namespace Xtensive.Core
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder(64);
-      sb.Append(base.ToString());
-      sb.AppendFormat("\r\n{0}:", Strings.OriginalExceptions);
+      _ = sb.Append(base.ToString())
+        .AppendLine()
+        .AppendFormat("{0}:", Strings.OriginalExceptions);
       int i = 1;
       foreach (Exception exception in exceptions)
-        sb.AppendFormat("\r\n{0}: {1}", i++, exception);
+        sb.AppendLine().AppendFormat("{0}: {1}", i++, exception);
       return sb.ToString();
     }
 
@@ -138,6 +139,9 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="info"></param>
     /// <param name="context"></param>
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
     protected AggregateException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
@@ -150,6 +154,9 @@ namespace Xtensive.Core
     /// <param name="info"></param>
     /// <param name="context"></param>
     [SecurityCritical]
+#if NET8_0_OR_GREATER
+    [Obsolete(DiagnosticId = "SYSLIB0051")]
+#endif
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       base.GetObjectData(info, context);

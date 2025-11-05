@@ -14,6 +14,14 @@ namespace Xtensive.Orm.Internals
 {
   internal sealed class Pinner : SessionBound
   {
+    private class DisposableRemover : IDisposable
+    {
+      public Pinner Pinner { get; init; }
+      public EntityState State { get; init; }
+
+      public void Dispose() => Pinner.roots.Remove(State);
+    }
+
     private readonly HashSet<EntityState> roots = new HashSet<EntityState>();
 
     private EntityChangeRegistry activeRegistry;
@@ -24,15 +32,8 @@ namespace Xtensive.Orm.Internals
     public EntityChangeRegistry PinnedItems { get; private set; }
     public EntityChangeRegistry PersistableItems { get; private set; }
     
-    public IDisposable RegisterRoot(EntityState state)
-    {
-      if (roots.Contains(state))
-        return null;
-      roots.Add(state);
-      return new Disposable<Pinner, EntityState>(
-        this, state,
-        (disposing, _this, _state) => _this.roots.Remove(_state));
-    }
+    public IDisposable RegisterRoot(EntityState state) =>
+      roots.Add(state) ? new DisposableRemover { Pinner = this, State = state } : null;
 
     public void ClearRoots()
     {

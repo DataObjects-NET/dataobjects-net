@@ -61,7 +61,7 @@ namespace Xtensive.Orm
       KeyMapping keyMapping;
 
       using (session.Activate()) {
-        using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
+        using (isSystemOperationLog ? (IDisposable) session.OpenSystemLogicOnlyRegion() : null)
         using (var tx = session.OpenTransaction(TransactionOpenMode.New)) {
 
           foreach (var operation in operations)
@@ -110,7 +110,8 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder($"{Strings.Operations}:\r\n");
+      var sb = new StringBuilder(string.Format("{0}:", Strings.Operations));
+      _ = sb.AppendLine();
       foreach (var o in operations)
         sb.AppendLine(o.ToString().Indent(2));
       return sb.ToString().Trim();

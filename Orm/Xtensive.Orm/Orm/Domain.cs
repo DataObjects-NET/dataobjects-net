@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -57,7 +58,7 @@ namespace Xtensive.Orm
     public event EventHandler Disposing;
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>. 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>.
     /// </summary>
     /// <seealso cref="Session.Current"/>
     /// <seealso cref="Demand"/>
@@ -69,7 +70,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>,
     /// if active <see cref="Session"/> is not found.
     /// </summary>
     /// <returns>Current domain.</returns>
@@ -79,7 +80,7 @@ namespace Xtensive.Orm
     {
       return Session.Demand().Domain;
     }
-    
+
     /// <summary>
     /// Gets the domain configuration.
     /// </summary>
@@ -131,6 +132,8 @@ namespace Xtensive.Orm
     internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
+
+    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; private set; }
 
     internal object UpgradeContextCookie { get; private set; }
 
@@ -227,7 +230,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -326,7 +329,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -346,18 +349,30 @@ namespace Xtensive.Orm
         // That would make session accessible for user before
         // connection become opened.
         session = new Session(this, storageNode, configuration, false);
+        ExceptionDispatchInfo exceptionDispatchInfo = null;
         try {
           await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
             .ContinueWith(t => {
-              if (sessionScope != null) {
-                session.AttachToScope(sessionScope);
+              if (t.Status == TaskStatus.RanToCompletion) {
+                if (sessionScope != null) {
+                  session.AttachToScope(sessionScope);
+                }
               }
-            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+              else if (t.Exception is Exception ex) {
+                if (ex is System.AggregateException aggregateException && aggregateException.InnerExceptions.Count == 1) {
+                  ex = aggregateException.InnerExceptions[0];
+                }
+                exceptionDispatchInfo = ExceptionDispatchInfo.Capture(ex);
+              }
+            }, TaskContinuationOptions.NotOnCanceled | TaskContinuationOptions.ExecuteSynchronously)
             .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
           await session.DisposeSafelyAsync().ConfigureAwait(false);
           throw;
+        }
+        finally {
+          exceptionDispatchInfo?.Throw();
         }
       }
       NotifySessionOpen(session);
@@ -370,7 +385,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions { get; private set; }
-    
+
     #endregion
 
     /// <summary>
@@ -402,6 +417,7 @@ namespace Xtensive.Orm
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      RootCallExpressionsCache = new ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression>();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
@@ -427,7 +443,7 @@ namespace Xtensive.Orm
       }
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        OrmLog.Debug(nameof(Strings.LogDomainIsDisposing));
       }
 
       NotifyDisposing();

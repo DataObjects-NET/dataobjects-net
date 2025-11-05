@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2018-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2018.03.03
 
@@ -14,6 +14,8 @@ namespace Xtensive.Orm.Configuration
   /// </summary>
   public sealed class VersioningConvention : LockableBase, ICloneable
   {
+    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
+
     private EntityVersioningPolicy entityVersioningPolicy;
     private bool denyEntitySetOwnerVersionChange;
 
@@ -25,7 +27,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return entityVersioningPolicy; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         entityVersioningPolicy = value;
       }
     }
@@ -37,7 +39,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return denyEntitySetOwnerVersionChange; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         denyEntitySetOwnerVersionChange = value;
       }
     }
@@ -55,7 +57,7 @@ namespace Xtensive.Orm.Configuration
     public VersioningConvention()
     {
       denyEntitySetOwnerVersionChange = false;
-      entityVersioningPolicy = EntityVersioningPolicy.Default;
+      entityVersioningPolicy = DefaultVersioningPolicy;
     }
   }
 }

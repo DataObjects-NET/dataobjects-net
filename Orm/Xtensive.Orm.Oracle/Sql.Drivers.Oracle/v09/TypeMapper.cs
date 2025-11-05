@@ -88,6 +88,22 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.Date;
+      nativeParameter.Value = value == null
+        ? (object) DBNull.Value
+        : new OracleDate(((DateOnly) value).ToDateTime(TimeOnly.MinValue));
+    }
+
+    public override void BindTimeOnly(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.IntervalDS;
+      nativeParameter.Value = value == null ? (object) DBNull.Value : new OracleIntervalDS(((TimeOnly) value).ToTimeSpan());
+    }
+
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
@@ -194,7 +210,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
-      return new DateTimeOffset(nativeReader.GetOracleTimeStampTZ(index).Value, nativeReader.GetOracleTimeStampTZ(index).GetTimeZoneOffset());
+      var timeStampTZ = nativeReader.GetOracleTimeStampTZ(index);
+      return new DateTimeOffset(timeStampTZ.Value, timeStampTZ.GetTimeZoneOffset());
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

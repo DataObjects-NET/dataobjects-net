@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Upgrade
     private void LogStatements(IEnumerable<string> statements)
     {
       SqlLog.Info(
-        Strings.LogSessionXSchemaUpgradeScriptY,
+        nameof(Strings.LogSessionXSchemaUpgradeScriptY),
         session.ToStringSafely(),
         driver.BuildBatch(statements.ToArray()).Trim());
     }

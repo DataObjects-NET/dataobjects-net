@@ -579,7 +579,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Payment).Assembly, typeof(Payment).Namespace);
+      configuration.Types.RegisterCaching(typeof(Payment).Assembly, typeof(Payment).Namespace);
       return configuration;
     }
   }

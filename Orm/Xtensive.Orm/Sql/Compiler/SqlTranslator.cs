@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine => "\r\n";
+    public virtual string NewLine { get { return Environment.NewLine; } }
 
     public virtual string OpeningParenthesis => "(";
     public virtual string ClosingParenthesis => ")";
@@ -73,10 +73,21 @@ namespace Xtensive.Sql.Compiler
     public abstract string DateTimeFormatString { get; }
 
     /// <summary>
+    /// Gets the <see cref="DateOnly"/> format string.
+    /// See <see cref="DateOnly.ToString(string)"/> for details
+    /// </summary>
+    public virtual string DateOnlyFormatString => throw new NotImplementedException();
+
+    /// <summary>
     /// Gets the time span format string.
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="TimeOnly"/> format string.
+    /// </summary>
+    public virtual string TimeOnlyFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the parameter prefix.
@@ -1214,6 +1225,12 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
+    {
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
+    }
+
     /// <summary>
     /// Translates <see cref="SqlDropTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
@@ -1393,19 +1410,22 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
           _ = output.Append("FROM");
           break;
-        case InsertSection.ValuesEntry:
+        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
           _ = output.AppendOpeningPunctuation("VALUES (");
           break;
-        case InsertSection.ValuesExit:
+        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
+          _ = output.AppendOpeningPunctuation("VALUES ");
+          break;
+        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
           _ = output.Append(")");
           break;
         case InsertSection.DefaultValues:
@@ -1432,7 +1452,7 @@ namespace Xtensive.Sql.Compiler
           _ = output.Append("(");
           break;
         case JoinSection.Specification:
-          var isNatural = node.Expression.IsNullReference()
+          var isNatural = node.Expression is null
             && node.JoinType != SqlJoinType.CrossJoin
             && node.JoinType != SqlJoinType.UnionJoin;
           if (isNatural) {
@@ -1518,6 +1538,12 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+        case DateOnly dateOnly:
+          output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          break;
+        case TimeOnly timeOnly:
+          output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
+          break;
         default:
           _ = output.Append(literalValue.ToString());
           break;
@@ -1954,13 +1980,20 @@ namespace Xtensive.Sql.Compiler
 
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
-      var actualizer = context.SqlNodeActualizer;
 
-      if (dbQualified) {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+
+      if (node.Schema.IsNamesReadingDenied) {
+        // if schema is shared we use placeholders to translate
+        // schema node in PostCompiler
+        output.AppendSchemaNodePlaceholder(node, EscapeSetup, dbQualified);
       }
       else {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
+        if (dbQualified) {
+          TranslateIdentifier(output, node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName);
+        }
+        else {
+          TranslateIdentifier(output, node.Schema.DbName, node.DbName);
+        }
       }
     }
 
@@ -2245,6 +2278,40 @@ namespace Xtensive.Sql.Compiler
         SqlDateTimePart.DayOfYear => "DAYOFYEAR",
         SqlDateTimePart.DayOfWeek => "DAYOFWEEK",
         _ => throw new ArgumentOutOfRangeException(nameof(dateTimePart))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="datePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlDatePart datePart)
+    {
+      _ = output.Append(datePart switch {
+        SqlDatePart.Year => "YEAR",
+        SqlDatePart.Month => "MONTH",
+        SqlDatePart.Day => "DAY",
+        SqlDatePart.DayOfYear => "DAYOFYEAR",
+        SqlDatePart.DayOfWeek => "DAYOFWEEK",
+        _ => throw new ArgumentOutOfRangeException(nameof(datePart))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="timePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlTimePart timePart)
+    {
+      _ = output.Append(timePart switch {
+        SqlTimePart.Hour => "HOUR",
+        SqlTimePart.Minute => "MINUTE",
+        SqlTimePart.Second => "SECOND",
+        SqlTimePart.Millisecond => "MILLISECOND",
+        SqlTimePart.Nanosecond => "NANOSECOND",
+        _ => throw new ArgumentOutOfRangeException(nameof(timePart))
       });
     }
 
@@ -2546,8 +2613,8 @@ namespace Xtensive.Sql.Compiler
                 _ = output.Append(" VALUES (");
                 var firstValue = true;
                 foreach (var v in p.Values) {
-                  if (first)
-                    first = false;
+                  if (firstValue)
+                    firstValue = false;
                   else
                     _ = output.Append(RowItemDelimiter);
 

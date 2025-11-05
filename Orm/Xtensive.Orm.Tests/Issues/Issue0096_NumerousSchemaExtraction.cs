@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = mode;
-      config.Types.Register(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
+      config.Types.RegisterCaching(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession()) {

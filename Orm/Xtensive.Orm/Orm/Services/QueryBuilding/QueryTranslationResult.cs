@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -28,10 +28,10 @@ namespace Xtensive.Orm.Services
 
     // Constructors
 
-    internal QueryTranslationResult(SqlSelect query, IEnumerable<QueryParameterBinding> bindings)
+    internal QueryTranslationResult(SqlSelect query, IReadOnlyList<QueryParameterBinding> bindings)
     {
       Query = query;
-      ParameterBindings = bindings.ToList();
+      ParameterBindings = bindings;
     }
   }
 }

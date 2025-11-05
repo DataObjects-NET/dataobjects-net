@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         || newItemProjectorBody != projectionExpression.ItemProjector.Item
           || newKeyExpression != expression.KeyExpression) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
-        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
+        var newProjectionExpression = projectionExpression.ApplyItemProjector(newItemProjector);
         return new GroupingExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty,
           newProjectionExpression, expression.ApplyParameter,
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var newItemProjectorBody = Visit(projectionExpression.ItemProjector.Item);
       if (newProvider != projectionExpression.ItemProjector.DataSource || newItemProjectorBody != projectionExpression.ItemProjector.Item) {
         var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
-        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
+        var newProjectionExpression = projectionExpression.ApplyItemProjector(newItemProjector);
         return new SubQueryExpression(
           expression.Type, expression.OuterParameter,
           expression.DefaultIfEmpty, newProjectionExpression,
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression;
     }
 
-    private Expression RewriteExpression(Provider provider, Expression expression)
+    private Expression RewriteExpression(CompilableProvider provider, Expression expression)
     {
       return Visit(expression);
     }

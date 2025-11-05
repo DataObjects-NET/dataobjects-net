@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -20,17 +20,14 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression, "expression");
-      SqlColumn = ((SqlColumnRef) expression).SqlColumn;
+      SqlColumn = ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression).SqlColumn;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlColumnRef(
-            SqlTable!=null ? (SqlTable) SqlTable.Clone(context) : null,
-            (SqlColumn) SqlColumn.Clone(context), Name);
+    internal override SqlColumnRef Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlColumnRef(
+            t.SqlTable?.Clone(c),
+            (SqlColumn) t.SqlColumn.Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

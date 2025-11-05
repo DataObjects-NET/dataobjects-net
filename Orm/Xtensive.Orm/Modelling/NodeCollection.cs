@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.16
 
@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-
 
 namespace Xtensive.Modelling
 {
@@ -165,7 +164,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var copy = list.ToArray();
       for (int i = copy.Length - 1; i >= 0; i--)
         copy[i].Remove();
@@ -220,23 +219,23 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Add(Node node)
     {
-      this.EnsureNotLocked();
-      if (node.Index!=list.Count)
+      EnsureNotLocked();
+      if (node.Index != list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
-      if (nameIndex.ContainsKey(name))
-        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
       int count = list.Count;
+      if (!nameIndex.TryAdd(name, node)) {
+        throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
+      }
       try {
         list.Add(node);
-        nameIndex.Add(name, node);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Add, node.Index));
       }
       catch {
-        if (list.Count>count)
+        if (list.Count > count)
           list.RemoveAt(count);
-        if (nameIndex.Count>count)
+        if (nameIndex.Count > count)
           nameIndex.Remove(name);
         throw;
       }
@@ -245,7 +244,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Remove(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count1 = list.Count;
       int count2 = nameIndex.Count;
       int index = node.Index;
@@ -267,7 +266,7 @@ namespace Xtensive.Modelling
 
     internal void Move(Node node, int newIndex)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count = list.Count;
       int oldIndex = node.Index;
       try {
@@ -297,7 +296,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void RemoveName(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       string name = node.Name;
       if (nameIndex[name]!=node)
         throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", CoreLog.Instance);
@@ -307,7 +306,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void AddName(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (!nameIndex.TryAdd(node.Name, node)) {
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
       }

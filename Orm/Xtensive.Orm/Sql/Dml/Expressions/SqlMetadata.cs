@@ -17,18 +17,15 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, nameof(expression));
-      ArgumentValidator.EnsureArgumentIs<SqlMetadata>(expression, nameof(expression));
-      var source = (SqlMetadata) expression;
+      var source = ArgumentValidator.EnsureArgumentIs<SqlMetadata>(expression);
       NodeType = source.NodeType;
       Expression = source.Expression;
       Value = source.Value;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlMetadata((SqlExpression) Expression.Clone(context), Value);
+    internal override SqlMetadata Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlMetadata(t.Expression.Clone(c), t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

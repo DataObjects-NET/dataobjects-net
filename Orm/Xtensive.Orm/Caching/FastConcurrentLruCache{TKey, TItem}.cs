@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2021-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -25,6 +25,11 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     public long MaxSize { get; private set; }
+
+    /// <summary>
+    /// Gets keys of cached items
+    /// </summary>
+    public IEnumerable<TKey> Keys => realCache.Keys;
 
     /// <inheritdoc/>
     public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => realCache.TryGet(key, out item);
@@ -58,7 +63,6 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     /// <exception cref="NotImplementedException"/>
     public override IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
-
 
     /// <summary>
     /// Initializes new instance of this type.

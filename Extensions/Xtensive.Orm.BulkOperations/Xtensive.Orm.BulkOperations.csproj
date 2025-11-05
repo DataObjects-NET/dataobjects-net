@@ -2,6 +2,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.BulkOperations</PackageId>
@@ -12,8 +13,13 @@
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="Readme.txt" />
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NugetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />

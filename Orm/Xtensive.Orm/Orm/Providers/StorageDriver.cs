@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -88,17 +88,7 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-    {
-      var options = configuration.ShareStorageSchemaOverNodes
-        ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
-        : new SqlCompilerConfiguration();
-      options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
-      options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
-      return underlyingDriver.Compile(statement, options);
-    }
-
-    public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
+    public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }
@@ -200,7 +190,11 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
+#if NET8_0_OR_GREATER
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethodInvoker(type).Invoke(null);
+#else
         var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
+#endif
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }

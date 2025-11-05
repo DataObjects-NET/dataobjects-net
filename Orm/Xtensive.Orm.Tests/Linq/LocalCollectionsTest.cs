@@ -15,6 +15,7 @@ using Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using System.Threading.Tasks;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 {
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -45,7 +46,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -67,7 +68,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -76,7 +77,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public bool Equals(Poco<T1, T2, T3> other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -128,7 +129,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;
@@ -161,7 +162,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Node).Assembly, typeof (Node).Namespace);
+      config.Types.RegisterCaching(typeof (Node).Assembly, typeof (Node).Namespace);
       return config;
     }
 
@@ -889,7 +890,7 @@ namespace Xtensive.Orm.Tests.Linq
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);
       var result = (await Session.Query.All<Invoice>()
-        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).AsAsync()).ToList();
+        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).ExecuteAsync()).ToList();
       var expected = Invoices
         .Where(invoice => invoice.Commission > localItems.Max(poco => poco.Value2));
 
@@ -909,6 +910,40 @@ namespace Xtensive.Orm.Tests.Linq
         QueryDumper.Dump(result);
       });
     }
+
+    [Test]
+    public void TempTableCleanupAfterTimeout()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql | StorageProvider.SqlServer, "Uses database-specific syntax.");
+
+      var localItems = GetLocalItems(100);
+
+      var sessionConfig = new SessionConfiguration(SessionOptions.Default | SessionOptions.AutoActivation);
+      sessionConfig.BatchSize = 1;
+      sessionConfig.DefaultCommandTimeout = 10;
+
+      using (var session = Domain.OpenSession(sessionConfig))
+      using (var tx = session.OpenTransaction()) {
+        session.Events.DbCommandExecuting += Events_DbCommandExecuting;
+
+        var storeQueryable = session.Query.Store(localItems);
+        _ = Assert.Throws<OperationTimeoutException>(() => session.Query.All<Invoice>()
+          .Where(invoice => invoice.Commission > storeQueryable.Max(poco => poco.Value2)).ToArray());
+
+        session.Events.DbCommandExecuting -= Events_DbCommandExecuting;
+      }
+
+      static void Events_DbCommandExecuting(object sender, DbCommandEventArgs e)
+      {
+        // makes query to delay more than current setting of command timeout
+        var originalCommandText = e.Command.CommandText;
+        if (originalCommandText.Contains("Select", StringComparison.OrdinalIgnoreCase)) {
+          var session = ((SessionEventAccessor) sender).Session;
+          e.Command.CommandText = GetFakeDelayedCommandTest(session, originalCommandText);
+        }
+      }
+    }
+
 
     [Test]
     [Ignore("Very long")]
@@ -935,7 +970,18 @@ namespace Xtensive.Orm.Tests.Linq
             Value3 = Guid.NewGuid().ToString()
           }
         )
-        .ToList();
+        .ToList(count);
+    }
+
+    private static string GetFakeDelayedCommandTest(Session session, string originalCommandText)
+    {
+      var currentCommandTimeout = session.CommandTimeout.Value;
+
+      return StorageProviderInfo.Instance.Provider switch {
+        StorageProvider.SqlServer => $"WAITFOR DELAY '{TimeSpan.FromSeconds(currentCommandTimeout + 2).ToString(@"hh\:mm\:ss")}'" + originalCommandText,
+        StorageProvider.PostgreSql => $"SELECT pg_sleep({currentCommandTimeout + 2});" + originalCommandText,
+        _ => throw new ArgumentOutOfRangeException()
+      };
     }
   }
 }

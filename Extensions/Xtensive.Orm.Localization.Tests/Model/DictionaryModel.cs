@@ -4,8 +4,9 @@
 
 using System.Globalization;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Orm.Localization.Tests.Model
+namespace Xtensive.Orm.Localization.Tests.CustomTypeModel
 {
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
   public abstract class AbstractDictionary : Entity
@@ -46,13 +47,31 @@ namespace Xtensive.Orm.Localization.Tests.Model
 
   public class Country : AbstractLocalizableDictionary<Country, CountryLocalization>, ILocalizable<CountryLocalization>
   {
-    public Country(Session session) : base(session) { }
+    public Country(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
   public class CountryLocalization : AbstractDictionaryLocalization<Country, CountryLocalization>
   {
-    public CountryLocalization(Session session, CultureInfo culture, Country target) : base(session, culture, target) { }
+    public CountryLocalization(Session session, CultureInfo culture, Country target)
+      : base(session, culture, target)
+    {
+    }
   }
 
+  namespace Upgrade
+  {
+    public class CustomUpgradeHandler : UpgradeHandler
+    {
+      public override bool CanUpgradeFrom(string oldVersion)
+      {
+        return true;
+      }
+
+      public override void OnBeforeExecuteActions(UpgradeActionSequence actions) => base.OnBeforeExecuteActions(actions);
+    }
+  }
 }

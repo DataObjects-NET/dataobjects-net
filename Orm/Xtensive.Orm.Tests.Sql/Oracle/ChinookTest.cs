@@ -32,14 +32,26 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
     private Schema schema = null;
 
     [OneTimeSetUp]
+    public override void OneTimeSetUp()
+    {
+      base.OneTimeSetUp();
+
+      schema = Catalog.DefaultSchema;
+    }
+
     public override void SetUp()
     {
       base.SetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
+    }
 
-      schema = Catalog.DefaultSchema;
+    public override void TearDown()
+    {
+      dbCommand?.Dispose();
+      sqlCommand?.Dispose();
+      base.TearDown();
     }
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Oracle);

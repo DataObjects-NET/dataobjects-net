@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlExpressionCloneTest()
     {
       SqlExpression e = SqlDml.Literal(1);
-      SqlExpression eClone = (SqlExpression) e.Clone();
+      SqlExpression eClone = e.Clone();
       Assert.AreNotEqual(e, eClone);
       Assert.AreEqual(e.NodeType, eClone.NodeType);
     }
@@ -378,7 +379,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreNotEqual(s.From, sClone.From);
         Assert.AreEqual(s.From.NodeType, sClone.From.NodeType);
       }
-      if (!s.Having.IsNullReference()) {
+      if (s.Having is not null) {
         Assert.AreNotEqual(s.Having, sClone.Having);
         Assert.AreEqual(s.Having.NodeType, sClone.Having.NodeType);
       }
@@ -431,7 +432,7 @@ namespace Xtensive.Orm.Tests.Sql
       for (int i = 0, l = s.OrderBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.OrderBy[i], sClone.OrderBy[i]);
         Assert.AreEqual(s.OrderBy[i].Ascending, sClone.OrderBy[i].Ascending);
-        if (s.OrderBy[i].Expression.IsNullReference())
+        if (s.OrderBy[i].Expression is null)
           Assert.AreEqual(s.OrderBy[i].Expression, sClone.OrderBy[i].Expression);
         else
           Assert.AreNotEqual(s.OrderBy[i].Expression, sClone.OrderBy[i].Expression);
@@ -550,7 +551,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreNotEqual(d.Delete, dClone.Delete);
       Assert.AreEqual(d.NodeType, dClone.NodeType);
       Assert.AreEqual(d.Hints.Count, dClone.Hints.Count);
-      if (!d.Where.IsNullReference()) {
+      if (d.Where is not null) {
         Assert.AreNotEqual(d.Where, dClone.Where);
         Assert.AreEqual(d.Where.NodeType, dClone.Where.NodeType);
       }
@@ -597,18 +598,19 @@ namespace Xtensive.Orm.Tests.Sql
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlInsert i = SqlDml.Insert(t);
-      i.Values[t[0]] = 1;
-      i.Values[t[1]] = "Anonym";
+      i.AddValueRow(( t[0], 1 ), ( t[1], "Anonym" ));
       i.Hints.Add(SqlDml.FastFirstRowsHint(10));
       SqlInsert iClone = (SqlInsert)i.Clone();
 
       Assert.AreNotEqual(i, iClone);
       Assert.AreNotEqual(i.Into, iClone.Into);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
-      Assert.AreEqual(i.Values.Count, iClone.Values.Count);
-      foreach (KeyValuePair<SqlColumn, SqlExpression> p in i.Values) {
-        Assert.IsFalse(iClone.Values.ContainsKey(p.Key));
-        Assert.IsFalse(iClone.Values.ContainsValue(p.Value));
+      Assert.AreEqual(i.ValueRows.Count, iClone.ValueRows.Count);
+      Assert.AreEqual(i.ValueRows.Columns.Count, iClone.ValueRows.Columns.Count);
+      for(var indx = 0; indx < i.ValueRows.Count; indx++) {
+        var iRow = i.ValueRows[indx];
+        var iClonedRow = iClone.ValueRows[indx];
+        Assert.IsFalse(iRow.SequenceEqual(iClonedRow));
       }
       Assert.AreEqual(i.Hints.Count, iClone.Hints.Count);
     }

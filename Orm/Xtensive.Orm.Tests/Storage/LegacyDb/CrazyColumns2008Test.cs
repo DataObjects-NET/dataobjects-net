@@ -20,10 +20,10 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2008TestModel
     public Guid Id { get; private set; }
 
     [Field]
-    public DateTime Time { get; set; }
+    public TimeOnly Time { get; set; }
 
     [Field]
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
   }
 }
 
@@ -51,11 +51,11 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
     public void CombinedTest()
     {
       var date = new DateTime(2000, 01, 01);
-      var time = new DateTime(1,1,1,12, 00,00);
+      var time = new DateTime(1, 1, 1, 12, 00, 00);
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var crazy1 = new Crazy {Date = date, Time = DateTime.Now};
-        var crazy2 = new Crazy {Date = DateTime.Now, Time = time};
+        var crazy1 = new Crazy { Date = DateOnly.FromDateTime(date), Time = TimeOnly.FromDateTime(DateTime.Now) };
+        var crazy2 = new Crazy { Date = DateOnly.FromDateTime(DateTime.Now), Time = TimeOnly.FromDateTime(time) };
         ts.Complete();
       }
 
@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
           Console.WriteLine(item.Date);
           Console.WriteLine(item.Time);
         }
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Date==date).Count());
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time==time).Count());
+        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Date == DateOnly.FromDateTime(date)).Count());
+        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time == TimeOnly.FromDateTime(time)).Count());
       }
     }
 

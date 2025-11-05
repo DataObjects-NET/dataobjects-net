@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,6 +14,7 @@ using Xtensive.Orm.Tests;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.PartialIndexTestModel;
+using NUnit.Framework.Interfaces;
 
 namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
 {
@@ -70,9 +71,9 @@ namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
   }
 
   [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
-  public class FilterOnReferenceField : TestBase
+  public class FilterOnReferenceField1 : TestBase
   {
-    public static Expression<Func<FilterOnReferenceField, bool>> Index() =>
+    public static Expression<Func<FilterOnReferenceField1, bool>> Index() =>
       test => test.Target != null;
 
     [Field]
@@ -80,13 +81,85 @@ namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
   }
 
   [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
-  public class FilterOnComplexReferenceField : TestBase
+  public class FilterOnReferenceField2 : TestBase
   {
-    public static Expression<Func<FilterOnComplexReferenceField, bool>> Index() =>
+    public static Expression<Func<FilterOnReferenceField2, bool>> Index() =>
+      test => test.Target == null;
+
+    [Field]
+    public TargetEntity Target { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnReferenceField3 : TestBase
+  {
+    public static Expression<Func<FilterOnReferenceField3, bool>> Index() =>
+      test => test.Target == test.Alien;
+
+    [Field]
+    public TargetEntity Target { get; set; }
+
+    [Field]
+    public TargetEntity Alien { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnReferenceField4 : TestBase
+  {
+    public static Expression<Func<FilterOnReferenceField4, bool>> Index() =>
+      test => test.Target != test.Alien;
+
+    [Field]
+    public TargetEntity Target { get; set; }
+
+    [Field]
+    public TargetEntity Alien { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnComplexReferenceField1 : TestBase
+  {
+    public static Expression<Func<FilterOnComplexReferenceField1, bool>> Index() =>
       test => test.Target != null;
 
     [Field]
     public ComplexTargetEntity Target { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnComplexReferenceField2 : TestBase
+  {
+    public static Expression<Func<FilterOnComplexReferenceField2, bool>> Index() =>
+      test => test.Target == null;
+
+    [Field]
+    public ComplexTargetEntity Target { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnComplexReferenceField3 : TestBase
+  {
+    public static Expression<Func<FilterOnComplexReferenceField3, bool>> Index() =>
+      test => test.Target == test.Alien;
+
+    [Field]
+    public ComplexTargetEntity Target { get; set; }
+
+    [Field]
+    public ComplexTargetEntity Alien { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
+  public class FilterOnComplexReferenceField4 : TestBase
+  {
+    public static Expression<Func<FilterOnComplexReferenceField4, bool>> Index() =>
+      test => test.Target != test.Alien;
+
+    [Field]
+    public ComplexTargetEntity Target { get; set; }
+
+    [Field]
+    public ComplexTargetEntity Alien { get; set; }
   }
 
   [HierarchyRoot, Index(nameof(Target), Filter = nameof(Index))]
@@ -159,6 +232,16 @@ namespace Xtensive.Orm.Tests.Storage.PartialIndexTestModel
   {
     public static Expression<Func<ContainsOperatorSupport, bool>> Index =>
       test => new[] { "1", "2", "3" }.Contains(test.TestField);
+
+    [Field]
+    public string TestField { get; set; }
+  }
+
+  [HierarchyRoot, Index(nameof(TestField), Filter = nameof(Index))]
+  public class ConditionalExpressionSuport : TestBase
+  {
+    public static Expression<Func<ConditionalExpressionSuport, bool>> Index =>
+      test => test.Id == 100 ? test.TestField.Contains("hello") : false;
 
     [Field]
     public string TestField { get; set; }
@@ -520,10 +603,28 @@ namespace Xtensive.Orm.Tests.Storage
     public void SimpleFilterWithPropertyTest() => AssertBuildSuccess(typeof(SimpleFilterWithProperty));
 
     [Test]
-    public void FilterOnReferenceFieldTest() => AssertBuildSuccess(typeof(FilterOnReferenceField));
+    public void FilterOnReferenceFieldTest1() => AssertBuildSuccess(typeof(FilterOnReferenceField1));
 
     [Test]
-    public void FilterOnComplexReferenceFieldTest() => AssertBuildSuccess(typeof(FilterOnComplexReferenceField));
+    public void FilterOnReferenceFieldTest2() => AssertBuildSuccess(typeof(FilterOnReferenceField2));
+
+    [Test]
+    public void FilterOnReferenceFieldTest3() => AssertBuildFailure(typeof(FilterOnReferenceField3));
+
+    [Test]
+    public void FilterOnReferenceFieldTest4() => AssertBuildFailure(typeof(FilterOnReferenceField4));
+
+    [Test]
+    public void FilterOnComplexReferenceFieldTest1() => AssertBuildSuccess(typeof(FilterOnComplexReferenceField1));
+
+    [Test]
+    public void FilterOnComplexReferenceFieldTest2() => AssertBuildSuccess(typeof(FilterOnComplexReferenceField2));
+
+    [Test]
+    public void FilterOnComplexReferenceFieldTest3() => AssertBuildFailure(typeof(FilterOnComplexReferenceField3));
+
+    [Test]
+    public void FilterOnComplexReferenceFieldTest4() => AssertBuildFailure(typeof(FilterOnComplexReferenceField4));
 
     [Test]
     public void FilterOnReferenceFieldIdTest() => AssertBuildSuccess(typeof(FilterOnReferenceIdField));
@@ -542,6 +643,9 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void ContainsOperatorSupportTest() => AssertBuildSuccess(typeof(ContainsOperatorSupport));
+
+    [Test, RequirePostgreSql]
+    public void ConditionalOperationSupportTest() => AssertBuildSuccess(typeof(ConditionalExpressionSuport));
 
     [Test]
     public void DoubleIndexWithNameTest() => AssertBuildSuccess(typeof(DoubleIndexWithName));
@@ -564,12 +668,34 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumFieldFilterTest() => AssertBuildSuccess(typeof(EnumFieldFilter));
 
-    [Test]
-    public void ValidateTest()
+    [Test, RequirePostgreSql]
+    public void ValidateTestForPgSql()
     {
       var types = typeof(TestBase).Assembly
         .GetTypes()
-        .Where(type => type.Namespace == typeof(TestBase).Namespace && type != typeof(InheritanceClassTable))
+        .Where(type => type.Namespace == typeof(TestBase).Namespace
+          && type != typeof(InheritanceClassTable)
+          && type != typeof(FilterOnReferenceField3)
+          && type != typeof(FilterOnReferenceField4)
+          && type != typeof(FilterOnComplexReferenceField3)
+          && type != typeof(FilterOnComplexReferenceField4))
+        .ToList();
+      BuildDomain(types, DomainUpgradeMode.Recreate);
+      BuildDomain(types, DomainUpgradeMode.Validate);
+    }
+
+    [Test, RequireSqlServer]
+    public void ValidateTestForSqlServer()
+    {
+      var types = typeof(TestBase).Assembly
+        .GetTypes()
+        .Where(type => type.Namespace == typeof(TestBase).Namespace
+          && type != typeof(InheritanceClassTable)
+          && type != typeof(ConditionalExpressionSuport)
+          && type != typeof(FilterOnReferenceField3)
+          && type != typeof(FilterOnReferenceField4)
+          && type != typeof(FilterOnComplexReferenceField3)
+          && type != typeof(FilterOnComplexReferenceField4))
         .ToList();
       BuildDomain(types, DomainUpgradeMode.Recreate);
       BuildDomain(types, DomainUpgradeMode.Validate);

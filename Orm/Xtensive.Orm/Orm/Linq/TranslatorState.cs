@@ -5,6 +5,7 @@
 // Created:    2010.01.21
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -24,7 +25,8 @@ namespace Xtensive.Orm.Linq
       ShouldOmitConvertToObject = 1 << 6,
       RequestCalculateExpressions = 1 << 7,
       RequestCalculateExpressionsOnce = 1 << 8,
-      SkipNullableColumnsDetectionInGroupBy = 1 << 9
+      SkipNullableColumnsDetectionInGroupBy = 1 << 9,
+      IsOrderingKey = 1 << 10,
     }
 
     internal readonly struct TranslatorScope : IDisposable
@@ -49,6 +51,7 @@ namespace Xtensive.Orm.Linq
       CurrentLambda = null,
       IncludeAlgorithm = IncludeAlgorithm.Auto,
       TypeOfEntityStoredInKey = null,
+      NonVisitableExpressions = new HashSet<Expression>(),
     };
 
     private readonly TranslatorStateFlags flags;
@@ -65,6 +68,16 @@ namespace Xtensive.Orm.Linq
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetFlag(TranslatorStateFlags f) => (flags & f) != 0;
+
+
+    /// <summary>
+    /// Expressions that were constructed during original expression translation
+    /// and aim to replace original parts so they are avoidable to visit by Linq translator.
+    /// </summary>
+    /// <remarks>
+    /// Not all expression that constructed by us should be skipped when visiting.
+    /// </remarks>
+    public HashSet<Expression> NonVisitableExpressions { get; init; }
 
     public bool JoinLocalCollectionEntity
     {
@@ -94,6 +107,12 @@ namespace Xtensive.Orm.Linq
     {
       get => GetFlag(TranslatorStateFlags.IsGroupingKey);
       init => ModifyFlag(ref flags, TranslatorStateFlags.IsGroupingKey, value);
+    }
+
+    public bool OrderingKey
+    {
+      get => GetFlag(TranslatorStateFlags.IsOrderingKey);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.IsOrderingKey, value);
     }
 
     public bool IsTailMethod
@@ -133,14 +152,6 @@ namespace Xtensive.Orm.Linq
     public TranslatorState(in TranslatorState currentState)
     {
       this = currentState;
-    }      
+    }
   }
 }
-
-#if !NET5_0_OR_GREATER
-// Workaround of error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
-namespace System.Runtime.CompilerServices
-{
-  internal static class IsExternalInit { }
-}
-#endif

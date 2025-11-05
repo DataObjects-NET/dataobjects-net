@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2003-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -26,12 +26,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       /// <summary>
       /// Specific schemas to extract
       /// </summary>
-      public readonly Dictionary<string, Schema> TargetSchemes = new Dictionary<string, Schema>();
+      public readonly Dictionary<string, Schema> TargetSchemes = new();
 
       /// <summary>
-      /// Extracted users.
+      /// Extracted users (subset of <see cref="RoleLookup"/>).
       /// </summary>
-      public readonly Dictionary<long, string> UserLookup = new Dictionary<long, string>();
+      public readonly Dictionary<long, string> UserLookup = new();
+
+      /// <summary>
+      /// Extracted roles.
+      /// </summary>
+      public readonly Dictionary<long, string> RoleLookup = new();
 
       /// <summary>
       /// Catalog to extract information.
@@ -41,45 +46,53 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       /// <summary>
       /// Extracted schemas.
       /// </summary>
-      public readonly Dictionary<long, Schema> SchemaMap = new Dictionary<long, Schema>();
+      public readonly Dictionary<long, Schema> SchemaMap = new();
 
       /// <summary>
       /// Extracted schemas identifiers.
       /// </summary>
-      public readonly Dictionary<Schema, long> ReversedSchemaMap = new Dictionary<Schema, long>();
+      public readonly Dictionary<Schema, long> ReversedSchemaMap = new();
 
       /// <summary>
       /// Extracted tables.
       /// </summary>
-      public readonly Dictionary<long, Table> TableMap = new Dictionary<long, Table>();
+      public readonly Dictionary<long, Table> TableMap = new();
 
       /// <summary>
       /// Extracted views.
       /// </summary>
-      public readonly Dictionary<long, View> ViewMap = new Dictionary<long, View>();
+      public readonly Dictionary<long, View> ViewMap = new();
 
       /// <summary>
       /// Extracted sequences.
       /// </summary>
-      public readonly Dictionary<long, Sequence> SequenceMap = new Dictionary<long, Sequence>();
+      public readonly Dictionary<long, Sequence> SequenceMap = new();
 
       /// <summary>
       /// Extracted index expressions.
       /// </summary>
-      public readonly Dictionary<long, ExpressionIndexInfo> ExpressionIndexMap = new Dictionary<long, ExpressionIndexInfo>();
+      public readonly Dictionary<long, ExpressionIndexInfo> ExpressionIndexMap = new();
 
       /// <summary>
       /// Extracted domains.
       /// </summary>
-      public readonly Dictionary<long, Domain> DomainMap = new Dictionary<long, Domain>();
+      public readonly Dictionary<long, Domain> DomainMap = new();
 
       /// <summary>
       /// Extracted columns connected grouped by owner (table or view)
       /// </summary>
-      public readonly Dictionary<long, Dictionary<long, TableColumn>> TableColumnMap = new Dictionary<long, Dictionary<long, TableColumn>>();
+      public readonly Dictionary<long, Dictionary<long, TableColumn>> TableColumnMap = new();
 
+      /// <summary>
+      /// Roles in which current user is a member, self included.
+      /// </summary>
+      public readonly List<long> CurrentUserRoles = new();
+
+      public string CurrentUserName { get; set; }
       public long CurrentUserSysId { get; set; } = -1;
       public long? CurrentUserIdentifier { get; set; }
+
+      public bool IsMe(string name) => name == CurrentUserName;
 
       public ExtractionContext(Catalog catalog)
       {
@@ -332,7 +345,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var (catalog, context) = CreateCatalogAndContext(catalogName, schemaNames);
 
-      ExtractUsers(context);
+      _ = ExtractRoles(context, false);
       ExtractSchemas(context);
       return catalog;
     }
@@ -343,7 +356,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var (catalog, context) = CreateCatalogAndContext(catalogName, schemaNames);
 
-      await ExtractUsersAsync(context, token).ConfigureAwait(false);
+      await ExtractRoles(context, true, token).ConfigureAwait(false);
       await ExtractSchemasAsync(context, token).ConfigureAwait(false);
       return catalog;
     }
@@ -360,48 +373,62 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return (catalog, context);
     }
 
-    private void ExtractUsers(ExtractionContext context)
+    private async ValueTask ExtractRoles(ExtractionContext context, bool isAsync, CancellationToken token = default)
     {
       context.UserLookup.Clear();
-      string me;
-      using (var command = Connection.CreateCommand("SELECT user")) {
-        me = (string) command.ExecuteScalar();
-      }
 
-      using (var cmd = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user"))
-      using (var dr = cmd.ExecuteReader()) {
-        while (dr.Read()) {
-          ReadUserData(dr, context, me);
+      var extractCurentUserCommand = Connection.CreateCommand("SELECT user");
+      // Roles include users.
+      // Users also can have members for some reason and it doesn't make them groups,
+      // the only thing that defines user is ability to login :-)
+      const string ExtractRolesQueryTemplate = "SELECT rolname, oid, rolcanlogin, pg_has_role('{0}', oid,'member') FROM pg_roles";
+      
+
+      if (isAsync) {
+        await using (extractCurentUserCommand.ConfigureAwait(false)) {
+          context.CurrentUserName = (string) await extractCurentUserCommand.ExecuteScalarAsync(token).ConfigureAwait(false);
+        }
+
+        var getAllUsersCommand = Connection.CreateCommand(string.Format(ExtractRolesQueryTemplate, context.CurrentUserName));
+        await using (getAllUsersCommand.ConfigureAwait(false)) {
+          var reader = await getAllUsersCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
+          await using (reader.ConfigureAwait(false)) {
+            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+              ReadUserData(reader, context);
+            }
+          }
         }
       }
-    }
+      else {
+        using (extractCurentUserCommand) {
+          context.CurrentUserName = (string) extractCurentUserCommand.ExecuteScalar();
+        }
 
-    private async Task ExtractUsersAsync(ExtractionContext context, CancellationToken token = default)
-    {
-      context.UserLookup.Clear();
-      string me;
-      var command = Connection.CreateCommand("SELECT user");
-      await using (command.ConfigureAwait(false)) {
-        me = (string) await command.ExecuteScalarAsync(token).ConfigureAwait(false);
-      }
-
-      command = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user");
-      await using (command.ConfigureAwait(false)) {
-        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
-        await using (reader.ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadUserData(reader, context, me);
+        var getAllUsersCommand = Connection.CreateCommand(string.Format(ExtractRolesQueryTemplate, context.CurrentUserName));
+        using (getAllUsersCommand)
+        using (var dr = getAllUsersCommand.ExecuteReader()) {
+          while (dr.Read()) {
+            ReadUserData(dr, context);
           }
         }
       }
     }
 
-    private static void ReadUserData(DbDataReader dr, ExtractionContext context, string me)
+    private static void ReadUserData(DbDataReader dr, ExtractionContext context)
     {
-      var name = dr[0].ToString();
+      var name = dr.GetString(0);
+      // oid, which is basically a number, has its own type - oid! can't be read as int or long (facepalm)
       var sysId = Convert.ToInt64(dr[1]);
-      context.UserLookup.Add(sysId, name);
-      if (name == me) {
+      var canLogin = dr.GetBoolean(2);
+      var containsCurrentUser = dr.GetBoolean(3);
+      context.RoleLookup.Add(sysId, name);
+      if(containsCurrentUser) {
+        context.CurrentUserRoles.Add(sysId);
+      }
+      if (canLogin) {
+        context.UserLookup.Add(sysId, name);
+      }
+      if (context.IsMe(name)) {
         context.CurrentUserSysId = sysId;
       }
     }
@@ -499,7 +526,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       selectPublic.Columns.Add(namespaceTable1["nspowner"]);
 
       var selectMine = SqlDml.Select(namespaceTable2);
-      selectMine.Where = namespaceTable2["nspowner"] == context.CurrentUserIdentifier;
+      if (context.CurrentUserRoles.Count == 0)
+        selectMine.Where = namespaceTable2["nspowner"] == context.CurrentUserIdentifier;
+      else {
+        selectMine.Where = SqlDml.In(namespaceTable2["nspowner"], SqlDml.Array(context.CurrentUserRoles.ToArray()));
+      }
       selectMine.Columns.Add(namespaceTable2["nspname"]);
       selectMine.Columns.Add(namespaceTable2["oid"]);
       selectMine.Columns.Add(namespaceTable2["nspowner"]);
@@ -522,7 +553,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         catalog.DefaultSchema = schema;
       }
 
-      schema.Owner = context.UserLookup[owner];
+      if (context.RoleLookup.TryGetValue(owner, out var userName)) {
+        schema.Owner = userName;
+      }
+      else {
+        throw new InvalidOperationException(string.Format(Resources.Strings.ExCantFindSchemaXOwnerWithIdYInTheListOfRoles, name, owner));
+      }
       context.SchemaMap[oid] = schema;
       context.ReversedSchemaMap[schema] = oid;
     }
@@ -580,7 +616,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var targetSchemes = context.TargetSchemes;
       if (targetSchemes != null && targetSchemes.Count > 0) {
         var schemesIndexes = catalog.Schemas.Where(sch => targetSchemes.ContainsKey(sch.Name))
-          .Select(sch => context.ReversedSchemaMap[sch]);
+          .Select(sch =>
+            context.ReversedSchemaMap.TryGetValue(sch, out var oid)
+              ? oid
+              : throw new InvalidOperationException(string.Format(Resources.Strings.ExSchemaXDoesNotExistOrBelongsToAnotherUser, sch.Name))
+           );
         select.Where &= SqlDml.In(relationsTable["relnamespace"], CreateOidRow(schemesIndexes));
       }
 
@@ -590,8 +630,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       select.Columns.Add(relationsTable["relnamespace"]);
       select.Columns.Add(tablespacesTable["spcname"]);
       select.Columns.Add(new Func<SqlCase>(() => {
-        var defCase = SqlDml.Case(relationsTable["relkind"]);
-        defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
+        var defCase = SqlDml.Case(relationsTable["relkind"])
+          .Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
         return defCase;
       })(), "definition");
       return select;
@@ -714,14 +754,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var columnOwnerId = Convert.ToInt64(dataReader["attrelid"]);
       var columnId = Convert.ToInt64(dataReader["attnum"]);
       var columnName = dataReader["attname"].ToString();
-      if (tableMap.ContainsKey(columnOwnerId)) {
-        var table = tableMap[columnOwnerId];
+      if (tableMap.TryGetValue(columnOwnerId, out var table)) {
         var col = table.CreateColumn(columnName);
-        if (!tableColumns.ContainsKey(columnOwnerId)) {
-          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>());
+        if (tableColumns.TryGetValue(columnOwnerId, out var columns)) {
+          columns.Add(columnId, col);
         }
-
-        tableColumns[columnOwnerId].Add(columnId, col);
+        else {
+          tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>() { { columnId, col } });
+        }
 
         var columnTypeName = dataReader["typname"].ToString();
         var columnTypeSpecificData = Convert.ToInt32(dataReader["atttypmod"]);
@@ -737,7 +777,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       else {
         var view = viewMap[columnOwnerId];
-        view.CreateColumn(columnName);
+        _ = view.CreateColumn(columnName);
       }
     }
 
@@ -908,8 +948,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         else {
           for (int j = 0; j < indexKey.Length; j++) {
             int colIndex = indexKey[j];
-            if (colIndex > 0)
-              index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+            if (colIndex > 0) {
+              _ = index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+            }
             else {
               //column index is 0
               //this means that this index column is an expression
@@ -963,12 +1004,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var exprIndexInfo = expressionIndexMap[Convert.ToInt64(dataReader[1])];
       for (var j = 0; j < exprIndexInfo.Columns.Length; j++) {
         int colIndex = exprIndexInfo.Columns[j];
-        if (colIndex > 0) {
-          exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
-        }
-        else {
-          exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
-        }
+        _ = colIndex > 0
+          ? exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true)
+          : exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
       }
     }
 
@@ -1250,15 +1288,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var sequenceMap = context.SequenceMap;
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
-            query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostrgreSQL translator
+            _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
           else {
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostgreSQL translator
+            _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
         }
-        query.Append("\n) all_sequences\nORDER BY id");
+        _ = query.Append("\n) all_sequences\nORDER BY id");
       }
       return SqlDml.Fragment(SqlDml.Native(query.ToString()));
     }

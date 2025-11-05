@@ -107,11 +107,12 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     protected override DomainConfiguration BuildConfiguration()
     {
+      CustomUpgradeHandler.TypeIdPerNode.Clear();
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId2, 200);
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId3, 300);
 
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.DefaultSchema = DefaultSchema;
       return configuration;

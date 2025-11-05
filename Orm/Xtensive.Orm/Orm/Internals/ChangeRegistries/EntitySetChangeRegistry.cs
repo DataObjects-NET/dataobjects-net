@@ -35,13 +35,12 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns></returns>
-    public IEnumerable<EntitySetState> GetItems() => modifiedEntitySets;
+    public RegistryItems<EntitySetState> GetItems() => new(modifiedEntitySets);
 
     /// <summary>
     /// Clears the registry.
     /// </summary>
     public void Clear() => modifiedEntitySets.Clear();
-
 
     /// <summary>
     /// Initializes a new instance of this class.

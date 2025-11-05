@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -37,16 +37,13 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlArray<T>>(expression, "expression");
-      var replacingExpression = (SqlArray<T>) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlArray<T>>(expression);
       Values = replacingExpression.Values;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlArray<T>((T[]) Values.Clone());
+    internal override SqlArray Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlArray<T>((T[]) t.Values.Clone()));
 
 
     // Constructors
@@ -56,9 +53,15 @@ namespace Xtensive.Sql.Dml
       Values = values;
     }
 
+    // do not remove, they used by reflection
     internal SqlArray(List<object> values)
     {
       Values = values.Cast<T>().ToArray();
+    }
+
+    internal SqlArray(object[] values)
+    {
+      Values = ArrayExtensions.Cast<object, T>(values);
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -200,12 +200,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (var item in source) {
         if (insertDelimiter)
           sb.Append(delimiter);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -222,12 +222,12 @@ namespace Xtensive.Core
     {
       if (source==null)
         return string.Empty;
-      var sb = new StringBuilder();
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool insertDelimiter = false;
       foreach (object item in source) {
         if (insertDelimiter)
           sb.Append(separator);
-        sb.Append(item);
+        sb.Append(item?.ToString());
         insertDelimiter = true;
       }
       return sb.ToString();
@@ -398,23 +398,6 @@ namespace Xtensive.Core
     public static IEnumerable<int> GetItems(this in Segment<int> segment)
     {
       return Enumerable.Range(segment.Offset, segment.Length);
-    }
-
-    /// <summary>
-    /// Safely adds one value to sequence.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">Source sequence.</param>
-    /// <param name="value">Value to add to sequence.</param>
-    /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
-    /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
-    [Obsolete("Use Enumerable.Append method instead.")]
-    public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
-    {
-      source = source ?? Enumerable.Empty<T>();
-      if (!ReferenceEquals(value, null))
-        source = source.Concat(EnumerableUtils.One(value));
-      return source;
     }
 
     /// <summary>
@@ -601,37 +584,7 @@ namespace Xtensive.Core
           if (edgeTester.Invoke(left.Value, right.Value))
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
-      return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
-    }
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <remarks>Multiple active operations are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
-    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source) =>
-      AsAsync(source, CancellationToken.None);
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <remarks>Multiple active operations are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <param name="token">A token to cancel operation.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
-    {
-      if (source is DelayedQuery<T> delayedQuery) {
-        return await delayedQuery.ExecuteAsync(token).ConfigureAwait(false);
-      }
-      return await Task.FromResult(source).ConfigureAwait(false);
+      return result.HasLoops ? null : result.SortedNodes.SelectToList(node => node.Value);
     }
   }
 }

@@ -3,6 +3,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;Debug-NET7;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -11,24 +12,36 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net7.0' OR '$(TargetFramework)'=='net8.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+  </ItemGroup>
   <ItemGroup>
-    <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
-    <PackageReference Include="Npgsql" Version="4.1.3.1" />
+    <PackageReference Include="Npgsql" Version="9.0.3" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.0" />
     <PackageReference Include="System.CodeDom" Version="4.4.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
     <PackageReference Include="System.Spatial" Version="5.8.3" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0.0" />
-    <!-- <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />-->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="domainSettings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="domainSettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Northwind.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -90,4 +103,5 @@
       <DependentUpon>TwoPartsModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 </Project>

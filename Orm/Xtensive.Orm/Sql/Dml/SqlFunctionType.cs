@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 
@@ -60,12 +60,28 @@ namespace Xtensive.Sql.Dml
 
     // date time / interval functions
     // not ansi sql but our cross-server solution
+    DateConstruct,
+    DateAddYears,
+    DateAddMonths,
+    DateAddDays,
+    DateToString,
+    DateToDateTime,
+    DateToDateTimeOffset,
+    TimeConstruct,
+    TimeAddHours,
+    TimeAddMinutes,
+    TimeToString,
+    TimeToDateTime,
+    TimeToDateTimeOffset,
+    TimeToNanoseconds,
 
     DateTimeConstruct,
     DateTimeAddYears,
     DateTimeAddMonths,
     DateTimeTruncate,
     DateTimeToStringIso,
+    DateTimeToTime,
+    DateTimeToDate,
     IntervalConstruct,
     IntervalToMilliseconds,
     IntervalToNanoseconds,
@@ -80,6 +96,9 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetToLocalTime, 
     DateTimeOffsetToUtcTime,
     DateTimeToDateTimeOffset,
+    DateTimeOffsetToDateTime,
+    DateTimeOffsetToTime,
+    DateTimeOffsetToDate,
 
     // .NET like rounding functions
 
@@ -87,5 +106,6 @@ namespace Xtensive.Sql.Dml
     RoundDecimalToZero,
     RoundDoubleToEven,
     RoundDoubleToZero,
+    //!!! max value is used for array size
   }
 }

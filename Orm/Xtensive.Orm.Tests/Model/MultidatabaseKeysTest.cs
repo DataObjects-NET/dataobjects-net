@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "MultidatabaseKeysTestDomain");
       configuration.ConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
-      configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
-      configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -181,8 +181,8 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "MultidatabaseKeysTestDomain1");
       configuration.ConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
-      configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
-      configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       Assert.Throws<DomainBuilderException>(() => BuildDomain(configuration));
     }

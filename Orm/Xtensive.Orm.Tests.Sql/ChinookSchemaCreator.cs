@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2022 Xtensive LLC.
+// Copyright (C) 2019-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Tests.Sql
 
     public void DropSchemaContent(SqlConnection connection, Schema defaultSchema)
     {
+      DropViews(connection, defaultSchema);
       DropTables(connection, defaultSchema);
       DropViews(connection, defaultSchema);
     }
@@ -325,13 +326,14 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var tableRef = SqlDml.TableRef(table);
       var insertQuery = SqlDml.Insert(tableRef);
+      var row = new Dictionary<SqlColumn, SqlExpression>(values.Count);
       foreach (var nameValue in values) {
         var value = nameValue.Value != null
           ? (SqlExpression) SqlDml.Literal(nameValue.Value)
           : SqlDml.Null;
-        insertQuery.Values.Add(tableRef[nameValue.Key], value);
+        row.Add(tableRef[nameValue.Key], value);
       }
-
+      insertQuery.ValueRows.Add(row);
       using var command = connection.CreateCommand(insertQuery);
       Console.WriteLine(command.CommandText);
       _ = command.ExecuteNonQuery();

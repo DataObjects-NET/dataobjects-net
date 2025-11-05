@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.Logging.log4net</PackageId>
@@ -11,14 +12,19 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.10" />
+    <PackageReference Include="log4net" Version="3.0.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Readme.txt" />
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NugetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

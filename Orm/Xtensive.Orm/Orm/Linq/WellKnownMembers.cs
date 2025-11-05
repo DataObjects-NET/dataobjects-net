@@ -198,14 +198,6 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Cast = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
     }
 
-    public static class Collection
-    {
-      // Collection extensions
-      public static readonly MethodInfo ExtensionContainsAll = GetMethod(typeof(CollectionExtensionsEx), nameof(CollectionExtensionsEx.ContainsAll), 1, 2);
-      public static readonly MethodInfo ExtensionContainsAny = GetMethod(typeof(CollectionExtensionsEx), nameof(CollectionExtensionsEx.ContainsAny), 1, 2);
-      public static readonly MethodInfo ExtensionContainsNone = GetMethod(typeof(CollectionExtensionsEx), nameof(CollectionExtensionsEx.ContainsNone), 1, 2);
-    }
-
     // IEntity
     public static readonly PropertyInfo IEntityKey = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.KeyFieldName);
     public static readonly PropertyInfo TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);
@@ -243,7 +235,7 @@ namespace Xtensive.Orm.Linq
 
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
     {
-      var method = type.GetMethod(name,
+      var method = type.GetMethodEx(name,
         BindingFlags.Public | BindingFlags.Static,
         new string[numberOfGenericArgument],
         new object[numberOfArguments]);

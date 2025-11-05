@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Model
     {
       get { return name; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ValidateName(value);
         ChangeState("Name", delegate { name = value; });
       }
@@ -86,14 +86,17 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public virtual void UpdateState()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
     }
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(Strings.NodeFormat, 
-        name ?? Strings.UnnamedNodeDisplayName, GetType().GetShortName());
+      var type = GetType();
+
+      return string.Format(Strings.NodeFormat,
+        name ?? Strings.UnnamedNodeDisplayName,
+        type.IsGenericType ? type.GetShortName() : type.Name);
     }
 
 

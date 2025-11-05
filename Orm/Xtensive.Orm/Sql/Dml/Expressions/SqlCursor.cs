@@ -124,7 +124,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlFetch Fetch(SqlFetchOption option, SqlExpression rowCount, params ISqlCursorFetchTarget[] target)
     {
-      if (!rowCount.IsNullReference()) {
+      if (rowCount is not null) {
         if (option != SqlFetchOption.Absolute && option != SqlFetchOption.Relative)
           throw new ArgumentException(Strings.ExInvalidUsageOfTheRowCountArgument, "rowCount");
         SqlValidator.EnsureIsArithmeticExpression(rowCount);
@@ -168,7 +168,7 @@ namespace Xtensive.Sql.Dml
       throw new NotImplementedException();
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlCursor Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -22,22 +22,17 @@ namespace Xtensive.Sql.Dml
       base.ReplaceWith(expression);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      var table = SqlTable;
-      SqlNode clonedTable;
-      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable)) {
-        table = (SqlTable) clonedTable;
-      }
+    internal override SqlTableColumn Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var table = t.SqlTable;
+        SqlNode clonedTable;
+        if (c.NodeMapping.TryGetValue(t.SqlTable, out clonedTable)) {
+          table = (SqlTable) clonedTable;
+        }
       
-      var clone = new SqlTableColumn(table, Name);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        var clone = new SqlTableColumn(table, t.Name);
+        return clone;
+      });
 
     // Constructors
 

@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
-    <DefineConstants>TRACE</DefineConstants>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>

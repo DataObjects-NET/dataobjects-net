@@ -1,11 +1,12 @@
-﻿// Copyright (C) 2013 Xtensive LLC
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2024 Xtensive LLC
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.07.18
 
 using System.Linq;
 using Xtensive.Orm.Model;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -16,15 +17,18 @@ namespace Xtensive.Orm.Providers
   {
     public string Compile(HandlerAccessor handlers, IndexInfo index)
     {
-      var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, index.Filter.Fields.Count));
+      var filter = index.Filter;
+      var fieldsCount = filter.Fields.Count;
+
+      var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, fieldsCount));
       // Translation of ColumnRefs without alias seems broken, use original name as alias.
-      var columns = index.Filter.Fields
+      var columns = filter.Fields
         .Select(field => field.Column.Name)
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
         .Cast<SqlExpression>()
-        .ToList();
+        .ToList(fieldsCount);
 
-      var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
+      var processor = new ExpressionProcessor(filter.Expression, handlers, null, true, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var result = handlers.StorageDriver.Compile(fragment).GetCommandText();
       return result;

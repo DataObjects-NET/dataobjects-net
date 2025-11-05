@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2022 Xtensive LLC.
+// Copyright (C) 2016-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
@@ -15,137 +15,337 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     [Test]
     public void ExtractYearTest()
     {
-      ExecuteInsideSession(() => {
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Year==FirstMillisecondDateTimeOffset.Year);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Year==NullableDateTimeOffset.Year);
+      ExecuteInsideSession((s) => {
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Year==FirstMillisecondDateTimeOffset.Year);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Year==NullableDateTimeOffset.Year);
 
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Year==WrongDateTimeOffset.Year);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Year==WrongMillisecondDateTimeOffset.Year);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Year==WrongDateTimeOffset.Year);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Year==WrongDateTimeOffset.Year);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Year==WrongMillisecondDateTimeOffset.Year);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Year==WrongDateTimeOffset.Year);
       });
     }
-    
+
+    [Test]
+    public void ExtractYearMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Year == DateTimeOffset.MinValue.Year);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Year == DateTimeOffset.MinValue.AddYears(1).Year);
+      });
+    }
+
+    [Test]
+    public void ExtractYearMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
+      });
+    }
+
     [Test]
     public void ExtractMonthTest()
     {
-      ExecuteInsideSession(() => {
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Month==FirstDateTimeOffset.Month);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Month==NullableDateTimeOffset.Month);
+      ExecuteInsideSession((s) => {
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==FirstDateTimeOffset.Month);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Month==NullableDateTimeOffset.Month);
 
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Month==WrongMillisecondDateTimeOffset.Month);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Month==WrongDateTimeOffset.Month);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Month==WrongMillisecondDateTimeOffset.Month);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Month==WrongDateTimeOffset.Month);
+      });
+    }
+
+    [Test]
+    public void ExtractMonthMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Month == DateTimeOffset.MinValue.Month);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Month == DateTimeOffset.MinValue.AddMonths(1).Month);
+      });
+    }
+
+    [Test]
+    public void ExtractMonthMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 12);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
       });
     }
 
     [Test]
     public void ExtractDayTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Day==firstDateTimeOffset.Day);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Day==firstMillisecondDateTimeOffset.Day);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Day==nullableDateTimeOffset.Day);
+
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==firstDateTimeOffset.Day);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==firstMillisecondDateTimeOffset.Day);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==nullableDateTimeOffset.Day);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Day==wrongDateTimeOffset.Day);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Day==wrongMillisecondDateTimeOffset.Day);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Day==wrongDateTimeOffset.Day);
+
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==wrongDateTimeOffset.Day);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==wrongMillisecondDateTimeOffset.Day);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==wrongDateTimeOffset.Day);
+      });
+    }
+
+    [Test]
+    public void ExtractDayMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Day == DateTimeOffset.MinValue.Day);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Day == DateTimeOffset.MinValue.AddDays(1).Day);
+      });
+    }
+
+    [Test]
+    public void ExtractDayMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
+        else {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 31);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
       });
     }
 
     [Test]
     public void ExtractHourTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
 
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Hour==firstDateTimeOffset.Hour);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Hour==firstMillisecondDateTimeOffset.Hour);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Hour==nullableDateTimeOffset.Hour);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Hour==firstDateTimeOffset.Hour);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Hour==firstMillisecondDateTimeOffset.Hour);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Hour==nullableDateTimeOffset.Hour);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Hour==wrongDateTimeOffset.Hour);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Hour==wrongMillisecondDateTimeOffset.Hour);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Hour==wrongDateTimeOffset.Hour);
+
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Hour==wrongDateTimeOffset.Hour);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Hour==wrongMillisecondDateTimeOffset.Hour);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Hour==wrongDateTimeOffset.Hour);
+      });
+    }
+
+    [Test]
+    public void ExtractHourMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : localTimezone.Hours; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == serverSideHours);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == DateTimeOffset.MinValue.AddHours(1).Hour);
+      });
+    }
+
+    [Test]
+    public void ExtractHourMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours - 1  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : 23; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == serverSideHours);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == DateTimeOffset.MaxValue.AddHours(-1).Hour);
       });
     }
 
     [Test]
     public void ExtractMinuteTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Minute==firstDateTimeOffset.Minute);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Minute==firstMillisecondDateTimeOffset.Minute);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Minute==nullableDateTimeOffset.Minute);
+
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==firstDateTimeOffset.Minute);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==firstMillisecondDateTimeOffset.Minute);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==nullableDateTimeOffset.Minute);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Minute==wrongDateTimeOffset.Minute);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Minute==wrongMillisecondDateTimeOffset.Minute);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Minute==wrongDateTimeOffset.Minute);
+
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==wrongDateTimeOffset.Minute);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==wrongMillisecondDateTimeOffset.Minute);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==wrongDateTimeOffset.Minute);
+      });
+    }
+
+    [Test]
+    public void ExtractMinuteMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Minute == DateTimeOffset.MinValue.Minute);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Minute == DateTimeOffset.MinValue.AddMinutes(1).Minute);
+      });
+    }
+
+    [Test]
+    public void ExtractMinuteMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Minute == DateTimeOffset.MaxValue.Minute);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Minute == DateTimeOffset.MaxValue.AddMinutes(-1).Minute);
       });
     }
 
     [Test]
     public void ExtractSecondTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Second==firstDateTimeOffset.Second);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Second==firstMillisecondDateTimeOffset.Second);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Second==nullableDateTimeOffset.Second);
+
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==firstDateTimeOffset.Second);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==firstMillisecondDateTimeOffset.Second);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==nullableDateTimeOffset.Second);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Second==wrongDateTimeOffset.Second);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Second);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Second==wrongDateTimeOffset.Second);
+
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==wrongDateTimeOffset.Second);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Second);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==wrongDateTimeOffset.Second);
+      });
+    }
+
+    [Test]
+    public void ExtractSecondMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Second == DateTimeOffset.MinValue.Second);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Second == DateTimeOffset.MinValue.AddSeconds(10).Second);
+      });
+    }
+
+    [Test]
+    public void ExtractSecondMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Second == DateTimeOffset.MaxValue.Second);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Second == DateTimeOffset.MaxValue.AddSeconds(-10).Second);
       });
     }
 
     [Test]
     public void ExtractMillisecondTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Millisecond==firstMillisecondDateTimeOffset.Millisecond);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Millisecond==firstMillisecondDateTimeOffset.Millisecond);
 
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Millisecond);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Millisecond);
       });
     }
 
     [Test]
     public void ExtractDateTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Date==firstDateTimeOffset.Date);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Date==firstMillisecondDateTimeOffset.Date);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Date==nullableDateTimeOffset.Date);
+
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==firstDateTimeOffset.Date);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==firstMillisecondDateTimeOffset.Date);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==nullableDateTimeOffset.Date);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Date==wrongDateTimeOffset.Date);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Date==wrongMillisecondDateTimeOffset.Date);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Date==wrongDateTimeOffset.Date);
+
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==wrongDateTimeOffset.Date);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==wrongMillisecondDateTimeOffset.Date);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==wrongDateTimeOffset.Date);
+      });
+    }
+
+    [Test]
+    public void ExtractDateMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Date == DateTimeOffset.MinValue.Date);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Date == DateTimeOffset.MinValue.AddDays(1).Date);
+      });
+    }
+
+    [Test]
+    public void ExtractDateMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
+          // can't validate
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-1).Date);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-2).Date);
+        }
       });
     }
 
@@ -158,34 +358,57 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDateFromMicrosecondsTest(string testValueString)
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var testDateTimeOffset =  DateTimeOffset.Parse(testValueString);
-        _ = new SingleDateTimeOffsetEntity() { MillisecondDateTimeOffset = testDateTimeOffset };
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Date == testDateTimeOffset.Date);
+        _ = new SingleDateTimeOffsetEntity(s) { MillisecondDateTimeOffset = testDateTimeOffset };
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date == testDateTimeOffset.Date);
       });
     }
 
     [Test]
     public void ExtractTimeOfDayTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay==firstDateTimeOffset.TimeOfDay);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay==firstDateTimeOffset.TimeOfDay);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay==wrongDateTimeOffset.TimeOfDay);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay==wrongDateTimeOffset.TimeOfDay);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var minValueAdjusted = TryMoveToLocalTimeZone(DateTimeOffset.MinValue);
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.TimeOfDay == minValueAdjusted.TimeOfDay);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.TimeOfDay == DateTimeOffset.MinValue.AddMinutes(10).TimeOfDay);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        // year overflow on server side
+        var adjustedMaxValue = TryMoveToLocalTimeZone(DateTimeOffset.MaxValue.AddYears(-1).AddTicks(-9));
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.TimeOfDay == adjustedMaxValue.TimeOfDay);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.TimeOfDay == DateTimeOffset.MaxValue.AddMinutes(-10).TimeOfDay);
       });
     }
 
     [Test]
     public void ExtractTimeOfDayWithMillisecondsTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.TimeOfDay==firstMillisecondDateTimeOffset.TimeOfDay);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.TimeOfDay==firstMillisecondDateTimeOffset.TimeOfDay);
 
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.TimeOfDay==wrongMillisecondDateTimeOffset.TimeOfDay);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.TimeOfDay==wrongMillisecondDateTimeOffset.TimeOfDay);
       });
     }
 
@@ -194,132 +417,217 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
 
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == wrongDateTimeOffset.TimeOfDay.Ticks);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay.Ticks == wrongDateTimeOffset.TimeOfDay.Ticks);
       });
     }
 
     [Test]
     public void ExtractTimeOfDayOfNullableValueTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.TimeOfDay==nullableDateTimeOffset.TimeOfDay);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.TimeOfDay==nullableDateTimeOffset.TimeOfDay);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.TimeOfDay==wrongDateTimeOffset.TimeOfDay);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.TimeOfDay==wrongDateTimeOffset.TimeOfDay);
       });
     }
 
     [Test]
     public void ExtractDayOfYearTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfYear==firstDateTimeOffset.DayOfYear);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfYear==firstMillisecondDateTimeOffset.DayOfYear);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfYear==nullableDateTimeOffset.DayOfYear);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DayOfYear==firstDateTimeOffset.DayOfYear);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DayOfYear==firstMillisecondDateTimeOffset.DayOfYear);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DayOfYear==nullableDateTimeOffset.DayOfYear);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfYear==wrongDateTimeOffset.DayOfYear);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfYear==wrongMillisecondDateTimeOffset.DayOfYear);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfYear==wrongDateTimeOffset.DayOfYear);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DayOfYear==wrongDateTimeOffset.DayOfYear);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DayOfYear==wrongMillisecondDateTimeOffset.DayOfYear);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DayOfYear==wrongDateTimeOffset.DayOfYear);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfYearMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfYear == DateTimeOffset.MinValue.DayOfYear);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfYear == DateTimeOffset.MinValue.AddDays(1).DayOfYear);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfYearMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.DayOfYear);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
       });
     }
 
     [Test]
     public void ExtractDayOfWeekTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfWeek==firstDateTimeOffset.DayOfWeek);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfWeek==firstMillisecondDateTimeOffset.DayOfWeek);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfWeek==nullableDateTimeOffset.DayOfWeek);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DayOfWeek==firstDateTimeOffset.DayOfWeek);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DayOfWeek==firstMillisecondDateTimeOffset.DayOfWeek);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DayOfWeek==nullableDateTimeOffset.DayOfWeek);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfWeek==wrongDateTimeOffset.DayOfWeek);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfWeek==wrongMillisecondDateTimeOffset.DayOfWeek);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfWeek==wrongDateTimeOffset.DayOfWeek);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DayOfWeek==wrongDateTimeOffset.DayOfWeek);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DayOfWeek==wrongMillisecondDateTimeOffset.DayOfWeek);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DayOfWeek==wrongDateTimeOffset.DayOfWeek);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfWeekMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfWeek == DateTimeOffset.MinValue.DayOfWeek);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfWeek == DateTimeOffset.MinValue.AddDays(1).DayOfWeek);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfWeekMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
       });
     }
 
     [Test]
     public void ExtractDateTimeTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DateTime==firstDateTimeOffset.DateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DateTime==firstMillisecondDateTimeOffset.DateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DateTime==nullableDateTimeOffset.DateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DateTime==firstDateTimeOffset.DateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DateTime==firstMillisecondDateTimeOffset.DateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DateTime==nullableDateTimeOffset.DateTime);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DateTime==wrongDateTimeOffset.DateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DateTime==wrongMillisecondDateTimeOffset.DateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DateTime==wrongDateTimeOffset.DateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DateTime==wrongDateTimeOffset.DateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DateTime==wrongMillisecondDateTimeOffset.DateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DateTime==wrongDateTimeOffset.DateTime);
+      });
+    }
+
+    [Test]
+    public void ExtractDateTimeMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var minValueAdjusted = TryMoveToLocalTimeZone(DateTimeOffset.MinValue);
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DateTime == minValueAdjusted.DateTime);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DateTime == DateTimeOffset.MinValue.AddDays(1).DateTime);
+      });
+    }
+
+    [Test]
+    public void ExtractDateTimeMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
+        // can't validate
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+
       });
     }
 
     [Test]
     public void ExtractLocalDateTimeTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.LocalDateTime==firstDateTimeOffset.LocalDateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.LocalDateTime==firstMillisecondDateTimeOffset.LocalDateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.LocalDateTime==nullableDateTimeOffset.LocalDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.LocalDateTime==firstDateTimeOffset.LocalDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.LocalDateTime==firstMillisecondDateTimeOffset.LocalDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.LocalDateTime==nullableDateTimeOffset.LocalDateTime);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.LocalDateTime==WrongDateTimeOffset.LocalDateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.LocalDateTime==wrongMillisecondDateTimeOffset.LocalDateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.LocalDateTime==wrongDateTimeOffset.LocalDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.LocalDateTime==WrongDateTimeOffset.LocalDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.LocalDateTime==wrongMillisecondDateTimeOffset.LocalDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.LocalDateTime==wrongDateTimeOffset.LocalDateTime);
       });
     }
 
     [Test]
     public void ExtractUtcDateTimeTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.UtcDateTime==firstDateTimeOffset.UtcDateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.UtcDateTime==firstMillisecondDateTimeOffset.UtcDateTime);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.UtcDateTime==nullableDateTimeOffset.UtcDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.UtcDateTime==firstDateTimeOffset.UtcDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.UtcDateTime==firstMillisecondDateTimeOffset.UtcDateTime);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.UtcDateTime==nullableDateTimeOffset.UtcDateTime);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.UtcDateTime==wrongMillisecondDateTimeOffset.UtcDateTime);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.UtcDateTime==wrongMillisecondDateTimeOffset.UtcDateTime);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
       });
     }
 
     [Test]
     public void ExtractOffsetTest()
     {
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Offset==firstDateTimeOffset.Offset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Offset==firstMillisecondDateTimeOffset.Offset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Offset==nullableDateTimeOffset.Offset);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Offset==firstDateTimeOffset.Offset);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Offset==firstMillisecondDateTimeOffset.Offset);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Offset==nullableDateTimeOffset.Offset);
       });
     }
   }

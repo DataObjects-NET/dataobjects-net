@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected Catalog Catalog { get; private set; }
 
     [OneTimeSetUp]
-    public virtual void SetUp()
+    public virtual void OneTimeSetUp()
     {
       CheckRequirements();
       sqlDriver = TestSqlDriver.Create(Url);
@@ -78,34 +78,55 @@ namespace Xtensive.Orm.Tests.Sql
         creator.CreateSchemaContent(sqlConnection, schema);
 
         sqlConnection.Commit();
+        sqlConnection.Close();
       }
       catch {
         sqlConnection.Rollback();
+        sqlConnection.Close();
         throw;
       }
     }
 
     [OneTimeTearDown]
-    public void TearDown()
+    public void OneTimeTearDown()
     {
       try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
+        if (sqlConnection != null) {
+          if (sqlConnection.State != ConnectionState.Closed)
+            sqlConnection.Close();
+          sqlConnection.Dispose();
+          sqlConnection = null;
+        }
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
+        throw;
       }
+    }
+
+    [SetUp]
+    public virtual void SetUp()
+    {
+      sqlConnection.Open();
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+      sqlConnection.Close();
     }
 
     protected virtual void CheckRequirements()
     {
     }
 
-    protected static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
     {
       var result = new DbCommandExecutionResult();
+
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         var rowCount = 0;
         var fieldCount = 0;
         var fieldNames = new string[0];
@@ -126,20 +147,21 @@ namespace Xtensive.Orm.Tests.Sql
         result.FieldNames = fieldNames;
       }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }
 
-    protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
+    protected DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
       var result = new DbCommandExecutionResult();
+      sqlConnection.BeginTransaction();
       try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+        cmd.Transaction = sqlConnection.ActiveTransaction;
         result.RowCount = cmd.ExecuteNonQuery();
       }
       finally {
-        cmd.Transaction.Rollback();
+        sqlConnection.Rollback();
       }
       return result;
     }

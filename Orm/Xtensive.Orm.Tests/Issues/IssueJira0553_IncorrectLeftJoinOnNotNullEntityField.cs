@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.Types.Register(typeof(Car).Assembly, typeof(Car).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Car).Assembly, typeof(Car).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       return domainConfiguration;
     }
@@ -106,20 +106,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var car = new Car();
-        new EmployeeWithCar { Car = car };
-        new Employee();
-        new Employee();
+        _ = new EmployeeWithCar { Car = car };
+        _ = new Employee();
+        _ = new Employee();
 
         var customer = new Customer();
         for (var i = 0; i < 10; i++) {
-          if (i % 2==0) {
+          if (i % 2 == 0) {
             var job = new Job() {
-                                  Location = new Location() {
-                                                              Address = new Address() {
-                                                                                        Street = string.Format("{0} street", i + 1.ToString())
-                                                                                      }
-                                                            }
-                                };
+              Location = new Location() {
+                Address = new Address() {
+                  Street = string.Format("{0} street", i + 1.ToString())
+                }
+              }
+            };
             var invoice = new Invoice() {Customer = customer, Job = job};
           }
           else {
@@ -189,6 +189,8 @@ namespace Xtensive.Orm.Tests.Issues
               e.Id,
               Car = c
             });
+
+
         Assert.AreEqual(3, wordaround.Count());
       }
     }
@@ -199,11 +201,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var customer = session.Query.All<Customer>().First();
-        var result = (from i in session.Query.All<Invoice>()
+        var results =
+          (from i in session.Query.All<Invoice>()
           from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
           where i.Customer.Id==customer.Id
           select new {i.Id, Location = j!=null && j.Location!=null ? j.Location.Address.Street : ""}).ToList();
-        Assert.AreEqual(10, result.Count);
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i.Job).DefaultIfEmpty()
+           where i.Customer.Id == customer.Id
+           select new { i.Id, Location = j != null && j.Location != null ? j?.Location.Address.Street : "" }).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
 
@@ -212,25 +223,46 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var results = (from i in session.Query.All<Invoice>()
-          from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
-          select new {i.Id, Location = j.Location}).Where(el => el.Location!=null || string.IsNullOrEmpty(el.Location.Address.Street)).ToList();
-        Assert.AreEqual(5, results.Count);
+        var results =
+          (from i in session.Query.All<Invoice>()
+           from j in session.Query.All<Job>().Where(j => j == i.Job).DefaultIfEmpty()
+           select new { i.Id, Location = j.Location })
+         .Where(el => el.Location != null || string.IsNullOrEmpty(el.Location.Address.Street))
+         .ToList();
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i.Job).DefaultIfEmpty()
+           select new { i.Id, Location = j?.Location })
+          .Where(el => el.Location != null || string.IsNullOrEmpty(el.Location?.Address?.Street)).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
 
     [Test]
-    public void Test3()
+    public void Test03()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var cusomer = session.Query.All<Customer>().First();
-        var result = (from i in session.Query.All<Invoice>()
-                      from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
-                      from l in session.Query.All<Location>().Where(l => l==j.Location).DefaultIfEmpty()
-                      where i.Customer.Id==cusomer.Id
-                      select new { i.Id, Location = l!=null ? l.Address.Street : "", }).ToList();
-        Assert.AreEqual(10, result.Count);
+        var results =
+          (from i in session.Query.All<Invoice>()
+           from j in session.Query.All<Job>().Where(j => j == i.Job).DefaultIfEmpty()
+           from l in session.Query.All<Location>().Where(l => l == j.Location).DefaultIfEmpty()
+           where i.Customer.Id == cusomer.Id
+           select new { i.Id, Location = l != null ? l.Address.Street : "", }).ToList();
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i?.Job).DefaultIfEmpty()
+           from l in session.Query.All<Location>().AsEnumerable().Where(l => l == j?.Location).DefaultIfEmpty()
+           where i?.Customer?.Id == cusomer.Id
+           select new { i.Id, Location = l != null ? l.Address.Street : "", }).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
   }

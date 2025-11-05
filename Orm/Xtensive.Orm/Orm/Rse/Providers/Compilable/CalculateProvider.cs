@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
@@ -9,6 +9,7 @@ using Xtensive.Core;
 
 using Xtensive.Tuples.Transform;
 using Xtensive.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -64,24 +65,16 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
-      : this(source, false, columnDescriptors)
-    {
-    }
-
-    /// <summary>
-    /// 	Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
+    public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
       : base(ProviderType.Calculate, source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(columnDescriptors, nameof(columnDescriptors));
+
       IsInlined = isInlined;
-      var columns = new CalculatedColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
+      var columns = new CalculatedColumn[columnDescriptors.Count];
+      for (int i = 0, count = columnDescriptors.Count; i < count; i++) {
         var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);
         columns.SetValue(col, i);
       }

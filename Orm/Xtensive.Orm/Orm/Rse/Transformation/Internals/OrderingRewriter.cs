@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.04.24
 
@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Rse.Transformation
       return rewriter.InsertSortProvider(visited);
     }
 
-    protected override Provider Visit(CompilableProvider cp)
+    protected override CompilableProvider Visit(CompilableProvider cp)
     {
       var prevConsumerDescriptor = consumerDescriptor;
       consumerDescriptor = descriptor;
       descriptor = descriptorResolver(cp);
 
       var prevDescriptor = descriptor;
-      var visited = (CompilableProvider)base.Visit(cp);
+      var visited = base.Visit(cp);
       descriptor = prevDescriptor;
       visited = CorrectOrder(visited);
 
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visited;
     }
 
-    protected override Provider VisitSort(SortProvider provider)
+    protected override CompilableProvider VisitSort(SortProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       sortOrder = provider.Order;
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source;
     }
 
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -93,19 +93,18 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
       if (source != provider.Source) {
-        var acds =provider.AggregateColumns
-           .Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-        result = new AggregateProvider(source, provider.GroupColumnIndexes, acds.ToArray());
+        result = new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
       }
       if (sortOrder.Count > 0) {
         var selectOrdering = new DirectionCollection<int>();
+        var groupColumnIndexes = result.GroupColumnIndexes;
         foreach (var pair in sortOrder) {
-          var columnIndex = result.GroupColumnIndexes.IndexOf(pair.Key);
+          var columnIndex = groupColumnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0) {
             if (selectOrdering.Count > 0)
               selectOrdering.Clear();
@@ -119,37 +118,37 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitIndex(IndexProvider provider)
+    protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitFreeText(FreeTextProvider provider)
+    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitRaw(RawProvider provider)
+    protected override RawProvider VisitRaw(RawProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override Provider VisitApply(ApplyProvider provider)
+    protected override ApplyProvider VisitApply(ApplyProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -162,7 +161,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -175,7 +174,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;

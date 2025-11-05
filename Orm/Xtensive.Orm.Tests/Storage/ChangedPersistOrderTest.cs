@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Storage.ChangedPersistOrderTest
     private Domain BuildDomain(ForeignKeyMode foreignKeyMode, DomainUpgradeMode upgradeMode)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(model.EmploymentContract).Assembly, typeof(model.EmploymentContract).Namespace);
+      configuration.Types.RegisterCaching(typeof(model.EmploymentContract).Assembly, typeof(model.EmploymentContract).Namespace);
       configuration.UpgradeMode = upgradeMode;
       configuration.ForeignKeyMode = foreignKeyMode;
       return Domain.Build(configuration);

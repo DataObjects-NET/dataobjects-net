@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
@@ -16,18 +16,18 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class TypeIdRegistry : LockableBase
   {
-    private readonly Dictionary<TypeInfo, int> mapping;
-    private readonly Dictionary<int, TypeInfo> reverseMapping;
+    private readonly Dictionary<TypeInfo, int> mapping = new();
+    private readonly Dictionary<int, TypeInfo> reverseMapping = new();
 
     /// <summary>
     /// Gets collection of registered types.
     /// </summary>
-    public IEnumerable<TypeInfo> Types { get { return mapping.Keys; } }
+    public IEnumerable<TypeInfo> Types => mapping.Keys;
 
     /// <summary>
     /// Gets collection of registered type identifiers.
     /// </summary>
-    public IEnumerable<int> TypeIdentifiers { get { return reverseMapping.Keys; } }
+    public IEnumerable<int> TypeIdentifiers => reverseMapping.Keys;
 
     /// <summary>
     /// Gets type identifier for the specified <paramref name="type"/>.
@@ -36,13 +36,11 @@ namespace Xtensive.Orm.Model
     /// <returns>Type identifier for the specified <paramref name="type"/>.</returns>
     public int this[TypeInfo type]
     {
-      get
-      {
+      get {
         ArgumentValidator.EnsureArgumentNotNull(type, "type");
-        int result;
-        if (!mapping.TryGetValue(type, out result))
-          throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name));
-        return result;
+        return !mapping.TryGetValue(type, out var result)
+          ? throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name))
+          : result;
       }
     }
 
@@ -51,16 +49,10 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="typeId">Type identifier to get type for.</param>
     /// <returns>Type for the specified <paramref name="typeId"/>.</returns>
-    public TypeInfo this[int typeId]
-    {
-      get
-      {
-        TypeInfo result;
-        if (!reverseMapping.TryGetValue(typeId, out result))
-          throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
-        return result;
-      }
-    }
+    public TypeInfo this[int typeId] =>
+      !reverseMapping.TryGetValue(typeId, out var result)
+        ? throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId))
+        : result;
 
     /// <summary>
     /// Checks if specified <paramref name="type"/> is registered.
@@ -86,10 +78,7 @@ namespace Xtensive.Orm.Model
     public int GetTypeId(TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      int result;
-      if (!mapping.TryGetValue(type, out result))
-        return TypeInfo.NoTypeId;
-      return result;
+      return !mapping.TryGetValue(type, out var result) ? TypeInfo.NoTypeId : result;
     }
 
     /// <summary>
@@ -97,7 +86,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       mapping.Clear();
       reverseMapping.Clear();
@@ -112,21 +101,10 @@ namespace Xtensive.Orm.Model
     public void Register(int typeId, TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       mapping[type] = typeId;
       reverseMapping[typeId] = type;
-    }
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    public TypeIdRegistry()
-    {
-      mapping = new Dictionary<TypeInfo, int>();
-      reverseMapping = new Dictionary<int, TypeInfo>();
     }
   }
 }

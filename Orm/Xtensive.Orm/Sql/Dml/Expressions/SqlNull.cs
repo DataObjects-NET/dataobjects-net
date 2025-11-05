@@ -12,11 +12,10 @@ namespace Xtensive.Sql.Dml
   {
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlNull>(expression, "expression");
+      _ = ArgumentValidator.EnsureArgumentIs<SqlNull>(expression);
     }
     
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlNull Clone(SqlNodeCloneContext context)
     {
       return this;
     }

@@ -120,7 +120,7 @@ namespace Xtensive.Orm
         return TypeReference.Type;
 
       if (session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+        OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired), session, this);
       }
 
       var entityState = session.Handler.FetchEntityState(this);
@@ -154,7 +154,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public bool Equals(Key other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -305,15 +305,16 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
+      var underlyingType = TypeInfo?.UnderlyingType ?? TypeReference.Type.UnderlyingType;
       if (TypeInfo!=null)
         return string.Format(
           Strings.KeyFormat,
-          TypeInfo.UnderlyingType.GetShortName(),
+          underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
           Value.ToRegular());
 
       return string.Format(
         Strings.KeyFormatUnknownKeyType,
-        TypeReference.Type.UnderlyingType.GetShortName(),
+        underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
         Value.ToRegular());
     }
 

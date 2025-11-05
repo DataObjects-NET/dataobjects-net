@@ -6,7 +6,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.Firebird.v4_0
 {
-  internal class ServerInfoProvider : v2_5.ServerInfoProvider
+  internal class ServerInfoProvider : v3_0.ServerInfoProvider
   {
     public override QueryInfo GetQueryInfo()
     {

@@ -23,11 +23,26 @@ namespace Xtensive.Orm.Configuration
     /// Default cache size.
     /// </summary>
     public const int DefaultCacheSize = 16 * 1024;
-    
+
+    /// <summary>
+    /// Default session options.
+    /// </summary>
+    public const SessionOptions DefaultSessionOptions = SessionOptions.Default;
+
     ///<summary>
     /// Default isolation level.
     ///</summary>
     public const IsolationLevel DefaultDefaultIsolationLevel = IsolationLevel.RepeatableRead;
+
+    /// <summary>
+    /// Default cache type.
+    /// </summary>
+    public const SessionCacheType DefaultCacheType = SessionCacheType.Default;
+
+    /// <summary>
+    /// Default reader preloading policy.
+    /// </summary>
+    public const ReaderPreloadingPolicy DefaultReaderPreloadingPolicy = ReaderPreloadingPolicy.Default;
 
     /// <summary>
     /// Default batch size.
@@ -46,13 +61,13 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public static readonly SessionConfiguration Default = new SessionConfiguration(WellKnown.Sessions.Default);
 
-    private SessionOptions options = SessionOptions.Default;
+    private SessionOptions options = DefaultSessionOptions;
     private string userName = string.Empty;
     private string password = string.Empty;
     private int cacheSize = DefaultCacheSize;
     private int batchSize = DefaultBatchSize;
     private int entityChangeRegistrySize = DefaultEntityChangeRegistrySize;
-    private SessionCacheType cacheType = SessionCacheType.Default;
+    private SessionCacheType cacheType = DefaultCacheType;
     private IsolationLevel defaultIsolationLevel = DefaultDefaultIsolationLevel; // what a fancy name?
     private int? defaultCommandTimeout = null;
     private ReaderPreloadingPolicy readerPreloading = ReaderPreloadingPolicy.Default;
@@ -71,7 +86,7 @@ namespace Xtensive.Orm.Configuration
     public string UserName {
       get { return userName; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         userName = value;
       }
     }
@@ -83,7 +98,7 @@ namespace Xtensive.Orm.Configuration
     public string Password {
       get { return password; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         password = value;
       }
     }
@@ -95,7 +110,7 @@ namespace Xtensive.Orm.Configuration
     public int CacheSize {
       get { return cacheSize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 1, "CacheSize");
         cacheSize = value;
       }
@@ -103,11 +118,12 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Gets or sets the type of the session cache.
+    /// Default value is <see cref="DefaultCacheType"/>.
     /// </summary>
     public SessionCacheType CacheType {
       get { return cacheType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         cacheType = value;
       }
     }
@@ -119,7 +135,7 @@ namespace Xtensive.Orm.Configuration
     public IsolationLevel DefaultIsolationLevel {
       get { return defaultIsolationLevel; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultIsolationLevel = value;
       }
     }
@@ -131,7 +147,7 @@ namespace Xtensive.Orm.Configuration
     public int? DefaultCommandTimeout {
       get { return defaultCommandTimeout; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultCommandTimeout = value;
       }
     }
@@ -145,11 +161,12 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets the size of the batch.
     /// This affects create, update, delete operations and future queries.
+    /// Default value is <see cref="DefaultBatchSize"/>.
     /// </summary>
     public int BatchSize {
       get { return batchSize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         batchSize = value;
       }
     }
@@ -161,31 +178,34 @@ namespace Xtensive.Orm.Configuration
     public SessionOptions Options {
       get { return options; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         options = value;
       }
     }
 
     /// <summary>
     /// Gets or sets the reader preloading policy.
+    /// It affects query results reading.
+    /// Default value is <see cref="DefaultReaderPreloadingPolicy"/>.
     /// </summary>
     public ReaderPreloadingPolicy ReaderPreloading
     {
       get { return readerPreloading; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         readerPreloading = value;
       }
     }
 
     /// <summary>
     /// Gets or sets the size of the entity change registry.
+    /// Default value is <see cref="DefaultEntityChangeRegistrySize"/>.
     /// </summary>
     public int EntityChangeRegistrySize
     {
       get { return entityChangeRegistrySize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         entityChangeRegistrySize = value;
       }
     }
@@ -196,7 +216,7 @@ namespace Xtensive.Orm.Configuration
     public Type ServiceContainerType {
       get { return serviceContainerType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         serviceContainerType = value;
       }
     }
@@ -207,7 +227,7 @@ namespace Xtensive.Orm.Configuration
     public ConnectionInfo ConnectionInfo {
       get { return connectionInfo; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }

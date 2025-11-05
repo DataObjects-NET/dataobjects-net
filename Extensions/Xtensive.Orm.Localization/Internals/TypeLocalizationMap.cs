@@ -10,6 +10,7 @@ using Xtensive.Orm.Localization.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm;
 using Xtensive.Reflection;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Localization
 {
@@ -21,13 +22,19 @@ namespace Xtensive.Orm.Localization
 
     public static void Initialize(Domain domain)
     {
-      if (domain == null)
-        throw new ArgumentNullException("domain");
-      if (domain.Extensions.Get<TypeLocalizationMap>() != null)
+      ArgumentValidator.EnsureArgumentNotNull(domain, nameof(domain));
+
+      var existing = domain.Extensions.Get<TypeLocalizationMap>();
+      if (existing != null) {
         return;
+      }
+
+      var configFromNewSource = domain.Configuration.ExtensionConfigurations.Get<LocalizationConfiguration>();
 
       var map = new TypeLocalizationMap() {
-        Configuration = LocalizationConfiguration.Load()
+        Configuration = (configFromNewSource != null)
+          ? configFromNewSource
+          : LocalizationConfiguration.Load()// config from old source.
       };
       foreach (var localizableTypeInfo in domain.Model.Types.Entities) {
         var type = localizableTypeInfo.UnderlyingType;

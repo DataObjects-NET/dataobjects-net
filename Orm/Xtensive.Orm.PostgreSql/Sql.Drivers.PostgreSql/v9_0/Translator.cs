@@ -30,6 +30,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
       }
     }
 
+    public override void TranslateSortOrder(IOutput output, bool ascending) =>
+      output.Append(ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
+
     // Constructors
 
     public Translator(SqlDriver driver)

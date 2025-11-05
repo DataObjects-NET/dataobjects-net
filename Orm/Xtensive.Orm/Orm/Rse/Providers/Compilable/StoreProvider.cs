@@ -21,12 +21,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the name of saved data.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; }
 
     /// <summary>
     /// Source provider.
     /// </summary>
-    public Provider Source { get; private set; }
+    public CompilableProvider Source { get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(Provider source, string name)
+    public StoreProvider(CompilableProvider source, string name)
       : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public StoreProvider(Provider source)
+    public StoreProvider(CompilableProvider source)
       : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

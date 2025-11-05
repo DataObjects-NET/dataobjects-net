@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case TypeCode.UInt16:
           return true;
       }
-      if (type==typeof (Guid)) {
+      if (type == typeof(Guid)) {
         return true;
       }
 
@@ -80,6 +80,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         : NVarCharMaxLength;
     }
 
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? (DateOnly) value : DBNull.Value;
+    }
+
+    public override void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value != null ? (TimeOnly) value : DBNull.Value;
+    }
+
     public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
@@ -117,6 +129,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       return ((SqlDataReader) reader).GetDateTimeOffset(index);
     }
+
+    public override object ReadDateOnly(DbDataReader reader, int index) =>
+      reader.GetFieldValue<DateOnly>(index);
+
+    public override object ReadTimeOnly(DbDataReader reader, int index) =>
+      reader.GetFieldValue<TimeOnly>(index);
 
     public override void Initialize()
     {

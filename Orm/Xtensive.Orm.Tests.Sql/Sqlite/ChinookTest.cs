@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -40,14 +40,26 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     private Schema schema = null;
 
     [OneTimeSetUp]
+    public override void OneTimeSetUp()
+    {
+      base.OneTimeSetUp();
+
+      schema = Catalog.DefaultSchema;
+    }
+
     public override void SetUp()
     {
       base.SetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
+    }
 
-      schema = Catalog.DefaultSchema;
+    public override void TearDown()
+    {
+      dbCommand?.Dispose();
+      sqlCommand?.Dispose();
+      base.TearDown();
     }
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);

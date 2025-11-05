@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Model
       get { return boundary; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         boundary = value;
       }
     }

@@ -16,7 +16,10 @@ namespace Xtensive.Orm.Serialization
   /// Object to be serialized instead of <see cref="Entity"/> when serialization <see cref="SerializationKind.ByReference"/> is used.
   /// </summary>
   [Serializable]
-  internal sealed class EntityReference : IObjectReference, 
+  internal sealed class EntityReference :
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
+    IObjectReference,
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
     ISerializable
   {
     private const string KeyValueName = WellKnown.KeyFieldName;
@@ -27,7 +30,7 @@ namespace Xtensive.Orm.Serialization
     {
       return entity;
     }
-      
+
     [SecurityCritical]
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {

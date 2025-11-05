@@ -1,42 +1,71 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.24
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
   public class SqlExtract : SqlExpression
   {
-    public SqlDateTimePart DateTimePart { get; private set; }
-    public SqlDateTimeOffsetPart DateTimeOffsetPart { get; private set; }
-    public SqlIntervalPart IntervalPart { get; private set; }
+    private const int TimeTypeId = 1;
+    private const int DateTypeId = 2;
+    private const int DateTimeTypeId = 3;
+    private const int DateTimeOffsetTypeId = 4;
+    private const int IntervalTypeId = 5;
+
+    private SqlDateTimeOffsetPart internalValue;
+    private int typeMarker;
+    private bool typeHasTime;
+
+    public SqlDateTimePart DateTimePart =>
+      typeMarker == DateTimeTypeId ? internalValue.ToDateTimePartFast() : SqlDateTimePart.Nothing;
+
+    public SqlDatePart DatePart =>
+      typeMarker == DateTypeId ? internalValue.ToDatePartFast() : SqlDatePart.Nothing;
+
+    public SqlTimePart TimePart =>
+      typeMarker == TimeTypeId ? internalValue.ToTimePartFast() : SqlTimePart.Nothing;
+
+    public SqlDateTimeOffsetPart DateTimeOffsetPart =>
+      typeMarker == DateTimeOffsetTypeId ? internalValue : SqlDateTimeOffsetPart.Nothing;
+
+    public SqlIntervalPart IntervalPart =>
+      typeMarker == IntervalTypeId ? internalValue.ToIntervalPartFast(): SqlIntervalPart.Nothing;
 
     public SqlExpression Operand { get; private set; }
 
+    public bool IsSecondExtraction =>
+      typeHasTime && internalValue == SqlDateTimeOffsetPart.Second;
+    public bool IsMillisecondExtraction =>
+      typeHasTime && internalValue == SqlDateTimeOffsetPart.Millisecond;
+
+    public bool IsDateTimeOffsetPart => typeMarker == DateTimeOffsetTypeId;
+
+    public bool IsDateTimePart => typeMarker == DateTimeTypeId;
+
+    public bool IsDatePart => typeMarker == DateTypeId;
+
+    public bool IsTimePart => typeMarker == TimeTypeId;
+
+    public bool IsIntervalPart => typeMarker == IntervalTypeId;
+
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression, "expression");
-      var replacingExpression = (SqlExtract) expression;
-      DateTimePart = replacingExpression.DateTimePart;
-      DateTimeOffsetPart = replacingExpression.DateTimeOffsetPart;
-      IntervalPart = replacingExpression.IntervalPart;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression);
+      internalValue = replacingExpression.internalValue;
+      typeMarker = replacingExpression.typeMarker;
+      typeHasTime = replacingExpression.typeHasTime;
       Operand = replacingExpression.Operand;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = DateTimePart!=SqlDateTimePart.Nothing
-          ? new SqlExtract(DateTimePart, (SqlExpression) Operand.Clone(context))
-          : IntervalPart!=SqlIntervalPart.Nothing
-            ? new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context))
-            : new SqlExtract(DateTimeOffsetPart, (SqlExpression) Operand.Clone(context));
+    internal override SqlExtract Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => new SqlExtract(t.internalValue, t.typeMarker, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -48,27 +77,54 @@ namespace Xtensive.Sql.Dml
     internal SqlExtract(SqlDateTimePart dateTimePart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = dateTimePart;
-      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      IntervalPart = SqlIntervalPart.Nothing;
+      internalValue = dateTimePart.ToDtoPartFast();
+      typeMarker = DateTimeTypeId;
+      typeHasTime = true;
       Operand = operand;
     }
 
     internal SqlExtract(SqlIntervalPart intervalPart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = SqlDateTimePart.Nothing;
-      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
-      IntervalPart = intervalPart;
+      internalValue = intervalPart.ToDtoPartFast();
+      typeMarker = IntervalTypeId;
+      typeHasTime = true;
       Operand = operand;
     }
 
-    public SqlExtract(SqlDateTimeOffsetPart dateTimeOffsetPart, SqlExpression operand)
+    internal SqlExtract(SqlDateTimeOffsetPart dateTimeOffsetPart, SqlExpression operand)
       : base(SqlNodeType.Extract)
     {
-      DateTimePart = SqlDateTimePart.Nothing;
-      IntervalPart = SqlIntervalPart.Nothing;
-      DateTimeOffsetPart = dateTimeOffsetPart;
+      internalValue = dateTimeOffsetPart;
+      typeMarker = DateTimeOffsetTypeId;
+      typeHasTime = true;
+      Operand = operand;
+    }
+
+    internal SqlExtract(SqlDatePart datePart, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      internalValue = datePart.ToDtoPartFast();
+      typeMarker = DateTypeId;
+      typeHasTime = false;
+      Operand = operand;
+    }
+
+    internal SqlExtract(SqlTimePart timePart, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      internalValue = timePart.ToDtoPartFast();
+      typeMarker = TimeTypeId;
+      typeHasTime = true;
+      Operand = operand;
+    }
+
+    private SqlExtract(SqlDateTimeOffsetPart internalValue, int typeMarker, SqlExpression operand)
+      :base(SqlNodeType.Extract)
+    {
+      this.internalValue = internalValue;
+      this.typeMarker = typeMarker;
+      typeHasTime = typeMarker is DateTimeTypeId or DateTimeOffsetTypeId or TimeTypeId or IntervalTypeId;
       Operand = operand;
     }
   }

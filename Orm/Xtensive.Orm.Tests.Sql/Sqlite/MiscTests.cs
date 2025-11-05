@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -82,10 +82,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     #region Setup and TearDown
 
     [OneTimeSetUp]
-    public override void SetUp()
+    public override void OneTimeSetUp()
     {
-      
-      base.SetUp();
+      base.OneTimeSetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
@@ -100,10 +99,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
       bool passed = false;
-      if (!l.IsNullReference())
+      if (l is not null)
         passed = true;
       Assert.IsTrue(passed);
-      if (l.IsNullReference())
+      if (l is null)
         passed = false;
       Assert.IsTrue(passed);
     }
@@ -118,19 +117,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void ArrayTest() //TODO: Find reason why this pattern is structured like this.(Malisa)
     {
-      SqlArray<int> i = SqlDml.Array(new int[] {
-        1, 2
-      });
+      SqlArray<int> i = SqlDml.Array(new int[] { 1, 2 });
       i.Values[0] = 10;
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      MemoryStream ms = new MemoryStream();
-      BinaryFormatter bf = new BinaryFormatter();
-      bf.Serialize(ms, select);
+      using (var mStream = new MemoryStream()) {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(mStream, select);
 
-      ms.Seek(0, SeekOrigin.Begin);
-      select = (SqlSelect) bf.Deserialize(ms);
+        _ = mStream.Seek(0, SeekOrigin.Begin);
+        select = (SqlSelect) formatter.Deserialize(mStream);
+      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }

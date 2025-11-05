@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
@@ -133,6 +133,8 @@ namespace Xtensive.Orm.Rse.Providers
       default:
         if (sourceColumnType==WellKnownTypes.TimeSpan || sourceColumnType==WellKnownTypes.DateTimeOffset)
           return sourceColumnType;
+        if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
+          return sourceColumnType;
         throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }
@@ -192,15 +194,16 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
+    /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
+    public AggregateProvider(CompilableProvider source, int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
+      ArgumentValidator.EnsureArgumentNotNull(columnDescriptors, nameof(columnDescriptors));
       groupIndexes = groupIndexes ?? Array.Empty<int>();
-      var columns = new AggregateColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
-        AggregateColumnDescriptor descriptor = columnDescriptors[i];
+      var columns = new AggregateColumn[columnDescriptors.Count];
+      for (int i = 0, count = columnDescriptors.Count; i < count; i++) {
+        var descriptor = columnDescriptors[i];
         var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
         columns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
       }
@@ -208,5 +211,30 @@ namespace Xtensive.Orm.Rse.Providers
       GroupColumnIndexes = groupIndexes;
       Initialize();
     }
+
+    /// <summary>
+    /// Initializes a new instance of this class. Internal use only!
+    /// </summary>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="groupIndexes">The column indexes to group by.</param>
+    /// <param name="descriptorSource">Columns of old AggregateProvider as source of descriptors.</param>
+    internal AggregateProvider(CompilableProvider source, int[] groupIndexes, IReadOnlyList<AggregateColumn> descriptorSource)
+      : base(ProviderType.Aggregate, source)
+    {
+      // Having this dedicated ctor saves some resources on not having to make
+      // an array just to pass descriptors for simple enumeration
+      groupIndexes = groupIndexes ?? Array.Empty<int>();
+      var columns = new AggregateColumn[descriptorSource.Count];
+      for (int i = 0, count = descriptorSource.Count; i < count; i++) {
+        var sourceDescriptor = descriptorSource[i].Descriptor;
+        var descriptor = new AggregateColumnDescriptor(sourceDescriptor.Name, sourceDescriptor.SourceIndex, sourceDescriptor.AggregateType);
+        var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
+        columns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
+      }
+      AggregateColumns = columns;
+      GroupColumnIndexes = groupIndexes;
+      Initialize();
+    }
+
   }
 }

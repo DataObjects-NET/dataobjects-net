@@ -128,6 +128,8 @@ namespace Xtensive.Orm.Providers
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
         typeof (DateTimeOffsetCompilers),
+        typeof (DateOnlyCompilers),
+        typeof (TimeOnlyCompilers),
         typeof (TimeSpanCompilers),
         typeof (MathCompilers),
         typeof (NumericCompilers),
@@ -164,31 +166,29 @@ namespace Xtensive.Orm.Providers
     {
       var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
       var ordered = unordered.SortTopologically((first, second) => second.IsDependentOn(first));
-      if (ordered==null)
-        throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
-      QueryPreprocessors = ordered;
+      QueryPreprocessors = ordered ?? throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
     }
 
     private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
     {
-      bool isOrderSensitive = provider.Type==ProviderType.Skip 
-        || provider.Type == ProviderType.Take
-        || provider.Type == ProviderType.Seek
-        || provider.Type == ProviderType.Paging
-        || provider.Type == ProviderType.RowNumber;
-      bool preservesOrder = provider.Type==ProviderType.Take
-        || provider.Type == ProviderType.Skip
-        || provider.Type == ProviderType.Seek
-        || provider.Type == ProviderType.RowNumber
-        || provider.Type == ProviderType.Paging
-        || provider.Type == ProviderType.Distinct
-        || provider.Type == ProviderType.Alias;
-      bool isOrderBreaker = provider.Type == ProviderType.Except
-        || provider.Type == ProviderType.Intersect
-        || provider.Type == ProviderType.Union
-        || provider.Type == ProviderType.Concat
-        || provider.Type == ProviderType.Existence;
-      bool isSorter = provider.Type==ProviderType.Sort || provider.Type == ProviderType.Index;
+      var isOrderSensitive = provider.Type is ProviderType.Skip
+        or ProviderType.Take
+        or ProviderType.Seek
+        or ProviderType.Paging
+        or ProviderType.RowNumber;
+      var preservesOrder = provider.Type is ProviderType.Skip
+        or ProviderType.Take
+        or ProviderType.Seek
+        or ProviderType.Paging
+        or ProviderType.RowNumber
+        or ProviderType.Distinct
+        or ProviderType.Alias;
+      var isOrderBreaker = provider.Type is ProviderType.Except
+        or ProviderType.Intersect
+        or ProviderType.Union
+        or ProviderType.Concat
+        or ProviderType.Existence;
+      var isSorter = provider.Type is ProviderType.Sort or ProviderType.Index;
       return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
 

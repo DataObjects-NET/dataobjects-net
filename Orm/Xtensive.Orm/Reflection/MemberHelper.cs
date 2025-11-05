@@ -11,6 +11,7 @@ using System.Text;
 using Xtensive.Reflection;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 
 namespace Xtensive.Reflection
@@ -209,10 +210,11 @@ namespace Xtensive.Reflection
         var type = mi.DeclaringType.UnderlyingSystemType;
         var methodInfoType = mi.GetType();
         var isRuntimeMethodInfo = methodInfoType.FullName == WellKnown.RuntimeMethodInfoName;
-        foreach (var iType in type.GetInterfaces()) {
+        foreach (var iType in TypeHelper.GetInterfacesUnordered(type)) {
           var map = type.GetInterfaceMapFast(iType.UnderlyingSystemType);
-          for (var i = 0; i < map.InterfaceMethods.Count; i++) {
-            var tmi = map.TargetMethods[i];
+          var targetMethods = map.TargetMethods;
+          for (int i = 0, count = map.InterfaceMethods.Count; i < count; i++) {
+            var tmi = targetMethods[i];
             if (mi == tmi) {
               return map.InterfaceMethods[i];
             }
@@ -260,18 +262,14 @@ namespace Xtensive.Reflection
         if (!member.IsExplicitImplementation()) {
           return member.Name;
         }
-        var im = member.GetInterfaceMember();
-        return new StringBuilder()
-          .Append(im.DeclaringType.GetFullName())
-          .Append(".")
-          .Append(im.GetFullName(false))
-          .ToString();
+
+        member = member.GetInterfaceMember();
       }
-      return new StringBuilder()
-        .Append(member.DeclaringType.GetFullName())
-        .Append(".")
-        .Append(member.GetFullName(false))
-        .ToString();
+      var sb = new ValueStringBuilder(stackalloc char[256]);
+      sb.Append(member.DeclaringType.GetFullName());
+      sb.Append(".");
+      sb.Append(member.GetFullName(false));
+      return sb.ToString();
     }
 
     /// <summary>
@@ -294,11 +292,11 @@ namespace Xtensive.Reflection
         dotIndex = name.LastIndexOf('.', dotIndex - 1);
         return dotIndex <= 0 ? name : name.Substring(dotIndex + 1);
       }
-      return new StringBuilder()
-        .Append(member.DeclaringType.GetShortName())
-        .Append(".")
-        .Append(member.GetShortName(false))
-        .ToString();
+      var sb = new ValueStringBuilder(stackalloc char[256]);
+      sb.Append(member.DeclaringType.GetShortName());
+      sb.Append(".");
+      sb.Append(member.GetShortName(false));
+      return sb.ToString();
     }
   }
 }

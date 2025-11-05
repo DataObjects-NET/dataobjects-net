@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
 // Created:    2008.08.11
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public override object Identifier { get { return Name; } }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.Name" copy="true"/>
+    /// <see cref="SessionConfiguration.Name" />
     /// </summary>
     [ConfigurationProperty(NameElementName, IsKey = true, DefaultValue = "Default")]
     public string Name {
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.UserName" copy="true"/>
+    /// <see cref="SessionConfiguration.UserName" />
     /// </summary>
     [ConfigurationProperty(UserNameElementName)]
     public string UserName {
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.Password" copy="true"/>
+    /// <see cref="SessionConfiguration.Password" />
     /// </summary>
     [ConfigurationProperty(PasswordElementName)]
     public string Password {
@@ -64,17 +64,18 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.CacheSize" copy="true"/>
+    /// <see cref="SessionConfiguration.CacheSize" />
     /// </summary>
     [ConfigurationProperty(CacheSizeElementName,
       DefaultValue = SessionConfiguration.DefaultCacheSize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int CacheSize {
       get { return (int) this[CacheSizeElementName]; }
       set { this[CacheSizeElementName] = value; }
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.CacheType" copy="true"/>
+    /// <see cref="SessionConfiguration.CacheType" />
     /// </summary>
     [ConfigurationProperty(CacheTypeElementName, DefaultValue = "Default")]
     public string CacheType {
@@ -83,7 +84,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.Options" copy="true"/>
+    /// <see cref="SessionConfiguration.Options" />
     /// </summary>
     [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
     public string Options {
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.DefaultIsolationLevel" copy="true" />
+    /// <see cref="SessionConfiguration.DefaultIsolationLevel" />
     /// </summary>
     [ConfigurationProperty(IsolationLevelElementName, DefaultValue = "RepeatableRead")]
     public string DefaultIsolationLevel {
@@ -101,7 +102,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.DefaultCommandTimeout" copy="true" />
+    /// <see cref="SessionConfiguration.DefaultCommandTimeout" />
     /// </summary>
     [ConfigurationProperty(CommandTimeoutElementName, DefaultValue = null)]
     public int? DefaultCommandTimeout {
@@ -110,17 +111,18 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.BatchSize" copy="true"/>
+    /// <see cref="SessionConfiguration.BatchSize" />
     /// </summary>
     [ConfigurationProperty(BatchSizeElementName,
       DefaultValue = SessionConfiguration.DefaultBatchSize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int BatchSize {
       get { return (int) this[BatchSizeElementName]; }
       set { this[BatchSizeElementName] = value; }
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.ReaderPreloading" copy="true"/>
+    /// <see cref="SessionConfiguration.ReaderPreloading" />
     /// </summary>
     [ConfigurationProperty(ReaderPreloadingElementName, DefaultValue = "Default")]
     public string ReaderPreloading {
@@ -129,7 +131,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.ServiceContainerType" copy="true"/>
+    /// <see cref="DomainConfiguration.ServiceContainerType" />
     /// </summary>
     [ConfigurationProperty(ServiceContainerTypeElementName, DefaultValue = null)]
     public string ServiceContainerType {
@@ -138,10 +140,11 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="SessionConfiguration.EntityChangeRegistrySize" copy="true"/>.
+    /// <see cref="SessionConfiguration.EntityChangeRegistrySize" />.
     /// </summary>
     [ConfigurationProperty(EntityChangeRegistrySizeElementName,
       DefaultValue = SessionConfiguration.DefaultEntityChangeRegistrySize)]
+    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
     public int EntityChangeRegistrySize {
       get { return (int) this[EntityChangeRegistrySizeElementName]; }
       set { this[EntityChangeRegistrySizeElementName] = value; }

@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExPostgreSqlBelow83IsNotSupported" xml:space="preserve">
     <value>PostgreSQL below 8.3 is not supported.</value>
@@ -131,5 +131,11 @@
   </data>
   <data name="ExTheTypeOfGivenParameterCannotBeTreatedAsOffsetForDateTimeOffsetConstruction" xml:space="preserve">
     <value>The type of given parameter cannot be treated as offset for DateTimeOffset construction.</value>
+  </data>
+  <data name="ExSchemaXDoesNotExistOrBelongsToAnotherUser" xml:space="preserve">
+    <value>Schema '{0}' either does not exist or belongs to another user.</value>
+  </data>
+  <data name="ExCantFindSchemaXOwnerWithIdYInTheListOfRoles" xml:space="preserve">
+    <value>Can't find schema '{0}' owner with oid '{1}' in the list of roles.</value>
   </data>
 </root>

@@ -13,10 +13,10 @@ namespace Xtensive.Sql.Dml
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression, "expression");
+      ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression);
     }
     
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlDefaultValue Clone(SqlNodeCloneContext context)
     {
       return this;
     }

@@ -30,7 +30,7 @@ namespace Xtensive.Modelling.Actions
     public string Path {
       get { return path; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         path = value;
       }
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Modelling.Actions
     public Difference Difference {
       get { return difference; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         difference = value;
       }
     }
@@ -105,8 +105,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The name of the action.</returns>
     protected virtual string GetActionName()
     {
-      string sn = GetType().GetShortName();
-      return sn.TryCutSuffix("Action");
+      return GetType().Name.TryCutSuffix("Action");
     }
 
     /// <summary>

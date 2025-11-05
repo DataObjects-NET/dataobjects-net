@@ -1,0 +1,1468 @@
+{
+  "Xtensive.Orm.Json": {
+    "Domains": {
+      "DomainWithProviderAndConnectionString": {
+        "Provider": "sqlite",
+        "ConnectionString": "Data Source=DO-Testsaaa.db3"
+      },
+
+      "DomainWithConnectionUrl": {
+        "ConnectionUrl": "sqlite:///DO-Tests.db3"
+      },
+
+      "DomainWithCustomValidKeyCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "KeyCacheSize": 192
+      },
+      "DomainWithCustomInvalidKeyCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "KeyCacheSize": -256
+      },
+
+      "DomainWithCustomValidKeyGeneratorCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "KeyGeneratorCacheSize": 192
+      },
+      "DomainWithCustomInvalidKeyGeneratorCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "KeyGeneratorCacheSize": -256
+      },
+
+      "DomainWithCustomValidQueryCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "QueryCacheSize": 192
+      },
+      "DomainWithCustomInvalidQueryCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "QueryCacheSize": -256
+      },
+
+      "DomainWithCustomValidRecordSetMappingCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "RecordSetMappingCacheSize": 192
+      },
+      "DomainWithCustomInvalidRecordSetMappingCacheSize": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "RecordSetMappingCacheSize": -256
+      },
+
+      "DomainWithCustomDatabase": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "DefaultDatabase": "MyFancyDatabase"
+      },
+
+      "DomainWithCustomSchema": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "DefaultSchema": "MyFancySchema"
+      },
+
+      "DomainWithWrongConnectionInfo": {
+        "UpgradeMode": "Recreate",
+        "ConnectionString": "Data Source=localhost;Initial Catalog=DO40-Tests;Integrated Security=True;MultipleActiveResultSets=True"
+      },
+
+      "DomainWithUpgradeMode1": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Default"
+      },
+      "DomainWithUpgradeMode2": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Recreate"
+      },
+      "DomainWithUpgradeMode3": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Perform"
+      },
+      "DomainWithUpgradeMode4": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "PerformSafely"
+      },
+      "DomainWithUpgradeMode5": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Validate"
+      },
+      "DomainWithUpgradeMode6": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "LegacyValidate"
+      },
+      "DomainWithUpgradeMode7": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Skip"
+      },
+      "DomainWithUpgradeMode8": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "LegacySkip"
+      },
+
+      "DomainWithWrongUpgradeMode": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "UpgradeMode": "Defailt"
+      },
+
+      "DomainWithForeignKeyMode1": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "None"
+      },
+      "DomainWithForeignKeyMode2": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "Hierarchy"
+      },
+      "DomainWithForeignKeyMode3": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "Reference"
+      },
+      "DomainWithForeignKeyMode4": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "All"
+      },
+      "DomainWithForeignKeyMode5": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "Default"
+      },
+      "DomainWithForeignKeyMode6": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "Hierarchy,Reference"
+      },
+      "DomainWithInvalidForeignKeyMode": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "ForeignKeyMode": "Defauit"
+      },
+
+      "DomainWithChangeTrackingMode1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "Off"
+      },
+      "DomainWithChangeTrackingMode2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "Auto"
+      },
+      "DomainWithChangeTrackingMode3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "Manual"
+      },
+      "DomainWithChangeTrackingMode4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "OffWithNoPopulation"
+      },
+      "DomainWithChangeTrackingMode5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "Default"
+      },
+      "DomainWithInvalidChangeTrackingMode": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "FullTextChangeTrackingMode": "Defauit"
+      },
+
+      "DomainWithDomainOptionsValid1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Options": "Default"
+      },
+      "DomainWithDomainOptionsValid2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Options": "None"
+      },
+      "DomainWithDomainOptionsInvalid": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Options": "Defauit"
+      },
+
+      "DomainWithColation": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Collation": "generalci"
+      },
+
+      "DomainWithBriefSchemaSyncExceptions": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "SchemaSyncExceptionFormat": "Brief"
+      },
+      "DomainWithDetailedSchemaSyncExceptions": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "SchemaSyncExceptionFormat": "Detailed"
+      },
+      "DomainWithDefaultSchemaSyncExceptions": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "SchemaSyncExceptionFormat": "Default"
+      },
+      "DomainWithInvalidSchemaSyncExceptions": {
+        "ConnectionUrl": "sqlserver://localhost/DO40-Tests",
+        "SchemaSyncExceptionFormat": "Defailt"
+      },
+
+      "DomainWithTagsLocationNowhere": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "Nowhere"
+      },
+      "DomainWithTagsLocationBefore": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "BeforeStatement"
+      },
+      "DomainWithTagsLocationWithin": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "WithinStatement"
+      },
+      "DomainWithTagsLocationAfter": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "AfterStatement"
+      },
+      "DomainWithTagsLocationDefault": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "Default"
+      },
+      "DomainWithTagsLocationInvalid": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "TagsLocation": "Defauit"
+      },
+
+      "DomainWithForcedServerVersion": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "ForcedServerVersion": "10.0.0.0"
+      },
+      "DomainWithInitSql": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "ConnectionInitializationSql": "use [OtherDb]"
+      },
+
+      "IncludeSqlInExceptionsTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IncludeSqlInExceptions": true
+      },
+      "IncludeSqlInExceptionsFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IncludeSqlInExceptions": false
+      },
+
+      "AllowCyclicDatabaseDependenciesTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "AllowCyclicDatabaseDependencies": true
+      },
+      "AllowCyclicDatabaseDependenciesFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "AllowCyclicDatabaseDependencies": false
+      },
+
+      "BuildInParallelTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "BuildInParallel": true
+      },
+      "BuildInParallelFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "BuildInParallel": false
+      },
+
+      "MultidatabaseKeysTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "MultidatabaseKeys": true
+      },
+      "MultidatabaseKeysFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "MultidatabaseKeys": false
+      },
+
+      "SharedStorageSchemaOn": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "ShareStorageSchemaOverNodes": true
+      },
+      "SharedStorageSchemaOff": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "ShareStorageSchemaOverNodes": false
+      },
+
+      "EnableConnectionIsAliveTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "EnsureConnectionIsAlive": true
+      },
+      "EnableConnectionIsAliveFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "EnsureConnectionIsAlive": false
+      },
+
+      "PreferTypeIdsAsQueryParametersTrue": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "PreferTypeIdsAsQueryParameters": true
+      },
+      "PreferTypeIdsAsQueryParametersFalse": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "PreferTypeIdsAsQueryParameters": false
+      },
+
+      "DomainWithNamingConvention1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Synonymize",
+          "NamingRules": "UnderscoreHyphens,RemoveDots",
+          "NamespaceSynonyms": [
+            {
+              "Namespace": "Xtensive.Orm",
+              "Synonym": "system"
+            },
+            {
+              "Namespace": "Xtensive.Orm.Tests",
+              "Synonym": "theRest"
+            }
+          ]
+        }
+      },
+      "DomainWithNamingConvention2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Lowercase",
+          "NamespacePolicy": "Synonymize",
+          "NamingRules": "UnderscoreHyphens,RemoveDots",
+          "NamespaceSynonyms": [
+            {
+              "Namespace": "Xtensive.Orm",
+              "Synonym": "system"
+            },
+            {
+              "Namespace": "Xtensive.Orm.Tests",
+              "Synonym": "theRest"
+            }
+          ]
+        }
+      },
+      "DomainWithNamingConvention3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "AsIs",
+          "NamespacePolicy": "Synonymize",
+          "NamingRules": "UnderscoreHyphens,RemoveDots",
+          "NamespaceSynonyms": [
+            {
+              "Namespace": "Xtensive.Orm",
+              "Synonym": "system"
+            },
+            {
+              "Namespace": "Xtensive.Orm.Tests",
+              "Synonym": "theRest"
+            }
+          ]
+        }
+      },
+      "DomainWithNamingConvention4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Default",
+          "NamespacePolicy": "Synonymize",
+          "NamingRules": "UnderscoreHyphens,RemoveDots",
+          "NamespaceSynonyms": [
+            {
+              "Namespace": "Xtensive.Orm",
+              "Synonym": "system"
+            },
+            {
+              "Namespace": "Xtensive.Orm.Tests",
+              "Synonym": "theRest"
+            }
+          ]
+        }
+      },
+      "DomainWithNamingConvention5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "AsIs",
+          "NamingRules": "UnderscoreHyphens,RemoveDots"
+        }
+      },
+      "DomainWithNamingConvention6": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Hash",
+          "NamingRules": "UnderscoreHyphens,RemoveDots"
+        }
+      },
+      "DomainWithNamingConvention7": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Omit",
+          "NamingRules": "UnderscoreHyphens,RemoveDots"
+        }
+      },
+      "DomainWithNamingConvention8": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Default",
+          "NamingRules": "UnderscoreHyphens,RemoveDots"
+        }
+      },
+      "DomainWithNamingConvention9": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Hash",
+          "NamingRules": "UnderscoreDots,RemoveHyphens"
+        }
+      },
+      "DomainWithNamingConvention10": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Hash",
+          "NamingRules": "None"
+        }
+      },
+      "DomainWithNamingConvention11": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Uppercase",
+          "NamespacePolicy": "Hash",
+          "NamingRules": "Default"
+        }
+      },
+
+      "DomainWithInvalidNamingConvention1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Defailt",
+          "NamespacePolicy": "Default",
+          "NamingRules": "Default"
+        }
+      },
+      "DomainWithInvalidNamingConvention2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Default",
+          "NamespacePolicy": "Defailt",
+          "NamingRules": "Default"
+        }
+      },
+      "DomainWithInvalidNamingConvention3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "NamingConvention": {
+          "LetterCasePolicy": "Default",
+          "NamespacePolicy": "Default",
+          "NamingRules": "Defailt"
+        }
+      },
+
+      "DomainWithVersioningConvention1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Pessimistic"
+        }
+      },
+      "DomainWithVersioningConvention2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Optimistic"
+        }
+      },
+      "DomainWithVersioningConvention3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Default"
+        }
+      },
+      "DomainWithVersioningConvention4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Optimistic",
+          "DenyEntitySetOwnerVersionChange": true
+        }
+      },
+      "DomainWithVersioningConvention5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Optimistic",
+          "DenyEntitySetOwnerVersionChange": false
+        }
+      },
+
+      "DomainWithInvalidVersioningConvention1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "VersioningConvention": {
+          "EntityVersioningPolicy": "Defauit"
+        }
+      },
+
+      "DomainWithTypes": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests"
+          },
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity2, Xtensive.Orm.Tests"
+          }
+        ]
+      },
+      "DomainWithAssemblies": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Assembly": "Xtensive.Orm"
+          }
+        ]
+      },
+      "DomainWithAssembliesAndNamespaces": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+
+      "DomainWithMixedRegistrations": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests"
+          },
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity2, Xtensive.Orm.Tests"
+          },
+          {
+            "Assembly": "Xtensive.Orm"
+          },
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+
+      "DomainWithInvalidRegistrations1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests"
+          },
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Assembly": "Xtensive.Orm"
+          },
+          {
+            "Assembly": "Xtensive.Orm"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          },
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests",
+            "Assembly": "Xtensive.Orm",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests",
+            "Assembly": "Xtensive.Orm"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations6": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Type": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.DummyEntity1, Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+      "DomainWithInvalidRegistrations7": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Types": [
+          {
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace"
+          }
+        ]
+      },
+
+      "DomainWithDatabases1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1"
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithDatabases2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1",
+            "MinTypeId": 100,
+            "MaxTypeId": 1000
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2",
+            "MinTypeId": 2000,
+            "MaxTypeId": 3000
+          }
+        }
+      },
+
+      "DomainWithInvalidDatabases1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1",
+            "MinTypeId": -10
+          }
+        }
+      },
+      "DomainWithInvalidDatabases2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1",
+            "MinTypeId": 50
+          }
+        }
+      },
+      "DomainWithInvalidDatabases3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1",
+            "MaxTypeId": -10
+          }
+        }
+      },
+      "DomainWithInvalidDatabases4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1",
+            "MaxTypeId": 50
+          }
+        }
+      },
+
+      "DomainWithCustomGenerator": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Seed": 12,
+            "CacheSize": 127
+          }
+        ]
+      },
+      "DomainWithCustomGeneratorsWithDatabaseNames": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1"
+          },
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-2"
+          }
+        ]
+      },
+      "DomainWithCustomGeneratorsWithDatabaseNamesAndKeyParams": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1",
+            "Seed": 12,
+            "CacheSize": 127
+          },
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-2",
+            "Seed": 13,
+            "CacheSize": 129
+          }
+        ]
+      },
+      "DomainWithCustomGeneratorsWithDatabasesAliases": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "main",
+            "Seed": 12,
+            "CacheSize": 127
+          },
+          {
+            "Name": "Int32",
+            "Database": "Other",
+            "Seed": 13,
+            "CacheSize": 129
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+
+      "DomainWithCustomGeneratorsConflict1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1"
+          },
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1"
+          }
+        ]
+      },
+      "DomainWithCustomGeneratorsConflict2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1"
+          },
+          {
+            "Name": "Int32",
+            "Database": "main"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests-1"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithCustomGeneratorNegativeSeed": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1",
+            "Seed": -12
+          }
+        ]
+      },
+      "DomainWithCustomGeneratorNegativeCache": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "KeyGenerators": [
+          {
+            "Name": "Int32",
+            "Database": "DO-Tests-1",
+            "CacheSize": -127
+          }
+        ]
+      },
+
+      "DomainWithIgnoreRules": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IgnoreRules": [
+          {
+            "Database": "Other-DO40-Tests",
+            "Schema": "some-schema1",
+            "Table": "table1"
+          },
+          {
+            "Database": "some-database",
+            "Schema": "some-schema2",
+            "Column": "column2"
+          },
+          {
+            "Database": "some-database",
+            "Schema": "some-schema2",
+            "Index": "index2"
+          },
+          {
+            "Database": "some-database",
+            "Schema": "some-schema3",
+            "Table": "table2",
+            "Column": "col3"
+          },
+          {
+            "Database": "some-database",
+            "Schema": "some-schema3",
+            "Table": "table2",
+            "Index": "index3"
+          },
+          {
+            "Database": "another-some-database",
+            "Table": "some-table"
+          },
+          {
+            "Database": "database1",
+            "Column": "some-column"
+          },
+          {
+            "Database": "database1",
+            "Index": "some-index"
+          },
+          {
+            "Schema": "schema1",
+            "Table": "table1"
+          },
+          {
+            "Schema": "schema1",
+            "Column": "column2"
+          },
+          {
+            "Schema": "schema1",
+            "Index": "index2"
+          },
+          {
+            "Schema": "schema1",
+            "Table": "table2",
+            "Column": "column3"
+          },
+          {
+            "Schema": "schema1",
+            "Table": "table2",
+            "Index": "index3"
+          },
+          {
+            "Table": "table4",
+            "Column": "column3"
+          },
+          {
+            "Table": "table4",
+            "Index": "index2"
+          },
+          {
+            "Table": "single-table"
+          },
+          {
+            "Column": "single-column"
+          },
+          {
+            "Index": "single-index"
+          }
+        ]
+      },
+      "DomainWithInvalidIgnoreRules1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IgnoreRules": [
+          {
+            "Column": "column1",
+            "Index": "index1"
+          }
+        ]
+      },
+      "DomainWithInvalidIgnoreRules2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IgnoreRules": [
+          {
+            "Table": "table1",
+            "Column": "column1",
+            "Index": "index1"
+          }
+        ]
+      },
+      "DomainWithInvalidIgnoreRules3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IgnoreRules": [
+          {
+            "Database": "database1"
+          }
+        ]
+      },
+      "DomainWithInvalidIgnoreRules4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "IgnoreRules": [
+          {
+            "Database": "database1",
+            "Schema": "schema1"
+          }
+        ]
+      },
+
+      "DomainWithMappingRules1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Database": "DO-Tests-1"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Schema": "Model1"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Namespace": "Xtensive.Orm.Configuration.Options",
+            "Database": "DO-Tests-2"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Namespace": "Xtensive.Orm.Tests.Configuration",
+            "Schema": "Model2"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests",
+            "Database": "DO-Tests-3"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules6": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Configuration.TypesToUseInTests.NestedNamespace",
+            "Schema": "Model3"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithMappingRules7": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Indexing",
+            "Database": "main",
+            "Schema": "Model4"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+
+      "DomainWithConflictMappingRules1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Database": "DO-Tests-1"
+          },
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Schema": "Model1"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithConflictMappingRules2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Namespace": "Xtensive.Orm.Tests.Configuration",
+            "Database": "DO-Tests-2"
+          },
+          {
+            "Namespace": "Xtensive.Orm.Tests.Configuration",
+            "Schema": "Model2"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+
+      "DomainWithInvalidMappingRules1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Database": "main"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithInvalidMappingRules2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Schema": "Model4"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithInvalidMappingRules3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests",
+            "Namespace": "Xtensive.Orm.Tests.Indexing"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithInvalidMappingRules4": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Assembly": "Xtensive.Orm.Tests"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+      "DomainWithInvalidMappingRules5": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "DefaultDatabase": "main",
+        "DefaultSchema": "dbo",
+        "MappingRules": [
+          {
+            "Namespace": "Xtensive.Orm.Tests.Indexing"
+          }
+        ],
+        "Databases": {
+          "main": {
+            "RealName": "DO-Tests"
+
+          },
+          "other": {
+            "RealName": "DO-Tests-2"
+          }
+        }
+      },
+
+      "DomainWithSessionEmptyName": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "": {
+            "Options": "ClientProfile"
+          }
+        }
+      },
+      "DomainWithSessionCustomName": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "UserCreated": {
+            "Options": "ClientProfile"
+          }
+        }
+      },
+      "DomainWithSessionCustomUser": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "UserName": "User",
+            "Password": "126654"
+          }
+        }
+      },
+      "DomainWithSessionDefaultOptions": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "Options": "Default"
+          }
+        }
+      },
+      "DomainWithSessionServerProfile": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "Options": "ServerProfile"
+          }
+        }
+      },
+      "DomainWithSessionClientProfile": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "Options": "ClientProfile"
+          }
+        }
+      },
+      "DomainWithSessionCustomOptions": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "Options": "AllowSwitching, AutoActivation, ReadRemovedObjects, ValidateEntityVersions"
+          }
+        }
+      },
+
+      "DomainWithSessionWithCollectionSizes": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheSize": 399,
+            "BatchSize": 20,
+            "EntityChangeRegistrySize": 255
+          }
+        }
+      },
+
+      "DomainWithSessionCustomCacheType": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheType": "Infinite"
+          }
+        }
+      },
+
+      "DomainWithSessionCustomIsolationLevel": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "DefaultIsolationLevel": "ReadCommitted"
+          }
+        }
+      },
+
+      "DomainWithSessionCustomCommandTimeout": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "DefaultCommandTimeout": 300
+          }
+        }
+      },
+
+      "DomainWithSessionCustomPreloadingPolicy": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "ReaderPreloading": "Always"
+          }
+        }
+      },
+
+      "DomainWithSessionCustomConnectionString": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "ConnectionString": "Data Source=localhost;Initial Catalog=DO-Tests;Integrated Security=True;MultipleActiveResultSets=True"
+          }
+        }
+      },
+      "DomainWithSessionCustomConnectionUrl": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "ConnectionUrl": "sqlserver://localhost/DO-Tests"
+          }
+        }
+      },
+
+      "DomainWithMultipleSessionConfigurations": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheType": "Infinite",
+            "BatchSize": 20,
+            "EntityChangeRegistrySize": 255,
+            "Options": "AllowSwitching, AutoActivation, ReadRemovedObjects, ValidateEntityVersions"
+          },
+          "System": {
+            "CacheType": "Infinite",
+            "BatchSize": 30,
+            "Options": "ServerProfile"
+          }
+        }
+      },
+
+      "DomainWithSessionInvalidOptions": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "Options": "Defailt"
+          }
+        }
+      },
+      "DomainWithSessionInvalidCacheSize1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheSize": -5
+          }
+        }
+      },
+      "DomainWithSessionInvalidCacheSize2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheSize": 0
+          }
+        }
+      },
+      "DomainWithSessionInvalidCacheSize3": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheSize": 1
+          }
+        }
+      },
+      "DomainWithSessionInvalidBatchSize1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "BatchSize": -5
+          }
+        }
+      },
+      "DomainWithSessionInvalidBatchSize2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "BatchSize": 0
+          }
+        }
+      },
+      "DomainWithSessionInvalidEntityChangeRegistry1": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "EntityChangeRegistrySize": -5
+          }
+        }
+      },
+      "DomainWithSessionInvalidEntityChangeRegistry2": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "EntityChangeRegistrySize": 0
+          }
+        }
+      },
+      "DomainWithSessionInvalidCacheType": {
+        "ConnectionUrl": "sqlserver://localhost/",
+        "Sessions": {
+          "Default": {
+            "CacheType": "Defailt"
+          }
+        }
+      }
+    },
+    "Logging": {
+      "Provider": "Xtensive.Orm.Logging.log4net.LogProvider",
+      "Logs": [
+        {
+          "Source": "*",
+          "Target": "Console"
+        },
+        {
+          "Source": "SomeLogName",
+          "Target": "DebugOnlyConsole"
+        },
+        {
+          "Source": "FirstLogName,SecondLogName",
+          "Target": "d:\\log.txt"
+        },
+        {
+          "Source": "LogName, AnotherLogName",
+          "Target": "Console"
+        },
+        {
+          "Source": "FileLog",
+          "Target": "log.txt"
+        },
+        {
+          "Source": "NullLog",
+          "Target": "None"
+        },
+        {
+          "Source": "Trash",
+          "Target": "skjdhfjsdf sdfsdfksjdghj fgdfg"
+        }
+      ]
+    }
+  },
+  "Xtensive.Orm.EmptyLogging.Json": {
+    "Logging": {
+
+    }
+  },
+  "Xtensive.Orm.EmptyLogs.Json": {
+    "Logging": {
+      "Logs": []
+    }
+  },
+  "Xtensive.Orm.OnlyLogProvider.Json": {
+    "Logging": {
+      "Provider": "Xtensive.Orm.Logging.log4net.LogProvider"
+    }
+  },
+  "Xtensive.Orm.LogProviderAndEmptyLogs.Json": {
+    "Logging": {
+      "Provider": "Xtensive.Orm.Logging.log4net.LogProvider",
+      "Logs": []
+    }
+  }
+}

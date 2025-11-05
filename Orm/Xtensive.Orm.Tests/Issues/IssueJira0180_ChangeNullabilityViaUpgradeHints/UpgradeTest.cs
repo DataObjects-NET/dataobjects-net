@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
       configuration.NamingConvention.NamingRules = namingRules;
 

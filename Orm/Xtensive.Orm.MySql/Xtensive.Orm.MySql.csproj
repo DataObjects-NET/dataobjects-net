@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
@@ -14,6 +15,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
@@ -23,15 +33,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Sql.Drivers.MySql\Resources\Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.4.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="Sql.Drivers.MySql\Resources\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.15.0" />
-    <PackageReference Include="MySql.Data" Version="8.0.19" />
-    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
 </Project>

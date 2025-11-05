@@ -1,7 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
@@ -14,8 +15,17 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.3" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.7.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />

@@ -4,8 +4,8 @@
     <Optimize>false</Optimize>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
-  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'" />
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />

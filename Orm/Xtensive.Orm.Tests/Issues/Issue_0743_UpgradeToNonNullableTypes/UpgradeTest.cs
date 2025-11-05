@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {

@@ -29,6 +29,8 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
+        WellKnownTypes.DateOnly,
+        WellKnownTypes.TimeOnly,
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
@@ -176,6 +178,8 @@ namespace Xtensive.Sql
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+        case SqlNodeType.TimePlusInterval:
+        case SqlNodeType.TimeMinusTime:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

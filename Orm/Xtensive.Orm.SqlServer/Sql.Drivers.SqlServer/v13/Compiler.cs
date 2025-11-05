@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2021 Xtensive LLC.
+// Copyright (C) 2018-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           break;
         case SqlFunctionType.IntervalToMilliseconds: {
           if (node.Arguments[0] is SqlBinary binary 
-              && (binary.NodeType == SqlNodeType.DateTimeMinusDateTime || binary.NodeType == SqlNodeType.DateTimeOffsetMinusDateTimeOffset)) {
+              && (binary.NodeType is SqlNodeType.DateTimeMinusDateTime or SqlNodeType.DateTimeOffsetMinusDateTimeOffset or SqlNodeType.TimeMinusTime)) {
             Visit(DateDiffBigMicrosecond(binary.Right, binary.Left) / CastToLong(1000));
           }
           else {
@@ -31,12 +31,20 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           break;
         }
         case SqlFunctionType.IntervalToNanoseconds: {
-          if (node.Arguments[0] is SqlBinary binary
-              && (binary.NodeType == SqlNodeType.DateTimeMinusDateTime || binary.NodeType == SqlNodeType.DateTimeOffsetMinusDateTimeOffset)) {
-            // we have to use time consuming algorithm here because
-            // DATEDIFF_BIG can throw arithmetic overflow on nanoseconds
-            // so we should handle it by this big formula
-            Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Left, binary.Right)));
+          if (node.Arguments[0] is SqlBinary binary) {
+            if (binary.NodeType is SqlNodeType.DateTimeMinusDateTime or SqlNodeType.DateTimeOffsetMinusDateTimeOffset) {
+              // we have to use time consuming algorithm here because
+              // DATEDIFF_BIG can throw arithmetic overflow on nanoseconds
+              // so we should handle it by this big formula
+              Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Left, binary.Right)));
+            }
+            else if (binary.NodeType is SqlNodeType.TimeMinusTime) {
+              //but for time it is OK
+              Visit(DateDiffBigMicrosecond(binary.Right, binary.Left));
+            }
+            else {
+              base.Visit(node);
+            }
           }
           else {
             base.Visit(node);
@@ -59,7 +67,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           + CastToDecimal(DateDiffBigMillisecond(DateAddDay(date2, DateDiffBigDay(date2, date1)), date1), 18, 0) * NanosecondsPerMillisecond;
     }
 
-    #region Static Helpers
+#region Static Helpers
 
     protected static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
       DateDiffBigNanosecond(
@@ -78,7 +86,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     protected static SqlUserFunctionCall DateDiffBigDay(SqlExpression date1, SqlExpression date2) =>
       SqlDml.FunctionCall("DATEDIFF_BIG", SqlDml.Native(DayPart), date1, date2);
 
-    #endregion
+#endregion
 
     public Compiler(SqlDriver driver)
       : base(driver)

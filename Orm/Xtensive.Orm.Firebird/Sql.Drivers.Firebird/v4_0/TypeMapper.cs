@@ -10,7 +10,7 @@ using FirebirdSql.Data.FirebirdClient;
 
 namespace Xtensive.Sql.Drivers.Firebird.v4_0
 {
-  internal class TypeMapper : v2_5.TypeMapper
+  internal class TypeMapper : v3_0.TypeMapper
   {
     private static readonly Type BigIntegerType = typeof(BigInteger);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -50,9 +50,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
 
-      return compilers.TryGetValue(GetCompilerKey(target), out var compiler)
-        ? compiler
-        : null;
+      return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
 
     public Func<T, T[], T> GetCompiler(MemberInfo target)
@@ -69,7 +67,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
         throw new InvalidOperationException(string.Format(
@@ -90,7 +88,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
       UpdateRegistry(newItems, conflictHandlingMethod);
@@ -103,14 +101,15 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       foreach (var (targetMember, compiler) in newRegistrations) {
         var key = GetCompilerKey(targetMember);
-        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilers.ContainsKey(key)) {
-          if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
-            throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
+        if (!compilers.TryAdd(key, compiler)) {
+          switch (conflictHandlingMethod) {
+            case ConflictHandlingMethod.Overwrite:
+              compilers[key] = compiler;
+              break;
+            case ConflictHandlingMethod.ReportError:
+              throw new InvalidOperationException(string.Format(Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
           }
-          continue;
         }
-        compilers[key] = compiler;
       }
     }
 
@@ -237,14 +236,14 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       
       if (!specialCase) {
         if (isCtor)
-          targetMember = targetType.GetConstructor(bindingFlags, parameterTypes);
+          targetMember = targetType.GetConstructorEx(bindingFlags, parameterTypes);
         else if (isField)
           targetMember = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
           targetMember = targetType
-            .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
+            .GetMethodEx(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 
@@ -304,27 +303,25 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     private static CompilerKey GetCompilerKey(MemberInfo member)
     {
       var canonicalMember = member;
-      var sourceProperty = canonicalMember as PropertyInfo;
-      if (sourceProperty!=null) {
+      if (canonicalMember is PropertyInfo sourceProperty) {
         canonicalMember = sourceProperty.GetGetMethod();
         // GetGetMethod returns null in case of non public getter.
-        if (canonicalMember==null) {
+        if (canonicalMember is null) {
           return default;
         }
       }
 
       var targetType = canonicalMember.ReflectedType;
       if (targetType.IsGenericType) {
-        targetType = targetType.GetGenericTypeDefinition();
-        if (canonicalMember is FieldInfo)
-          canonicalMember = targetType.GetField(canonicalMember.Name);
-        else if (canonicalMember is MethodInfo methodInfo) {
-          canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods());
+        if (!targetType.IsGenericTypeDefinition) {
+          targetType = targetType.GetGenericTypeDefinition();
         }
-        else if (canonicalMember is ConstructorInfo constructorInfo)
-          canonicalMember = GetCanonicalMethod(constructorInfo, targetType.GetConstructors());
-        else
-          canonicalMember = null;
+        canonicalMember = canonicalMember switch {
+          FieldInfo _ => targetType.GetField(canonicalMember.Name),
+          MethodInfo methodInfo => GetCanonicalMethod(methodInfo, targetType.GetMethods()),
+          ConstructorInfo constructorInfo => GetCanonicalMethod(constructorInfo, targetType.GetConstructors()),
+          _ => null
+        };
       }
 
       if (canonicalMember == null) {
@@ -332,11 +329,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
 
       if (targetType.IsEnum) {
-        var declaringType = canonicalMember.DeclaringType;
-        if (targetType != declaringType)
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, declaringType.GetMethods());
-        else
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
+        canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, canonicalMember.DeclaringType.GetMethods());
       }
 
       return new CompilerKey(canonicalMember);

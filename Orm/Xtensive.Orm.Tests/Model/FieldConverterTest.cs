@@ -48,17 +48,19 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
 
     private static byte[] Serialize(ObservableCollection<int> collection)
     {
-      var ms = new MemoryStream();
-      var bf = new BinaryFormatter();
-      bf.Serialize(ms, collection);
-      return ms.ToArray();
+      using (var ms = new MemoryStream()) {
+        var bf = new BinaryFormatter();
+        bf.Serialize(ms, collection);
+        return ms.ToArray();
+      }
     }
 
     private static ObservableCollection<int> Deserialize(byte[] bytes)
     {
-      var bf = new BinaryFormatter();
-      var ms = new MemoryStream(bytes);
-      return (ObservableCollection<int>) bf.Deserialize(ms);
+      using (var ms = new MemoryStream(bytes)) {
+        var bf = new BinaryFormatter();
+        return (ObservableCollection<int>) bf.Deserialize(ms);
+      }
     }
 
     protected override void OnInitialize()
@@ -94,7 +96,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
       return config;
     }
 

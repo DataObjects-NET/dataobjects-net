@@ -18,12 +18,11 @@ namespace Xtensive.Orm.Internals
     private readonly HashSet<EntityState> @new = new();
     private readonly HashSet<EntityState> modified = new();
     private readonly HashSet<EntityState> removed = new();
-    private int count;
 
     /// <summary>
     /// Gets the number of registered entities.
     /// </summary>
-    public int Count => count;
+    public int Count { get; private set; }
 
     /// <summary>
     /// Registers the specified item.
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Internals
       if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
         EnsureRegistrationsAllowed();
         _ = removed.Remove(item);
-        count--;
+        Count--;
         if (item.DifferentialTuple.Difference == null) {
           item.SetPersistenceState(PersistenceState.Synchronized);
           return;
@@ -45,19 +44,19 @@ namespace Xtensive.Orm.Internals
       else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
         EnsureRegistrationsAllowed();
         _ = @new.Remove(item);
-        count--;
+        Count--;
         return;
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
         EnsureRegistrationsAllowed();
         _ = modified.Remove(item);
-        count--;
+        Count--;
       }
 
       var container = GetContainer(item.PersistenceState);
       EnsureRegistrationsAllowed();
       if (container.Add(item)) {
-        count++;
+        Count++;
       }
     }
 
@@ -66,26 +65,22 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="state">The state of items to get.</param>
     /// <returns>The sequence of items with specified state.</returns>
-    public IEnumerable<EntityState> GetItems(PersistenceState state)
-    {
-      foreach (var item in GetContainer(state)) {
-        yield return item;
-      }
-    }
+    public RegistryItems<EntityState> GetItems(in PersistenceState state) =>
+      new(GetContainer(state));
 
     /// <summary>
     /// Clears the registry.
     /// </summary>
     public void Clear()
     {
-      count = 0;
+      Count = 0;
       @new.Clear();
       modified.Clear();
       removed.Clear();
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
-    private HashSet<EntityState> GetContainer(PersistenceState state)
+    private HashSet<EntityState> GetContainer(in PersistenceState state)
     {
       return state switch {
         PersistenceState.New => @new,
@@ -95,7 +90,7 @@ namespace Xtensive.Orm.Internals
       };
     }
 
-    
+
     // Constructors
 
     /// <summary>

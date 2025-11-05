@@ -1,7 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.Reprocessing</PackageId>
@@ -11,11 +12,23 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Readme.txt" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NugetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

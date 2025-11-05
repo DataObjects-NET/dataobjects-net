@@ -57,6 +57,11 @@ namespace Xtensive.Reflection
     public static readonly Type NullableDateTime = typeof(DateTime?);
     public static readonly Type DateTimeOffset = typeof(DateTimeOffset);
     public static readonly Type NullableDateTimeOffset = typeof(DateTimeOffset?);
+    public static readonly Type DateOnly = typeof(DateOnly);
+    public static readonly Type TimeOnly = typeof(TimeOnly);
+    public static readonly Type NullableDateOnly = typeof(DateOnly?);
+    public static readonly Type NullableTimeOnly = typeof(TimeOnly?);
+
     public static readonly Type Guid = typeof(Guid);
     public static readonly Type NullableGuid = typeof(Guid?);
 
@@ -74,7 +79,6 @@ namespace Xtensive.Reflection
 
     public static readonly Type ByteArray = typeof(byte[]);
     public static readonly Type ObjectArray = typeof(object[]);
-    public static readonly Type IReadOnlyListOfT = typeof(IReadOnlyList<>);
 
     public static readonly Type DefaultMemberAttribute = typeof(DefaultMemberAttribute);
   }

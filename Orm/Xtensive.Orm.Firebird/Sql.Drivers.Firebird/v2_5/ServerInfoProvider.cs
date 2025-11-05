@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -11,11 +11,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
-    private const int MaxIdentifierLength = 30;
+    private const int Fb25MaxIdentifierLength = 30;
     private const int DoNotKnow = int.MaxValue;
     private const int MaxCharLength = 2000; // physical constraint=32762, but because of http://tracker.firebirdsql.org/browse/CORE-1117;
     // The limit is 64kB for statement text, 64kB for compiled BLR and 48kB for execution plan.
     private const int MaxTextLength = int.MaxValue;
+
+    protected virtual int MaxIdentifierLength => Fb25MaxIdentifierLength;
 
     public override EntityInfo GetCollationInfo()
     {
@@ -179,13 +181,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-          QueryFeatures.ParameterPrefix |
-            QueryFeatures.ScalarSubquery |
-              QueryFeatures.Paging |
-                QueryFeatures.Limit |
-                  QueryFeatures.Offset |
-                    QueryFeatures.UpdateLimit |
-                      QueryFeatures.DeleteLimit;
+        QueryFeatures.ParameterPrefix |
+        QueryFeatures.ScalarSubquery |
+        QueryFeatures.Paging |
+        QueryFeatures.Limit |
+        QueryFeatures.Offset |
+        QueryFeatures.UpdateLimit |
+        QueryFeatures.DeleteLimit;
       return queryInfo;
     }
 
@@ -237,6 +239,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
         ValueRange.DateTime, "timestamp");
+
+      dtc.DateOnly = DataTypeInfo.Range(SqlType.Date, commonFeatures, ValueRange.DateOnly, "date");
+      dtc.TimeOnly = DataTypeInfo.Range(SqlType.Time, commonFeatures, ValueRange.TimeOnly, "time");
 
       dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "char");
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "varchar");

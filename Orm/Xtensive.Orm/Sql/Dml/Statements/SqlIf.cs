@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -56,12 +56,11 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlIf((SqlExpression) condition.Clone(context),
-            (SqlStatement) trueStatement.Clone(context),
-            falseStatement == null ? null : (SqlStatement) falseStatement.Clone(context));
+    internal override SqlIf Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlIf(t.condition.Clone(c),
+            (SqlStatement) t.trueStatement.Clone(c),
+            t.falseStatement == null ? null : (SqlStatement) t.falseStatement.Clone(c)));
 
     internal SqlIf(SqlExpression condition, SqlStatement trueStatement, SqlStatement falseStatement)
       : base(SqlNodeType.Conditional)

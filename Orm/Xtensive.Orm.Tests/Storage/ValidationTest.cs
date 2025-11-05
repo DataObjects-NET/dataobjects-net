@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Mouse).Namespace);
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(Mouse).Namespace);
       return config;
     }
 

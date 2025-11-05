@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -27,12 +27,11 @@ namespace Xtensive.Sql.Dml
     /// <value>Aliased columns.</value>
     public SqlColumnCollection AliasedColumns { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlJoinedTable((SqlJoinExpression) joinExpression.Clone(context)) {
-            AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(AliasedColumns))
-          };
+    internal override SqlJoinedTable Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlJoinedTable(t.joinExpression.Clone(c)) {
+            AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(t.AliasedColumns))
+          });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

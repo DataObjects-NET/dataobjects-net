@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using AttributesKey = System.ValueTuple<System.Reflection.MemberInfo, System.Type, Xtensive.Reflection.AttributeSearchOptions>;
+using Xtensive.Core;
 using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;
 
 namespace Xtensive.Reflection
@@ -21,12 +21,64 @@ namespace Xtensive.Reflection
   {
     private static class AttributeDictionary<TAttribute> where TAttribute : Attribute
     {
-      public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary
-        = new ConcurrentDictionary<PerAttributeKey, TAttribute[]>();
-    }
+      private static readonly Type attributeType = typeof(TAttribute);
+      public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary = new();
 
-    private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
-      = new ConcurrentDictionary<AttributesKey, Attribute[]>();
+      public static readonly Func<PerAttributeKey, TAttribute[]> AttributesExtractor = ExtractAttributesByKey;
+
+      private static TAttribute[] ExtractAttributesByKey(PerAttributeKey key)
+      {
+        var (member, options) = key;
+
+        var attributesAsObjects = member.GetCustomAttributes(attributeType, false);
+        var attributesCount = attributesAsObjects.Length;
+
+        var attributes = attributesCount > 0
+          ? attributesAsObjects.Cast<TAttribute>().ToList(attributesCount)
+          : null;
+
+        if (options != AttributeSearchOptions.InheritNone) {
+          if (attributesCount == 0) {
+            if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent) != 0
+                && member is MethodInfo m
+                && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is MemberInfo poe) {
+              attributes = GetAttributesAsNewList(poe);
+            }
+            if ((options & AttributeSearchOptions.InheritFromBase) != 0
+                && (options & AttributeSearchOptions.InheritFromAllBase) == 0) {
+              AddAttributesFromBase(ref attributes, member, options);
+            }
+          }
+
+          if ((options & AttributeSearchOptions.InheritFromAllBase) != 0
+              && member.DeclaringType != WellKnownTypes.Object) {
+            AddAttributesFromBase(ref attributes, member, options);
+          }
+        }
+
+        return attributes?.ToArray(attributes.Count) ?? Array.Empty<TAttribute>();
+      }
+
+      private static List<TAttribute> GetAttributesAsNewList(MemberInfo member)
+      {
+        var attrObjects = member.GetCustomAttributes(attributeType, false);
+        var attrs = new List<TAttribute>(attrObjects.Length);
+        for (int i = 0, count = attrObjects.Length; i < count; ++i) {
+          attrs.Add((TAttribute) attrObjects[i]);
+        }
+        return attrs;
+      }
+
+      private static void AddAttributesFromBase(ref List<TAttribute> attributes, MemberInfo member, AttributeSearchOptions options)
+      {
+        if (member.GetBaseMember() is MemberInfo bm) {
+          var attrsToAdd = bm.GetAttributes<TAttribute>(options);
+          if (attrsToAdd.Count > 0) {
+            (attributes ??= new List<TAttribute>(attrsToAdd.Count)).AddRange(attrsToAdd);
+          }
+        }
+      }
+    }
 
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
@@ -38,10 +90,7 @@ namespace Xtensive.Reflection
     ///
     public static IReadOnlyList<TAttribute> GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
         where TAttribute : Attribute =>
-      AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(
-        new PerAttributeKey(member, options),
-        key => GetAttributes(key.Item1, typeof(TAttribute), key.Item2).Cast<TAttribute>().ToArray()
-      );
+      AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(new PerAttributeKey(member, options), AttributeDictionary<TAttribute>.AttributesExtractor);
 
     /// <summary>
     /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, AttributeSearchOptions)"/>
@@ -66,50 +115,6 @@ namespace Xtensive.Reflection
           member.GetShortName(true),
           typeof(TAttribute).GetShortName()))
       };
-    }
-
-    private static IReadOnlyList<Attribute> GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
-      attributesByMemberInfoAndSearchOptions.GetOrAdd(
-        new AttributesKey(member, attributeType, options),
-        t => ExtractAttributes(t).ToArray()
-      );
-
-    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
-    {
-      var attrObjects = member.GetCustomAttributes(attributeType, false);
-      var attrs = new Attribute[attrObjects.Length];
-      for (int i = attrObjects.Length; i-- > 0;) {
-        attrs[i] = (Attribute) attrObjects[i];
-      }
-      return attrs;
-    }
-
-    private static IEnumerable<Attribute> ExtractAttributes((MemberInfo member, Type attributeType, AttributeSearchOptions options) t) {
-      (var member, var attributeType, var options) = t;
-
-      var attributes = member.GetCustomAttributes(attributeType, false).Cast<Attribute>().ToList();
-      if (options == AttributeSearchOptions.InheritNone)
-        return attributes;
-      if (attributes.Count == 0) {
-        if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent) != 0
-            && member is MethodInfo m
-            && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is MemberInfo poe) {
-          attributes = poe.GetAttributes(attributeType).ToList();
-        }
-        if ((options & AttributeSearchOptions.InheritFromBase) != 0
-            && (options & AttributeSearchOptions.InheritFromAllBase) == 0
-            && member.GetBaseMember() is MemberInfo bm) {
-          attributes.AddRange(GetAttributes(bm, attributeType, options));
-        }
-      }
-
-      if ((options & AttributeSearchOptions.InheritFromAllBase) != 0
-          && member.DeclaringType != WellKnownTypes.Object
-          && member.GetBaseMember() is MemberInfo bm2) {
-        attributes.AddRange(GetAttributes(bm2, attributeType, options));
-      }
-
-      return attributes;
     }
   }
 }

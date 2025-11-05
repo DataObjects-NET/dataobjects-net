@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.20
 
@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
@@ -63,10 +64,22 @@ namespace Xtensive.Orm.Tests.Sql
     {
       base.TestFixtureSetUp();
       var testSchema = ExtractDefaultSchema();
-      EnsureTableNotExists(testSchema, TestTable);
-      var table = testSchema.CreateTable(TestTable);
-      table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
-      ExecuteNonQuery(SqlDdl.Create(table));
+      Table table;
+      try {
+        Connection.BeginTransaction();
+        EnsureTableNotExists(testSchema, TestTable);
+        table = testSchema.CreateTable(TestTable);
+        _ = table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
+
+        _ = ExecuteNonQuery(SqlDdl.Create(table));
+        Connection.Commit();
+      }
+      catch {
+        if (Connection.ActiveTransaction != null)
+          Connection.Rollback();
+        throw;
+      }
+
       tableRef = SqlDml.TableRef(table);
 
       var select = SqlDml.Select(tableRef);
@@ -83,9 +96,10 @@ namespace Xtensive.Orm.Tests.Sql
     private void DoInsert()
     {
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumn], nextId++);
-      using (var command = Connection.CreateCommand(insert))
-        command.ExecuteNonQuery();
+      insert.AddValueRow((tableRef[IdColumn], nextId++));
+      using (var command = Connection.CreateCommand(insert)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
   }
 }

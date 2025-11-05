@@ -36,13 +36,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       object_id,
       0 AS type
     FROM {CATALOG}.sys.tables
-    WHERE {SYSTABLE_FILTER}
+    WHERE {SYSTABLE_FILTER} AND {SYSOBJECT_FILTER}
     UNION
     SELECT
       schema_id,
       object_id,
       1 AS type
     FROM {CATALOG}.sys.views
+    WHERE {SYSOBJECT_FILTER}
     ) AS t 
       ON i.object_id = t.object_id 
   INNER JOIN {CATALOG}.sys.index_columns ic

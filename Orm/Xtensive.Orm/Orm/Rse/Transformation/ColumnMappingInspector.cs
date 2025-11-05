@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
@@ -21,6 +22,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
+    private readonly Stack<List<int>> outerColumnUsageStack;
 
     private bool hasGrouping;
 
@@ -35,12 +37,15 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #region Visit methods
 
-    protected override Provider VisitInclude(IncludeProvider provider)
+    protected override IncludeProvider VisitInclude(IncludeProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
+
+      var currentMapping = mappings[provider.Source];
+      var calulatedColumn = provider.Header.Columns.Last();
+      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(calulatedColumn.Index));
       if (source == provider.Source) {
         return provider;
       }
@@ -51,7 +56,7 @@ namespace Xtensive.Orm.Rse.Transformation
         provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
 
-    protected override Provider VisitSelect(SelectProvider provider)
+    protected override SelectProvider VisitSelect(SelectProvider provider)
     {
       var requiredColumns = mappings[provider];
       var remappedColumns = requiredColumns
@@ -82,43 +87,48 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     /// <inheritdoc/>
-    protected override Provider VisitFreeText(FreeTextProvider provider)
+    protected override FreeTextProvider VisitFreeText(FreeTextProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitIndex(IndexProvider provider)
+    protected override IndexProvider VisitIndex(IndexProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitSeek(SeekProvider provider)
+    protected override SeekProvider VisitSeek(SeekProvider provider)
     {
       mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
-    protected override Provider VisitFilter(FilterProvider provider)
+    protected override FilterProvider VisitFilter(FilterProvider provider)
     {
-      mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
+      var gatheredMappings = mappingsGatherer.Gather(provider.Predicate);
+      var originalMappingsOfProvider = mappings[provider];
+      var mergedMappings = Merge(originalMappingsOfProvider, gatheredMappings);
+
+      mappings[provider.Source] = mergedMappings;
       var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      var updatedSourceMappings = mappings[provider.Source];
+      mappings[provider] = updatedSourceMappings;
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      var newPredicate = TranslateLambda(provider, provider.Predicate);
+      return newSourceProvider == provider.Source && newPredicate == provider.Predicate
         ? provider
-        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
     }
 
-    protected override Provider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       // split
 
@@ -129,7 +139,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, true);
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
 
@@ -146,7 +156,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes.ToArray());
     }
 
-    protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       SplitMappings(provider, out var leftMapping, out var rightMapping);
 
@@ -157,7 +167,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, false);
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
 
@@ -167,7 +177,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new PredicateJoinProvider(newLeftProvider, newRightProvider, (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
     }
 
-    protected override Provider VisitSort(SortProvider provider)
+    protected override SortProvider VisitSort(SortProvider provider)
     {
       mappings[provider.Source] = Merge(mappings[provider], provider.Order.Keys);
       var source = VisitCompilable(provider.Source);
@@ -186,7 +196,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source == provider.Source ? provider : new SortProvider(source, order);
     }
 
-    protected override Provider VisitApply(ApplyProvider provider)
+    protected override ApplyProvider VisitApply(ApplyProvider provider)
     {
       // split
 
@@ -195,9 +205,9 @@ namespace Xtensive.Orm.Rse.Transformation
       var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<int>();
 
-      outerColumnUsages.Add(applyParameter, currentOuterUsages);
-      _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      using (SetOuterColumnUsage(applyParameter, currentOuterUsages)) {
+        _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
+      }
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
@@ -212,9 +222,10 @@ namespace Xtensive.Orm.Rse.Transformation
       leftMapping = mappings[provider.Left];
 
       _ = ReplaceMappings(provider.Right, rightMapping);
-      outerColumnUsages.Add(applyParameter, leftMapping);
-      var newRightProvider = VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      CompilableProvider newRightProvider;
+      using (SetOuterColumnUsage(applyParameter, leftMapping)) {
+        newRightProvider = VisitCompilable(provider.Right);
+      }
 
       var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
       if (pair.First == null) {
@@ -233,7 +244,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override AggregateProvider VisitAggregate(AggregateProvider provider)
     {
       var map = provider.AggregateColumns
         .Select(c => c.SourceIndex)
@@ -269,10 +280,10 @@ namespace Xtensive.Orm.Rse.Transformation
         .Select(index => sourceMap.IndexOf(index))
         .ToArray(provider.GroupColumnIndexes.Length);
 
-      return new AggregateProvider(source, groupColumnIndexes, columns.ToArray());
+      return new AggregateProvider(source, groupColumnIndexes, columns);
     }
 
-    protected override Provider VisitCalculate(CalculateProvider provider)
+    protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       var usedColumns = mappings[provider];
@@ -306,10 +317,10 @@ namespace Xtensive.Orm.Rse.Transformation
 
       return !translated && newSourceProvider == provider.Source && descriptors.Count == provider.CalculatedColumns.Length
         ? provider
-        : new CalculateProvider(newSourceProvider, descriptors.ToArray());
+        : newSourceProvider.Calculate(descriptors);
     }
 
-    protected override Provider VisitRowNumber(RowNumberProvider provider)
+    protected override RowNumberProvider VisitRowNumber(RowNumberProvider provider)
     {
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
@@ -322,7 +333,7 @@ namespace Xtensive.Orm.Rse.Transformation
         : new RowNumberProvider(newSource, rowNumberColumn.Name);
     }
 
-    protected override Provider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       if (!(provider.Source is CompilableProvider compilableSource)) {
         return provider;
@@ -344,15 +355,15 @@ namespace Xtensive.Orm.Rse.Transformation
         : new StoreProvider(source, provider.Name);
     }
 
-    protected override Provider VisitConcat(ConcatProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitConcat(ConcatProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitExcept(ExceptProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitExcept(ExceptProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitIntersect(IntersectProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitIntersect(IntersectProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitUnion(UnionProvider provider) => VisitSetOperationProvider(provider);
+    protected override CompilableProvider VisitUnion(UnionProvider provider) => VisitSetOperationProvider(provider);
 
-    private Provider VisitSetOperationProvider(BinaryProvider provider)
+    private CompilableProvider VisitSetOperationProvider(BinaryProvider provider)
     {
       var leftMapping = mappings[provider];
       var rightMapping = mappings[provider];
@@ -425,11 +436,27 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
     {
-      return left
-        .Union(right)
-        .Distinct()
-        .OrderBy(i => i)
-        .ToList();
+      var hs = new HashSet<int>(left);
+      foreach (var r in right) {
+        _ = hs.Add(r);
+      }
+      var resultList = hs.ToList(hs.Count);
+      resultList.Sort();
+      return resultList;
+    }
+
+    private static List<int> Merge(List<int> leftMap, IEnumerable<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count * 2);
+      preReturn.Sort();
+      return preReturn;
+    }
+
+    private static List<int> Merge(List<int> leftMap, IList<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count + rightMap.Count);
+      preReturn.Sort();
+      return preReturn;
     }
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
@@ -466,7 +493,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private int ResolveOuterMapping(ApplyParameter parameter, int value)
     {
-      var result = outerColumnUsages[parameter].IndexOf(value);
+      var result = GetOuterColumnUsage(parameter).IndexOf(value);
       return result < 0 ? value : result;
     }
 
@@ -485,11 +512,16 @@ namespace Xtensive.Orm.Rse.Transformation
         expression.Parameters[1]);
     }
 
-    private void VisitJoin(ref List<int> leftMapping, ref CompilableProvider left, ref List<int> rightMapping,
-      ref CompilableProvider right)
+    private void VisitJoin(
+      ref List<int> leftMapping, ref CompilableProvider left,
+      ref List<int> rightMapping, ref CompilableProvider right, bool skipSort)
     {
-      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+      if (!skipSort) {
+        leftMapping = leftMapping.Distinct().ToList(leftMapping.Count);
+        leftMapping.Sort();
+        rightMapping = rightMapping.Distinct().ToList(rightMapping.Count);
+        rightMapping.Sort();
+      }
 
       // visit
 
@@ -514,6 +546,21 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings) => mappings = savedMappings;
 
+    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<int> usages)
+    {
+      outerColumnUsages.Add(parameter, usages);
+      outerColumnUsageStack.Push(usages);
+      return new Disposable(
+        x => { 
+          _ = outerColumnUsages.Remove(parameter);
+          _ = outerColumnUsageStack.Pop();
+        });
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private List<int> GetOuterColumnUsage(ApplyParameter parameter) =>
+      outerColumnUsages.TryGetValue(parameter, out var result) ? result : outerColumnUsageStack.Peek();
+
     #endregion
 
     // Constructors
@@ -524,6 +571,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       mappings = new Dictionary<Provider, List<int>>();
       outerColumnUsages = new Dictionary<ApplyParameter, List<int>>();
+      outerColumnUsageStack = new Stack<List<int>>();
       mappingsGatherer = new TupleAccessGatherer((a, b) => { });
 
       var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);

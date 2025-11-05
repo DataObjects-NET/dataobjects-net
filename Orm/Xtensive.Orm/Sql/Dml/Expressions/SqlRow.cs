@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -12,15 +12,15 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlRow: SqlExpressionList
   {
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlRow Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
+      if (context.TryGet(this) is SqlRow value) {
         return value;
       }
 
-      var expressionsClone = new Collection<SqlExpression>();
+      var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
-        expressionsClone.Add((SqlExpression) e.Clone(context));
+        expressionsClone.Add(e.Clone(context));
 
       var clone = new SqlRow(expressionsClone);
       return clone;
@@ -29,9 +29,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRow>(expression, "expression");
-      var replacingExpression = (SqlRow) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression);
       expressions.Clear();
       foreach (SqlExpression e in replacingExpression)
         expressions.Add(e);

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -15,17 +15,14 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlCast>(expression, "expression");
-      var replacingExpression = (SqlCast) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCast>(expression);
       Operand = replacingExpression.Operand;
       Type = replacingExpression.Type;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlCast((SqlExpression) Operand.Clone(context), Type);
+    internal override SqlCast Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCast(t.Operand.Clone(c), t.Type));
     
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

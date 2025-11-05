@@ -50,7 +50,11 @@ namespace Xtensive.Orm.Upgrade
         configuration.Lock();
       }
 
-      LogManager.Default.AutoInitialize();
+      var logConfiguration = configuration.ExtensionConfigurations.Get<LoggingConfiguration>();
+      if (logConfiguration != null)
+        LogManager.Default.Initialize(logConfiguration);
+      else
+        LogManager.Default.AutoInitialize();
 
       var context = new UpgradeContext(configuration);
 
@@ -72,7 +76,11 @@ namespace Xtensive.Orm.Upgrade
         configuration.Lock();
       }
 
-      LogManager.Default.AutoInitialize();
+      var logConfiguration = configuration.ExtensionConfigurations.Get<LoggingConfiguration>();
+      if (logConfiguration != null)
+        LogManager.Default.Initialize(logConfiguration);
+      else
+        LogManager.Default.AutoInitialize();
 
       var context = new UpgradeContext(configuration);
 
@@ -362,7 +370,7 @@ namespace Xtensive.Orm.Upgrade
         var candidates = group.ToList();
         if (candidates.Count > 1) {
           throw new DomainBuilderException(
-            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof (IUpgradeHandler).GetShortName(), @group.Key));
+            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof(IUpgradeHandler).Name, @group.Key));
         }
         handlers.Add(group.Key, candidates[0]);
       }
@@ -398,12 +406,12 @@ namespace Xtensive.Orm.Upgrade
       //Getting user resolvers
       var candidates = from r in serviceContainer.GetAll<IFullTextCatalogNameBuilder>()
         let assembly = r.GetType().Assembly
-        where r.IsEnabled && assembly!=typeof (IFullTextCatalogNameBuilder).Assembly
+        where r.IsEnabled && assembly!=typeof(IFullTextCatalogNameBuilder).Assembly
         select r;
 
       var userResolversCount = candidates.Count();
       if (userResolversCount > 1)
-        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogNameBuilder).GetShortName()));
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof(IFullTextCatalogNameBuilder).Name));
 
       var resolver = (userResolversCount==0)
         ? new FullTextCatalogNameBuilder()
@@ -548,7 +556,7 @@ namespace Xtensive.Orm.Upgrade
           context.SchemaHints.Add(schemaHint);
         }
         catch (Exception error) {
-          UpgradeLog.Warning(Strings.LogFailedToAddSchemaHintXErrorY, schemaHint, error);
+          UpgradeLog.Warning(nameof(Strings.LogFailedToAddSchemaHintXErrorY), schemaHint, error);
         }
       }
     }
@@ -556,7 +564,7 @@ namespace Xtensive.Orm.Upgrade
     private void SynchronizeSchema(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -566,7 +574,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -586,9 +594,9 @@ namespace Xtensive.Orm.Upgrade
         var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         OnSchemaReady();
@@ -601,7 +609,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;
@@ -641,7 +649,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task SynchronizeSchemaAsync(
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode, CancellationToken token)
     {
-      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+      using (UpgradeLog.InfoRegion(nameof(Strings.LogSynchronizingSchemaInXMode), schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           if (context.ParentDomain==null) {
@@ -651,7 +659,7 @@ namespace Xtensive.Orm.Upgrade
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
-              UpgradeLog.Info(Strings.LogTargetSchema);
+              UpgradeLog.Info(nameof(Strings.LogTargetSchema));
               targetSchema.Dump();
             }
           }
@@ -671,9 +679,9 @@ namespace Xtensive.Orm.Upgrade
         var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
-          UpgradeLog.Info(Strings.LogExtractedSchema);
+          UpgradeLog.Info(nameof(Strings.LogExtractedSchema));
           extractedSchema.Dump();
-          UpgradeLog.Info(Strings.LogTargetSchema);
+          UpgradeLog.Info(nameof(Strings.LogTargetSchema));
           targetSchema.Dump();
         }
         await OnSchemaReadyAsync(token).ConfigureAwait(false);
@@ -686,7 +694,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
-          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+          UpgradeLog.Info(nameof(Strings.LogComparisonResultX), result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;
         context.SchemaUpgradeActions = result.UpgradeActions;

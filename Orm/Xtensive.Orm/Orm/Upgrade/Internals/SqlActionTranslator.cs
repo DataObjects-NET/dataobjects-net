@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<string> enforceChangedColumns = new List<string>();
     private readonly ISqlExecutor sqlExecutor;
     private readonly bool allowCreateConstraints;
+    private readonly bool removeFkBeforeIndex;
 
     private readonly string collationName;
     private readonly ActionSequence actions;
@@ -63,6 +64,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>();
     private readonly Dictionary<string, SequenceDescriptor> removedGeneratorDescriptors = new Dictionary<string, SequenceDescriptor>();
+    private readonly List<(Table, string)> removedForeignKeysDueToIndexes = new List<(Table, string)>();
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -442,7 +444,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropDefaultConstraint(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
-      if (column.DefaultValue.IsNullReference())
+      if (column.DefaultValue is null)
         return;
       var table = column.Table;
       var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
@@ -565,8 +567,16 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       var index = table.Indexes[secondaryIndexInfo.Name];
+      if (removeFkBeforeIndex && secondaryIndexInfo.Parent.ForeignKeys.TryGetValue(secondaryIndexInfo.Name, out var dependantFk)) {
+        var foreignKey = table.TableConstraints[dependantFk.Name];
+        if (foreignKey != null) {
+          removedForeignKeysDueToIndexes.Add((table, foreignKey.Name));
+          preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
+          _ = table.TableConstraints.Remove(foreignKey);
+        }
+      }
       preCleanupDataOutput.RegisterCommand(SqlDdl.Drop(index));
-      table.Indexes.Remove(index);
+      _ = table.Indexes.Remove(index);
     }
 
     private void VisitAlterSecondaryIndexAction(NodeAction action)
@@ -597,9 +607,14 @@ namespace Xtensive.Orm.Upgrade
       if (table==null)
         return;
 
+      if (removeFkBeforeIndex && removedForeignKeysDueToIndexes.Contains((table, foreignKeyInfo.Name))) {
+        // index removal already causes FK removal
+        return;
+      }
+
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
       preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
-      table.TableConstraints.Remove(foreignKey);
+      _ = table.TableConstraints.Remove(foreignKey);
     }
 
     private void VisitAlterForeignKeyAction(NodeAction action)
@@ -846,8 +861,7 @@ namespace Xtensive.Orm.Upgrade
         if (referencedNode!=null && referencingNode!=null)
             new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
-      List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
-      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
+      var sortedTables = TopologicalSorter.SortToList(nodes, out List<NodeConnection<TableInfo, ForeignKeyInfo>> edges);
       // TODO: Process removed edges
 
       // Build DML commands
@@ -912,15 +926,16 @@ namespace Xtensive.Orm.Upgrade
         }
         else {
           var getValue = SqlDml.Case();
-          getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
+          _ = getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
 
-          if (newSqlType.Type==SqlType.DateTimeOffset)
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
-          else if (newSqlType.Type==SqlType.DateTime && providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation))
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, tableRef[tempName]), newSqlType));
-          else
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
-
+          SqlExpression convertExpression;
+          if (IsDateTimeType(newSqlType.Type) || IsDateTimeType(column.DataType.Type)) {
+            convertExpression = GetDataConversion(column.DataType, newSqlType, tableRef[tempName]);
+          }
+          else {
+            convertExpression = SqlDml.Cast(tableRef[tempName], newSqlType);
+          }
+          _ = getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), convertExpression);
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         upgradeOutput.BreakBatch();
@@ -929,6 +944,56 @@ namespace Xtensive.Orm.Upgrade
 
       // Drop old column
       DropColumn(table.TableColumns[tempName], cleanupOutput);
+    }
+
+    private static SqlExpression GetDataConversion(SqlValueType oldType, SqlValueType newType, SqlTableColumn sqlTableColumn)
+    {
+      var oldSqlType = oldType.Type;
+      var newSqlType = newType.Type;
+
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateTimeToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeOffsetToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeOffsetToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTime) {
+        return SqlDml.TimeToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.TimeToDateTimeOffset(sqlTableColumn);
+      }
+      //Date -> Time = invalid in most cases.
+      //Time -> Date = invalid in most cases.
+      //let storage throw exception on attempt
+
+      return SqlDml.Cast(sqlTableColumn, newType);
+    }
+
+    private static bool IsDateTimeType(in SqlType type)
+    {
+      return type == SqlType.DateTime
+        || type == SqlType.DateTimeOffset
+        || type == SqlType.Date
+        || type == SqlType.Time;
     }
 
     private Table CreateTable(TableInfo tableInfo)
@@ -1228,7 +1293,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = table.TableColumns[WellKnown.GeneratorFakeColumnName];
-        insert.Values[tableRef[fakeColumn.Name]] = SqlDml.Null;
+        insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef[fakeColumn.Name], SqlDml.Null } });
       }
 
       var result = SqlDml.Batch();
@@ -1272,7 +1337,6 @@ namespace Xtensive.Orm.Upgrade
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
-      providerInfo = handlers.ProviderInfo;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
       this.resolver = resolver;
@@ -1288,6 +1352,9 @@ namespace Xtensive.Orm.Upgrade
         var collation = handlers.Domain.Configuration.Collation;
         if (!string.IsNullOrEmpty(collation))
           collationName = collation;
+      }
+      if (providerInfo.ProviderName == WellKnown.Provider.MySql) {
+        removeFkBeforeIndex = true;
       }
     }
   }

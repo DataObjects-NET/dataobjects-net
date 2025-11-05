@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid FGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float FFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -145,6 +145,12 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 
     [Field(DefaultValue = "2012.12.12")]
     public DateTime FDateTime { get; set; }
+
+    [Field(DefaultValue = "2012.12.12")]
+    public DateOnly FDateOnly { get; set; }
+
+    [Field(DefaultValue = "00:35:53.35")]
+    public TimeOnly FTimeOnly { get; set; }
 
     [Field(DefaultValue = 1000)]
     public TimeSpan FTimeSpan { get; set; }
@@ -211,7 +217,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
     public Guid? FNGuid { get; set; }
 
-    [Field(DefaultValue = float.MaxValue)]
+    [Field(DefaultValue = float.Epsilon)]
     public float? FNFloat { get; set; }
 
     [Field(DefaultValue = float.MaxValue)]
@@ -222,6 +228,12 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 
     [Field(DefaultValue = "2012.12.12")]
     public DateTime? FNDateTime { get; set; }
+
+    [Field(DefaultValue = "2012.12.12")]
+    public DateOnly? FNDateOnly { get; set; }
+
+    [Field(DefaultValue = "00:35:53.35")]
+    public TimeOnly? FNTimeOnly { get; set; }
 
     [Field(DefaultValue = 1000)]
     public TimeSpan? FNTimeSpan { get; set; }
@@ -331,6 +343,15 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(true, x.FBool);
           Assert.AreEqual(byte.MaxValue, x.FByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
+
+          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FDateOnly);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
+          }
+          else {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+          }
+
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
           Assert.AreEqual(EByte.Max, x.FEByte);
@@ -341,7 +362,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FEUInt);
           Assert.AreEqual(EULong.Max, x.FEULong);
           Assert.AreEqual(EUShort.Max, x.FEUShort);
-          Assert.AreEqual(float.MaxValue, x.FFloat);
+          Assert.AreEqual(float.Epsilon, x.FFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
@@ -357,6 +378,13 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(true, x.FNBool);
           Assert.AreEqual(byte.MaxValue, x.FNByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FNDateTime);
+          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FNDateOnly);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
+          }
+          else {
+            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+          }
           Assert.AreEqual(12.12M, x.FNDecimal);
           Assert.AreEqual(float.MaxValue, x.FNDouble);
           Assert.AreEqual(EByte.Max, x.FNEByte);
@@ -367,7 +395,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(EUInt.Max, x.FNEUInt);
           Assert.AreEqual(EULong.Max, x.FNEULong);
           Assert.AreEqual(EUShort.Max, x.FNEUShort);
-          Assert.AreEqual(float.MaxValue, x.FNFloat);
+          Assert.AreEqual(float.Epsilon, x.FNFloat);
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FNGuid);
           Assert.AreEqual(int.MaxValue, x.FNInt);
           Assert.AreEqual(long.MaxValue, x.FNLong);

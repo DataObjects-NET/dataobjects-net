@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -172,6 +172,31 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Checks if <paramref name="expressionToCheck"/> is indeed a representation of TimeSpan.Ticks
+    /// created by <see cref="Xtensive.Orm.Providers.TimeSpanCompilers.TimeSpanTicks"/>
+    /// </summary>
+    /// <param name="expressionToCheck">Expression to check</param>
+    /// <param name="sourceInterval">Source interval expression</param>
+    /// <returns></returns>
+    public static bool IsTimeSpanTicks(SqlExpression expressionToCheck, out SqlExpression sourceInterval)
+    {
+      sourceInterval = null;
+
+      if (expressionToCheck is SqlCast sqlCast
+        && (sqlCast.Type.Type == SqlType.Int64 || sqlCast.Type.Type == SqlType.Decimal)) {
+        var operand = sqlCast.Operand;
+        if (operand is SqlBinary sqlBinary && sqlBinary.NodeType == SqlNodeType.Divide) {
+          var left = sqlBinary.Left;
+          if (left is SqlFunctionCall functionCall && functionCall.FunctionType == SqlFunctionType.IntervalToNanoseconds) {
+            sourceInterval = functionCall.Arguments[0];
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    /// <summary>
     /// Converts the specified interval expression to expression
     /// that represents absolute value (duration) of the specified interval.
     /// This is a generic implementation that uses comparison with zero interval.
@@ -306,7 +331,7 @@ namespace Xtensive.Sql
           days, hours, minutes, seconds, milliseconds);
     }
 
-    public static SqlExpression GenericPad(SqlFunctionCall node)
+    public static SqlExpression GenericPad(SqlFunctionCall node, bool padStringRequired = false)
     {
       string paddingFunction;
       switch (node.FunctionType) {
@@ -321,9 +346,12 @@ namespace Xtensive.Sql
       }
       var operand = node.Arguments[0];
       var result = SqlDml.Case();
-      result.Add(
-        SqlDml.CharLength(operand) < node.Arguments[1],
-        SqlDml.FunctionCall(paddingFunction, node.Arguments));
+      var lenghtCheck = SqlDml.CharLength(operand) < node.Arguments[1];
+      var paddingItself = (padStringRequired && node.Arguments.Count < 3)
+        ? SqlDml.FunctionCall(paddingFunction, operand, node.Arguments[1], SqlDml.Literal(" "))
+        : SqlDml.FunctionCall(paddingFunction, node.Arguments);
+
+      _ = result.Add(lenghtCheck, paddingItself);
       result.Else = operand;
       return result;
     }

@@ -1,0 +1,13 @@
+[main] Addressed certain issues with nullable DateTimeOffset values 
+[main] SelectMany with result selector is explicitly not supported when applied after grouping (like .GroupBy(groupingFunc).SelectMany(grouping, selector))
+[main] Addressed issue of inability to delete column (including such on rename or change type via column recreation) because of undeleted foreign key
+[main] Improved compatibility with non-windows runtimes
+[main] Fixed inability to detect certain parameterizable parts within cached queries (Query.Execute()/.ExecuteDelayed()/ExecuteFuture() groups of methods)
+[mysql] Fixed milliseconds extraction for DateTime expressions in queries
+[mysql] Proper support for milliseconds v5.6+, already created columns will remain the same and new ones will have datetime(6) native type
+[mysql] Improved compatibility with non-windows runtimes
+[postgresql] Support for included columns for indexes starting from PostgreSQL 12
+[postgresql] For PostgreSQL 13+ apply 'trim_scale' function to results of aggregation to improve compatibility with .NET decimal
+[postgresql] Improved compatibility with non-windows runtimes
+[bulkoperations] Fixed certain cases of wrong update statements for Firebird provider
+[reprocessing] Improved compatibility with non-windows runtimes

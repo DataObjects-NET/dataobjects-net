@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(Human).Assembly, typeof(Human).Namespace);
+      configuration.Types.RegisterCaching(typeof(Human).Assembly, typeof(Human).Namespace);
       configuration.Sessions["Default"].Options = SessionOptions;
       return configuration;
     }

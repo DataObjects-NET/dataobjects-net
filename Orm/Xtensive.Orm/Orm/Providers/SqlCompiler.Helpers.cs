@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -19,7 +19,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     protected SqlProvider CreateProvider(SqlSelect statement,
       CompilableProvider origin, params ExecutableProvider[] sources) =>
@@ -61,10 +61,10 @@ namespace Xtensive.Orm.Providers
 
     protected virtual string ProcessAliasedName(string name) => name;
 
-    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
+    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le, in bool preferCaseOverVariant,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
+      var processor = new ExpressionProcessor(le, Handlers, this, preferCaseOverVariant, sourceColumns);
       var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
         processor.Translate(), processor.GetBindings());
       return result;
@@ -208,10 +208,10 @@ namespace Xtensive.Orm.Providers
 
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
       var pagingIsUsed = rowNumberIsUsed
-        || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
+        || sourceSelect.Limit is not null || sourceSelect.Offset is not null;
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
-      var filterIsUsed = !sourceSelect.Where.IsNullReference();
+      var filterIsUsed = sourceSelect.Where is not null;
 
       switch (origin.Type) {
         case ProviderType.Filter: {
@@ -303,8 +303,16 @@ namespace Xtensive.Orm.Providers
       }
 
       var columnType = columns[index].Type;
-      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == WellKnownTypes.DateTime) {
-        return SqlDml.Cast(expression, SqlType.DateTime);
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
+        if (columnType == WellKnownTypes.DateTime) {
+          return SqlDml.Cast(expression, SqlType.DateTime);
+        }
+        if (columnType == WellKnownTypes.DateOnly) {
+          return SqlDml.Cast(expression, SqlType.Date);
+        }
+        if (columnType == WellKnownTypes.TimeOnly) {
+          return SqlDml.Cast(expression, SqlType.Time);
+        }
       }
 
       if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
@@ -321,13 +329,8 @@ namespace Xtensive.Orm.Providers
         Pair<Column> columnPair;
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == WellKnownTypes.DateTime) {
-            leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
-          }
-
-          if (columnPair.Second.Type == WellKnownTypes.DateTime) {
-            rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
-          }
+          leftExpression = CastToDateTimeVariantIfNeeded(leftExpression, columnPair.First.Type);
+          rightExpression = CastToDateTimeVariantIfNeeded(rightExpression, columnPair.Second.Type);
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
@@ -343,11 +346,33 @@ namespace Xtensive.Orm.Providers
       }
 
       return leftExpression == rightExpression;
+
+      static SqlExpression CastToDateTimeVariantIfNeeded(SqlExpression expression,Type type)
+      {
+        SqlType? sqlType = null;
+        if (type == WellKnownTypes.DateTime) {
+          sqlType = SqlType.DateTime;
+        }
+        else if (type == WellKnownTypes.DateOnly) {
+          sqlType = SqlType.Date;
+        }
+        else if(type == WellKnownTypes.TimeOnly) {
+          sqlType = SqlType.Time;
+        }
+        if (sqlType == null) {
+          return expression;
+        }
+        else {
+          return SqlDml.Cast(expression, sqlType.Value);
+        }
+      }
     }
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
     {
-      var reference = OuterReferences[parameter];
+      if (!OuterReferences.TryGetValue(parameter, out var reference)) {
+        reference = outerReferenceStack.Peek();
+      }
       var sqlProvider = reference.First;
       var useQueryReference = reference.Second;
       return useQueryReference

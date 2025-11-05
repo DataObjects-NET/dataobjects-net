@@ -157,7 +157,7 @@ namespace Xtensive.Orm
     protected void EnsureOwnerIsNotRemoved()
     {
       if (Owner.IsRemoved) {
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+        throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, Owner.TypeInfo.Name));
       }
     }
 
@@ -940,7 +940,7 @@ namespace Xtensive.Orm
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)
             .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+        : CollectionUtils.RangeToList(0, targetDescriptor.Count);
 
       var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
       var keyFieldTypes = ownerDescriptor

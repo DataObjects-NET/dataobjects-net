@@ -41,15 +41,10 @@ namespace Xtensive.Orm.Tests.Storage
         track.Milliseconds++;
         session.SaveChanges();
         Assert.IsTrue(session.Handler.TransactionIsStarted);
-        object dbTransaction;
-        using (session.Activate()) {
-          dbTransaction = StorageTestHelper.GetNativeTransaction();
-        }
+        var dbTransaction = StorageTestHelper.GetNativeTransaction(session);
         track.Milliseconds++;
         session.SaveChanges();
-        using (session.Activate()) {
-          Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
-        }
+        Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction(session));
         track.Milliseconds++;
         milliseconds = track.Milliseconds;
         trackKey = track.Key;

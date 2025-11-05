@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -727,7 +727,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (BaseEntity).Assembly, typeof (BaseEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (BaseEntity).Assembly, typeof (BaseEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

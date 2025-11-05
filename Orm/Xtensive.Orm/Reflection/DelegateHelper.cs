@@ -357,7 +357,7 @@ namespace Xtensive.Reflection
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.Name));
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
@@ -372,7 +372,7 @@ namespace Xtensive.Reflection
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
@@ -404,7 +404,7 @@ namespace Xtensive.Reflection
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.Name));
 
       int count = genericArgumentVariants.Count;
       TDelegate[] delegates = new TDelegate[count];
@@ -422,7 +422,7 @@ namespace Xtensive.Reflection
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
