@@ -47,19 +47,19 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EventArgs ChangesCanceledArgs;
 
     public EntityEventArgs EntityCreatedArgs;
-    public EntityEventArgs EntityRemoving;
-    public EntityEventArgs EntityRemoved;
+    public EntityEventArgs EntityRemovingArgs;
+    public EntityEventArgs EntityRemoveArgs;
 
     public EntityFieldEventArgs EntityFieldGettingArgs;
     public EntityFieldValueEventArgs EntityFieldValueGetArgs;
     public EntityFieldValueEventArgs EntityFieldValueSettingArgs;
     public EntityFieldValueSetEventArgs EntityFieldValueSetArgs;
 
-    public QueryEventArgs QueryExecuting;
-    public QueryEventArgs QueryExecuted;
+    public QueryEventArgs QueryExecutingArgs;
+    public QueryEventArgs QueryExecutedArgs;
 
-    public DbCommandEventArgs? DbCommandExecuting;
-    public DbCommandEventArgs? DbCommandExecuted;
+    public DbCommandEventArgs? DbCommandExecutingArgs;
+    public DbCommandEventArgs? DbCommandExecutedArgs;
 
     public void ResetEventArgs()
     {
@@ -78,19 +78,19 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       ChangesCanceledArgs = null;
 
       EntityCreatedArgs = null;
-      EntityRemoving = null;
-      EntityRemoved = null;
+      EntityRemovingArgs = null;
+      EntityRemoveArgs = null;
 
       EntityFieldGettingArgs = null;
       EntityFieldValueGetArgs = null;
       EntityFieldValueSettingArgs = null;
       EntityFieldValueSetArgs = null;
 
-      QueryExecuting = null;
-      QueryExecuted = null;
+      QueryExecutingArgs = null;
+      QueryExecutedArgs = null;
 
-      DbCommandExecuting = null;
-      DbCommandExecuted = null;
+      DbCommandExecutingArgs = null;
+      DbCommandExecutedArgs = null;
     }
 
     private void OnTransactionCommiting(object sender, TransactionEventArgs e)
@@ -109,16 +109,16 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     private void OnChangesCanceling(object sender, EventArgs e) => ChangesCancelingArgs = e;
     private void OnChangesCanceled(object sender, EventArgs e) => ChangesCanceledArgs = e;
     private void OnEntityCreated(object sender, EntityEventArgs e) => EntityCreatedArgs = e;
-    private void OnEntityRemoving(object sender, EntityEventArgs e) => EntityRemoving = e;
-    private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoved = e;
+    private void OnEntityRemoving(object sender, EntityEventArgs e) => EntityRemovingArgs = e;
+    private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoveArgs = e;
     private void OnEntityFieldValueGetting(object sender, EntityFieldEventArgs e) => EntityFieldGettingArgs = e;
     private void OnEntityFieldValueGet(object sender, EntityFieldValueEventArgs e) => EntityFieldValueGetArgs = e;
     private void OnEntityFieldValueSetting(object sender, EntityFieldValueEventArgs e) => EntityFieldValueSettingArgs = e;
     private void OnEntityFieldValueSet(object sender, EntityFieldValueSetEventArgs e) => EntityFieldValueSetArgs = e;
-    private void OnQueryExecuting(object sender, QueryEventArgs e) => QueryExecuting = e;
-    private void OnQueryExecuted(object sender, QueryEventArgs e) => QueryExecuted = e;
-    private void OnDbCommandExecuting(object sender, DbCommandEventArgs e) => DbCommandExecuting = e;
-    private void OnDbCommandExecuted(object sender, DbCommandEventArgs e) => DbCommandExecuted = e;
+    private void OnQueryExecuting(object sender, QueryEventArgs e) => QueryExecutingArgs = e;
+    private void OnQueryExecuted(object sender, QueryEventArgs e) => QueryExecutedArgs = e;
+    private void OnDbCommandExecuting(object sender, DbCommandEventArgs e) => DbCommandExecutingArgs = e;
+    private void OnDbCommandExecuted(object sender, DbCommandEventArgs e) => DbCommandExecutedArgs = e;
 
     public void Dispose()
     {
@@ -270,6 +270,54 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void ManualPersistTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var megaEntity = new MegaEntity { Value = 1 };
+
+        using (var eventInfo = new EventInfo(session)) {
+          session.SaveChanges();
+
+          Assert.IsNotNull(eventInfo.PersistingArgs);
+          Assert.IsNotNull(eventInfo.PersistedArgs);
+          Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+          Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+
+          Assert.IsNull(eventInfo.TransactionRollbackingArgs);
+          Assert.IsNull(eventInfo.TransactionRollbackedArgs);
+          Assert.IsNull(eventInfo.TransactionPrecommitingArgs);
+          Assert.IsNull(eventInfo.TransactionCommitingArgs);
+          Assert.IsNull(eventInfo.TransactionCommitedArgs);
+        }
+      }
+    }
+
+    [Test]
+    public async Task ManualPersistAsyncTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var megaEntity = new MegaEntity { Value = 1 };
+
+        using (var eventInfo = new EventInfo(session)) {
+          await session.SaveChangesAsync();
+
+          Assert.IsNotNull(eventInfo.PersistingArgs);
+          Assert.IsNotNull(eventInfo.PersistedArgs);
+          Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+          Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+
+          Assert.IsNull(eventInfo.TransactionRollbackingArgs);
+          Assert.IsNull(eventInfo.TransactionRollbackedArgs);
+          Assert.IsNull(eventInfo.TransactionPrecommitingArgs);
+          Assert.IsNull(eventInfo.TransactionCommitingArgs);
+          Assert.IsNull(eventInfo.TransactionCommitedArgs);
+        }
+      }
+    }
+
+    [Test]
     public void EditEntityTest()
     {
       using (var session = Domain.OpenSession())
@@ -309,10 +357,10 @@ namespace Xtensive.Orm.Tests.Storage
           eventInfo.ResetEventArgs();
 
           entity.Remove();
-          Assert.IsNotNull(eventInfo.EntityRemoving);
-          Assert.AreEqual(entity, eventInfo.EntityRemoving.Entity);
-          Assert.IsNotNull(eventInfo.EntityRemoved);
-          Assert.AreEqual(entity, eventInfo.EntityRemoved.Entity);
+          Assert.IsNotNull(eventInfo.EntityRemovingArgs);
+          Assert.AreEqual(entity, eventInfo.EntityRemovingArgs.Entity);
+          Assert.IsNotNull(eventInfo.EntityRemoveArgs);
+          Assert.AreEqual(entity, eventInfo.EntityRemoveArgs.Entity);
         }
       }
     }
@@ -330,19 +378,19 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNotNull(eventInfo.QueryExecuting);
-        Assert.IsNotNull(eventInfo.QueryExecuted);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuted?.Exception);
+        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
 
-        Assert.AreEqual(eventInfo.QueryExecuting?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecuted?.Expression, eventInfo.QueryExecuting?.Expression);
+        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
+        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
@@ -359,19 +407,19 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNotNull(eventInfo.QueryExecuting);
-        Assert.IsNotNull(eventInfo.QueryExecuted);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuted?.Exception);
+        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
 
-        Assert.AreEqual(eventInfo.QueryExecuting?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecuted?.Expression, eventInfo.QueryExecuting?.Expression);
+        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
+        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -382,19 +430,19 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNotNull(eventInfo.QueryExecuting);
-        Assert.IsNotNull(eventInfo.QueryExecuted);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuted?.Exception);
+        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
 
-        Assert.AreEqual(eventInfo.QueryExecuting?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecuted?.Expression, eventInfo.QueryExecuting?.Expression);
+        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
+        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
@@ -408,18 +456,18 @@ namespace Xtensive.Orm.Tests.Storage
 
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -428,18 +476,18 @@ namespace Xtensive.Orm.Tests.Storage
 
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -448,18 +496,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -469,18 +517,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -489,18 +537,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -510,18 +558,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -530,18 +578,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -551,18 +599,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
@@ -577,18 +625,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -598,18 +646,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -618,18 +666,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -639,18 +687,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -659,18 +707,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -680,18 +728,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -700,18 +748,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -721,18 +769,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
@@ -747,11 +795,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -761,18 +809,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -781,11 +829,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -795,18 +843,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -815,11 +863,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -829,18 +877,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -849,11 +897,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -863,18 +911,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
@@ -889,11 +937,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -903,18 +951,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -923,11 +971,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -937,18 +985,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -957,11 +1005,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -971,18 +1019,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
 
         eventInfo.ResetEventArgs();
 
@@ -991,11 +1039,11 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting);
-        Assert.IsNull(eventInfo.DbCommandExecuted);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
 
         eventInfo.ResetEventArgs();
 
@@ -1005,18 +1053,18 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNull(eventInfo.PersistingArgs);
         Assert.IsNull(eventInfo.PersistedArgs);
 
-        Assert.IsNull(eventInfo.QueryExecuting);
-        Assert.IsNull(eventInfo.QueryExecuted);
+        Assert.IsNull(eventInfo.QueryExecutingArgs);
+        Assert.IsNull(eventInfo.QueryExecutedArgs);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecuting);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
 
-        Assert.IsNull(eventInfo.DbCommandExecuting?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecuted?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecuting?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecuted?.Command);
+        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
+        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
+        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
+        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
 
-        Assert.AreEqual(eventInfo.DbCommandExecuting?.Command, eventInfo.DbCommandExecuted?.Command);
+        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
       }
     }
 
