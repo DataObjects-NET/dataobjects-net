@@ -135,16 +135,14 @@ namespace Xtensive.Orm
       var ts = await InnerOpenTransaction(
         TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
 
-      IDisposable changesGuard = null;
       try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
 
-        changesGuard = PreventRegistryChanges();
         using (OpenSystemLogicOnlyRegion()) {
-          DemandTransaction();
+          _ = DemandTransaction();
           if (IsDebugEventLoggingEnabled) {
             OrmLog.Debug(nameof(Strings.LogSessionXPersistingReasonY), this, reason);
           }
@@ -176,16 +174,11 @@ namespace Xtensive.Orm
           }
           catch (Exception) {
             persistingIsFailed = true;
-            changesGuard.Dispose();
-            changesGuard = null;
-
             RollbackChangesOfEntitySets();
             RestoreEntityChangesAfterPersistFailed();
             throw;
           }
           finally {
-            changesGuard.DisposeSafely();
-            changesGuard = null;
             if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
               DropDifferenceBackup();
               foreach (var item in itemsToPersist.GetItems(PersistenceState.New)) {
@@ -217,13 +210,13 @@ namespace Xtensive.Orm
             }
           }
         }
-
-        SystemEvents.NotifyPersisted();
-        Events.NotifyPersisted();
+        using (PreventRegistryChanges()) {
+          SystemEvents.NotifyPersisted();
+          Events.NotifyPersisted();
+        }
       }
       finally {
         IsPersisting = false;
-        changesGuard.DisposeSafely();
         if (isAsync) {
           await ts.DisposeAsync().ConfigureAwait(false);
         }

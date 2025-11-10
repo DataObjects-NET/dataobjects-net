@@ -259,8 +259,10 @@ namespace Xtensive.Orm
 
       ValidationContext.Validate(ValidationReason.Commit);
 
-      SystemEvents.NotifyTransactionCommitting(transaction);
-      Events.NotifyTransactionCommitting(transaction);
+      using (PreventRegistryChanges()) {
+        SystemEvents.NotifyTransactionCommitting(transaction);
+        Events.NotifyTransactionCommitting(transaction);
+      }
 
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested) {
@@ -366,24 +368,28 @@ namespace Xtensive.Orm
       Transaction = transaction.Outer;
 
       switch (transaction.State) {
-      case TransactionState.Committed:
-        if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
-        }
+        case TransactionState.Committed:
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
+          }
 
-        SystemEvents.NotifyTransactionCommitted(transaction);
-        Events.NotifyTransactionCommitted(transaction);
-        break;
-      case TransactionState.RolledBack:
-        if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
-        }
+          using (PreventRegistryChanges()) {
+            SystemEvents.NotifyTransactionCommitted(transaction);
+            Events.NotifyTransactionCommitted(transaction);
+          }
+          break;
+        case TransactionState.RolledBack:
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
+          }
 
-        SystemEvents.NotifyTransactionRollbacked(transaction);
-        Events.NotifyTransactionRollbacked(transaction);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("transaction.State");
+          using (PreventRegistryChanges()) {
+            SystemEvents.NotifyTransactionRollbacked(transaction);
+            Events.NotifyTransactionRollbacked(transaction);
+          }
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("transaction.State");
       }
     }
 
