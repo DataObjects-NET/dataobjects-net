@@ -3463,6 +3463,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Changes of persistent objects are not allowed for this event due to possibility of changes not reaching database. Try use Session.Events.Persisting or Session.Events.TransactionPreCommitting for such changes for them to be saved correctly..
+        /// </summary>
+        internal static string ExPersistentChangesAreNotAllowedForThisEvent {
+            get {
+                return ResourceManager.GetString("ExPersistentChangesAreNotAllowedForThisEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Persistent type &apos;{0}&apos; is not entity or persistent interface..
         /// </summary>
         internal static string ExPersistentTypeXIsNotEntityOrPersistentInterface {
@@ -3954,15 +3963,6 @@ namespace Xtensive {
         internal static string ExSessionWithNameXAlreadyExists {
             get {
                 return ResourceManager.GetString("ExSessionWithNameXAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos; is actively persisting changes, persistent objects&apos; changes are not allowed..
-        /// </summary>
-        internal static string ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed {
-            get {
-                return ResourceManager.GetString("ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed", resourceCulture);
             }
         }
         

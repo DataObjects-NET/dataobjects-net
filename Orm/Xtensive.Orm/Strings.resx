@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -2618,7 +2618,7 @@ Error: {1}</value>
   <data name="LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone" xml:space="preserve">
     <value>Key generator kind for hierarchy with root '{0}' has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors.</value>
   </data>
-  <data name="ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed" xml:space="preserve">
-    <value>Session '{0}' is actively persisting changes, persistent objects' changes are not allowed.</value>
+  <data name="ExPersistentChangesAreNotAllowedForThisEvent" xml:space="preserve">
+    <value>Changes of persistent objects are not allowed for this event due to possibility of changes not reaching database. Try use Session.Events.Persisting or Session.Events.TransactionPreCommitting for such changes for them to be saved correctly.</value>
   </data>
 </root>

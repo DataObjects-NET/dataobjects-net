@@ -376,12 +376,12 @@ namespace Xtensive.Orm
         action.Invoke(entitySet);
     }
 
-    private IDisposable PreventRegistryChanges()
+    private JoiningDisposable PreventRegistryChanges()
     {
-      return EntityChangeRegistry.PreventChanges()
-        & EntitySetChangeRegistry.PreventChanges()
-        & NonPairedReferencesRegistry.PreventChanges()
-        & ReferenceFieldsChangesRegistry.PreventChanges();
+      return EntityChangeRegistry.DisableRegistrations()
+        & EntitySetChangeRegistry.DisableRegistrations()
+        & NonPairedReferencesRegistry.DisableRegistrations()
+        & ReferenceFieldsChangesRegistry.DisableRegistrations();
     }
   }
 }
