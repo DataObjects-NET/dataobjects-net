@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
     private const string TransactionOnCommitted           = nameof(ChangesOnTransactionCommittedEventTest);
     private const string TransactionOnCommittedSystem     = nameof(ChangesOnTransactionCommittedSystemEventTest);
 
-    private const string ExceptionMessageIdentifier = "Events.Persisting";
+    private const string ExceptionMessageIdentifier = "possibility of changes not saved";
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -177,7 +177,8 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
         session.SystemEvents.Persisted += ChangeEntityOnPersisted;
         session.SaveChanges();
         session.SystemEvents.Persisted -= ChangeEntityOnPersisted;
-        // exception handled
+
+        Assert.That(session.EntityChangeRegistry.Count, Is.Not.Zero);
       }
 
       using (var session = Domain.OpenSession())
@@ -191,9 +192,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       static void ChangeEntityOnPersisted(object sender, EventArgs e)
       {
         var eventAccessor = (SessionEventAccessor) sender;
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-          MakeEntityRegistryChange(eventAccessor.Session, ManualPersistOnPersistedSystem, 64));
-        Assert.That(ex.Message.Contains(ExceptionMessageIdentifier));
+        MakeEntityRegistryChange(eventAccessor.Session, ManualPersistOnPersistedSystem, 64);
       }
     }
 
@@ -255,7 +254,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnPersistedEventTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -286,7 +285,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnPersistedSystemEventTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -311,9 +310,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       static void ChangeEntityOnPersisted(object sender, EventArgs e)
       {
         var eventAccessor = (SessionEventAccessor) sender;
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-          MakeEntityRegistryChange(eventAccessor.Session, PersistedOnCommittingSystem, 44));
-        Assert.That(ex.Message.Contains(ExceptionMessageIdentifier));
+        MakeEntityRegistryChange(eventAccessor.Session, PersistedOnCommittingSystem, 44);
       }
     }
 
@@ -375,7 +372,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnTransactionCommittingEventTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -406,7 +403,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnTransactionCommittingSystemEventTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -431,13 +428,11 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       static void ChangeEntityOnCommitting(object sender, TransactionEventArgs e)
       {
         var eventAccessor = (SessionEventAccessor) sender;
-        var ex = Assert.Throws<InvalidOperationException>(() =>
-          MakeEntityRegistryChange(eventAccessor.Session, TransactionOnCommittingSystem, 24));
-        Assert.That(ex.Message.Contains(ExceptionMessageIdentifier));
+        MakeEntityRegistryChange(eventAccessor.Session, TransactionOnCommittingSystem, 24);
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnTransactionCommittedEventTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -469,7 +464,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
-    [Test(Description = "Data Loss")]
+    [Test]
     public void ChangesOnTransactionCommittedSystemEventTest()
     {
       using (var session = Domain.OpenSession()) {
