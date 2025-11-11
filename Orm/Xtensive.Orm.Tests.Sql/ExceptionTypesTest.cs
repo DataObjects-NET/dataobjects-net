@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Sql
     private const string UniqueTableName = "TheUnique";
     private const string CheckedTableName = "TheChecked";
 
-    private Schema schema;
+    protected Schema schema;
 
     protected override void TestFixtureSetUp()
     {
@@ -282,12 +282,12 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreEqual(expected, actual);
     }
 
-    private void AssertExceptionType(ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
+    protected void AssertExceptionType(ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
     {
       AssertExceptionType(Connection, statement, expectedExceptionType);
     }
 
-    private void AssertExceptionType(SqlConnection connection, ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
+    protected void AssertExceptionType(SqlConnection connection, ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
     {
       var commandText = Driver.Compile(statement).GetCommandText();
       AssertExceptionType(connection, commandText, expectedExceptionType);
@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.Fail("Exception was not thrown");
     }
 
-    private TableColumn CreatePrimaryKey(Table table)
+    protected TableColumn CreatePrimaryKey(Table table)
     {
       var column = table.CreateColumn(IdColumnName, Driver.TypeMappings[typeof (int)].MapType());
       _ = table.CreatePrimaryKey("pk_" + table.Name, column);
