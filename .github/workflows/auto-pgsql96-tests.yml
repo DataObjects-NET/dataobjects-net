@@ -28,9 +28,9 @@ on:
       - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
       # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
@@ -73,9 +73,9 @@ on:
       - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
       # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
@@ -118,9 +118,9 @@ on:
       - 'Orm/Xtensive.Orm/Reflection/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
       # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
