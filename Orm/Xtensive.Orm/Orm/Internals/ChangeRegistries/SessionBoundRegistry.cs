@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Internals
 
     protected void EnsureRegistrationsAllowed()
     {
-      if (changesDisabled) {
+      if (registrationsDisabled) {
         throw new InvalidOperationException(
-          string.Format(Strings.ExPersistentChangesAreNotAllowedForThisEvent, Session.Guid));
+          string.Format(Strings.ExPersistentChangesAreNotAllowed, Session.Guid));
       }
     }
 
