@@ -3463,11 +3463,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Changes of persistent objects are not allowed for this event due to possibility of changes not reaching database. Try use Session.Events.Persisting or Session.Events.TransactionPreCommitting for such changes for them to be saved correctly..
+        ///   Looks up a localized string similar to Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database..
         /// </summary>
-        internal static string ExPersistentChangesAreNotAllowedForThisEvent {
+        internal static string ExPersistentChangesAreNotAllowed {
             get {
-                return ResourceManager.GetString("ExPersistentChangesAreNotAllowedForThisEvent", resourceCulture);
+                return ResourceManager.GetString("ExPersistentChangesAreNotAllowed", resourceCulture);
             }
         }
         

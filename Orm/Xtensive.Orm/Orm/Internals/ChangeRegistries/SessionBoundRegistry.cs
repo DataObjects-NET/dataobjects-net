@@ -14,12 +14,14 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   public abstract class SessionBoundRegistry : SessionBound
   {
-    private bool changesDisabled;
+    private bool registrationsDisabled;
 
     internal Core.Disposable DisableRegistrations()
     {
-      changesDisabled = true;
-      return new Core.Disposable((a) => changesDisabled = false);
+      if (registrationsDisabled)
+        return null; // already disabled
+      registrationsDisabled = true;
+      return new Core.Disposable((disposing) => registrationsDisabled = false);
     }
 
     protected void EnsureRegistrationsAllowed()
@@ -33,6 +35,7 @@ namespace Xtensive.Orm.Internals
     public SessionBoundRegistry(Session session)
       : base(session)
     {
+      registrationsDisabled = false;
     }
   }
 }

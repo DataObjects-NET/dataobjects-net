@@ -2618,7 +2618,7 @@ Error: {1}</value>
   <data name="LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone" xml:space="preserve">
     <value>Key generator kind for hierarchy with root '{0}' has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors.</value>
   </data>
-  <data name="ExPersistentChangesAreNotAllowedForThisEvent" xml:space="preserve">
-    <value>Changes of persistent objects are not allowed for this event due to possibility of changes not reaching database. Try use Session.Events.Persisting or Session.Events.TransactionPreCommitting for such changes for them to be saved correctly.</value>
+  <data name="ExPersistentChangesAreNotAllowed" xml:space="preserve">
+    <value>Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database.</value>
   </data>
 </root>
