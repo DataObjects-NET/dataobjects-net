@@ -17,10 +17,10 @@ on:
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
@@ -51,10 +51,10 @@ on:
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
@@ -85,10 +85,10 @@ on:
       - 'Orm/Xtensive.Orm/Orm/Upgrade/**'
       - 'Orm/Xtensive.Orm/Sql/**'
       # provider
-      - 'Orm/Xtensive.Orm.MySql/**'
-      - '!Orm/Xtensive.Orm.MySql/**.csproj'
-      - '!Orm/Xtensive.Orm.MySql/NuGetContent/**'
-      # main test project - any code change
+      - 'Orm/Xtensive.Orm.PostgreSql/**'
+      - '!Orm/Xtensive.Orm.PostgreSql/**.csproj'
+      - '!Orm/Xtensive.Orm.PostgreSql/NuGetContent/**'
+      # main test project - only most significant parts
       - 'Orm/Xtensive.Orm.Tests/Issues/**'
       - 'Orm/Xtensive.Orm.Tests/Storage/**'
       - 'Orm/Xtensive.Orm.Tests/Upgrade/**'
