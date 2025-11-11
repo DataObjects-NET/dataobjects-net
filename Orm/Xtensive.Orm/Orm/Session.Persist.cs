@@ -210,8 +210,9 @@ namespace Xtensive.Orm
             }
           }
         }
+
+        SystemEvents.NotifyPersisted();
         using (PreventRegistryChanges()) {
-          SystemEvents.NotifyPersisted();
           Events.NotifyPersisted();
         }
       }

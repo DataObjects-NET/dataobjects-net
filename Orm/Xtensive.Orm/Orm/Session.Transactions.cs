@@ -259,8 +259,8 @@ namespace Xtensive.Orm
 
       ValidationContext.Validate(ValidationReason.Commit);
 
+      SystemEvents.NotifyTransactionCommitting(transaction);
       using (PreventRegistryChanges()) {
-        SystemEvents.NotifyTransactionCommitting(transaction);
         Events.NotifyTransactionCommitting(transaction);
       }
 
@@ -373,8 +373,8 @@ namespace Xtensive.Orm
             OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
           }
 
+          SystemEvents.NotifyTransactionCommitted(transaction);
           using (PreventRegistryChanges()) {
-            SystemEvents.NotifyTransactionCommitted(transaction);
             Events.NotifyTransactionCommitted(transaction);
           }
           break;
@@ -383,8 +383,8 @@ namespace Xtensive.Orm
             OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
           }
 
+          SystemEvents.NotifyTransactionRollbacked(transaction);
           using (PreventRegistryChanges()) {
-            SystemEvents.NotifyTransactionRollbacked(transaction);
             Events.NotifyTransactionRollbacked(transaction);
           }
           break;
