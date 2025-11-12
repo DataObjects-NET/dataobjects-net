@@ -1,0 +1,1 @@
+[main] Changes of Persistent objects in events Persisted/TransactionCommitting/TransactionCommitted became prohibited to prevent possible loss of changes
