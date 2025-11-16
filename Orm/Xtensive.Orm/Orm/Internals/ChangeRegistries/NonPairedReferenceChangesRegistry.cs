@@ -1,48 +1,35 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.06.21
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
 {
-  internal sealed class NonPairedReferenceChangesRegistry : SessionBound
+  internal sealed class NonPairedReferenceChangesRegistry : SessionBoundRegistry
   {
-    private class Identifier : IEquatable<Identifier>
+    private readonly struct Identifier : IEquatable<Identifier>
     {
-      public AssociationInfo Association { get; private set; }
+      public readonly AssociationInfo Association;
+      public readonly EntityState EntityState;
 
-      public EntityState EntityState { get; private set; }
+      public static Identifier Make(EntityState state, AssociationInfo association) => new(state, association);
 
-      public bool Equals(Identifier other)
-      {
-        if (ReferenceEquals(other, null))
-          return false;
-        if (ReferenceEquals(this, other))
-          return true;
-        if (!Association.Equals(other.Association))
-          return false;
-        if (!EntityState.Equals(other.EntityState))
-          return false;
-        return true;
-      }
+      public bool Equals(Identifier other) =>
+        Association.Equals(other.Association) && EntityState.Equals(other.EntityState);
 
-      public override bool Equals(object obj)
-      {
-        return Equals(obj as Identifier);
-      }
+      public override bool Equals(object obj) => Equals((Identifier) obj);
 
       public override int GetHashCode()
       {
         unchecked {
-          int hash = 139;
+          var hash = 139;
           hash = hash * 311 + EntityState.GetHashCode();
           hash = hash * 311 + Association.GetHashCode();
           return hash;
@@ -58,25 +45,20 @@ namespace Xtensive.Orm.Internals
 
     private readonly IDictionary<Identifier, HashSet<EntityState>> removedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
     private readonly IDictionary<Identifier, HashSet<EntityState>> addedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
-    private readonly object accessGuard = new object();
+    private readonly object accessGuard = new();
 
-    public int RemovedReferencesCount { get { return removedReferences.Values.Sum(el => el.Count); } }
+    public int RemovedReferencesCount => removedReferences.Values.Sum(el => el.Count);
 
-    public int AddedReferencesCount { get { return addedReferences.Values.Sum(el => el.Count); } }
+    public int AddedReferencesCount => addedReferences.Values.Sum(el => el.Count);
 
     public IEnumerable<EntityState> GetRemovedReferencesTo(EntityState target, AssociationInfo association)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
-      if (association.IsPaired)
-        return Enumerable.Empty<EntityState>();
-
-      var key = MakeKey(target, association);
-      HashSet<EntityState> removedMap;
-      if (removedReferences.TryGetValue(key, out removedMap))
-        return removedMap;
-      return Enumerable.Empty<EntityState>();
+      return association.IsPaired || !removedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
+        ? Array.Empty<EntityState>()
+        : removedMap;
     }
 
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
@@ -84,20 +66,12 @@ namespace Xtensive.Orm.Internals
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
-      if (association.IsPaired)
-        return Enumerable.Empty<EntityState>();
-
-      var key = MakeKey(target, association);
-      HashSet<EntityState> removedMap;
-      if (addedReferences.TryGetValue(key, out removedMap))
-        return removedMap;
-      return Enumerable.Empty<EntityState>();
+      return association.IsPaired || !addedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
+        ? Array.Empty<EntityState>()
+        : removedMap;
     }
 
-    public void Invalidate()
-    {
-      Clear();
-    }
+    public void Invalidate() => Clear();
 
     public void Clear()
     {
@@ -111,68 +85,68 @@ namespace Xtensive.Orm.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
       ArgumentValidator.EnsureArgumentNotNull(referencingState, "referencingState");
-      if (!Session.DisableAutoSaveChanges)
-        return;
 
-      if (association.IsPaired)
+      if (!Session.DisableAutoSaveChanges || association.IsPaired
+        || (referencedState == null && noLongerReferencedState == null)) {
         return;
+      }
 
-      if (referencedState==null && noLongerReferencedState==null)
-        return;
       if (referencedState!=null && noLongerReferencedState!=null) {
-        var oldKey = MakeKey(noLongerReferencedState, association);
-        var newKey = MakeKey(referencedState, association);
+        var oldKey = Identifier.Make(noLongerReferencedState, association);
+        var newKey = Identifier.Make(referencedState, association);
         RegisterRemoveInternal(oldKey, referencingState);
         RegisterAddInternal(newKey, referencingState);
       }
       else if (noLongerReferencedState!=null) {
-        var oldKey = MakeKey(noLongerReferencedState, association);
+        var oldKey = Identifier.Make(noLongerReferencedState, association);
         RegisterRemoveInternal(oldKey, referencingState);
       }
       else {
-        var newKey = MakeKey(referencedState, association);
+        var newKey = Identifier.Make(referencedState, association);
         RegisterAddInternal(newKey, referencingState);
       }
     }
 
     private void RegisterRemoveInternal(Identifier oldKey, EntityState referencingState)
     {
-      HashSet<EntityState> references;
-      if (addedReferences.TryGetValue(oldKey, out references)) {
-        if (references.Remove(referencingState)) {
-          if (references.Count==0)
-            addedReferences.Remove(oldKey);
+      if (addedReferences.TryGetValue(oldKey, out var addedRefs)) {
+        EnsureRegistrationsAllowed();
+        if (addedRefs.Remove(referencingState)) {
+          if (addedRefs.Count == 0) {
+            _ = addedReferences.Remove(oldKey);
+          }
           return;
         }
       }
-      if (removedReferences.TryGetValue(oldKey, out references)) {
-        if (!references.Add(referencingState))
+      if (removedReferences.TryGetValue(oldKey, out var renivedRefs)) {
+        if (!renivedRefs.Add(referencingState)) {
           throw new InvalidOperationException(Strings.ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered);
+        }
         return;
       }
+      EnsureRegistrationsAllowed();
       removedReferences.Add(oldKey, new HashSet<EntityState>{referencingState});
     }
 
     private void RegisterAddInternal(Identifier newKey, EntityState referencingState)
     {
-      HashSet<EntityState> references;
-      if (removedReferences.TryGetValue(newKey, out references)) {
-        if (references.Remove(referencingState))
-          if (references.Count==0)
-            removedReferences.Remove(newKey);
+      if (removedReferences.TryGetValue(newKey, out var removedRefs)) {
+        EnsureRegistrationsAllowed();
+        if (removedRefs.Remove(referencingState)) {
+          if (removedRefs.Count == 0) {
+            _ = removedReferences.Remove(newKey);
+          }
+        }
         return;
       }
-      if (addedReferences.TryGetValue(newKey, out references)) {
-        if (!references.Add(referencingState))
+      if (addedReferences.TryGetValue(newKey, out var addedRefs)) {
+        if (!addedRefs.Add(referencingState)) {
           throw new InvalidOperationException(Strings.ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered);
+        }
         return;
       }
+      EnsureRegistrationsAllowed();
       addedReferences.Add(newKey, new HashSet<EntityState>{referencingState});
-    }
-
-    private Identifier MakeKey(EntityState state, AssociationInfo association)
-    {
-      return new Identifier(state, association);
     }
 
     private void Initialize()
@@ -183,43 +157,50 @@ namespace Xtensive.Orm.Internals
       Session.SystemEvents.Persisted += OnSessionPersisted;
     }
 
-    private void OnSessionPersisted(object sender, EventArgs e)
-    {
-      Invalidate();
-    }
+    private void OnSessionPersisted(object sender, EventArgs e) => Invalidate();
 
     private void OnEntitySetItemRemoveCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {
-      if (ShouldSkipRegistration(e))
+      if (ShouldSkipRegistration(e)) {
         return;
+      }
+
       RegisterChange(null, e.Entity.State, e.Item.State, e.Field.Associations.First());
     }
 
     private void OnEntitySetItemAddCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {
-      if (ShouldSkipRegistration(e))
+      if (ShouldSkipRegistration(e)) {
         return;
+      }
+
       RegisterChange(e.Item.State, e.Entity.State, null, e.Field.Associations.First());
     }
 
     private void OnEntityFieldValueSetCompleted(object sender, EntityFieldValueSetCompletedEventArgs e)
     {
-      if (ShouldSkipRegistration(e))
+      if (ShouldSkipRegistration(e)) {
         return;
-      if (e.Field.IsStructure)
+      }
+      if (e.Field.IsStructure) {
         HandleStructureValues(e.Entity, e.Field, (Structure) e.OldValue, (Structure) e.NewValue);
-      else
+      }
+      else {
         HandleEntityValues(e.Entity, e.Field, (Entity) e.OldValue, (Entity) e.NewValue);
+      }
     }
 
     private void HandleStructureValues(Entity owner, FieldInfo fieldOfOwner, Structure oldValue, Structure newValue)
     {
-      var referenceFields = oldValue.TypeInfo.Fields.Where(f => f.IsEntity).Union(oldValue.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity));
+      var referenceFields = oldValue.TypeInfo.Fields.Where(f => f.IsEntity)
+        .Union(oldValue.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity));
 
       foreach (var referenceFieldOfStructure in referenceFields) {
-        var realField = owner.TypeInfo.Fields[BuildNameOfEntityField(fieldOfOwner, referenceFieldOfStructure)];
-        if (realField.Associations.Count>1)
+        var realField = owner.TypeInfo.Fields[BuildNameEntityFieldName(fieldOfOwner, referenceFieldOfStructure)];
+        if (realField.Associations.Count > 1) {
           continue;
+        }
+
         var realAssociation = realField.Associations.First();
         var oldFieldValue = GetStructureFieldValue(referenceFieldOfStructure, oldValue);
         var newFieldValue = GetStructureFieldValue(referenceFieldOfStructure, newValue);
@@ -229,60 +210,36 @@ namespace Xtensive.Orm.Internals
 
     private void HandleEntityValues(Entity owner, FieldInfo field, Entity oldValue, Entity newValue)
     {
-      var oldEntityState = (oldValue!=null) ? oldValue.State : null;
-      var newEntityState = (newValue!=null) ? newValue.State : null;
       var association = field.GetAssociation((oldValue ?? newValue).TypeInfo);
-      RegisterChange(newEntityState, owner.State, oldEntityState, association);
+      RegisterChange(newValue?.State, owner.State, oldValue?.State, association);
     }
 
-    private bool ShouldSkipRegistration(EntityFieldValueSetCompletedEventArgs e)
-    {
-      if (!Session.DisableAutoSaveChanges)
-        return true;
-      if (Session.IsPersisting)
-        return true;
-      if (e.Exception!=null)
-        return true;
-      if (!e.Field.IsEntity && !e.Field.IsStructure)
-        return true;
-      if (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
-        return true;
-      if (e.NewValue==null && e.OldValue==null)
-        return true;
-      return false;
-    }
+    private bool ShouldSkipRegistration(EntityFieldValueSetCompletedEventArgs e) =>
+      !Session.DisableAutoSaveChanges || Session.IsPersisting
+        || e.Exception != null
+        || (!e.Field.IsEntity && !e.Field.IsStructure)
+        || (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
+        || (e.NewValue == null && e.OldValue == null);
+    
 
-    private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e)
-    {
-      if (!Session.DisableAutoSaveChanges)
-        return true;
-      if (Session.IsPersisting)
-        return true;
-      if (e.Exception!=null)
-        return true;
-      if (e.Field.Associations.First().IsPaired)
-        return true;
-      return false;
-    }
+    private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e) =>
+      !Session.DisableAutoSaveChanges || Session.IsPersisting
+        || e.Exception != null
+        || e.Field.Associations.First().IsPaired;
 
     private EntityState GetStructureFieldValue(FieldInfo fieldOfStructure, Structure structure)
     {
-      EntityState value;
-      if (structure==null)
-        value = null;
-      else {
-        var accessor = structure.GetFieldAccessor(fieldOfStructure);
-        var entity = (Entity) accessor.GetUntypedValue(structure);
-        value = (entity!=null) ? entity.State : null;
+      if (structure == null) {
+        return null;
       }
-      return value;
+      var accessor = structure.GetFieldAccessor(fieldOfStructure);
+      var entity = (Entity) accessor.GetUntypedValue(structure);
+      return entity?.State;
     }
 
-    private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure)
-    {
-      var name = $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
-      return name;
-    }
+    private string BuildNameEntityFieldName(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure) =>
+      $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
+
 
     internal NonPairedReferenceChangesRegistry(Session session)
       : base(session)

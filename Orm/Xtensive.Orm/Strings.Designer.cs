@@ -3463,6 +3463,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database..
+        /// </summary>
+        internal static string ExPersistentChangesAreNotAllowed {
+            get {
+                return ResourceManager.GetString("ExPersistentChangesAreNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Persistent type &apos;{0}&apos; is not entity or persistent interface..
         /// </summary>
         internal static string ExPersistentTypeXIsNotEntityOrPersistentInterface {
