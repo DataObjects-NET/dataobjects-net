@@ -1,2 +1,3 @@
 [main] Changes of Persistent objects in events Persisted/TransactionCommitting/TransactionCommitted became prohibited to prevent possible loss of changes
+[main] Memory efficiency and performance improvements of upgrade process
 [postgresql] Server-side statement timeout handled as TimeoutException
