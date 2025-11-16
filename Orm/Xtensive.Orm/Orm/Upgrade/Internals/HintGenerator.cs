@@ -632,20 +632,6 @@ namespace Xtensive.Orm.Upgrade
           storedField = result ?? throw FieldNotFound(typeName, hint.Field);
           fields = storedField.Fields;
         }
-
-        //var path = hint.Field.Split('.');
-        //var fields = storedType.AllFields;
-        //var fieldName = string.Empty;
-        //for (var i = 0; i < path.Length; i++) {
-        //  fieldName += string.IsNullOrEmpty(fieldName) ? path[i] : "." + path[i];
-        //  var parameter = fieldName;
-        //  storedField = fields.SingleOrDefault(field => field.Name.Equals(parameter, StringComparison.Ordinal));
-        //  if (storedField == null) {
-        //    throw FieldNotFound(typeName, hint.Field);
-        //  }
-
-        //  fields = storedField.Fields;
-        //}
       }
       else {
         storedField = storedType.AllFields
@@ -788,7 +774,7 @@ namespace Xtensive.Orm.Upgrade
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
         where IsRemoved(type)
         select type
-        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 4, 8));
+        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 10, 8));
 
       bool IsRemoved(StoredTypeInfo type)
       {
@@ -803,7 +789,7 @@ namespace Xtensive.Orm.Upgrade
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
         where IsMovedToAnotherHierarchy(type)
         select type
-        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 4, 8));
+        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 10, 8));
 
       bool IsMovedToAnotherHierarchy(StoredTypeInfo oldType)
       {
