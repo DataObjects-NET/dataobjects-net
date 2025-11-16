@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -134,13 +134,15 @@ namespace Xtensive.Orm
 
       var ts = await InnerOpenTransaction(
         TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
+
       try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
+
         using (OpenSystemLogicOnlyRegion()) {
-          DemandTransaction();
+          _ = DemandTransaction();
           if (IsDebugEventLoggingEnabled) {
             OrmLog.Debug(nameof(Strings.LogSessionXPersistingReasonY), this, reason);
           }
@@ -210,7 +212,9 @@ namespace Xtensive.Orm
         }
 
         SystemEvents.NotifyPersisted();
-        Events.NotifyPersisted();
+        using (PreventRegistryChanges()) {
+          Events.NotifyPersisted();
+        }
       }
       finally {
         IsPersisting = false;
@@ -364,6 +368,14 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
+    }
+
+    private JoiningDisposable PreventRegistryChanges()
+    {
+      return EntityChangeRegistry.DisableRegistrations()
+        & EntitySetChangeRegistry.DisableRegistrations()
+        & NonPairedReferencesRegistry.DisableRegistrations()
+        & ReferenceFieldsChangesRegistry.DisableRegistrations();
     }
   }
 }
