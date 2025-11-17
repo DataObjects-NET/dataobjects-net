@@ -4,8 +4,8 @@ run-name: Tests on PostgreSQL 16.0 tests triggered by '${{ github.event_name }}'
 on:
   push:
     branches:
-      - 'master'
-      - 'master-*'
+      - '7.2'
+      - '7.2-*'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-16'
@@ -39,7 +39,7 @@ on:
 
   pull_request:
     branches:
-      - 'master'
+      - '7.2'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-16'
@@ -73,7 +73,7 @@ on:
 
   pull_request_review:
     branches:
-      - 'master'
+      - '7.2'
     paths:
       # containers
       - 'Containers/postgres/do-postgres-16'
@@ -131,12 +131,12 @@ jobs:
       github.event_name == 'push'
         || (github.event_name == 'pull_request_review'
              && github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-             && startsWith(github.event.pull_request.base.ref, 'master')
+             && startsWith(github.event.pull_request.base.ref, '7.2')
              && github.event.review.state == 'approved')
         || (github.event_name == 'pull_request'
              && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-             && !startsWith(github.head_ref, 'master-'))
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+             && !startsWith(github.head_ref, '7.2-'))
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql160
       build_config: Release

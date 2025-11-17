@@ -90,7 +90,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql100
       build_config: Release
@@ -110,7 +110,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql110
       build_config: Release
@@ -130,7 +130,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql120
       build_config: Release
@@ -151,7 +151,7 @@ jobs:
       fail-fast: false
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql130
       build_config: Release
@@ -171,7 +171,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql140
       build_config: Release
@@ -191,7 +191,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql150
       build_config: Release
@@ -211,7 +211,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql160
       build_config: Release
@@ -231,7 +231,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql170
       build_config: Release
@@ -251,7 +251,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: pgsql180
       build_config: Release
@@ -271,7 +271,7 @@ jobs:
   #  strategy:
   #    matrix:
   #      net: [ 'net6.0', 'net7.0', 'net8.0' ]
-  #  uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+  #  uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
   #  with:
   #    storage: pgsql190
   #    build_config: Release

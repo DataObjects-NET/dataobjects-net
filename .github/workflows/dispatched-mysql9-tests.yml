@@ -51,7 +51,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: mysql90
       build_config: Release
@@ -71,7 +71,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: mysql91
       build_config: Release
@@ -91,7 +91,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: mysql92
       build_config: Release
@@ -111,7 +111,7 @@ jobs:
     strategy:
       matrix:
         net: [ 'net6.0', 'net7.0', 'net8.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: mysql93
       build_config: Release
