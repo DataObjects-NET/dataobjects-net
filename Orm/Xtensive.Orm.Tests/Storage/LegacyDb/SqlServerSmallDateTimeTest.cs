@@ -27,14 +27,8 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2005TestModel
 namespace Xtensive.Orm.Tests.Storage.LegacyDb
 {
   [TestFixture]
-  public class CrazyColumns2005Test : LegacyDbAutoBuildTest
+  public class SqlServerSmallDateTimeTest : LegacyDbAutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      base.CheckRequirements();
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -69,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
           [Id] [uniqueidentifier] NOT NULL,
           [SmallDateTime] [smalldatetime] NOT NULL,
           CONSTRAINT [PK_Crazy] PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
-        ) ON [PRIMARY]";      
+        ) ON [PRIMARY]";
     }
   }
 }

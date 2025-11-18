@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void TestFixutreSetup()
     {
       Require.ProviderIs(StorageProvider.MySql);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.MySql56);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.MySql57);
 
       var bValue = DateTime.UtcNow;
       bValue = new DateTime(bValue.Year, bValue.Month, bValue.Day, bValue.Hour, bValue.Minute, bValue.Second, 222, DateTimeKind.Utc);

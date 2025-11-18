@@ -135,10 +135,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.TimeOnlys
     [Test]
     public void TicksFromColumnsBasedExpressionMilliseconds()
     {
-      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
-        Require.ProviderVersionAtLeast(StorageProviderVersion.MySql56);
-      }
-
       var ticksPerHour = new TimeOnly(1, 0).Ticks;
       var ticksPerMinute = new TimeOnly(0, 1).Ticks;
       var ticksPerSecond = new TimeOnly(0, 0, 1).Ticks;

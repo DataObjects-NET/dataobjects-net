@@ -116,7 +116,6 @@ namespace Xtensive.Orm.Tests.Sql
     public void ServerInfoTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
       var driver = TestSqlDriver.Create(url);
       Assert.Greater(driver.CoreServerInfo.ServerVersion.Major, 8);
     }

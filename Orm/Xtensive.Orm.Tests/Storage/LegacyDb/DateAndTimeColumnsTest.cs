@@ -31,14 +31,8 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
 {
 
   [TestFixture]
-  public class CrazyColumns2008Test : LegacyDbAutoBuildTest
+  public class DateAndTimeColumnsTest : LegacyDbAutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      base.CheckRequirements();
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -47,7 +41,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
     }
 
     [Test]
-    [Ignore("Fix later")]
     public void CombinedTest()
     {
       var date = new DateTime(2000, 01, 01);

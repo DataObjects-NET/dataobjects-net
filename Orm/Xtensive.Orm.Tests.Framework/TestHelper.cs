@@ -84,9 +84,7 @@ namespace Xtensive.Orm.Tests
       var provider = providerInfo.Provider;
       switch (provider) {
         case StorageProvider.MySql:
-          return providerInfo.Info.StorageVersion < StorageProviderVersion.MySql56
-            ? AdjustDateTime(origin, 0)
-            : AdjustDateTime(origin, 6);
+          return AdjustDateTime(origin, 6);
         case StorageProvider.Firebird:
           return AdjustDateTime(origin, 4);
         case StorageProvider.PostgreSql:
@@ -157,7 +155,7 @@ namespace Xtensive.Orm.Tests
       var provider = providerInfo.Provider;
       switch (provider) {
         case StorageProvider.MySql:
-          divider = providerInfo.Info.StorageVersion < StorageProviderVersion.MySql56 ? 10000000 : 10;
+          divider = 10;
           break;
         case StorageProvider.Firebird:
           divider = 1000;

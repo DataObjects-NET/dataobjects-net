@@ -440,7 +440,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractUDTTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
       var create = "CREATE TYPE GuidList AS TABLE ( Id UNIQUEIDENTIFIER NULL )";
       var drop = "if type_id('GuidList') is not null drop type GuidList";
 
@@ -452,7 +451,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractFulltextChangeTrackingTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
       var createTable = @"CREATE TABLE [FullTextTestTable]
                             (
                               [Id] int not null,
@@ -518,8 +516,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractInt32SequenceTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
-
       var createSequence = @"CREATE SEQUENCE dbo.IntSeq
                                 AS int
                                 START WITH 12 INCREMENT BY 3
@@ -546,8 +542,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractInt16SequenceTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
-
       var createSequence = @"CREATE SEQUENCE dbo.SmallIntSeq
                                 AS smallint
                                 START WITH 12 INCREMENT BY 3
@@ -574,8 +568,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractByteSequenceTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
-
       var createSequence = @"CREATE SEQUENCE dbo.TinyIntSeq
                                 AS tinyint
                                 START WITH 12 INCREMENT BY 3
