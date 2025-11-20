@@ -97,11 +97,11 @@ namespace Xtensive.Sql.Drivers.MySql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to MySQL version below 5.0 is not supported..
+        ///   Looks up a localized string similar to MySQL version below 5.7 is not supported..
         /// </summary>
-        internal static string ExMySqlBelow50IsNotSupported {
+        internal static string ExMySqlBelow57IsNotSupported {
             get {
-                return ResourceManager.GetString("ExMySqlBelow50IsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExMySqlBelow57IsNotSupported", resourceCulture);
             }
         }
         

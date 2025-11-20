@@ -9,9 +9,10 @@ using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Upgrade.MySqlDateTimeUpgradeTestModel;
+using Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.MySqlDateTimeUpgradeTestModel;
+using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Orm.Tests.Upgrade.MySqlDateTimeUpgradeTestModel
+namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.MySqlDateTimeUpgradeTestModel
 {
   [HierarchyRoot]
   public class TestDateTimeEntity : Entity
@@ -41,10 +42,38 @@ namespace Xtensive.Orm.Tests.Upgrade.MySqlDateTimeUpgradeTestModel
         TestDateTimeEntity.DynamicFieldName, typeof(DateTime?));
     }
   }
+
+  public class DateTimeColumnTypeModifier : UpgradeHandler
+  {
+    public override void OnBeforeExecuteActions(UpgradeActionSequence actions)
+    {
+      // we try to replace current type of datatime(6) with legacy datetime (0 fractions)
+
+      if (UpgradeContext.Configuration.UpgradeMode != DomainUpgradeMode.Recreate)
+        return;
+
+      if (actions.UpgradeCommands.Count > 0) {
+        var list = actions.UpgradeCommands;
+        TryReplaceDateTimeValueType(list);
+      }
+
+      base.OnBeforeExecuteActions(actions);
+    }
+
+    private void TryReplaceDateTimeValueType(List<string> commands)
+    {
+      for(var i = 0; i < commands.Count; i++) {
+        var currentCommand = commands[i];
+        if (currentCommand.Contains("datetime(6)", StringComparison.OrdinalIgnoreCase)) {
+          commands[i] = currentCommand.Replace("datetime(6)", "datetime");
+        }
+      }
+    }
+  }
 }
 
 
-namespace Xtensive.Orm.Tests.Upgrade
+namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
 {
   [TestFixture]
   internal class MySqlDateTimeUpgradeTest
@@ -129,7 +158,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void BuildAndPopulateInitDomain()
     {
       var initDomainConfig = BuildConfiguration(DomainUpgradeMode.Recreate);
-      initDomainConfig.ForcedServerVersion = "5.5";// in this version datetime type is used, the type we try to upgrade from
+      initDomainConfig.Types.Register(typeof(DateTimeColumnTypeModifier));
+      //initDomainConfig.ForcedServerVersion = "5.5";// in this version datetime type is used, the type we try to upgrade from
 
       using (var initDomain = Domain.Build(initDomainConfig))
       using (var session = initDomain.OpenSession())
