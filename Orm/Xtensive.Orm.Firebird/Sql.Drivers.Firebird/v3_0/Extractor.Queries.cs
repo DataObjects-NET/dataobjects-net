@@ -1,12 +1,29 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
+// Created by: Csaba Beer
+// Created:    2011.01.13
 
 namespace Xtensive.Sql.Drivers.Firebird.v3_0
 {
   internal partial class Extractor
   {
-    protected override string GetExtractTableColumnsQuery()
+    protected virtual string GetExtractSchemasQuery()
+    {
+      return @"select " + Constants.DefaultSchemaName + @"from rdb$database";
+    }
+
+    protected virtual string GetExtractTablesQuery()
+    {
+      return @"
+select cast(null as varchar(30)) as schema
+      ,trim(rdb$relation_name) as table_name
+      ,rdb$relation_type as table_type
+from rdb$relations 
+where rdb$relation_type in (0, 5, 4) and rdb$relation_name not starts with 'RDB$' and rdb$relation_name not starts with 'MON$'";
+    }
+
+    protected virtual string GetExtractTableColumnsQuery()
     {
       return @"
 select   schema
@@ -54,7 +71,84 @@ from     (select   cast(null as varchar(30)) as schema
           order by table_name, ordinal_position)";
     }
 
-    protected override string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
+    protected virtual string GetExtractViewsQuery()
+    {
+      return @"
+select cast(null as varchar(30)) as schema
+      ,trim(rdb$relation_name) as table_name
+      ,rdb$view_source as view_source
+from rdb$relations
+where rdb$relation_type = 1";
+    }
+
+    protected virtual string GetExtractViewColumnsQuery()
+    {
+      return @"
+select     cast(null as varchar(30)) as schema
+          ,trim(rfr.rdb$relation_name) as table_name
+          ,trim(rfr.rdb$field_name) as column_name
+          ,rfr.rdb$field_position as ordinal_position
+from       rdb$relations rr join rdb$relation_fields rfr on rfr.rdb$relation_name = rr.rdb$relation_name
+where      rr.rdb$relation_type = 1
+order by   rfr.rdb$relation_name, rfr.rdb$field_position";
+    }
+
+    protected virtual string GetExtractIndexesQuery()
+    {
+      return @"
+select     cast(null as varchar(30)) as schema
+          ,trim(ri.rdb$relation_name) as table_name
+          ,trim(ri.rdb$index_name) as index_name
+          ,ri.rdb$index_id as index_seq
+          ,ri.rdb$index_type as descend
+          ,ri.rdb$unique_flag as unique_flag
+          ,trim(ris.rdb$field_name) as column_name
+          ,ris.rdb$field_position as column_position
+          ,ri.rdb$expression_source as expression_source
+from       rdb$indices ri left join rdb$index_segments ris on ris.rdb$index_name = ri.rdb$index_name
+where      ri.rdb$system_flag = 0
+       and not exists
+              (select   1
+               from     rdb$relation_constraints rc
+               where    rc.rdb$constraint_type in ('PRIMARY KEY', 'FOREIGN KEY')
+                    and rc.rdb$relation_name = ri.rdb$relation_name
+                    and rc.rdb$index_name = ri.rdb$index_name)
+order by   ri.rdb$relation_name, ri.rdb$index_id, ris.rdb$field_position";
+    }
+
+    protected virtual string GetExtractForeignKeysQuery()
+    {
+      return @"
+select     cast(null as varchar(30)) as schema
+          ,trim(co.rdb$relation_name) as table_name
+          ,trim(co.rdb$constraint_name) as constraint_name
+          ,trim(co.rdb$deferrable) as is_deferrable
+          ,trim(co.rdb$initially_deferred) as deferred
+          ,trim(ref.rdb$delete_rule) as delete_rule
+          ,trim(coidxseg.rdb$field_name) as column_name
+          ,coidxseg.rdb$field_position as column_position
+          ,cast(null as varchar(30)) as referenced_schema
+          ,trim(refidx.rdb$relation_name) as referenced_table_name
+          ,trim(refidxseg.rdb$field_name) as referenced_column_name
+          ,trim(ref.rdb$match_option) as match_option
+          ,trim(ref.rdb$update_rule) as update_rule
+from       rdb$relation_constraints co join rdb$ref_constraints ref on co.rdb$constraint_name = ref.rdb$constraint_name
+           join rdb$indices tempidx
+              on co.rdb$index_name = tempidx.rdb$index_name
+           join rdb$index_segments coidxseg
+              on co.rdb$index_name = coidxseg.rdb$index_name
+           join rdb$relation_constraints unqc
+              on ref.rdb$const_name_uq = unqc.rdb$constraint_name and unqc.rdb$constraint_type in ('UNIQUE', 'PRIMARY KEY')
+           join rdb$indices refidx
+              on refidx.rdb$index_name = unqc.rdb$index_name and refidx.rdb$relation_name not starts with 'RDB$'
+           join rdb$index_segments refidxseg
+              on refidx.rdb$index_name = refidxseg.rdb$index_name
+             and coidxseg.rdb$field_position = refidxseg.rdb$field_position
+where      co.rdb$constraint_type = 'FOREIGN KEY'
+order by   co.rdb$relation_name, co.rdb$constraint_name, coidxseg.rdb$field_position";
+    }
+
+    protected virtual string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
     {
       return @"
 select     cast(null as varchar(30)) as schema
@@ -70,6 +164,36 @@ where      rel.rdb$constraint_type in ('PRIMARY KEY', 'UNIQUE')
            and rel.rdb$relation_name not starts with 'RDB$'
            and rel.rdb$relation_name not starts with 'MON$'
 order by   rel.rdb$relation_name, rel.rdb$constraint_name, seg.rdb$field_position";
+    }
+
+    protected virtual string GetExtractCheckConstraintsQuery()
+    {
+      return @"
+select     cast(null as varchar(30)) as schema
+          ,trim(chktb.rdb$relation_name) as table_name
+          ,trim(chktb.rdb$constraint_name) as constraint_name
+          ,trim(trig.rdb$trigger_source) as check_clausule
+from       rdb$relation_constraints chktb inner join rdb$check_constraints chk
+              on (chktb.rdb$constraint_name = chk.rdb$constraint_name and chktb.rdb$constraint_type = 'CHECK')
+           inner join rdb$triggers trig
+              on chk.rdb$trigger_name = trig.rdb$trigger_name and trig.rdb$trigger_type = 1
+order by   chktb.rdb$relation_name, chktb.rdb$constraint_name";
+    }
+
+    protected virtual string GetExtractSequencesQuery()
+    {
+      return @"
+select   cast(null as varchar(30)) as schema
+        ,trim(rdb$generator_name) as sequence_name
+from     rdb$generators
+where    rdb$system_flag = 0";
+    }
+
+    protected virtual string GetExtractSequenceValueQuery()
+    {
+      return @"
+select   GEN_ID({0}, 0)
+from     rdb$database";
     }
   }
 }
