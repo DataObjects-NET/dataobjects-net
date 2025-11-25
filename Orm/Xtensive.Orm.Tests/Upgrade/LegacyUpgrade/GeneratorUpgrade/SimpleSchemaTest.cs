@@ -342,7 +342,7 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
 
       upgradeConfiguration = upgradeConfiguration.Clone();
       upgradeConfiguration.UpgradeMode = DomainUpgradeMode.Validate;
-      using (var domain = Domain.Build(upgradeConfiguration)) {  }
+      using (var domain = Domain.Build(upgradeConfiguration)) { }
     }
 
     [Test]

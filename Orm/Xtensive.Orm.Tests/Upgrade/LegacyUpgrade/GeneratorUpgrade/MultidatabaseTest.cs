@@ -13,10 +13,10 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
-using refModel = Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.ReferenceModel;
-using lessGeneratorsModel = Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.LessGenerators;
+using refModel = Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade.ReferenceModel;
+using lessGeneratorsModel = Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade.LessGenerators;
 
-namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
+namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
 {
   public class MultidatabaseTest : SimpleSchemaTest
   {

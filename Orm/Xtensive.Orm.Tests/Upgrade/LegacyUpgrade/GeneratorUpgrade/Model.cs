@@ -8,8 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
+namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
 {
   namespace ReferenceModel.Part1
   {
