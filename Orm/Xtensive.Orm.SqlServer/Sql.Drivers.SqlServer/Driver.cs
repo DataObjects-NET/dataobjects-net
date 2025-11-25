@@ -28,23 +28,26 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     public override SqlExceptionInfo GetExceptionInfo(Exception exception)
     {
-      var nativeException = exception as SqlException;
-      if (nativeException==null)
+      if (exception is not SqlException nativeException)
         return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
       int errorCode = nativeException.Number;
-      string errorMessage = nativeException.Message;
-      if (errorCode==-2)
-        return SqlExceptionInfo.Create(SqlExceptionType.OperationTimeout);
-      if (errorCode==1205)
-        return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
+      switch (errorCode) {
+        case -2:
+          return SqlExceptionInfo.Create(SqlExceptionType.OperationTimeout);
+        case 1205:
+          return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
+        case 229:
+        case 230:
+          return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
+      }
+
       if ((errorCode >= 3950 && errorCode <= 3961) || errorCode==3966 || errorCode==3971)
         return SqlExceptionInfo.Create(SqlExceptionType.SerializationFailure);
-      if (errorCode==229 || errorCode==230)
-        return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
       if (errorCode >= 100 && errorCode <= 499)
         return SqlExceptionInfo.Create(SqlExceptionType.SyntaxError);
+
       var info = new SqlExceptionInfo();
-      if (TryProvideErrorContext(errorCode, errorMessage, info)) {
+      if (TryProvideErrorContext(errorCode, nativeException.Message, info)) {
         info.Lock();
         return info;
       }

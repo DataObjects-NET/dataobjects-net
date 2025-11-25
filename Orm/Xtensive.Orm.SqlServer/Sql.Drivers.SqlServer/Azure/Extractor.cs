@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
-  internal class Extractor : v12.Extractor
+  internal class Extractor : v13.Extractor
   {
     // Constructors
 

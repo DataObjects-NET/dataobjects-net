@@ -5,11 +5,10 @@
 // Created:    2009.07.07
 
 using Xtensive.Sql.Info;
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
-  internal class Driver : v12.Driver
+  internal class Driver : v13.Driver
   {
     protected override Model.Extractor CreateExtractor()
     {

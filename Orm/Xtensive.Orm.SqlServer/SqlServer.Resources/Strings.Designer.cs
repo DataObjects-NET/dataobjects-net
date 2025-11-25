@@ -88,11 +88,11 @@ namespace Xtensive.SqlServer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to SQL Server below 2005 is not supported..
+        ///   Looks up a localized string similar to SQL Server below 2016 is not supported..
         /// </summary>
-        internal static string ExSqlServerBelow2005IsNotSupported {
+        internal static string ExSqlServerBelow2016IsNotSupported {
             get {
-                return ResourceManager.GetString("ExSqlServerBelow2005IsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExSqlServerBelow2016IsNotSupported", resourceCulture);
             }
         }
         
