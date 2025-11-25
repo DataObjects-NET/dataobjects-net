@@ -159,7 +159,6 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
     {
       var initDomainConfig = BuildConfiguration(DomainUpgradeMode.Recreate);
       initDomainConfig.Types.Register(typeof(DateTimeColumnTypeModifier));
-      //initDomainConfig.ForcedServerVersion = "5.5";// in this version datetime type is used, the type we try to upgrade from
 
       using (var initDomain = Domain.Build(initDomainConfig))
       using (var session = initDomain.OpenSession())
