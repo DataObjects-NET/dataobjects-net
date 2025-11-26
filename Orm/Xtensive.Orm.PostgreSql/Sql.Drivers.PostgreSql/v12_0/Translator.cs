@@ -7,7 +7,7 @@ using Xtensive.Sql.Ddl;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
 {
-  internal class Translator : v10_0.Translator
+  internal class Translator : v11_0.Translator
   {
     public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {

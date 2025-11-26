@@ -10,7 +10,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
 {
-  internal class Extractor : v10_0.Extractor
+  internal class Extractor : v11_0.Extractor
   {
     /// <inheritdoc/>
     protected override void BuildPgCatalogSchema(Schema schema)

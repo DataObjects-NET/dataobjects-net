@@ -6,7 +6,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
 {
-  internal class ServerInfoProvider : v10_0.ServerInfoProvider
+  internal class ServerInfoProvider : v11_0.ServerInfoProvider
   {
     protected override IndexFeatures GetIndexFeatures() => base.GetIndexFeatures() | IndexFeatures.NonKeyColumns;
 

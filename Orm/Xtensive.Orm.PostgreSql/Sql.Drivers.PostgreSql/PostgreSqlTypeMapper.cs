@@ -51,5 +51,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       this.npgsqlDbType = npgsqlDbType;
       this.sqlType = sqlType;
     }
+
+    protected PostgreSqlTypeMapper(Type dotnetType, NpgsqlDbType npgsqlDbType, SqlType sqlType)
+    {
+      type = dotnetType;
+      this.npgsqlDbType = npgsqlDbType;
+      this.sqlType = sqlType;
+    }
   }
 }
