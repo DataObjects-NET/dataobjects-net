@@ -76,18 +76,23 @@ namespace Xtensive.Sql.Compiler
     /// Gets the <see cref="DateOnly"/> format string.
     /// See <see cref="DateOnly.ToString(string)"/> for details
     /// </summary>
-    public virtual string DateOnlyFormatString => throw new NotImplementedException();
+    public abstract string DateOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="TimeOnly"/> format string.
+    /// </summary>
+    public abstract string TimeOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="DateTimeOffset"/> format string
+    /// </summary>
+    public virtual string DateTimeOffsetFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the time span format string.
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
-
-    /// <summary>
-    /// Gets the <see cref="TimeOnly"/> format string.
-    /// </summary>
-    public virtual string TimeOnlyFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the parameter prefix.
