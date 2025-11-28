@@ -2016,6 +2016,11 @@ namespace Xtensive.Sql.Compiler
 
     #region Enums and other types that require translation to string
 
+    /// <summary>
+    /// Translates <see cref="SqlNodeType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
     public virtual void Translate(IOutput output, SqlNodeType type)
     {
       _ = output.Append(type switch {
@@ -2081,7 +2086,6 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of join type.</returns>
     public virtual void Translate(IOutput output, SqlJoinType type)
     {
       _ = output.Append(type switch {
@@ -2096,6 +2100,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="SqlMatchType"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate/</param>
     public virtual void Translate(IOutput output, SqlMatchType type)
     {
       _ = output.Append(type switch {
@@ -2105,6 +2114,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="ReferentialAction"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="action">Enum value to translate/</param>
     public virtual void Translate(IOutput output, ReferentialAction action)
     {
       _ = output.Append(action switch {
@@ -2474,6 +2488,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Translates identifier name and writes result to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="name">The identifier.</param>
     public void TranslateIdentifier(IOutput output, string name)
     {
       if (string.IsNullOrEmpty(name))
