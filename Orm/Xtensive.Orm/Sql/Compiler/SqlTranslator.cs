@@ -2529,8 +2529,8 @@ namespace Xtensive.Sql.Compiler
       var expectedLength = BatchBegin.Length + BatchEnd.Length
         + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
         + statements.Sum(statement => statement.Length);
-      var builder = new StringBuilder(expectedLength);
-      _ = builder.Append(BatchBegin);
+      var valueBuilder = new ValueStringBuilder(expectedLength);
+      valueBuilder.Append(BatchBegin);
       foreach (var statement in statements) {
         var statementAsSpan = (ReadOnlySpan<char>) statement;
         var actualStatement = statementAsSpan
@@ -2542,12 +2542,12 @@ namespace Xtensive.Sql.Compiler
           .Trim();
         if (actualStatement.Length == 0)
           continue;
-        _ = builder.Append(actualStatement)
-          .Append(BatchItemDelimiter)
-          .Append(NewLine);
+        valueBuilder.Append(actualStatement.ToString());
+        valueBuilder.Append(BatchItemDelimiter);
+        valueBuilder.Append(NewLine);
       }
-      _ = builder.Append(BatchEnd);
-      return builder.ToString();
+      valueBuilder.Append(BatchEnd);
+      return valueBuilder.ToString();
     }
 
     /// <summary>
