@@ -2558,6 +2558,7 @@ namespace Xtensive.Sql.Compiler
     /// <remarks>
     /// Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible.
     /// </remarks>
+    [Obsolete]
     public virtual string QuoteString(string str)
     {
       //Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible

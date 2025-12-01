@@ -135,6 +135,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
+    [Obsolete]
     public override string QuoteString(string str) =>
       "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
 

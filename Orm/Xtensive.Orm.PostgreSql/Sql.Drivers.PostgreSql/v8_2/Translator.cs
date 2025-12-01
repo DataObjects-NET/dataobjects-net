@@ -7,6 +7,7 @@ using System.Text;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Compiler;
+using System;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
@@ -22,6 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
+    [Obsolete]
     public override string QuoteString(string str) =>
       "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
 
@@ -43,7 +45,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
       };
     }
 
-    protected override void AppendIndexStorageParameters(IOutput output, Index index)
+    protected override void AppendIndexStorageParameters(IOutput output, Model.Index index)
     {
       if (index.FillFactor != null) {
         _ = output.Append($"WITH(FILLFACTOR={index.FillFactor})");

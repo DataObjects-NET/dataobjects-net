@@ -61,6 +61,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     /// <inheritdoc/>
+    [Obsolete]
     public override string QuoteString(string str) => "N" + base.QuoteString(str);
 
     /// <inheritdoc/>

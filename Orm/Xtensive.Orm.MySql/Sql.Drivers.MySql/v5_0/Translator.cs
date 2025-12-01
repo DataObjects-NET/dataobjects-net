@@ -47,6 +47,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
+    [Obsolete]
     public override string QuoteString(string str) =>
       "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
 
