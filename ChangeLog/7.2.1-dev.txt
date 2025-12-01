@@ -1,0 +1,1 @@
+[main] Addressed issue of overwriting exception on attempt to rollback the transaction of Domain upgrade if commit operation failed
