@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2003-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,8 +13,6 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Index = Xtensive.Sql.Model.Index;
-using System.Runtime.CompilerServices;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -1549,10 +1547,10 @@ namespace Xtensive.Sql.Compiler
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
         case DateOnly dateOnly:
-          output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          _ = output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;
         case TimeOnly timeOnly:
-          output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
+          _ = output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
           break;
         default:
           _ = output.Append(literalValue.ToString());
