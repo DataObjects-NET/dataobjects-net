@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override string DdlStatementDelimiter => ";";
 
-    public string DateTimeOffsetFormatString => @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'";
+    public override string DateTimeOffsetFormatString => @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'";
 
     public override void Initialize()
     {

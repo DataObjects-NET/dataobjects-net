@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fffffff\'' as time)'";
 
-    public string DateTimeOffsetFormatString => @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fffffff\ zzz\'' as datetimeoffset)'";
+    public override string DateTimeOffsetFormatString => @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fffffff\ zzz\'' as datetimeoffset)'";
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, Ddl.SqlCreateIndex node, CreateIndexSection section)
