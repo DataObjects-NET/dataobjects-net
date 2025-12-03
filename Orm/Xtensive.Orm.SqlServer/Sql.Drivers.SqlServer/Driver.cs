@@ -16,16 +16,19 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private readonly ErrorMessageParser errorMessageParser;
     private readonly bool checkConnectionIsAlive;
 
+    /// <inheritdoc />
     protected override SqlConnection DoCreateConnection()
     {
       return new Connection(this, checkConnectionIsAlive);
     }
 
+    /// <inheritdoc />
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
       return GetExceptionInfo(exception).Type;
     }
 
+    /// <inheritdoc />
     public override SqlExceptionInfo GetExceptionInfo(Exception exception)
     {
       if (exception is not SqlException nativeException)
@@ -52,6 +55,21 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return info;
       }
       return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.Add(typeof(DateTimeOffset),
+        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.BindDateTimeOffset,
+        builder.Mapper.MapDateTimeOffset);
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(SqlType.DateTimeOffset, typeof(DateTimeOffset));
     }
 
     protected virtual bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)
