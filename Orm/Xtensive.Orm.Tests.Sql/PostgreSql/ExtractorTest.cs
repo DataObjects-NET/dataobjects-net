@@ -8,7 +8,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Drivers.PostgreSql.v8_0;
+using Xtensive.Sql.Drivers.PostgreSql.v11_0;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
