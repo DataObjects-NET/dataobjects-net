@@ -1,10 +1,10 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.06.07
 
-namespace Xtensive.Sql.Drivers.SqlServer.v10
+namespace Xtensive.Sql.Drivers.SqlServer.v13
 {
   // As long as there is no support for SqlGeography it should be commented
 
