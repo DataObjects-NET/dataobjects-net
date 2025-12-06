@@ -433,12 +433,14 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
 
     private void CreateDb(bool defaultGeneratorSettings, bool lessGenerators = false, long seedIncrease = 0, long cacheSizeIncrease = 0)
     {
-      var config = BuildDomainConfiguration();
-      var driver = TestSqlDriver.Create(config.ConnectionInfo);
+      var config = BuildDomainConfiguration().Clone();
+      config.Types.Register(typeof(CustomUpgrdeHandler));
 
       // clean db - deletes all the tables except for metadata tables
       // tables from previous tests are unpredictable and this is reliable thought expensive way of cleaning :-)
       using (var domain = Domain.Build(config)) { }
+
+      var driver = TestSqlDriver.Create(config.ConnectionInfo);
 
       //complete removal
       using (var connection = driver.CreateConnection()) {

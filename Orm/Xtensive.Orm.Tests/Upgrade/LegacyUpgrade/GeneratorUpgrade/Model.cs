@@ -13,6 +13,11 @@ using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
 {
+  public class CustomUpgrdeHandler: UpgradeHandler
+  {
+    public override bool CanUpgradeFrom(string oldVersion) => true;
+  }
+
   namespace ReferenceModel.Part1
   {
     [HierarchyRoot]
