@@ -74,10 +74,8 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Container));
-      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.PostgreSql90)) {
-        config.Types.Register(typeof(IndexedPointContainer));
-      }
+      config.Types.Register(typeof(Container));
+      config.Types.Register(typeof(IndexedPointContainer));
       return config;
     }
 
@@ -142,10 +140,8 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void AddtionalTest()
+    public void IndexedPointTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.PostgreSql90);
-
       using (var session = Domain.OpenSession()) {
 
         var defaultValueContainerId = 0;

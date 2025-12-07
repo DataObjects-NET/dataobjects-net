@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
     }
   }
 }

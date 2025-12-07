@@ -120,19 +120,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         DefaultTimeZone = defaultTimeZone
       };
 
-      if (version.Major < 8 || (version.Major == 8 && version.Minor < 3)) {
-        throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
+      if (version.Major < 11) {
+        throw new NotSupportedException(Strings.ExPostgreSqlBelow11IsNotSupported);
       }
 
-      // We support 8.3, 8.4 and any 9.0+
-
       return version.Major switch {
-        8 when version.Minor == 3 => new v8_3.Driver(coreServerInfo, pgsqlServerInfo),
-        8 when version.Minor > 3  => new v8_4.Driver(coreServerInfo, pgsqlServerInfo),
-        9 when version.Minor == 0 => new v9_0.Driver(coreServerInfo, pgsqlServerInfo),
-        9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo, pgsqlServerInfo),
-        10 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
-        11 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
+        11 => new v11_0.Driver(coreServerInfo, pgsqlServerInfo),
         _ => new v12_0.Driver(coreServerInfo, pgsqlServerInfo)
       };
     }

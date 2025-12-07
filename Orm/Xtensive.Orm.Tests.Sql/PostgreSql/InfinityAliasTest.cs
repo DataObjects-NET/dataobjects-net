@@ -607,21 +607,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           if (aliasesEnabled) {
-            // +-infinify
-            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
-            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
-            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
-              if (part != SqlDatePart.Year) {
-                Assert.That(reader.IsDBNull(0));
-              }
-              else {
-                var partValue = reader.GetDouble(0);
-                Assert.That(double.IsInfinity(partValue), Is.True);
-              }
+            if (part != SqlDatePart.Year) {
+              Assert.That(reader.IsDBNull(0));
             }
             else {
               var partValue = reader.GetDouble(0);
-              Assert.That(partValue, Is.Zero);
+              Assert.That(double.IsInfinity(partValue), Is.True);
             }
           }
           else {
@@ -656,21 +647,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           if (aliasesEnabled) {
-            // +-infinify
-            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
-            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
-            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
-              if (part != SqlDateTimePart.Year) {
-                Assert.That(reader.IsDBNull(0));
-              }
-              else {
-                var partValue = reader.GetDouble(0);
-                Assert.That(double.IsInfinity(partValue), Is.True);
-              }
+            if (part != SqlDateTimePart.Year) {
+              Assert.That(reader.IsDBNull(0));
             }
             else {
               var partValue = reader.GetDouble(0);
-              Assert.That(partValue, Is.Zero);
+              Assert.That(double.IsInfinity(partValue), Is.True);
             }
           }
           else {
@@ -705,21 +687,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         while (reader.Read()) {
           if (aliasesEnabled) {
-            // +-infinify
-            // year from +-infinity -> +-infinity (or 0 in case of versions older than 9.6)
-            // month from +-infinity -> null (or 0 in case of versions older that 9.6)
-            if (Driver.CoreServerInfo.ServerVersion >= StorageProviderVersion.PostgreSql96) {
-              if (part != SqlDateTimeOffsetPart.Year) {
-                Assert.That(reader.IsDBNull(0));
-              }
-              else {
-                var partValue = reader.GetDouble(0);
-                Assert.That(double.IsInfinity(partValue), Is.True);
-              }
+            if (part != SqlDateTimeOffsetPart.Year) {
+              Assert.That(reader.IsDBNull(0));
             }
             else {
               var partValue = reader.GetDouble(0);
-              Assert.That(partValue, Is.Zero);
+              Assert.That(double.IsInfinity(partValue), Is.True);
             }
           }
           else {

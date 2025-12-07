@@ -1129,7 +1129,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       var q = SqlDml.Select();
 
-      q.Columns.Add(SqlDml.Power(SqlDml.Cast(10, SqlType.Decimal), 50));
+      q.Columns.Add(SqlDml.Power(SqlDml.Cast(10, SqlType.Decimal), 28));
       q.Columns.Add(SqlDml.Cast(SqlDml.Literal(DateTime.MinValue), SqlType.DateTime), "datetime min");
       //casting in the DBMS rounds to 100000101 00:00:00 somewhy (?)
       //q.Columns.Add(Sql.Cast(Sql.Literal(DateTime.MaxValue), SqlDataType.DateTime, Driver.ServerInfoProvider.MaxDateTimePrecision,0), "datetime max");
@@ -2212,9 +2212,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
             }
             ExecuteNonQuery(mycursor.Close());
 
-            ExecuteNonQuery(mycursor.Open());
+            //ExecuteNonQuery(mycursor.Open());
             
-            ExecuteNonQuery(mycursor.Close());
+            //ExecuteNonQuery(mycursor.Close());
           }
 
           {

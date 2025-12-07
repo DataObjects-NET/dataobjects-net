@@ -345,12 +345,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
 
           Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FDateOnly);
-          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
-          }
-          else {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
-          }
+          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
 
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
@@ -379,12 +374,8 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(byte.MaxValue, x.FNByte);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FNDateTime);
           Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FNDateOnly);
-          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
-          }
-          else {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
-          }
+          Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
+
           Assert.AreEqual(12.12M, x.FNDecimal);
           Assert.AreEqual(float.MaxValue, x.FNDouble);
           Assert.AreEqual(EByte.Max, x.FNEByte);

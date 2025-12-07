@@ -113,15 +113,11 @@ namespace Xtensive.Sql.Drivers.MySql
         DefaultSchemaName = defaultSchema.Schema,
       };
 
-      if (version.Major < 5) {
-        throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
+      if (version.Major < 5 || (version.Major == 5 && version.Minor < 7)) {
+        throw new NotSupportedException(Strings.ExMySqlBelow57IsNotSupported);
       }
 
       return version.Major switch {
-        5 when version.Minor == 0 => new v5_0.Driver(coreServerInfo),
-        5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
-        5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
-        5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
         5 when version.Minor == 7 => new v5_7.Driver(coreServerInfo),
         6 or 7 => throw new NotSupportedException(string.Format(Strings.ExVersionXOfMySQLIsNotSupported, version)),
         8 => new v8_0.Driver(coreServerInfo),

@@ -534,7 +534,7 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       var domainConfig = LoadDomainConfiguration("DomainWithForcedServerVersion", useRoot);
       ValidateAllDefaultExcept(domainConfig,
-        ((d) => d.ForcedServerVersion, "10.0.0.0"));
+        ((d) => d.ForcedServerVersion, "16.0.0.0"));
     }
 
     [Test]

@@ -1,0 +1,4 @@
+[firebird] Support for Firebird 2.5 ended due to end-of-life state
+[mysql] Support for MySQL older than 5.7 ended due to end-of-life state
+[postgresql] Support for PostgreSQL older than v11 ended due to end-of-life state
+[sqlserver] Support for MS SQL Server older than 2016 ended due to end-of-life state

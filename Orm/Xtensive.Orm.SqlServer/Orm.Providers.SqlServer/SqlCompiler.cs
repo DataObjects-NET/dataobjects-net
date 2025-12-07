@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       var table = Mapping[index.ReflectedType];
       var columns = provider.Header.Columns.Select(column => column.Name).ToList();
 
-      if (provider.TopN == null) {
+      if (provider.TopN is null) {
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns);
         bindings = new[] {criteriaBinding};
       }
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       var columns = provider.Header.Columns.Select(column => column.Name).ToList();
 
       var targetColumnNames = provider.TargetColumns.Select(c => c.Name).ToArray();
-      if (provider.TopN == null) {
+      if (provider.TopN is null) {
         fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames);
         bindings = new[] { criteriaBinding };
       }

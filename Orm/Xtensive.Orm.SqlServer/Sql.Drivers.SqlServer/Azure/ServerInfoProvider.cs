@@ -4,11 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.09
 
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
-  internal class ServerInfoProvider : v12.ServerInfoProvider
+  internal class ServerInfoProvider : v13.ServerInfoProvider
   {
     // Constructors
 

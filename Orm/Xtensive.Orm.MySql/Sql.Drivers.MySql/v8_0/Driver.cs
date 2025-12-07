@@ -9,7 +9,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.MySql.v8_0
 {
-  internal class Driver : MySql.Driver
+  internal class Driver : v5_7.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper()
     {

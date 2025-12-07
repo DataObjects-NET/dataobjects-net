@@ -22,10 +22,10 @@ namespace Xtensive.Sql.Drivers.Firebird
     public override SqlExceptionType GetExceptionType(System.Exception exception)
     {
       var nativeException = exception as FbException;
-      if (nativeException==null)
+      if (nativeException is null)
         return base.GetExceptionType(exception);
       var fbError = nativeException.Errors.LastOrDefault();
-      if (fbError==null)
+      if (fbError is null)
         return base.GetExceptionType(exception);
       switch (fbError.Number) {
         case 335544569:
