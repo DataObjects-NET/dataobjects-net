@@ -14,13 +14,6 @@ namespace Xtensive.Orm.Localization.Configuration
   /// </summary>
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
-    /// <summary>
-    /// Gets default section name for security configuration.
-    /// Value is "Xtensive.Orm.Localization".
-    /// </summary>
-    [Obsolete("Use Localization.DefaultSectionName instead.")]
-    public static readonly string DefaultSectionName = "Xtensive.Orm.Localization";
-
     private const string DefaultCultureElementName = "defaultCulture";
 
     /// <summary>

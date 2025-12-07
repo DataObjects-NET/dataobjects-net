@@ -10,13 +10,6 @@ namespace Xtensive.Orm.Reprocessing.Configuration
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     /// <summary>
-    /// Gets default section name for reprocessing configuration.
-    /// Value is "Xtensive.Orm.Reprocessing".
-    /// </summary>
-    [Obsolete("Use ReprocessingConfiguration.DefaultSectionName instead")]
-    public static readonly string DefaultSectionName = "Xtensive.Orm.Reprocessing";
-
-    /// <summary>
     /// Gets or sets default transaction open mode.
     /// </summary>
     [ConfigurationProperty("defaultTransactionOpenMode", DefaultValue = TransactionOpenMode.New)]
