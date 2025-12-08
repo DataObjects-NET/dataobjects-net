@@ -61,7 +61,7 @@ namespace Xtensive.Core
         .AppendFormat("{0}:", Strings.OriginalExceptions);
       int i = 1;
       foreach (Exception exception in exceptions)
-        sb.AppendLine().AppendFormat("{0}: {1}", i++, exception);
+        _ = sb.AppendLine().AppendFormat("{0}: {1}", i++, exception);
       return sb.ToString();
     }
 

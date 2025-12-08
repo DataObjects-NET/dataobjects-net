@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
 
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection)System.Configuration.ConfigurationManager.GetSection(sectionName);
       if (section==null)
         throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
       var configuration = section.Logging.ToNative();

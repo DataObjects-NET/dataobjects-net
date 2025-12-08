@@ -102,11 +102,7 @@ namespace Xtensive.Core
 
       var remaining = position - index;
       chars.Slice(index, remaining).CopyTo(chars.Slice(index + count));
-#if NET6_0_OR_GREATE
       s.CopyTo(chars.Slice(index));
-#else
-      s.AsSpan().CopyTo(chars.Slice(index));
-#endif
       position += count;
     }
 

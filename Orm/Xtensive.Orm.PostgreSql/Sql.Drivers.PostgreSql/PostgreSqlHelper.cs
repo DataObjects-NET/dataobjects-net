@@ -21,11 +21,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       var days = timeSpan.Days;
       var timeTicks = ticks - (days * TimeSpan.TicksPerDay);
-#if NET7_0_OR_GREATER
       var microseconds = timeTicks / TimeSpan.TicksPerMicrosecond;
-#else
-      var microseconds = timeTicks / 10L; // same as TimeSpan.TicksPerMicrosecond available in .NET7+
-#endif
       // no months!
       return new NpgsqlInterval(0, days, microseconds);
     }
@@ -43,11 +39,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         : npgsqlInterval.Days;
 
       var ticksOfDays = days * TimeSpan.TicksPerDay;
-#if NET7_0_OR_GREATER
       var overallTicks = ticksOfDays + (npgsqlInterval.Time * TimeSpan.TicksPerMicrosecond);
-#else
-      var overallTicks = ticksOfDays + (npgsqlInterval.Time * 10); //same as TimeSpan.TicksPerMicrosecond available in .NET7+
-#endif
       return TimeSpan.FromTicks(overallTicks);
     }
 
@@ -115,18 +107,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     private static bool TryFindSystemTimeZoneById(string id, out TimeZoneInfo timeZoneInfo)
     {
-#if NET8_0_OR_GREATER
       return TimeZoneInfo.TryFindSystemTimeZoneById(id, out timeZoneInfo);
-#else
-      try {
-        timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(id);
-        return true;
-      }
-      catch {
-        timeZoneInfo = null;
-        return false;
-      }
-#endif
     }
   }
 }
