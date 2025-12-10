@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>The reprocessing configuration.</returns>
     public static ReprocessingConfiguration Load(string sectionName)
     {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection) System.Configuration.ConfigurationManager.GetSection(sectionName);
       return GetConfigurationFromSection(section);
     }
 

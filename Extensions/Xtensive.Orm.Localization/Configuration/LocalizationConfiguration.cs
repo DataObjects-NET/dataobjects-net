@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Localization.Configuration
     /// </returns>
     public static LocalizationConfiguration Load(string sectionName)
     {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection) System.Configuration.ConfigurationManager.GetSection(sectionName);
       return GetConfigurationFromSection(section);
     }
 

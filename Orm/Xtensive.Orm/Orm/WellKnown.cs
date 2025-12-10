@@ -95,13 +95,6 @@ namespace Xtensive.Orm
     public const int MaxGenericKeyLength = 4;
 
     /// <summary>
-    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
-    /// which are to be placed inside a resulted SQL command (as boolean predicate).
-    /// </summary>
-    [Obsolete("Use DefaultNumberOfConditions")]
-    public const int MaxNumberOfConditions = 256;
-
-    /// <summary>
     /// Default value of maximal number of filtering values in an <see cref="IncludeProvider"/>
     /// which are to be placed inside a resulted SQL command (as boolean predicate).
     /// </summary>

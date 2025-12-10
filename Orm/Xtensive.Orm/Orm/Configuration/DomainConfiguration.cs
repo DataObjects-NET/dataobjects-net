@@ -848,7 +848,7 @@ namespace Xtensive.Orm.Configuration
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(string sectionName, string name)
     {
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection)System.Configuration.ConfigurationManager.GetSection(sectionName);
       if (section == null) {
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));

@@ -149,15 +149,6 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     [Test]
-    [Ignore("")]
-    [Obsolete]
-    public void RootOnlyVersionTest()
-    {
-      AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel1"));
-    }
-
-    [Test]
     public void DenyKeyFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 

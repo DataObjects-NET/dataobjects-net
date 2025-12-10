@@ -1327,7 +1327,13 @@ namespace Xtensive.Orm.Tests.Configuration
     [TestCase(false)]
     public void SessionWithInvalidOptions(bool useRoot)
     {
-      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidOptions", useRoot));
+      if (Postfix == "Json") {
+        var config = LoadDomainConfiguration("DomainWithSessionInvalidOptions", useRoot);
+        Assert.That(config.Sessions.Count, Is.EqualTo(0)); // no exceptions on reading, just no configurations
+      }
+      else {
+        _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidOptions", useRoot));
+      }
     }
 
     [Test]
@@ -1391,7 +1397,13 @@ namespace Xtensive.Orm.Tests.Configuration
     [TestCase(false)]
     public void SessionWithInvalidCacheType1(bool useRoot)
     {
-      _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheType", useRoot));
+      if (Postfix == "Json") {
+        var config = LoadDomainConfiguration("DomainWithSessionInvalidCacheType", useRoot);
+        Assert.That(config.Sessions.Count, Is.EqualTo(0)); // no exceptions on reading, just no configurations
+      }
+      else {
+        _ = Assert.Throws<InvalidOperationException>(() => LoadDomainConfiguration("DomainWithSessionInvalidCacheType", useRoot));
+      }
     }
 
     #endregion

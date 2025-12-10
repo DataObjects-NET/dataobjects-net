@@ -29,11 +29,7 @@ namespace Xtensive.IoC
   {
     private static readonly Type iServiceContainerType = typeof(IServiceContainer);
 
-#if NET8_0_OR_GREATER
     private static readonly Func<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
-#else
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
-#endif
       var mappedType = serviceInfo.MappedType;
       var ctor = (
         from c in mappedType.GetConstructors()
@@ -41,25 +37,16 @@ namespace Xtensive.IoC
         select c
         ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
       var @params = ctor?.GetParameters();
-#if NET8_0_OR_GREATER
       return new(ctor is null ? null : ConstructorInvoker.Create(ctor), @params);
-#else
-      return new(ctor, @params);
-#endif
     };
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
-    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
-      new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
+    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances = new();
 
-#if NET8_0_OR_GREATER
     private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> constructorCache = new();
-#else
-    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache = new();
-#endif
 
-    private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
+    private readonly ConcurrentDictionary<(Type, int), bool> creating = new();
 
     #region Protected virtual methods (to override)
 
@@ -118,14 +105,10 @@ namespace Xtensive.IoC
       finally {
         _ = creating.TryRemove(key, out _);
       }
-#if NET8_0_OR_GREATER
       return cInfo.Invoke(args.AsSpan());
-#else
-      return cInfo.Invoke(args);
-#endif
     }
 
-#endregion
+    #endregion
 
     #region Private \ internal methods
 
@@ -210,28 +193,15 @@ namespace Xtensive.IoC
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
       return (IServiceContainer) (
-#if NET8_0_OR_GREATER
         FindConstructorInvoker(containerType, configurationType, parentType)?.Invoke(configuration, parent)
         ?? FindConstructorInvoker(containerType, configurationType)?.Invoke(configuration)
         ?? FindConstructorInvoker(containerType, parentType)?.Invoke(parent)
-#else
-        FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
-        ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
-        ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
-#endif
         ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
       );
     }
 
-#if NET8_0_OR_GREATER
     private static ConstructorInvoker FindConstructorInvoker(Type containerType, params Type[] argumentTypes) =>
       containerType.GetSingleConstructorInvokerOrDefault(argumentTypes);
-#else
-#pragma warning disable CS0612 // Type or member is obsolete
-    private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
-      containerType.GetSingleConstructorOrDefault(argumentTypes);
-#pragma warning restore CS0612 // Type or member is obsolete
-#endif
 
     #endregion
 
@@ -304,7 +274,7 @@ namespace Xtensive.IoC
       var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
 
       foreach (var typeRegistrationElement in configuration.Auto)
-        typeRegistry.Register(typeRegistrationElement.ToNative());
+        _ = typeRegistry.Register(typeRegistrationElement.ToNative());
       foreach (var type in typeRegistry)
         registrations.AddRange(ServiceRegistration.CreateAll(type));
       foreach (var serviceRegistrationElement in configuration.Explicit)
@@ -347,7 +317,7 @@ namespace Xtensive.IoC
       using (var toDispose = new DisposableSet()) {
         foreach (var lazy in instances.Values) {
           if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
-            toDispose.Add(disposable);
+            _ = toDispose.Add(disposable);
           }
         }
       }
