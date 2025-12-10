@@ -78,7 +78,7 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <LangVersion>10.0</LangVersion> <!-- version assigned to net6.0 -->
+    <LangVersion>12.0</LangVersion> <!-- version assigned to net8.0 -->
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
