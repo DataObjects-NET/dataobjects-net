@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Tests.Issues
           trs.Complete();
         }
         using (TransactionScope trs = session.OpenTransaction()) {
-          Assert.AreEqual(1, e1.Field1);
-          Assert.AreEqual(3, e1.Field3);
+          Assert.That(e1.Field1, Is.EqualTo(1));
+          Assert.That(e1.Field3, Is.EqualTo(3));
         }
       }
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Malisa Ncube
@@ -20,7 +20,9 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
   [TestFixture, Explicit]
   public class DateTimeIntervalTests : Sakila
   {
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
     private DbCommand sqlCommand;
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
 
     #region Internals
@@ -34,8 +36,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       {
         Console.WriteLine(sqlCommand.CommandText);
         using (var reader = sqlCommand.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(reader[0], reader[1], "The columns are not equal!");
+          Assert.That(reader.Read(), Is.True);
+          var actual = reader[0];
+          var expected = reader[1];
+          Assert.That(actual, Is.EqualTo(expected), "The columns are not equal!");
         }
       }
     }

@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
 <#@ assembly name="System.Core.dll" #>
 <#@ import namespace="System.Linq" #>
 using System;
@@ -111,12 +111,12 @@ else{
         new Model<#=i#>.Item() { Document = document };
         new Model<#=i#>.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(items.Count, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -124,22 +124,22 @@ else{
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model<#=i#>.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(items.Count, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(items.Count, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -147,16 +147,16 @@ else{
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model<#=i#>.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(items.Count, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model<#=i#>.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }

@@ -54,10 +54,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
 
       var whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression);
       var whereByServer = session.Query.All<T>().Where(whereExpression).OrderBy(orderByExpression);
-      Assert.IsTrue(whereLocal.SequenceEqual(whereByServer));
+      Assert.That(whereLocal.SequenceEqual(whereByServer), Is.True);
 
       whereByServer = session.Query.All<T>().Where(whereExpression).OrderByDescending(orderByExpression);
-      Assert.IsFalse(whereLocal.SequenceEqual(whereByServer));
+      Assert.That(whereLocal.SequenceEqual(whereByServer), Is.False);
     }
   }
 }

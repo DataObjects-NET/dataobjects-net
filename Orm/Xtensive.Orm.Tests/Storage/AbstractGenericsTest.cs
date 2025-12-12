@@ -93,8 +93,8 @@ namespace Xtensive.Orm.Tests.Storage
         new ComplexTrack(TimeSpan.FromMinutes(6), TimeSpan.FromMinutes(15), new ComplexMedia() {Description = "Simple", Bar = DateTime.Now});
         var listSimpleMedia = session.Query.All<Track<SimpleMedia>>().ToList();
         var listComplexMedia = session.Query.All<Track<ComplexMedia>>().ToList();
-        Assert.AreEqual(1,listSimpleMedia.Count);
-        Assert.AreEqual(1,listComplexMedia.Count);
+        Assert.That(listSimpleMedia.Count, Is.EqualTo(1));
+        Assert.That(listComplexMedia.Count, Is.EqualTo(1));
       }
     }
   }

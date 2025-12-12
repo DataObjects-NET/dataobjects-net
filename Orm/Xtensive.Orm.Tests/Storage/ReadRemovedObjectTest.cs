@@ -74,16 +74,16 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         var otherCoolBooksBackup = book.OtherCoolBooks;
         book.Remove();
 
-        Assert.AreEqual(key, book.Key);
-        Assert.AreEqual(key.TypeInfo, book.TypeInfo);
+        Assert.That(book.Key, Is.EqualTo(key));
+        Assert.That(book.TypeInfo, Is.EqualTo(key.TypeInfo));
         AssertEx.ThrowsInvalidOperationException(
           () => { var id = book.Id; });
         AssertEx.ThrowsInvalidOperationException(
           () => { var title = book.Title; });
         AssertEx.ThrowsInvalidOperationException(
           () => { var otherCoolBoks = book.OtherCoolBooks; });
-        Assert.AreEqual(0, otherCoolBooksBackup.Count);
-        Assert.AreEqual(null, otherCoolBooksBackup.AsEnumerable().FirstOrDefault());
+        Assert.That(otherCoolBooksBackup.Count, Is.EqualTo(0));
+        Assert.That(otherCoolBooksBackup.AsEnumerable().FirstOrDefault(), Is.EqualTo(null));
 
         // tx.Complete();
       }
@@ -100,10 +100,10 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         var book = (CoolBook) Query.All<Book>().Where(b => b.Key == key).Single();
         book.Remove();
 
-        Assert.AreEqual(key.Value.GetValueOrDefault(0), book.Id);
-        Assert.AreEqual("Book", book.Title);
-        Assert.AreEqual(0, book.OtherCoolBooks.Count);
-        Assert.AreEqual(null, book.OtherCoolBooks.AsEnumerable().FirstOrDefault());
+        Assert.That(book.Id, Is.EqualTo(key.Value.GetValueOrDefault(0)));
+        Assert.That(book.Title, Is.EqualTo("Book"));
+        Assert.That(book.OtherCoolBooks.Count, Is.EqualTo(0));
+        Assert.That(book.OtherCoolBooks.AsEnumerable().FirstOrDefault(), Is.EqualTo(null));
         AssertEx.ThrowsInvalidOperationException(
           () => { var p = book.Popularity; });
         AssertEx.ThrowsInvalidOperationException(
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         book.Remove();
 
-        Assert.AreEqual(0.0, book.Popularity);
+        Assert.That(book.Popularity, Is.EqualTo(0.0));
         AssertEx.ThrowsInvalidOperationException(
           () => { var p = book.LazyPopularity; });
 
@@ -129,9 +129,9 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         var lazyPopulatiry = book.LazyPopularity;
         book.Remove();
-        
-        Assert.AreEqual(0.0, book.Popularity);
-        Assert.AreEqual(0.0, book.LazyPopularity);
+
+        Assert.That(book.Popularity, Is.EqualTo(0.0));
+        Assert.That(book.LazyPopularity, Is.EqualTo(0.0));
 
         // tx.Complete();
       }
@@ -145,14 +145,14 @@ namespace Xtensive.Orm.Tests.Storage.ReadRemovedObjectTest
         var book = Query.All<CoolBook>().Where(b => b.Key == key).Single();
         var psa = DirectStateAccessor.Get(book);
 
-        Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
+        Assert.That(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded), Is.True);
 
         book.OtherCoolBooks.Add(book); // (1)
-        Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
+        Assert.That(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded), Is.True);
 
         session.SaveChanges();
         book.Remove(); // Fails, but only if (1) is enabled!
-        Assert.IsTrue(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded));
+        Assert.That(0 == (psa.GetFieldState("LazyPopularity") & PersistentFieldState.Loaded), Is.True);
       }
     }
   }

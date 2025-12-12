@@ -60,17 +60,17 @@ namespace Xtensive.Orm.Tests.Issues
 
           first.Friends.Add(second);
           first.Friends.Add(third);
-          Assert.AreEqual(2,first.Friends.Count);
-          Assert.AreEqual(1,second.Friends.Count);
-          Assert.AreEqual(1,third.Friends.Count);
-          Assert.AreSame(first, first.Friends.First().Friends.First());
-          Assert.AreSame(first, first.Friends.Skip(1).First().Friends.First());
+          Assert.That(first.Friends.Count, Is.EqualTo(2));
+          Assert.That(second.Friends.Count, Is.EqualTo(1));
+          Assert.That(third.Friends.Count, Is.EqualTo(1));
+          Assert.That(first.Friends.First().Friends.First(), Is.SameAs(first));
+          Assert.That(first.Friends.Skip(1).First().Friends.First(), Is.SameAs(first));
 
           first.Friends.Add(first);
-          Assert.AreEqual(3,first.Friends.Count);
+          Assert.That(first.Friends.Count, Is.EqualTo(3));
 
           first.Friends.Remove(first);
-          Assert.AreEqual(2,first.Friends.Count);
+          Assert.That(first.Friends.Count, Is.EqualTo(2));
 
           first.Friends.Clear();
           second.Friends.Clear();
@@ -95,23 +95,23 @@ namespace Xtensive.Orm.Tests.Issues
           Person third = new Person {Name = "Third"};
 
           first.BestFriend = second;
-          Assert.AreSame(first.BestFriend, second);
-          Assert.AreSame(first, second.BestFriend);
+          Assert.That(second, Is.SameAs(first.BestFriend));
+          Assert.That(second.BestFriend, Is.SameAs(first));
 
           first.BestFriend = third;
-          Assert.AreSame(first.BestFriend, third);
-          Assert.AreSame(first, third.BestFriend);
-          Assert.AreSame(null, second.BestFriend);
+          Assert.That(third, Is.SameAs(first.BestFriend));
+          Assert.That(third.BestFriend, Is.SameAs(first));
+          Assert.That(second.BestFriend, Is.SameAs(null));
 
           first.BestFriend = null;
-          Assert.AreSame(null, first.BestFriend);
-          Assert.AreSame(null, third.BestFriend);
+          Assert.That(first.BestFriend, Is.SameAs(null));
+          Assert.That(third.BestFriend, Is.SameAs(null));
 
           first.BestFriend = first;
-          Assert.AreSame(first.BestFriend, first);
+          Assert.That(first, Is.SameAs(first.BestFriend));
 
           first.BestFriend = null;
-          Assert.AreSame(null, first.BestFriend);
+          Assert.That(first.BestFriend, Is.SameAs(null));
 
           t.Complete();
         }

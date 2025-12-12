@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Upgrade
     {
       if (targetModel==null) {
         targetModel = new StorageModel();
-        Visit(sourceModel);
+        _ = Visit(sourceModel);
       }
 
       return targetModel;
@@ -86,11 +86,11 @@ namespace Xtensive.Orm.Upgrade
     {
       // Build tables, columns and primary indexes
       foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
-        Visit(primaryIndex);
+        _ = Visit(primaryIndex);
 
       // Build full-text indexes
       foreach (var fullTextIndex in domainModel.FullTextIndexes)
-        Visit(fullTextIndex);
+        _ = Visit(fullTextIndex);
 
       // Build foreign keys
       var buildForeignKeys = BuildForeignKeys
@@ -98,11 +98,11 @@ namespace Xtensive.Orm.Upgrade
 
       if (buildForeignKeys)
         foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0))
-          Visit(group);
+          _ = Visit(group);
 
       // Build keys and sequences
       foreach (KeyInfo keyInfo in domainModel.Hierarchies.Select(h => h.Key))
-        Visit(keyInfo);
+        _ = Visit(keyInfo);
 
       var buildHierarchyForeignKeys = BuildHierarchyForeignKeys
         && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints);
@@ -154,9 +154,9 @@ namespace Xtensive.Orm.Upgrade
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
-        string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
+        string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key);
         StorageColumnInfo column = table.Columns[columName];
-        new KeyColumnRef(secondaryIndex, column,
+        _ = new KeyColumnRef(secondaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -167,9 +167,9 @@ namespace Xtensive.Orm.Upgrade
       // and simply ignore included columns for clustered indexes.
       if (providerInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
-          string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
+          string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn);
           StorageColumnInfo column = table.Columns[columName];
-          new IncludedColumnRef(secondaryIndex, column);
+          _ = new IncludedColumnRef(secondaryIndex, column);
         }
       }
       secondaryIndex.PopulatePrimaryKeyColumns();
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Upgrade
         }
         else
           UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
-        new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        _ = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       
       ftIndex.FullTextCatalog = 
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Upgrade
     private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
     {
       foreach (var column in index.Columns)
-        Visit(column);
+        _ = Visit(column);
 
       // Support for mysql as primary indexes there always have name 'PRIMARY'
       string name = providerInfo.ConstantPrimaryIndexName;
@@ -305,9 +305,9 @@ namespace Xtensive.Orm.Upgrade
 
       var primaryIndex = new PrimaryIndexInfo(currentTable, name);
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
-        string columName = GetPrimaryIndexColumnName(index, pair.Key, index);
+        string columName = GetPrimaryIndexColumnName(index, pair.Key);
         var column = currentTable.Columns[columName];
-        new KeyColumnRef(primaryIndex, column,
+        _ = new KeyColumnRef(primaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -341,7 +341,7 @@ namespace Xtensive.Orm.Upgrade
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyField(KeyField keyField)
     {
-      throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
+      throw new NotSupportedException(string.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
     }
 
     /// <inheritdoc/>
@@ -427,7 +427,7 @@ namespace Xtensive.Orm.Upgrade
       return null;
     }
 
-    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn)
     {
       string primaryIndexColumnName = null;
       foreach (var primaryColumn in primaryIndex.Columns)
@@ -447,7 +447,7 @@ namespace Xtensive.Orm.Upgrade
         OnUpdateAction = ReferentialAction.None
       };
       foreach (var foreignColumn in foreignColumns)
-        new ForeignKeyColumnRef(foreignKey, foreignColumn);
+        _ = new ForeignKeyColumnRef(foreignKey, foreignColumn);
     }
 
     private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, StorageIndexInfo referencingIndex, string foreignKeyName)

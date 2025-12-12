@@ -100,13 +100,14 @@ Examples of usage
   var query = from p in session.Query.All<Page>()
     where p.Title=="Welcome"
     select p;
+  Assert.That(query.Count(), Is.EqualTo(1));
   Assert.AreEqual(1, query.Count());
 
   Thread.CurrentThread.CurrentCulture = new CultureInfo("es-ES");
   var query = from p in session.Query.All<Page>()
     where p.Title=="Bienvenido"
     select p;
-  Assert.AreEqual(1, query.Count());
+  Assert.That(query.Count(), Is.EqualTo(1));
 ```
 
 

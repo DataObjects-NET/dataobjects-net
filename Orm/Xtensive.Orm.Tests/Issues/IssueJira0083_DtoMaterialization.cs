@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           var q = session.Query.All<Class1>()
             .Select(c => new Class2DTO { Id = c.Id, Class1DTO = new Class1DTO(c), Text = c.Text});
           var r = q.ToArray()[0];
-          Assert.IsNotNull(r.Class1DTO);
+          Assert.That(r.Class1DTO, Is.Not.Null);
           // Rollback
         }
       }

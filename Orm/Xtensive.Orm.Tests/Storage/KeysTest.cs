@@ -61,25 +61,25 @@ namespace Xtensive.Orm.Tests.Storage
       public string Key1 { get; private set; }
 
       [Field, Key(1)]
-      public Byte Key2 { get; private set; }
+      public byte Key2 { get; private set; }
 
       [Field, Key(2)]
-      public SByte Key3 { get; private set; }
+      public sbyte Key3 { get; private set; }
 
       [Field, Key(3)]
       public DateTime Key4 { get; private set; }
 
       [Field]
-      public Int32 Key5 { get; private set; }
+      public int Key5 { get; private set; }
 
       [Field]
-      public Int64 Key6 { get; private set; }
+      public long Key6 { get; private set; }
 
       [Field]
-      public UInt16 Key7 { get; private set; }
+      public ushort Key7 { get; private set; }
 
       [Field]
-      public UInt32 Key8 { get; private set; }
+      public uint Key8 { get; private set; }
 
       [Field]
       public Guid Key9 { get; private set; }
@@ -131,12 +131,12 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         Key k1 = Key.Create<Apple>(Domain, "1");
         Key k2 = Key.Create<Apple>(Domain, "1");
-        Assert.AreEqual(k1, k2);
+        Assert.That(k2, Is.EqualTo(k1));
 
         Key kk = Key.Create<Apple>(Domain, "");
         var s = kk.Format();
         var k = Key.Parse(Domain, s);
-        Assert.AreEqual(k, kk);
+        Assert.That(kk, Is.EqualTo(k));
         t.Complete();
       }
     }
@@ -150,14 +150,14 @@ namespace Xtensive.Orm.Tests.Storage
 
         Tuple tuple = Tuple.Create(descriptor);
         tuple.SetValue(0, " , ");
-        tuple.SetValue<Byte>(1, 1);
-        tuple.SetValue<SByte>(2, -1);
+        tuple.SetValue<byte>(1, 1);
+        tuple.SetValue<sbyte>(2, -1);
         tuple.SetValue(3, DateTime.Now);
 
         Key k1 = Key.Create<Test>(Domain, tuple);
         var stringValue = k1.Format();
         var k2 = Key.Parse(Domain, stringValue);
-        Assert.AreEqual(k1, k2);
+        Assert.That(k2, Is.EqualTo(k1));
         t.Complete();
       }
     }
@@ -170,8 +170,8 @@ namespace Xtensive.Orm.Tests.Storage
         Key key = Key.Create(Domain, typeof (Fruit), "NotExistingFruit");
         var entity = session.Query.SingleOrDefault(key);
         var entity2 = session.Query.SingleOrDefault<Fruit>("NotExistingFruit");
-        Assert.IsNull(entity);
-        Assert.IsNull(entity2);
+        Assert.That(entity, Is.Null);
+        Assert.That(entity2, Is.Null);
       }
     }
 
@@ -187,24 +187,24 @@ namespace Xtensive.Orm.Tests.Storage
         c.StringKey = a.Key;
         session.SaveChanges();
 
-        Assert.AreEqual(c.StringKey, a.Key);
+        Assert.That(a.Key, Is.EqualTo(c.StringKey));
         c.StringKey = b.Key;
-        Assert.AreEqual(c.StringKey, b.Key);
+        Assert.That(b.Key, Is.EqualTo(c.StringKey));
 
         c.StringKey = null;
         session.SaveChanges();
-        Assert.AreEqual(c.StringKey, null);
+        Assert.That(c.StringKey, Is.Null);
 
         var appleEntity1 = session.Query.SingleOrDefault<Apple>("1");
         var appleEntity2 = session.Query.SingleOrDefault<Apple>(a);
         var appleEntity3 = session.Query.SingleOrDefault<Apple>((object) a);
 
-        Assert.AreEqual(a.Key, appleEntity1.Key);
-        Assert.AreEqual(a.Key, appleEntity2.Key);
-        Assert.AreEqual(a.Key, appleEntity3.Key);
+        Assert.That(appleEntity1.Key, Is.EqualTo(a.Key));
+        Assert.That(appleEntity2.Key, Is.EqualTo(a.Key));
+        Assert.That(appleEntity3.Key, Is.EqualTo(a.Key));
 
-        Assert.AreEqual(appleEntity1, appleEntity2);
-        Assert.AreEqual(appleEntity1, appleEntity3);
+        Assert.That(appleEntity2, Is.EqualTo(appleEntity1));
+        Assert.That(appleEntity3, Is.EqualTo(appleEntity1));
 
         t.Complete();
       }

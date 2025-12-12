@@ -54,8 +54,8 @@ namespace Xtensive.Orm.Tests.Storage
               })
         ).ToList();
         var expected = expectedItems[address];
-        Assert.AreSame(expected.Customer, result.Single().Customer);
-        Assert.AreEqual(expected.ProductsCount, result.Single().Products.ToList().Count);
+        Assert.That(result.Single().Customer, Is.SameAs(expected.Customer));
+        Assert.That(result.Single().Products.ToList().Count, Is.EqualTo(expected.ProductsCount));
       }
     }
 
@@ -80,8 +80,8 @@ namespace Xtensive.Orm.Tests.Storage
               })
         )).ToList();
         var expected = expectedItems[address];
-        Assert.AreSame(expected.Customer, result.Single().Customer);
-        Assert.AreEqual(expected.ProductsCount, result.Single().Products.ToList().Count);
+        Assert.That(result.Single().Customer, Is.SameAs(expected.Customer));
+        Assert.That(result.Single().Products.ToList().Count, Is.EqualTo(expected.ProductsCount));
       }
     }
 

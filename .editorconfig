@@ -272,3 +272,6 @@ dotnet_naming_symbols.type_parameter_group.applicable_kinds        = type_parame
 dotnet_naming_rule.type_parameter_rule.symbols                     = type_parameter_group
 dotnet_naming_rule.type_parameter_rule.style                       = capital_t_prefix_style
 dotnet_naming_rule.type_parameter_rule.severity                    = warning
+
+# IDE0040: Add accessibility modifiers
+dotnet_diagnostic.IDE0040.severity = suggestion

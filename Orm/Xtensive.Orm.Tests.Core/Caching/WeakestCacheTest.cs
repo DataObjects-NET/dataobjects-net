@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       public override string ToString()
       {
-        return string.Format("{0}", Value);
+        return $"{Value}";
       }
 
       public Item(string value)
@@ -66,23 +66,23 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       cache.Add(fieldItem1);
 
-      Assert.AreSame(fieldItem1, cache.First());
-      Assert.AreSame(fieldItem1, cache[new Item("1"), true]);
+      Assert.That(cache.First(), Is.SameAs(fieldItem1));
+      Assert.That(cache[new Item("1"), true], Is.SameAs(fieldItem1));
 
       cache.Remove(fieldItem1);
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
       cache.Add(fieldItem1);
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       fieldItem1 = null;
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
-      Assert.IsNotNull(cache[new Item("1"), true]);
+      Assert.That(cache[new Item("1"), true], Is.Not.Null);
     }
 
     [Test]
@@ -94,23 +94,23 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       cache.Add(item1);
 
-      Assert.AreSame(item1, cache.First());
-      Assert.AreSame(item1, cache[new Item("1"), true]);
+      Assert.That(cache.First(), Is.SameAs(item1));
+      Assert.That(cache[new Item("1"), true], Is.SameAs(item1));
 
       cache.Remove(item1);
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
       cache.Add(item1);
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       item1 = null;
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
-      Assert.IsNotNull(cache[new Item("1"), true]);
+      Assert.That(cache[new Item("1"), true], Is.Not.Null);
     }
 
     [Test]
@@ -122,9 +122,9 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
-      Assert.IsNull(cache[new Item("1"), true]);
+      Assert.That(cache[new Item("1"), true], Is.Null);
     }
 
     [Test]
@@ -136,9 +136,9 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
-      Assert.IsNull(cache[new Item("1"), true]);
+      Assert.That(cache[new Item("1"), true], Is.Null);
     }
 
     private void InnerLocalVariableCacheTest(WeakestCache<Item, Item> cache)
@@ -147,16 +147,16 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       cache.Add(item);
 
-      Assert.AreSame(item, cache.First());
-      Assert.AreSame(item, cache[new Item("1"), true]);
+      Assert.That(cache.First(), Is.SameAs(item));
+      Assert.That(cache[new Item("1"), true], Is.SameAs(item));
 
       cache.Remove(item);
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
       cache.Add(item);
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       item = null;
     }
@@ -167,16 +167,16 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       cache.Add(fieldItem2);
 
-      Assert.AreSame(fieldItem2, cache.First());
-      Assert.AreSame(fieldItem2, cache[new Item("1"), true]);
+      Assert.That(cache.First(), Is.SameAs(fieldItem2));
+      Assert.That(cache[new Item("1"), true], Is.SameAs(fieldItem2));
 
       cache.Remove(fieldItem2);
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
 
       cache.Add(fieldItem2);
       TestHelper.CollectGarbage(true);
       cache.CollectGarbage();
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       fieldItem2 = null;
     }

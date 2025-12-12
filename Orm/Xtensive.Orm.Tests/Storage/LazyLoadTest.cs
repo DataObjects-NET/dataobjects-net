@@ -82,13 +82,13 @@ namespace Xtensive.Orm.Tests.Storage
           Book b = session.Query.SingleOrDefault<Book>(key);
           Tuple tuple = b.Tuple;
 
-          Assert.IsTrue(tuple.GetFieldState(2).IsAvailable());
-          Assert.IsFalse(tuple.GetFieldState(3).IsAvailable());
-          Assert.AreEqual(TITLE, b.Title);
-          Assert.IsFalse(tuple.GetFieldState(3).IsAvailable());
+          Assert.That(tuple.GetFieldState(2).IsAvailable(), Is.True);
+          Assert.That(tuple.GetFieldState(3).IsAvailable(), Is.False);
+          Assert.That(b.Title, Is.EqualTo(TITLE));
+          Assert.That(tuple.GetFieldState(3).IsAvailable(), Is.False);
 
           // Fetching lazy load field
-          Assert.AreEqual(TEXT, b.Text);
+          Assert.That(b.Text, Is.EqualTo(TEXT));
           t.Complete();
         }
       }

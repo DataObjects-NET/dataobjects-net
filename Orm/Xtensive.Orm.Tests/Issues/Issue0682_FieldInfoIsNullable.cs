@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
       var qweType = typeof (Base);
       var qweTypeInfo = Domain.Model.Types[qweType];
       var sysNameFieldInfo = qweTypeInfo.Fields["SysName"];
-      Assert.IsFalse(sysNameFieldInfo.IsNullable);
+      Assert.That(sysNameFieldInfo.IsNullable, Is.False);
     }
   }
 }

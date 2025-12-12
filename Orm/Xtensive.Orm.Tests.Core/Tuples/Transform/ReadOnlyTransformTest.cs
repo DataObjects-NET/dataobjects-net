@@ -23,23 +23,23 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     public void BaseTest()
     {
       Xtensive.Tuples.Tuple t  = Xtensive.Tuples.Tuple.Create(1, "2", 3);
-      TestLog.Info("Original: {0}", t);
+      TestLog.Info($"Original: {t}");
 
       Xtensive.Tuples.Tuple rt = t.ToReadOnly(TupleTransformType.TransformedTuple);
-      TestLog.Info("Wrapper:  {0}", rt);
-      Assert.AreEqual(t, rt);
+      TestLog.Info($"Wrapper:  {rt}");
+      Assert.That(rt, Is.EqualTo(t));
       t.SetValue(0, 2);
-      Assert.AreEqual(t, rt);
+      Assert.That(rt, Is.EqualTo(t));
       t.SetValue(0, 1);
       AssertEx.Throws<NotSupportedException>(delegate {
         rt.SetValue(0, 2);
       });
 
       Xtensive.Tuples.Tuple ct = t.ToReadOnly(TupleTransformType.Tuple);
-      TestLog.Info("Copy:     {0}", ct);
-      Assert.AreEqual(t, ct);
+      TestLog.Info($"Copy:     {ct}");
+      Assert.That(ct, Is.EqualTo(t));
       t.SetValue(0, 2);
-      Assert.AreNotEqual(t, ct);
+      Assert.That(ct, Is.Not.EqualTo(t));
       t.SetValue(0, 1);
       AssertEx.Throws<NotSupportedException>(delegate {
         ct.SetValue(0, 2);

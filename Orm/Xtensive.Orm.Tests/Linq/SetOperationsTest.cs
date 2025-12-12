@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customers = Session.Query.All<Customer>();;
       var result = customers.Where(c => c.Invoices.Count <= 1).Concat(Session.Query.All<Customer>().Where(c => c.Invoices.Count > 1));
       QueryDumper.Dump(result);
-      Assert.AreEqual(customers.Count(), result.Count());
+      Assert.That(result.Count(), Is.EqualTo(customers.Count()));
     }
 
     [Test]

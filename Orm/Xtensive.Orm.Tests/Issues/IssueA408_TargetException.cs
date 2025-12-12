@@ -70,27 +70,27 @@ namespace Xtensive.Orm.Tests.Issues
         var tagValue = some.GetProperty<uint>("Tag");
         var tagIndexed = some["Tag"];
         AssertEx.Throws<InvalidCastException>(() => some.GetProperty<long>("Tag"));
-        Assert.AreEqual(100500, tagValue);
-        Assert.AreEqual(100500, (uint)tagObject);
-        Assert.AreEqual(100500, (uint)tagIndexed);
+        Assert.That(tagValue, Is.EqualTo(100500));
+        Assert.That((uint)tagObject, Is.EqualTo(100500));
+        Assert.That((uint)tagIndexed, Is.EqualTo(100500));
 
         var refObject = some.GetProperty<object>("Reference.Tag");
         var refValue = some.Reference.Tag;
-        Assert.AreEqual(9000, refValue);
-        Assert.AreEqual(9000, (uint)refObject);
+        Assert.That(refValue, Is.EqualTo(9000));
+        Assert.That((uint)refObject, Is.EqualTo(9000));
 
         var strObject = some.GetProperty<object>("Structure.Tag");
         var strValue = some.Structure.Tag;
-        Assert.AreEqual(777, strValue);
-        Assert.AreEqual(777, (uint)strObject);
+        Assert.That(strValue, Is.EqualTo(777));
+        Assert.That((uint)strObject, Is.EqualTo(777));
 
         some.SetProperty("Tag", 111u);
         some.SetProperty("Reference.Tag", 111u);
         some.SetProperty("Structure.Tag", 111u);
 
-        Assert.AreEqual(111u, some.Tag);
-        Assert.AreEqual(111u, some.Reference.Tag);
-        Assert.AreEqual(111u, some.Structure.Tag);
+        Assert.That(some.Tag, Is.EqualTo(111u));
+        Assert.That(some.Reference.Tag, Is.EqualTo(111u));
+        Assert.That(some.Structure.Tag, Is.EqualTo(111u));
 
         t.Complete();
       }

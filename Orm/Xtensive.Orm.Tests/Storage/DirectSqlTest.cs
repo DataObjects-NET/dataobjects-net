@@ -57,15 +57,15 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
-        Assert.IsNull(directSql.Transaction);
+        Assert.That(directSql.Transaction, Is.Null);
         
         using (var t = session.OpenTransaction()) {
           var article = new Article {Title = "Some title", Content = "Some content"};
           session.SaveChanges();
-          
+
           // Now both are definitely not null
-          Assert.IsNotNull(directSql.Connection);
-          Assert.IsNotNull(directSql.Transaction);
+          Assert.That(directSql.Connection, Is.Not.Null);
+          Assert.That(directSql.Transaction, Is.Not.Null);
 
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
           command.CommandText = "DELETE FROM [dbo].[DirectSqlTest.Article];";
@@ -77,9 +77,9 @@ namespace Xtensive.Orm.Tests.Storage
           var anotherArticle = new Article { Title = "Another title", Content = "Another content" };
           session.SaveChanges();
 
-          AssertEx.ThrowsInvalidOperationException(() => Assert.IsNotNull(article.Content));
-          Assert.AreEqual(1, session.Query.All<Article>().Count());
-          Assert.IsNotNull(anotherArticle.Content);
+          AssertEx.ThrowsInvalidOperationException(() => Assert.That(article.Content, Is.Not.Null));
+          Assert.That(session.Query.All<Article>().Count(), Is.EqualTo(1));
+          Assert.That(anotherArticle.Content, Is.Not.Null);
           t.Complete();
         }
       }

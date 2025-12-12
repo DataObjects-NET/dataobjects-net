@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
         var b = session.Query.All<M2.Derived>().SingleOrDefault();
-        Assert.IsNotNull(b);
-        Assert.AreEqual("B", b.Text);
+        Assert.That(b, Is.Not.Null);
+        Assert.That(b.Text, Is.EqualTo("B"));
       }
     }
 

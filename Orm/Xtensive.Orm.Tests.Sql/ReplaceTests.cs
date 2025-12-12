@@ -23,12 +23,12 @@ namespace Xtensive.Orm.Tests.Sql
       Schema schema1 = catalog.CreateSchema("dbo");
 
       table1 = schema1.CreateTable("table1");
-      table1.CreateColumn("ID", new SqlValueType(SqlType.Int32));
-      table1.CreateColumn("Name", new SqlValueType(SqlType.VarChar));
+      _ = table1.CreateColumn("ID", new SqlValueType(SqlType.Int32));
+      _ = table1.CreateColumn("Name", new SqlValueType(SqlType.VarChar));
 
       table2 = schema1.CreateTable("table2");
-      table2.CreateColumn("ID", new SqlValueType(SqlType.Int32));
-      table2.CreateColumn("Name", new SqlValueType(SqlType.VarChar));
+      _ = table2.CreateColumn("ID", new SqlValueType(SqlType.Int32));
+      _ = table2.CreateColumn("Name", new SqlValueType(SqlType.VarChar));
     }
     
     [Test]
@@ -45,12 +45,12 @@ namespace Xtensive.Orm.Tests.Sql
       catch {
         passed = true;
       }
-      
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(a, aReplacing);
-      Assert.AreEqual(a.NodeType, aReplacing.NodeType);
-      Assert.AreEqual(a.Distinct, aReplacing.Distinct);
-      Assert.AreEqual(a.Expression, aReplacing.Expression);
+
+      Assert.That(passed, Is.True);
+      Assert.That(aReplacing, Is.Not.EqualTo(a));
+      Assert.That(aReplacing.NodeType, Is.EqualTo(a.NodeType));
+      Assert.That(aReplacing.Distinct, Is.EqualTo(a.Distinct));
+      Assert.That(aReplacing.Expression, Is.EqualTo(a.Expression));
     }
 
     [Test]
@@ -68,10 +68,10 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(a, aReplacing);
-      Assert.AreEqual(a.NodeType, aReplacing.NodeType);
-      Assert.AreEqual(a.Values, aReplacing.Values);
+      Assert.That(passed, Is.True);
+      Assert.That(aReplacing, Is.Not.EqualTo(a));
+      Assert.That(aReplacing.NodeType, Is.EqualTo(a.NodeType));
+      Assert.That(aReplacing.Values, Is.EqualTo(a.Values));
     }
 
     [Test]
@@ -89,11 +89,11 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(b, bReplacing);
-      Assert.AreEqual(b.NodeType, bReplacing.NodeType);
-      Assert.AreEqual(b.Left, bReplacing.Left);
-      Assert.AreEqual(b.Right, bReplacing.Right);
+      Assert.That(passed, Is.True);
+      Assert.That(bReplacing, Is.Not.EqualTo(b));
+      Assert.That(bReplacing.NodeType, Is.EqualTo(b.NodeType));
+      Assert.That(bReplacing.Left, Is.EqualTo(b.Left));
+      Assert.That(bReplacing.Right, Is.EqualTo(b.Right));
     }
 
     [Test]
@@ -116,17 +116,17 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotSame(c1, c2);
+      Assert.That(passed, Is.True);
+      Assert.That(c1, Is.Not.SameAs(c2));
       //Possibly NUnit compares items of IEnumirable
       //and if they the same it sugests two objects are equals 
       //Assert.AreNotEqual(c1, c2);
-      Assert.AreEqual(c1.NodeType, c2.NodeType);
-      Assert.AreEqual(c1.Value, c2.Value);
-      Assert.AreEqual(c1.Else, c2.Else);
-      Assert.AreEqual(c1.Count, c2.Count);
+      Assert.That(c2.NodeType, Is.EqualTo(c1.NodeType));
+      Assert.That(c2.Value, Is.EqualTo(c1.Value));
+      Assert.That(c2.Else, Is.EqualTo(c1.Else));
+      Assert.That(c2.Count, Is.EqualTo(c1.Count));
       foreach (KeyValuePair<SqlExpression, SqlExpression> p in c1)
-        Assert.AreEqual(p.Value, c2[p.Key]);
+        Assert.That(c2[p.Key], Is.EqualTo(p.Value));
     }
 
     [Test]
@@ -144,11 +144,11 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(c, cReplacing);
-      Assert.AreEqual(c.NodeType, cReplacing.NodeType);
-      Assert.AreEqual(c.Operand, cReplacing.Operand);
-      Assert.AreEqual(c.Type, cReplacing.Type);
+      Assert.That(passed, Is.True);
+      Assert.That(cReplacing, Is.Not.EqualTo(c));
+      Assert.That(cReplacing.NodeType, Is.EqualTo(c.NodeType));
+      Assert.That(cReplacing.Operand, Is.EqualTo(c.Operand));
+      Assert.That(cReplacing.Type, Is.EqualTo(c.Type));
     }
 
     [Test]
@@ -195,8 +195,8 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreEqual(d, dReplacing);
+      Assert.That(passed, Is.True);
+      Assert.That(dReplacing, Is.EqualTo(d));
     }
 
     [Test]
@@ -214,13 +214,13 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(fc, fcReplacing);
-      Assert.AreEqual(fc.NodeType, fcReplacing.NodeType);
-      Assert.AreEqual(fc.FunctionType, fcReplacing.FunctionType);
-      Assert.AreEqual(fc.Arguments.Count, fcReplacing.Arguments.Count);
+      Assert.That(passed, Is.True);
+      Assert.That(fcReplacing, Is.Not.EqualTo(fc));
+      Assert.That(fcReplacing.NodeType, Is.EqualTo(fc.NodeType));
+      Assert.That(fcReplacing.FunctionType, Is.EqualTo(fc.FunctionType));
+      Assert.That(fcReplacing.Arguments.Count, Is.EqualTo(fc.Arguments.Count));
       for (int i = 0, l = fc.Arguments.Count; i<l; i++)
-        Assert.AreEqual(fc.Arguments[i], fcReplacing.Arguments[i]);
+        Assert.That(fcReplacing.Arguments[i], Is.EqualTo(fc.Arguments[i]));
     }
 
     [Test]
@@ -238,12 +238,12 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(l, lReplacing);
-      Assert.AreEqual(l.NodeType, lReplacing.NodeType);
-      Assert.AreEqual(l.Expression, lReplacing.Expression);
-      Assert.AreEqual(l.Pattern, lReplacing.Pattern);
-      Assert.AreEqual(l.Escape, lReplacing.Escape);
+      Assert.That(passed, Is.True);
+      Assert.That(lReplacing, Is.Not.EqualTo(l));
+      Assert.That(lReplacing.NodeType, Is.EqualTo(l.NodeType));
+      Assert.That(lReplacing.Expression, Is.EqualTo(l.Expression));
+      Assert.That(lReplacing.Pattern, Is.EqualTo(l.Pattern));
+      Assert.That(lReplacing.Escape, Is.EqualTo(l.Escape));
     }
 
     [Test]
@@ -261,10 +261,10 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(l, lReplacing);
-      Assert.AreEqual(l.NodeType, lReplacing.NodeType);
-      Assert.AreEqual(l.Value, lReplacing.Value);
+      Assert.That(passed, Is.True);
+      Assert.That(lReplacing, Is.Not.EqualTo(l));
+      Assert.That(lReplacing.NodeType, Is.EqualTo(l.NodeType));
+      Assert.That(lReplacing.Value, Is.EqualTo(l.Value));
     }
 
     [Test]
@@ -289,13 +289,13 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(m, mReplacing);
-      Assert.AreEqual(m.NodeType, mReplacing.NodeType);
-      Assert.AreEqual(m.MatchType, mReplacing.MatchType);
-      Assert.AreEqual(m.Unique, mReplacing.Unique);
-      Assert.AreEqual(m.Value, mReplacing.Value);
-      Assert.AreEqual(m.SubQuery, mReplacing.SubQuery);
+      Assert.That(passed, Is.True);
+      Assert.That(mReplacing, Is.Not.EqualTo(m));
+      Assert.That(mReplacing.NodeType, Is.EqualTo(m.NodeType));
+      Assert.That(mReplacing.MatchType, Is.EqualTo(m.MatchType));
+      Assert.That(mReplacing.Unique, Is.EqualTo(m.Unique));
+      Assert.That(mReplacing.Value, Is.EqualTo(m.Value));
+      Assert.That(mReplacing.SubQuery, Is.EqualTo(m.SubQuery));
     }
 
     [Test]
@@ -313,8 +313,8 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreEqual(n, nReplacing);
+      Assert.That(passed, Is.True);
+      Assert.That(nReplacing, Is.EqualTo(n));
     }
 
     [Test]
@@ -332,12 +332,12 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotSame(r, rReplacing);
-      Assert.AreEqual(r.NodeType, rReplacing.NodeType);
-      Assert.AreEqual(r.Count, rReplacing.Count);
+      Assert.That(passed, Is.True);
+      Assert.That(r, Is.Not.SameAs(rReplacing));
+      Assert.That(rReplacing.NodeType, Is.EqualTo(r.NodeType));
+      Assert.That(rReplacing.Count, Is.EqualTo(r.Count));
       for (int i = 0, l = r.Count; i<l; i++)
-        Assert.AreEqual(r[i], rReplacing[i]);
+        Assert.That(rReplacing[i], Is.EqualTo(r[i]));
     }
 
     [Test, Ignore("FixGetEnumerator")]
@@ -359,10 +359,10 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(ss, ssReplacing);
-      Assert.AreEqual(ss.NodeType, ssReplacing.NodeType);
-      Assert.AreEqual(ss.Query, ssReplacing.Query);
+      Assert.That(passed, Is.True);
+      Assert.That(ssReplacing, Is.Not.EqualTo(ss));
+      Assert.That(ssReplacing.NodeType, Is.EqualTo(ss.NodeType));
+      Assert.That(ssReplacing.Query, Is.EqualTo(ss.Query));
     }
 
     [Test]
@@ -380,10 +380,10 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(u, uReplacing);
-      Assert.AreEqual(u.NodeType, uReplacing.NodeType);
-      Assert.AreEqual(u.Operand, uReplacing.Operand);
+      Assert.That(passed, Is.True);
+      Assert.That(uReplacing, Is.Not.EqualTo(u));
+      Assert.That(uReplacing.NodeType, Is.EqualTo(u.NodeType));
+      Assert.That(uReplacing.Operand, Is.EqualTo(u.Operand));
     }
 
     [Test]
@@ -401,14 +401,14 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(ufc, ufcReplacing);
-      Assert.AreEqual(ufc.NodeType, ufcReplacing.NodeType);
-      Assert.AreEqual(ufc.Name, ufcReplacing.Name);
-      Assert.AreEqual(ufc.FunctionType, ufcReplacing.FunctionType);
-      Assert.AreEqual(ufc.Arguments.Count, ufcReplacing.Arguments.Count);
+      Assert.That(passed, Is.True);
+      Assert.That(ufcReplacing, Is.Not.EqualTo(ufc));
+      Assert.That(ufcReplacing.NodeType, Is.EqualTo(ufc.NodeType));
+      Assert.That(ufcReplacing.Name, Is.EqualTo(ufc.Name));
+      Assert.That(ufcReplacing.FunctionType, Is.EqualTo(ufc.FunctionType));
+      Assert.That(ufcReplacing.Arguments.Count, Is.EqualTo(ufc.Arguments.Count));
       for (int i = 0, l = ufc.Arguments.Count; i < l; i++)
-        Assert.AreEqual(ufc.Arguments[i], ufcReplacing.Arguments[i]);
+        Assert.That(ufcReplacing.Arguments[i], Is.EqualTo(ufc.Arguments[i]));
     }
 
     [Test]
@@ -427,10 +427,10 @@ namespace Xtensive.Orm.Tests.Sql
         passed = true;
       }
 
-      Assert.IsTrue(passed);
-      Assert.AreNotEqual(v, vReplacing);
-      Assert.AreEqual(v.NodeType, vReplacing.NodeType);
-      Assert.AreEqual(v.Name, vReplacing.Name);
+      Assert.That(passed, Is.True);
+      Assert.That(vReplacing, Is.Not.EqualTo(v));
+      Assert.That(vReplacing.NodeType, Is.EqualTo(v.NodeType));
+      Assert.That(vReplacing.Name, Is.EqualTo(v.Name));
     }
   }
 }

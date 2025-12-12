@@ -21,8 +21,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 {
   public class SakilaExtractorTest : Sakila
   {
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
     private Schema schema = null;
 
@@ -36,7 +38,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       {
         if (FieldNames == null)
           FieldNames = new string[0];
-        return string.Format("Fields: '{0}'; Rows: {1}", string.Join("', '", FieldNames), RowCount);
+        return $"Fields: '{string.Join("', '", FieldNames)}'; Rows: {RowCount}";
       }
     }
 
@@ -165,7 +167,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [Test]
     public void TestExtractCatalog()
     {
-      Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
+      Assert.That(Catalog.Schemas.Count, Is.GreaterThanOrEqualTo(1));
     }
 
     [Test]
@@ -196,7 +198,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = actor["first_name"]==SqlDml.ParameterRef(p.ParameterName);
       select.OrderBy.Add(actor["last_name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -222,7 +224,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.AddRange(actor["first_name"]);
       select.Where = actor["first_name"]==SqlDml.ParameterRef(p.ParameterName);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -234,7 +236,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlSelect select = SqlDml.Select(city);
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -249,7 +251,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.OrderBy.Add(customer["first_name"]);
       select.OrderBy.Add(3, false);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -265,7 +267,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       sqlCommand.Prepare();
 
       DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-      Assert.AreEqual(r.RowCount, 0);
+      Assert.That(r.RowCount, Is.EqualTo(0));
     }
 
     [Test]
@@ -280,7 +282,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       sqlCommand.Prepare();
 
       DbCommandExecutionResult r = GetExecuteDataReaderResult(sqlCommand);
-      Assert.AreEqual(r.RowCount, 10);
+      Assert.That(r.RowCount, Is.EqualTo(10));
     }
 
     [Test]
@@ -307,7 +309,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.OrderBy.Add(city["city_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -349,7 +351,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.Add(film["release_year"]);
       select.Columns.Add(rental["return_date"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -369,7 +371,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.Add(SqlDml.Round(payment["amount"] * 12, 2), "Rounded");
       select.Where = payment["payment_id"]==12;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -401,7 +403,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.OrderBy.Add(customer["customer_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -431,7 +433,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.Add(SqlDml.Sum(payment["amount"]), "Total");
       select.GroupBy.AddRange(payment["staff_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -454,7 +456,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.IsNotNull(rental["return_date"]);
       select.OrderBy.Add(rental["inventory_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -481,7 +483,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.IsNotNull(rental["return_date"]);
       select.OrderBy.Add(rental["inventory_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -504,7 +506,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
                         );
       select.Where = SqlDml.IsNotNull(rental["return_date"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -517,7 +519,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlSelect select = SqlDml.Select(payment);
       select.Columns.Add(SqlDml.Sum(payment["amount"]), "sum");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -532,7 +534,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.Add(SqlDml.Concat(customer["first_name"], SqlDml.Concat(SqlDml.Literal(", "), customer["last_name"])),
                          "FullName"
                          );
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -568,7 +570,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.Having = SqlDml.Sum(payment["amount"])>140;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -604,7 +606,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.GroupBy.Add(customer["first_name"]);
       select.GroupBy.Add(customer["last_name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -628,7 +630,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.Between(film["rental_duration"], 4, 5);
       select.OrderBy.Add(film["film_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
 
@@ -653,7 +655,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.In(film["rating"], SqlDml.Row("PG", "PG-13", "R"));
       select.OrderBy.Add(film["film_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -677,7 +679,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.Like(film["rating"], "PG%");
       select.OrderBy.Add(film["film_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -703,7 +705,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = (film["rating"]=="PG" || film["rating"]=="PG-13") && film["length"]<100;
       select.OrderBy.Add(film["film_id"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -721,7 +723,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, rental["rental_date"]));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -737,7 +739,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       var collation = schema.Collations["utf8_general_ci"] ?? schema.CreateCollation("utf8_general_ci");
       select.OrderBy.Add(SqlDml.Collate(customer["last_name"], collation));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -764,7 +766,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.Where = SqlDml.Equals(payment1["amount"], innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -791,7 +793,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.Add(customer["first_name"]);
       select.Where = SqlDml.Exists(innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -805,7 +807,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Offset = 0;
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -820,7 +822,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       update.Values[film["rental_rate"]] = film["rental_rate"] * 1.1;
       update.Where = film["film_id"]==1;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -843,7 +845,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
                         );
       select.Where = SqlDml.IsNotNull(rental["return_date"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -977,7 +979,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       select.Hints.Add(SqlDml.NativeHint("idx_last_name"));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -998,7 +1000,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.Throws<NotSupportedException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select)));
+      Assert.Throws<NotSupportedException>(() => Assert.That(CompareExecuteNonQuery(nativeSql, select), Is.True));
     }
 
     [Test]

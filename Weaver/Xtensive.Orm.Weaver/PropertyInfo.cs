@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Weaver
     {
       var resultBuilder = new StringBuilder();
       resultBuilder.Append(Name);
-      resultBuilder.AppendFormat(" [type({0})]", Definition.PropertyType.FullName);
+      resultBuilder.AppendFormat($" [type({Definition.PropertyType.FullName})]");
       if (IsInstance)
         resultBuilder.Append(" [instance]");
       if (IsAutomatic)
@@ -63,12 +63,12 @@ namespace Xtensive.Orm.Weaver
         resultBuilder.Append(" [key]");
       if (IsPersistent) {
         if (PersistentName!=null)
-          resultBuilder.AppendFormat(" [persistent({0})]", PersistentName);
+          resultBuilder.AppendFormat($" [persistent({PersistentName})]");
         else
           resultBuilder.Append(" [persistent]");
       }
       foreach (var implementedProperty in ImplementedProperties)
-        resultBuilder.AppendFormat(" [implements({0}::{1})]", implementedProperty.DeclaringType.FullName, implementedProperty.Name);
+        resultBuilder.AppendFormat($" [implements({implementedProperty.DeclaringType.FullName}::{implementedProperty.Name})]");
       return resultBuilder.ToString();
     }
 

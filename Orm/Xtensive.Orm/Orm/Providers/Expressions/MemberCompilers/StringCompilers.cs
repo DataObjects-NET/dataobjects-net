@@ -358,8 +358,8 @@ namespace Xtensive.Orm.Providers
       [Type(typeof(string))] SqlExpression strB)
     {
       var result = SqlDml.Case();
-      result.Add(strA > strB, SqlDml.Literal(1));
-      result.Add(strA < strB, SqlDml.Literal(-1));
+      _ = result.Add(strA > strB, SqlDml.Literal(1));
+      _ = result.Add(strA < strB, SqlDml.Literal(-1));
       result.Else = SqlDml.Literal(0);
       return result;
     }

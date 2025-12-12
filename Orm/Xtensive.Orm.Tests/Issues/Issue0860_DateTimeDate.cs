@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Issues
             where d.DateTime1.Date==d.DateTime2
             select d;
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
+          Assert.That(result.Count, Is.EqualTo(1));
         }
       }
     }

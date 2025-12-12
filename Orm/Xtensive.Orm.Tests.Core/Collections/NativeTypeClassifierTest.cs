@@ -25,25 +25,25 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
       var o = new object();
       classifier.Add(o);
-      Assert.IsTrue(classifier.Contains(o));
-      Assert.AreEqual(1, classifier.Count);
-      Assert.AreEqual(1, classifier.ClassCount);
-      Assert.AreEqual(1, classifier.GetItems<object>().Count());
-      Assert.AreEqual(0, classifier.GetItems<IList>().Count());
+      Assert.That(classifier.Contains(o), Is.True);
+      Assert.That(classifier.Count, Is.EqualTo(1));
+      Assert.That(classifier.ClassCount, Is.EqualTo(1));
+      Assert.That(classifier.GetItems<object>().Count(), Is.EqualTo(1));
+      Assert.That(classifier.GetItems<IList>().Count(), Is.EqualTo(0));
 
       var l = new List<int>();
       classifier.Add(l);
-      Assert.IsTrue(classifier.Contains(l));
-      Assert.AreEqual(2, classifier.Count);
-      Assert.AreEqual(10, classifier.ClassCount);
-      Assert.AreEqual(2, classifier.GetItems<object>().Count());
-      Assert.AreEqual(1, classifier.GetItems<IEnumerable<int>>().Count());
+      Assert.That(classifier.Contains(l), Is.True);
+      Assert.That(classifier.Count, Is.EqualTo(2));
+      Assert.That(classifier.ClassCount, Is.EqualTo(10));
+      Assert.That(classifier.GetItems<object>().Count(), Is.EqualTo(2));
+      Assert.That(classifier.GetItems<IEnumerable<int>>().Count(), Is.EqualTo(1));
 
       classifier.Remove(l);
-      Assert.IsTrue(classifier.Contains(o));
-      Assert.AreEqual(1, classifier.Count);
-      Assert.AreEqual(1, classifier.ClassCount);
-      Assert.AreEqual(1, classifier.GetItems<object>().Count());
+      Assert.That(classifier.Contains(o), Is.True);
+      Assert.That(classifier.Count, Is.EqualTo(1));
+      Assert.That(classifier.ClassCount, Is.EqualTo(1));
+      Assert.That(classifier.GetItems<object>().Count(), Is.EqualTo(1));
     }
   }
 }

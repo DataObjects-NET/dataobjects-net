@@ -17,55 +17,55 @@ namespace Xtensive.Orm.Tests.Core.Helpers
     [Test]
     public void RevertibleSplitJoinTest()
     {
-      Assert.AreEqual("A,B,C", new[] {"A", "B", "C"}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {"A", "B", "C"}.RevertibleJoin('\\', ','), Is.EqualTo("A,B,C"));
       AssertEx.HasSameElements(new[] {"A", "B", "C"}, "A,B,C".RevertibleSplit('\\', ','));
 
-      Assert.AreEqual("A,B", new[] {"A", "B"}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {"A", "B"}.RevertibleJoin('\\', ','), Is.EqualTo("A,B"));
       AssertEx.HasSameElements(new[] {"A", "B"}, "A,B".RevertibleSplit('\\', ','));
 
-      Assert.AreEqual("A", new[] {"A"}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {"A"}.RevertibleJoin('\\', ','), Is.EqualTo("A"));
       AssertEx.HasSameElements(new[] {"A"}, "A".RevertibleSplit('\\', ','));
 
-      Assert.AreEqual("", new[] {""}.RevertibleJoin('\\', ','));
-      Assert.AreEqual("", new string[] {}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {""}.RevertibleJoin('\\', ','), Is.EqualTo(""));
+      Assert.That(new string[] {}.RevertibleJoin('\\', ','), Is.EqualTo(""));
       AssertEx.HasSameElements(new[] {""}, "".RevertibleSplit('\\', ','));
 
-      Assert.AreEqual("\\,", new[] {","}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {","}.RevertibleJoin('\\', ','), Is.EqualTo("\\,"));
       AssertEx.HasSameElements(new[] {","}, "\\,".RevertibleSplit('\\', ','));
 
-      Assert.AreEqual("\\,,", new[] {",",""}.RevertibleJoin('\\', ','));
+      Assert.That(new[] {",",""}.RevertibleJoin('\\', ','), Is.EqualTo("\\,,"));
       AssertEx.HasSameElements(new[] {",", ""}, "\\,,".RevertibleSplit('\\', ','));
     }
 
     [Test]
     public void IndentTest()
     {
-      Assert.AreEqual("A".Indent(0), "A");
-      Assert.AreEqual("A".Indent(1), " A");
-      Assert.AreEqual("A".Indent(2), "  A");
+      Assert.That("A".Indent(0), Is.EqualTo("A"));
+      Assert.That("A".Indent(1), Is.EqualTo(" A"));
+      Assert.That("A".Indent(2), Is.EqualTo("  A"));
 
-      Assert.AreEqual("A".Indent(1, false), "A");
-      Assert.AreEqual("A\r\nB".Indent(1, false), "A\r\n B");
-      Assert.AreEqual("A\r\nB".Indent(1, true), " A\r\n B");
+      Assert.That("A".Indent(1, false), Is.EqualTo("A"));
+      Assert.That("A\r\nB".Indent(1, false), Is.EqualTo("A\r\n B"));
+      Assert.That("A\r\nB".Indent(1, true), Is.EqualTo(" A\r\n B"));
     }
 
     [Test]
     public void LikeExtensionTest()
     {
       _ = Assert.Throws<ArgumentException>(() => {
-        Assert.AreEqual("uewryewsf".Like("%sf"), true);
-        Assert.AreEqual("s__asdf".Like("_%asdf"), true);
-        Assert.AreEqual("dsfEEEE".Like("dsf%"), true);
-        Assert.AreEqual("Afigdf".Like("_figdf"), true);
-        Assert.AreEqual("fsdfASDsdfs".Like("fsdf___sdfs"), true);
-        Assert.AreEqual("my name is Alex.".Like("my name is _____"), true);
-        Assert.AreEqual("how old are you?".Like("how old % you_"), true);
-        Assert.AreEqual("hi, I'm alex. I'm 26".Like("hi, I'm ____. I'm %"), true);
-        Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%"), false);
-        Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%", '!'), true);
-        Assert.AreEqual("string with error.".Like("String with error_"), false);
-        Assert.AreEqual("Another string with error.".Like("another string with err%."), false);
-        Assert.AreEqual("aRRRRa%".Like("a%a%%", '%'), true);
+        Assert.That("uewryewsf".Like("%sf"), Is.EqualTo(true));
+        Assert.That("s__asdf".Like("_%asdf"), Is.EqualTo(true));
+        Assert.That("dsfEEEE".Like("dsf%"), Is.EqualTo(true));
+        Assert.That("Afigdf".Like("_figdf"), Is.EqualTo(true));
+        Assert.That("fsdfASDsdfs".Like("fsdf___sdfs"), Is.EqualTo(true));
+        Assert.That("my name is Alex.".Like("my name is _____"), Is.EqualTo(true));
+        Assert.That("how old are you?".Like("how old % you_"), Is.EqualTo(true));
+        Assert.That("hi, I'm alex. I'm 26".Like("hi, I'm ____. I'm %"), Is.EqualTo(true));
+        Assert.That("it's another test string%%%".Like("it's another test string!%!%!%"), Is.EqualTo(false));
+        Assert.That("it's another test string%%%".Like("it's another test string!%!%!%", '!'), Is.EqualTo(true));
+        Assert.That("string with error.".Like("String with error_"), Is.EqualTo(false));
+        Assert.That("Another string with error.".Like("another string with err%."), Is.EqualTo(false));
+        Assert.That("aRRRRa%".Like("a%a%%", '%'), Is.EqualTo(true));
       });
     }
 

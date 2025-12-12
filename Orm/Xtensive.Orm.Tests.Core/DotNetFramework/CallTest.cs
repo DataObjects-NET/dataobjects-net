@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Real test
       iterations = (int)(IterationCount*speedFactor);
       TestLog.Info("Regular call test:");
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (Orm.Logging.IndentManager.IncreaseIndent()) {
         Cleanup();
@@ -221,8 +221,8 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       CastClassGMethod1<T,T1>(c, iterations);
       // Real test
       iterations = (int)(IterationCount*speedFactor);
-      TestLog.Info("Regular call test (1 generic argument: {0}):", typeof(T1).GetShortName());
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"Regular call test (1 generic argument: {typeof(T1).GetShortName()}):");
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (IndentManager.IncreaseIndent()) {
         Cleanup();
@@ -251,8 +251,8 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       CastClassGMethod2<T,T1,T2>(c, iterations);
       // Real test
       iterations = (int)(IterationCount*speedFactor);
-      TestLog.Info("Regular call test (2 generic arguments: {0}, {1}):", typeof(T1).GetShortName(), typeof(T2).GetShortName());
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"Regular call test (2 generic arguments: {typeof(T1).GetShortName()}, {typeof(T2).GetShortName()}):");
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (IndentManager.IncreaseIndent()) {
         Cleanup();
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Real test
       iterations = (int)(IterationCount*speedFactor);
       TestLog.Info("Virtual call test:");
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (IndentManager.IncreaseIndent()) {
         Cleanup();
@@ -331,8 +331,8 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       CastInterfaceGVMethod1<T,T1>(ic, iterations);
       // Real test
       iterations = (int)(IterationCount*speedFactor);
-      TestLog.Info("Virtual generic call test (1 generic argument: {0}):", typeof(T1).GetShortName());
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"Virtual generic call test (1 generic argument: {typeof(T1).GetShortName()}):");
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (IndentManager.IncreaseIndent()) {
         Cleanup();
@@ -375,8 +375,8 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       CastInterfaceGVMethod2<T,T1,T2>(ic, iterations);
       // Real test
       iterations = (int)(IterationCount*speedFactor);
-      TestLog.Info("Virtual generic call test (2 generic arguments: {0}, {1}):", typeof(T1).GetShortName(), typeof(T2).GetShortName());
-      TestLog.Info("  Type: {0}", typeof(T).GetShortName());
+      TestLog.Info($"Virtual generic call test (2 generic arguments: {typeof(T1).GetShortName()}, {typeof(T2).GetShortName()}):");
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}");
       FastCache<T>.Value = null;
       using (IndentManager.IncreaseIndent()) {
         Cleanup();

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.UpperRight!=otherBox.UpperRight);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.LowerLeft!=otherBox.LowerLeft);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Right==box.Right);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Top==box.Top);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Left==box.Left);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Bottom==box.Bottom);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Height==box.Height);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box.Width==box.Width);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box==e.Box);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlBox>()
             .Where(e => e.Box!=e.OtherBox);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }

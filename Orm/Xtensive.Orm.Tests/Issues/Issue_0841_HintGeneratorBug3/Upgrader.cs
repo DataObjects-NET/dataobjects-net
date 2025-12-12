@@ -79,10 +79,10 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
         using (var connection = new SqlConnection(connectionString)) {
           connection.Open();
           using (var command = connection.CreateCommand()) {
-            command.CommandText = string.Format(@"
-              UPDATE [dbo].[Base] SET [TypeId] = {0} 
-              WHERE ([Base].[TypeId] = {1});
-              ", baseTypeId, derivedTypeId);
+            command.CommandText = $@"
+              UPDATE [dbo].[Base] SET [TypeId] = {baseTypeId} 
+              WHERE ([Base].[TypeId] = {derivedTypeId});
+              ";
             command.ExecuteNonQuery();
           }
           connection.Close();

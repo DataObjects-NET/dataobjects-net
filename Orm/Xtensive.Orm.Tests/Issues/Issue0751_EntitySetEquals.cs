@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
                       where null==company.Persons
                       select company;
           var result = query.ToList();
-          Assert.AreEqual(0, result.Count);
+          Assert.That(result.Count, Is.EqualTo(0));
           // Rollback
         }
       }
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Issues
                       where company.Persons!=null
                       select company;
           var result = query.ToList();
-          Assert.AreEqual(2, result.Count);
+          Assert.That(result.Count, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -111,9 +111,9 @@ namespace Xtensive.Orm.Tests.Issues
             where x.Company1.Persons==x.Company2.Persons
             select x;
           var result = query.ToList();
-          Assert.AreEqual(2, result.Count);
+          Assert.That(result.Count, Is.EqualTo(2));
           foreach (var pair in result)
-            Assert.AreEqual(pair.Company1, pair.Company2);
+            Assert.That(pair.Company2, Is.EqualTo(pair.Company1));
           // Rollback
         }
       }
@@ -136,9 +136,9 @@ namespace Xtensive.Orm.Tests.Issues
             where x.Company1.Persons!=x.Company2.Persons
             select x;
           var result = query.ToList();
-          Assert.AreEqual(2, result.Count);
+          Assert.That(result.Count, Is.EqualTo(2));
           foreach (var pair in result)
-            Assert.AreNotEqual(pair.Company1, pair.Company2);
+            Assert.That(pair.Company2, Is.Not.EqualTo(pair.Company1));
           // Rollback
         }
       }
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Issues
             where c.Persons==nullEntitySet
             select c;
           var result = query.ToList();
-          Assert.AreEqual(0, result.Count);
+          Assert.That(result.Count, Is.EqualTo(0));
           // Rollback
         }
       }
@@ -176,8 +176,8 @@ namespace Xtensive.Orm.Tests.Issues
             where c.Persons==persons
             select c;
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.AreEqual(company1, result.Single());
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result.Single(), Is.EqualTo(company1));
           // Rollback
         }
       }
@@ -195,8 +195,8 @@ namespace Xtensive.Orm.Tests.Issues
             where c.Persons==company1.Persons
             select c;
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.AreEqual(company1, result.Single());
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result.Single(), Is.EqualTo(company1));
           // Rollback
         }
       }
@@ -215,8 +215,8 @@ namespace Xtensive.Orm.Tests.Issues
             where c.Persons!=persons
             select c;
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.AreEqual(company2, result.Single());
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result.Single(), Is.EqualTo(company2));
           // Rollback
         }
       }
@@ -243,8 +243,8 @@ namespace Xtensive.Orm.Tests.Issues
         where c.Persons==persons
         select c;
       var result = query.ToList();
-      Assert.AreEqual(1, result.Count);
-      Assert.AreEqual(company1, result.Single());
+      Assert.That(result.Count, Is.EqualTo(1));
+      Assert.That(result.Single(), Is.EqualTo(company1));
     }
   }
 }

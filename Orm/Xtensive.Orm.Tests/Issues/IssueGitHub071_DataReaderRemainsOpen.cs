@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
           list.Add(guid);
         }
 
-        Assert.AreEqual(0, list.Count);
+        Assert.That(list.Count, Is.EqualTo(0));
         tx.Complete();
       }
     }
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           list.Add(guid);
         }
 
-        Assert.AreEqual(0, list.Count);
+        Assert.That(list.Count, Is.EqualTo(0));
         tx.Complete();
       }
     }
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
           list.Add(guid);
         }
 
-        Assert.AreEqual(0, list.Count);
+        Assert.That(list.Count, Is.EqualTo(0));
         tx.Complete();
       }
     }
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Issues
           list.Add(guid);
         }
 
-        Assert.AreEqual(0, list.Count);
+        Assert.That(list.Count, Is.EqualTo(0));
         tx.Complete();
       }
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Issues
           list.Add(guid);
         }
 
-        Assert.AreEqual(0, list.Count);
+        Assert.That(list.Count, Is.EqualTo(0));
         tx.Complete();
       }
     }

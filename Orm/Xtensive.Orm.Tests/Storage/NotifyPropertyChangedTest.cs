@@ -36,27 +36,27 @@ namespace Xtensive.Orm.Tests.Storage
           Reset();
           ray.PropertyChanged += ray_PropertyChanged;
           ray.Vertex.PropertyChanged += ray_PropertyChanged;
-          Assert.IsFalse(isEntityPropertyEventRaised);
-          Assert.IsFalse(isStructureEventRaised);
-          Assert.IsFalse(isStructurePropertyEventRaised);
+          Assert.That(isEntityPropertyEventRaised, Is.False);
+          Assert.That(isStructureEventRaised, Is.False);
+          Assert.That(isStructurePropertyEventRaised, Is.False);
 
           Reset();
           ray.Direction = Direction.Negative;
-          Assert.IsTrue(isEntityPropertyEventRaised);
-          Assert.IsFalse(isStructureEventRaised);
-          Assert.IsFalse(isStructurePropertyEventRaised);
+          Assert.That(isEntityPropertyEventRaised, Is.True);
+          Assert.That(isStructureEventRaised, Is.False);
+          Assert.That(isStructurePropertyEventRaised, Is.False);
 
           Reset();
           ray.Vertex.X = 5;
-          Assert.IsFalse(isEntityPropertyEventRaised);
-          Assert.IsTrue(isStructureEventRaised);
-          Assert.IsTrue(isStructurePropertyEventRaised);
+          Assert.That(isEntityPropertyEventRaised, Is.False);
+          Assert.That(isStructureEventRaised, Is.True);
+          Assert.That(isStructurePropertyEventRaised, Is.True);
 
           Reset();
           ray.Vertex = new Point(4, 6);
-          Assert.IsFalse(isEntityPropertyEventRaised);
-          Assert.IsTrue(isStructureEventRaised);
-          Assert.IsFalse(isStructurePropertyEventRaised);
+          Assert.That(isEntityPropertyEventRaised, Is.False);
+          Assert.That(isStructureEventRaised, Is.True);
+          Assert.That(isStructurePropertyEventRaised, Is.False);
         }
       }
     }

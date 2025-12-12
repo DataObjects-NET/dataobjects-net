@@ -102,25 +102,25 @@ namespace Xtensive.Orm.Tests.Upgrade
       var tableAG = schema.Tables["A-ManyToManyMaster-G"];
 
       // ZeroToOne (A -> B)
-      Assert.AreEqual(0, tableB.ForeignKeys.Count);
-      Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableB.PrimaryIndex));
+      Assert.That(tableB.ForeignKeys.Count, Is.EqualTo(0));
+      Assert.That(tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableB.PrimaryIndex), Is.EqualTo(1));
       // OneToOnePaired (A -> C, C -> A)
-      Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableC.PrimaryIndex));
-      Assert.AreEqual(2, tableC.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
+      Assert.That(tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableC.PrimaryIndex), Is.EqualTo(1));
+      Assert.That(tableC.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex), Is.EqualTo(2));
       // ManyToOnePaired (A -> D)
-      Assert.AreEqual(1, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableD.PrimaryIndex));
-      Assert.AreEqual(0, tableD.ForeignKeys.Count);
+      Assert.That(tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableD.PrimaryIndex), Is.EqualTo(1));
+      Assert.That(tableD.ForeignKeys.Count, Is.EqualTo(0));
       // OneToManyPaired (A -> F)
-      Assert.AreEqual(0, tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableF.PrimaryIndex));
-      Assert.AreEqual(1, tableF.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
+      Assert.That(tableA.ForeignKeys.Count(fk => fk.PrimaryKey==tableF.PrimaryIndex), Is.EqualTo(0));
+      Assert.That(tableF.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex), Is.EqualTo(1));
       // ZeroToOne (AE -> A, AE -> E)
-      Assert.AreEqual(1, tableAE.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
-      Assert.AreEqual(1, tableAE.ForeignKeys.Count(fk => fk.PrimaryKey==tableE.PrimaryIndex));
+      Assert.That(tableAE.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex), Is.EqualTo(1));
+      Assert.That(tableAE.ForeignKeys.Count(fk => fk.PrimaryKey==tableE.PrimaryIndex), Is.EqualTo(1));
       // ManyToMany (AG -> A, AG -> G)
-      Assert.AreEqual(1, tableAG.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex));
-      Assert.AreEqual(1, tableAG.ForeignKeys.Count(fk => fk.PrimaryKey==tableG.PrimaryIndex));
+      Assert.That(tableAG.ForeignKeys.Count(fk => fk.PrimaryKey==tableA.PrimaryIndex), Is.EqualTo(1));
+      Assert.That(tableAG.ForeignKeys.Count(fk => fk.PrimaryKey==tableG.PrimaryIndex), Is.EqualTo(1));
       // ManyToOneSelfPaired (H -> H)
-      Assert.AreEqual(1, tableH.ForeignKeys.Count(fk => fk.PrimaryKey==tableH.PrimaryIndex));
+      Assert.That(tableH.ForeignKeys.Count(fk => fk.PrimaryKey==tableH.PrimaryIndex), Is.EqualTo(1));
     }
 
     public override void OnUpgrade()

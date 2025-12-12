@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Real test
       a = new Cloneable<T>[(int)(CloneTestArrayLength*speedFactor / 10 * 10)];
       TestLog.Info("Cloning test:");
-      TestLog.Info("  Type: {0}, length: {1}", c.GetType().GetShortName(), a.Length);
+      TestLog.Info($"  Type: {c.GetType().GetShortName()}, length: {a.Length}");
       using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("MemberwiseClone   ", MeasurementOptions.Log, a.Length))

@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<A>().Count());
-          Assert.AreEqual("1", session.Query.All<A>().First().Y);
+          Assert.That(session.Query.All<A>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<A>().First().Y, Is.EqualTo("1"));
           transaction.Complete();
         }
       }
@@ -51,10 +51,10 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<A>().Count());
-          Assert.AreEqual("1", session.Query.All<A>().First().X);
-          Assert.AreEqual("1", session.Query.All<A>().First().Y);
-          Assert.AreEqual(1, session.Query.All<B>().Count());
+          Assert.That(session.Query.All<A>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<A>().First().X, Is.EqualTo("1"));
+          Assert.That(session.Query.All<A>().First().Y, Is.EqualTo("1"));
+          Assert.That(session.Query.All<B>().Count(), Is.EqualTo(1));
           transaction.Complete();
         }
       }
@@ -80,8 +80,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<A>().Count());
-          Assert.AreEqual("1", session.Query.All<A>().First().Y);
+          Assert.That(session.Query.All<A>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<A>().First().Y, Is.EqualTo("1"));
           transaction.Complete();
         }
       }
@@ -89,10 +89,10 @@ namespace Xtensive.Orm.Tests.Upgrade
       domain = await BuildDomainAsync(DomainUpgradeMode.Validate);
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<A>().Count());
-          Assert.AreEqual("1", session.Query.All<A>().First().X);
-          Assert.AreEqual("1", session.Query.All<A>().First().Y);
-          Assert.AreEqual(1, session.Query.All<B>().Count());
+          Assert.That(session.Query.All<A>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<A>().First().X, Is.EqualTo("1"));
+          Assert.That(session.Query.All<A>().First().Y, Is.EqualTo("1"));
+          Assert.That(session.Query.All<B>().Count(), Is.EqualTo(1));
           transaction.Complete();
         }
       }

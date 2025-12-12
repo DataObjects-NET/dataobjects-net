@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
       Type d = typeof (Derived);
       Type l = typeof (Last);
 
-      TestLog.Info("{0}", i.GetProperty("Property").GetImplementation(b));
+      TestLog.Info($"{i.GetProperty("Property").GetImplementation(b)}");
     }
 
     [Test]
@@ -202,21 +202,21 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
     private static void ValidateId(Expression<Func<IdAttribute>> getAttribute, string expected)
     {
-      TestLog.Info("Trying: {0}", getAttribute.ToString(true));
+      TestLog.Info($"Trying: {getAttribute.ToString(true)}");
       var attribute = getAttribute.Compile().Invoke();
-      TestLog.Info("  Expect: {0}", expected);
-      TestLog.Info("  Actual: {0}", attribute.Value);
-      Assert.AreEqual(expected, attribute.Value);
+      TestLog.Info($"  Expect: {expected}");
+      TestLog.Info($"  Actual: {attribute.Value}");
+      Assert.That(attribute.Value, Is.EqualTo(expected));
     }
 
     private static void ValidateIds(Expression<Func<IEnumerable<IdAttribute>>> getAttributes, string expected)
     {
-      TestLog.Info("Trying: {0}", getAttributes.ToString(true));
+      TestLog.Info($"Trying: {getAttributes.ToString(true)}");
       var attributes = getAttributes.Compile().Invoke();
       var actual = attributes.Select(a => a.Value).ToCommaDelimitedString();
-      TestLog.Info("  Expect: {0}", expected);
-      TestLog.Info("  Actual: {0}", actual);
-      Assert.AreEqual(expected, actual);
+      TestLog.Info($"  Expect: {expected}");
+      TestLog.Info($"  Actual: {actual}");
+      Assert.That(actual, Is.EqualTo(expected));
     }
   }
 }

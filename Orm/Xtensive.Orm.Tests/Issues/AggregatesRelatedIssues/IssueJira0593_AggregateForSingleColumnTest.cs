@@ -183,19 +183,19 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
         var localSum = session.Query.All<TestEntity>().Select(c => c.DecimalField).ToArray().Sum();
-        Assert.AreEqual(session.Query.All<TestEntity>().Sum(c => c.DecimalField), localSum);
-        Assert.AreEqual(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum(c => c), localSum);
-        Assert.AreEqual(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum(), localSum);
+        Assert.That(localSum, Is.EqualTo(session.Query.All<TestEntity>().Sum(c => c.DecimalField)));
+        Assert.That(localSum, Is.EqualTo(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum(c => c)));
+        Assert.That(localSum, Is.EqualTo(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum()));
 
         var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.DecimalField);
         localSum = query.ToArray().Sum();
-        Assert.AreEqual(query.Sum(c => c), localSum);
-        Assert.AreEqual(query.Sum(), localSum);
+        Assert.That(localSum, Is.EqualTo(query.Sum(c => c)));
+        Assert.That(localSum, Is.EqualTo(query.Sum()));
 
         var nullableQuery = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.NullableDecimalField : -c.NullableDecimalField);
         var nullableLocalSum = nullableQuery.ToArray().Sum();
-        Assert.AreEqual(nullableQuery.Sum(c => c), nullableLocalSum);
-        Assert.AreEqual(nullableQuery.Sum(), nullableLocalSum);
+        Assert.That(nullableLocalSum, Is.EqualTo(nullableQuery.Sum(c => c)));
+        Assert.That(nullableLocalSum, Is.EqualTo(nullableQuery.Sum()));
       }
     }
 
@@ -206,13 +206,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (session.OpenTransaction()) {
         var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.IntField : -c.ShortField);
         var localSum = query.ToArray().Sum();
-        Assert.AreEqual(query.Sum(c => c), localSum);
-        Assert.AreEqual(query.Sum(), localSum);
+        Assert.That(localSum, Is.EqualTo(query.Sum(c => c)));
+        Assert.That(localSum, Is.EqualTo(query.Sum()));
 
         var nullableQuery = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.NullableDecimalField);
         var nullableLocalSum = nullableQuery.ToArray().Sum();
-        Assert.AreEqual(nullableQuery.Sum(c => c), nullableLocalSum);
-        Assert.AreEqual(nullableQuery.Sum(), nullableLocalSum);
+        Assert.That(nullableLocalSum, Is.EqualTo(nullableQuery.Sum(c => c)));
+        Assert.That(nullableLocalSum, Is.EqualTo(nullableQuery.Sum()));
       }
     }
 
@@ -522,96 +522,96 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
       if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
-        Assert.AreEqual(Math.Truncate(localAvg), query.Average(c => c));
-        Assert.AreEqual(Math.Truncate(localAvg), query.Average());
+        Assert.That(query.Average(c => c), Is.EqualTo(Math.Truncate(localAvg)));
+        Assert.That(query.Average(), Is.EqualTo(Math.Truncate(localAvg)));
       }
       else {
-        Assert.AreEqual(localAvg, query.Average(c => c));
-        Assert.AreEqual(localAvg, query.Average());
+        Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+        Assert.That(query.Average(), Is.EqualTo(localAvg));
       }
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<int?> query)
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
-      Assert.AreEqual(localAvg, query.Average(c => c));
-      Assert.AreEqual(localAvg, query.Average());
+      Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+      Assert.That(query.Average(), Is.EqualTo(localAvg));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<long> query)
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
       if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
-        Assert.AreEqual(Math.Truncate(localAvg), query.Average(c => c));
-        Assert.AreEqual(Math.Truncate(localAvg), query.Average());
+        Assert.That(query.Average(c => c), Is.EqualTo(Math.Truncate(localAvg)));
+        Assert.That(query.Average(), Is.EqualTo(Math.Truncate(localAvg)));
       }
       else {
-        Assert.AreEqual(localAvg, query.Average(c => c));
-        Assert.AreEqual(localAvg, query.Average());
+        Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+        Assert.That(query.Average(), Is.EqualTo(localAvg));
       }
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<long?> query)
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
-      Assert.AreEqual(localAvg, query.Average(c => c));
-      Assert.AreEqual(localAvg, query.Average());
+      Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+      Assert.That(query.Average(), Is.EqualTo(localAvg));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private void CheckQueryable(IQueryable<float> query)
@@ -627,13 +627,13 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(Math.Abs(query.Average() - localAvg), Is.LessThan(FloatValueAccuracy));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private void CheckQueryable(IQueryable<float?> query)
@@ -648,13 +648,13 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(Math.Abs(query.Average().Value - localAvg.Value), Is.LessThan(FloatValueAccuracy));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private void CheckQueryable(IQueryable<double> query)
@@ -673,13 +673,13 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(Math.Abs(query.Average() - localAvg), Is.LessThan(DoubleValueAccuracy));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private void CheckQueryable(IQueryable<double?> query)
@@ -694,125 +694,125 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(Math.Abs(query.Average().Value - localAvg.Value), Is.LessThan(DoubleValueAccuracy));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<decimal> query)
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
-      Assert.AreEqual(localAvg, query.Average(c => c));
-      Assert.AreEqual(localAvg, query.Average());
+      Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+      Assert.That(query.Average(), Is.EqualTo(localAvg));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<decimal?> query)
     {
       var localArray = query.ToArray();
       var localSum = localArray.Sum();
-      Assert.AreEqual(localSum, query.Sum(c => c));
-      Assert.AreEqual(localSum, query.Sum());
+      Assert.That(query.Sum(c => c), Is.EqualTo(localSum));
+      Assert.That(query.Sum(), Is.EqualTo(localSum));
 
       var localAvg = localArray.Average();
-      Assert.AreEqual(localAvg, query.Average(c => c));
-      Assert.AreEqual(localAvg, query.Average());
+      Assert.That(query.Average(c => c), Is.EqualTo(localAvg));
+      Assert.That(query.Average(), Is.EqualTo(localAvg));
 
       var localMin = localArray.Min();
-      Assert.AreEqual(localMin, query.Min(c => c));
-      Assert.AreEqual(localMin, query.Min());
+      Assert.That(query.Min(c => c), Is.EqualTo(localMin));
+      Assert.That(query.Min(), Is.EqualTo(localMin));
 
       var localMax = localArray.Max();
-      Assert.AreEqual(localMax, query.Max(c => c));
-      Assert.AreEqual(localMax, query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Max(c => c), Is.EqualTo(localMax));
+      Assert.That(query.Max(), Is.EqualTo(localMax));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<TimeSpan> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Min(), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Max(c => c), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Max(), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<TimeSpan?> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Min(), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Max(c => c), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Max(), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<DateTime> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min().AdjustDateTimeForCurrentProvider(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min().AdjustDateTimeForCurrentProvider(), query.Min());
-      Assert.AreEqual(localArray.Max().AdjustDateTimeForCurrentProvider(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max().AdjustDateTimeForCurrentProvider(), query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min().AdjustDateTimeForCurrentProvider()));
+      Assert.That(query.Min(), Is.EqualTo(localArray.Min().AdjustDateTimeForCurrentProvider()));
+      Assert.That(query.Max(c => c), Is.EqualTo(localArray.Max().AdjustDateTimeForCurrentProvider()));
+      Assert.That(query.Max(), Is.EqualTo(localArray.Max().AdjustDateTimeForCurrentProvider()));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<DateTime?> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Min(), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Max(c => c), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Max(), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<Guid> query)
     {
       var localArray = query.ToArray();
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
-      Assert.AreEqual(localArray.Count(), query.Count());
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Min(), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Max(c => c), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Max(), Is.EqualTo(localArray.Min())));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<Guid?> query)
     {
       var localArray = query.ToArray();
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
-      Assert.AreEqual(localArray.Count(), query.Count());
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Min(), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Max(c => c), Is.EqualTo(localArray.Min())));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.That(query.Max(), Is.EqualTo(localArray.Min())));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     private static void CheckQueryable(IQueryable<string> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
-      Assert.AreEqual(localArray.Count(), query.Count());
+      Assert.That(query.Min(c => c), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Min(), Is.EqualTo(localArray.Min()));
+      Assert.That(query.Max(c => c), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Max(), Is.EqualTo(localArray.Max()));
+      Assert.That(query.Count(), Is.EqualTo(localArray.Count()));
     }
 
     #endregion

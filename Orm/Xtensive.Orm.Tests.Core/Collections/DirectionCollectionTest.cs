@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Tests.Core.Collections
       collection["c"] = Direction.Positive;
       collection["d"] = Direction.Positive;
       collection["e"] = Direction.Negative;
-      Assert.AreEqual(Direction.Negative, collection["a"]);
-      Assert.AreEqual(Direction.Negative, collection["b"]);
-      Assert.AreEqual(Direction.Positive, collection["c"]);
-      Assert.AreEqual(Direction.Positive, collection["d"]);
-      Assert.AreEqual(Direction.Negative, collection["e"]);
+      Assert.That(collection["a"], Is.EqualTo(Direction.Negative));
+      Assert.That(collection["b"], Is.EqualTo(Direction.Negative));
+      Assert.That(collection["c"], Is.EqualTo(Direction.Positive));
+      Assert.That(collection["d"], Is.EqualTo(Direction.Positive));
+      Assert.That(collection["e"], Is.EqualTo(Direction.Negative));
     }
   }
 }

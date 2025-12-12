@@ -145,12 +145,12 @@ namespace Xtensive.Orm.Tests.Issues
         var tAnimal = session.Domain.Model.Types[typeof(Animal)];
         var fMate = tAnimal.Fields["Mate"];
         var fMateAssociation = fMate.GetAssociation(tAnimal);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnTargetRemove);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.None));
         var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
         var fMateDenyRemoveAssociation = fMateDenyRemove.GetAssociation(tAnimal);
-        Assert.AreEqual(OnRemoveAction.None, fMateDenyRemoveAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemoveAssociation.OnTargetRemove);
+        Assert.That(fMateDenyRemoveAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateDenyRemoveAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
 
         Animal a, b;
         Key aKey;
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         using (var tx = session.OpenTransaction()) {
           var dpa = session.Services.Demand<DirectPersistentAccessor>();
-          Assert.AreEqual(aKey, dpa.GetReferenceKey(b, fMate));
+          Assert.That(dpa.GetReferenceKey(b, fMate), Is.EqualTo(aKey));
           tx.Complete();
         }
         ((Action) (() => b.Remove())).InvokeTransactionally(session);
@@ -184,12 +184,12 @@ namespace Xtensive.Orm.Tests.Issues
         var tAnimal = session.Domain.Model.Types[typeof(Animal)];
         var fMate = tAnimal.Fields["Mate"];
         var fMateAssociation = fMate.GetAssociation(tAnimal);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnTargetRemove);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.None));
         var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
         var fMateDenyRemoveAssociation = fMateDenyRemove.GetAssociation(tAnimal);
-        Assert.AreEqual(OnRemoveAction.None, fMateDenyRemoveAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemoveAssociation.OnTargetRemove);
+        Assert.That(fMateDenyRemoveAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateDenyRemoveAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
 
         Animal a, b;
         Key aKey;
@@ -216,16 +216,16 @@ namespace Xtensive.Orm.Tests.Issues
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
         var fMateAssociation = fMate.GetAssociation(tPerson);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Clear, fMateAssociation.OnTargetRemove);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
 
         var nullPerson = new Person(Person.NullName);
-        Assert.AreSame(nullPerson, Person.Null);
+        Assert.That(Person.Null, Is.SameAs(nullPerson));
 
         var a = new Person("A");
         var b = new Person("B") { Mate = a };
         a.Remove();
-        Assert.AreSame(nullPerson, b.Mate);
+        Assert.That(b.Mate, Is.SameAs(nullPerson));
       }
     }
 
@@ -241,8 +241,8 @@ namespace Xtensive.Orm.Tests.Issues
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
         var fMateAssociation = fMate.GetAssociation(tPerson);
-        Assert.AreEqual(OnRemoveAction.None, fMateAssociation.OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Clear, fMateAssociation.OnTargetRemove);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
 
         var nullPerson = new Person(Person.NullName);
         // cannot insert NULL to non-nullable column

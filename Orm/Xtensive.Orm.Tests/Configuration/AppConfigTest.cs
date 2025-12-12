@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain3");
       configuration.Lock();
-      Assert.AreEqual(1, configuration.Types.CompilerContainers.Count());
+      Assert.That(configuration.Types.CompilerContainers.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void TestDomain2()
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain1");
-      Assert.IsNotNull(configuration);
+      Assert.That(configuration, Is.Not.Null);
     }
 
     [Test]
@@ -68,13 +68,13 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain4");
       var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
-      Assert.IsNotNull(defaultSession);
-      Assert.AreEqual(10, defaultSession.BatchSize);
+      Assert.That(defaultSession, Is.Not.Null);
+      Assert.That(defaultSession.BatchSize, Is.EqualTo(10));
       var myCoolSession = configuration.Sessions["MyCoolSession"];
-      Assert.IsNotNull(myCoolSession);
-      Assert.AreEqual(100, myCoolSession.BatchSize);
+      Assert.That(myCoolSession, Is.Not.Null);
+      Assert.That(myCoolSession.BatchSize, Is.EqualTo(100));
       var clone = myCoolSession.Clone();
-      Assert.AreEqual(100, clone.BatchSize);
+      Assert.That(clone.BatchSize, Is.EqualTo(100));
     }
 
     [Test]
@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomChangeRegistrySize");
       var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
-      Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
-      Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
+      Assert.That(defaultSession.EntityChangeRegistrySize, Is.EqualTo(1000));
+      Assert.That(defaultSession.Clone().EntityChangeRegistrySize, Is.EqualTo(1000));
     }
 
     [Test]
@@ -372,7 +372,7 @@ namespace Xtensive.Orm.Tests.Configuration
 
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
     {
-      Assert.AreEqual(string.IsNullOrEmpty(configuration.Provider), true);
+      Assert.That(true, Is.EqualTo(string.IsNullOrEmpty(configuration.Provider)));
 
       Assert.That(configuration.Logs[0].Source, Is.EqualTo("*"));
       Assert.That(configuration.Logs[0].Target, Is.EqualTo("Console"));

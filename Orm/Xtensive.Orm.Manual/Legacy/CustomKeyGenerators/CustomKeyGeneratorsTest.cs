@@ -62,8 +62,7 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 
     public override string ToString()
     {
-      return string.Format("{0} by {1}",
-        Name, Authors.ToCommaDelimitedString());
+      return $"{Name} by {Authors.ToCommaDelimitedString()}";
     }
 
     // Constructors
@@ -108,11 +107,11 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
           book.Authors.Add(ben);
 
           // Testing ProxyKeyGenerator
-          Assert.AreSame(joseph, session.Query.SingleOrDefault(joseph.Key));
-          Assert.AreSame(ben, session.Query.SingleOrDefault(ben.Key));
+          Assert.That(session.Query.SingleOrDefault(joseph.Key), Is.SameAs(joseph));
+          Assert.That(session.Query.SingleOrDefault(ben.Key), Is.SameAs(ben));
           // Must fail, if [KeyGenerator(typeof(ProxyKeyGenerator<Book, Author>))]
           // line is commented
-          Assert.AreSame(book, session.Query.SingleOrDefault(book.Key));
+          Assert.That(session.Query.SingleOrDefault(book.Key), Is.SameAs(book));
 
           // Let's finally print the Book 
           Console.WriteLine(book);

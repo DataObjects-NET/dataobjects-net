@@ -49,11 +49,11 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var count = session.Query.All<Model.Person>().Count();
-        Assert.AreEqual(2, count);
+        Assert.That(count, Is.EqualTo(2));
         var list = session.Query.All<Model.Person>().ToList();
-        Assert.AreEqual(2, list.Count);
+        Assert.That(list.Count, Is.EqualTo(2));
         foreach (var item in list)
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
         t.Complete();
       }
     }

@@ -33,8 +33,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
     private void Dump(IQueryable query)
     {
-      TestLog.Info("Default: {0}", query.Expression.ToString());
-      TestLog.Info("C#:      {0}", query.Expression.ToString(true));
+      TestLog.Info($"Default: {query.Expression.ToString()}");
+      TestLog.Info($"C#:      {query.Expression.ToString(true)}");
     }
   }
 }

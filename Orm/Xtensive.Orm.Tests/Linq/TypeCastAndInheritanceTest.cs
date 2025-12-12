@@ -23,10 +23,10 @@ namespace Xtensive.Orm.Tests.Linq
       var trackCount = Session.Query.All<Track>().Count();
       var videoTrackCount = Session.Query.All<VideoTrack>().Count();
       var audionTrack = Session.Query.All<AudioTrack>().Count();
-      Assert.IsTrue(trackCount > 0);
-      Assert.IsTrue(videoTrackCount > 0);
-      Assert.IsTrue(audionTrack > 0);
-      Assert.AreEqual(trackCount, videoTrackCount, audionTrack);
+      Assert.That(trackCount > 0, Is.True);
+      Assert.That(videoTrackCount > 0, Is.True);
+      Assert.That(audionTrack > 0, Is.True);
+      Assert.That(videoTrackCount, Is.EqualTo(trackCount).Within(audionTrack));
     }
 
     [Test]
@@ -71,52 +71,47 @@ namespace Xtensive.Orm.Tests.Linq
       int trackCount = Session.Query.All<Track>().Count();
       int intermediateTrackCount = Session.Query.All<IntermediateTrack>().Count();
       int videoTrackCount = Session.Query.All<VideoTrack>().Count();
-      int audionTrackCount = Session.Query.All<AudioTrack>().Count();
+      int audioTrackCount = Session.Query.All<AudioTrack>().Count();
 
-      Assert.Greater(trackCount, 0);
-      Assert.Greater(intermediateTrackCount, 0);
-      Assert.Greater(videoTrackCount, 0);
-      Assert.Greater(audionTrackCount, 0);
+      Assert.That(trackCount, Is.GreaterThan(0));
+      Assert.That(intermediateTrackCount, Is.GreaterThan(0));
+      Assert.That(videoTrackCount, Is.GreaterThan(0));
+      Assert.That(audioTrackCount, Is.GreaterThan(0));
 
-      Assert.AreEqual(
-        trackCount,
-        intermediateTrackCount);
+      Assert.That(
+        intermediateTrackCount, Is.EqualTo(trackCount));
 
       Assert.Throws<QueryTranslationException>(
         () => {
-          Assert.AreEqual(
-            intermediateTrackCount,
+          Assert.That(
             Session.Query.All<Track>()
               .Where(t => t is IntermediateTrack)
               .Select(track => (IntermediateTrack) track)
-              .Count());
+              .Count(), Is.EqualTo(intermediateTrackCount));
         });
       Assert.Throws<QueryTranslationException>(
         () => {
-         Assert.AreEqual(
-            videoTrackCount,
+          Assert.That(
             Session.Query.All<Track>()
               .Where(t => t is VideoTrack)
               .Select(track => (VideoTrack) track)
-              .Count());
+              .Count(), Is.EqualTo(videoTrackCount));
         });
 
       Assert.Throws<QueryTranslationException>(
         () => {
-          Assert.AreEqual(
-            audionTrackCount,
+          Assert.That(
             Session.Query.All<Track>()
               .Where(t => t is AudioTrack)
               .Select(track => (AudioTrack) track)
-              .Count());
+              .Count(), Is.EqualTo(audioTrackCount));
         });
 
 #pragma warning disable 183
-      Assert.AreEqual(
-        trackCount,
+      Assert.That(
         Session.Query.All<Track>()
           .Where(t => t is Track)
-          .Count());
+          .Count(), Is.EqualTo(trackCount));
 #pragma warning restore 183
     }
 
@@ -166,36 +161,32 @@ namespace Xtensive.Orm.Tests.Linq
       int videoTrackCount = Session.Query.All<VideoTrack>().Count();
       int audioTrackCount = Session.Query.All<AudioTrack>().Count();
 
-      Assert.Greater(trackCount, 0);
-      Assert.Greater(intermediateTrackCount, 0);
-      Assert.Greater(videoTrackCount, 0);
-      Assert.Greater(audioTrackCount, 0);
+      Assert.That(trackCount, Is.GreaterThan(0));
+      Assert.That(intermediateTrackCount, Is.GreaterThan(0));
+      Assert.That(videoTrackCount, Is.GreaterThan(0));
+      Assert.That(audioTrackCount, Is.GreaterThan(0));
 
-      Assert.AreEqual(trackCount, intermediateTrackCount);
+      Assert.That(intermediateTrackCount, Is.EqualTo(trackCount));
 
-      Assert.AreEqual(
-        intermediateTrackCount,
+      Assert.That(
         Session.Query.All<Track>()
           .OfType<IntermediateTrack>()
-          .Count());
+          .Count(), Is.EqualTo(intermediateTrackCount));
 
-      Assert.AreEqual(
-        videoTrackCount,
+      Assert.That(
         Session.Query.All<Track>()
           .OfType<VideoTrack>()
-          .Count());
+          .Count(), Is.EqualTo(videoTrackCount));
 
-      Assert.AreEqual(
-        audioTrackCount,
+      Assert.That(
         Session.Query.All<Track>()
           .OfType<AudioTrack>()
-          .Count());
+          .Count(), Is.EqualTo(audioTrackCount));
 
-      Assert.AreEqual(
-        trackCount,
+      Assert.That(
         Session.Query.All<Track>()
           .OfType<Track>()
-          .Count());
+          .Count(), Is.EqualTo(trackCount));
     }
 
     [Test]
@@ -203,7 +194,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var videoTracks = Session.Query.All<VideoTrack>().Cast<Track>();
       var list = videoTracks.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
 
@@ -212,15 +203,15 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var videoTrackCount1 = Session.Query.All<VideoTrack>().Count();
       var videoTrackCount2 = Session.Query.All<VideoTrack>().Cast<Track>().Where(track => track!=null).Count();
-      Assert.AreEqual(videoTrackCount1, videoTrackCount2);
+      Assert.That(videoTrackCount2, Is.EqualTo(videoTrackCount1));
 
       var audioTrackCount1 = Session.Query.All<AudioTrack>().Count();
       var audioTrackCount2 = Session.Query.All<AudioTrack>().Cast<Track>().Where(track => track!=null).Count();
-      Assert.AreEqual(audioTrackCount1, audioTrackCount2);
+      Assert.That(audioTrackCount2, Is.EqualTo(audioTrackCount1));
 
       var trackCount1 = Session.Query.All<Track>().Count();
       var trackCount2 = Session.Query.All<Track>().Cast<Track>().Count();
-      Assert.AreEqual(trackCount1, trackCount2);
+      Assert.That(trackCount2, Is.EqualTo(trackCount1));
     }
 
     [Test]
@@ -488,7 +479,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c==customer)
         .Select(c => c.CompanyName.Length + value)
         .First();
-      Assert.AreEqual(customer.CompanyName.Length, result);
+      Assert.That(result, Is.EqualTo(customer.CompanyName.Length));
     }
   }
 }

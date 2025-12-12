@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -86,21 +86,21 @@ namespace Xtensive.Orm.Tests.Core.Testing
 
     public void TestSequence<T>(int size, double expectedShare, double shareTolerance)
     {
-      TestLog.Info("{0} random sequence, {1} items:", typeof(T).GetShortName(), size);
+      TestLog.Info($"{typeof(T).GetShortName()} random sequence, {size} items:");
       using (IndentManager.IncreaseIndent()) {
-        TestLog.Info("Expected probability: {0}, tolerance: {1}.", expectedShare, shareTolerance);
+        TestLog.Info($"Expected probability: {expectedShare}, tolerance: {shareTolerance}.");
         // Testing the same sequence
         Random r1 = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
         Random r2 = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
         double equalityProbability = GetEqualityProbability<T>(r1, r2, size);
-        Assert.AreEqual(1, equalityProbability);
+        Assert.That(equalityProbability, Is.EqualTo(1));
         // Testing different sequences
         r1 = RandomManager.CreateRandom(1, SeedVariatorType.CallingMethod);
         r2 = RandomManager.CreateRandom(2, SeedVariatorType.CallingMethod);
         using (new Measurement("Generation and comparison", size*2))
           equalityProbability = GetEqualityProbability<T>(r1, r2, size);
-        TestLog.Info("Actual probability:   {0}.", equalityProbability);
-        Assert.AreEqual(expectedShare, equalityProbability, shareTolerance);
+        TestLog.Info($"Actual probability:   {equalityProbability}.");
+        Assert.That(equalityProbability, Is.EqualTo(expectedShare).Within(shareTolerance));
       }
     }
 

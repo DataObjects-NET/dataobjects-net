@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       var item = new TestClass("1");
       cache.Add(item);
       cache1.Add(item);
-      Assert.AreEqual(1, cache1.Count);
+      Assert.That(cache1.Count, Is.EqualTo(1));
 
       for (var i = 0; i < 100000; i++) {
         cache1.Add(new TestClass("" + i));
@@ -65,22 +65,22 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       var item = new TestClass("1");
       cache.Add(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       item = new TestClass("2");
       cache.Add(item);
-      Assert.AreEqual(2, cache.Count);
-      Assert.AreEqual(item, cache[item.Text, false]);
+      Assert.That(cache.Count, Is.EqualTo(2));
+      Assert.That(cache[item.Text, false], Is.EqualTo(item));
 
       ICache<string, TestClass> icache = cache;
-      Assert.AreEqual(item, icache[item.Text, false]);
-      Assert.AreEqual(null, icache["3", false]);
+      Assert.That(icache[item.Text, false], Is.EqualTo(item));
+      Assert.That(icache["3", false], Is.EqualTo(null));
 
       cache.Remove(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       cache.Clear();
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         }
       }
 
-      Assert.IsTrue(globalCache.Count >= 0);
+      Assert.That(globalCache.Count >= 0, Is.True);
       globalCache = null;
     }
 

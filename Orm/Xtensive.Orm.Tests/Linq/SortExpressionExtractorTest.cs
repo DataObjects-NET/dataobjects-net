@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Linq
     private static void AssertExpressionEquals(LambdaExpression expectedExpression, LambdaExpression actualExpression)
     {
       var equals = ExpressionTree.Equals(actualExpression, expectedExpression);
-      Assert.That(equals, "Expected expression '{0}' got '{1}'", expectedExpression.ToString(true), actualExpression.ToString(true));
+      Assert.That(equals, $"Expected expression '{expectedExpression.ToString(true)}' got '{actualExpression.ToString(true)}'");
     }
 
     private IQueryable<Entity2> GetQuery()

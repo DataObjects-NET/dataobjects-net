@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
           Console.WriteLine(item.Date);
           Console.WriteLine(item.Time);
         }
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Date == DateOnly.FromDateTime(date)).Count());
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time == TimeOnly.FromDateTime(time)).Count());
+        Assert.That(session.Query.All<Crazy>().Where(o => o.Date == DateOnly.FromDateTime(date)).Count(), Is.EqualTo(1));
+        Assert.That(session.Query.All<Crazy>().Where(o => o.Time == TimeOnly.FromDateTime(time)).Count(), Is.EqualTo(1));
       }
     }
 

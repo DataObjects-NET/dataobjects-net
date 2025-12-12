@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Issues
           t.Complete();
         }
       }
-      Assert.IsTrue(true);
+      Assert.That(true, Is.True);
 
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
@@ -94,10 +94,9 @@ namespace Xtensive.Orm.Tests.Issues
             };
 
           foreach (var item in list) {
-            Console.WriteLine("{0} {1} {2}", 
-              item.Title, item.FullName, item.Email);
+            Console.WriteLine($"{item.Title} {item.FullName} {item.Email}");
           }
-          Assert.AreEqual(2, list.Count());
+          Assert.That(list.Count(), Is.EqualTo(2));
           t.Complete();
         }
       }

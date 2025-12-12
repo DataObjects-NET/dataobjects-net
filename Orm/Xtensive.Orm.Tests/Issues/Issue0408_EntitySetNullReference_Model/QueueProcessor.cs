@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
         Document documentToProcess = GetDocumentToProcessFromInputDocument(inputDocument);
         if (documentToProcess == null)
         {
-          string message = String.Format("No document with DocumentTypeToProcess={0} found in the group of the inputDocument.", DocumentTypeToProcess);
+          string message = $"No document with DocumentTypeToProcess={DocumentTypeToProcess} found in the group of the inputDocument.";
           throw new Exception(message);
         }
 
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         using (TransactionScope transactionScope = Session.OpenTransaction())
         {
-          string message = String.Format("Exception caught in {0}.Execute() : '", this.Name);
+          string message = $"Exception caught in {this.Name}.Execute() : '";
           TestLog.Error(message, ex);
 
           transactionScope.Complete();
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
       else
       {
-        TestLog.Warning("No ContainerForDoneInputDocuments is defined for '{0}' DocumentProcessor", this.Name);
+        TestLog.Warning($"No ContainerForDoneInputDocuments is defined for '{this.Name}' DocumentProcessor");
       }
     }
 
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     {
       if (inputDocument == null)
       {
-        TestLog.Warning("Cannot find document to process because {0} is not a Document", inputDocument);
+        TestLog.Warning($"Cannot find document to process because {inputDocument} is not a Document");
         return null;
       }
 
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         if (documentsMatchingDocType.Count > 1)
         {
-          TestLog.Debug("Found {0} documents matching DocumentType={1} in this group. Returning the document in innermost group : {2}", documentsMatchingDocType.Count, documentTypeToProcess, documentsMatchingDocType[0].Name);
+          TestLog.Debug($"Found {documentsMatchingDocType.Count} documents matching DocumentType={documentTypeToProcess} in this group. Returning the document in innermost group : {documentsMatchingDocType[0].Name}");
         }
         return documentsMatchingDocType[0];
       }

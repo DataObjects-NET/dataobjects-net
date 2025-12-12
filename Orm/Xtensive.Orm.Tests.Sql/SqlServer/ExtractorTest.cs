@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
           _ = ExecuteNonQuery(dropOperation);
         }
         catch (Exception) {
-          Console.Write("Operation '{0}' wasn't performed correctly", dropOperation);
+          Console.Write($"Operation '{dropOperation}' wasn't performed correctly");
         }
       }
     }
@@ -72,22 +72,22 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var table = schema.Tables["Table1"];
       var tableIndexes = table.Indexes;
-      Assert.IsTrue(table.Indexes.Count==1);
+      Assert.That(table.Indexes.Count==1, Is.True);
 
       var nonClusteredIndex = tableIndexes["IX_Table1_IntField1"];
-      Assert.IsNotNull(nonClusteredIndex);
-      Assert.IsFalse(nonClusteredIndex.IsClustered);
-      Assert.IsFalse(nonClusteredIndex.IsSpatial);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
-      Assert.IsFalse(nonClusteredIndex.IsBitmap);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
+      Assert.That(nonClusteredIndex, Is.Not.Null);
+      Assert.That(nonClusteredIndex.IsClustered, Is.False);
+      Assert.That(nonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
+      Assert.That(nonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
 
       var tableConstratins = table.TableConstraints;
-      Assert.IsTrue(table.TableConstraints.Count==1);
+      Assert.That(table.TableConstraints.Count==1, Is.True);
 
       var clusteredPk = tableConstratins["PK_Table1"] as PrimaryKey;
-      Assert.IsNotNull(clusteredPk);
-      Assert.IsTrue(clusteredPk.IsClustered);
+      Assert.That(clusteredPk, Is.Not.Null);
+      Assert.That(clusteredPk.IsClustered, Is.True);
     }
 
     [Test]
@@ -124,30 +124,30 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var table = schema.Tables["Table1"];
       var tableIndexes = table.Indexes;
-      Assert.IsTrue(table.Indexes.Count==2);
+      Assert.That(table.Indexes.Count==2, Is.True);
 
       var nonClusteredIndex = tableIndexes["IX_Table1_IntField1"];
-      Assert.IsNotNull(nonClusteredIndex);
-      Assert.IsFalse(nonClusteredIndex.IsClustered);
-      Assert.IsFalse(nonClusteredIndex.IsSpatial);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
-      Assert.IsFalse(nonClusteredIndex.IsBitmap);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
+      Assert.That(nonClusteredIndex, Is.Not.Null);
+      Assert.That(nonClusteredIndex.IsClustered, Is.False);
+      Assert.That(nonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
+      Assert.That(nonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
 
       var spatialIndex = tableIndexes["IXS_Table1_GeometryField"];
-      Assert.IsNotNull(spatialIndex);
-      Assert.IsTrue(spatialIndex.IsSpatial);
-      Assert.IsFalse(spatialIndex.IsClustered);
-      Assert.IsFalse(spatialIndex.IsFullText);
-      Assert.IsFalse(spatialIndex.IsBitmap);
-      Assert.IsFalse(spatialIndex.IsFullText);
+      Assert.That(spatialIndex, Is.Not.Null);
+      Assert.That(spatialIndex.IsSpatial, Is.True);
+      Assert.That(spatialIndex.IsClustered, Is.False);
+      Assert.That(spatialIndex.IsFullText, Is.False);
+      Assert.That(spatialIndex.IsBitmap, Is.False);
+      Assert.That(spatialIndex.IsFullText, Is.False);
 
       var tableConstratins = table.TableConstraints;
-      Assert.IsTrue(table.TableConstraints.Count==1);
+      Assert.That(table.TableConstraints.Count==1, Is.True);
 
       var clusteredPk = tableConstratins["PK_Table1"] as PrimaryKey;
-      Assert.IsNotNull(clusteredPk);
-      Assert.IsTrue(clusteredPk.IsClustered);
+      Assert.That(clusteredPk, Is.Not.Null);
+      Assert.That(clusteredPk.IsClustered, Is.True);
     }
 
     [Test]
@@ -197,46 +197,46 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var table1 = schema.Tables["Table1"];
       var table1Indexes  = table1.Indexes;
-      Assert.IsTrue(table1Indexes.Count==2);
+      Assert.That(table1Indexes.Count==2, Is.True);
 
       var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
-      Assert.IsNotNull(table1NonClusteredIndex);
-      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
-      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
-      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
-      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+      Assert.That(table1NonClusteredIndex, Is.Not.Null);
+      Assert.That(table1NonClusteredIndex.IsClustered, Is.False);
+      Assert.That(table1NonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(table1NonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(table1NonClusteredIndex.IsFullText, Is.False);
 
       var table1ClusteredIndex = table1Indexes["IX_Table1_B"];
-      Assert.IsNotNull(table1ClusteredIndex);
-      Assert.IsTrue(table1ClusteredIndex.IsClustered);
-      Assert.IsFalse(table1ClusteredIndex.IsSpatial);
-      Assert.IsFalse(table1ClusteredIndex.IsBitmap);
-      Assert.IsFalse(table1ClusteredIndex.IsFullText);
+      Assert.That(table1ClusteredIndex, Is.Not.Null);
+      Assert.That(table1ClusteredIndex.IsClustered, Is.True);
+      Assert.That(table1ClusteredIndex.IsSpatial, Is.False);
+      Assert.That(table1ClusteredIndex.IsBitmap, Is.False);
+      Assert.That(table1ClusteredIndex.IsFullText, Is.False);
 
       var table1Constratins = table1.TableConstraints;
-      Assert.IsTrue(table1Constratins.Count==1);
+      Assert.That(table1Constratins.Count==1, Is.True);
       var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
-      Assert.IsNotNull(table1NonClusteredPk);
-      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+      Assert.That(table1NonClusteredPk, Is.Not.Null);
+      Assert.That(table1NonClusteredPk.IsClustered, Is.False);
 
 
       var table2 = schema.Tables["Table2"];
       var indexes = table2.Indexes;
-      Assert.IsTrue(indexes.Count==1);
+      Assert.That(indexes.Count==1, Is.True);
 
       var nonClusteredIndex = indexes["IX_Table2_IntField2"];
-      Assert.IsNotNull(nonClusteredIndex);
-      Assert.IsFalse(nonClusteredIndex.IsClustered);
-      Assert.IsFalse(nonClusteredIndex.IsSpatial);
-      Assert.IsFalse(nonClusteredIndex.IsBitmap);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
+      Assert.That(nonClusteredIndex, Is.Not.Null);
+      Assert.That(nonClusteredIndex.IsClustered, Is.False);
+      Assert.That(nonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(nonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
 
       var table2Constraints = table2.TableConstraints;
-      Assert.IsTrue(table2Constraints.Count==1);
+      Assert.That(table2Constraints.Count==1, Is.True);
 
       var nonClusteredPk = table2Constraints["PK_Table2"] as PrimaryKey;
-      Assert.IsNotNull(nonClusteredPk);
-      Assert.IsFalse(nonClusteredPk.IsClustered);
+      Assert.That(nonClusteredPk, Is.Not.Null);
+      Assert.That(nonClusteredPk.IsClustered, Is.False);
     }
 
     [Test]
@@ -278,28 +278,28 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var table1 = schema.Tables["Table1"];
       var table1Indexes = table1.Indexes;
-      Assert.IsTrue(table1Indexes.Count==1);
+      Assert.That(table1Indexes.Count==1, Is.True);
 
       var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
-      Assert.IsNotNull(table1NonClusteredIndex);
-      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
-      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
-      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
-      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+      Assert.That(table1NonClusteredIndex, Is.Not.Null);
+      Assert.That(table1NonClusteredIndex.IsClustered, Is.False);
+      Assert.That(table1NonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(table1NonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(table1NonClusteredIndex.IsFullText, Is.False);
 
       var table1Constratins = table1.TableConstraints;
-      Assert.IsTrue(table1Constratins.Count==1);
+      Assert.That(table1Constratins.Count==1, Is.True);
 
       var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
-      Assert.IsNotNull(table1NonClusteredPk);
-      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+      Assert.That(table1NonClusteredPk, Is.Not.Null);
+      Assert.That(table1NonClusteredPk.IsClustered, Is.False);
 
       var table2 = schema.Tables["Table2"];
       var indexes = table2.Indexes;
-      Assert.IsTrue(indexes.Count==0);
+      Assert.That(indexes.Count==0, Is.True);
 
       var tableConstratins = table2.TableConstraints;
-      Assert.IsTrue(tableConstratins.Count==0);
+      Assert.That(tableConstratins.Count==0, Is.True);
     }
 
     [Test]
@@ -343,39 +343,39 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var table1 = schema.Tables["Table1"];
       var table1Indexes = table1.Indexes;
-      Assert.IsTrue(table1Indexes.Count==1);
+      Assert.That(table1Indexes.Count==1, Is.True);
 
       var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
-      Assert.IsNotNull(table1NonClusteredIndex);
-      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
-      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
-      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
-      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+      Assert.That(table1NonClusteredIndex, Is.Not.Null);
+      Assert.That(table1NonClusteredIndex.IsClustered, Is.False);
+      Assert.That(table1NonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(table1NonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(table1NonClusteredIndex.IsFullText, Is.False);
 
       var table1Constratins = table1.TableConstraints;
-      Assert.IsTrue(table1Constratins.Count==1);
+      Assert.That(table1Constratins.Count==1, Is.True);
 
       var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
-      Assert.IsNotNull(table1NonClusteredPk);
-      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+      Assert.That(table1NonClusteredPk, Is.Not.Null);
+      Assert.That(table1NonClusteredPk.IsClustered, Is.False);
 
       var table2 = schema.Tables["Table2"];
       var indexes = table2.Indexes;
-      Assert.IsTrue(indexes.Count==1);
+      Assert.That(indexes.Count==1, Is.True);
 
       var nonClusteredIndex = indexes["IX_Table2_IntField1"];
-      Assert.IsNotNull(nonClusteredIndex);
-      Assert.IsFalse(nonClusteredIndex.IsClustered);
-      Assert.IsFalse(nonClusteredIndex.IsSpatial);
-      Assert.IsFalse(nonClusteredIndex.IsBitmap);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
+      Assert.That(nonClusteredIndex, Is.Not.Null);
+      Assert.That(nonClusteredIndex.IsClustered, Is.False);
+      Assert.That(nonClusteredIndex.IsSpatial, Is.False);
+      Assert.That(nonClusteredIndex.IsBitmap, Is.False);
+      Assert.That(nonClusteredIndex.IsFullText, Is.False);
 
       var tableConstratins = table2.TableConstraints;
-      Assert.IsTrue(tableConstratins.Count==1);
+      Assert.That(tableConstratins.Count==1, Is.True);
 
       var nonClusteredPk = tableConstratins["PK_Table2"] as PrimaryKey;
-      Assert.IsNotNull(nonClusteredPk);
-      Assert.IsFalse(nonClusteredPk.IsClustered);
+      Assert.That(nonClusteredPk, Is.Not.Null);
+      Assert.That(nonClusteredPk.IsClustered, Is.False);
     }
 
     [Test]
@@ -393,11 +393,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var schema = ExtractCatalog().DefaultSchema;
       var definedDomain = schema.Domains.Single(domain => domain.Name=="test_type");
-      Assert.AreEqual(Driver.ServerInfo.DataTypes["bigint"].Type, definedDomain.DataType.Type);
+      Assert.That(definedDomain.DataType.Type, Is.EqualTo(Driver.ServerInfo.DataTypes["bigint"].Type));
 
       var columnDomain = schema.Tables["table_with_domained_columns"].TableColumns["value"].Domain;
-      Assert.IsNotNull(columnDomain);
-      Assert.AreEqual("test_type", columnDomain.Name);
+      Assert.That(columnDomain, Is.Not.Null);
+      Assert.That(columnDomain.Name, Is.EqualTo("test_type"));
     }
 
     [Test]
@@ -413,8 +413,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var schema = ExtractCatalog().DefaultSchema;
       var table = schema.Tables["table_with_default_constraint"];
-      Assert.AreEqual(1, table.TableConstraints.Count);
-      Assert.AreEqual("id", ((DefaultConstraint) table.TableConstraints[0]).Column.Name);
+      Assert.That(table.TableConstraints.Count, Is.EqualTo(1));
+      Assert.That(((DefaultConstraint) table.TableConstraints[0]).Column.Name, Is.EqualTo("id"));
     }
 
     [Test]

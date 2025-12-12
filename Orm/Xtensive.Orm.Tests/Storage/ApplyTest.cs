@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage
           var result = customerPrimary
             .Apply(parameter, subquery)
             .Count(Session.Current);
-          Assert.AreEqual(total, result);
+          Assert.That(result, Is.EqualTo(total));
         }
       }
     }
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Storage
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.All, JoinType.LeftOuter)
             .Count(Session.Current);
-          Assert.AreEqual(total, result);
+          Assert.That(result, Is.EqualTo(total));
         }
       }      
     }
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Storage
             .GetRecordSetReader(Session.Current, new ParameterContext())
             .ToEnumerable()
             .Count(t => (bool) t.GetValue(t.Count-1));
-          Assert.AreEqual(total, result);
+          Assert.That(result, Is.EqualTo(total));
         }
       }
     }

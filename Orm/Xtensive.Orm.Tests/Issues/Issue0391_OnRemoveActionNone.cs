@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Issues
           var o = new Order();
           o.Customer = c;
           c.Remove();
-          Assert.IsTrue(o.HasCustomerKey());
+          Assert.That(o.HasCustomerKey(), Is.True);
           
           t.Complete();
         }

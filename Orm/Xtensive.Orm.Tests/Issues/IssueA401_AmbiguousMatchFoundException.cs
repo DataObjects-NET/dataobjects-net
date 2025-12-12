@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
         var concrete = new ConcreteEntity(new Some());
 
         var result = Query.All<ConcreteEntity>().ToList();
-        Assert.AreEqual(1, result.Count);
+        Assert.That(result.Count, Is.EqualTo(1));
         t.Complete();
       }
     }

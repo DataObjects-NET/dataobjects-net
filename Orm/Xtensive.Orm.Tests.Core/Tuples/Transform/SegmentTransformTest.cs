@@ -24,33 +24,33 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     public void BaseTest()
     {
       Xtensive.Tuples.Tuple t  = Xtensive.Tuples.Tuple.Create(1, "2", 3, 4.0);
-      TestLog.Info("Original: {0}", t);
+      TestLog.Info($"Original: {t}");
 
       SegmentTransform st   = new SegmentTransform(false, t.Descriptor, new Segment<int>(1,2));
       SegmentTransform stro = new SegmentTransform(true,  t.Descriptor, new Segment<int>(1,2));
 
       Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
-      TestLog.Info("Wrapper:  {0}", wt1);
+      TestLog.Info($"Wrapper:  {wt1}");
       Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);
-      TestLog.Info("Copy:     {0}", ct1);
+      TestLog.Info($"Copy:     {ct1}");
       Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
       Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
 
-      Assert.AreEqual(wt1, wt2);
-      Assert.AreEqual(wt2, ct1);
-      Assert.AreEqual(ct1, ct2);
+      Assert.That(wt2, Is.EqualTo(wt1));
+      Assert.That(ct1, Is.EqualTo(wt2));
+      Assert.That(ct2, Is.EqualTo(ct1));
 
       wt1.SetValue(1, 1);
-      Assert.AreEqual(t.GetValue(2), wt1.GetValue(1));
-      Assert.AreEqual(wt1, wt2);
-      Assert.AreNotEqual(wt2, ct1);
-      Assert.AreEqual(ct1, ct2);
+      Assert.That(wt1.GetValue(1), Is.EqualTo(t.GetValue(2)));
+      Assert.That(wt2, Is.EqualTo(wt1));
+      Assert.That(ct1, Is.Not.EqualTo(wt2));
+      Assert.That(ct2, Is.EqualTo(ct1));
 
       ct1.SetValue(1, 1);
-      Assert.AreEqual(t.GetValue(2), ct1.GetValue(1));
-      Assert.AreEqual(wt1, wt2);
-      Assert.AreEqual(wt2, ct1);
-      Assert.AreNotEqual(ct1, ct2);
+      Assert.That(ct1.GetValue(1), Is.EqualTo(t.GetValue(2)));
+      Assert.That(wt2, Is.EqualTo(wt1));
+      Assert.That(ct1, Is.EqualTo(wt2));
+      Assert.That(ct2, Is.Not.EqualTo(ct1));
 
       Xtensive.Tuples.Tuple wtro = stro.Apply(TupleTransformType.TransformedTuple, t);
       AssertEx.Throws<NotSupportedException>(delegate {

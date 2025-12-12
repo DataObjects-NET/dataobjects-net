@@ -69,14 +69,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       where T : Entity
     {
       var count = Query.All<T>().Count(filter);
-      Assert.AreEqual(rightCount, count);
+      Assert.That(count, Is.EqualTo(rightCount));
     }
 
     protected void RunTest<T>(Session session, Expression<Func<T, bool>> filter, int rightCount = 1)
       where T : Entity
     {
       var count = session.Query.All<T>().Count(filter);
-      Assert.AreEqual(rightCount, count);
+      Assert.That(count, Is.EqualTo(rightCount));
     }
 
     protected void RunWrongTest<T>(Expression<Func<T, bool>> filter)

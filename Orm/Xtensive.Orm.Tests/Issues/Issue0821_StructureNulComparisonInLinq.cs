@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Tests.Issues
           session.SaveChanges();
           var nullQuery = session.Query.All<User>().Where(u => u.Address==null).ToList();
           var notNullQuery = session.Query.All<User>().Where(u => u.Address!=null).ToList();
-          Assert.AreEqual(0, nullQuery.Count);
-          Assert.AreEqual(2, notNullQuery.Count);
+          Assert.That(nullQuery.Count, Is.EqualTo(0));
+          Assert.That(notNullQuery.Count, Is.EqualTo(2));
         }
       }
     }

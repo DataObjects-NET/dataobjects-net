@@ -287,12 +287,12 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.RegisterCaching(typeof (V1.Regime).Assembly, typeof (V1.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreEqual(1, domain.Model.Associations.Count);
+        Assert.That(domain.Model.Associations.Count, Is.EqualTo(1));
         var interfaceAssociation = domain.Model.Types[typeof (V1.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
         Assert.That(interfaceAssociation.OnOwnerRemove,Is.EqualTo(OnRemoveAction.Cascade));
         Assert.That(interfaceAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Default));
         var regimeField = domain.Model.Types[typeof (V1.Country)].Fields["ZeroToOne"];
-        Assert.AreEqual(1, regimeField.Associations.Count);
+        Assert.That(regimeField.Associations.Count, Is.EqualTo(1));
         var association = regimeField.Associations[0];
         Assert.That(interfaceAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.Cascade));
         Assert.That(interfaceAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Default));
@@ -307,18 +307,18 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.RegisterCaching(typeof (V2.Regime).Assembly, typeof (V2.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreEqual(2, domain.Model.Associations.Count);
+        Assert.That(domain.Model.Associations.Count, Is.EqualTo(2));
         var interfaceAssociation = domain.Model.Types[typeof(V2.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
         Assert.That(interfaceAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
         Assert.That(interfaceAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.None));
         var countryRegimeField = domain.Model.Types[typeof(V2.Country)].Fields["ZeroToOne"];
-        Assert.AreEqual(1, countryRegimeField.Associations.Count);
+        Assert.That(countryRegimeField.Associations.Count, Is.EqualTo(1));
         var overriddenAssociation = countryRegimeField.Associations[0];
         Assert.That(overriddenAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.Cascade));
         Assert.That(overriddenAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Default));
 
         var phoneRegimeField = domain.Model.Types[typeof(V2.Phone)].Fields["ZeroToOne"];
-        Assert.AreEqual(1, phoneRegimeField.Associations.Count);
+        Assert.That(phoneRegimeField.Associations.Count, Is.EqualTo(1));
         var association = phoneRegimeField.Associations[0];
         Assert.That(association.OnOwnerRemove, Is.EqualTo(interfaceAssociation.OnOwnerRemove));
         Assert.That(association.OnTargetRemove, Is.EqualTo(interfaceAssociation.OnTargetRemove));
@@ -333,12 +333,12 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.RegisterCaching(typeof (V3.Regime).Assembly, typeof (V3.Regime).Namespace);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreEqual(1, domain.Model.Associations.Count);
+        Assert.That(domain.Model.Associations.Count, Is.EqualTo(1));
         var interfaceAssociation = domain.Model.Types[typeof(V1.IHasRegimeReference)].Fields["ZeroToOne"].Associations[0];
         Assert.That(interfaceAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.Cascade));
         Assert.That(interfaceAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Default));
         var regimeField = domain.Model.Types[typeof(V1.Country)].Fields["ZeroToOne"];
-        Assert.AreEqual(1, regimeField.Associations.Count);
+        Assert.That(regimeField.Associations.Count, Is.EqualTo(1));
         var association = regimeField.Associations[0];
         Assert.That(interfaceAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.Cascade));
         Assert.That(interfaceAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Default));

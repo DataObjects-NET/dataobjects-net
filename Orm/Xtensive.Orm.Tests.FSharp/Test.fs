@@ -30,7 +30,7 @@ type Fixture() =
             yield p
       }
     let list = query |> Seq.toArray
-    Assert.AreEqual(1, list.Length)
+    Assert.That(list.Length, Is.EqualTo(1))
     let fetched = list.[0]
-    Assert.AreEqual ("John", fetched.Name)
+    Assert.That(fetched.Name, Is.EqualTo("John"))
 

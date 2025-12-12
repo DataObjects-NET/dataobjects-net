@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
       Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsTrue(r.IsMatch(source));
+      Assert.That(r.Match(source), Is.True);
     }
 
     public static void IsNotPatternMatch(string source, string pattern)
@@ -34,29 +34,29 @@ namespace Xtensive.Orm.Tests
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
       Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsFalse(r.IsMatch(source));
+      Assert.That(r.Match(source), Is.False);
     }
 
     public static void IsRegexMatch(string source, string regexPattern)
     {
       Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsTrue(r.IsMatch(source));
+      Assert.That(r.Match(source), Is.True);
     }
 
     public static void IsNotRegexMatch(string source, string regexPattern)
     {
       Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsFalse(r.IsMatch(source));
+      Assert.That(r.Match(source), Is.False);
     }
 
     public static void HasSameElements<T>(IEnumerable<T> expected, IEnumerable<T> actual)
     {
       if (expected==null)
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
       else {
         var expectedSet = new HashSet<T>(expected);
         var hasAll = actual.Aggregate(true, (result, current) => result && expectedSet.Contains(current));
-        Assert.IsTrue(hasAll, "Collections do not have same elements");
+        Assert.That(hasAll, Is.True, "Collections do not have same elements");
       }
     }
 
@@ -75,11 +75,11 @@ namespace Xtensive.Orm.Tests
         r2 = f2.Invoke();
       }
       catch (Exception e2) {
-        Assert.IsNotNull(e1);
-        Assert.AreEqual(e1.GetType(), e2.GetType());
+        Assert.That(e1, Is.Not.Null);
+        Assert.That(e2.GetType(), Is.EqualTo(e1.GetType()));
         return;
       }
-      Assert.AreEqual(r1, r2);
+      Assert.That(r2, Is.EqualTo(r1));
     }
 
     public static void Throws<TException>([InstantHandle] Action action) 
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests
         thrown = true;
       }
       if (!thrown)
-        Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
+        Assert.Fail($"Expected '{typeof(TException).GetShortName()}' was not thrown.");
     }
 
     public static void ThrowsNotSupportedException([InstantHandle] Action action)

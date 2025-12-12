@@ -70,8 +70,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2
     public override string ToString()
     {
       var productNames = Items.Select(item => item.ProductName).ToCommaDelimitedString();
-      return string.Format("Order {{\tSeller = {0}\n\tProducts = {1}\n}}",
-        Seller.FullName, productNames);
+      return $"Order {{\tSeller = {Seller.FullName}\n\tProducts = {productNames}\n}}";
     }
 
   }

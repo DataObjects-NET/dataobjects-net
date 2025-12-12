@@ -61,18 +61,18 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var am = new AudioMaster();
-          am.Tracks.Add(new MasterTrack());
-          am.Tracks.Add(new MasterTrack());
+          _ = am.Tracks.Add(new MasterTrack());
+          _ = am.Tracks.Add(new MasterTrack());
 
-          Assert.AreEqual(1, session.Query.All<AudioMaster>().Count());
-          Assert.AreEqual(2, session.Query.All<MasterTrack>().Count());
+          Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(2));
 
           AssertEx.Throws<ReferentialIntegrityException>(() => am.Tracks.First().Remove());
 
           am.Remove();
 
-          Assert.AreEqual(0, session.Query.All<AudioMaster>().Count());
-          Assert.AreEqual(0, session.Query.All<MasterTrack>().Count());
+          Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(0));
+          Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(0));
           // Rollback
         }
       }
@@ -84,20 +84,14 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
       using (session.Activate()){
 
-          var am = new AudioMaster();
-          am.Tracks.Add(new MasterTrack());
-          am.Tracks.Add(new MasterTrack());
+        var am = new AudioMaster();
+        _ = am.Tracks.Add(new MasterTrack());
+        _ = am.Tracks.Add(new MasterTrack());
 
-          //Assert.AreEqual(1, session.Query.All<AudioMaster>().Count());
-          //Assert.AreEqual(2, session.Query.All<MasterTrack>().Count());
+        AssertEx.Throws<ReferentialIntegrityException>(() => ((IEnumerable<MasterTrack>) am.Tracks).First().Remove());
 
-          AssertEx.Throws<ReferentialIntegrityException>(() => ((IEnumerable<MasterTrack>) am.Tracks).First().Remove());
-
-          am.Remove();
-
-          //Assert.AreEqual(0, session.Query.All<AudioMaster>().Count());
-          //Assert.AreEqual(0, session.Query.All<MasterTrack>().Count());
-          // Rollback
+        am.Remove();
+        // Rollback
       }
     }
   }

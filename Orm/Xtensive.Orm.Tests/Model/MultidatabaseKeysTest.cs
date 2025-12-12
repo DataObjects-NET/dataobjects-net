@@ -144,8 +144,8 @@ namespace Xtensive.Orm.Tests.Model
       TypeInfo base2MyEntity;
       Domain.Model.Types.TryGetValue(typeof (Database2.Base2MyEntity), out base2MyEntity);
 
-      Assert.AreEqual(base1MyEntity.Key.EqualityIdentifier.Equals(base2MyEntity.Key.EqualityIdentifier), true);
-      Assert.AreEqual(base1MyEntity.Key.EqualityIdentifier.Equals(base1AnotherEntity.Key.EqualityIdentifier), true);
+      Assert.That(true, Is.EqualTo(base1MyEntity.Key.EqualityIdentifier.Equals(base2MyEntity.Key.EqualityIdentifier)));
+      Assert.That(true, Is.EqualTo(base1MyEntity.Key.EqualityIdentifier.Equals(base1AnotherEntity.Key.EqualityIdentifier)));
     }
 
     [Test]
@@ -156,13 +156,13 @@ namespace Xtensive.Orm.Tests.Model
         var allBase1Entities = session.Session.Query.All<Database1.Base1MyEntity>().Select(el=>el.Id);
         var allBase1Ids = session.Session.Query.All<Database1.Base1MyAnotherEntity>().Select(el => el.Id).Union(allBase1Entities);
         var allBase2Ids = session.Session.Query.All<Database2.Base2MyEntity>().Select(el => el.Id);
-        Assert.AreEqual(allBase1Ids.Intersect(allBase2Ids).Count(), 0);
+        Assert.That(0, Is.EqualTo(allBase1Ids.Intersect(allBase2Ids).Count()));
       }
       using (var session = Domain.OpenSession().Activate())
       using (var transaction = session.Session.OpenTransaction()) {
         var grouping = session.Session.Query.All<Database2.ICar>().GroupBy(el => el.Id);
-        foreach (var group in grouping) 
-          Assert.AreEqual(1, group.Count());
+        foreach (var group in grouping)
+          Assert.That(group.Count(), Is.EqualTo(1));
       }
     }
 
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Tests.Model
       using (var session = Domain.OpenSession().Activate())
       using (var transaction = session.Session.OpenTransaction()) {
         var query = session.Session.Query.All<Database2.ICar>();
-        Assert.AreEqual(query.Count(), 1500);
+        Assert.That(1500, Is.EqualTo(query.Count()));
       }
     }
 

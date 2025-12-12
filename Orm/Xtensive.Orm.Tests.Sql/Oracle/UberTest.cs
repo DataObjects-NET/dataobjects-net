@@ -39,10 +39,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
     {
       var select1 = SqlDml.Select(SqlDml.Literal("1"));
       var select2 = SqlDml.Select(SqlDml.Literal("2"));
-      var query = string.Format(
-        "begin open :p1 for {0}; open :p2 for {1}; end;",
-        Driver.Compile(select1).GetCommandText(),
-        Driver.Compile(select2).GetCommandText());
+      var query = $"begin open :p1 for {Driver.Compile(select1).GetCommandText()}; open :p2 for {Driver.Compile(select2).GetCommandText()}; end;";
       using (var command = Connection.CreateCommand()) {
         var p1 = Connection.CreateCursorParameter();
         p1.ParameterName = "p1";
@@ -52,14 +49,14 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
         _ = command.Parameters.Add(p2);
         command.CommandText = query;
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(reader.GetValue(0), "1");
-          Assert.IsFalse(reader.Read());
-          Assert.IsTrue(reader.NextResult());
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(reader.GetValue(0), "2");
-          Assert.IsFalse(reader.Read());
-          Assert.IsFalse(reader.NextResult());
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetValue(0), Is.EqualTo("1"));
+          Assert.That(reader.Read(), Is.False);
+          Assert.That(reader.NextResult(), Is.True);
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetValue(0), Is.EqualTo("2"));
+          Assert.That(reader.Read(), Is.False);
+          Assert.That(reader.NextResult(), Is.False);
         }
       }
     }
@@ -94,7 +91,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       var countQuery = SqlDml.Select(tableRef);
       countQuery.Columns.Add(SqlDml.Count());
-      Assert.AreEqual(6, Convert.ToInt32(ExecuteScalar(countQuery)));
+      Assert.That(Convert.ToInt32(ExecuteScalar(countQuery)), Is.EqualTo(6));
     }
 
     [Test]
@@ -138,7 +135,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.Native("rownum")==1;
       using (var comand = Connection.CreateCommand(select))
       using (var reader = comand.ExecuteReader()) {
-        Assert.IsTrue(reader.Read());
+        Assert.That(reader.Read(), Is.True);
         Compare(binBuffer, (byte[]) reader[0]);
         Compare(charBuffer, ((string) reader[1]).ToCharArray());
       }
@@ -149,13 +146,13 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
     private void Compare<T>(T[] expected, T[] actual)
     {
       if ((expected!=null)!=(actual!=null))
-        Assert.Fail("expected: {0}; actual {1}", expected, actual);
+        Assert.Fail($"expected: {expected}; actual {actual}");
       if (expected==null)
         return;
       if (expected.Length!=actual.Length)
-        Assert.Fail("expected length: {0}; actual length {1}", expected.Length, actual.Length);
+        Assert.Fail($"expected length: {expected.Length}; actual length {actual.Length}");
       for (int i = 0; i < expected.Length; i++)
-        Assert.AreEqual(expected[i], actual[i]);
+        Assert.That(actual[i], Is.EqualTo(expected[i]));
     }
 
     private SqlInsert CreateInsert(SqlTableRef tableRef)

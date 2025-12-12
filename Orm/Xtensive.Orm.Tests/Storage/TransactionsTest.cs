@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
           hexagon = new Hexagon();
         }
         using (session.OpenTransaction()) {
-          Assert.IsTrue(hexagon.IsRemoved);
+          Assert.That(hexagon.IsRemoved, Is.True);
         }
         AssertEx.ThrowsInvalidOperationException( delegate { hexagon.Kwanza = 15; });
       }
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (session.OpenTransaction()) {
           hexagon.Kwanza = 14;
-          Assert.AreEqual(14, hexagon.Kwanza);
+          Assert.That(hexagon.Kwanza, Is.EqualTo(14));
         }
       }
     }
@@ -92,17 +92,17 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
 
         using (var scope = session.OpenTransaction()) {
-          
-          Assert.IsFalse(scope.IsVoid);
-          Assert.IsNotNull(scope.Transaction);
+
+          Assert.That(scope.IsVoid, Is.False);
+          Assert.That(scope.Transaction, Is.Not.Null);
 
           using (var scope2 = session.OpenTransaction()) {
-            
-            Assert.IsTrue(scope2.IsVoid);
-            Assert.IsNull(scope2.Transaction);
+
+            Assert.That(scope2.IsVoid, Is.True);
+            Assert.That(scope2.Transaction, Is.Null);
 
             using (var scope3 = session.OpenTransaction()) {
-              Assert.IsTrue(ReferenceEquals(scope2, scope3));
+              Assert.That(ReferenceEquals(scope2, scope3), Is.True);
             }
           }
           scope.Complete();
@@ -121,31 +121,31 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
         using (session.OpenTransaction()) {
-          Assert.AreEqual(3, hexagon.Kwanza);
-          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+          Assert.That(hexagon.Kwanza, Is.EqualTo(3));
+          Assert.That(hexagon.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         }
 
         using (session.OpenTransaction()) {
           hexagon.Kwanza = 11;
         }
         using (session.OpenTransaction()) {
-          Assert.AreEqual(3, hexagon.Kwanza);
-          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+          Assert.That(hexagon.Kwanza, Is.EqualTo(3));
+          Assert.That(hexagon.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         }
         using (session.OpenTransaction()) {
           hexagon.Babuka = new Hexagon();
         }
         using (session.OpenTransaction()) {
-          Assert.IsNull(hexagon.Babuka);
-          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+          Assert.That(hexagon.Babuka, Is.Null);
+          Assert.That(hexagon.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         }
         using (session.OpenTransaction()) {
           hexagon.Kwanza = 12;
           Session.Current.SaveChanges();
         }
         using (session.OpenTransaction()) {
-          Assert.AreEqual(3, hexagon.Kwanza);
-          Assert.AreEqual(PersistenceState.Synchronized, hexagon.PersistenceState);
+          Assert.That(hexagon.Kwanza, Is.EqualTo(3));
+          Assert.That(hexagon.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         }
         using (session.OpenTransaction()) {
           try {
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Storage
           }
         }
         using (session.OpenTransaction()) {
-          Assert.AreEqual(3, hexagon.Kwanza);
+          Assert.That(hexagon.Kwanza, Is.EqualTo(3));
         }
       }
     }
@@ -169,18 +169,18 @@ namespace Xtensive.Orm.Tests.Storage
         var hexagon = new Hexagon {Kwanza = 1};
 
         session.Events.TransactionOpened +=
-          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.EqualTo(Transaction.Current));
         session.Events.TransactionCommitting +=
-          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.EqualTo(Transaction.Current));
         session.Events.TransactionRollbacking +=
-          (sender, args) => Assert.AreEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.EqualTo(Transaction.Current));
 
         session.Events.TransactionOpening +=
-          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.Not.EqualTo(Transaction.Current));
         session.Events.TransactionCommitted +=
-          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.Not.EqualTo(Transaction.Current));
         session.Events.TransactionRollbacked +=
-          (sender, args) => Assert.AreNotEqual(Transaction.Current, args.Transaction);
+          (sender, args) => Assert.That(args.Transaction, Is.Not.EqualTo(Transaction.Current));
 
         using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
           hexagon.Kwanza = 2;

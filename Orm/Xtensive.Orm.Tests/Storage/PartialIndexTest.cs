@@ -588,7 +588,7 @@ namespace Xtensive.Orm.Tests.Storage
       var partialIndexes = domain.Model.RealIndexes
         .Where(index => index.IsPartial && index.FilterExpression != null && index.Filter != null)
         .ToList();
-      Assert.IsNotEmpty(partialIndexes);
+      Assert.That(partialIndexes, Is.Not.Empty);
     }
 
     private void AssertBuildFailure(params Type[] entities)

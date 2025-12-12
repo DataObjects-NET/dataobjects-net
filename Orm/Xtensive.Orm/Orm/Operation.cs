@@ -147,7 +147,7 @@ namespace Xtensive.Orm
     private string FormatOperations(string title, IEnumerable<IOperation> operations)
     {
       // Shouldn't be moved to resources
-      return string.Format("  {0}:", title) + Environment.NewLine +
+      return $"  {title}:" + Environment.NewLine +
         operations.ToDelimitedString(Environment.NewLine).ToString().Indent(4);
     }
 

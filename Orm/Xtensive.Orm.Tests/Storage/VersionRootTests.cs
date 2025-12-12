@@ -154,11 +154,11 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transactionScope = session.OpenTransaction()) {
           var order = session.Query.Single<Order>(orderKey);
           var orderItem = session.Query.Single<OrderItem>(orderItemKey);
-          Assert.IsTrue(orderVersion==order.VersionInfo);
-          Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
+          Assert.That(orderVersion==order.VersionInfo, Is.True);
+          Assert.That(orderItemVersion==orderItem.VersionInfo, Is.True);
           orderItem.Quantity = 20;
-          Assert.IsFalse(orderVersion==order.VersionInfo);
-          Assert.IsFalse(orderItemVersion==orderItem.VersionInfo);
+          Assert.That(orderVersion==order.VersionInfo, Is.False);
+          Assert.That(orderItemVersion==orderItem.VersionInfo, Is.False);
           transactionScope.Complete();
         }
       }
@@ -189,11 +189,11 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transactionScope = session.OpenTransaction()) {
           var order = session.Query.Single<Order>(orderKey);
           var orderItem = session.Query.Single<AdvancedOrderItem>(orderItemKey);
-          Assert.IsTrue(orderVersion==order.VersionInfo);
-          Assert.IsTrue(orderItemVersion==orderItem.VersionInfo);
+          Assert.That(orderVersion==order.VersionInfo, Is.True);
+          Assert.That(orderItemVersion==orderItem.VersionInfo, Is.True);
           orderItem.SupplierName = "Supplier2";
-          Assert.IsFalse(orderVersion==order.VersionInfo);
-          Assert.IsFalse(orderItemVersion==orderItem.VersionInfo);
+          Assert.That(orderVersion==order.VersionInfo, Is.False);
+          Assert.That(orderItemVersion==orderItem.VersionInfo, Is.False);
           transactionScope.Complete();
         }
       }
@@ -228,13 +228,13 @@ namespace Xtensive.Orm.Tests.Storage
           var owner1 = session.Query.Single<Owner1>(owner1Key);
           var owner2 = session.Query.Single<Owner2>(owner2Key);
           var item = session.Query.Single<Item>(itemKey);
-          Assert.IsTrue(owner1Version==owner1.VersionInfo);
-          Assert.IsTrue(owner2Version==owner2.VersionInfo);
-          Assert.IsTrue(itemVersion==item.VersionInfo);
+          Assert.That(owner1Version==owner1.VersionInfo, Is.True);
+          Assert.That(owner2Version==owner2.VersionInfo, Is.True);
+          Assert.That(itemVersion==item.VersionInfo, Is.True);
           item.Value = "New Value";
-          Assert.IsFalse(owner1Version==owner1.VersionInfo);
-          Assert.IsFalse(owner2Version==owner2.VersionInfo);
-          Assert.IsFalse(itemVersion==item.VersionInfo);
+          Assert.That(owner1Version==owner1.VersionInfo, Is.False);
+          Assert.That(owner2Version==owner2.VersionInfo, Is.False);
+          Assert.That(itemVersion==item.VersionInfo, Is.False);
           transactionScope.Complete();
         }
       }
@@ -254,10 +254,10 @@ namespace Xtensive.Orm.Tests.Storage
           transactionScope.Complete();
         }
       }
-      Assert.IsFalse(itemVersion.IsVoid);
+      Assert.That(itemVersion.IsVoid, Is.False);
       var clone = Cloner.Clone(itemVersion);
-      Assert.IsFalse(clone.IsVoid);
-      Assert.IsTrue(itemVersion==clone);
+      Assert.That(clone.IsVoid, Is.False);
+      Assert.That(itemVersion==clone, Is.True);
     }
   }
 }

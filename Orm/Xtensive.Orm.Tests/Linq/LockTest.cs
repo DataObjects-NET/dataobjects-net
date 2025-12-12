@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Linq
         throw catchedException;
       }
 
-      Assert.AreEqual(0, countAfterSkip);
+      Assert.That(countAfterSkip, Is.EqualTo(0));
     }
 
     [Test]
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIs(StorageProvider.PostgreSql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
-      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+      Assert.That(catchedException.GetType(), Is.EqualTo(typeof(StorageException)));
     }
 
     [Test]
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIs(StorageProvider.SqlServer);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Exclusive, LockBehavior.ThrowIfLocked);
-      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+      Assert.That(catchedException.GetType(), Is.EqualTo(typeof(StorageException)));
     }
 
     [Test]
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql | StorageProvider.MySql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
-      Assert.IsNull(catchedException);
+      Assert.That(catchedException, Is.Null);
     }
 
     [Test]
@@ -185,10 +185,10 @@ namespace Xtensive.Orm.Tests.Linq
       _ = secondEvent.WaitOne();
       var secondException = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
         .Where(c => c.Key == customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
-      Assert.AreEqual(typeof(StorageException), secondException.GetType());
+      Assert.That(secondException.GetType(), Is.EqualTo(typeof(StorageException)));
       var thirdException = ExecuteQueryAtSeparateThread(s => s.Query.All<Invoice>()
         .Where(i => i.Key == invoiceKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
-      Assert.AreEqual(typeof(StorageException), thirdException.GetType());
+      Assert.That(thirdException.GetType(), Is.EqualTo(typeof(StorageException)));
       _ = firstEvent.Set();
       firstThread.Join();
       if (firstThreadException != null) {
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Linq
       customer.Lock(LockMode.Update, LockBehavior.Wait);
       var catchedException = ExecuteQueryAtSeparateThread(s =>
         s.Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
-      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+      Assert.That(catchedException.GetType(), Is.EqualTo(typeof(StorageException)));
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {

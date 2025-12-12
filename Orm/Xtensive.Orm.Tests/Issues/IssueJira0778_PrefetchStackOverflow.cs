@@ -102,10 +102,10 @@ namespace Xtensive.Orm.Tests.Issues
         var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference2, aaaa.Reference2.Address, aaaa.Reference2.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference3, aaaa.Reference3.Address, aaaa.Reference3.Passport);
-          Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(aaaa.SomeObject));
+          Console.WriteLine($"Reference {aaaa.Reference1}, Address {aaaa.Reference1.Address}, Passport {aaaa.Reference1.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference2}, Address {aaaa.Reference2.Address}, Passport {aaaa.Reference2.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference3}, Address {aaaa.Reference3.Address}, Passport {aaaa.Reference3.Passport}");
+          Console.WriteLine($"Some object {Encoding.UTF8.GetString(aaaa.SomeObject)}");
         }
 
         Assert.That(count, Is.EqualTo(0));
@@ -133,16 +133,16 @@ namespace Xtensive.Orm.Tests.Issues
         var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference2, aaaa.Reference2.Address, aaaa.Reference2.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference3, aaaa.Reference3.Address, aaaa.Reference3.Passport);
-          Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(aaaa.SomeObject));
+          Console.WriteLine($"Reference {aaaa.Reference1}, Address {aaaa.Reference1.Address}, Passport {aaaa.Reference1.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference2}, Address {aaaa.Reference2.Address}, Passport {aaaa.Reference2.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference3}, Address {aaaa.Reference3.Address}, Passport {aaaa.Reference3.Passport}");
+          Console.WriteLine($"Some object {Encoding.UTF8.GetString(aaaa.SomeObject)}");
 
           foreach (var bbbb in aaaa.Bbbbs) {
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference4, bbbb.Reference4.Address, bbbb.Reference4.Passport);
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference5, bbbb.Reference5.Address, bbbb.Reference5.Passport);
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference6, bbbb.Reference6.Address, bbbb.Reference6.Passport);
-            Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(bbbb.SomeObject));
+            Console.WriteLine($"Reference {bbbb.Reference4}, Address {bbbb.Reference4.Address}, Passport {bbbb.Reference4.Passport}");
+            Console.WriteLine($"Reference {bbbb.Reference5}, Address {bbbb.Reference5.Address}, Passport {bbbb.Reference5.Passport}");
+            Console.WriteLine($"Reference {bbbb.Reference6}, Address {bbbb.Reference6.Address}, Passport {bbbb.Reference6.Passport}");
+            Console.WriteLine($"Some object {Encoding.UTF8.GetString(bbbb.SomeObject)}");
           }
         }
 
@@ -177,22 +177,22 @@ namespace Xtensive.Orm.Tests.Issues
         var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference2, aaaa.Reference2.Address, aaaa.Reference2.Passport);
-          Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference3, aaaa.Reference3.Address, aaaa.Reference3.Passport);
-          Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(aaaa.SomeObject));
+          Console.WriteLine($"Reference {aaaa.Reference1}, Address {aaaa.Reference1.Address}, Passport {aaaa.Reference1.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference2}, Address {aaaa.Reference2.Address}, Passport {aaaa.Reference2.Passport}");
+          Console.WriteLine($"Reference {aaaa.Reference3}, Address {aaaa.Reference3.Address}, Passport {aaaa.Reference3.Passport}");
+          Console.WriteLine($"Some object {Encoding.UTF8.GetString(aaaa.SomeObject)}");
 
           foreach (var bbbb in aaaa.Bbbbs) {
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference4, bbbb.Reference4.Address, bbbb.Reference4.Passport);
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference5, bbbb.Reference5.Address, bbbb.Reference5.Passport);
-            Console.WriteLine("Reference {0}, Address {1}, Passport {2}", bbbb.Reference6, bbbb.Reference6.Address, bbbb.Reference6.Passport);
-            Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(bbbb.SomeObject));
+            Console.WriteLine($"Reference {bbbb.Reference4}, Address {bbbb.Reference4.Address}, Passport {bbbb.Reference4.Passport}");
+            Console.WriteLine($"Reference {bbbb.Reference5}, Address {bbbb.Reference5.Address}, Passport {bbbb.Reference5.Passport}");
+            Console.WriteLine($"Reference {bbbb.Reference6}, Address {bbbb.Reference6.Address}, Passport {bbbb.Reference6.Passport}");
+            Console.WriteLine($"Some object {Encoding.UTF8.GetString(bbbb.SomeObject)}");
 
             foreach (var cccc in bbbb.CCCCs) {
-              Console.WriteLine("Reference {0}, Address {1}, Passport {2}", cccc.Reference7, cccc.Reference7.Address, cccc.Reference7.Passport);
-              Console.WriteLine("Reference {0}, Address {1}, Passport {2}", cccc.Reference8, cccc.Reference8.Address, cccc.Reference8.Passport);
-              Console.WriteLine("Reference {0}, Address {1}, Passport {2}", cccc.Reference9, cccc.Reference9.Address, cccc.Reference9.Passport);
-              Console.WriteLine("Some object {0}", Encoding.UTF8.GetString(cccc.SomeObject));
+              Console.WriteLine($"Reference {cccc.Reference7}, Address {cccc.Reference7.Address}, Passport {cccc.Reference7.Passport}");
+              Console.WriteLine($"Reference {cccc.Reference8}, Address {cccc.Reference8.Address}, Passport {cccc.Reference8.Passport}");
+              Console.WriteLine($"Reference {cccc.Reference9}, Address {cccc.Reference9.Address}, Passport {cccc.Reference9.Passport}");
+              Console.WriteLine($"Some object {Encoding.UTF8.GetString(cccc.SomeObject)}");
             }
           }
         }
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Tests.Issues
         var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var op in result) {
-          Console.WriteLine("Prevoius operation {0}", op.PreviousOperation);
+          Console.WriteLine($"Prevoius operation {op.PreviousOperation}");
         }
         Assert.That(count, Is.EqualTo(0));
       }

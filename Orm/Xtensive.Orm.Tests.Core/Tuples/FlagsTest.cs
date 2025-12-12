@@ -17,22 +17,22 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     public void Main()
     {
       Tuple t = Tuple.Create<int, string>(0, null);
-      Assert.IsTrue(t.GetFieldState(0).IsAvailable());
-      Assert.IsFalse(t.GetFieldState(0).IsNull());
-      Assert.IsTrue(t.GetFieldState(1).IsAvailable());
-      Assert.IsTrue(t.GetFieldState(1).IsNull());
+      Assert.That(t.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(0).IsNull(), Is.False);
+      Assert.That(t.GetFieldState(1).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(1).IsNull(), Is.True);
       t.SetValue(0, null);
       t.SetValue(1, null);
-      Assert.IsTrue(t.GetFieldState(0).IsAvailable());
-      Assert.IsTrue(t.GetFieldState(1).IsAvailable());
-      Assert.IsTrue(t.GetFieldState(0).IsNull());
-      Assert.IsTrue(t.GetFieldState(1).IsNull());
+      Assert.That(t.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(1).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(0).IsNull(), Is.True);
+      Assert.That(t.GetFieldState(1).IsNull(), Is.True);
       t.SetValue(0, new int?(32));
-      Assert.IsTrue(t.GetFieldState(0).IsAvailable());
-      Assert.IsFalse(t.GetFieldState(0).IsNull());
+      Assert.That(t.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(0).IsNull(), Is.False);
       t.SetValue(0, (int?) null);
-      Assert.IsTrue(t.GetFieldState(0).IsAvailable());
-      Assert.IsTrue(t.GetFieldState(0).IsNull());
+      Assert.That(t.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(t.GetFieldState(0).IsNull(), Is.True);
       
     }
   }

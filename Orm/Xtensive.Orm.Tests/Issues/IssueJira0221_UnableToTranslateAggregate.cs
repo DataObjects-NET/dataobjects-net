@@ -70,21 +70,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.Min(item => item.Value.Rank))
         .FirstOrDefault();
-      Assert.AreEqual(1, result);
+      Assert.That(result, Is.EqualTo(1));
     }
 
     [Test]
     public void MinOnEntitiesTest()
     {
       var result = GetEntitiesQuery().Min(info => info.Rank);
-      Assert.AreEqual(1, result);
+      Assert.That(result, Is.EqualTo(1));
     }
 
     [Test]
     public void MinOnValuesTest()
     {
       var result = GetValuesQuery().Min();
-      Assert.AreEqual(1, result);
+      Assert.That(result, Is.EqualTo(1));
     }
 
     #endregion
@@ -97,21 +97,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.Max(item => item.Value.Rank))
         .FirstOrDefault();
-      Assert.AreEqual(3, result);
+      Assert.That(result, Is.EqualTo(3));
     }
 
     [Test]
     public void MaxOnEntitiesTest()
     {
       var result = GetEntitiesQuery().Max(info => info.Rank);
-      Assert.AreEqual(3, result);
+      Assert.That(result, Is.EqualTo(3));
     }
 
     [Test]
     public void MaxOnValuesTest()
     {
       var result = GetValuesQuery().Max();
-      Assert.AreEqual(3, result);
+      Assert.That(result, Is.EqualTo(3));
     }
 
     #endregion
@@ -124,21 +124,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.Average(item => item.Value.Rank))
         .FirstOrDefault();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void AverageOnEntitiesTest()
     {
       var result = GetEntitiesQuery().Average(info => info.Rank);
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void AverageOnValuesTest()
     {
       var result = GetValuesQuery().Average();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     #endregion
@@ -151,21 +151,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.Sum(item => item.Value.Rank))
         .FirstOrDefault();
-      Assert.AreEqual(4, result);
+      Assert.That(result, Is.EqualTo(4));
     }
 
     [Test]
     public void SumOnEntitiesTest()
     {
       var result = GetEntitiesQuery().Sum(info => info.Rank);
-      Assert.AreEqual(4, result);
+      Assert.That(result, Is.EqualTo(4));
     }
 
     [Test]
     public void SumOnValuesTest()
     {
       var result = GetValuesQuery().Sum();
-      Assert.AreEqual(4, result);
+      Assert.That(result, Is.EqualTo(4));
     }
 
     #endregion
@@ -178,21 +178,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.Count())
         .FirstOrDefault();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void CountOnEntitiesTest()
     {
       var result = GetEntitiesQuery().Count();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void CountOnValuesTest()
     {
       var result = GetValuesQuery().Count();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     #endregion
@@ -205,21 +205,21 @@ namespace Xtensive.Orm.Tests.Issues
       var result = GetGroupingsQuery()
         .Select(grouping => grouping.LongCount())
         .FirstOrDefault();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void LongCountOnEntitiesTest()
     {
       var result = GetEntitiesQuery().LongCount();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     [Test]
     public void LongCountOnValuesTest()
     {
       var result = GetValuesQuery().LongCount();
-      Assert.AreEqual(2, result);
+      Assert.That(result, Is.EqualTo(2));
     }
 
     #endregion

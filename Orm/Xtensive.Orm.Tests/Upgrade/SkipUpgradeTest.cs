@@ -81,24 +81,24 @@ namespace Xtensive.Orm.Tests.Upgrade
       var testedConfiguration = configurationTemplate.Clone();
       testedConfiguration.UpgradeMode = DomainUpgradeMode.Skip;
       using (var testedDomain = Domain.Build(testedConfiguration)) {
-        Assert.AreEqual(typeIdentifiers.Count, testedDomain.Model.Types.Count);
+        Assert.That(testedDomain.Model.Types.Count, Is.EqualTo(typeIdentifiers.Count));
         foreach (var typeInfo in testedDomain.Model.Types) {
           var oldTypeId = typeIdentifiers[typeInfo.UnderlyingType];
           var newTypeId = typeInfo.TypeId;
-          Assert.AreEqual(oldTypeId, newTypeId);
+          Assert.That(newTypeId, Is.EqualTo(oldTypeId));
         }
         using (var session = testedDomain.OpenSession())
         using (var ts = session.OpenTransaction()) {
           var trinity = new BuildAgent("Trinity");
-          Assert.AreEqual(4, session.Query.All<BuildAgent>().Count());
-          Assert.AreEqual(3, session.Query.All<BuildConfiguration>().Count());
+          Assert.That(session.Query.All<BuildAgent>().Count(), Is.EqualTo(4));
+          Assert.That(session.Query.All<BuildConfiguration>().Count(), Is.EqualTo(3));
           foreach (var agent in session.Query.All<BuildAgent>().Where(a => a != trinity).ToList()) {
             foreach (var configuration in agent.CompatibleConfigurations.ToList()) {
               agent.CompatibleConfigurations.Remove(configuration);
               trinity.CompatibleConfigurations.Add(configuration);
             }
           }
-          Assert.AreEqual(3, trinity.CompatibleConfigurations.Count());
+          Assert.That(trinity.CompatibleConfigurations.Count(), Is.EqualTo(3));
           ts.Complete();
         }
       }
@@ -131,24 +131,24 @@ namespace Xtensive.Orm.Tests.Upgrade
       var testedConfiguration = configurationTemplate.Clone();
       testedConfiguration.UpgradeMode = DomainUpgradeMode.Skip;
       using (var testedDomain = await Domain.BuildAsync(testedConfiguration)) {
-        Assert.AreEqual(typeIdentifiers.Count, testedDomain.Model.Types.Count);
+        Assert.That(testedDomain.Model.Types.Count, Is.EqualTo(typeIdentifiers.Count));
         foreach (var typeInfo in testedDomain.Model.Types) {
           var oldTypeId = typeIdentifiers[typeInfo.UnderlyingType];
           var newTypeId = typeInfo.TypeId;
-          Assert.AreEqual(oldTypeId, newTypeId);
+          Assert.That(newTypeId, Is.EqualTo(oldTypeId));
         }
         using (var session = testedDomain.OpenSession())
         using (var ts = session.OpenTransaction()) {
           var trinity = new BuildAgent("Trinity");
-          Assert.AreEqual(4, session.Query.All<BuildAgent>().Count());
-          Assert.AreEqual(3, session.Query.All<BuildConfiguration>().Count());
+          Assert.That(session.Query.All<BuildAgent>().Count(), Is.EqualTo(4));
+          Assert.That(session.Query.All<BuildConfiguration>().Count(), Is.EqualTo(3));
           foreach (var agent in session.Query.All<BuildAgent>().Where(a => a != trinity).ToList()) {
             foreach (var configuration in agent.CompatibleConfigurations.ToList()) {
               agent.CompatibleConfigurations.Remove(configuration);
               trinity.CompatibleConfigurations.Add(configuration);
             }
           }
-          Assert.AreEqual(3, trinity.CompatibleConfigurations.Count());
+          Assert.That(trinity.CompatibleConfigurations.Count(), Is.EqualTo(3));
           ts.Complete();
         }
       }

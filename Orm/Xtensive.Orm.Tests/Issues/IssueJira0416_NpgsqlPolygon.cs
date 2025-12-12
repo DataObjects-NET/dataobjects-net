@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlPolygon>()
             .Where(e => e.Polygon.Count==polygon.Count);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -93,11 +93,11 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlPolygon>()
             .Where(e => e.Polygon.Contains(pointContains));
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           query = session.Query.All<EntityWithNpgsqlPolygon>()
             .Where(e => e.Polygon.Contains(pointNotContains));
-          Assert.IsTrue(query.ToList().FirstOrDefault()==null);
+          Assert.That(query.ToList().FirstOrDefault()==null, Is.True);
 
           t.Complete();
         }
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlPolygon>()
             .Where(e => e.Polygon==e.Polygon);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlPolygon>()
             .Where(e => e.Polygon!=e.OtherPolygon);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }

@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
     private Key[] Insert(Session session)
     {
-      var text = string.Format("{0}_during_upgrade", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
+      var text = $"{TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId)}_during_upgrade";
       var a = new Part1.TestEntity1(session) { Text = text };
       var b = new Part2.TestEntity2(session) { Text = text };
       var c = new Part3.TestEntity3(session) { Text = text };
@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
     private void Update(Session session, Key[] createdKeys)
     {
-      var updatedText = string.Format("{0}_during_upgrade_updated", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
+      var updatedText = $"{TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId)}_during_upgrade_updated";
 
       var a = session.Query.All<Part1.TestEntity1>().Where(e => e.Key == createdKeys[0]).First();
       a.Text = updatedText;
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
       session.SaveChanges();
 
-      var updatedText = string.Format("{0}_during_upgrade_updated", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
+      var updatedText = $"{TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId)}_during_upgrade_updated";
       Assert.That(session.Query.All<Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities));
       a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(a, Is.Null);

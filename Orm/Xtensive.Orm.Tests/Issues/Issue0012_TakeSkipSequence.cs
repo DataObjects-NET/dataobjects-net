@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Assert.AreEqual(0, new[] {1, 2}.Take(1).Skip(1).Count());
+      Assert.That(new[] {1, 2}.Take(1).Skip(1).Count(), Is.EqualTo(0));
 
       using (var session = Domain.OpenSession())
       using (var trs = session.OpenTransaction()) {
@@ -63,12 +63,12 @@ namespace Xtensive.Orm.Tests.Issues
           .Indexes.PrimaryIndex.GetQuery()
           .Filter(t => t.GetValue<int>(0) == e1.Id || t.GetValue<int>(0) == e2.Id);
 
-        Assert.AreEqual(2, rsMyEntities.Count(Session.Current));
+        Assert.That(rsMyEntities.Count(Session.Current), Is.EqualTo(2));
 
-        Assert.AreEqual(0, rsMyEntities.Take(1).Skip(1).Count(Session.Current));
-        Assert.AreEqual(1, rsMyEntities.Skip(1).Take(1).Count(Session.Current));
-        Assert.AreEqual(1, rsMyEntities.Take(1).Take(2).Count(Session.Current));
-        Assert.AreEqual(0, rsMyEntities.Skip(1).Skip(1).Count(Session.Current));
+        Assert.That(rsMyEntities.Take(1).Skip(1).Count(Session.Current), Is.EqualTo(0));
+        Assert.That(rsMyEntities.Skip(1).Take(1).Count(Session.Current), Is.EqualTo(1));
+        Assert.That(rsMyEntities.Take(1).Take(2).Count(Session.Current), Is.EqualTo(1));
+        Assert.That(rsMyEntities.Skip(1).Skip(1).Count(Session.Current), Is.EqualTo(0));
         trs.Complete();
       }
     }

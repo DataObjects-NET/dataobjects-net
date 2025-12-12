@@ -55,11 +55,11 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
           var alex = new Person (session) { FirstName = "Alex", LastName = "Kofman", Age = 26};
           var ivan = new Person (session) { FirstName = "Ivan", LastName = "Galkin", Age = 28};
 
-          Assert.AreEqual(alex, GetPersonByName(session, "Alex", "Kofman"));
+          Assert.That(GetPersonByName(session, "Alex", "Kofman"), Is.EqualTo(alex));
           
           var adults = GetPersonOverAge(session, 27);
-          Assert.AreEqual(1, adults.Count());
-          Assert.AreEqual(ivan, adults.First());
+          Assert.That(adults.Count(), Is.EqualTo(1));
+          Assert.That(adults.First(), Is.EqualTo(ivan));
 
           transactionScope.Complete();
         }

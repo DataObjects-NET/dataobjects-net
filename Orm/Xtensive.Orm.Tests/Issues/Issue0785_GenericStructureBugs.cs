@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Issues
         var bookRef = new RefHolder<Book>();
         bookRef.Ref = book;
         book.BookRef = bookRef;
-        Assert.AreEqual(book, book.BookRef.Ref);
+        Assert.That(book.BookRef.Ref, Is.EqualTo(book));
       }
     }
   }

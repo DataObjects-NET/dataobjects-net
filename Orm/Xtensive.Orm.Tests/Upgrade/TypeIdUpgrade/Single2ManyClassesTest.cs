@@ -43,11 +43,11 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
                          FirstName = "Dmitri", LastName = "Maximov"
                        };
         var count = session.Query.All<Model.Person>().Count();
-        Assert.AreEqual(3, count);
+        Assert.That(count, Is.EqualTo(3));
         var list = session.Query.All<Model.Person>().ToList();
-        Assert.AreEqual(3, list.Count);
+        Assert.That(list.Count, Is.EqualTo(3));
         foreach (var item in list)
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
         t.Complete();
       }
     }

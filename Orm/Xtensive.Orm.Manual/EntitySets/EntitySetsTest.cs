@@ -145,18 +145,18 @@ namespace Xtensive.Orm.Manual.EntitySets
         var user = new User(session);
 
         var firstPost = new BlogPost(session) {Title = "First post"};
-        user.BlogPosts.Add(firstPost);
+        _ = user.BlogPosts.Add(firstPost);
 
-        Assert.AreEqual(user, firstPost.Author);
+        Assert.That(firstPost.Author, Is.EqualTo(user));
 
         var secondPost = new BlogPost(session) {Title = "Second post"};
         secondPost.Author = user;
 
-        Assert.IsTrue(user.BlogPosts.Contains(secondPost));
+        Assert.That(user.BlogPosts.Contains(secondPost), Is.True);
 
-        user.BlogPosts.Remove(secondPost);
+        _ = user.BlogPosts.Remove(secondPost);
 
-        Assert.IsNull(secondPost.Author);
+        Assert.That(secondPost.Author, Is.Null);
       }
     }
 
@@ -170,18 +170,18 @@ namespace Xtensive.Orm.Manual.EntitySets
         var account = new Account(session);
         user.Account = account;
 
-        Assert.AreEqual(user, account.User);
+        Assert.That(account.User, Is.EqualTo(user));
 
         user.Account = null;
-        Assert.IsNull(account.User);
+        Assert.That(account.User, Is.Null);
 
         account.User = user;
-        Assert.AreEqual(user, account.User);
+        Assert.That(account.User, Is.EqualTo(user));
 
         AssertEx.Throws<ReferentialIntegrityException>(account.Remove);
 
         user.Remove();
-        Assert.IsTrue(account.IsRemoved);
+        Assert.That(account.IsRemoved, Is.True);
       }
     }
 
@@ -196,17 +196,17 @@ namespace Xtensive.Orm.Manual.EntitySets
         var xtensive = new WebPage(session) {Title = "Xtensive company", Url = "http://www.x-tensive.com"};
         var dataobjects = new WebPage(session) {Title = "DataObjects.Net", Url = "http://www.dataobjects.net"};
 
-        user.FavoritePages.Add(xtensive);
-        user.FavoritePages.Add(dataobjects);
+        _ = user.FavoritePages.Add(xtensive);
+        _ = user.FavoritePages.Add(dataobjects);
 
         foreach (var page in user.FavoritePages)
-          Console.WriteLine("{0} ( {1} )", page.Title, page.Url);
+          Console.WriteLine($"{page.Title} ( {page.Url} )");
 
-        Assert.AreEqual(2, user.FavoritePages.Count);
-        Assert.AreEqual(1, SelectPages(user).Count());
+        Assert.That(user.FavoritePages.Count, Is.EqualTo(2));
+        Assert.That(SelectPages(user).Count(), Is.EqualTo(1));
 
-        user.FavoritePages.Add(xtensive);
-        Assert.AreEqual(2, user.FavoritePages.Count);
+        _ = user.FavoritePages.Add(xtensive);
+        Assert.That(user.FavoritePages.Count, Is.EqualTo(2));
       }
     }
 

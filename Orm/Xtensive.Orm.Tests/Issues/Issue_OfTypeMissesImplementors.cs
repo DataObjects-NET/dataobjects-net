@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
           Session.Current.SaveChanges();
 
           var items = Query.All<Root>().Where(e => e is IHasImplementors).ToList();
-          Assert.AreEqual(3, items.Count);
+          Assert.That(items.Count, Is.EqualTo(3));
           
           t.Complete();
         }
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = Session.Current.OpenTransaction()) {
           
           var c = Query.All<Container>().First();
-          Assert.IsNotNull(c.Reference);
+          Assert.That(c.Reference, Is.Not.Null);
           // Rollback
         }
       }

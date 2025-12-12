@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected virtual void CheckEquality(object expected, object actual)
     {
-      Assert.AreEqual(expected, actual);
+      Assert.That(actual, Is.EqualTo(expected));
     }
 
     protected virtual object ReadValue(TypeMapping mapping, DbDataReader reader, int index)
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Tests.Sql
           }
           rowIndex++;
         }
-        Assert.AreEqual(testValues[0].Length, rowIndex);
+        Assert.That(rowIndex, Is.EqualTo(testValues[0].Length));
       }
     }
 
@@ -300,12 +300,12 @@ namespace Xtensive.Orm.Tests.Sql
 
     private static string GetParameterName(int parameterIndex)
     {
-      return string.Format("P{0:00}", parameterIndex);
+      return $"P{parameterIndex:00}";
     }
 
     private static string GetColumnName(int columnIndex)
     {
-      return string.Format("C{0:00}", columnIndex);
+      return $"C{columnIndex:00}";
     }
   }
 }

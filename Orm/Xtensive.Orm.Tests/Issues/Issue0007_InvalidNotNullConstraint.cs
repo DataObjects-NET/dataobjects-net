@@ -61,10 +61,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["Address.Street"].IsNullable);
-      Assert.AreEqual(false, Domain.Model.Types[typeof (Person)].Fields["Address.House"].IsNullable);
-      Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["City"].IsNullable);
-      Assert.AreEqual(true, Domain.Model.Types[typeof (Person)].Fields["City.ID"].IsNullable);
+      Assert.That(Domain.Model.Types[typeof (Person)].Fields["Address.Street"].IsNullable, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types[typeof (Person)].Fields["Address.House"].IsNullable, Is.EqualTo(false));
+      Assert.That(Domain.Model.Types[typeof (Person)].Fields["City"].IsNullable, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types[typeof (Person)].Fields["City.ID"].IsNullable, Is.EqualTo(true));
     }
   }
 }

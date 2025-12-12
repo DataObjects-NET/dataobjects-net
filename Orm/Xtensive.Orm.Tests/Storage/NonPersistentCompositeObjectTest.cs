@@ -107,14 +107,14 @@ namespace Xtensive.Orm.Tests.Storage
           co.Value = 12d;
           c.CompositeObject = co;
 
-          Assert.IsNotNull(c.CompositeObject);
-          Assert.IsNotNull(c.CompositeObjectHandler);
+          Assert.That(c.CompositeObject, Is.Not.Null);
+          Assert.That(c.CompositeObjectHandler, Is.Not.Null);
 
-          Assert.AreEqual(co.Name, c.CompositeObject.Name);
-          Assert.AreEqual(co.Value, c.CompositeObject.Value);
+          Assert.That(c.CompositeObject.Name, Is.EqualTo(co.Name));
+          Assert.That(c.CompositeObject.Value, Is.EqualTo(co.Value));
 
-          Assert.AreEqual(co.Name, c.CompositeObjectHandler.Name);
-          Assert.AreEqual(co.Value, c.CompositeObjectHandler.Value);
+          Assert.That(c.CompositeObjectHandler.Name, Is.EqualTo(co.Name));
+          Assert.That(c.CompositeObjectHandler.Value, Is.EqualTo(co.Value));
 
           t.Complete();
         }
@@ -125,16 +125,16 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
           var c = session.Query.All<Container>().First();
 
-          Assert.IsNotNull(c.CompositeObject);
-          Assert.IsNotNull(c.CompositeObjectHandler);
+          Assert.That(c.CompositeObject, Is.Not.Null);
+          Assert.That(c.CompositeObjectHandler, Is.Not.Null);
 
           var co = c.CompositeObject;
 
-          Assert.AreEqual(co.Name, c.CompositeObject.Name);
-          Assert.AreEqual(co.Value, c.CompositeObject.Value);
+          Assert.That(c.CompositeObject.Name, Is.EqualTo(co.Name));
+          Assert.That(c.CompositeObject.Value, Is.EqualTo(co.Value));
 
-          Assert.AreEqual(co.Name, c.CompositeObjectHandler.Name);
-          Assert.AreEqual(co.Value, c.CompositeObjectHandler.Value);
+          Assert.That(c.CompositeObjectHandler.Name, Is.EqualTo(co.Name));
+          Assert.That(c.CompositeObjectHandler.Value, Is.EqualTo(co.Value));
 
           // Rollback
         }
@@ -145,8 +145,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
 
           var c = session.Query.All<Container>().Where(i => i.CompositeObject.Name == "SomeName").FirstOrDefault();
-          Assert.IsNotNull(c);
-          Assert.AreEqual("SomeName", c.CompositeObject.Name);
+          Assert.That(c, Is.Not.Null);
+          Assert.That(c.CompositeObject.Name, Is.EqualTo("SomeName"));
 
           // Rollback
         }

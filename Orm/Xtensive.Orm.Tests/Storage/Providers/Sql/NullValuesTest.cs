@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       string value = null;
       var result = GlobalSession.Query.All<X>().Select(x => new {x.Id, Value = value}).ToList();
       foreach (var item in result)
-        Assert.IsNull(item.Value);
+        Assert.That(item.Value, Is.Null);
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -85,16 +85,16 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     private static void CheckIsNull(ICollection<X> items, int expectedCount)
     {
-      Assert.AreEqual(expectedCount, items.Count);
+      Assert.That(items.Count, Is.EqualTo(expectedCount));
       foreach (var item in items)
-        Assert.IsNull(item.FString);
+        Assert.That(item.FString, Is.Null);
     }
 
     private static void CheckIsEmpty(ICollection<X> items, int expectedCount)
     {
-      Assert.AreEqual(expectedCount, items.Count);
+      Assert.That(items.Count, Is.EqualTo(expectedCount));
       foreach (var item in items)
-        Assert.IsEmpty(item.FString);
+        Assert.That(item.FString, Is.Empty);
     }
   }
 }

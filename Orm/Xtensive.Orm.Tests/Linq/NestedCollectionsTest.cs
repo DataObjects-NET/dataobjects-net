@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>())
         .Select(qi => qi);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfCustomers * numberOfInvoices, Count(result));
+      Assert.That(Count(result), Is.EqualTo(numberOfCustomers * numberOfInvoices));
     }
 
     [Test]
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .Select(qi => qi);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, Count(result));
+      Assert.That(Count(result), Is.EqualTo(numberOfInvoices));
     }
 
     [Test]
@@ -165,12 +165,12 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(os => os);
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, list.Count);
+      Assert.That(list.Count, Is.EqualTo(numberOfInvoices));
       foreach (var i in list) {
-        Assert.AreEqual(1, i.Customers.Count());
-        Assert.AreEqual(1, i.Employees.Count());
-        Assert.AreEqual(1, i.Customers.ToList().Count);
-        Assert.AreEqual(1, i.Employees.ToList().Count);
+        Assert.That(i.Customers.Count(), Is.EqualTo(1));
+        Assert.That(i.Employees.Count(), Is.EqualTo(1));
+        Assert.That(i.Customers.ToList().Count, Is.EqualTo(1));
+        Assert.That(i.Employees.ToList().Count, Is.EqualTo(1));
       }
     }
 
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>())
         .SelectMany(i => i);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfCustomers * numberOfInvoices, Count(result));
+      Assert.That(Count(result), Is.EqualTo(numberOfCustomers * numberOfInvoices));
     }
 
     [Test]
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .SelectMany(i => i);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, Count(result));
+      Assert.That(Count(result), Is.EqualTo(numberOfInvoices));
     }
 
     [Test]
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .SelectMany(i => i.Select(x => x));
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, Count(result));
+      Assert.That(Count(result), Is.EqualTo(numberOfInvoices));
     }
 
     [Test]
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
         })
         .SelectMany(i => i.Invoices);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(numberOfInvoices));
     }
 
     [Test]
@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Tests.Linq
         })
         .SelectMany(a => a.Invoices.Select(i => new { a.Customer, Invoice = i }));
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(numberOfInvoices, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(numberOfInvoices));
     }
 
     [Test]

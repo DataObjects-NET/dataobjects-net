@@ -100,15 +100,15 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var type = Domain.Model.Types[typeof (UberEntity)];
 
-      Assert.AreEqual(10, type.Fields["StringField"].Column.Length);
-      Assert.IsTrue(type.Fields["StringField"].IsNullable);
-      Assert.AreEqual(8, type.Fields["DecimalField"].Column.Precision);
-      Assert.AreEqual(4, type.Fields["DecimalField"].Column.Scale);
+      Assert.That(type.Fields["StringField"].Column.Length, Is.EqualTo(10));
+      Assert.That(type.Fields["StringField"].IsNullable, Is.True);
+      Assert.That(type.Fields["DecimalField"].Column.Precision, Is.EqualTo(8));
+      Assert.That(type.Fields["DecimalField"].Column.Scale, Is.EqualTo(4));
 
-      Assert.IsTrue((type.Fields["IndexedField"].Attributes & FieldAttributes.Indexed)==0);
-      Assert.IsTrue((type.Fields["NotIndexedField"].Attributes & FieldAttributes.Indexed)!=0);
+      Assert.That((type.Fields["IndexedField"].Attributes & FieldAttributes.Indexed)==0, Is.True);
+      Assert.That((type.Fields["NotIndexedField"].Attributes & FieldAttributes.Indexed)!=0, Is.True);
 
-      Assert.AreEqual(OnRemoveAction.Deny, type.GetOwnerAssociations().Single().OnOwnerRemove);
+      Assert.That(type.GetOwnerAssociations().Single().OnOwnerRemove, Is.EqualTo(OnRemoveAction.Deny));
     }
 
     [Test]
@@ -116,15 +116,15 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var type = Domain.Model.Types[typeof (CoolEntity)];
 
-      Assert.AreEqual(10, type.Fields["StringField"].Column.Length);
-      Assert.IsTrue(type.Fields["StringField"].IsNullable);
-      Assert.AreEqual(12, type.Fields["DecimalField"].Column.Precision);
-      Assert.AreEqual(4, type.Fields["DecimalField"].Column.Scale);
+      Assert.That(type.Fields["StringField"].Column.Length, Is.EqualTo(10));
+      Assert.That(type.Fields["StringField"].IsNullable, Is.True);
+      Assert.That(type.Fields["DecimalField"].Column.Precision, Is.EqualTo(12));
+      Assert.That(type.Fields["DecimalField"].Column.Scale, Is.EqualTo(4));
 
-      Assert.IsTrue((type.Fields["IndexedField"].Attributes & FieldAttributes.Indexed) == 0);
-      Assert.IsTrue((type.Fields["NotIndexedField"].Attributes & FieldAttributes.Indexed) != 0);
+      Assert.That((type.Fields["IndexedField"].Attributes & FieldAttributes.Indexed) == 0, Is.True);
+      Assert.That((type.Fields["NotIndexedField"].Attributes & FieldAttributes.Indexed) != 0, Is.True);
 
-      Assert.AreEqual(OnRemoveAction.Cascade, type.GetOwnerAssociations().Single().OnOwnerRemove);
+      Assert.That(type.GetOwnerAssociations().Single().OnOwnerRemove, Is.EqualTo(OnRemoveAction.Cascade));
     }
   }
 }

@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
           Session.Current.Query.All<Ent>().Where(z => z.Id==ent.Id).ToArray();
           ent.Num = i;
           if (i % 100==0) {
-            Console.WriteLine("{0}    {1}", i, sw.Elapsed.TotalSeconds);
+            Console.WriteLine($"{i}    {sw.Elapsed.TotalSeconds}");
             sw.Restart();
           }
         }

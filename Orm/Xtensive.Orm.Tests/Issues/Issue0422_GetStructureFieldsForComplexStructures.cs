@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Issues
           var str = structures.Single();
           var testEntities = session.Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
           var actualEntities = session.Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
-          Assert.AreEqual(0, actualEntities.Except(testEntities).Count());
+          Assert.That(actualEntities.Except(testEntities).Count(), Is.EqualTo(0));
 
           // Rollback
         }

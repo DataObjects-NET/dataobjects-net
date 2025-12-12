@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Tests.Issues
             );
 
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.AreEqual(2, result[0].LineCount);
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result[0].LineCount, Is.EqualTo(2));
         }
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Issues
             });
 
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
+          Assert.That(result.Count, Is.EqualTo(1));
         }
       }
     }
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Issues
             });
           session.SaveChanges();
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
+          Assert.That(result.Count, Is.EqualTo(1));
         }
       }
     }

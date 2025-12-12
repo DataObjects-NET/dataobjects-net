@@ -57,16 +57,16 @@ namespace Xtensive.Orm.Tests.Issues
         var fieldInfo = typeInfo.Fields["Friends"];
         var associationInfo = fieldInfo.Associations[0];
         var auxiliaryType = associationInfo.AuxiliaryType;
-        Assert.AreEqual("Person-Friends-Person", auxiliaryType.Name);
-        Assert.AreEqual("P-F-P", auxiliaryType.MappingName);
+        Assert.That(auxiliaryType.Name, Is.EqualTo("Person-Friends-Person"));
+        Assert.That(auxiliaryType.MappingName, Is.EqualTo("P-F-P"));
 
         var personGroup = new PersonGroup();
         typeInfo = personGroup.TypeInfo;
         fieldInfo = typeInfo.Fields["Persons"];
         associationInfo = fieldInfo.Associations[0];
         auxiliaryType = associationInfo.AuxiliaryType;
-        Assert.AreEqual("PersonGroup-Persons-Person", auxiliaryType.Name);
-        Assert.AreEqual("PersonGroup-Persons-P", auxiliaryType.MappingName);
+        Assert.That(auxiliaryType.Name, Is.EqualTo("PersonGroup-Persons-Person"));
+        Assert.That(auxiliaryType.MappingName, Is.EqualTo("PersonGroup-Persons-P"));
 
         ts.Complete();
       }

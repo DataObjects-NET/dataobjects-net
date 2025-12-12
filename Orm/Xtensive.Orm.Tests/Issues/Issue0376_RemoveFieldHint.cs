@@ -189,9 +189,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           var son = session.Query.All<M2.Son>().Single();
-          Assert.AreEqual("FirstName", son.FirstName);
-          Assert.AreEqual("LastName", son.LastName);
-          Assert.AreEqual("NickName", son.NickName);
+          Assert.That(son.FirstName, Is.EqualTo("FirstName"));
+          Assert.That(son.LastName, Is.EqualTo("LastName"));
+          Assert.That(son.NickName, Is.EqualTo("NickName"));
           transactionScope.Complete();
         }
       }
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          Assert.IsTrue(session.Query.All<M3.Father>().Count()==0);
+          Assert.That(session.Query.All<M3.Father>().Count()==0, Is.True);
           transactionScope.Complete();
         }
       }

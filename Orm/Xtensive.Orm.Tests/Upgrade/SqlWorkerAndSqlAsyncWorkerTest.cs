@@ -378,8 +378,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       ValidateSchema(task, result);
       if (task == SqlWorkerTask.DropSchema) {
-        Assert.IsTrue(result.Schema == null, error);
-        Assert.IsTrue(result.Metadata == null, error);
+        Assert.That(result.Schema == null, Is.True, error);
+        Assert.That(result.Metadata == null, Is.True, error);
         return;
       }
       ValidateMetadata(task, result, task.HasFlag(SqlWorkerTask.DropSchema));
@@ -392,8 +392,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       ValidateSchema(task, result);
       if (task == SqlWorkerTask.DropSchema) {
-        Assert.IsTrue(result.Schema == null, error);
-        Assert.IsTrue(result.Metadata == null, error);
+        Assert.That(result.Schema == null, Is.True, error);
+        Assert.That(result.Metadata == null, Is.True, error);
       }
       else {
         ValidateMetadata(task, result, task.HasFlag(SqlWorkerTask.DropSchema));
@@ -405,11 +405,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       var error = string.Format(ErrorMessage, task);
 
       if (!task.HasFlag(SqlWorkerTask.ExtractSchema)) {
-        Assert.IsNull(result.Schema, error);
+        Assert.That(result.Schema, Is.Null, error);
       }
       else {
-        Assert.IsNotNull(result.Schema, error);
-        Assert.IsNotEmpty(result.Schema.Catalogs, error);
+        Assert.That(result.Schema, Is.Not.Null, error);
+        Assert.That(result.Schema.Catalogs, Is.Not.Empty, error);
       }
     }
 
@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var error = string.Format(ErrorMessage, task);
       if (!IsMetdataMemberExtracted(task)) {
-        Assert.IsNull(result.Metadata);
+        Assert.That(result.Metadata, Is.Null);
       }
       else {
         Assert.That(result.Metadata.Types.Any(), Is.EqualTo(!isSchemaDropped && task.HasFlag(SqlWorkerTask.ExtractMetadataTypes)), error);

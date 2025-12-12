@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Tests.Rse
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
       var parameterContext = new ParameterContext();
       var result = whereRs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable().ToList();
-      Assert.AreEqual(0, whereRs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable()
-        .Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count());
+      Assert.That(whereRs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable()
+        .Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count(), Is.EqualTo(0));
     }
   }
 }

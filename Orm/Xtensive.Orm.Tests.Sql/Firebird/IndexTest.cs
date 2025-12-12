@@ -58,10 +58,10 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       var s2 = c2.DefaultSchema;
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[ExpressionIndexName];
-      Assert.IsNotNull(i2);
-      Assert.AreEqual(1, i2.Columns.Count);
+      Assert.That(i2, Is.Not.Null);
+      Assert.That(i2.Columns.Count, Is.EqualTo(1));
 
-      Assert.IsTrue(i2.Columns[0].Expression is not null);
+      Assert.That(i2.Columns[0].Expression is not null, Is.True);
     }
 
     [Test, Ignore("Test is not implemented")]

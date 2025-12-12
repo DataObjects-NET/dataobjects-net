@@ -59,8 +59,8 @@ namespace Xtensive.Orm.Tests.Model
       using (var ts = session.OpenTransaction()) {
         var three = new Three();
         var twos = session.Query.All<Two>().ToList();
-        Assert.AreEqual(1, twos.Count);
-        Assert.AreEqual(three, twos[0]);
+        Assert.That(twos.Count, Is.EqualTo(1));
+        Assert.That(twos[0], Is.EqualTo(three));
       }
     }
 

@@ -170,12 +170,12 @@ namespace Xtensive.Orm.Tests.Issues
           queries.Add(locations);
         }
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
         var result = session.Query.All<TestEntity>().ToList();
         upperLimit++;
         foreach (var query in queries)
-          Assert.AreEqual(upperLimit, query.Min(entity => entity.Id));
+          Assert.That(query.Min(entity => entity.Id), Is.EqualTo(upperLimit));
       }
     }
 
@@ -199,12 +199,13 @@ namespace Xtensive.Orm.Tests.Issues
           queries.Add(locations);
         }
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
         var result = session.Query.All<TestEntity>().ToList();
         upperLimit++;
         foreach (var query in queries)
-          Assert.AreEqual(upperLimit, query.Min(entity => entity.Id));
+          Assert.That(query.Min(entity => entity.Id), Is.EqualTo(upperLimit));
       }
     }
 
@@ -220,26 +221,26 @@ namespace Xtensive.Orm.Tests.Issues
         var oldValue = currentValue;
         while (currentValue<80) {
           currentValue = GetMinimalId(session, currentValue);
-          Assert.AreEqual(oldValue+1, currentValue);
+          Assert.That(currentValue, Is.EqualTo(oldValue + 1));
           oldValue = currentValue;
           iterationsCount++;
         }
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
 
         cachedQueriesCountBefore = Domain.QueryCache.Count;
         currentValue = oldValue = 1;
         iterationsCount = 0;
         while (currentValue < 80) {
           currentValue = GetMinimalId(currentValue);
-          Assert.AreEqual(oldValue + 1, currentValue);
+          Assert.That(currentValue, Is.EqualTo(oldValue + 1));
           oldValue = currentValue;
           iterationsCount++;
         }
         cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
       }
     }
     
@@ -254,16 +255,16 @@ namespace Xtensive.Orm.Tests.Issues
         for (int i = 0; i < 80; i++)
           GetMinimalIdWithZone(session, zone);
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
 
         //ExecuteFuture API
         cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < 80; i++)
           GetMinimalIdWithZone(zone);
         cachedQueriesCountAfter = Domain.QueryCache.Count;
-        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+        Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
       }
     }
 
@@ -287,12 +288,12 @@ namespace Xtensive.Orm.Tests.Issues
         var task = new IssueJira0546Task(session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdDelayedApi();
-        Assert.AreEqual(previousId+1, currentId);
+        Assert.That(currentId, Is.EqualTo(previousId + 1));
         iterationsCount++;
       }
       var cachedQueriesCountAfter = Domain.QueryCache.Count;
-      Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-      Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+      Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+      Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
 
       //ExecuteFuture API
       cachedQueriesCountBefore = Domain.QueryCache.Count;
@@ -302,12 +303,12 @@ namespace Xtensive.Orm.Tests.Issues
         var task = new IssueJira0546Task(session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdFutureApi();
-        Assert.AreEqual(previousId + 1, currentId);
+        Assert.That(currentId, Is.EqualTo(previousId + 1));
         iterationsCount++;
       }
       cachedQueriesCountAfter = Domain.QueryCache.Count;
-      Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-      Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+      Assert.That(cachedQueriesCountAfter, Is.GreaterThan(cachedQueriesCountBefore));
+      Assert.That(cachedQueriesCountAfter - cachedQueriesCountBefore, Is.EqualTo(1));
     }
 
     private int GetMinimalId(Session session, int startId)

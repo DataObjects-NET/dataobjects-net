@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void NullableGroupingKeyTest()
     {
       var grouping = Session.Query.All<Invoice>().GroupBy(i => i.ProcessingTime).FirstOrDefault(g=>g.Key==null);
-      Assert.IsNotNull(grouping);
-      Assert.IsTrue(grouping.Count()> 0);
+      Assert.That(grouping, Is.Not.Null);
+      Assert.That(grouping.Count()> 0, Is.True);
     }
 
     [Test]
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Linq
         .First()
         .Key;
       var columnIndex = Domain.Model.Types[typeof (MediaType)].Fields["Name"].MappingInfo.Offset;
-      Assert.IsTrue(track.State.Tuple.GetFieldState(columnIndex).IsAvailable());
+      Assert.That(track.State.Tuple.GetFieldState(columnIndex).IsAvailable(), Is.True);
     }
 
     [Test]
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Track>().GroupBy(t => t.UnitPrice);
       Assert.That(result, Is.Not.Empty);
       foreach (IGrouping<decimal, Track> grouping in result)
-        Assert.IsTrue(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)));
+        Assert.That(grouping.GetType().IsOfGenericInterface(typeof (IQueryable<>)), Is.True);
     }
 
     [Test]
@@ -112,11 +112,11 @@ namespace Xtensive.Orm.Tests.Linq
       var resultList = result.ToList();
       var expectedList = Tracks.GroupBy(t => t).OrderBy(g => g.Key.TrackId).ToList();
       Assert.That(resultList, Is.Not.Empty);
-      Assert.AreEqual(resultList.Count, expectedList.Count());
+      Assert.That(expectedList.Count(), Is.EqualTo(resultList.Count));
       for (var i = 0; i < resultList.Count; i++) {
-        Assert.AreEqual(expectedList[i].Key, resultList[i].Key);
-        Assert.AreEqual(expectedList[i].Count(), resultList[i].Count());
-        Assert.AreEqual(expectedList[i].Count(), resultList[i].AsQueryable().Count());
+        Assert.That(resultList[i].Key, Is.EqualTo(expectedList[i].Key));
+        Assert.That(resultList[i].Count(), Is.EqualTo(expectedList[i].Count()));
+        Assert.That(resultList[i].AsQueryable().Count(), Is.EqualTo(expectedList[i].Count()));
       }
       DumpGrouping(result);
     }
@@ -143,13 +143,13 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
 
       foreach (var grouping in groupByResult) {
         var items = Session.Query.All<Track>()
           .Where(t => t.MediaType==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
       DumpGrouping(groupByResult);
     }
@@ -171,9 +171,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Track>()
           .Where(t => t.MediaType.Key==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -194,9 +194,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Track>()
           .Where(t => t.MediaType.Name==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -217,9 +217,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Customer>()
           .Where(customer => customer.Address==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -250,9 +250,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Customer>()
           .Where(customer => new {customer.Address.City, customer.Address.Country}==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -273,9 +273,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Employee>()
           .Where(employee => new {employee.Address}==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -296,9 +296,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Customer>()
           .Where(customer => new {customer.Address}==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -329,9 +329,9 @@ namespace Xtensive.Orm.Tests.Linq
             t.MediaType.Name,
           }==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -354,9 +354,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Track>()
           .Where(t => new {t.MediaType}==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -377,9 +377,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Customer>()
           .Where(customer => customer.Address.City==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -403,9 +403,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Invoice>()
           .Where(i => i.BillingAddress.City==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -429,9 +429,9 @@ namespace Xtensive.Orm.Tests.Linq
         var items = Session.Query.All<Invoice>()
           .Where(i => i.BillingAddress.City==grouping.Key)
           .ToList();
-        Assert.AreEqual(0, items.Except(grouping).Count());
+        Assert.That(items.Except(grouping).Count(), Is.EqualTo(0));
       }
-      Assert.AreEqual(0, expectedKeys.Except(result).Count());
+      Assert.That(expectedKeys.Except(result).Count(), Is.EqualTo(0));
       DumpGrouping(groupByResult);
     }
 
@@ -444,19 +444,19 @@ namespace Xtensive.Orm.Tests.Linq
 
       var groupByAlternativeResult = queryable.Where(city => city.Sum(i => i.Commission) <= 2);
 
-      Assert.AreEqual(queryable.Count(), groupByResult.Count() + groupByAlternativeResult.Count());
+      Assert.That(groupByResult.Count() + groupByAlternativeResult.Count(), Is.EqualTo(queryable.Count()));
 
       Assert.That(groupByResult, Is.Not.Empty);
       Assert.That(groupByAlternativeResult, Is.Not.Empty);
 
       foreach (IGrouping<string, Invoice> grouping in groupByResult) {
         var sum = grouping.ToList().Sum(i => i.Commission);
-        Assert.IsTrue(sum > 2);
+        Assert.That(sum > 2, Is.True);
       }
 
       foreach (IGrouping<string, Invoice> grouping in groupByAlternativeResult) {
         var sum = grouping.ToList().Sum(i => i.Commission);
-        Assert.IsTrue(sum <= 2);
+        Assert.That(sum <= 2, Is.True);
       }
 
       DumpGrouping(groupByResult);
@@ -470,18 +470,18 @@ namespace Xtensive.Orm.Tests.Linq
       var alternativeResult = queryable.Where(g => !g.Key.StartsWith("L") || g.Count() <= 2);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(queryable.Count(), result.Count() + alternativeResult.Count());
+      Assert.That(result.Count() + alternativeResult.Count(), Is.EqualTo(queryable.Count()));
 
       foreach (IGrouping<string, Invoice> grouping in result) {
         var startsWithL = grouping.Key.StartsWith("L");
         var countGreater2 = grouping.ToList().Count() > 2;
-        Assert.IsTrue(startsWithL && countGreater2);
+        Assert.That(startsWithL && countGreater2, Is.True);
       }
 
       foreach (IGrouping<string, Invoice> grouping in alternativeResult) {
         var startsWithL = grouping.Key.StartsWith("L");
         var countGreater2 = grouping.ToList().Count() > 2;
-        Assert.IsTrue(!(startsWithL && countGreater2));
+        Assert.That(!(startsWithL && countGreater2), Is.True);
       }
 
       DumpGrouping(result);
@@ -504,7 +504,7 @@ namespace Xtensive.Orm.Tests.Linq
       var groupBy = Session.Query.All<Track>().GroupBy(t => t.Name);
       var result = groupBy.Select(g => g);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(groupBy.ToList().Count(), result.ToList().Count());
+      Assert.That(result.ToList().Count(), Is.EqualTo(groupBy.ToList().Count()));
       DumpGrouping(result);
     }
 
@@ -514,7 +514,7 @@ namespace Xtensive.Orm.Tests.Linq
       var groupBy = Session.Query.All<Track>().GroupBy(t => t.Name);
       var result = groupBy.Select(g => new {g});
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(groupBy.ToList().Count(), result.ToList().Count());
+      Assert.That(result.ToList().Count(), Is.EqualTo(groupBy.ToList().Count()));
       QueryDumper.Dump(result);
     }
 
@@ -524,7 +524,7 @@ namespace Xtensive.Orm.Tests.Linq
       var groupBy = Session.Query.All<Track>().GroupBy(t => t.Name);
       IQueryable<string> result = groupBy.Select(g => g.Key);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(groupBy.ToList().Count(), result.ToList().Count());
+      Assert.That(result.ToList().Count(), Is.EqualTo(groupBy.ToList().Count()));
       QueryDumper.Dump(result);
     }
 
@@ -713,13 +713,13 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Session.Query.All<Customer>().AsEnumerable().GroupBy(c => c.FirstName.StartsWith("A"));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.Select(g => g.Key).OrderBy(k => k)
-        .SequenceEqual(result.AsEnumerable().Select(g => g.Key).OrderBy(k => k)));
+      Assert.That(expected.Select(g => g.Key).OrderBy(k => k)
+        .SequenceEqual(result.AsEnumerable().Select(g => g.Key).OrderBy(k => k)), Is.True);
       foreach (var group in expected)
-        Assert.IsTrue(expected.Where(g => g.Key==group.Key)
+        Assert.That(expected.Where(g => g.Key==group.Key)
           .SelectMany(g => g).OrderBy(i => i.CustomerId)
           .SequenceEqual(result.AsEnumerable()
-            .Where(g => g.Key==group.Key).SelectMany(g => g).OrderBy(i => i.CustomerId)));
+            .Where(g => g.Key==group.Key).SelectMany(g => g).OrderBy(i => i.CustomerId)), Is.True);
     }
 
     [Test]
@@ -1033,8 +1033,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => new {Value = c.Key, Count = c.Count()})
         .ToArray();
 
-      Assert.AreEqual(falseResult, result.Single(i => !i.Value).Count);
-      Assert.AreEqual(trueResult, result.Single(i => i.Value).Count);
+      Assert.That(result.Single(i => !i.Value).Count, Is.EqualTo(falseResult));
+      Assert.That(result.Single(i => i.Value).Count, Is.EqualTo(trueResult));
     }
 
     [Test]
@@ -1049,8 +1049,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => new {Value = c.Key, Count = c.Count()})
         .ToArray();
 
-      Assert.AreEqual(falseResult, result.Single(i => !i.Value).Count);
-      Assert.AreEqual(trueResult, result.Single(i => i.Value).Count);
+      Assert.That(result.Single(i => !i.Value).Count, Is.EqualTo(falseResult));
+      Assert.That(result.Single(i => i.Value).Count, Is.EqualTo(trueResult));
     }
     
     [Test]
@@ -1077,19 +1077,19 @@ namespace Xtensive.Orm.Tests.Linq
       // Just enumerate
       foreach (IGrouping<TKey, TValue> grouping in result) {
         foreach (var group in grouping) {
-          Assert.IsNotNull(group);
+          Assert.That(group, Is.Not.Null);
         }
       }
 
       // Check
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
-      Assert.AreEqual(list.Count, result.Count());
+      Assert.That(list.Count, Is.GreaterThan(0));
+      Assert.That(result.Count(), Is.EqualTo(list.Count));
       foreach (var grouping in result) {
-        Assert.IsNotNull(grouping.Key);
+        Assert.That(grouping.Key, Is.Not.Null);
         var count = grouping.ToList().Count();
-        Assert.AreEqual(count, grouping.Count());
-        Assert.AreEqual(count, grouping.AsQueryable().Count());
+        Assert.That(grouping.Count(), Is.EqualTo(count));
+        Assert.That(grouping.AsQueryable().Count(), Is.EqualTo(count));
       }
       if (logOutput)
         QueryDumper.Dump(result);

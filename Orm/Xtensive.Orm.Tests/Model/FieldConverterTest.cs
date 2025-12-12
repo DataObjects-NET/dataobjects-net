@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Model
 
           var person = new Person();
           key = person.Key;
-          Assert.IsNull(person.Date);
+          Assert.That(person.Date, Is.Null);
           person.Date = dateTime;
 
           t.Complete();
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Model
         using (var t = session.OpenTransaction()) {
 
           var person = session.Query.Single<Person>(key);
-          Assert.AreEqual(dateTime, person.Date);
+          Assert.That(person.Date, Is.EqualTo(dateTime));
 
           t.Complete();
         }
@@ -145,10 +145,10 @@ namespace Xtensive.Orm.Tests.Model
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var person = session.Query.Single<Person>(key);
-          Assert.IsNotNull(person.Collection);
-          Assert.AreEqual(2, person.Collection.Count);
-          Assert.AreEqual(4, person.Collection[0]);
-          Assert.AreEqual(5, person.Collection[1]);
+          Assert.That(person.Collection, Is.Not.Null);
+          Assert.That(person.Collection.Count, Is.EqualTo(2));
+          Assert.That(person.Collection[0], Is.EqualTo(4));
+          Assert.That(person.Collection[1], Is.EqualTo(5));
 
           person.Collection.Add(6);
           t.Complete();
@@ -159,11 +159,11 @@ namespace Xtensive.Orm.Tests.Model
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var person = session.Query.Single<Person>(key);
-          Assert.IsNotNull(person.Collection);
-          Assert.AreEqual(3, person.Collection.Count);
-          Assert.AreEqual(4, person.Collection[0]);
-          Assert.AreEqual(5, person.Collection[1]);
-          Assert.AreEqual(6, person.Collection[2]);
+          Assert.That(person.Collection, Is.Not.Null);
+          Assert.That(person.Collection.Count, Is.EqualTo(3));
+          Assert.That(person.Collection[0], Is.EqualTo(4));
+          Assert.That(person.Collection[1], Is.EqualTo(5));
+          Assert.That(person.Collection[2], Is.EqualTo(6));
           t.Complete();
         }
       }

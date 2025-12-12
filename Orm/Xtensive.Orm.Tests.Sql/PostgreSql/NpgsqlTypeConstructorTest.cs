@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var command = Connection.CreateCommand(select)) {
         Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
+          Assert.That(reader.Read(), Is.True);
         }
       }
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       using (var command = Connection.CreateCommand(select)) {
         Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
+          Assert.That(reader.Read(), Is.True);
         }
       }
     }

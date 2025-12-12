@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     {
       using (var transaction = session.OpenTransaction()) {
         for (int i = 0; i < DisceplinesPerCourse; i++)
-          new Discepline(session) {Name = string.Format("Discepline {0}", i + 1)};
+          new Discepline(session) {Name = $"Discepline {i + 1}"};
 
         transaction.Complete();
       }
@@ -125,8 +125,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var index = 1;
         foreach (var allDiscepline in allDisceplines) {
           new Teacher(session) {
-            Name = string.Format("Name Of Teacher {0}", index),
-            Surname = string.Format("Surname Of Teacher {0}", index),
+            Name = $"Name Of Teacher {index}",
+            Surname = $"Surname Of Teacher {index}",
             DateOfBirth = DateTime.Now.AddYears(-(index + 20)),
             Gender = (index % 2 == 1) ? Gender.Male : Gender.Female
           };
@@ -146,8 +146,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         foreach (var group in allGroups) {
           for (int i = 0; i < StudentsPerGroup; i++) {
             group.Students.Add(new Student(session) {
-              Name = string.Format("Name Of Student {0}", index),
-              Surname = string.Format("Surname Of Student {0}", index),
+              Name = $"Name Of Student {index}",
+              Surname = $"Surname Of Student {index}",
               DateOfBirth = DateTime.Now.AddYears(-random.Next(20, 25)),
               Gender = (index % 2 == 1) ? Gender.Male : Gender.Female
             });

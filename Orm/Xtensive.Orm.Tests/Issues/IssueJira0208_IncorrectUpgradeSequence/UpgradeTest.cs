@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       using (var tx = session.OpenTransaction()) {
         var toKeep1 = session.Query.All<M2.EntityToKeep1>().Single();
         var toKeep2 = session.Query.All<M2.EntityToKeep2>().Single();
-        Assert.AreEqual(2, session.Query.All<M2.VeryUniqueEntity>().Count());
+        Assert.That(session.Query.All<M2.VeryUniqueEntity>().Count(), Is.EqualTo(2));
       }
     }
 

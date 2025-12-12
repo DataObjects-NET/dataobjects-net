@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new { e.Id, Test = e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name })
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(it => true || it.e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3 == item)
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new { e.Id, Test = e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name })
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(it => true || it.e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3 == item)
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(it => true || it.e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3 == item)
           .Count();
 
-        Assert.AreEqual(2, resultCount);
+        Assert.That(resultCount, Is.EqualTo(2));
       }
     }
 
@@ -265,7 +265,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, select);
+        Assert.That(select, Is.EqualTo(2));
       }
     }
 
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, result);
+        Assert.That(result, Is.EqualTo(2));
       }
     }
 
@@ -304,7 +304,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, selectWithOrderByNameAddCast);
+        Assert.That(selectWithOrderByNameAddCast, Is.EqualTo(2));
       }
     }
 
@@ -323,7 +323,7 @@ namespace Xtensive.Orm.Tests.Issues
           })
           .Count();
 
-        Assert.AreEqual(2, selectWithOrderByName);
+        Assert.That(selectWithOrderByName, Is.EqualTo(2));
       }
     }
   }

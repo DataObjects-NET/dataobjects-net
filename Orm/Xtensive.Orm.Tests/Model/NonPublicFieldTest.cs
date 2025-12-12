@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Model
         using (var t = session.OpenTransaction()) {
 
           var myEntity = session.Query.Single<MyEntity>(key);
-          Assert.IsTrue(myEntity.ValidateState());
+          Assert.That(myEntity.ValidateState(), Is.True);
 
           t.Complete();
         }

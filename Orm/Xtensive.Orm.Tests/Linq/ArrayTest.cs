@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().Select(x => new[] {1, 2});
       foreach (var array in result) {
-        Assert.AreEqual(2, array.Length);
-        Assert.AreEqual(1, array[0]);
-        Assert.AreEqual(2, array[1]);
+        Assert.That(array.Length, Is.EqualTo(2));
+        Assert.That(array[0], Is.EqualTo(1));
+        Assert.That(array[1], Is.EqualTo(2));
       }
       QueryDumper.Dump(result);
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Customer>().Select(x => new byte[] {1, 2});
       var expected = Customers.Select(x => new byte[] {1, 2});
       var comparer = AdvancedComparer<byte[]>.Default.EqualityComparerImplementation;
-      Assert.AreEqual(0, expected.Except(result, comparer).Count());
+      Assert.That(expected.Except(result, comparer).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Linq
           customer.LastName
         });
       var comparer = AdvancedComparer<string[]>.Default.EqualityComparerImplementation;
-      Assert.AreEqual(0, expected.Except(result, comparer).Count());
+      Assert.That(expected.Except(result, comparer).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -78,10 +78,10 @@ namespace Xtensive.Orm.Tests.Linq
         });
       var list = result.ToList();
       var expectedList = expected.ToList();
-      Assert.AreEqual(expectedList.Count, list.Count);
+      Assert.That(list.Count, Is.EqualTo(expectedList.Count));
       var comparer = AdvancedComparer<byte[]>.Default;
       for (int i = 0; i < expectedList.Count; i++)
-        Assert.IsTrue(comparer.Equals(expectedList[i].Value, list[i].Value));
+        Assert.That(comparer.Equals(expectedList[i].Value, list[i].Value), Is.True);
       QueryDumper.Dump(result);
     }
 
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Linq
         select r;
       var list = result.ToList();
       foreach (var i in list)
-        Assert.AreEqual(method, i.Method);
+        Assert.That(i.Method, Is.EqualTo(method));
       var expected =
         from r in
           from p in Tracks
@@ -116,13 +116,13 @@ namespace Xtensive.Orm.Tests.Linq
         where r.Method==method
         select r;
       var expectedList = expected.ToList();
-      Assert.AreEqual(expectedList.Count, list.Count);
+      Assert.That(list.Count, Is.EqualTo(expectedList.Count));
       var comparer = AdvancedComparer<byte[]>.Default;
       for (int i = 0; i < expectedList.Count; i++) {
         var expectedValue = expectedList[i];
         var value = list[i];
-        Assert.AreEqual(expectedValue.Method, value.Method);
-        Assert.IsTrue(comparer.Equals(expectedValue.Value, value.Value));
+        Assert.That(value.Method, Is.EqualTo(expectedValue.Method));
+        Assert.That(comparer.Equals(expectedValue.Value, value.Value), Is.True);
       }
       QueryDumper.Dump(result);
     }
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Linq
           customer.LastName
         })
         .Select(a => a[0]);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
         .Sum(b => b);
-      Assert.AreEqual(expected, result);
+      Assert.That(result, Is.EqualTo(expected));
       QueryDumper.Dump(result);
     }
 
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(e => bytes[e.EmployeeId]);
       var expected = Employees
         .Select(e => bytes[e.EmployeeId]);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
   }

@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Issues
             var job = new Job() {
               Location = new Location() {
                 Address = new Address() {
-                  Street = string.Format("{0} street", i + 1.ToString())
+                  Street = $"{i + 1.ToString()} street"
                 }
               }
             };
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Issues
               CarObject = ewc.Car
             });
 
-        Assert.AreEqual(3, badResult.Count());
+        Assert.That(badResult.Count(), Is.EqualTo(3));
       }
     }
 
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Issues
               e.Id,
               Car = ewc.Car.Id
             });
-        Assert.AreEqual(3, goodResult.Count());
+        Assert.That(goodResult.Count(), Is.EqualTo(3));
       }
     }
 
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Tests.Issues
             });
 
 
-        Assert.AreEqual(3, wordaround.Count());
+        Assert.That(wordaround.Count(), Is.EqualTo(3));
       }
     }
 

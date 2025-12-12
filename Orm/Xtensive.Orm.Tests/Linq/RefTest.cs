@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq
         select i;
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0 , expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
         select i;
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0 , expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expectedQuery = Session.Query.All<Invoice>().AsEnumerable()
         .Join(refs, invoice => invoice.Key, @ref => @ref.Key, (invoice, key) => new {invoice, key});
 
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      Assert.That(expectedQuery.Except(query).Count(), Is.EqualTo(0));
     }
   }
 }

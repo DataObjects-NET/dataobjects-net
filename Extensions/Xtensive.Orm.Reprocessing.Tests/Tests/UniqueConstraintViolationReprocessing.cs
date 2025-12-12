@@ -11,7 +11,7 @@ using Xtensive.Orm.Reprocessing.Tests.ReprocessingContext;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  [TestFixture, Timeout(DefaultTestTimeout * 12)]
+  [TestFixture, CancelAfter(DefaultTestTimeout * 12)]
   public sealed class UniqueConstraintViolationReprocessing : ReprocessingBaseTest
   {
     private bool treatNullAsUniqueValue;
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       treatNullAsUniqueValue = Domain.StorageProviderInfo.ProviderName == WellKnown.Provider.SqlServer;
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void SimpleUniqueTest()
     {
       using (var context = new Context(Domain)) {
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void UniqueConstraintViolationExceptionUnique()
     {
       var i = 0;
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Assert.That(errorNotified, Is.True);
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void UniqueConstraintViolationExceptionPrimary()
     {
       var i = 0;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSerializablePrimaryKeyConstraintTest()
     {
       using (var context = new Context(Domain)) {
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSnapshotPrimaryKeyConstraintTest()
     {
       using (var context = new Context(Domain)) {
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSerializableUniqueIndexTest()
     {
       using (var context = new Context(Domain)) {
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSnapshotUniqueIndexTest()
     {
       using (var context = new Context(Domain)) {
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSerializableExternalWithoutTxUniqueIndexTest()
     {
       //ExternalWithoutTransaction nested serializable UniqueConstraint
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSnapshotExternalWithoutTxUniqueIndexTest()
     {
       //ExternalWithoutTransaction nested snapshot UniqueConstraint
@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSerializableExternalWithTxUniqueIndexTest()
     {
       //ExternalWithTransaction nested serializable UniqueConstraint
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSnapshotExternalWithTxUniqueIndexTest()
     {
       //ExternalWithTransaction nested snapshot UniqueConstraint
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedUniqueIndexWithAutoTransaction()
     {
       //nested UniqueConstraint with auto transaction

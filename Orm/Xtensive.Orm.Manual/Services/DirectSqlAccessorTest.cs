@@ -45,9 +45,9 @@ namespace Xtensive.Orm.Manual.Services
         using (var t = session.OpenTransaction()) {
           var article = new Article(session) {Title = "Some title", Content = "Some content"};
           session.SaveChanges(); // Ensures changes are flushed
-          
+
           // Article is created:
-          Assert.IsFalse(article.IsRemoved);
+          Assert.That(article.IsRemoved, Is.False);
           
           // Direct SQL command execution
           var command = session.Services.Demand<DirectSqlAccessor>().CreateCommand();
@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Manual.Services
           DirectStateAccessor.Get(session).Invalidate();
 
           // Entity is really removed:
-          Assert.IsTrue(article.IsRemoved);
-          Assert.IsNull(session.Query.SingleOrDefault(article.Key));
+          Assert.That(article.IsRemoved, Is.True);
+          Assert.That(session.Query.SingleOrDefault(article.Key), Is.Null);
 
           t.Complete();
         }

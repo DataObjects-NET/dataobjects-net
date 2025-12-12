@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Length = x.FString.Length
       }).ToList();
       foreach (var item in results) {
-        Assert.AreEqual(ConvertString(item.String).Length, item.Length);
+        Assert.That(item.Length, Is.EqualTo(ConvertString(item.String).Length));
       }
     }
 
@@ -125,8 +125,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         })
         .ToList();
       foreach (var item in results) {
-        Assert.AreEqual(ConvertString(item.String)[1], item.Char1);
-        Assert.AreEqual(ConvertString(item.String)[2], item.Char2);
+        Assert.That(item.Char1, Is.EqualTo(ConvertString(item.String)[1]));
+        Assert.That(item.Char2, Is.EqualTo(ConvertString(item.String)[2]));
       }
     }
 
@@ -161,15 +161,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           StringTrimTrailingSpace = x.FString.TrimEnd(' '),
         }).ToList();
       foreach (var x in results) {
-        Assert.AreEqual(ConvertString(x.String).Trim(), ConvertString(x.StringTrim));
-        Assert.AreEqual(ConvertString(x.String).TrimStart(), ConvertString(x.StringTrimLeading));
-        Assert.AreEqual(ConvertString(x.String).TrimEnd(), ConvertString(x.StringTrimTrailing));
-        Assert.AreEqual(ConvertString(x.String).Trim(null), ConvertString(x.StringTrimNull));
-        Assert.AreEqual(ConvertString(x.String).TrimStart(null), ConvertString(x.StringTrimLeadingNull));
-        Assert.AreEqual(ConvertString(x.String).TrimEnd(null), ConvertString(x.StringTrimTrailingNull));
-        Assert.AreEqual(ConvertString(x.String).Trim(' '), ConvertString(x.StringTrimSpace));
-        Assert.AreEqual(ConvertString(x.String).TrimStart(' '), ConvertString(x.StringTrimLeadingSpace));
-        Assert.AreEqual(ConvertString(x.String).TrimEnd(' '), ConvertString(x.StringTrimTrailingSpace));
+        Assert.That(ConvertString(x.StringTrim), Is.EqualTo(ConvertString(x.String).Trim()));
+        Assert.That(ConvertString(x.StringTrimLeading), Is.EqualTo(ConvertString(x.String).TrimStart()));
+        Assert.That(ConvertString(x.StringTrimTrailing), Is.EqualTo(ConvertString(x.String).TrimEnd()));
+        Assert.That(ConvertString(x.StringTrimNull), Is.EqualTo(ConvertString(x.String).Trim(null)));
+        Assert.That(ConvertString(x.StringTrimLeadingNull), Is.EqualTo(ConvertString(x.String).TrimStart(null)));
+        Assert.That(ConvertString(x.StringTrimTrailingNull), Is.EqualTo(ConvertString(x.String).TrimEnd(null)));
+        Assert.That(ConvertString(x.StringTrimSpace), Is.EqualTo(ConvertString(x.String).Trim(' ')));
+        Assert.That(ConvertString(x.StringTrimLeadingSpace), Is.EqualTo(ConvertString(x.String).TrimStart(' ')));
+        Assert.That(ConvertString(x.StringTrimTrailingSpace), Is.EqualTo(ConvertString(x.String).TrimEnd(' ')));
       }
     }
 
@@ -237,9 +237,9 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           StringTrimTrailingClosingBracket = x.FString.TrimEnd(')'),
         }).ToList();
       foreach (var x in results) {
-        Assert.AreEqual(ConvertString(x.String).TrimStart('P'), ConvertString(x.StringTrimLeadingLargePLetter));
-        Assert.AreEqual(ConvertString(x.String).Trim('o'), ConvertString(x.StringTrimSmallOLetter));
-        Assert.AreEqual(ConvertString(x.String).TrimEnd(')'), ConvertString(x.StringTrimTrailingClosingBracket));
+        Assert.That(ConvertString(x.StringTrimLeadingLargePLetter), Is.EqualTo(ConvertString(x.String).TrimStart('P')));
+        Assert.That(ConvertString(x.StringTrimSmallOLetter), Is.EqualTo(ConvertString(x.String).Trim('o')));
+        Assert.That(ConvertString(x.StringTrimTrailingClosingBracket), Is.EqualTo(ConvertString(x.String).TrimEnd(')')));
       }
     }
 
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           StringTrimLeadingZeroAndOne = x.FString.TrimStart('0', '1'),
         }).ToList();
       foreach (var x in results) {
-        Assert.AreEqual(ConvertString(x.String).TrimStart('0', '1'), ConvertString(x.StringTrimLeadingZeroAndOne));
+        Assert.That(ConvertString(x.StringTrimLeadingZeroAndOne), Is.EqualTo(ConvertString(x.String).TrimStart('0', '1')));
       }
     }
 
@@ -324,14 +324,14 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         StartsWithCloseBracket = x.FString.StartsWith("]"),
       }).ToList();
       foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).StartsWith("A"), x.StartsWithA);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("%"), x.StartsWithPercent);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("_"), x.StartsWithGround);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("%_"), x.StartsWithPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("_%"), x.StartsWithGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("^"), x.StartsWithEscape);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("["), x.StartsWithOpenBracket);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("]"), x.StartsWithCloseBracket);
+        Assert.That(x.StartsWithA, Is.EqualTo(ConvertString(x.String).StartsWith("A")));
+        Assert.That(x.StartsWithPercent, Is.EqualTo(ConvertString(x.String).StartsWith("%")));
+        Assert.That(x.StartsWithGround, Is.EqualTo(ConvertString(x.String).StartsWith("_")));
+        Assert.That(x.StartsWithPrecentGround, Is.EqualTo(ConvertString(x.String).StartsWith("%_")));
+        Assert.That(x.StartsWithGroundPercent, Is.EqualTo(ConvertString(x.String).StartsWith("_%")));
+        Assert.That(x.StartsWithEscape, Is.EqualTo(ConvertString(x.String).StartsWith("^")));
+        Assert.That(x.StartsWithOpenBracket, Is.EqualTo(ConvertString(x.String).StartsWith("[")));
+        Assert.That(x.StartsWithCloseBracket, Is.EqualTo(ConvertString(x.String).StartsWith("]")));
       }
     }
 
@@ -396,14 +396,14 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         EndsWithCloseBracket = x.FString.EndsWith("]"),
       }).ToList();
       foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).EndsWith("A"), x.EndsWithA);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("%"), x.EndsWithPercent);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("_"), x.EndsWithGround);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("%_"), x.EndsWithPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("_%"), x.EndsWithGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("^"), x.EndsWithEscape);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("["), x.EndsWithOpenBracket);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("]"), x.EndsWithCloseBracket);
+        Assert.That(x.EndsWithA, Is.EqualTo(ConvertString(x.String).EndsWith("A")));
+        Assert.That(x.EndsWithPercent, Is.EqualTo(ConvertString(x.String).EndsWith("%")));
+        Assert.That(x.EndsWithGround, Is.EqualTo(ConvertString(x.String).EndsWith("_")));
+        Assert.That(x.EndsWithPrecentGround, Is.EqualTo(ConvertString(x.String).EndsWith("%_")));
+        Assert.That(x.EndsWithGroundPercent, Is.EqualTo(ConvertString(x.String).EndsWith("_%")));
+        Assert.That(x.EndsWithEscape, Is.EqualTo(ConvertString(x.String).EndsWith("^")));
+        Assert.That(x.EndsWithOpenBracket, Is.EqualTo(ConvertString(x.String).EndsWith("[")));
+        Assert.That(x.EndsWithCloseBracket, Is.EqualTo(ConvertString(x.String).EndsWith("]")));
       }
     }
 
@@ -468,14 +468,14 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         ContainsCloseBracket = x.FString.Contains("]"),
       }).ToList();
       foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).Contains("A"), x.ContainsA);
-        Assert.AreEqual(ConvertString(x.String).Contains("%"), x.ContainsPercent);
-        Assert.AreEqual(ConvertString(x.String).Contains("_"), x.ContainsGround);
-        Assert.AreEqual(ConvertString(x.String).Contains("%_"), x.ContainsPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).Contains("_%"), x.ContainsGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).Contains("^"), x.ContainsEscape);
-        Assert.AreEqual(ConvertString(x.String).Contains("["), x.ContainsOpenBracket);
-        Assert.AreEqual(ConvertString(x.String).Contains("]"), x.ContainsCloseBracket);
+        Assert.That(x.ContainsA, Is.EqualTo(ConvertString(x.String).Contains("A")));
+        Assert.That(x.ContainsPercent, Is.EqualTo(ConvertString(x.String).Contains("%")));
+        Assert.That(x.ContainsGround, Is.EqualTo(ConvertString(x.String).Contains("_")));
+        Assert.That(x.ContainsPrecentGround, Is.EqualTo(ConvertString(x.String).Contains("%_")));
+        Assert.That(x.ContainsGroundPercent, Is.EqualTo(ConvertString(x.String).Contains("_%")));
+        Assert.That(x.ContainsEscape, Is.EqualTo(ConvertString(x.String).Contains("^")));
+        Assert.That(x.ContainsOpenBracket, Is.EqualTo(ConvertString(x.String).Contains("[")));
+        Assert.That(x.ContainsCloseBracket, Is.EqualTo(ConvertString(x.String).Contains("]")));
       }
     }
 
@@ -540,10 +540,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         PadRightX = x.FString.PadRight(10, 'X')
       }).ToList();
       foreach (var item in result) {
-        Assert.AreEqual(ConvertString(item.String).PadLeft(10), ConvertString(item.PadLeft));
-        Assert.AreEqual(ConvertString(item.String).PadRight(10), ConvertString(item.PadRight));
-        Assert.AreEqual(ConvertString(item.String).PadLeft(10, 'X'), ConvertString(item.PadLeftX));
-        Assert.AreEqual(ConvertString(item.String).PadRight(10, 'X'), ConvertString(item.PadRightX));
+        Assert.That(ConvertString(item.PadLeft), Is.EqualTo(ConvertString(item.String).PadLeft(10)));
+        Assert.That(ConvertString(item.PadRight), Is.EqualTo(ConvertString(item.String).PadRight(10)));
+        Assert.That(ConvertString(item.PadLeftX), Is.EqualTo(ConvertString(item.String).PadLeft(10, 'X')));
+        Assert.That(ConvertString(item.PadRightX), Is.EqualTo(ConvertString(item.String).PadRight(10, 'X')));
       }
     }
 
@@ -651,12 +651,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           })
           .ToList();
       foreach (var x in results) {
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char), x.IndexOfChar);
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char, 1), x.IndexOfCharStart);
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char, 1, 1), x.IndexOfCharStartCount);
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char.ToString()), x.IndexOfString);
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char.ToString(), 1), x.IndexOfStringStart);
-        Assert.AreEqual(ConvertString(x.String).IndexOf(_char.ToString(), 1, 1), x.IndexOfStringStartCount);
+        Assert.That(x.IndexOfChar, Is.EqualTo(ConvertString(x.String).IndexOf(_char)));
+        Assert.That(x.IndexOfCharStart, Is.EqualTo(ConvertString(x.String).IndexOf(_char, 1)));
+        Assert.That(x.IndexOfCharStartCount, Is.EqualTo(ConvertString(x.String).IndexOf(_char, 1, 1)));
+        Assert.That(x.IndexOfString, Is.EqualTo(ConvertString(x.String).IndexOf(_char.ToString())));
+        Assert.That(x.IndexOfStringStart, Is.EqualTo(ConvertString(x.String).IndexOf(_char.ToString(), 1)));
+        Assert.That(x.IndexOfStringStartCount, Is.EqualTo(ConvertString(x.String).IndexOf(_char.ToString(), 1, 1)));
       }
     }
 

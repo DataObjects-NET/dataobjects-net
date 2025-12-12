@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(typeof (string));
       TupleFieldState fieldState = tuple.GetFieldState(0);
-      Assert.IsTrue(Enum.IsDefined(typeof (TupleFieldState), fieldState));
+      Assert.That(Enum.IsDefined(typeof (TupleFieldState), fieldState), Is.True);
     }
 
     [Test]
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       var tuple = Xtensive.Tuples.Tuple.Create(flag);
       var clone = tuple.Clone();
       Console.Out.WriteLine((int)flag);
-      Assert.AreEqual(tuple,clone);
+      Assert.That(clone, Is.EqualTo(tuple));
       var value = tuple.GetValue<BindingFlags>(0);
       var hashCode = tuple.GetHashCode();
     }

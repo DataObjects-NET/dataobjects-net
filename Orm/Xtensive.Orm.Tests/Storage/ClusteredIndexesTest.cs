@@ -334,16 +334,16 @@ namespace Xtensive.Orm.Tests.Storage
       var primaryKey = table.TableConstraints.OfType<PrimaryKey>().Single();
       var index = table.Indexes.FirstOrDefault(i => i.IsClustered);
       if (primaryKeyIsClustered)
-        Assert.IsTrue(primaryKey.IsClustered);
+        Assert.That(primaryKey.IsClustered, Is.True);
       else
-        Assert.IsFalse(primaryKey.IsClustered);
+        Assert.That(primaryKey.IsClustered, Is.False);
       if (clusteredSecondaryIndexColumn != null) {
-        Assert.IsNotNull(index);
-        Assert.AreEqual(1, index.Columns.Count);
-        Assert.AreEqual(clusteredSecondaryIndexColumn, index.Columns[0].Name);
+        Assert.That(index, Is.Not.Null);
+        Assert.That(index.Columns.Count, Is.EqualTo(1));
+        Assert.That(index.Columns[0].Name, Is.EqualTo(clusteredSecondaryIndexColumn));
       }
       else
-        Assert.IsNull(index);
+        Assert.That(index, Is.Null);
     }
 
     private void BuildDomain(DomainUpgradeMode upgradeMode)

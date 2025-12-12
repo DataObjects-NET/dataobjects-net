@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     {
       var storage = CreateSimpleStorageModel();
       TestUpdate(storage, (s1, s2, hs) => { },
-        (diff, actions) => Assert.IsNull(diff));
+        (diff, actions) => Assert.That(diff, Is.Null));
     }
 
     [Test]
@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     {
       var storage = CreateSimpleStorageModel();
       TestUpdate(storage, (s1, s2, hs) => {
-        new ColumnInfo(s1.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
+        _ = new ColumnInfo(s1.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
         RepopulateValueColumns(s1, "Types");
-        new ColumnInfo(s2.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
+        _ = new ColumnInfo(s2.Tables["Types"], "Temp_Data", new TypeInfo(typeof (int)));
         RepopulateValueColumns(s2, "Types");
         var oldTTypes = s1.Tables["Types"];
         var oldCValue = oldTTypes.Columns["Value"];
@@ -99,11 +99,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var o = (TableInfo) s2.Resolve("Tables/Objects");
         o.Remove();
       },
-        (diff, actions) => Assert.IsTrue(
+        (diff, actions) => Assert.That(
           actions
             .Flatten()
             .OfType<RemoveNodeAction>()
-            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId"), Is.True));
     }
 
     [Test]
@@ -117,11 +117,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         t1.Remove();
         t2.Remove();
       },
-        (diff, actions) => Assert.IsTrue(
+        (diff, actions) => Assert.That(
           actions
             .Flatten()
             .OfType<RemoveNodeAction>()
-            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId"), Is.True));
     }
 
     [Test]
@@ -134,11 +134,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         t1.Columns["Value"].Name = "NewValue";
         RepopulateValueColumns(s2, "Types");
       },
-        (diff, actions) => Assert.IsTrue(
+        (diff, actions) => Assert.That(
           actions
             .Flatten()
             .OfType<RemoveNodeAction>()
-            .Any(a => a.Path == "Tables/Types/Columns/Value")));
+            .Any(a => a.Path == "Tables/Types/Columns/Value"), Is.True));
     }
 
     [Test]
@@ -163,12 +163,12 @@ namespace Xtensive.Orm.Tests.Core.Modelling
 
       TestUpdate(storage, (s1, s2, hs) => {
         var o = s1.Resolve("Tables/Objects") as TableInfo;
-        new ColumnInfo(o, "IgnoredColumn", new TypeInfo(typeof (int)));
+        _ = new ColumnInfo(o, "IgnoredColumn", new TypeInfo(typeof (int)));
         RepopulateValueColumns(s1, "Objects");
         hs.Add(new IgnoreHint("Tables/Objects/Columns/IgnoredColumn"));
       },
-      (diff, actions) => 
-        Assert.IsNull(diff));
+      (diff, actions) =>
+        Assert.That(diff, Is.Null));
     }
 
     [Test]
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       },
       (diff, actions) => {
         var flatten = actions.Flatten().ToList();
-        Assert.AreEqual(11, flatten.Count);
+        Assert.That(flatten.Count, Is.EqualTo(11));
       });
     }
 
@@ -221,8 +221,8 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       },
       (diff, actions) => {
         var flatten = actions.Flatten().ToList();
-        Assert.AreEqual(1, flatten.Count);
-        Assert.IsTrue(flatten.All(a => a is MoveNodeAction));
+        Assert.That(flatten.Count, Is.EqualTo(1));
+        Assert.That(flatten.All(a => a is MoveNodeAction), Is.True);
       });
     }
     
@@ -230,12 +230,12 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     public void RenameTest4()
     {
       var storage = new StorageInfo(".");
-      new TableInfo(storage, "Employee");
-      
+      _ = new TableInfo(storage, "Employee");
+
       TestUpdate(storage, (s1, s2, hs) => {
         s2.Tables.Clear();
-        new TableInfo(s2, "Employee");
-        new TableInfo(s2, "RcEmployee");
+        _ = new TableInfo(s2, "Employee");
+        _ = new TableInfo(s2, "RcEmployee");
         
         hs.Add(new RenameHint("Tables/Employee", "Tables/RcEmployee"));
       },
@@ -255,13 +255,10 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var oldPath = valueColumn.Path;
         valueColumn.Name = "StringValue";
         var dataColumn = type.Columns["Data"];
-        new FullTextColumnRef(ftIndex, dataColumn);
+        _ = new FullTextColumnRef(ftIndex, dataColumn);
         hs.Add(new RenameHint(oldPath, valueColumn.Path));
       },
       (diff, actions) => {
-//        var flatten = actions.Flatten().ToList();
-//        Assert.AreEqual(1, flatten.Count);
-//        Assert.IsTrue(flatten.All(a => a is MoveNodeAction));
       });
     }
 
@@ -270,7 +267,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     {
       var storage = CreateSimpleStorageModel();
       TestUpdate(storage, (s1, s2, hs) => {
-        new ColumnInfo(s1.Tables["Types"], "ColumnToRemove", new TypeInfo(typeof (int)));
+        _ = new ColumnInfo(s1.Tables["Types"], "ColumnToRemove", new TypeInfo(typeof (int)));
         var oldColumn = s1.Tables["Types"].Columns["Data"];
         ((Node) s2.Resolve(oldColumn.Path)).Remove();
         var newColumn = new ColumnInfo(s2.Tables["Objects"], "Data", oldColumn.Type);
@@ -371,11 +368,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         objects.ForeignKeys.Clear();
         types.Remove();
       },
-        (diff, actions) => Assert.IsTrue(
+        (diff, actions) => Assert.That(
           actions
             .Flatten()
             .OfType<RemoveNodeAction>()
-            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId")));
+            .Any(a => a.Path=="Tables/Objects/ForeignKeys/FK_TypeId"), Is.True));
     }
 
     [Test]
@@ -423,15 +420,15 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       };
 
       var tiPk = new PrimaryIndexInfo(t, "PK_Types");
-      new KeyColumnRef(tiPk, tId);
+      _ = new KeyColumnRef(tiPk, tId);
       tiPk.PopulateValueColumns();
 
       var tiValue = new SecondaryIndexInfo(t, "IX_Value");
-      new KeyColumnRef(tiValue, tValue);
+      _ = new KeyColumnRef(tiValue, tValue);
       tiValue.PopulatePrimaryKeyColumns();
 
       var tiFt = new FullTextIndexInfo(t, "FT_Index");
-      new FullTextColumnRef(tiFt, tValue);
+      _ = new FullTextColumnRef(tiFt, tValue);
 
       // Objects table
       var o = new TableInfo(storage, "Objects");
@@ -446,16 +443,16 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       };
 
       var oiPk = new PrimaryIndexInfo(o, "PK_Objects");
-      new KeyColumnRef(oiPk, oId);
+      _ = new KeyColumnRef(oiPk, oId);
       oiPk.PopulateValueColumns();
 
       var oiTypeId = new SecondaryIndexInfo(o, "IX_TypeId");
-      new KeyColumnRef(oiTypeId, oTypeId);
+      _ = new KeyColumnRef(oiTypeId, oTypeId);
       oiTypeId.PopulatePrimaryKeyColumns();
 
       var oiValue = new SecondaryIndexInfo(o, "IX_Value");
-      new KeyColumnRef(oiValue, oValue);
-      new IncludedColumnRef(oiValue, oTypeId);
+      _ = new KeyColumnRef(oiValue, oValue);
+      _ = new IncludedColumnRef(oiValue, oTypeId);
       oiValue.PopulatePrimaryKeyColumns();
 
       var ofkTypeId = new ForeignKeyInfo(o, "FK_TypeId") {
@@ -478,7 +475,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {
-      // Классное я слово придумал - мутатор ;)
+      // ГЉГ«Г Г±Г±Г­Г®ГҐ Гї Г±Г«Г®ГўГ® ГЇГ°ГЁГ¤ГіГ¬Г Г« - Г¬ГіГІГ ГІГ®Г° ;)
       TestUpdate(origin, mutator, validator, true);
       // TestUpdate(origin, mutator, null, false);
     }
@@ -491,7 +488,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       mutator.Invoke(s1, s2, hints);
       if (!useHints)
         hints = new HintSet(s1, s2);
-      TestLog.Info("Update test ({0} hints)", useHints ? "with" : "without");
+      TestLog.Info($"Update test ({(useHints ? "with" : "without")} hints)");
       s1.Validate();
       s2.Validate();
 
@@ -499,11 +496,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       TestLog.Info("Comparing models:");
       var comparer = new Comparer();
       var diff = comparer.Compare(s1, s2, hints);
-      TestLog.Info("\r\nDifference:\r\n{0}", diff);
+      TestLog.Info($"\r\nDifference:\r\n{diff}");
       var actions = new ActionSequence() {
         new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
-      TestLog.Info("\r\nActions:\r\n{0}", actions);
+      TestLog.Info($"\r\nActions:\r\n{actions}");
       if (validator!=null)
         validator.Invoke(diff, actions);
     }

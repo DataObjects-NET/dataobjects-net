@@ -68,24 +68,24 @@ namespace Xtensive.Orm.Tests.Issues
           () => {
             using (var transaction = session.OpenTransaction()) {
               var call = session.Query.All<Call>().First(el => el.TextField == "3");
-              Assert.IsNull(call.State.DifferentialTuple.Difference);
+              Assert.That(call.State.DifferentialTuple.Difference, Is.Null);
               call.UniqueField = "2";
               call.Caller = new Caller() {Name = "Caller"};
               call.Parameters.Add(new Parameter() {Value = "parameterValue"});
-              Assert.AreEqual(4, session.EntityChangeRegistry.Count);
-              Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
-              Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
-              Assert.AreEqual(1, session.EntitySetChangeRegistry.Count);
+              Assert.That(session.EntityChangeRegistry.Count, Is.EqualTo(4));
+              Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+              Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+              Assert.That(session.EntitySetChangeRegistry.Count, Is.EqualTo(1));
 
               //must be persist
               transaction.Complete();
             }
           }
           );
-        Assert.AreEqual(0, session.EntityChangeRegistry.Count);
-        Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
-        Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
-        Assert.AreEqual(0, session.EntitySetChangeRegistry.Count);
+        Assert.That(session.EntityChangeRegistry.Count, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.EntitySetChangeRegistry.Count, Is.EqualTo(0));
       }
     }
 
@@ -97,20 +97,20 @@ namespace Xtensive.Orm.Tests.Issues
           () => {
             using (var transaction = session.OpenTransaction()) {
               var call = session.Query.All<Call>().First(el => el.TextField=="3");
-              Assert.IsNull(call.State.DifferentialTuple.Difference);
+              Assert.That(call.State.DifferentialTuple.Difference, Is.Null);
               call.UniqueField = "2";
               call.Caller = new Caller() {Name = "Caller"};
               call.Parameters.Add(new Parameter() {Value = "parameterValue"});
-              Assert.AreEqual(4, session.EntityChangeRegistry.Count);
-              Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
-              Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
-              Assert.AreEqual(1, session.EntitySetChangeRegistry.Count);
+              Assert.That(session.EntityChangeRegistry.Count, Is.EqualTo(4));
+              Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+              Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+              Assert.That(session.EntitySetChangeRegistry.Count, Is.EqualTo(1));
             }
           });
-        Assert.AreEqual(0, session.EntityChangeRegistry.Count);
-        Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
-        Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
-        Assert.AreEqual(0, session.EntitySetChangeRegistry.Count);
+        Assert.That(session.EntityChangeRegistry.Count, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.EntitySetChangeRegistry.Count, Is.EqualTo(0));
       }
     }
 

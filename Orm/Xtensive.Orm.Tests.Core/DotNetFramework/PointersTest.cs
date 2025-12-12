@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       T o = InstanceGeneratorProvider.Default.GetInstanceGenerator<T>().GetInstance(r);
       Container<T> c = new Container<T>(o);
       if (!warmup)
-        TestLog.Info("Type: {0}, length: {1}", o.GetType().GetShortName(), count);
+        TestLog.Info($"Type: {o.GetType().GetShortName()}, length: {count}");
       using (IndentManager.IncreaseIndent()) {
 
         if (!warmup)

@@ -56,11 +56,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var s2 = c2.DefaultSchema;
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[ExpressionIndexName];
-      Assert.IsNotNull(i2);
-      Assert.AreEqual(2, i2.Columns.Count);
+      Assert.That(i2, Is.Not.Null);
+      Assert.That(i2.Columns.Count, Is.EqualTo(2));
 
-      Assert.IsTrue(t2.TableColumns["third"].Expression is not null);
-      Assert.IsTrue(t2.TableColumns["forth"].Expression is not null);
+      Assert.That(t2.TableColumns["third"].Expression is not null, Is.True);
+      Assert.That(t2.TableColumns["forth"].Expression is not null, Is.True);
     }
 
     public override void CreateFilteredIndexTest()

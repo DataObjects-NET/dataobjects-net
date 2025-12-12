@@ -172,48 +172,48 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var comparer = StringComparer.InvariantCultureIgnoreCase;
 
-      Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32);
-      Assert.IsTrue(table.TableColumns["binary_l50"].DataType.Length == 50);
-      Assert.IsTrue(table.TableColumns["binary_l50"].DataType.Type == SqlType.Binary);
-      Assert.IsTrue(table.TableColumns["bit_l1"].DataType.Type == SqlType.Boolean);
-      Assert.IsTrue(table.TableColumns["char_10"].DataType.Length == 5);
-      Assert.IsTrue(table.TableColumns["char_10"].DataType.Type == SqlType.Char);
-      Assert.IsTrue(table.TableColumns["datetime_l8"].DataType.Type == SqlType.DateTime);
-      Assert.IsTrue(table.TableColumns["decimal_p18_s0"].DataType.Type == SqlType.Decimal);
-      Assert.IsTrue(table.TableColumns["decimal_p18_s0"].DataType.Precision == 18);
-      Assert.IsTrue(table.TableColumns["decimal_p18_s0"].DataType.Scale == 0);
-      Assert.IsTrue(table.TableColumns["decimal_p12_s11_l9"].DataType.Type == SqlType.Decimal);
-      Assert.IsTrue(table.TableColumns["decimal_p12_s11_l9"].DataType.Precision == 12);
-      Assert.IsTrue(table.TableColumns["decimal_p12_s11_l9"].DataType.Scale == 11);
-      Assert.IsTrue(table.TableColumns["float_p53"].DataType.Type == SqlType.Double);
-      Assert.IsTrue(table.TableColumns["float_p53"].DataType.Precision == null);
-      Assert.IsTrue(table.TableColumns["float_p53"].DataType.Scale == null);
-      Assert.IsTrue(table.TableColumns["image_16"].DataType.Type == SqlType.VarBinaryMax);
-      Assert.IsTrue(comparer.Compare(table.TableColumns["money_p19_s4_l8"].DataType.TypeName, "money") == 0);
-      Assert.IsTrue(table.TableColumns["money_p19_s4_l8"].DataType.Precision == 19);
-      Assert.IsTrue(table.TableColumns["money_p19_s4_l8"].DataType.Scale == 4);
-      Assert.IsTrue(table.TableColumns["nchar_l100"].DataType.Type == SqlType.Char);
-      Assert.IsTrue(table.TableColumns["nchar_l100"].DataType.Length == 100);
-      Assert.IsTrue(table.TableColumns["ntext"].DataType.Type == SqlType.VarCharMax);
-      Assert.IsTrue(table.TableColumns["numeric_p5_s5"].DataType.Type == SqlType.Decimal);
-      Assert.IsTrue(table.TableColumns["numeric_p5_s5"].DataType.Precision == 5);
-      Assert.IsTrue(table.TableColumns["nvarchar_l50"].DataType.Type == SqlType.VarChar);
-      Assert.IsTrue(table.TableColumns["nvarchar_l50"].DataType.Length == 50);
-      Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Type == SqlType.Float);
-      Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Precision == null);
-      Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Scale == null);
-      Assert.IsTrue(table.TableColumns["smalldatetime_l4"].DataType.Type == SqlType.DateTime);
-      Assert.IsTrue(table.TableColumns["smallint_l2"].DataType.Type == SqlType.Int16);
-      Assert.IsTrue(comparer.Compare(table.TableColumns["small_money_p10_s4_l4"].DataType.TypeName, "smallmoney") == 0);
-      Assert.IsTrue(comparer.Compare(table.TableColumns["sql_variant_"].DataType.TypeName, "sql_variant") == 0);
-      Assert.IsTrue(table.TableColumns["text_16"].DataType.Type == SqlType.VarCharMax);
-      Assert.IsTrue(comparer.Compare(table.TableColumns["timestamp_l8"].DataType.TypeName, "timestamp") == 0);
-      Assert.IsTrue(table.TableColumns["tinyint_1_p3_s0_l1"].DataType.Type == SqlType.UInt8);
-      Assert.IsTrue(table.TableColumns["uniqueidentifier_l16"].DataType.Type == SqlType.Guid);
-      Assert.IsTrue(table.TableColumns["varbinary_l150"].DataType.Type == SqlType.VarBinary);
-      Assert.IsTrue(table.TableColumns["varbinary_l150"].DataType.Length == 150);
-      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.Type == SqlType.VarChar);
-      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.Length == 25);
+      Assert.That(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32, Is.True);
+      Assert.That(table.TableColumns["binary_l50"].DataType.Length == 50, Is.True);
+      Assert.That(table.TableColumns["binary_l50"].DataType.Type == SqlType.Binary, Is.True);
+      Assert.That(table.TableColumns["bit_l1"].DataType.Type == SqlType.Boolean, Is.True);
+      Assert.That(table.TableColumns["char_10"].DataType.Length == 5, Is.True);
+      Assert.That(table.TableColumns["char_10"].DataType.Type == SqlType.Char, Is.True);
+      Assert.That(table.TableColumns["datetime_l8"].DataType.Type == SqlType.DateTime, Is.True);
+      Assert.That(table.TableColumns["decimal_p18_s0"].DataType.Type == SqlType.Decimal, Is.True);
+      Assert.That(table.TableColumns["decimal_p18_s0"].DataType.Precision == 18, Is.True);
+      Assert.That(table.TableColumns["decimal_p18_s0"].DataType.Scale == 0, Is.True);
+      Assert.That(table.TableColumns["decimal_p12_s11_l9"].DataType.Type == SqlType.Decimal, Is.True);
+      Assert.That(table.TableColumns["decimal_p12_s11_l9"].DataType.Precision == 12, Is.True);
+      Assert.That(table.TableColumns["decimal_p12_s11_l9"].DataType.Scale == 11, Is.True);
+      Assert.That(table.TableColumns["float_p53"].DataType.Type == SqlType.Double, Is.True);
+      Assert.That(table.TableColumns["float_p53"].DataType.Precision == null, Is.True);
+      Assert.That(table.TableColumns["float_p53"].DataType.Scale == null, Is.True);
+      Assert.That(table.TableColumns["image_16"].DataType.Type == SqlType.VarBinaryMax, Is.True);
+      Assert.That(comparer.Compare(table.TableColumns["money_p19_s4_l8"].DataType.TypeName, "money") == 0, Is.True);
+      Assert.That(table.TableColumns["money_p19_s4_l8"].DataType.Precision == 19, Is.True);
+      Assert.That(table.TableColumns["money_p19_s4_l8"].DataType.Scale == 4, Is.True);
+      Assert.That(table.TableColumns["nchar_l100"].DataType.Type == SqlType.Char, Is.True);
+      Assert.That(table.TableColumns["nchar_l100"].DataType.Length == 100, Is.True);
+      Assert.That(table.TableColumns["ntext"].DataType.Type == SqlType.VarCharMax, Is.True);
+      Assert.That(table.TableColumns["numeric_p5_s5"].DataType.Type == SqlType.Decimal, Is.True);
+      Assert.That(table.TableColumns["numeric_p5_s5"].DataType.Precision == 5, Is.True);
+      Assert.That(table.TableColumns["nvarchar_l50"].DataType.Type == SqlType.VarChar, Is.True);
+      Assert.That(table.TableColumns["nvarchar_l50"].DataType.Length == 50, Is.True);
+      Assert.That(table.TableColumns["real_p24_s0_l4"].DataType.Type == SqlType.Float, Is.True);
+      Assert.That(table.TableColumns["real_p24_s0_l4"].DataType.Precision == null, Is.True);
+      Assert.That(table.TableColumns["real_p24_s0_l4"].DataType.Scale == null, Is.True);
+      Assert.That(table.TableColumns["smalldatetime_l4"].DataType.Type == SqlType.DateTime, Is.True);
+      Assert.That(table.TableColumns["smallint_l2"].DataType.Type == SqlType.Int16, Is.True);
+      Assert.That(comparer.Compare(table.TableColumns["small_money_p10_s4_l4"].DataType.TypeName, "smallmoney") == 0, Is.True);
+      Assert.That(comparer.Compare(table.TableColumns["sql_variant_"].DataType.TypeName, "sql_variant") == 0, Is.True);
+      Assert.That(table.TableColumns["text_16"].DataType.Type == SqlType.VarCharMax, Is.True);
+      Assert.That(comparer.Compare(table.TableColumns["timestamp_l8"].DataType.TypeName, "timestamp") == 0, Is.True);
+      Assert.That(table.TableColumns["tinyint_1_p3_s0_l1"].DataType.Type == SqlType.UInt8, Is.True);
+      Assert.That(table.TableColumns["uniqueidentifier_l16"].DataType.Type == SqlType.Guid, Is.True);
+      Assert.That(table.TableColumns["varbinary_l150"].DataType.Type == SqlType.VarBinary, Is.True);
+      Assert.That(table.TableColumns["varbinary_l150"].DataType.Length == 150, Is.True);
+      Assert.That(table.TableColumns["varchar_l50"].DataType.Type == SqlType.VarChar, Is.True);
+      Assert.That(table.TableColumns["varchar_l50"].DataType.Length == 25, Is.True);
     }
 
     protected virtual string GetMSSqlViewsExtractionTestPrepareStript()
@@ -243,12 +243,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var schema = ExtractCatalog().Schemas["role1"];
 
-      Assert.IsNotNull(schema);
-      Assert.IsNotNull(schema.Views["view1"]);
-      Assert.IsNotNull(schema.Views["view2"]);
-      Assert.IsNotNull(schema.Views["view1"].ViewColumns["column1"]);
-      Assert.IsNotNull(schema.Views["view2"].ViewColumns["column1"]);
-      Assert.IsNotNull(schema.Views["view2"].ViewColumns["column2"]);
+      Assert.That(schema, Is.Not.Null);
+      Assert.That(schema.Views["view1"], Is.Not.Null);
+      Assert.That(schema.Views["view2"], Is.Not.Null);
+      Assert.That(schema.Views["view1"].ViewColumns["column1"], Is.Not.Null);
+      Assert.That(schema.Views["view2"].ViewColumns["column1"], Is.Not.Null);
+      Assert.That(schema.Views["view2"].ViewColumns["column2"], Is.Not.Null);
     }
     #endregion
   }

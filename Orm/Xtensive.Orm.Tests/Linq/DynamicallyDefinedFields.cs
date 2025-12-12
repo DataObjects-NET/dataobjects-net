@@ -201,87 +201,87 @@ namespace Xtensive.Orm.Tests.Linq
         var storedArea = session.Query.All<Area>()
           .Where(el => (Group)el[testData.GroupFieldName]==group)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group ,someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass))
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (int)el[testData.IntFieldName]==testData.IntFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (long)el[testData.LongFieldName]==testData.LongFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
         
         storedArea = session.Query.All<Area>()
           .Where(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .Where(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         if (!IsOracle()) {
           storedArea = session.Query.All<Area>()
             .Where(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue)
             .FirstOrDefault();
-          Assert.NotNull(storedArea);
+          Assert.That(storedArea, Is.Not.Null);
           TestFields(storedArea, group, someClass, interfaceImplementor);
         }
 
         storedArea = session.Query.All<Area>()
           .Where(el => (string)el[testData.StringFieldName]==testData.StringFieldValue)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
         
         storedArea = session.Query.All<Area>()
           .Where(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor)
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
       }
     }
@@ -296,21 +296,21 @@ namespace Xtensive.Orm.Tests.Linq
         var someClass = session.Query.Single<SomeClass>(testData.SomeClassKey);
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
 
-        Assert.IsTrue(session.Query.All<Area>().All(el => (Group)el[testData.GroupFieldName]==group));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (int)el[testData.IntFieldName]==testData.IntFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (long)el[testData.LongFieldName]==testData.LongFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
+        Assert.That(session.Query.All<Area>().All(el => (Group)el[testData.GroupFieldName]==group), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (int)el[testData.IntFieldName]==testData.IntFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (long)el[testData.LongFieldName]==testData.LongFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue), Is.True);
         if (!IsOracle())
-          Assert.IsTrue(session.Query.All<Area>().All(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
+          Assert.That(session.Query.All<Area>().All(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (string)el[testData.StringFieldName]==testData.StringFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().All(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor), Is.True);
       }
     }
 
@@ -324,21 +324,21 @@ namespace Xtensive.Orm.Tests.Linq
         var someClass = session.Query.Single<SomeClass>(testData.SomeClassKey);
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
 
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (Group)el[testData.GroupFieldName]==group));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (int)el[testData.IntFieldName]==testData.IntFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (long)el[testData.LongFieldName]==testData.LongFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
+        Assert.That(session.Query.All<Area>().Any(el => (Group)el[testData.GroupFieldName]==group), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (int)el[testData.IntFieldName]==testData.IntFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (long)el[testData.LongFieldName]==testData.LongFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue), Is.True);
         if (!IsOracle())
-          Assert.IsTrue(session.Query.All<Area>().Any(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
+          Assert.That(session.Query.All<Area>().Any(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (string)el[testData.StringFieldName]==testData.StringFieldValue), Is.True);
+        Assert.That(session.Query.All<Area>().Any(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor), Is.True);
       }
     }
 
@@ -352,21 +352,21 @@ namespace Xtensive.Orm.Tests.Linq
         var someClass = session.Query.Single<SomeClass>(testData.SomeClassKey);
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
 
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (Group)el[testData.GroupFieldName]==group));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (int)el[testData.IntFieldName]==testData.IntFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (long)el[testData.LongFieldName]==testData.LongFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
+        Assert.That(session.Query.All<Area>().Count(el => (Group)el[testData.GroupFieldName]==group), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass)), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (int)el[testData.IntFieldName]==testData.IntFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (long)el[testData.LongFieldName]==testData.LongFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue), Is.EqualTo(1));
         if (!IsOracle())
-          Assert.AreEqual(1, session.Query.All<Area>().Count(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
+          Assert.That(session.Query.All<Area>().Count(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (string)el[testData.StringFieldName]==testData.StringFieldValue), Is.EqualTo(1));
+        Assert.That(session.Query.All<Area>().Count(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor), Is.EqualTo(1));
       }
     }
 
@@ -452,61 +452,61 @@ namespace Xtensive.Orm.Tests.Linq
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
 
         var storedArea = session.Query.All<Area>().FirstOrDefault(el => (Group)el[testData.GroupFieldName]==group);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass));
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (int)el[testData.IntFieldName]==testData.IntFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (long)el[testData.LongFieldName]==testData.LongFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         if (!IsOracle()) {
           storedArea = session.Query.All<Area>().FirstOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-          Assert.NotNull(storedArea);
+          Assert.That(storedArea, Is.Not.Null);
           TestFields(storedArea, group, someClass, interfaceImplementor);
         }
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
       }
     }
@@ -522,58 +522,58 @@ namespace Xtensive.Orm.Tests.Linq
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
 
         var storedArea = session.Query.All<Area>().GroupBy(el => (Group)el[testData.GroupFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea1 = session.Query.All<Area>().GroupBy(el => (GeoLocation)el[testData.GeoLocationFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea2 = session.Query.All<Area>().GroupBy(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
         
         var storedArea3 = session.Query.All<Area>().GroupBy(el => (byte)el[testData.ByteFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea4 = session.Query.All<Area>().GroupBy(el => (int)el[testData.IntFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea5 = session.Query.All<Area>().GroupBy(el => (long)el[testData.LongFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea6 = session.Query.All<Area>().GroupBy(el => (float)el[testData.FloatFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea7 = session.Query.All<Area>().GroupBy(el => (double)el[testData.DoubleFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea8 = session.Query.All<Area>().GroupBy(el => (bool)el[testData.BooleanFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea9 = session.Query.All<Area>().GroupBy(el => (decimal)el[testData.DecimalFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         if (!IsOracle()) {
           var storedArea10 = session.Query.All<Area>().GroupBy(el => (byte[])el[testData.ByteArrayFieldName]).ToArray();
-          Assert.NotNull(storedArea);
-          Assert.AreEqual(1, storedArea.Length);
+          Assert.That(storedArea, Is.Not.Null);
+          Assert.That(storedArea.Length, Is.EqualTo(1));
         }
 
         var storedArea11 = session.Query.All<Area>().GroupBy(el => (string)el[testData.StringFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
 
         var storedArea12 = session.Query.All<Area>().GroupBy(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        Assert.That(storedArea, Is.Not.Null);
+        Assert.That(storedArea.Length, Is.EqualTo(1));
       }
     }
 
@@ -590,67 +590,67 @@ namespace Xtensive.Orm.Tests.Linq
         var storedArea = session.Query.All<Area>()
           .OrderBy(el => (Group)el[testData.GroupFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (GeoLocation)el[testData.GeoLocationFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (int) ((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]))
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (byte)el[testData.ByteFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (int)el[testData.IntFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (long)el[testData.LongFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (float)el[testData.FloatFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (double)el[testData.DoubleFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (bool)el[testData.BooleanFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (decimal)el[testData.DecimalFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         if (!IsOracle()) {
@@ -658,20 +658,20 @@ namespace Xtensive.Orm.Tests.Linq
             .OrderBy(el => (byte[])el[testData.ByteArrayFieldName])
             .FirstOrDefault();
 
-          Assert.NotNull(storedArea);
+          Assert.That(storedArea, Is.Not.Null);
           TestFields(storedArea, group, someClass, interfaceImplementor);
         }
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (string)el[testData.StringFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (ITestInterface)el[testData.InterfaceImplementorFieldName])
           .FirstOrDefault();
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
       }
     }
@@ -689,108 +689,108 @@ namespace Xtensive.Orm.Tests.Linq
         var groups = session.Query.All<Area>()
           .Select(el => (Group)el[testData.GroupFieldName])
           .ToArray();
-        Assert.NotNull(groups);
-        Assert.AreEqual(1, groups.Length);
-        Assert.AreEqual(testData.GroupValue, groups[0].Value);
+        Assert.That(groups, Is.Not.Null);
+        Assert.That(groups.Length, Is.EqualTo(1));
+        Assert.That(groups[0].Value, Is.EqualTo(testData.GroupValue));
 
         var locations = session.Query.All<Area>()
           .Select(el => (GeoLocation)el[testData.GeoLocationFieldName])
           .ToArray();
-        Assert.NotNull(locations);
-        Assert.AreEqual(1, locations.Length);
-        Assert.AreEqual(testData.GeoLocation.Latitude, locations[0].Latitude);
-        Assert.AreEqual(testData.GeoLocation.Longitude, locations[0].Longitude);
+        Assert.That(locations, Is.Not.Null);
+        Assert.That(locations.Length, Is.EqualTo(1));
+        Assert.That(locations[0].Latitude, Is.EqualTo(testData.GeoLocation.Latitude));
+        Assert.That(locations[0].Longitude, Is.EqualTo(testData.GeoLocation.Longitude));
 
         var locInts = session.Query.All<Area>()
           .Select(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName])
           .ToArray();
-        Assert.NotNull(locInts);
-        Assert.AreEqual(1, locations.Length);
-        Assert.AreEqual(testData.GeoLocationDynamicFieldValue, locInts[0]);
+        Assert.That(locInts, Is.Not.Null);
+        Assert.That(locations.Length, Is.EqualTo(1));
+        Assert.That(locInts[0], Is.EqualTo(testData.GeoLocationDynamicFieldValue));
 
         var entitySets = session.Query.All<Area>()
           .Select(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]))
           .ToArray();
-        Assert.NotNull(entitySets);
-        Assert.AreEqual(1, entitySets.Length);
-        Assert.AreEqual(1, entitySets[0].Count);
-        Assert.IsTrue(entitySets[0].Contains(someClass));
-        Assert.AreEqual(someClass, entitySets[0].FirstOrDefault());
+        Assert.That(entitySets, Is.Not.Null);
+        Assert.That(entitySets.Length, Is.EqualTo(1));
+        Assert.That(entitySets[0].Count, Is.EqualTo(1));
+        Assert.That(entitySets[0].Contains(someClass), Is.True);
+        Assert.That(entitySets[0].FirstOrDefault(), Is.EqualTo(someClass));
 
         var byteValues = session.Query.All<Area>()
           .Select(el => (byte)el[testData.ByteFieldName])
           .ToArray();
-        Assert.NotNull(byteValues);
-        Assert.AreEqual(1, byteValues.Length);
-        Assert.AreEqual(testData.ByteFieldValue, byteValues[0]);
+        Assert.That(byteValues, Is.Not.Null);
+        Assert.That(byteValues.Length, Is.EqualTo(1));
+        Assert.That(byteValues[0], Is.EqualTo(testData.ByteFieldValue));
 
         var intValues = session.Query.All<Area>()
           .Select(el => (int)el[testData.IntFieldName])
           .ToArray();
-        Assert.NotNull(intValues);
-        Assert.AreEqual(1, intValues.Length);
-        Assert.AreEqual(testData.IntFieldValue, intValues[0]);
+        Assert.That(intValues, Is.Not.Null);
+        Assert.That(intValues.Length, Is.EqualTo(1));
+        Assert.That(intValues[0], Is.EqualTo(testData.IntFieldValue));
 
         var longs = session.Query.All<Area>()
           .Select(el => (long)el[testData.LongFieldName])
           .ToArray();
-        Assert.NotNull(longs);
-        Assert.AreEqual(1, longs.Length);
-        Assert.AreEqual(testData.LongFieldValue, longs[0]);
+        Assert.That(longs, Is.Not.Null);
+        Assert.That(longs.Length, Is.EqualTo(1));
+        Assert.That(longs[0], Is.EqualTo(testData.LongFieldValue));
 
         var floats = session.Query.All<Area>()
           .Select(el => (float)el[testData.FloatFieldName])
           .ToArray();
-        Assert.NotNull(floats);
-        Assert.AreEqual(1, floats.Length);
-        Assert.AreEqual(testData.FloatFieldValue, floats[0]);
+        Assert.That(floats, Is.Not.Null);
+        Assert.That(floats.Length, Is.EqualTo(1));
+        Assert.That(floats[0], Is.EqualTo(testData.FloatFieldValue));
 
         var doubles = session.Query.All<Area>()
           .Select(el => (double)el[testData.DoubleFieldName])
           .ToArray();
-        Assert.NotNull(doubles);
-        Assert.AreEqual(1, doubles.Length);
-        Assert.AreEqual(testData.DoubleFieldValue, doubles[0]);
+        Assert.That(doubles, Is.Not.Null);
+        Assert.That(doubles.Length, Is.EqualTo(1));
+        Assert.That(doubles[0], Is.EqualTo(testData.DoubleFieldValue));
 
         var booleans = session.Query.All<Area>()
           .Select(el => (bool)el[testData.BooleanFieldName])
           .ToArray();
-        Assert.NotNull(booleans);
-        Assert.AreEqual(1, booleans.Length);
-        Assert.AreEqual(testData.BooleanFieldValue, booleans[0]);
+        Assert.That(booleans, Is.Not.Null);
+        Assert.That(booleans.Length, Is.EqualTo(1));
+        Assert.That(booleans[0], Is.EqualTo(testData.BooleanFieldValue));
 
         var decimals = session.Query.All<Area>()
           .Select(el => (decimal)el[testData.DecimalFieldName])
           .ToArray();
-        Assert.NotNull(decimals);
-        Assert.AreEqual(1, decimals.Length);
-        Assert.AreEqual(testData.DecimalFieldValue, decimals[0]);
+        Assert.That(decimals, Is.Not.Null);
+        Assert.That(decimals.Length, Is.EqualTo(1));
+        Assert.That(decimals[0], Is.EqualTo(testData.DecimalFieldValue));
 
         var byteArrays = session.Query.All<Area>()
           .Select(el => (byte[])el[testData.ByteArrayFieldName])
           .ToArray();
-        Assert.NotNull(byteArrays);
-        Assert.AreEqual(1, byteArrays.Length);
-        Assert.AreEqual(testData.ByteArrayFieldValue.Length, byteArrays[0].Length);
+        Assert.That(byteArrays, Is.Not.Null);
+        Assert.That(byteArrays.Length, Is.EqualTo(1));
+        Assert.That(byteArrays[0].Length, Is.EqualTo(testData.ByteArrayFieldValue.Length));
         for (int i = 0; i < testData.ByteArrayFieldValue.Length; i++)
-          Assert.AreEqual(testData.ByteArrayFieldValue[i], byteArrays[0][i]);
+          Assert.That(byteArrays[0][i], Is.EqualTo(testData.ByteArrayFieldValue[i]));
 
         var stringValues = session.Query.All<Area>()
           .Select(el => (string)el[testData.StringFieldName])
           .ToArray();
-        Assert.NotNull(stringValues);
-        Assert.AreEqual(1, stringValues.Length);
-        Assert.IsFalse(string.IsNullOrEmpty(stringValues[0]));
-        Assert.AreEqual(testData.StringFieldValue, stringValues[0]);
+        Assert.That(stringValues, Is.Not.Null);
+        Assert.That(stringValues.Length, Is.EqualTo(1));
+        Assert.That(string.IsNullOrEmpty(stringValues[0]), Is.False);
+        Assert.That(stringValues[0], Is.EqualTo(testData.StringFieldValue));
 
         var implementations = session.Query.All<Area>()
           .Select(el => (ITestInterface)el[testData.InterfaceImplementorFieldName])
           .ToArray();
-        Assert.NotNull(implementations);
-        Assert.AreEqual(1, implementations.Length);
+        Assert.That(implementations, Is.Not.Null);
+        Assert.That(implementations.Length, Is.EqualTo(1));
         var implementation = implementations[0];
-        Assert.AreEqual(interfaceImplementor.GetType(), implementation.GetType());
-        Assert.AreEqual(interfaceImplementor, implementation);
+        Assert.That(implementation.GetType(), Is.EqualTo(interfaceImplementor.GetType()));
+        Assert.That(implementation, Is.EqualTo(interfaceImplementor));
       }
     }
 
@@ -810,9 +810,9 @@ namespace Xtensive.Orm.Tests.Linq
         someClasses = session.Query.All<Area>()
               .SelectMany(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]))
               .ToArray();
-        Assert.NotNull(someClasses);
-        Assert.AreEqual(1, someClasses.Length);
-        Assert.AreEqual(someClass, someClasses[0]);
+        Assert.That(someClasses, Is.Not.Null);
+        Assert.That(someClasses.Length, Is.EqualTo(1));
+        Assert.That(someClasses[0], Is.EqualTo(someClass));
       }
     }
 
@@ -897,61 +897,61 @@ namespace Xtensive.Orm.Tests.Linq
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
         
         var storedArea = session.Query.All<Area>().SingleOrDefault(el => (Group)el[testData.GroupFieldName]==group);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (GeoLocation)el[testData.GeoLocationFieldName]==testData.GeoLocation);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]==testData.GeoLocationDynamicFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName]).Contains(someClass));
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (byte)el[testData.ByteFieldName]==testData.ByteFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (int)el[testData.IntFieldName]==testData.IntFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (long)el[testData.LongFieldName]==testData.LongFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (float)el[testData.FloatFieldName]==testData.FloatFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         if (!IsOracle()) {
           storedArea = session.Query.All<Area>().SingleOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-          Assert.NotNull(storedArea);
+          Assert.That(storedArea, Is.Not.Null);
           TestFields(storedArea, group, someClass, interfaceImplementor);
         }
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor);
-        Assert.NotNull(storedArea);
+        Assert.That(storedArea, Is.Not.Null);
         TestFields(storedArea, group, someClass, interfaceImplementor);
       }
     }
@@ -967,8 +967,8 @@ namespace Xtensive.Orm.Tests.Linq
         var array = allRemovable.Select(el=> new {Area = el.Area, Decimal = el.Decimal})
           .GroupBy(f => f.Area)
           .Select(el => new { Area = el.Key, Sum = el.Sum(c => c.Decimal) }).ToArray();
-        Assert.NotNull(array);
-        Assert.AreEqual(1, array.Length);
+        Assert.That(array, Is.Not.Null);
+        Assert.That(array.Length, Is.EqualTo(1));
       }
     }
 
@@ -982,9 +982,9 @@ namespace Xtensive.Orm.Tests.Linq
         var queryResult = session.Query.All<Area>()
               .Select(el => (((EntitySet<SomeClass>)el["SomeClasses"]).FirstOrDefault())["DynamicField"])
               .ToArray();
-        Assert.AreEqual(1, queryResult.Length);
-        Assert.NotNull(queryResult[0]);
-        Assert.AreEqual(12, queryResult[0]);
+        Assert.That(queryResult.Length, Is.EqualTo(1));
+        Assert.That(queryResult[0], Is.Not.Null);
+        Assert.That(queryResult[0], Is.EqualTo(12));
       }
     }
 
@@ -997,8 +997,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryResult = session.Query.All<Area>()
               .SelectMany(el => ((EntitySet<SomeClass>)el[testData.SomeClassesFieldName.Substring(0,4) + testData.SomeClassesFieldName.Substring(4)]))
               .ToArray();
-        Assert.AreEqual(1, queryResult.Length);
-        Assert.NotNull(queryResult[0]);
+        Assert.That(queryResult.Length, Is.EqualTo(1));
+        Assert.That(queryResult[0], Is.Not.Null);
       }
     }
 
@@ -1009,30 +1009,30 @@ namespace Xtensive.Orm.Tests.Linq
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var maxDecimal = session.Query.All<Area>().Max(area => (decimal)area[testData.DecimalFieldName]);
-        Assert.AreEqual(testData.DecimalFieldValue, maxDecimal);
+        Assert.That(maxDecimal, Is.EqualTo(testData.DecimalFieldValue));
 
         var maxByte = session.Query.All<Area>().Max(area => (byte)area[testData.ByteFieldName]);
-        Assert.AreEqual(testData.ByteFieldValue, maxByte);
+        Assert.That(maxByte, Is.EqualTo(testData.ByteFieldValue));
 
         var maxInt = session.Query.All<Area>().Max(area => (int)area[testData.IntFieldName]);
-        Assert.AreEqual(testData.IntFieldValue, maxInt);
+        Assert.That(maxInt, Is.EqualTo(testData.IntFieldValue));
 
         var maxLong = session.Query.All<Area>().Max(area => (long)area[testData.LongFieldName]);
-        Assert.AreEqual(testData.LongFieldValue, maxLong);
+        Assert.That(maxLong, Is.EqualTo(testData.LongFieldValue));
 
         var maxFloat = session.Query.All<Area>().Max(area => (float)area[testData.FloatFieldName]);
-        Assert.AreEqual(testData.FloatFieldValue, maxFloat);
+        Assert.That(maxFloat, Is.EqualTo(testData.FloatFieldValue));
 
         var maxDouble = session.Query.All<Area>().Max(area => (double)area[testData.DoubleFieldName]);
-        Assert.AreEqual(testData.DoubleFieldValue, maxDouble);
+        Assert.That(maxDouble, Is.EqualTo(testData.DoubleFieldValue));
 
         var maxDateTime = session.Query.All<Area>().Max(area => (DateTime)area[testData.DateTimeFieldName]);
-        Assert.NotNull(maxDateTime);
-        Assert.AreEqual(testData.DateTimeFieldValue, maxDateTime);
+        Assert.That(maxDateTime, Is.Not.EqualTo(default(DateTime)));
+        Assert.That(maxDateTime, Is.EqualTo(testData.DateTimeFieldValue));
 
         var maxString = session.Query.All<Area>().Max(area => (string)area[testData.StringFieldName]);
-        Assert.NotNull(maxString);
-        Assert.AreEqual(testData.StringFieldValue, maxString);
+        Assert.That(maxString, Is.Not.Null);
+        Assert.That(maxString, Is.EqualTo(testData.StringFieldValue));
       }
     }
 
@@ -1074,30 +1074,30 @@ namespace Xtensive.Orm.Tests.Linq
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var minDecimal = session.Query.All<Area>().Min(area => (decimal)area[testData.DecimalFieldName]);
-        Assert.AreEqual(testData.DecimalFieldValue, minDecimal);
+        Assert.That(minDecimal, Is.EqualTo(testData.DecimalFieldValue));
 
         var minByte = session.Query.All<Area>().Min(area => (byte)area[testData.ByteFieldName]);
-        Assert.AreEqual(testData.ByteFieldValue, minByte);
+        Assert.That(minByte, Is.EqualTo(testData.ByteFieldValue));
 
         var minInt = session.Query.All<Area>().Min(area => (int)area[testData.IntFieldName]);
-        Assert.AreEqual(testData.IntFieldValue, minInt);
+        Assert.That(minInt, Is.EqualTo(testData.IntFieldValue));
 
         var minLong = session.Query.All<Area>().Min(area => (long)area[testData.LongFieldName]);
-        Assert.AreEqual(testData.LongFieldValue, minLong);
+        Assert.That(minLong, Is.EqualTo(testData.LongFieldValue));
 
         var minFloat = session.Query.All<Area>().Min(area => (float)area[testData.FloatFieldName]);
-        Assert.AreEqual(testData.FloatFieldValue, minFloat);
+        Assert.That(minFloat, Is.EqualTo(testData.FloatFieldValue));
 
         var minDouble = session.Query.All<Area>().Min(area => (double)area[testData.DoubleFieldName]);
-        Assert.AreEqual(testData.DoubleFieldValue, minDouble);
+        Assert.That(minDouble, Is.EqualTo(testData.DoubleFieldValue));
 
         var minDateTime = session.Query.All<Area>().Min(area => (DateTime)area[testData.DateTimeFieldName]);
-        Assert.NotNull(minDateTime);
-        Assert.AreEqual(testData.DateTimeFieldValue, minDateTime);
+        Assert.That(minDateTime, Is.Not.EqualTo(default(DateTime)));
+        Assert.That(minDateTime, Is.EqualTo(testData.DateTimeFieldValue));
 
         var minString = session.Query.All<Area>().Min(area => (string)area[testData.StringFieldName]);
-        Assert.NotNull(minString);
-        Assert.AreEqual(testData.StringFieldValue, minString);
+        Assert.That(minString, Is.Not.Null);
+        Assert.That(minString, Is.EqualTo(testData.StringFieldValue));
       }
     }
 
@@ -1181,22 +1181,22 @@ namespace Xtensive.Orm.Tests.Linq
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var byteSum = session.Query.All<Area>().Sum(area => (byte)area[testData.ByteFieldName]);
-        Assert.AreEqual(testData.ByteFieldValue, byteSum);
+        Assert.That(byteSum, Is.EqualTo(testData.ByteFieldValue));
 
         var intSum = session.Query.All<Area>().Sum(area => (int)area[testData.IntFieldName]);
-        Assert.AreEqual(testData.IntFieldValue, intSum);
+        Assert.That(intSum, Is.EqualTo(testData.IntFieldValue));
 
         var longSum = session.Query.All<Area>().Sum(area => (long)area[testData.LongFieldName]);
-        Assert.AreEqual(testData.LongFieldValue, longSum);
+        Assert.That(longSum, Is.EqualTo(testData.LongFieldValue));
         
         var floatSum = session.Query.All<Area>().Sum(area => (float)area[testData.FloatFieldName]);
-        Assert.AreEqual(testData.FloatFieldValue, floatSum);
+        Assert.That(floatSum, Is.EqualTo(testData.FloatFieldValue));
         
         var doubleSum = session.Query.All<Area>().Sum(area => (double)area[testData.DoubleFieldName]);
-        Assert.AreEqual(testData.DoubleFieldValue, doubleSum);
+        Assert.That(doubleSum, Is.EqualTo(testData.DoubleFieldValue));
         
         var decimalSum = session.Query.All<Area>().Sum(area => (decimal)area[testData.DecimalFieldName]);
-        Assert.AreEqual(testData.DecimalFieldValue, decimalSum);
+        Assert.That(decimalSum, Is.EqualTo(testData.DecimalFieldValue));
       }
     }
     
@@ -1207,22 +1207,22 @@ namespace Xtensive.Orm.Tests.Linq
       using (session.Activate())
       using (var transction = session.OpenTransaction()) {
         var byteAvg = session.Query.All<Area>().Average(area => (byte)area[testData.ByteFieldName]);
-        Assert.AreEqual(testData.ByteFieldValue, byteAvg);
+        Assert.That(byteAvg, Is.EqualTo(testData.ByteFieldValue));
 
         var intAvg = session.Query.All<Area>().Average(area => (int)area[testData.IntFieldName]);
-        Assert.AreEqual(testData.IntFieldValue, intAvg);
+        Assert.That(intAvg, Is.EqualTo(testData.IntFieldValue));
 
         var longAvg = session.Query.All<Area>().Average(area => (long)area[testData.LongFieldName]);
-        Assert.AreEqual(testData.LongFieldValue, longAvg);
+        Assert.That(longAvg, Is.EqualTo(testData.LongFieldValue));
 
         var floatAvg = session.Query.All<Area>().Average(area => (float)area[testData.FloatFieldName]);
-        Assert.AreEqual(testData.FloatFieldValue, floatAvg);
+        Assert.That(floatAvg, Is.EqualTo(testData.FloatFieldValue));
 
         var doubleAvg = session.Query.All<Area>().Average(area => (double)area[testData.DoubleFieldName]);
-        Assert.AreEqual(testData.DoubleFieldValue, doubleAvg);
+        Assert.That(doubleAvg, Is.EqualTo(testData.DoubleFieldValue));
 
         var decimalAvg = session.Query.All<Area>().Average(area => (decimal)area[testData.DecimalFieldName]);
-        Assert.AreEqual(testData.DecimalFieldValue, decimalAvg);
+        Assert.That(decimalAvg, Is.EqualTo(testData.DecimalFieldValue));
       }
     }
 
@@ -1273,23 +1273,23 @@ namespace Xtensive.Orm.Tests.Linq
 
     private void TestFields(Area area, Group group, SomeClass someClass, ITestInterface implementor)
     {
-      Assert.AreEqual(group, (Group)area[testData.GroupFieldName]);
-      Assert.AreEqual(testData.GeoLocation.Latitude, ((GeoLocation)area[testData.GeoLocationFieldName]).Latitude);
-      Assert.AreEqual(testData.GeoLocation.Longitude, ((GeoLocation)area[testData.GeoLocationFieldName]).Longitude);
-      Assert.AreEqual(testData.GeoLocationDynamicFieldValue, (int)((GeoLocation)area[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName]);
-      Assert.AreEqual(1, ((EntitySet<SomeClass>)area[testData.SomeClassesFieldName]).Count);
-      Assert.AreEqual(someClass, ((EntitySet<SomeClass>)area[testData.SomeClassesFieldName]).FirstOrDefault());
-      Assert.AreEqual(testData.IntFieldValue, area[testData.IntFieldName]);
-      Assert.AreEqual(testData.StringFieldValue, area[testData.StringFieldName]);
-      Assert.AreEqual(testData.DoubleFieldValue, (double)area[testData.DoubleFieldName]);
-      Assert.AreEqual(testData.DateTimeFieldValue, (DateTime)area[testData.DateTimeFieldName]);
-      Assert.AreEqual(testData.ByteArrayFieldValue, (byte[])area[testData.ByteArrayFieldName]);
-      Assert.AreEqual(testData.ByteFieldValue, (byte)area[testData.ByteFieldName]);
-      Assert.AreEqual(testData.DecimalFieldValue, (decimal)area[testData.DecimalFieldName]);
-      Assert.AreEqual(testData.LongFieldValue, (long)area[testData.LongFieldName]);
-      Assert.AreEqual(testData.FloatFieldValue, (float)area[testData.FloatFieldName]);
-      Assert.AreEqual(testData.BooleanFieldValue, (bool)area[testData.BooleanFieldName]);
-      Assert.AreEqual((ITestInterface)implementor, (ITestInterface)area[testData.InterfaceImplementorFieldName]);
+      Assert.That((Group)area[testData.GroupFieldName], Is.EqualTo(group));
+      Assert.That(((GeoLocation)area[testData.GeoLocationFieldName]).Latitude, Is.EqualTo(testData.GeoLocation.Latitude));
+      Assert.That(((GeoLocation)area[testData.GeoLocationFieldName]).Longitude, Is.EqualTo(testData.GeoLocation.Longitude));
+      Assert.That((int)((GeoLocation)area[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName], Is.EqualTo(testData.GeoLocationDynamicFieldValue));
+      Assert.That(((EntitySet<SomeClass>)area[testData.SomeClassesFieldName]).Count, Is.EqualTo(1));
+      Assert.That(((EntitySet<SomeClass>)area[testData.SomeClassesFieldName]).FirstOrDefault(), Is.EqualTo(someClass));
+      Assert.That(area[testData.IntFieldName], Is.EqualTo(testData.IntFieldValue));
+      Assert.That(area[testData.StringFieldName], Is.EqualTo(testData.StringFieldValue));
+      Assert.That((double)area[testData.DoubleFieldName], Is.EqualTo(testData.DoubleFieldValue));
+      Assert.That((DateTime)area[testData.DateTimeFieldName], Is.EqualTo(testData.DateTimeFieldValue));
+      Assert.That((byte[])area[testData.ByteArrayFieldName], Is.EqualTo(testData.ByteArrayFieldValue));
+      Assert.That((byte)area[testData.ByteFieldName], Is.EqualTo(testData.ByteFieldValue));
+      Assert.That((decimal)area[testData.DecimalFieldName], Is.EqualTo(testData.DecimalFieldValue));
+      Assert.That((long)area[testData.LongFieldName], Is.EqualTo(testData.LongFieldValue));
+      Assert.That((float)area[testData.FloatFieldName], Is.EqualTo(testData.FloatFieldValue));
+      Assert.That((bool)area[testData.BooleanFieldName], Is.EqualTo(testData.BooleanFieldValue));
+      Assert.That((ITestInterface)area[testData.InterfaceImplementorFieldName], Is.EqualTo((ITestInterface)implementor));
     }
 
     private bool IsOracle()

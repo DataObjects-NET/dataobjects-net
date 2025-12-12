@@ -111,19 +111,19 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
 
       TypeDef type;
       type = model.Types[typeof (A)];
-      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
+      Assert.That(context.ModelDef.FindRoot(type)==type, Is.False);
 
       type = model.Types[typeof (AB)];
-      Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
+      Assert.That(context.ModelDef.FindRoot(type)==type, Is.True);
 
       type = model.Types[typeof (ABC)];
-      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
+      Assert.That(context.ModelDef.FindRoot(type)==type, Is.False);
 
       type = model.Types[typeof (B)];
-      Assert.IsFalse(context.ModelDef.FindRoot(type)==type);
+      Assert.That(context.ModelDef.FindRoot(type)==type, Is.False);
 
       type = model.Types[typeof (BC)];
-      Assert.IsTrue(context.ModelDef.FindRoot(type)==type);
+      Assert.That(context.ModelDef.FindRoot(type)==type, Is.True);
     }
   }
 }
@@ -159,21 +159,21 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void MainTest()
     {
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof (A)));
-      Assert.IsNotNull(Domain.Model.Types[typeof (AB)]);
-      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["ID"]);
-      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["ABName"]);
-      Assert.IsNotNull(Domain.Model.Types[typeof (AB)].Fields["AName"]);
-      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Fields["ABName"].DeclaringType);
-      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Fields["AName"].DeclaringType);
-      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (AB)].Hierarchy.Root);
-      Assert.AreEqual(Domain.Model.Types[typeof (AB)], Domain.Model.Types[typeof (ABC)].Hierarchy.Root);
-      Assert.AreEqual(Domain.Model.Types[typeof (AB)].Hierarchy, Domain.Model.Types[typeof (ABC)].Hierarchy);
-      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (AB)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (ABC)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (Guid), Domain.Model.Types[typeof (BC)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (long), Domain.Model.Types[typeof (BD)].Fields["ID"].ValueType);
-      Assert.AreEqual(typeof (int), Domain.Model.Types[typeof (BE)].Fields["ID"].ValueType);
+      Assert.That(Domain.Model.Types.Contains(typeof (A)), Is.False);
+      Assert.That(Domain.Model.Types[typeof (AB)], Is.Not.Null);
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ID"], Is.Not.Null);
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ABName"], Is.Not.Null);
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["AName"], Is.Not.Null);
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ABName"].DeclaringType, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["AName"].DeclaringType, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
+      Assert.That(Domain.Model.Types[typeof (AB)].Hierarchy.Root, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
+      Assert.That(Domain.Model.Types[typeof (ABC)].Hierarchy.Root, Is.EqualTo(Domain.Model.Types[typeof (AB)]));
+      Assert.That(Domain.Model.Types[typeof (ABC)].Hierarchy, Is.EqualTo(Domain.Model.Types[typeof (AB)].Hierarchy));
+      Assert.That(Domain.Model.Types[typeof (AB)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
+      Assert.That(Domain.Model.Types[typeof (ABC)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
+      Assert.That(Domain.Model.Types[typeof (BC)].Fields["ID"].ValueType, Is.EqualTo(typeof (Guid)));
+      Assert.That(Domain.Model.Types[typeof (BD)].Fields["ID"].ValueType, Is.EqualTo(typeof (long)));
+      Assert.That(Domain.Model.Types[typeof (BE)].Fields["ID"].ValueType, Is.EqualTo(typeof (int)));
     }
 
     [Test]

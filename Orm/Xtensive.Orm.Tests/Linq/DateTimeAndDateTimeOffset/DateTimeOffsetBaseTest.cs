@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       if (providerInfo.ProviderName==WellKnown.Provider.PostgreSql) {
         var localZone = localTimezone;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
-        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+        configuration.ConnectionInitializationSql = $"SET TIME ZONE INTERVAL '{localZoneString}' HOUR TO MINUTE";
       }
     }
 

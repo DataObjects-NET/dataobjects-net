@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Storage
           var books = a.Books; // fetch the author
           var b = new Book();
           books.Add(b);
-          Assert.AreEqual(PersistenceState.New, b.PersistenceState);
+          Assert.That(b.PersistenceState, Is.EqualTo(PersistenceState.New));
           t.Complete();
         }
       }
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Storage
           var list = author.Books.ToList();
           foreach (var book in list)
           {
-            Assert.IsNotNull(book);
+            Assert.That(book, Is.Not.Null);
           }
         }
       }
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Storage
           var publisher = session.Query.All<Publisher>().First();
           var list = publisher.Books.ToList();
           foreach (var book in list) {
-            Assert.IsNotNull(book);
+            Assert.That(book, Is.Not.Null);
           }
         }
       }
@@ -198,14 +198,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var categories = session.Query.All<Playlist>();
-        Assert.AreSame(categories.First().Tracks, categories.First().Tracks);
+        Assert.That(categories.First().Tracks, Is.SameAs(categories.First().Tracks));
         var resultCount = categories.First().Tracks.Count();
         var set = categories.First().Tracks;
         var list = set.ToList();
         var queryResult = list.Count;
         var setCount = categories.First().Tracks.Count;
-        Assert.AreEqual(setCount, queryResult);
-        Assert.AreEqual(queryResult, resultCount);
+        Assert.That(queryResult, Is.EqualTo(setCount));
+        Assert.That(resultCount, Is.EqualTo(queryResult));
         t.Complete();
       }
     }
@@ -219,10 +219,10 @@ namespace Xtensive.Orm.Tests.Storage
         var tracks = session.Query.All<Track>();
         var resultCount = playlists.First().Tracks.Count();
         var queryResult = playlists.First().Tracks.ToList().Count();
-        Assert.AreEqual(queryResult, resultCount);
+        Assert.That(resultCount, Is.EqualTo(queryResult));
         resultCount = tracks.First().Playlists.Count();
         queryResult = tracks.First().Playlists.ToList().Count();
-        Assert.AreEqual(queryResult, resultCount);
+        Assert.That(resultCount, Is.EqualTo(queryResult));
         t.Complete();
       }
     }
@@ -238,17 +238,17 @@ namespace Xtensive.Orm.Tests.Storage
           author.Books.Add(new Book {Name = i});
         var book = new Book {Name = bookCount};
         author.Books.Add(book);
-        Assert.AreEqual(author.Books.Count, bookCount + 1);
+        Assert.That(bookCount + 1, Is.EqualTo(author.Books.Count));
         author.Books.Contains(book);
         author.Books.Remove(book);
-        Assert.AreEqual(author.Books.Count, bookCount);
+        Assert.That(bookCount, Is.EqualTo(author.Books.Count));
         var enumerator = author.Books.GetEnumerator();
         var list = new List<Book>();
         while (enumerator.MoveNext()) 
           list.Add(enumerator.Current);
-        Assert.AreEqual(list.Count, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(list.Count));
         author.Books.Clear();
-        Assert.AreEqual(author.Books.Count, 0);
+        Assert.That(0, Is.EqualTo(author.Books.Count));
         t.Complete();
       }
     }
@@ -262,24 +262,24 @@ namespace Xtensive.Orm.Tests.Storage
           var trackCount = playlist.Tracks.Count;
           var track = new AudioTrack {Name = "Temp1"};
           playlist.Tracks.Add(track);
-          Assert.AreEqual(playlist.Tracks.Count, trackCount + 1);
+          Assert.That(trackCount + 1, Is.EqualTo(playlist.Tracks.Count));
           playlist.Tracks.Contains(track);
           playlist.Tracks.Remove(track);
-          Assert.AreEqual(playlist.Tracks.Count, trackCount);
+          Assert.That(trackCount, Is.EqualTo(playlist.Tracks.Count));
           var enumerator = playlist.Tracks.GetEnumerator();
           var list = new List<Track>();
           while (enumerator.MoveNext()) 
             list.Add(enumerator.Current);
-          Assert.AreEqual(list.Count, playlist.Tracks.Count);
+          Assert.That(playlist.Tracks.Count, Is.EqualTo(list.Count));
           playlist.Tracks.Clear();
-          Assert.AreEqual(playlist.Tracks.Count, 0);
+          Assert.That(0, Is.EqualTo(playlist.Tracks.Count));
           Session.Current.SaveChanges();
           t.Complete();
         }
 
         using (var t = session.OpenTransaction()) {
           var category = session.Query.All<Playlist>().First();
-          Assert.AreEqual(category.Tracks.Count, 0);
+          Assert.That(0, Is.EqualTo(category.Tracks.Count));
           var track = new VideoTrack() {Name = "Temp2"};
           category.Tracks.Add(track);
           Session.Current.SaveChanges();
@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var t = session.OpenTransaction()) {
           var playlist = session.Query.All<Playlist>().First();
-          Assert.AreEqual(playlist.Tracks.Count, 1);
+          Assert.That(1, Is.EqualTo(playlist.Tracks.Count));
           t.Complete();
         }
       }
@@ -307,23 +307,23 @@ namespace Xtensive.Orm.Tests.Storage
         customer.Invoices.UnionWith(invoices1);
         customer.Invoices.UnionWith(invoices2);
         var invoices = customer.Invoices.ToList();
-        Assert.IsTrue(invoices.ContainsAll(invoices1));
-        Assert.IsTrue(invoices.ContainsAll(invoices2));
+        Assert.That(invoices.ContainsAll(invoices1), Is.True);
+        Assert.That(invoices.ContainsAll(invoices2), Is.True);
         // IntersectWith
         customer.Invoices.IntersectWith(invoices1);
         invoices = customer.Invoices.ToList();
-        Assert.IsTrue(invoices.ContainsAll(invoices1));
-        Assert.IsFalse(invoices.ContainsAny(invoices2));
+        Assert.That(invoices.ContainsAll(invoices1), Is.True);
+        Assert.That(invoices.ContainsAny(invoices2), Is.False);
         // ExceptWith
         customer.Invoices.ExceptWith(invoices1);
         invoices = customer.Invoices.ToList();
-        Assert.AreEqual(0, invoices.Count);
+        Assert.That(invoices.Count, Is.EqualTo(0));
         // Check all operations with self.
         customer.Invoices.UnionWith(invoices3);
         customer.Invoices.UnionWith(customer.Invoices);
         customer.Invoices.IntersectWith(customer.Invoices);
         customer.Invoices.ExceptWith(customer.Invoices);
-        Assert.AreEqual(0, customer.Invoices.Count);
+        Assert.That(customer.Invoices.Count, Is.EqualTo(0));
         // rolling back
       }
     }
@@ -416,11 +416,11 @@ namespace Xtensive.Orm.Tests.Storage
         author.Books.Add(new Book());
         EntitySetState setState;
         session.Handler.LookupState(key, booksField, out setState);
-        Assert.IsNull(setState.TotalItemCount);
-        Assert.AreEqual(itemCount + 1, author.Books.Count);
-        Assert.AreEqual(itemCount + 1, setState.TotalItemCount);
+        Assert.That(setState.TotalItemCount, Is.Null);
+        Assert.That(author.Books.Count, Is.EqualTo(itemCount + 1));
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
         author.Books.Add(new Book());
-        Assert.AreEqual(itemCount + 2, setState.TotalItemCount);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 2));
         t.Complete();
       }
     }
@@ -437,11 +437,11 @@ namespace Xtensive.Orm.Tests.Storage
         author.Books.Remove(bookToBeRemoved0);
         EntitySetState setState;
         session.Handler.LookupState(key, booksField, out setState);
-        Assert.IsNull(setState.TotalItemCount);
-        Assert.AreEqual(itemCount - 1, author.Books.Count);
-        Assert.AreEqual(itemCount - 1, setState.TotalItemCount);
+        Assert.That(setState.TotalItemCount, Is.Null);
+        Assert.That(author.Books.Count, Is.EqualTo(itemCount - 1));
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 1));
         author.Books.Remove(bookToBeRemoved1);
-        Assert.AreEqual(itemCount - 2, setState.TotalItemCount);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 2));
         t.Complete();
       }
     }
@@ -454,8 +454,8 @@ namespace Xtensive.Orm.Tests.Storage
         FetchEntitySet(author.Books);
         author.Books.Add(new Book());
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.LookupState(key, booksField, out setState));
-        Assert.AreEqual(itemCount+1, setState.TotalItemCount);
+        Assert.That(session.Handler.LookupState(key, booksField, out setState), Is.True);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
       }
     }
 

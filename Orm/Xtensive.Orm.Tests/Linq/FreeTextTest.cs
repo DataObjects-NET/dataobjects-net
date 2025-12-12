@@ -34,9 +34,9 @@ namespace Xtensive.Orm.Tests.Linq
       _ = Assert.Throws<QueryTranslationException>(
         () => {
           var result1 = TakeMatchesIncorrect("black babbath back").Count();
-          Assert.AreEqual(3, result1);
+          Assert.That(result1, Is.EqualTo(3));
           var result2 = TakeMatchesIncorrect("1212erddfr324324rwefrtb43543543").Count();
-          Assert.AreEqual(0, result2);
+          Assert.That(result2, Is.EqualTo(0));
         });
     }
 
@@ -44,19 +44,19 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseFreeText2Test()
     {
       var result1 = TakeMatchesCorrect("black babbath back").Count();
-      Assert.AreEqual(6, result1);
+      Assert.That(result1, Is.EqualTo(6));
       var result2 = TakeMatchesCorrect("1212erddfr324324rwefrtb43543543").Count();
-      Assert.AreEqual(0, result2);
+      Assert.That(result2, Is.EqualTo(0));
     }
 
     [Test]
     public void Test1()
     {
       var result = Session.Query.FreeText<Album>(() => "black babbath back").ToList();
-      Assert.AreEqual(6, result.Count);
+      Assert.That(result.Count, Is.EqualTo(6));
       foreach (var document in result) {
-        Assert.IsNotNull(document);
-        Assert.IsNotNull(document.Entity);
+        Assert.That(document, Is.Not.Null);
+        Assert.That(document.Entity, Is.Not.Null);
       }
     }
 
@@ -64,60 +64,60 @@ namespace Xtensive.Orm.Tests.Linq
     public void Test2()
     {
       var result = from c in Session.Query.FreeText<Album>("black babbath back") select c.Rank;
-      Assert.AreEqual(6, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(6));
     }
 
     [Test]
     public void TopNByRankTest()
     {
       var allMatchingRecords = Session.Query.FreeText<Album>("black babbath back");
-      Assert.AreEqual(6, allMatchingRecords.Count());
+      Assert.That(allMatchingRecords.Count(), Is.EqualTo(6));
       var topNMatchingRecords = Session.Query.FreeText<Album>("black babbath back", 2).ToList();
-      Assert.AreEqual(2, topNMatchingRecords.Count());
+      Assert.That(topNMatchingRecords.Count(), Is.EqualTo(2));
       var top2Records = allMatchingRecords.OrderByDescending(record => record.Rank).Take(2);
-      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)));
+      Assert.That(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)), Is.True);
     }
 
     [Test]
     public void TopNByRankQueryTest()
     {
       var allMatchingRecords = Query.FreeText<Album>("black babbath back");
-      Assert.AreEqual(6, allMatchingRecords.Count());
+      Assert.That(allMatchingRecords.Count(), Is.EqualTo(6));
       var topNMatchingRecords = Query.FreeText<Album>("black babbath back", 2).ToList();
-      Assert.AreEqual(2, topNMatchingRecords.Count());
+      Assert.That(topNMatchingRecords.Count(), Is.EqualTo(2));
       var top2Records = allMatchingRecords.OrderByDescending(record => record.Rank).Take(2);
-      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)));
+      Assert.That(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)), Is.True);
     }
 
     [Test]
     public void TopNByRankExpressionTest()
     {
       var allMatchingRecords = Session.Query.FreeText<Album>(() => "black babbath back");
-      Assert.AreEqual(6, allMatchingRecords.Count());
+      Assert.That(allMatchingRecords.Count(), Is.EqualTo(6));
       var topNMatchingRecords = Session.Query.FreeText<Album>(() => "black babbath back", 2).ToList();
-      Assert.AreEqual(2, topNMatchingRecords.Count);
+      Assert.That(topNMatchingRecords.Count, Is.EqualTo(2));
       var top2Records = allMatchingRecords.OrderByDescending(rec => rec.Rank).Take(2);
-      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)));
+      Assert.That(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)), Is.True);
     }
 
     [Test]
     public void TopNByRankQueryExpressionTest()
     {
       var allMatchingRecords = Query.FreeText<Album>(() => "black babbath back");
-      Assert.AreEqual(6, allMatchingRecords.Count());
+      Assert.That(allMatchingRecords.Count(), Is.EqualTo(6));
       var topNMatchingRecords = Query.FreeText<Album>(() => "black babbath back", 2).ToList();
-      Assert.AreEqual(2, topNMatchingRecords.Count);
+      Assert.That(topNMatchingRecords.Count, Is.EqualTo(2));
       var top2Records = allMatchingRecords.OrderByDescending(rec => rec.Rank).Take(2);
-      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)));
+      Assert.That(topNMatchingRecords.Select(rec => rec.Entity.Title).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.Title)), Is.True);
     }
 
     [Test]
     public void TopNByrankEmptyResultTest()
     {
       var allMatchingRecords = Session.Query.FreeText<Album>(() => "sdgfgfhghd");
-      Assert.IsTrue(!allMatchingRecords.Any());
+      Assert.That(!allMatchingRecords.Any(), Is.True);
       var topNMatchingRecords = Session.Query.FreeText<Album>(() => "sdgfgfhghd", 1);
-      Assert.IsTrue(!topNMatchingRecords.Any());
+      Assert.That(!topNMatchingRecords.Any(), Is.True);
     }
 
     [Test]
@@ -139,10 +139,10 @@ namespace Xtensive.Orm.Tests.Linq
         from c in Session.Query.FreeText<Album>(() => "black babbath back", 1)
         join p in Session.Query.All<Track>() on c.Entity.Key equals p.Album.Key
         select p;
-      Assert.AreEqual(12, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(12));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
-        Assert.IsNotNull(track.Key);
+        Assert.That(track, Is.Not.Null);
+        Assert.That(track.Key, Is.Not.Null);
       }
     }
 
@@ -154,10 +154,10 @@ namespace Xtensive.Orm.Tests.Linq
         join p in Session.Query.All<Track>() on c.Entity.Key equals p.Album.Key
         select p;
       var list = result.ToList();
-      Assert.AreEqual(59, list.Count);
+      Assert.That(list.Count, Is.EqualTo(59));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
-        Assert.IsNotNull(track.Key);
+        Assert.That(track, Is.Not.Null);
+        Assert.That(track.Key, Is.Not.Null);
       }
     }
 
@@ -169,10 +169,10 @@ namespace Xtensive.Orm.Tests.Linq
         join p in Session.Query.All<Track>() on c.Entity equals p.Album
         select p;
       var list = result.ToList();
-      Assert.AreEqual(59, list.Count);
+      Assert.That(list.Count, Is.EqualTo(59));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
-        Assert.IsNotNull(track.Key);
+        Assert.That(track, Is.Not.Null);
+        Assert.That(track.Key, Is.Not.Null);
       }
     }
 
@@ -183,10 +183,10 @@ namespace Xtensive.Orm.Tests.Linq
         from c in Session.Query.FreeText<Album>(() => "black babbath back", 1)
         join p in Session.Query.All<Track>() on c.Entity equals p.Album
         select p;
-      Assert.AreEqual(12, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(12));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
-        Assert.IsNotNull(track.Key);
+        Assert.That(track, Is.Not.Null);
+        Assert.That(track.Key, Is.Not.Null);
       }
     }
 
@@ -310,9 +310,9 @@ namespace Xtensive.Orm.Tests.Linq
           orderby c.Rank
           select new {c.Entity, c.Rank});
       var list = result.ToList();
-      Assert.AreEqual(6, list.Count);
+      Assert.That(list.Count, Is.EqualTo(6));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
+        Assert.That(track, Is.Not.Null);
       }
     }
 
@@ -324,9 +324,9 @@ namespace Xtensive.Orm.Tests.Linq
           orderby c.Rank
           select new {c.Entity, c.Rank});
       var list = result.ToList();
-      Assert.AreEqual(2, list.Count);
+      Assert.That(list.Count, Is.EqualTo(2));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
+        Assert.That(track, Is.Not.Null);
       }
     }
 
@@ -337,9 +337,9 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.Rank)
         .Select(x => x.Entity);
       var list = result.ToList();
-      Assert.AreEqual(6, list.Count);
+      Assert.That(list.Count, Is.EqualTo(6));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
+        Assert.That(track, Is.Not.Null);
       }
     }
 
@@ -350,9 +350,9 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.Rank)
         .Select(x => x.Entity);
       var list = result.ToList();
-      Assert.AreEqual(2, list.Count);
+      Assert.That(list.Count, Is.EqualTo(2));
       foreach (var track in result) {
-        Assert.IsNotNull(track);
+        Assert.That(track, Is.Not.Null);
       }
     }
 
@@ -369,10 +369,10 @@ namespace Xtensive.Orm.Tests.Linq
         // for some reason PosgreSQL does not like the 'sabbath' word.
         // there are two tracks with this word in name and they are missing in results.
         // direct search by the word also does not show any of these two tracks.
-        Assert.AreEqual(24, list.Count);
+        Assert.That(list.Count, Is.EqualTo(24));
       }
       else {
-        Assert.AreEqual(26, list.Count);
+        Assert.That(list.Count, Is.EqualTo(26));
       }
     }
 
@@ -388,12 +388,12 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(3)
         .OrderBy(r => r.Rank)
         .ToList();
-      Assert.IsTrue(defaultFreeTextQuery.Count()==3);
-      Assert.IsTrue(topNByrankOrdered.Count()==3);
-      Assert.IsTrue(
+      Assert.That(defaultFreeTextQuery.Count()==3, Is.True);
+      Assert.That(topNByrankOrdered.Count()==3, Is.True);
+      Assert.That(
         defaultFreeTextQuery
           .Select(rec => rec.Entity.Title)
-          .SequenceEqual(topNByrankOrdered.Select(rec => rec.Entity.Title)));
+          .SequenceEqual(topNByrankOrdered.Select(rec => rec.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -408,12 +408,12 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(3)
         .OrderBy(r => r.Rank)
         .ToList();
-      Assert.IsTrue(defaultFreeTextQuery.Count()==3);
-      Assert.IsTrue(topnByRankOrdered.Count()==3);
-      Assert.IsTrue(
+      Assert.That(defaultFreeTextQuery.Count()==3, Is.True);
+      Assert.That(topnByRankOrdered.Count()==3, Is.True);
+      Assert.That(
         defaultFreeTextQuery
           .Select(rec => rec.Entity.Title)
-          .SequenceEqual(topnByRankOrdered.Select(rec => rec.Entity.Title)));
+          .SequenceEqual(topnByRankOrdered.Select(rec => rec.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -421,13 +421,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var keywords = "black babbath back";
       var topNByRank = Session.Query.FreeText<Album>(keywords, 3).ToList();
-      Assert.IsTrue(topNByRank.Count()==3);
+      Assert.That(topNByRank.Count()==3, Is.True);
       var topNByRankTakeSameAmmount = Session.Query.FreeText<Album>(keywords, 3).Take(3).OrderByDescending(r => r.Rank);
-      Assert.IsTrue(topNByRankTakeSameAmmount.Count()==3);
-      Assert.IsTrue(
+      Assert.That(topNByRankTakeSameAmmount.Count()==3, Is.True);
+      Assert.That(
         topNByRank
           .Select(rec => rec.Entity.Title)
-          .SequenceEqual(topNByRankTakeSameAmmount.Select(rec => rec.Entity.Title)));
+          .SequenceEqual(topNByRankTakeSameAmmount.Select(rec => rec.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -435,13 +435,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var keywords = "black babbath back";
       var topNByRank = Session.Query.FreeText<Album>(keywords, 3);
-      Assert.IsTrue(topNByRank.Count()==3);
+      Assert.That(topNByRank.Count()==3, Is.True);
       var topNByRankTakeLess = Session.Query.FreeText<Album>(keywords, 3).Take(2).OrderByDescending(r => r.Rank).ToList();
-      Assert.IsTrue(topNByRankTakeLess.Count()==2);
-      Assert.IsTrue(
+      Assert.That(topNByRankTakeLess.Count()==2, Is.True);
+      Assert.That(
         topNByRankTakeLess
           .Select(r => r.Entity.Title)
-          .SequenceEqual(topNByRank.Take(2).OrderByDescending(r => r.Rank).Select(r => r.Entity.Title)));
+          .SequenceEqual(topNByRank.Take(2).OrderByDescending(r => r.Rank).Select(r => r.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -449,10 +449,10 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var keywords = "black babbath back";
       var topNByRank = Session.Query.FreeText<Album>(keywords, 3);
-      Assert.IsTrue(topNByRank.Count()==3);
+      Assert.That(topNByRank.Count()==3, Is.True);
       var topNByrankTakeMore = Session.Query.FreeText<Album>(keywords, 3).Take(4).OrderByDescending(r => r.Rank).ToList();
-      Assert.IsTrue(topNByrankTakeMore.Count()==3);
-      Assert.IsTrue(topNByrankTakeMore.Select(r => r.Entity.Title).SequenceEqual(topNByRank.Select(r => r.Entity.Title)));
+      Assert.That(topNByrankTakeMore.Count()==3, Is.True);
+      Assert.That(topNByrankTakeMore.Select(r => r.Entity.Title).SequenceEqual(topNByRank.Select(r => r.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -460,18 +460,18 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var keywords = "black babbath back";
       var topNByRank = Session.Query.FreeText<Album>(keywords, 3).ToList();
-      Assert.IsTrue(topNByRank.Count()==3);
+      Assert.That(topNByRank.Count()==3, Is.True);
       var topNByrankOrderByAndTake = Session.Query.FreeText<Album>(keywords, 3)
         .OrderBy(r => r.Rank)
         .Take(3)
         .OrderByDescending(r => r.Rank).Take(2).ToList();
-      Assert.IsTrue(topNByrankOrderByAndTake.Count()==2);
-      Assert.IsTrue(
+      Assert.That(topNByrankOrderByAndTake.Count()==2, Is.True);
+      Assert.That(
         topNByRank
           .Take(2)
           .OrderByDescending(r => r.Rank)
           .Select(r => r.Entity.Title)
-          .SequenceEqual(topNByrankOrderByAndTake.Select(rec => rec.Entity.Title)));
+          .SequenceEqual(topNByrankOrderByAndTake.Select(rec => rec.Entity.Title)), Is.True);
     }
 
     [Test]
@@ -479,7 +479,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var keywords = "Boulevard Innere Woodstock Discos";
       var result = Query.FreeText<Customer>(keywords).ToList();
-      Assert.AreEqual(2, result.Count);
+      Assert.That(result.Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -488,15 +488,15 @@ namespace Xtensive.Orm.Tests.Linq
       var keywords = "Rotenturmstraße Innere Stadt Woodstock Boulevard";
       var result = Query.FreeText<Customer>(keywords, 2).ToList();
       var closestMatch = result.First().Entity;
-      Assert.AreEqual(2, result.Count);
-      Assert.IsTrue(closestMatch.Address.StreetAddress=="Rotenturmstraße 4, 1010 Innere Stadt");
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(closestMatch.Address.StreetAddress=="Rotenturmstraße 4, 1010 Innere Stadt", Is.True);
     }
 
     [Test]
     public void FreeTextOnStructureField()
     {
       var result = Query.FreeText<Customer>("London").ToList();
-      Assert.IsTrue(!result.Any());
+      Assert.That(!result.Any(), Is.True);
     }
 
     private IEnumerable<FullTextMatch<Album>> TakeMatchesIncorrect(string searchCriteria)

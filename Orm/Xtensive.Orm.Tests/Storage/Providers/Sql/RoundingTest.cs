@@ -252,11 +252,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     private static void AreEqual(decimal expected, decimal actual)
     {
       if (Math.Abs(expected - actual) > DecimalDelta) {
-        Assert.Fail("expected {0} actual {1}", expected, actual);
+        Assert.Fail($"expected {expected} actual {actual}");
       }
     }
 
-    private void AreEqual(double expected, double actual) => Assert.AreEqual(expected, actual, DoubleDelta);
+    private void AreEqual(double expected, double actual) => Assert.That(actual, Is.EqualTo(expected).Within(DoubleDelta));
 
     private bool ExpectNotSupported()
     {

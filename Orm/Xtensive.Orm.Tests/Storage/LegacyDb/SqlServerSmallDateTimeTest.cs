@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
       using (session.OpenTransaction()) {
         foreach (var item in session.Query.All<Crazy>())
           Console.WriteLine(item.SmallDateTime);
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.SmallDateTime==theDate).Count());
+        Assert.That(session.Query.All<Crazy>().Where(o => o.SmallDateTime==theDate).Count(), Is.EqualTo(1));
       }
     }
 

@@ -61,36 +61,36 @@ namespace Xtensive.Orm.Tests.Issues
           var e1d = new First();
 
           e1a.SPair = e1a;
-          Assert.AreEqual(e1a, e1a.SPair);
+          Assert.That(e1a.SPair, Is.EqualTo(e1a));
           e1b.SPair = e1a;
-          Assert.AreEqual(e1a, e1b.SPair);
-          Assert.AreEqual(e1b, e1a.SPair);
+          Assert.That(e1b.SPair, Is.EqualTo(e1a));
+          Assert.That(e1a.SPair, Is.EqualTo(e1b));
           e1c.SPair = e1b;
-          Assert.AreEqual(e1c, e1b.SPair);
-          Assert.AreEqual(e1b, e1c.SPair);
-          Assert.AreEqual(null, e1a.SPair);
+          Assert.That(e1b.SPair, Is.EqualTo(e1c));
+          Assert.That(e1c.SPair, Is.EqualTo(e1b));
+          Assert.That(e1a.SPair, Is.EqualTo(null));
           e1c.SPair = null;
-          Assert.AreEqual(null, e1a.SPair);
-          Assert.AreEqual(null, e1b.SPair);
-          Assert.AreEqual(null, e1c.SPair);
-          Assert.AreEqual(null, e1d.SPair);
+          Assert.That(e1a.SPair, Is.EqualTo(null));
+          Assert.That(e1b.SPair, Is.EqualTo(null));
+          Assert.That(e1c.SPair, Is.EqualTo(null));
+          Assert.That(e1d.SPair, Is.EqualTo(null));
 
           e1a.SPair = e1b;
-          Assert.AreEqual(e1a, e1b.SPair);
-          Assert.AreEqual(e1b, e1a.SPair);
+          Assert.That(e1b.SPair, Is.EqualTo(e1a));
+          Assert.That(e1a.SPair, Is.EqualTo(e1b));
           e1c.SPair = e1d;
-          Assert.AreEqual(e1c, e1d.SPair);
-          Assert.AreEqual(e1d, e1c.SPair);
+          Assert.That(e1d.SPair, Is.EqualTo(e1c));
+          Assert.That(e1c.SPair, Is.EqualTo(e1d));
           e1b.SPair = e1d;
-          Assert.AreEqual(null, e1a.SPair);
-          Assert.AreEqual(e1d, e1b.SPair);
-          Assert.AreEqual(null, e1c.SPair);
-          Assert.AreEqual(e1b, e1d.SPair);
+          Assert.That(e1a.SPair, Is.EqualTo(null));
+          Assert.That(e1b.SPair, Is.EqualTo(e1d));
+          Assert.That(e1c.SPair, Is.EqualTo(null));
+          Assert.That(e1d.SPair, Is.EqualTo(e1b));
           e1d.SPair = null;
-          Assert.AreEqual(null, e1a.SPair);
-          Assert.AreEqual(null, e1b.SPair);
-          Assert.AreEqual(null, e1c.SPair);
-          Assert.AreEqual(null, e1d.SPair);
+          Assert.That(e1a.SPair, Is.EqualTo(null));
+          Assert.That(e1b.SPair, Is.EqualTo(null));
+          Assert.That(e1c.SPair, Is.EqualTo(null));
+          Assert.That(e1d.SPair, Is.EqualTo(null));
           // Rollback
         }
       }

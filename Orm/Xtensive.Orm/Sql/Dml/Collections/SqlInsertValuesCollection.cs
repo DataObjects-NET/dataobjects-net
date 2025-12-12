@@ -71,7 +71,7 @@ namespace Xtensive.Sql.Dml.Collections
               rowList.Add(value);
             }
             else {
-              throw new ArgumentException(string.Format("There is no mentioning of column '{0}' in previously added rows.", column.Name));
+              throw new ArgumentException($"There is no mentioning of column '{column.Name}' in previously added rows.");
             }
           }
 

@@ -22,16 +22,16 @@ namespace Xtensive.Orm.Tests.Core.Arithmetics
     public void Test()
     {
       const int count = 100;
-      Assert.IsNull(Arithmetic<string>.Default);
+      Assert.That(Arithmetic<string>.Default, Is.Null);
       Arithmetic<long>   longArithmetic   = Arithmetic<long>.Default;
       Arithmetic<double> doubleArithmetic = Arithmetic<double>.Default;
       Arithmetic<int>    intArithmetic    = Arithmetic<int>.Default;
-      Assert.IsNotNull(longArithmetic);
-      Assert.IsNotNull(doubleArithmetic);
-      Assert.IsNotNull(intArithmetic);
-      Assert.AreEqual(longArithmetic.Implementation.GetType().Name,   "Int64Arithmetic");
-      Assert.AreEqual(intArithmetic.Implementation.GetType().Name, "Int32Arithmetic");
-      Assert.AreEqual(doubleArithmetic.Implementation.GetType().Name, "DoubleArithmetic");
+      Assert.That(longArithmetic, Is.Not.Null);
+      Assert.That(doubleArithmetic, Is.Not.Null);
+      Assert.That(intArithmetic, Is.Not.Null);
+      Assert.That(longArithmetic.Implementation.GetType().Name, Is.EqualTo("Int64Arithmetic"));
+      Assert.That(intArithmetic.Implementation.GetType().Name, Is.EqualTo("Int32Arithmetic"));
+      Assert.That(doubleArithmetic.Implementation.GetType().Name, Is.EqualTo("DoubleArithmetic"));
       checked {
         IEnumerable<long> longValues = InstanceGeneratorProvider.Default.GetInstanceGenerator<long>().GetInstances(random, count);
         foreach (long longValue in longValues) {
@@ -80,8 +80,8 @@ namespace Xtensive.Orm.Tests.Core.Arithmetics
         arithmetic1.ApplyRules(new ArithmeticRules(NullBehavior.ThreatNullAsZero, OverflowBehavior.DenyOverflow));
       Arithmetic<int> arithmetic3 =
         defaultArithmetic.ApplyRules(new ArithmeticRules(NullBehavior.ThreatNullAsNull, OverflowBehavior.AllowOverflow));
-      Assert.AreEqual(arithmetic1, arithmetic3);
-      Assert.AreNotEqual(arithmetic1, arithmetic2);
+      Assert.That(arithmetic3, Is.EqualTo(arithmetic1));
+      Assert.That(arithmetic2, Is.Not.EqualTo(arithmetic1));
     }
 
     private void PerfTestInternal<T>(int count)
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Core.Arithmetics
       Arithmetic<T> arithmetic = Arithmetic<T>.Default;
       using(new Measurement(typeof(T).Name, count)) {
         for(int i=0;i<count;i++)
-          arithmetic.Add(instance1, instance2);
+          _ = arithmetic.Add(instance1, instance2);
       }
     }
 

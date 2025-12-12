@@ -24,9 +24,10 @@ namespace Xtensive.Orm
   {
     private static VersionInfo @void = default;
 
+    private readonly Tuple value;
+
     [NonSerialized]
     private int cachedHashCode;
-    private Tuple value;
 
     /// <summary>
     /// Gets the void <see cref="VersionInfo"/> object.

@@ -132,13 +132,13 @@ namespace Xtensive.Orm.Tests.Interfaces
           Session.Current.SaveChanges();
 
           p = session.Query.All<IPerson>().First();
-          Assert.AreEqual(3, p.Pets.Count);
+          Assert.That(p.Pets.Count, Is.EqualTo(3));
 
           var first = p.Pets.First();
           first.Remove();
-          Assert.IsTrue(first.PersistenceState == PersistenceState.Removed);
-          Assert.IsFalse(p.Pets.Contains(first));
-          Assert.AreEqual(2, p.Pets.Count);
+          Assert.That(first.PersistenceState == PersistenceState.Removed, Is.True);
+          Assert.That(p.Pets.Contains(first), Is.False);
+          Assert.That(p.Pets.Count, Is.EqualTo(2));
 
           p.Remove();
           session.Remove(session.Query.All<IAnimal>());
@@ -154,10 +154,10 @@ namespace Xtensive.Orm.Tests.Interfaces
           new Animal3() { PetName = "J" };
 
           var animals = session.Query.All<IAnimal>();
-          Assert.AreEqual(9, animals.Count());
+          Assert.That(animals.Count(), Is.EqualTo(9));
           animals.Select(a => new {a.Id, a.PetName}).Where(x => x.Id != 0).ToList();
           var list = session.Query.All<IAnimal>().Where(a => (string)a["PetName"] == "D").ToList();
-          Assert.AreEqual(1, list.Count);
+          Assert.That(list.Count, Is.EqualTo(1));
           t.Complete();
         }
       }

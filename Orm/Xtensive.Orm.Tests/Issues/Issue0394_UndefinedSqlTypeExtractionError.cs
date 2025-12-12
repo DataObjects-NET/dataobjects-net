@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues
             .Extract(connection, new[] {new SqlExtractionTask(defaultDatabase, defaultSchema)})
             .Catalogs.SelectMany(c => c.Schemas).First();
 
-          Assert.IsNull(schema.Tables.SingleOrDefault(table => table.Name=="TestTable"));
+          Assert.That(schema.Tables.SingleOrDefault(table => table.Name=="TestTable"), Is.Null);
           transactionScope.Complete();
         }
       }

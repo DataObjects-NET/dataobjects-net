@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.Start!=otherLSeg.Start);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.End!=otherLSeg.End);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -99,12 +99,12 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.Start.X==lSeg.Start.X);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.Start.Y==lSeg.Start.Y);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -120,12 +120,12 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.End.X==lSeg.End.X);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg.End.Y==lSeg.End.Y);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg==e.LSeg);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
             .Where(e => e.LSeg!=e.OtherLSeg);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }

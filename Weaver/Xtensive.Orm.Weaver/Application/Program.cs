@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Weaver.Application
 
     private void ShowInvalidArgumentErrorAndExit(string argument)
     {
-      Console.Error.WriteLine("Invalid argument: {0}", argument);
+      Console.Error.WriteLine($"Invalid argument: {argument}");
       Environment.Exit(ExitCode.InvalidCommandLine);
     }
 

@@ -25,16 +25,16 @@ namespace Xtensive.Orm.Security.Tests
         var roles = new List<Role> { role };
         var permissions = new PermissionSet(roles);
 
-        Assert.AreEqual(role.Permissions.Count, permissions.Count);
-        Assert.IsTrue(permissions.Contains<Permission<Customer>>(p => p.CanRead));
-        Assert.IsTrue(permissions.Contains<Permission<Customer>>(p => p.CanWrite));
+        Assert.That(permissions.Count, Is.EqualTo(role.Permissions.Count));
+        Assert.That(permissions.Contains<Permission<Customer>>(p => p.CanRead), Is.True);
+        Assert.That(permissions.Contains<Permission<Customer>>(p => p.CanWrite), Is.True);
 
-        Assert.IsTrue(permissions.Contains<CustomerPermission>(p => p.CanRead));
-        Assert.IsTrue(permissions.Contains<CustomerPermission>(p => p.CanWrite));
+        Assert.That(permissions.Contains<CustomerPermission>(p => p.CanRead), Is.True);
+        Assert.That(permissions.Contains<CustomerPermission>(p => p.CanWrite), Is.True);
 
-        Assert.IsTrue(permissions.Contains<VipCustomerPermission>(p => p.CanRead));
-        Assert.IsTrue(permissions.Contains<VipCustomerPermission>(p => p.CanWrite));
-        Assert.IsTrue(permissions.Contains<VipCustomerPermission>(p => p.CanDiscount));
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanRead), Is.True);
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanWrite), Is.True);
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanDiscount), Is.True);
       }
     }
 
@@ -47,16 +47,16 @@ namespace Xtensive.Orm.Security.Tests
         var roles = new List<Role> { role };
         var permissions = new PermissionSet(roles);
 
-        Assert.AreEqual(role.Permissions.Count, permissions.Count);
-        Assert.IsTrue(permissions.Contains<Permission<Customer>>(p => p.CanRead));
-        Assert.IsTrue(permissions.Contains<Permission<Customer>>(p => p.CanWrite));
+        Assert.That(permissions.Count, Is.EqualTo(role.Permissions.Count));
+        Assert.That(permissions.Contains<Permission<Customer>>(p => p.CanRead), Is.True);
+        Assert.That(permissions.Contains<Permission<Customer>>(p => p.CanWrite), Is.True);
 
-        Assert.IsTrue(permissions.Contains<CustomerPermission>(p => p.CanRead));
-        Assert.IsTrue(permissions.Contains<CustomerPermission>(p => p.CanWrite));
+        Assert.That(permissions.Contains<CustomerPermission>(p => p.CanRead), Is.True);
+        Assert.That(permissions.Contains<CustomerPermission>(p => p.CanWrite), Is.True);
 
-        Assert.IsFalse(permissions.Contains<VipCustomerPermission>(p => p.CanRead));
-        Assert.IsFalse(permissions.Contains<VipCustomerPermission>(p => p.CanWrite));
-        Assert.IsFalse(permissions.Contains<VipCustomerPermission>(p => p.CanDiscount));
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanRead), Is.False);
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanWrite), Is.False);
+        Assert.That(permissions.Contains<VipCustomerPermission>(p => p.CanDiscount), Is.False);
       }
     }
   }

@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Tests.Issues
           }
           catch (CheckConstraintViolationException exception) {
             var expected = Domain.Model.Types[typeof (ErrorProvider)];
-            Assert.AreEqual(expected, exception.Info.Type);
-            Assert.AreEqual(expected.Fields["NotNull"], exception.Info.Field);
+            Assert.That(exception.Info.Type, Is.EqualTo(expected));
+            Assert.That(exception.Info.Field, Is.EqualTo(expected.Fields["NotNull"]));
           }
         }
       }
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Issues
             Assert.Fail();
           }
           catch (UniqueConstraintViolationException exception) {
-            Assert.AreEqual(Domain.Model.Types[typeof (ErrorProvider)], exception.Info.Type);
+            Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof (ErrorProvider)]));
           }
         }
       }
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Issues
             Assert.Fail();
           }
           catch (UniqueConstraintViolationException exception) {
-            Assert.AreEqual(Domain.Model.Types[typeof (ErrorProvider)], exception.Info.Type);
+            Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof (ErrorProvider)]));
           }
         }
       }

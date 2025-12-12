@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session =  Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var firstCall = session.Query.All<Call>().First(el => el.ConflictedField=="3");
-        Assert.IsNull(firstCall.State.DifferentialTuple.Difference);
+        Assert.That(firstCall.State.DifferentialTuple.Difference, Is.Null);
         firstCall.UniqueField = "2";
-        Assert.IsNotNull(firstCall.State.DifferentialTuple.Difference);
+        Assert.That(firstCall.State.DifferentialTuple.Difference, Is.Not.Null);
         bool exceptionCatched = false;
         try {
           session.SaveChanges();
@@ -52,9 +52,9 @@ namespace Xtensive.Orm.Tests.Issues
         catch(Exception) {
           exceptionCatched = true;
         }
-        Assert.IsTrue(exceptionCatched);
-        Assert.IsNotNull(firstCall.State.DifferentialTuple.Difference);
-        Assert.AreEqual("2", firstCall.UniqueField);
+        Assert.That(exceptionCatched, Is.True);
+        Assert.That(firstCall.State.DifferentialTuple.Difference, Is.Not.Null);
+        Assert.That(firstCall.UniqueField, Is.EqualTo("2"));
       }
     }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Issues
         var firstCall = session.Query.All<Call>().First(el => el.ConflictedField=="3");
         firstCall.UniqueField = "2";
         var secondCall = new Call{ConflictedField = "new entity"};
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Null);
         bool exceptionCatched = false;
         try {
           session.SaveChanges();
@@ -74,8 +74,8 @@ namespace Xtensive.Orm.Tests.Issues
         catch (Exception) {
           exceptionCatched = true;
         }
-        Assert.IsTrue(exceptionCatched);
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(exceptionCatched, Is.True);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Null);
       }
     }
 
@@ -87,9 +87,9 @@ namespace Xtensive.Orm.Tests.Issues
         var firstCall = session.Query.All<Call>().First(el => el.ConflictedField=="3");
         firstCall.UniqueField = "2";
         var secondCall = new Call { ConflictedField = "new entity" };
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Null);
         secondCall.ConflictedField = "new modified entity";
-        Assert.IsNotNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Not.Null);
         bool exceptionCatched = false;
         try {
           session.SaveChanges();
@@ -97,9 +97,9 @@ namespace Xtensive.Orm.Tests.Issues
         catch (Exception) {
           exceptionCatched = true;
         }
-        Assert.IsTrue(exceptionCatched);
-        Assert.IsNotNull(secondCall.State.DifferentialTuple.Difference);
-        Assert.AreEqual("new modified entity", secondCall.ConflictedField);
+        Assert.That(exceptionCatched, Is.True);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Not.Null);
+        Assert.That(secondCall.ConflictedField, Is.EqualTo("new modified entity"));
       }
     }
 
@@ -111,10 +111,10 @@ namespace Xtensive.Orm.Tests.Issues
         var firstCall = session.Query.All<Call>().First(el => el.ConflictedField=="3");
         var secondCall = session.Query.All<Call>().First(el => el.ConflictedField == "4");
         firstCall.UniqueField = "2";
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Null);
         secondCall.Remove();
-        Assert.IsTrue(secondCall.IsRemoved);
-        Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
+        Assert.That(secondCall.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(secondCall.PersistenceState));
         bool exceptionCatched = false;
         try {
           session.SaveChanges();
@@ -122,9 +122,9 @@ namespace Xtensive.Orm.Tests.Issues
         catch (Exception) {
           exceptionCatched = true;
         }
-        Assert.IsTrue(exceptionCatched);
-        Assert.IsTrue(secondCall.IsRemoved);
-        Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
+        Assert.That(exceptionCatched, Is.True);
+        Assert.That(secondCall.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(secondCall.PersistenceState));
       }
     }
 
@@ -136,12 +136,12 @@ namespace Xtensive.Orm.Tests.Issues
         var firstCall = session.Query.All<Call>().First(el => el.ConflictedField=="3");
         var secondCall = session.Query.All<Call>().First(el => el.ConflictedField == "4");
         firstCall.UniqueField = "2";
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Null);
         secondCall.ConflictedField = "edited removed entity";
-        Assert.IsNotNull(secondCall.State.DifferentialTuple.Difference);
+        Assert.That(secondCall.State.DifferentialTuple.Difference, Is.Not.Null);
         secondCall.Remove();
-        Assert.IsTrue(secondCall.IsRemoved);
-        Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
+        Assert.That(secondCall.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(secondCall.PersistenceState));
         bool exceptionCatched = false;
         try {
           session.SaveChanges();
@@ -149,9 +149,9 @@ namespace Xtensive.Orm.Tests.Issues
         catch (Exception) {
           exceptionCatched = true;
         }
-        Assert.IsTrue(exceptionCatched);
-        Assert.IsTrue(secondCall.IsRemoved);
-        Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
+        Assert.That(exceptionCatched, Is.True);
+        Assert.That(secondCall.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(secondCall.PersistenceState));
       }
     }
 
@@ -162,22 +162,22 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var call = session.Query.All<Call>().First();
         var originTuple = call.State.DifferentialTuple.Origin.Clone();
-        Assert.IsNotNull(call.State.DifferentialTuple.Origin);
-        Assert.IsNull(call.State.DifferentialTuple.Difference);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.Not.Null);
+        Assert.That(call.State.DifferentialTuple.Difference, Is.Null);
         call.ConflictedField = "aaaa";
-        Assert.IsNotNull(call.State.DifferentialTuple.Origin);
-        Assert.IsNotNull(call.State.DifferentialTuple.Difference);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.Not.Null);
+        Assert.That(call.State.DifferentialTuple.Difference, Is.Not.Null);
         var originTupleAfterChange = call.State.DifferentialTuple.Origin.Clone();
         var differenceTupleAfterChange = call.State.DifferentialTuple.Difference.Clone();
         call.State.CommitDifference();
-        Assert.IsNotNull(call.State.DifferentialTuple.Origin);
-        Assert.AreNotEqual(originTupleAfterChange, call.State.DifferentialTuple.Origin);
-        Assert.IsNull(call.State.DifferentialTuple.Difference);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.Not.Null);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.Not.EqualTo(originTupleAfterChange));
+        Assert.That(call.State.DifferentialTuple.Difference, Is.Null);
         call.State.RestoreDifference();
-        Assert.IsNotNull(call.State.DifferentialTuple.Origin);
-        Assert.AreEqual(originTupleAfterChange, call.State.DifferentialTuple.Origin);
-        Assert.IsNotNull(call.State.DifferentialTuple.Difference);
-        Assert.AreEqual(differenceTupleAfterChange, call.State.DifferentialTuple.Difference);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.Not.Null);
+        Assert.That(call.State.DifferentialTuple.Origin, Is.EqualTo(originTupleAfterChange));
+        Assert.That(call.State.DifferentialTuple.Difference, Is.Not.Null);
+        Assert.That(call.State.DifferentialTuple.Difference, Is.EqualTo(differenceTupleAfterChange));
       }
     }
 

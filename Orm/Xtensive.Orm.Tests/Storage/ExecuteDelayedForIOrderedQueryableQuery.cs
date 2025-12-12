@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -43,14 +43,14 @@ namespace Xtensive.Orm.Tests.Linq
           query => from zoo in query.All<TestEntity>()
             orderby zoo.OrderByThisField
             select zoo);
-        Assert.IsInstanceOf<IEnumerable<TestEntity>>(delaedQuery);
+        Assert.That(delaedQuery, Is.InstanceOf<IEnumerable<TestEntity>>());
         session.ExecuteUserDefinedDelayedQueries(true);
         var sortedValues = new int[unsortedValueSequence.Length];
         unsortedValueSequence.CopyTo(sortedValues, 0);
         Array.Sort(sortedValues);
         var currentValueIndex = 0;
         foreach (var testEntity in delaedQuery) {
-          Assert.AreEqual(sortedValues[currentValueIndex], testEntity.OrderByThisField);
+          Assert.That(testEntity.OrderByThisField, Is.EqualTo(sortedValues[currentValueIndex]));
           currentValueIndex++;
         }
       }

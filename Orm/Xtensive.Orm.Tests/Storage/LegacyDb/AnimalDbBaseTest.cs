@@ -111,12 +111,12 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
   {
     public override void Heal(Animal patient)
     {
-      Console.WriteLine(string.Format("Healing the dog {0}", patient.Name));
+      Console.WriteLine($"Healing the dog {patient.Name}");
     }
 
     public override void Kill(Animal victim)
     {
-      Console.WriteLine(string.Format("Killing the dog {0}", victim.Name));
+      Console.WriteLine($"Killing the dog {victim.Name}");
     }
   }
 
@@ -125,12 +125,12 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.AnimalDbTestModel
   {
     public override void Heal(Animal patient)
     {
-      Console.WriteLine(string.Format("Healing the cat {0}", patient.Name));
+      Console.WriteLine($"Healing the cat {patient.Name}");
     }
 
     public override void Kill(Animal victim)
     {
-      Console.WriteLine(string.Format("Killing the cat {0}", victim.Name));
+      Console.WriteLine($"Killing the cat {victim.Name}");
     }
   }
 }
@@ -352,17 +352,17 @@ ALTER TABLE [dbo].[DogLover-Pets-Dog] CHECK CONSTRAINT [FK_DogLover-Pets-Dog_Sla
         var dogClinics = session.Query.All<DogClinic>().ToList();
         var catClinics = session.Query.All<CatClinic>().ToList();
 
-        Assert.AreEqual(3, animals.Count);
-        Assert.AreEqual(1, dogs.Count);
-        Assert.AreEqual(1, cats.Count);
+        Assert.That(animals.Count, Is.EqualTo(3));
+        Assert.That(dogs.Count, Is.EqualTo(1));
+        Assert.That(cats.Count, Is.EqualTo(1));
 
-        Assert.AreEqual(2, persons.Count);
-        Assert.AreEqual(1, dogLovers.Count);
-        Assert.AreEqual(1, catLovers.Count);
+        Assert.That(persons.Count, Is.EqualTo(2));
+        Assert.That(dogLovers.Count, Is.EqualTo(1));
+        Assert.That(catLovers.Count, Is.EqualTo(1));
 
-        Assert.AreEqual(2, clinics.Count);
-        Assert.AreEqual(1, dogClinics.Count);
-        Assert.AreEqual(1, catClinics.Count);
+        Assert.That(clinics.Count, Is.EqualTo(2));
+        Assert.That(dogClinics.Count, Is.EqualTo(1));
+        Assert.That(catClinics.Count, Is.EqualTo(1));
         t.Complete();
       }
     }

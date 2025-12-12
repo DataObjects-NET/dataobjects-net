@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Phone"]);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
 
       var qr = Session.Query.All<Customer>();
 
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Select(invoice => invoice["Customer"]);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Address"]);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -170,11 +170,11 @@ namespace Xtensive.Orm.Tests.Linq
       var context = new Context();
       var actualCount = context.Invoices.Count();
       var list = context.Invoices.ToList();
-      Assert.AreEqual(expectedCount, actualCount);
-      Assert.AreEqual(expectedCount, list.Count);
+      Assert.That(actualCount, Is.EqualTo(expectedCount));
+      Assert.That(list.Count, Is.EqualTo(expectedCount));
 
       var result = context.Customers.Where(c => context.Invoices.Count(i => i.Customer == c) > 5);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var expectedCount = tracks.ToList().Count();
       var actualCount = result.Count();
-      Assert.AreEqual(expectedCount, actualCount);
+      Assert.That(actualCount, Is.EqualTo(expectedCount));
     }
 
     [Test]
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OutOfHierarchy()
     {
-      _ = Assert.Throws<QueryTranslationException>(() => Assert.Greater(Session.Query.All<Person>().Count(), 0));
+      _ = Assert.Throws<QueryTranslationException>(() => Assert.That(Session.Query.All<Person>().Count(), Is.GreaterThan(0)));
     }
 
     [Test]
@@ -250,7 +250,7 @@ namespace Xtensive.Orm.Tests.Linq
         select 0;
       var list = result.ToList();
       foreach (var i in list) {
-        Assert.AreEqual(0, i);
+        Assert.That(i, Is.EqualTo(0));
       }
     }
 
@@ -300,7 +300,7 @@ namespace Xtensive.Orm.Tests.Linq
         select r;
       var list = result.ToList();
       foreach (var i in list) {
-        Assert.AreEqual(method, i.Method);
+        Assert.That(i.Method, Is.EqualTo(method));
       }
     }
 
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Tests.Linq
         select r;
       var list = result.ToList();
       foreach (var i in list) {
-        Assert.AreEqual(0, i);
+        Assert.That(i, Is.EqualTo(0));
       }
     }
 
@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Tests.Linq
       select (string) null;
       var list = result.ToList();
       foreach (var s in list) {
-        Assert.AreEqual(null, s);
+        Assert.That(s, Is.EqualTo(null));
       }
     }
 
@@ -345,13 +345,13 @@ namespace Xtensive.Orm.Tests.Linq
         select r;
       var list = result.ToList();
       foreach (var i in list) {
-        Assert.AreEqual(10, i);
+        Assert.That(i, Is.EqualTo(10));
       }
 
       x = 20;
       list = result.ToList();
       foreach (var i in list) {
-        Assert.AreEqual(20, i);
+        Assert.That(i, Is.EqualTo(20));
       }
     }
 
@@ -367,7 +367,7 @@ namespace Xtensive.Orm.Tests.Linq
         select r;
       var list = result.ToList();
       foreach (var s in list) {
-        Assert.IsNotNull(s);
+        Assert.That(s, Is.Not.Null);
       }
     }
 
@@ -393,11 +393,11 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(t => t.Key)
         .Where(r => r != null);
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
       foreach (var k in list) {
-        Assert.IsNotNull(k);
+        Assert.That(k, Is.Not.Null);
         var t = Session.Query.SingleOrDefault<Track>(k);
-        Assert.IsNotNull(t);
+        Assert.That(t, Is.Not.Null);
       }
     }
 
@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = from t in tracks
       select new { t.Name, t.UnitPrice };
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -427,7 +427,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = from t in tracks
       select new { };
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -441,7 +441,7 @@ namespace Xtensive.Orm.Tests.Linq
         where r.TotalPriceInStock > 0
         select r;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -451,7 +451,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = from t in tracks
       select t.Album.Title;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
 
@@ -466,7 +466,7 @@ namespace Xtensive.Orm.Tests.Linq
         where r.Title != null
         select r;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -476,7 +476,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = from i in invoices
       select i.Customer.Address;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -489,7 +489,7 @@ namespace Xtensive.Orm.Tests.Linq
       where a.City != null
       select a.StreetAddress;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Tests.Linq
         where r.Track != null
         select r;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
 
@@ -527,7 +527,7 @@ namespace Xtensive.Orm.Tests.Linq
         where r.Desc.Name != null
         select r;
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -616,7 +616,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = from t in Session.Query.All<AudioTrack>() select t.MediaFormat;
       foreach (var t in result) {
-        Assert.AreEqual(t, MediaFormat.Audio);
+        Assert.That(MediaFormat.Audio, Is.EqualTo(t));
       }
     }
 
@@ -625,7 +625,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = from t in Session.Query.All<AudioTrack>() select new { t.MediaFormat };
       foreach (var t in result) {
-        Assert.AreEqual(t.MediaFormat, MediaFormat.Audio);
+        Assert.That(MediaFormat.Audio, Is.EqualTo(t.MediaFormat));
       }
     }
 
@@ -696,7 +696,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var category = Session.Query.All<Track>().Where(c => c.Bytes != null).First();
       var columnIndex = Domain.Model.Types[typeof(Track)].Fields["Bytes"].MappingInfo.Offset;
-      Assert.IsFalse(category.State.Tuple.GetFieldState(columnIndex).IsAvailable());
+      Assert.That(category.State.Tuple.GetFieldState(columnIndex).IsAvailable(), Is.False);
     }
 
     [Test]
@@ -758,13 +758,13 @@ namespace Xtensive.Orm.Tests.Linq
           DoubleSign = Math.Sign(values.Double)
         };
       foreach (var item in result) {
-        Assert.AreEqual(1, item.ByteSign);
-        Assert.AreEqual(1, item.ShortSign);
-        Assert.AreEqual(1, item.IntSign);
-        Assert.AreEqual(1, item.LongSign);
-        Assert.AreEqual(1, item.DecimalSign);
-        Assert.AreEqual(1, item.FloatSign);
-        Assert.AreEqual(1, item.DoubleSign);
+        Assert.That(item.ByteSign, Is.EqualTo(1));
+        Assert.That(item.ShortSign, Is.EqualTo(1));
+        Assert.That(item.IntSign, Is.EqualTo(1));
+        Assert.That(item.LongSign, Is.EqualTo(1));
+        Assert.That(item.DecimalSign, Is.EqualTo(1));
+        Assert.That(item.FloatSign, Is.EqualTo(1));
+        Assert.That(item.DoubleSign, Is.EqualTo(1));
       }
     }
 
@@ -811,34 +811,34 @@ namespace Xtensive.Orm.Tests.Linq
           TimeSpanFromMilliseconds = TimeSpan.FromMilliseconds(k.TimeSpan.TotalMilliseconds),
         })
         .First();
-      Assert.AreEqual(dateTime, result.DateTime);
-      Assert.AreEqual(dateTime.Date, result.DateTimeDate);
-      Assert.AreEqual(dateTime.TimeOfDay, result.DateTimeTime);
-      Assert.AreEqual(dateTime.Year, result.DateTimeYear);
-      Assert.AreEqual(dateTime.Month, result.DateTimeMonth);
-      Assert.AreEqual(dateTime.Day, result.DateTimeDay);
-      Assert.AreEqual(dateTime.Hour, result.DateTimeHour);
-      Assert.AreEqual(dateTime.Minute, result.DateTimeMinute);
-      Assert.AreEqual(dateTime.Second, result.DateTimeSecond);
-      Assert.AreEqual(dateTime.DayOfYear, result.DateTimeDayOfYear);
-      Assert.AreEqual(dateTime.DayOfWeek, result.DateTimeDayOfWeek);
-      Assert.AreEqual(timeSpan, result.TimeSpan);
-      Assert.AreEqual(timeSpan.Days, result.TimeSpanDays);
-      Assert.AreEqual(timeSpan.Hours, result.TimeSpanHours);
-      Assert.AreEqual(timeSpan.Minutes, result.TimeSpanMinutes);
-      Assert.AreEqual(timeSpan.Seconds, result.TimeSpanSeconds);
-      Assert.IsTrue(Math.Abs(timeSpan.TotalDays - result.TimeSpanTotalDays) < 0.1);
-      Assert.IsTrue(Math.Abs(timeSpan.TotalHours - result.TimeSpanTotalHours) < 0.1);
-      Assert.IsTrue(Math.Abs(timeSpan.TotalMinutes - result.TimeSpanTotalMinutes) < 0.1);
-      Assert.IsTrue(Math.Abs(timeSpan.TotalSeconds - result.TimeSpanTotalSeconds) < 0.1);
-      Assert.IsTrue(Math.Abs(timeSpan.TotalMilliseconds - result.TimeSpanTotalMilliSeconds) < 0.1);
-      Assert.AreEqual(timeSpan.Ticks, result.TimeSpanTicks);
-      Assert.AreEqual(timeSpan.Duration(), result.TimeSpanDuration);
-      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromDays.Ticks) < 2);
-      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromHours.Ticks) < 2);
-      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMinutes.Ticks) < 2);
-      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromSeconds.Ticks) < 2);
-      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMilliseconds.Ticks) < 2);
+      Assert.That(result.DateTime, Is.EqualTo(dateTime));
+      Assert.That(result.DateTimeDate, Is.EqualTo(dateTime.Date));
+      Assert.That(result.DateTimeTime, Is.EqualTo(dateTime.TimeOfDay));
+      Assert.That(result.DateTimeYear, Is.EqualTo(dateTime.Year));
+      Assert.That(result.DateTimeMonth, Is.EqualTo(dateTime.Month));
+      Assert.That(result.DateTimeDay, Is.EqualTo(dateTime.Day));
+      Assert.That(result.DateTimeHour, Is.EqualTo(dateTime.Hour));
+      Assert.That(result.DateTimeMinute, Is.EqualTo(dateTime.Minute));
+      Assert.That(result.DateTimeSecond, Is.EqualTo(dateTime.Second));
+      Assert.That(result.DateTimeDayOfYear, Is.EqualTo(dateTime.DayOfYear));
+      Assert.That(result.DateTimeDayOfWeek, Is.EqualTo(dateTime.DayOfWeek));
+      Assert.That(result.TimeSpan, Is.EqualTo(timeSpan));
+      Assert.That(result.TimeSpanDays, Is.EqualTo(timeSpan.Days));
+      Assert.That(result.TimeSpanHours, Is.EqualTo(timeSpan.Hours));
+      Assert.That(result.TimeSpanMinutes, Is.EqualTo(timeSpan.Minutes));
+      Assert.That(result.TimeSpanSeconds, Is.EqualTo(timeSpan.Seconds));
+      Assert.That(Math.Abs(timeSpan.TotalDays - result.TimeSpanTotalDays) < 0.1, Is.True);
+      Assert.That(Math.Abs(timeSpan.TotalHours - result.TimeSpanTotalHours) < 0.1, Is.True);
+      Assert.That(Math.Abs(timeSpan.TotalMinutes - result.TimeSpanTotalMinutes) < 0.1, Is.True);
+      Assert.That(Math.Abs(timeSpan.TotalSeconds - result.TimeSpanTotalSeconds) < 0.1, Is.True);
+      Assert.That(Math.Abs(timeSpan.TotalMilliseconds - result.TimeSpanTotalMilliSeconds) < 0.1, Is.True);
+      Assert.That(result.TimeSpanTicks, Is.EqualTo(timeSpan.Ticks));
+      Assert.That(result.TimeSpanDuration, Is.EqualTo(timeSpan.Duration()));
+      Assert.That(Math.Abs(timeSpan.Ticks - result.TimeSpanFromDays.Ticks) < 2, Is.True);
+      Assert.That(Math.Abs(timeSpan.Ticks - result.TimeSpanFromHours.Ticks) < 2, Is.True);
+      Assert.That(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMinutes.Ticks) < 2, Is.True);
+      Assert.That(Math.Abs(timeSpan.Ticks - result.TimeSpanFromSeconds.Ticks) < 2, Is.True);
+      Assert.That(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMilliseconds.Ticks) < 2, Is.True);
     }
 
     [Test]
@@ -850,8 +850,8 @@ namespace Xtensive.Orm.Tests.Linq
         FromThreeTakeOne = c.Email.Substring(3, 1),
       }).ToArray();
       foreach (var item in result) {
-        Assert.AreEqual(item.String.Substring(2), item.FromTwo);
-        Assert.AreEqual(item.String.Substring(3, 1), item.FromThreeTakeOne);
+        Assert.That(item.FromTwo, Is.EqualTo(item.String.Substring(2)));
+        Assert.That(item.FromThreeTakeOne, Is.EqualTo(item.String.Substring(3, 1)));
       }
     }
 
@@ -871,7 +871,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => GetCustomers().Single(c2 => c2 == c));
       var expected = Customers
         .Select(c => GetCustomers().AsEnumerable().Single(c2 => c2 == c));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -882,7 +882,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => GetCustomers(1).Single(c2 => c2 == c));
       var expected = Customers
         .Select(c => GetCustomers(1).AsEnumerable().Single(c2 => c2 == c));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -894,7 +894,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => GetCustomers(count).Single(c2 => c2 == c));
       var expected = Customers
         .Select(c => GetCustomers(count).AsEnumerable().Single(c2 => c2 == c));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]

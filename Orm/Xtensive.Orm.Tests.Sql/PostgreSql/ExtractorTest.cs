@@ -230,15 +230,15 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var schema = ExtractDefaultSchema();
 
       var table = schema.Tables["tableWithIndx"];
-      Assert.AreEqual(1, table.Indexes.Count);
+      Assert.That(table.Indexes.Count, Is.EqualTo(1));
       var index = table.Indexes["tableWithIndx_indx"];
-      Assert.AreEqual(3, index.Columns.Count);
-      Assert.AreSame(table.Columns[0], index.Columns[0].Column);
-      Assert.AreSame(table.Columns[1], index.Columns[1].Column);
-      Assert.IsNull(index.Columns[0].Expression);
-      Assert.IsNull(index.Columns[1].Expression);
-      Assert.IsNull(index.Columns[2].Column);
-      Assert.IsNotNull(index.Columns[2].Expression);
+      Assert.That(index.Columns.Count, Is.EqualTo(3));
+      Assert.That(index.Columns[0].Column, Is.SameAs(table.Columns[0]));
+      Assert.That(index.Columns[1].Column, Is.SameAs(table.Columns[1]));
+      Assert.That(index.Columns[0].Expression, Is.Null);
+      Assert.That(index.Columns[1].Expression, Is.Null);
+      Assert.That(index.Columns[2].Column, Is.Null);
+      Assert.That(index.Columns[2].Expression, Is.Not.Null);
     }
     #endregion
   }

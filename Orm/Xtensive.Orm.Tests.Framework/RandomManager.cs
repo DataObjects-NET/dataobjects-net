@@ -42,11 +42,11 @@ namespace Xtensive.Orm.Tests
       MethodBase caller = null;
       int seed = unchecked (seedFactor + globalSeedFactor + GetSeedVariatorFactor(seedVariatorType, ref caller));
       if (DebugInfo.IsRunningOnBuildServer) {
-        TestLog.Info("RandomManager: Created Random has seed {0}.", seed);
+        TestLog.Info($"RandomManager: Created Random has seed {seed}.");
 #if DEBUG
         if (caller==null)
           caller = GetCallingMethod();
-        TestLog.Info("RandomManager: Caller: {0}.{1}.", caller.DeclaringType.Name, caller.Name);
+        TestLog.Info($"RandomManager: Caller: {caller.DeclaringType.Name}.{caller.Name}.");
 #endif
       }
       return new Random(seed);

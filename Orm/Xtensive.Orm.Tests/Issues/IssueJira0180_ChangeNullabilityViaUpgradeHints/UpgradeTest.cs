@@ -49,9 +49,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var vasya = session.Query.All<Model.Version2.Person>().Single();
-        Assert.AreEqual("Vasya", vasya.Name);
-        Assert.AreEqual(80, vasya.Weight);
-        Assert.IsNotNull(vasya.Phone);
+        Assert.That(vasya.Name, Is.EqualTo("Vasya"));
+        Assert.That(vasya.Weight, Is.EqualTo(80));
+        Assert.That(vasya.Phone, Is.Not.Null);
       }
     }
 

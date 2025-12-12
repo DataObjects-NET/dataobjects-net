@@ -365,7 +365,7 @@ namespace Xtensive.Orm.Tests.Sql
       using (var command = Connection.CreateCommand(select)) {
         Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
+          Assert.That(reader.Read(), Is.True);
         }
       }
     }

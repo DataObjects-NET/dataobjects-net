@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests.Core.Performance
 
     public void InnerTest<T>(double speedFactor)
     {
-      TestLog.Info("Type {0}:", typeof(T).GetShortName());
+      TestLog.Info($"Type {typeof(T).GetShortName()}:");
       using (IndentManager.IncreaseIndent()) {
         TwoValuesTest<T>((int)(TwoValueTestIterations*speedFactor));
         ArrayTest<T>((int)(ArrayTestShortLength*speedFactor), ArrayTestShortIterations, 0);
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Core.Performance
         SimpleComparisonLoop(c1, o1, o2, 1000);
       SimpleComparisonLoop(c2, o1, o2, 1000);
       TestLog.Info("Values comparison:");
-      TestLog.Info("  Type: {0}, instances: {1} x 2, {2}", typeof(T).GetShortName(), o1, o2);
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}, instances: {o1} x 2, {o2}");
       using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         if (!TestInfo.IsProfileTestRunning) {
@@ -166,8 +166,8 @@ namespace Xtensive.Orm.Tests.Core.Performance
       if (!TestInfo.IsProfileTestRunning)
         ArrayComparisonLoop(c1, array, 1);
       ArrayComparisonLoop(c2, array, 1);
-      TestLog.Info("Array comparison (equality probability = {0}):", (int)(equalityProbability*100));
-      TestLog.Info("  Type: {0}, array length: {1}", typeof(T).GetShortName(), length);
+      TestLog.Info($"Array comparison (equality probability = {(int) (equalityProbability * 100)}):");
+      TestLog.Info($"  Type: {typeof(T).GetShortName()}, array length: {length}");
       using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         if (!TestInfo.IsProfileTestRunning) {

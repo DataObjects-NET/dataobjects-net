@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Issues
         var technicalProcesses = Query.All<TechnicalProcess>()
           .Where(tp => tp.Equipment.In(equipments)).ToArray();
 
-        Assert.AreEqual(2, technicalProcesses.Length);
+        Assert.That(technicalProcesses.Length, Is.EqualTo(2));
       }
     }
 
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Concat(session.Query.All<TechnicalProcess>().Select(p => p.StatusParameter.Url))
           .ToArray();
 
-        Assert.AreEqual(9, urls.Length);
+        Assert.That(urls.Length, Is.EqualTo(9));
       }
     }
   }

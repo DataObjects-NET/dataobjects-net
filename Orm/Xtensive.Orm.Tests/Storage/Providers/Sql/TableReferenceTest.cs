@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
         finally {
           connection.Rollback();
         }
-        Assert.IsNotNull(existingSchema);
+        Assert.That(existingSchema, Is.Not.Null);
         return domain;
       }
     }
@@ -179,23 +179,23 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql {
     public void CheckAssociations()
     {
       TypeInfo typeA = Domain.Model.Types[typeof (A)];
-      Assert.IsNotNull(typeA);
+      Assert.That(typeA, Is.Not.Null);
       CheckAssociations(typeA.GetTargetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
 
       TypeInfo typeB = Domain.Model.Types[typeof (B)];
-      Assert.IsNotNull(typeB);
+      Assert.That(typeB, Is.Not.Null);
       CheckAssociations(typeB.GetTargetAssociations(), 6, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
 
       TypeInfo typeC = Domain.Model.Types[typeof (C)];
-      Assert.IsNotNull(typeC);
+      Assert.That(typeC, Is.Not.Null);
       CheckAssociations(typeC.GetTargetAssociations(), 8, Multiplicity.ManyToMany, Multiplicity.ManyToOne, Multiplicity.OneToMany, Multiplicity.OneToOne, Multiplicity.ZeroToMany, Multiplicity.ZeroToOne);
     }
 
     private void CheckAssociations(IEnumerable<AssociationInfo> associations, int count, params Multiplicity[] multiplicities)
     {
-      Assert.AreEqual(count, associations.Count());
+      Assert.That(associations.Count(), Is.EqualTo(count));
       foreach (Multiplicity multiplicity in multiplicities)
-        Assert.IsTrue(associations.Any(association => association.Multiplicity==multiplicity));
+        Assert.That(associations.Any(association => association.Multiplicity==multiplicity), Is.True);
     }
 
     [Test]

@@ -18,8 +18,9 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
+    private readonly KeyRemapper remapper;
+
     private bool disableAutoSaveChanges;
-    private KeyRemapper remapper;
     private bool persistingIsFailed;
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }

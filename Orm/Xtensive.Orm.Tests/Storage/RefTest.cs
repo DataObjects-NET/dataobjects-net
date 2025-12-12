@@ -47,10 +47,10 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        Assert.AreEqual(authorKey, authorRef.Key);
+        Assert.That(authorRef.Key, Is.EqualTo(authorKey));
         var author = authorRef.Value;
-        Assert.IsNotNull(author);
-        Assert.AreEqual(authorRef.Key, author.Key);
+        Assert.That(author, Is.Not.Null);
+        Assert.That(author.Key, Is.EqualTo(authorRef.Key));
         tx.Complete();
       }
 

@@ -50,6 +50,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
+    [TearDown]
+    public void TearDown()
+    {
+      if (domain != null) {
+        domain.Dispose();
+      }
+    }
+
     [Test]
     public void ValidateModeTest()
     {
@@ -189,7 +197,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         await ChangeFieldTypeAsyncTest("FString5", typeof(string), "12345", Mode.PerformSafely, 3, null, null);
       }
       else {
-        Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
+        _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
           await ChangeFieldTypeAsyncTest("FString5", typeof(string), string.Empty, Mode.PerformSafely, 3, null, null));
       }
     }
@@ -419,7 +427,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void NullableStringToStringSafelyAsyncTest()
     {
       Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
-      Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await
         ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 1, null, null, false));
     }
 
@@ -522,7 +530,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var x = session.Query.All<X>().First();
-        Assert.AreEqual(expectedValue, x[fieldName]);
+        Assert.That(x[fieldName], Is.EqualTo(expectedValue));
       }
     }
 
@@ -542,7 +550,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var x = session.Query.All<X>().First();
-          Assert.AreEqual(expectedValue, x[fieldName]);
+          Assert.That(x[fieldName], Is.EqualTo(expectedValue));
         }
       }
     }

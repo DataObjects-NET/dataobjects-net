@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
     [Test]
     public void EqualToNullTest()
     {
-      Assert.AreEqual(default(int?), CastTo<int?>(null));
+      Assert.That(CastTo<int?>(null), Is.EqualTo(default(int?)));
       // int
       EqualToNull<int>(0);
       EqualToNull<int>(1);
@@ -88,22 +88,22 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void EqualToNull<T>(T o, string oAsString)
     {
-      TestLog.Info("{0}: null {1}= {2}.", typeof(T).GetShortName(), null==o ? "=" : "!", oAsString);
+      TestLog.Info($"{typeof(T).GetShortName()}: null {(null == o ? "=" : "!")}= {oAsString}.");
     }
 
     private void Default<T>()
     {
-      TestLog.Info("{0}: default {1}= null.", typeof(T).GetShortName(), null==default(T) ? "=" : "!");
+      TestLog.Info($"{typeof(T).GetShortName()}: default {(null == default(T) ? "=" : "!")}= null.");
     }
 
     private void DefaultByReference<T>()
     {
-      TestLog.Info("{0}: ReferenceEquals(default) {1}= true.", typeof(T).GetShortName(), ReferenceEquals(default(T), null) ? "=" : "!");
+      TestLog.Info($"{typeof(T).GetShortName()}: ReferenceEquals(default) {(ReferenceEquals(default(T), null) ? "=" : "!")}= true.");
     }
 
     private void InnerIsStruct<T>()
     {
-      TestLog.Info("{0}: IsStruct() {1}= true.", typeof(T).GetShortName(), IsStruct<T>() ? "=" : "!");
+      TestLog.Info($"{typeof(T).GetShortName()}: IsStruct() {(IsStruct<T>() ? "=" : "!")}= true.");
     }
 
     private bool IsStruct<T>()

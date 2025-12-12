@@ -38,8 +38,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return string.Format("Transaction #{0} ({1}, {2} ms)",
-        Id, TimeStamp, Duration.TotalMilliseconds);
+      return $"Transaction #{Id} ({TimeStamp}, {Duration.TotalMilliseconds} ms)";
     }
 
     // Only this assmebly may create or modify this instance
@@ -122,11 +121,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return string.Format("{0,7} {1}\r\n{2,7} Current state: {3}",
-        ChangeType,
-        EntityAsString,
-        string.Empty,
-        Entity==null || Entity.IsRemoved ? "removed " + EntityKey : Entity.ToString());
+      return $"{ChangeType,7} {EntityAsString}\r\n{string.Empty,7} Current state: {(Entity == null || Entity.IsRemoved ? "removed " + EntityKey : Entity.ToString())}";
     }
 
     // Only this assmebly may create or modify this instance
@@ -160,9 +155,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return string.Format("{0} {1}, Id: #{2}, Pets: {3}",
-        GetType().GetShortName(), Name,
-        Id, Pets.Select(p => p.Name).ToCommaDelimitedString());
+      return $"{GetType().GetShortName()} {Name}, Id: #{Id}, Pets: {Pets.Select(p => p.Name).ToCommaDelimitedString()}";
     }
 
     public Person(Session session)
@@ -185,8 +178,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return string.Format("{0} {1}, Id: #{2}, Owner: {3}", GetType().GetShortName(), Name,
-        Id, Owner==null ? "none" : Owner.Name);
+      return $"{GetType().GetShortName()} {Name}, Id: #{Id}, Owner: {(Owner == null ? "none" : Owner.Name)}";
     }
 
     public Animal(Session session)
@@ -354,8 +346,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<TransactionInfo>().Count());
-          Assert.AreEqual(2, session.Query.All<AuditRecord<Animal>>().Count());
+          Assert.That(session.Query.All<TransactionInfo>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<AuditRecord<Animal>>().Count(), Is.EqualTo(2));
           musya = new Cat(session);
           tx.Complete();
         }
@@ -413,9 +405,9 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
       Console.WriteLine("Automatically registered generic instances:");
       foreach (var typeInfo in autoGenericInstances)
-        Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
+        Console.WriteLine($"  {typeInfo.UnderlyingType.GetShortName()}");
       Console.WriteLine();
-      Assert.AreEqual(8, autoGenericInstances.Count);
+      Assert.That(autoGenericInstances.Count, Is.EqualTo(8));
     }
 
     private void DumpAuditLog()

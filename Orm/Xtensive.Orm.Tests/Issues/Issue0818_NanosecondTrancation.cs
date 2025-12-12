@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction())
-        Assert.AreEqual(ticks, session.Query.All<MyEntity>().First().Interval.Ticks);
+        Assert.That(session.Query.All<MyEntity>().First().Interval.Ticks, Is.EqualTo(ticks));
     }
   }
 }

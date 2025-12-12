@@ -73,20 +73,20 @@ namespace Xtensive.Orm.Manual.Structures
           // getting "range.Left" value
           Point point = range.Left;
           // "range.Left" & "point" are the same instance
-          Assert.IsTrue(ReferenceEquals(point, range.Left));
+          Assert.That(ReferenceEquals(point, range.Left), Is.True);
 
           // Let's modify "point" instance. 
           // "range.Left" will be changed automatically
           point.X = 10;
-          Assert.AreEqual(10, range.Left.X);
+          Assert.That(range.Left.X, Is.EqualTo(10));
 
           // Example 2
           // Copy-on-assignment behavior
           range.Right = range.Left;
           // Instances are not equal although they have the same values
-          Assert.IsFalse(ReferenceEquals(range.Right, range.Left));
-          Assert.AreEqual(range.Right.X, range.Left.X);
-          Assert.AreEqual(range.Right.Y, range.Left.Y);
+          Assert.That(ReferenceEquals(range.Right, range.Left), Is.False);
+          Assert.That(range.Left.X, Is.EqualTo(range.Right.X));
+          Assert.That(range.Left.Y, Is.EqualTo(range.Right.Y));
 
           // Example 3
           var points = session.Query.All<Range>().Select(r => r.Left);

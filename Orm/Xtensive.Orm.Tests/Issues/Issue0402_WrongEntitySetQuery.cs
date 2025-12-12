@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Issues
             .Where(node => root1.Children.AsEnumerable().Contains(node.Parent));
           foreach (var node in directQuery)
             Console.WriteLine(node.Name);
-          Assert.AreEqual(0, directQueryExpected.Except(directQuery).Count());
+          Assert.That(directQueryExpected.Except(directQuery).Count(), Is.EqualTo(0));
 
 
           Console.WriteLine("Query through EntitySet");
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Issues
             .Where(node => entitySet.AsEnumerable().Contains(node.Parent));
           foreach (var node in entitySetQuery)
             Console.WriteLine(node.Name);
-          Assert.AreEqual(0, entitySetQueryExpected.Except(entitySetQuery).Count());
+          Assert.That(entitySetQueryExpected.Except(entitySetQuery).Count(), Is.EqualTo(0));
         }
       }
     }

@@ -35,14 +35,14 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
       using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<Employee>().Count());
+        Assert.That(session.Query.All<Employee>().Count(), Is.EqualTo(1));
         var emp = session.Query.All<Employee>().FirstOrDefault();
-        Assert.AreEqual("Sales", emp.DepartmentName);
+        Assert.That(emp.DepartmentName, Is.EqualTo("Sales"));
         var order = session.Query.All<Order>().FirstOrDefault();
         var productNames = order.Items.Select(item => item.ProductName).ToCommaDelimitedString();
         Console.WriteLine($"Order {{\tSeller = {order.Seller.FullName}\n\tProducts = {productNames}\n}}");
         // Console.WriteLine(order);
-        Assert.AreEqual(1, order.Items.Count);
+        Assert.That(order.Items.Count, Is.EqualTo(1));
       }
     }
 

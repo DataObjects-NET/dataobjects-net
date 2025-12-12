@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       Require.ProviderIsNot(StorageProvider.Firebird, "Throws timeout operation instead of deadlock, which is not reprocessible.");
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void SimpleDeadlockTest()
     {
       using (var context = new Context(Domain)) {
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSerializableDeadlockTest()
     {
       using (var context = new Context(Domain)) {
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedSnapshotDeadlockTest()
     {
       using (var context = new Context(Domain)) {
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    [Test, Timeout(DefaultTestTimeout)]
+    [Test, CancelAfter(DefaultTestTimeout)]
     public void NestedNestedSerializableSerializableTest()
     {
       //nested nested serializable deadlock

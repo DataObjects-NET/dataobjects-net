@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     {
       foreach (var e in Expressions) {
         Console.WriteLine(e.ToString(true));
-        new ConstantExtractor(e).Process();
+        _ = new ConstantExtractor(e).Process();
         Console.WriteLine("OK");
       }
     }
@@ -37,9 +37,9 @@ namespace Xtensive.Orm.Tests.Core.Linq
       var cx = (int) ex.GetConstants()[0];
       var cy = (int) ey.GetConstants()[0];
 
-      Assert.AreEqual(cx, 1);
-      Assert.AreEqual(cy, 2);
-      Assert.AreEqual(tx, ty);
+      Assert.That(cx, Is.EqualTo(1));
+      Assert.That(cy, Is.EqualTo(2));
+      Assert.That(ty, Is.EqualTo(tx));
     }
     
     private static Expression<Func<int, int>> CreateAdd(int n)

@@ -19,9 +19,9 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       Xtensive.Tuples.Tuple source = Tuple.Create(1);
       MapTransform transform = new MapTransform(true, TupleDescriptor.Create<byte, int, string>(), new[] {-1, 0});
       Xtensive.Tuples.Tuple result = transform.Apply(TupleTransformType.TransformedTuple, source);
-      Assert.AreEqual(TupleFieldState.Default, result.GetFieldState(0));
-      Assert.AreEqual(TupleFieldState.Available, result.GetFieldState(1));
-      Assert.AreEqual(TupleFieldState.Default, result.GetFieldState(2));
+      Assert.That(result.GetFieldState(0), Is.EqualTo(TupleFieldState.Default));
+      Assert.That(result.GetFieldState(1), Is.EqualTo(TupleFieldState.Available));
+      Assert.That(result.GetFieldState(2), Is.EqualTo(TupleFieldState.Default));
     }
   }
 }

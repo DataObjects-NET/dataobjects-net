@@ -64,11 +64,11 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
     [Test, Explicit]
     public void CompoundTest()
     {
-      TestLog.Info("PointerSize:             {0}", RuntimeInfo.PointerSize);
-      TestLog.Info("DefaultStructLayoutPack: {0}", RuntimeInfo.DefaultStructLayoutPack);
-      Assert.AreEqual(RuntimeInfo.PointerSize, IntPtr.Size);
+      TestLog.Info($"PointerSize:             {RuntimeInfo.PointerSize}");
+      TestLog.Info($"DefaultStructLayoutPack: {RuntimeInfo.DefaultStructLayoutPack}");
+      Assert.That(IntPtr.Size, Is.EqualTo(RuntimeInfo.PointerSize));
       for (int i = 0; i<100; i++)
-        Assert.AreEqual(RuntimeInfo.DefaultStructLayoutPack, GetDefaultStructLayoutPack());
+        Assert.That(GetDefaultStructLayoutPack(), Is.EqualTo(RuntimeInfo.DefaultStructLayoutPack));
     }
   }
 }

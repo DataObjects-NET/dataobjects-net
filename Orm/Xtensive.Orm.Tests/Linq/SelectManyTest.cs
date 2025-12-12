@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList().OrderBy(t => t.Phone).ThenBy(t => t.Country).ThenBy(t => t.CustomerId).ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.That(expected.SequenceEqual(list), Is.True);
       QueryDumper.Dump(result);
     }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
       var expected = Invoices;
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
+      Assert.That(list.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
       var expected = Invoices.Select(i => i.Customer);
-      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
+      Assert.That(list.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
 
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
+      Assert.That(list.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
 
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
+      Assert.That(list.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -134,9 +134,9 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(i => i.Invoices.Select(t => i));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expectedCount, result.Count());
+      Assert.That(result.Count(), Is.EqualTo(expectedCount));
       foreach (var customer in result)
-        Assert.IsNotNull(customer);
+        Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Linq
       IQueryable<Invoice> result = Session.Query.All<Customer>().SelectMany(c => c.Invoices.DefaultIfEmpty());
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expectedCount, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expectedCount));
     }
 
     [Test]
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expectedCount, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expectedCount));
     }
 
     [Test]
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")), (c, i) => i.PaymentDate);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A"))).Select((i) => i.PaymentDate);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => c.Invoices);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices;
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
+      Assert.That(result.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices;
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
+      Assert.That(result.Except(expected).IsNullOrEmpty(), Is.True);
     }
 
     [Test]
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(invoicesCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(invoicesCount));
     }
 
     [Test]
@@ -252,7 +252,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(tracksCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(tracksCount));
     }
 
     [Test]
@@ -268,11 +268,11 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(assertCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(assertCount));
       foreach (var item in result) {
-        Assert.IsNotNull(item);
-        Assert.IsNotNull(item.LastName);
-        Assert.IsNotNull(item.i);
+        Assert.That(item, Is.Not.Null);
+        Assert.That(item.LastName, Is.Not.Null);
+        Assert.That(item.i, Is.Not.Null);
       }
       QueryDumper.Dump(list);
     }
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(assertCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(assertCount));
       QueryDumper.Dump(list);
     }
 
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(assertCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(assertCount));
       QueryDumper.Dump(list);
     }
 
@@ -326,7 +326,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(assertCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(assertCount));
       QueryDumper.Dump(list);
     }
 
@@ -350,7 +350,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c)).SelectMany(i => i);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -372,7 +372,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c), (c, i) => new {c, i});
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -413,7 +413,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
 
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -425,7 +425,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Distinct()
           .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(expected, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Tests.Linq
         select i;
 
       Assert.That(actual, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      Assert.That(expected.SequenceEqual(actual), Is.True);
     }
 
     [Test]
@@ -485,7 +485,7 @@ namespace Xtensive.Orm.Tests.Linq
         select n;
 
       Assert.That(actual, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      Assert.That(expected.SequenceEqual(actual), Is.True);
     }
 
     [Test]
@@ -505,7 +505,7 @@ namespace Xtensive.Orm.Tests.Linq
         select i.InvoiceId;
 
       Assert.That(actual, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      Assert.That(expected.SequenceEqual(actual), Is.True);
     }
 
     [Test]
@@ -518,7 +518,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       Assert.That(query, Is.Not.Empty);
       var count = query.Count();
-      TestLog.Info("Records count: {0}", count);
+      TestLog.Info($"Records count: {count}");
       QueryDumper.Dump(query);
     }
   }

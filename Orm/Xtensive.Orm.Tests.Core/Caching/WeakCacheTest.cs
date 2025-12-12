@@ -13,8 +13,14 @@ namespace Xtensive.Orm.Tests.Core.Caching
   [TestFixture]
   public class WeakCacheTest
   {
+    private readonly Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
     private WeakCache<string, TestClass> globalCache;
-    private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
+
+    [TearDown]
+    public void TearDown()
+    {
+      globalCache.Dispose();
+    }
 
     [Test]
     public void ConstructorsTest()
@@ -22,18 +28,18 @@ namespace Xtensive.Orm.Tests.Core.Caching
       var cache = new WeakCache<string, TestClass>(
         false, value => value.Text);
 
-      Assert.IsNotNull(cache.KeyExtractor);
+      Assert.That(cache.KeyExtractor, Is.Not.Null);
 
       var item = new TestClass("100");
       cache.Add(item);
 
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
     }
 
     [Test]
     public void ConstructorDenyTest()
     {
-      Assert.Throws<ArgumentNullException>(() => { var cache = new WeakCache<string, TestClass>(false, null); });
+      _ = Assert.Throws<ArgumentNullException>(() => { var cache = new WeakCache<string, TestClass>(false, null); });
     }
 
     [Test]
@@ -43,43 +49,43 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       TestClass item = new TestClass("1");
       cache.Add(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       item = new TestClass("2");
       cache.Add(item);
-      Assert.AreEqual(2, cache.Count);
-      Assert.AreEqual(item, cache[item.Text, false]);
+      Assert.That(cache.Count, Is.EqualTo(2));
+      Assert.That(cache[item.Text, false], Is.EqualTo(item));
 
       ICache<string, TestClass> icache = cache;
-      Assert.AreEqual(item, icache[item.Text, false]);
-      Assert.AreEqual(null, icache["3", false]);
+      Assert.That(icache[item.Text, false], Is.EqualTo(item));
+      Assert.That(icache["3", false], Is.EqualTo(null));
 
       cache.Remove(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       cache.Clear();
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
     }
 
     [Test]
     public void AddDenyTest()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      Assert.Throws<ArgumentNullException>(() => cache.Add(null));
+      _ = Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
     public void RemoveDenyTest()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass) null));
+      _ = Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass)null));
     }
 
     [Test]
     public void RemoveDenyTest1()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass)null));
+      _ = Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass)null));
     }
 
     [Test]
@@ -90,26 +96,26 @@ namespace Xtensive.Orm.Tests.Core.Caching
       for (int i = 0; i < 100; i++)
         cache.Add(new TestClass("item " + i));
 
-      Assert.IsTrue(cache.Count >= 0);
-      Assert.IsTrue(cache.Count <= 100);
+      Assert.That(cache.Count >= 0, Is.True);
+      Assert.That(cache.Count <= 100, Is.True);
 
       int itemsCount = 0;
       foreach (TestClass testClass in cache) {
-        Assert.IsTrue(testClass == null || testClass.Text.StartsWith("item"), "Line 182");
+        Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 182");
         itemsCount++;
       }
-      Assert.IsTrue(itemsCount >= 0);
-      Assert.IsTrue(itemsCount <= 100);
+      Assert.That(itemsCount >= 0, Is.True);
+      Assert.That(itemsCount <= 100, Is.True);
 
       TestHelper.CollectGarbage(true);
 
       itemsCount = 0;
       foreach (TestClass testClass in cache) {
-        Assert.IsTrue(testClass == null || testClass.Text.StartsWith("item"), "Line 196");
+        Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 196");
         itemsCount++;
       }
-      Assert.IsTrue(itemsCount >= 0);
-      Assert.IsTrue(itemsCount <= 100);
+      Assert.That(itemsCount >= 0, Is.True);
+      Assert.That(itemsCount <= 100, Is.True);
     }
 
     private static bool canFinish = true;
@@ -141,7 +147,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
           removeThreads[i].Join();
         }
       }
-      Assert.IsTrue(globalCache.Count >= 0);
+      Assert.That(globalCache.Count >= 0, Is.True);
       
       globalCache = null;
     }

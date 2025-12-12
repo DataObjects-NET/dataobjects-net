@@ -50,10 +50,10 @@ namespace Xtensive.Orm.Tests.Issues
         var countFuture1 = session.Query.CreateDelayedQuery(qe => (qe.All<Item>() as IQueryable).Count());
         var countFuture2 = session.Query.CreateDelayedQuery(qe => (qe.All<Item>() as IQueryable).Count());
         var countFuture3 = session.Query.CreateDelayedQuery(qe => (qe.All<Item>() as IQueryable).Count());
-        Assert.AreEqual(1, countSimple);
-        Assert.AreEqual(countSimple, countFuture1.Value);
-        Assert.AreEqual(countSimple, countFuture2.Value);
-        Assert.AreEqual(countSimple, countFuture3.Value);
+        Assert.That(countSimple, Is.EqualTo(1));
+        Assert.That(countFuture1.Value, Is.EqualTo(countSimple));
+        Assert.That(countFuture2.Value, Is.EqualTo(countSimple));
+        Assert.That(countFuture3.Value, Is.EqualTo(countSimple));
         
         t.Complete();
       }  

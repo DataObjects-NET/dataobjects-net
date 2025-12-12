@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Linq
       if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
         expected = Math.Truncate(expected);
       }
-      Assert.AreEqual(expected, avg);
+      Assert.That(avg, Is.EqualTo(expected));
     }
 
     [Test]
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       // Add some tolerance
       Assert.That(delta, Is.LessThan(0.000000001m));
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -86,15 +86,15 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var sum = Session.Query.All<Invoice>().Sum(o => o.InvoiceId);
       var expected = Session.Query.All<Invoice>().ToList().Sum(o => o.InvoiceId);
-      Assert.AreEqual(expected, sum);
-      Assert.Greater(sum, 0);
+      Assert.That(sum, Is.EqualTo(expected));
+      Assert.That(sum, Is.GreaterThan(0));
     }
 
     [Test]
     public void CountWithNoPredicateTest()
     {
       var count = Session.Query.All<Invoice>().Count();
-      Assert.Greater(count, 0);
+      Assert.That(count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -102,8 +102,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var count = Session.Query.All<Invoice>().Count(o => o.InvoiceId > 10);
       var expected = Invoices.Count(o => o.InvoiceId > 10);
-      Assert.AreEqual(expected, count);
-      Assert.Greater(count, 0);
+      Assert.That(count, Is.EqualTo(expected));
+      Assert.That(count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -118,9 +118,9 @@ namespace Xtensive.Orm.Tests.Linq
 
       var list = result.ToList();
 
-      Assert.AreEqual(0, expected.Except(list).Count());
+      Assert.That(expected.Except(list).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -132,9 +132,9 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Where(c => Invoices
           .Count(o => o.Customer==c) > 5);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -150,10 +150,10 @@ namespace Xtensive.Orm.Tests.Linq
         where Invoices
           .Count(o => o.Customer==c) > 6
         select c;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
 
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -172,9 +172,9 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(o => o.Customer==c)
           .Max(o => o.InvoiceDate) < new DateTime(2019, 1, 1)
         select c;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -193,9 +193,9 @@ namespace Xtensive.Orm.Tests.Linq
                 .Where(o => o.Customer==c)
                 .Min(o => o.Commission) > 0.089m
         select c;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -214,9 +214,9 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(o => o.Customer==c)
           .Average(o => o.Commission) < 0.3m
         select c;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -228,8 +228,8 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
       var expected = Customers
         .Select(c => Invoices.Count());
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -250,9 +250,9 @@ namespace Xtensive.Orm.Tests.Linq
           NumberOfOrders = Invoices
             .Count(o => o.Customer==c)
         };
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -273,9 +273,9 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(s => s==l.Invoice)
           .Max(s => s.InvoiceId)
       };
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices.Count();
       var count = Session.Query.All<Customer>()
         .Sum(c => Session.Query.All<Invoice>().Count(o => o.Customer==c));
-      Assert.AreEqual(expected, count);
+      Assert.That(count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Where(c => c.Invoices.Count > 0)
         .Sum(c => Invoices.Where(o => o.Customer==c).Min(o => o.Commission));
-      Assert.AreEqual(expected, result);
+      Assert.That(result, Is.EqualTo(expected));
     }
 
     [Test]
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Max(c => Session.Query.All<Invoice>().Count(o => o.Customer==c));
       var expected = Customers
         .Max(c => Invoices.Count(o => o.Customer==c));
-      Assert.AreEqual(expected, result);
+      Assert.That(result, Is.EqualTo(expected));
     }
 
     [Test]
@@ -321,7 +321,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices
         .Select(o => (int?) o.InvoiceId)
         .Sum();
-      Assert.AreEqual(expected, result);
+      Assert.That(result, Is.EqualTo(expected));
     }
   }
 }

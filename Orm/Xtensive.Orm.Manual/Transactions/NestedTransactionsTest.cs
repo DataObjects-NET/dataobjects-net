@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
           using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Removing the entity
             dmitri.Remove();
-            Assert.IsTrue(dmitri.IsRemoved);
+            Assert.That(dmitri.IsRemoved, Is.True);
             AssertEx.Throws<InvalidOperationException>(() => {
               var dmitryName = dmitri.Name;
             });
@@ -131,15 +131,15 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
           }
 
           // Transparent Entity state update
-          Assert.IsFalse(dmitri.IsRemoved);
-          Assert.AreEqual("Dmitri Maximov", dmitri.Name);
+          Assert.That(dmitri.IsRemoved, Is.False);
+          Assert.That(dmitri.Name, Is.EqualTo("Dmitri Maximov"));
 
           // Repeating the same, but using transactional method
           AssertEx.Throws<InvalidOperationException>(dmitri.RemoveAndCancel);
 
           // Transparent Entity state update
-          Assert.IsFalse(dmitri.IsRemoved);
-          Assert.AreEqual("Dmitri Maximov", dmitri.Name);
+          Assert.That(dmitri.IsRemoved, Is.False);
+          Assert.That(dmitri.Name, Is.EqualTo("Dmitri Maximov"));
           
           // Marking the transaction scope as completed to commit it 
           transactionScope.Complete();
