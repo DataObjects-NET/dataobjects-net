@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Tests.Configuration
       typeRegistry.Register(typeof (A).Assembly, "Xtensive.Orm.Tests.RegistryModel1");
       long amount = typeRegistry.Count;
       typeRegistry.Register(typeof (A).Assembly, "Xtensive.Orm.Tests.RegistryModel2");
-      Assert.That(typeRegistry.Count, Is.LessThan(amount));
+      Assert.That(amount, Is.LessThan(typeRegistry.Count));
     }
 
     [Test]
