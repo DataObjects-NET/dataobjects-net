@@ -45,14 +45,15 @@ namespace Xtensive.Orm.Tests.Sql
         Connection.Close();
         Connection.Dispose();
         throw;
-
       }
     }
 
     protected override void TestFixtureTearDown()
     {
-      if (Connection.State != System.Data.ConnectionState.Open)
-        base.TestFixtureSetUp();
+      if (Connection.State != System.Data.ConnectionState.Open) {
+        base.TestFixtureTearDown();
+        return;
+      }
       if (schema != null) {
         Table t = schema.Tables[TableName];
         if (t != null) {
