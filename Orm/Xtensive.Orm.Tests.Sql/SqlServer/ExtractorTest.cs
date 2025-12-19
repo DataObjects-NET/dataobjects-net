@@ -23,6 +23,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     protected override void TestFixtureTearDown()
     {
+      if (Connection is null)
+        return;
+
       foreach (var dropOperation in dropOperations) {
         try {
           _ = ExecuteNonQuery(dropOperation);

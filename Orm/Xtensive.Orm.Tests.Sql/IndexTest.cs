@@ -50,7 +50,9 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected override void TestFixtureTearDown()
     {
-      if (Connection.UnderlyingConnection!=null && Connection.State != System.Data.ConnectionState.Open) {
+      if (Connection is null)
+        return;
+      if (Connection.State != System.Data.ConnectionState.Open) {
         base.TestFixtureTearDown();
         return;
       }
