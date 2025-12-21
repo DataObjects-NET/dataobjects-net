@@ -19,13 +19,15 @@ namespace Xtensive.Orm.Tests
   /// </summary>
   public static class AssertEx
   {
+    private const RegexOptions RegexSearchOptions = RegexOptions.Singleline | RegexOptions.CultureInvariant;
+
     public static void IsPatternMatch(string source, string pattern)
     {
       pattern = "^"+Regex.Escape(pattern)+"$";
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
-      Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.That(r.Match(source), Is.True);
+      var r = new Regex(pattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.True);
     }
 
     public static void IsNotPatternMatch(string source, string pattern)
@@ -33,25 +35,25 @@ namespace Xtensive.Orm.Tests
       pattern = "^"+Regex.Escape(pattern)+"$";
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
-      Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.That(r.Match(source), Is.False);
+      var r = new Regex(pattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.False);
     }
 
     public static void IsRegexMatch(string source, string regexPattern)
     {
-      Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.That(r.Match(source), Is.True);
+      var r = new Regex(regexPattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.True);
     }
 
     public static void IsNotRegexMatch(string source, string regexPattern)
     {
-      Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.That(r.Match(source), Is.False);
+      var r = new Regex(regexPattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.False);
     }
 
     public static void HasSameElements<T>(IEnumerable<T> expected, IEnumerable<T> actual)
     {
-      if (expected==null)
+      if (expected is null)
         Assert.That(actual, Is.Null);
       else {
         var expectedSet = new HashSet<T>(expected);
@@ -96,29 +98,14 @@ namespace Xtensive.Orm.Tests
         Assert.Fail($"Expected '{typeof(TException).GetShortName()}' was not thrown.");
     }
 
-    public static void ThrowsNotSupportedException([InstantHandle] Action action)
-    {
-      Throws<NotSupportedException>(action);
-    }
+    public static void ThrowsNotSupportedException([InstantHandle] Action action) => Throws<NotSupportedException>(action);
 
-    public static void ThrowsInvalidOperationException([InstantHandle] Action action)
-    {
-      Throws<InvalidOperationException>(action);
-    }
+    public static void ThrowsInvalidOperationException([InstantHandle] Action action) => Throws<InvalidOperationException>(action);
 
-    public static void ThrowsArgumentException([InstantHandle] Action action)
-    {
-      Throws<ArgumentException>(action);
-    }
+    public static void ThrowsArgumentException([InstantHandle] Action action) => Throws<ArgumentException>(action);
 
-    public static void ThrowsArgumentOutOfRangeException([InstantHandle] Action action)
-    {
-      Throws<ArgumentOutOfRangeException>(action);
-    }
+    public static void ThrowsArgumentOutOfRangeException([InstantHandle] Action action) => Throws<ArgumentOutOfRangeException>(action);
 
-    public static void ThrowsArgumentNullException([InstantHandle] Action action)
-    {
-      Throws<ArgumentNullException>(action);
-    }
+    public static void ThrowsArgumentNullException([InstantHandle] Action action) => Throws<ArgumentNullException>(action);
   }
 }
