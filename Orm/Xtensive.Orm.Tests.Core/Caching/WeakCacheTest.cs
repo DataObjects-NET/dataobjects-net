@@ -19,21 +19,24 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [TearDown]
     public void TearDown()
     {
-      globalCache.Dispose();
+      if (globalCache is not null) {
+        globalCache.Dispose();
+      }
     }
 
     [Test]
     public void ConstructorsTest()
     {
-      var cache = new WeakCache<string, TestClass>(
-        false, value => value.Text);
+      using (var cache = new WeakCache<string, TestClass>(
+        false, value => value.Text)) {
 
-      Assert.That(cache.KeyExtractor, Is.Not.Null);
+        Assert.That(cache.KeyExtractor, Is.Not.Null);
 
-      var item = new TestClass("100");
-      cache.Add(item);
+        var item = new TestClass("100");
+        cache.Add(item);
 
-      Assert.That(cache.Count, Is.EqualTo(1));
+        Assert.That(cache.Count, Is.EqualTo(1));
+      }
     }
 
     [Test]
@@ -45,26 +48,27 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddRemoveTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      using (var cache = new WeakCache<string, TestClass>(false, value => value.Text)) {
 
-      TestClass item = new TestClass("1");
-      cache.Add(item);
-      Assert.That(cache.Count, Is.EqualTo(1));
+        TestClass item = new TestClass("1");
+        cache.Add(item);
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      item = new TestClass("2");
-      cache.Add(item);
-      Assert.That(cache.Count, Is.EqualTo(2));
-      Assert.That(cache[item.Text, false], Is.EqualTo(item));
+        item = new TestClass("2");
+        cache.Add(item);
+        Assert.That(cache.Count, Is.EqualTo(2));
+        Assert.That(cache[item.Text, false], Is.EqualTo(item));
 
-      ICache<string, TestClass> icache = cache;
-      Assert.That(icache[item.Text, false], Is.EqualTo(item));
-      Assert.That(icache["3", false], Is.EqualTo(null));
+        ICache<string, TestClass> icache = cache;
+        Assert.That(icache[item.Text, false], Is.EqualTo(item));
+        Assert.That(icache["3", false], Is.EqualTo(null));
 
-      cache.Remove(item);
-      Assert.That(cache.Count, Is.EqualTo(1));
+        cache.Remove(item);
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      cache.Clear();
-      Assert.That(cache.Count, Is.EqualTo(0));
+        cache.Clear();
+        Assert.That(cache.Count, Is.EqualTo(0));
+      }
     }
 
     [Test]
@@ -91,31 +95,32 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void IEnumerableTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      using (var cache = new WeakCache<string, TestClass>(false, value => value.Text)) {
 
-      for (int i = 0; i < 100; i++)
-        cache.Add(new TestClass("item " + i));
+        for (int i = 0; i < 100; i++)
+          cache.Add(new TestClass("item " + i));
 
-      Assert.That(cache.Count >= 0, Is.True);
-      Assert.That(cache.Count <= 100, Is.True);
+        Assert.That(cache.Count >= 0, Is.True);
+        Assert.That(cache.Count <= 100, Is.True);
 
-      int itemsCount = 0;
-      foreach (TestClass testClass in cache) {
-        Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 182");
-        itemsCount++;
+        int itemsCount = 0;
+        foreach (TestClass testClass in cache) {
+          Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 182");
+          itemsCount++;
+        }
+        Assert.That(itemsCount >= 0, Is.True);
+        Assert.That(itemsCount <= 100, Is.True);
+
+        TestHelper.CollectGarbage(true);
+
+        itemsCount = 0;
+        foreach (TestClass testClass in cache) {
+          Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 196");
+          itemsCount++;
+        }
+        Assert.That(itemsCount >= 0, Is.True);
+        Assert.That(itemsCount <= 100, Is.True);
       }
-      Assert.That(itemsCount >= 0, Is.True);
-      Assert.That(itemsCount <= 100, Is.True);
-
-      TestHelper.CollectGarbage(true);
-
-      itemsCount = 0;
-      foreach (TestClass testClass in cache) {
-        Assert.That(testClass == null || testClass.Text.StartsWith("item"), Is.True, "Line 196");
-        itemsCount++;
-      }
-      Assert.That(itemsCount >= 0, Is.True);
-      Assert.That(itemsCount <= 100, Is.True);
     }
 
     private static bool canFinish = true;
@@ -148,7 +153,8 @@ namespace Xtensive.Orm.Tests.Core.Caching
         }
       }
       Assert.That(globalCache.Count >= 0, Is.True);
-      
+
+      globalCache.Dispose();
       globalCache = null;
     }
 

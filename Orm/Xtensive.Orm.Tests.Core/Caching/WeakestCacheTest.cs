@@ -60,85 +60,89 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void ClassFieldInTestScopeTest()
     {
-      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+      using (var cache = new WeakestCache<Item, Item>(false, false, i => i)) {
 
-      fieldItem1 = new Item("1");
+        fieldItem1 = new Item("1");
 
-      cache.Add(fieldItem1);
+        cache.Add(fieldItem1);
 
-      Assert.That(cache.First(), Is.SameAs(fieldItem1));
-      Assert.That(cache[new Item("1"), true], Is.SameAs(fieldItem1));
+        Assert.That(cache.First(), Is.SameAs(fieldItem1));
+        Assert.That(cache[new Item("1"), true], Is.SameAs(fieldItem1));
 
-      cache.Remove(fieldItem1);
-      Assert.That(cache.Count, Is.EqualTo(0));
+        cache.Remove(fieldItem1);
+        Assert.That(cache.Count, Is.EqualTo(0));
 
-      cache.Add(fieldItem1);
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(1));
+        cache.Add(fieldItem1);
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      fieldItem1 = null;
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(1));
+        fieldItem1 = null;
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      Assert.That(cache[new Item("1"), true], Is.Not.Null);
+        Assert.That(cache[new Item("1"), true], Is.Not.Null);
+      }
     }
 
     [Test]
     public void LocalVarInTestScopeTest()
     {
-      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+      using (var cache = new WeakestCache<Item, Item>(false, false, i => i)) {
 
-      var item1 = new Item("1");
+        var item1 = new Item("1");
 
-      cache.Add(item1);
+        cache.Add(item1);
 
-      Assert.That(cache.First(), Is.SameAs(item1));
-      Assert.That(cache[new Item("1"), true], Is.SameAs(item1));
+        Assert.That(cache.First(), Is.SameAs(item1));
+        Assert.That(cache[new Item("1"), true], Is.SameAs(item1));
 
-      cache.Remove(item1);
-      Assert.That(cache.Count, Is.EqualTo(0));
+        cache.Remove(item1);
+        Assert.That(cache.Count, Is.EqualTo(0));
 
-      cache.Add(item1);
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(1));
+        cache.Add(item1);
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      item1 = null;
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(1));
+        item1 = null;
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(1));
 
-      Assert.That(cache[new Item("1"), true], Is.Not.Null);
+        Assert.That(cache[new Item("1"), true], Is.Not.Null);
+      }
     }
 
     [Test]
     public void LocalVarInCalledMethodScopeTest()
     {
-      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+      using (var cache = new WeakestCache<Item, Item>(false, false, i => i)) {
 
-      InnerLocalVariableCacheTest(cache);
+        InnerLocalVariableCacheTest(cache);
 
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(0));
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(0));
 
-      Assert.That(cache[new Item("1"), true], Is.Null);
+        Assert.That(cache[new Item("1"), true], Is.Null);
+      }
     }
 
     [Test]
     public void ClassFieldInCalledMethodScopeTest()
     {
-      var cache = new WeakestCache<Item, Item>(false, false, i => i);
+      using (var cache = new WeakestCache<Item, Item>(false, false, i => i)) {
 
-      InnerClassFieldCacheTest(cache);
+        InnerClassFieldCacheTest(cache);
 
-      TestHelper.CollectGarbage(true);
-      cache.CollectGarbage();
-      Assert.That(cache.Count, Is.EqualTo(0));
+        TestHelper.CollectGarbage(true);
+        cache.CollectGarbage();
+        Assert.That(cache.Count, Is.EqualTo(0));
 
-      Assert.That(cache[new Item("1"), true], Is.Null);
+        Assert.That(cache[new Item("1"), true], Is.Null);
+      }
     }
 
     private void InnerLocalVariableCacheTest(WeakestCache<Item, Item> cache)
@@ -184,14 +188,15 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void ProfileTest()
     {
-      var cache = new WeakestCache<Item, Item>(false, false, i => i);
-      var measurement = new Measurement();
-      for (int i = 0, j = 0; i < 1000000; i++, j++) {
-        var item = new Item(i.ToString());
-        cache.Add(item);
-        if (j == 100000) {
-          j = 0;
-          Console.Out.WriteLine(measurement.ToString());
+      using (var cache = new WeakestCache<Item, Item>(false, false, i => i)) {
+        var measurement = new Measurement();
+        for (int i = 0, j = 0; i < 1000000; i++, j++) {
+          var item = new Item(i.ToString());
+          cache.Add(item);
+          if (j == 100000) {
+            j = 0;
+            Console.Out.WriteLine(measurement.ToString());
+          }
         }
       }
     }
