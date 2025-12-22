@@ -16,14 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
     private readonly Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
     private WeakCache<string, TestClass> globalCache;
 
-    [TearDown]
-    public void TearDown()
-    {
-      if (globalCache is not null) {
-        globalCache.Dispose();
-      }
-    }
-
     [Test]
     public void ConstructorsTest()
     {
