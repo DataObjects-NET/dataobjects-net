@@ -105,10 +105,10 @@ namespace Xtensive.Orm.Tests.Storage
         using (session.DisableSaveChanges()) {
           var anotherVictim = new Victim();
           var newCount = session.Query.All<Victim>().Count();
-          Assert.AreEqual(count, newCount);
+          Assert.That(newCount, Is.EqualTo(count));
           session.SaveChanges();
           var newestCount = session.Query.All<Victim>().Count();
-          Assert.AreEqual(count + 1, newestCount);
+          Assert.That(newestCount, Is.EqualTo(count + 1));
         }
       }
     }
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Storage
 
           var anotherVictim = new Victim();
           var newCount = session.Query.All<Victim>().Count();
-          Assert.AreEqual(count, newCount);
+          Assert.That(newCount, Is.EqualTo(count));
           t.Complete();
         }
       });
@@ -141,12 +141,12 @@ namespace Xtensive.Orm.Tests.Storage
         // "Killers" who have not killed yet should not be considered as killers
         using (session.DisableSaveChanges(butcher)) {
           session.SaveChanges();
-          Assert.AreEqual(PersistenceState.New, butcher.PersistenceState);
-          Assert.AreEqual(PersistenceState.Synchronized, firstVictim.PersistenceState);
+          Assert.That(butcher.PersistenceState, Is.EqualTo(PersistenceState.New));
+          Assert.That(firstVictim.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
           butcher.Kill(firstVictim);
           session.SaveChanges();
-          Assert.AreEqual(PersistenceState.New, butcher.PersistenceState);
-          Assert.AreEqual(PersistenceState.Modified, firstVictim.PersistenceState);
+          Assert.That(butcher.PersistenceState, Is.EqualTo(PersistenceState.New));
+          Assert.That(firstVictim.PersistenceState, Is.EqualTo(PersistenceState.Modified));
         }
         session.SaveChanges();
         using (session.DisableSaveChanges(butcher)) {
@@ -154,9 +154,9 @@ namespace Xtensive.Orm.Tests.Storage
           var secondVictim = new Victim();
           butcher.Kill(secondVictim);
           session.SaveChanges();
-          Assert.AreEqual(PersistenceState.Modified, butcher.PersistenceState);
-          Assert.AreEqual(PersistenceState.Synchronized, firstVictim.PersistenceState);
-          Assert.AreEqual(PersistenceState.Synchronized, secondVictim.PersistenceState);
+          Assert.That(butcher.PersistenceState, Is.EqualTo(PersistenceState.Modified));
+          Assert.That(firstVictim.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
+          Assert.That(secondVictim.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         }
       }
     }
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (session.DisableSaveChanges(node)) {
             AssertNumberOfNodesInDatabaseIs(0);
             foreach (var item in allTrees)
-              Assert.AreEqual(PersistenceState.New, item.PersistenceState);
+              Assert.That(item.PersistenceState, Is.EqualTo(PersistenceState.New));
           }
           session.SaveChanges();
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
@@ -180,18 +180,18 @@ namespace Xtensive.Orm.Tests.Storage
             foreach (var item in allTrees)
               item.Tag++;
             session.SaveChanges();
-            Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
+            Assert.That(node.PersistenceState, Is.EqualTo(PersistenceState.Modified));
             foreach (var item in allTrees.Where(item => item!=node))
-              Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
+              Assert.That(item.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
           }
           session.SaveChanges();
           var newNode = T(node);
           using (session.DisableSaveChanges(newNode)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 1);
-            Assert.AreEqual(PersistenceState.New, newNode.PersistenceState);
-            Assert.AreEqual(PersistenceState.Modified, node.PersistenceState);
+            Assert.That(newNode.PersistenceState, Is.EqualTo(PersistenceState.New));
+            Assert.That(node.PersistenceState, Is.EqualTo(PersistenceState.Modified));
             foreach (var item in allTrees.Where(item => item!=newNode && item!=node))
-              Assert.AreEqual(PersistenceState.Synchronized, item.PersistenceState);
+              Assert.That(item.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
           }
           session.SaveChanges();
           AssertNumberOfNodesInDatabaseIs(allTrees.Count);
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Storage
           cycledGraph.Parent = cycledNode;
           using (session.DisableSaveChanges(cycledGraph)) {
             AssertNumberOfNodesInDatabaseIs(allTrees.Count - 3);
-            Assert.AreEqual(PersistenceState.Modified, cycledNode.PersistenceState);
+            Assert.That(cycledNode.PersistenceState, Is.EqualTo(PersistenceState.Modified));
           }
           session.SaveChanges();
         }
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (session.OpenTransaction()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))
-          Assert.IsNull(session.DisableSaveChanges(victim));
+          Assert.That(session.DisableSaveChanges(victim), Is.Null);
       }
     }
 
@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Tests.Storage
     private static void AssertNumberOfNodesInDatabaseIs(int expected)
     {
       var actual = Session.Demand().Query.All<Node>().Count();
-      Assert.AreEqual(expected, actual);
+      Assert.That(actual, Is.EqualTo(expected));
     }
 
     private Node T(params Node[] children)

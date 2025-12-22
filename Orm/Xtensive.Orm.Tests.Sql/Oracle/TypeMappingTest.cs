@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
         charValue!=null && charValue==default(char);
       
       if (nullExpected)
-        Assert.IsNull(actual);
+        Assert.That(actual, Is.Null);
       else
         base.CheckEquality(expected, actual);
     }

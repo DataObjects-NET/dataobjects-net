@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
       }; // Nothing is sent to server yet
 
       foreach (var e in GlobalSession.Query.All<MyEntity>()) // Batch is sent
-        Console.WriteLine("Entity.Text: {0}", e.Text); 
+        Console.WriteLine($"Entity.Text: {e.Text}"); 
     }
 
     [Test]
@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Tests.Issues
       var futureCount = GlobalSession.Query.CreateDelayedQuery(qe => qe.All<MyEntity>().Count());
 
       foreach (var e in GlobalSession.Query.All<MyEntity>()) // Batch is sent
-        Console.WriteLine("Entity.Text: {0}", e.Text); 
-      Console.WriteLine("Count: {0}", futureCount.Value);
+        Console.WriteLine($"Entity.Text: {e.Text}"); 
+      Console.WriteLine($"Count: {futureCount.Value}");
     }
   }
 }

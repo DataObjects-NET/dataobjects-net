@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     public void DelegateTest()
     {
       Converter<ByteEnum, byte> converter = DelegateHelper.CreatePrimitiveCastDelegate<ByteEnum, byte>();
-      converter(ByteEnum.Value1_1);
+      _ = converter(ByteEnum.Value1_1);
     }
 
     [Test]
@@ -144,13 +144,13 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       AdvancedConverter<TFrom, TTo> advancedConverter = AdvancedConverter<TFrom, TTo>.Default;
       AdvancedConverter<TTo, TFrom> backwardAdvancedConverter = AdvancedConverter<TTo, TFrom>.Default;
       IInstanceGenerator<TFrom> instanceGenerator = InstanceGeneratorProvider.Default.GetInstanceGenerator<TFrom>();
-      Assert.IsNotNull(advancedConverter);
-      Assert.IsNotNull(backwardAdvancedConverter);
-      Assert.IsNotNull(instanceGenerator);
+      Assert.That(advancedConverter, Is.Not.Null);
+      Assert.That(backwardAdvancedConverter, Is.Not.Null);
+      Assert.That(instanceGenerator, Is.Not.Null);
       foreach (TFrom from in instanceGenerator.GetInstances(random, enumTestCount)) {
         TTo result = advancedConverter.Convert(from);
         TFrom backwardResult = backwardAdvancedConverter.Convert(result);
-        Assert.AreEqual(from, backwardResult);
+        Assert.That(backwardResult, Is.EqualTo(from));
       }
     }
 
@@ -160,10 +160,10 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       Biconverter<int, bool> bi = new Biconverter<int, bool>(
         delegate(int value) { return value > 0; },
         delegate(bool value) { return value ? 1 : -1; });
-      Assert.AreEqual(true, bi.ConvertForward(1));
-      Assert.AreEqual(false, bi.ConvertForward(0));
-      Assert.AreEqual(1, bi.ConvertBackward(true));
-      Assert.AreEqual(-1, bi.ConvertBackward(false));
+      Assert.That(bi.ConvertForward(1), Is.EqualTo(true));
+      Assert.That(bi.ConvertForward(0), Is.EqualTo(false));
+      Assert.That(bi.ConvertBackward(true), Is.EqualTo(1));
+      Assert.That(bi.ConvertBackward(false), Is.EqualTo(-1));
     }
 
     [Test]
@@ -180,18 +180,17 @@ namespace Xtensive.Orm.Tests.Core.Conversion
             converter = getConverterMethod.Invoke(provider, null);
           }
           catch {
-            TestLog.Info("Conversion from {0} to {1} is not supported", typeFrom.GetShortName(), typeTo.GetShortName());
+            TestLog.Info($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is not supported");
           }
           if (converter!=null) {
             Type maskInterface = typeof (IAdvancedConverter<,>).MakeGenericType(new Type[] {typeFrom, typeTo});
             Type[] foundInterfaces =
               converter.GetType().FindInterfaces(
-                delegate(Type typeObj, Object criteriaObj) { return typeObj==maskInterface; }, null);
+                delegate(Type typeObj, object criteriaObj) { return typeObj==maskInterface; }, null);
             foreach (Type type in foundInterfaces) {
               PropertyInfo propertyInfo = type.GetProperty("IsRough");
               bool isRough = (bool) propertyInfo.GetValue(converter, null);
-              TestLog.Info("Conversion from {0} to {1} is {2}", typeFrom.GetShortName(),
-                typeTo.GetShortName(), isRough ? "Rough" : "Strict");
+              TestLog.Info($"Conversion from {typeFrom.GetShortName()} to {typeTo.GetShortName()} is {(isRough ? "Rough" : "Strict")}");
             }
           }
         }
@@ -217,7 +216,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     private void NullableTestInternal<TFrom, TTo>(int count, bool assertNullConversion)
     {
       AdvancedConverter<TFrom, TTo> advancedConverter = AdvancedConverter<TFrom, TTo>.Default;
-      Assert.IsNotNull(advancedConverter);
+      Assert.That(advancedConverter, Is.Not.Null);
       Type fromType = typeof (TFrom);
       Type toType = typeof (TTo);
       bool fromIsNullable = fromType.IsNullable();
@@ -232,10 +231,10 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       // Null test
       if (fromIsNullable) {
         if (assertNullConversion) {
-          AssertEx.Throws<ArgumentNullException>(delegate { advancedConverter.Convert((TFrom) (object) null); });
+          AssertEx.Throws<ArgumentNullException>(delegate { _ = advancedConverter.Convert((TFrom) (object) null); });
         }
         else {
-          advancedConverter.Convert((TFrom) (object) null);
+          _ = advancedConverter.Convert((TFrom) (object) null);
         }
       }
     }
@@ -250,7 +249,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
         if (reverseAdvancedConverter!=null) {
           TFrom backwardResult = reverseAdvancedConverter.Convert(result);
           if (!advancedConverter.IsRough && !reverseAdvancedConverter.IsRough)
-            Assert.AreEqual(instance, backwardResult);
+            Assert.That(backwardResult, Is.EqualTo(instance));
         }
       }
     }

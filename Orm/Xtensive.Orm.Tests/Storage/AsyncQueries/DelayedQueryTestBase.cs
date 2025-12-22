@@ -29,10 +29,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           endpoint => endpoint.All<DisceplinesOfCourse>()
             .Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First()
         ).ExecuteAsync();
-        Assert.IsInstanceOf<ValueTask<Discepline>>(task);
+        Assert.That(task, Is.InstanceOf<ValueTask<Discepline>>());
         var result = await task;
-        Assert.IsInstanceOf<Discepline>(result);
-        Assert.NotNull(result);
+        Assert.That(result, Is.InstanceOf<Discepline>());
+        Assert.That(result, Is.Not.Null);
       }
     }
 
@@ -44,13 +44,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.CreateDelayedQuery(endpoint => endpoint.All<DisceplinesOfCourse>()
           .Where(el => el.Course.Year==DateTime.Now.Year - 1)
           .Select(d => d.Discepline));
-        Assert.IsInstanceOf<DelayedQuery<Discepline>>(query);
+        Assert.That(query, Is.InstanceOf<DelayedQuery<Discepline>>());
         var result = await query.ExecuteAsync();
-        Assert.IsInstanceOf<QueryResult<Discepline>>(result);
+        Assert.That(result, Is.InstanceOf<QueryResult<Discepline>>());
         var disceplinesOfCourse = result.ToList();
-        Assert.NotNull(disceplinesOfCourse);
-        Assert.AreNotEqual(0, disceplinesOfCourse.Count);
-        Assert.AreEqual(20, disceplinesOfCourse.Count);
+        Assert.That(disceplinesOfCourse, Is.Not.Null);
+        Assert.That(disceplinesOfCourse.Count, Is.Not.EqualTo(0));
+        Assert.That(disceplinesOfCourse.Count, Is.EqualTo(20));
       }
     }
 
@@ -62,13 +62,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.CreateDelayedQuery(endpoint =>
             endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1)
               .Select(d => d.Discepline).OrderBy(d => d.Name));
-        Assert.IsInstanceOf<DelayedQuery<Discepline>>(query);
+        Assert.That(query, Is.InstanceOf<DelayedQuery<Discepline>>());
         var result = await query.ExecuteAsync();
-        Assert.IsInstanceOf<QueryResult<Discepline>>(result);
+        Assert.That(result, Is.InstanceOf<QueryResult<Discepline>>());
         var orderedDisceplines = result.ToList();
-        Assert.NotNull(orderedDisceplines);
-        Assert.AreNotEqual(0, orderedDisceplines.Count);
-        Assert.AreEqual(20, orderedDisceplines.Count);
+        Assert.That(orderedDisceplines, Is.Not.Null);
+        Assert.That(orderedDisceplines.Count, Is.Not.EqualTo(0));
+        Assert.That(orderedDisceplines.Count, Is.EqualTo(20));
       }
     }
 

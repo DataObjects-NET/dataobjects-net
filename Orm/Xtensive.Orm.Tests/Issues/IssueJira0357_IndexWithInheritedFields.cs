@@ -161,10 +161,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = BuildDomain(BuildConfiguration(typeof (concreteTableModel.DescendantA)))) {
         var descendantType = domain.Model.Types[typeof (concreteTableModel.DescendantA)];
         var secondaryIndexes = descendantType.Indexes.Where(index => index.IsSecondary && !index.IsVirtual && index.IsUnique);
-        Assert.AreEqual(4, secondaryIndexes.Count());
+        Assert.That(secondaryIndexes.Count(), Is.EqualTo(4));
         var entityAType = domain.Model.Types[typeof (concreteTableModel.EntityA)];
         secondaryIndexes = entityAType.Indexes.Where(index => index.IsSecondary && !index.IsVirtual && index.IsUnique);
-        Assert.AreEqual(1, secondaryIndexes.Count());
+        Assert.That(secondaryIndexes.Count(), Is.EqualTo(1));
         using (var session = domain.OpenSession()) {
           using (var trans = session.OpenTransaction()) {
             var a = new concreteTableModel.EntityA();
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = BuildDomain(BuildConfiguration(typeof (singleTableModel.DescendantA)))) {
         var type = domain.Model.Types[typeof (singleTableModel.EntityA)];
         var secondaryIndexes = type.Indexes.Where(index => index.IsSecondary && !index.IsVirtual && index.IsUnique);
-        Assert.AreEqual(4, secondaryIndexes.Count());
+        Assert.That(secondaryIndexes.Count(), Is.EqualTo(4));
       }
     }
 
@@ -195,10 +195,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = BuildDomain(BuildConfiguration(typeof (classTableModel.DescendantA)))) {
         var type = domain.Model.Types[typeof (classTableModel.DescendantA)];
         var secondaryIndexes = type.Indexes.Where(index => index.IsSecondary && !index.IsVirtual);
-        Assert.AreEqual(1, secondaryIndexes.Count());
+        Assert.That(secondaryIndexes.Count(), Is.EqualTo(1));
         var entityAType = domain.Model.Types[typeof(classTableModel.EntityA)];
         secondaryIndexes = entityAType.Indexes.Where(index => index.IsSecondary && !index.IsVirtual && index.IsUnique);
-        Assert.AreEqual(1, secondaryIndexes.Count());
+        Assert.That(secondaryIndexes.Count(), Is.EqualTo(1));
       }
     }
   }

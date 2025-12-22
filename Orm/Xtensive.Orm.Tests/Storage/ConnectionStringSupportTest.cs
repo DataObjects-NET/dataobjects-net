@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void CheckConfigTest()
     {
       var connectionInfo = Domain.Configuration.ConnectionInfo;
-      Assert.IsNotNull(connectionInfo.Provider);
-      Assert.IsNotNull(connectionInfo.ConnectionString);
+      Assert.That(connectionInfo.Provider, Is.Not.Null);
+      Assert.That(connectionInfo.ConnectionString, Is.Not.Null);
     }
   }
 }

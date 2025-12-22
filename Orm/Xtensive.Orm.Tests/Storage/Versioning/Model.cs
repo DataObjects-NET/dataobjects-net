@@ -682,7 +682,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
       if (value is string) {
         return (T) (object) ((string) (object) value + (string) (object) value);
       }
-      throw new NotSupportedException(string.Format("Type '{0}' is not supported", typeof(T)));
+      throw new NotSupportedException($"Type '{typeof(T)}' is not supported");
     }
   }
 }

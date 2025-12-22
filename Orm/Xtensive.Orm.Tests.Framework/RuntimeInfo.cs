@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests
         }
       }
       if (bestPack<1 || bestPack>maxPack) {
-        CoreLog.Warning("Suspicious RuntimeInfo.DefaultStructLayoutPack value is detected: {0}", bestPack);
+        CoreLog.Warning($"Suspicious RuntimeInfo.DefaultStructLayoutPack value is detected: {bestPack}");
         bestPack = 4;
       }
       return bestPack;

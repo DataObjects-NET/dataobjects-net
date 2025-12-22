@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = from c in Session.Query.All<Customer>().AsEnumerable()
       from o in Session.Query.All<Invoice>().AsEnumerable()
       select new {c, o};
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
     }
 
     [Test]

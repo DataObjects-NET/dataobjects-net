@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Commission==(decimal?) freight)
         .ToList();
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(customer => customer.Address==address)
         .ToList();
 #pragma warning restore 252,253
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Customer==customer)
         .ToList();
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Tests.Linq
             .First(invoice2 => invoice2.Customer!=null)
             .Customer)
         .ToList();
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Linq
             .First(invoice2 => invoice2.Customer!=null)
             .Customer)
         .ToList();
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -300,8 +300,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var albums = Session.Query.All<Album>();
       var album = albums.Where(a => a.Title=="Plays Metallica By Four Cellos").FirstOrDefault();
-      Assert.IsNotNull(album);
-      Assert.AreEqual("Plays Metallica By Four Cellos", album.Title);
+      Assert.That(album, Is.Not.Null);
+      Assert.That(album.Title, Is.EqualTo("Plays Metallica By Four Cellos"));
     }
 
     [Test]
@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices.Where(i => i.Total * i.Commission >= 10).ToList();
       var actual = Session.Query.All<Invoice>().ToList().Where(i => i.Total * i.Commission >= 10).ToList();
       Assert.That(expected.Count, Is.GreaterThan(0));
-      Assert.AreEqual(expected.Count, actual.Count);
+      Assert.That(actual.Count, Is.EqualTo(expected.Count));
     }
 
     [Test]
@@ -318,8 +318,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var employees = Session.Query.All<Employee>();
       var employee = employees.Where(e => e.Address.State=="AB").FirstOrDefault();
-      Assert.IsNotNull(employee);
-      Assert.AreEqual("AB", employee.Address.State);
+      Assert.That(employee, Is.Not.Null);
+      Assert.That(employee.Address.State, Is.EqualTo("AB"));
     }
 
     [Test]
@@ -327,8 +327,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var albums = Session.Query.All<Album>();
       var album = albums.Where(a => a.AlbumId==albumOutOfExileKey.Value.GetValue<int>(0)).FirstOrDefault();
-      Assert.IsNotNull(album);
-      Assert.AreEqual("Out Of Exile", album.Title);
+      Assert.That(album, Is.Not.Null);
+      Assert.That(album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -337,8 +337,8 @@ namespace Xtensive.Orm.Tests.Linq
       var albums = Session.Query.All<Album>();
       var key = Key.Create<Album>(Domain, albumOutOfExileKey.Value);
       var album = albums.Where(a => a.Key==key).FirstOrDefault();
-      Assert.IsNotNull(album);
-      Assert.AreEqual("Out Of Exile", album.Title);
+      Assert.That(album, Is.Not.Null);
+      Assert.That(album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -347,8 +347,8 @@ namespace Xtensive.Orm.Tests.Linq
       var albumOutOfExile = Session.Query.SingleOrDefault<Album>(albumOutOfExileKey);
       var albums = Session.Query.All<Album>();
       var album = albums.Where(a => a==albumOutOfExile).FirstOrDefault();
-      Assert.IsNotNull(album);
-      Assert.AreEqual("Out Of Exile", album.Title);
+      Assert.That(album, Is.Not.Null);
+      Assert.That(album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -357,8 +357,8 @@ namespace Xtensive.Orm.Tests.Linq
       var album = Session.Query.SingleOrDefault<Album>(albumOutOfExileKey);
       var tracks = Session.Query.All<Track>();
       var track = tracks.Where(t => t.Album.Key==album.Key).FirstOrDefault();
-      Assert.IsNotNull(track);
-      Assert.AreEqual("Out Of Exile", track.Album.Title);
+      Assert.That(track, Is.Not.Null);
+      Assert.That(track.Album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -367,8 +367,8 @@ namespace Xtensive.Orm.Tests.Linq
       var album = Session.Query.SingleOrDefault<Album>(albumOutOfExileKey);
       var products = Session.Query.All<Track>();
       var product = products.Where(t => t.Album.AlbumId==album.AlbumId).FirstOrDefault();
-      Assert.IsNotNull(product);
-      Assert.AreEqual("Out Of Exile", product.Album.Title);
+      Assert.That(product, Is.Not.Null);
+      Assert.That(product.Album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -377,8 +377,8 @@ namespace Xtensive.Orm.Tests.Linq
       var album20 = Session.Query.SingleOrDefault<Album>(albumOutOfExileKey);
       var tracks = Session.Query.All<Track>();
       var track = tracks.Where(t => t.Album==album20).FirstOrDefault();
-      Assert.IsNotNull(track);
-      Assert.AreEqual("Out Of Exile", track.Album.Title);
+      Assert.That(track, Is.Not.Null);
+      Assert.That(track.Album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -386,14 +386,14 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var tracks = Session.Query.All<Track>();
       var trackFormAlbum = tracks.Where(t => t.Album.Title=="Out Of Exile").FirstOrDefault();
-      Assert.IsNotNull(trackFormAlbum);
-      Assert.AreEqual("Out Of Exile", trackFormAlbum.Album.Title);
+      Assert.That(trackFormAlbum, Is.Not.Null);
+      Assert.That(trackFormAlbum.Album.Title, Is.EqualTo("Out Of Exile"));
       trackFormAlbum =
         tracks.Where(
           t =>
             t.Album.Title=="Out Of Exile" && t.MediaType.Key==mediaTypeFirstKey).FirstOrDefault();
-      Assert.IsNotNull(trackFormAlbum);
-      Assert.AreEqual("Out Of Exile", trackFormAlbum.Album.Title);
+      Assert.That(trackFormAlbum, Is.Not.Null);
+      Assert.That(trackFormAlbum.Album.Title, Is.EqualTo("Out Of Exile"));
     }
 
     [Test]
@@ -401,9 +401,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => (c.Address.State ?? "Australia")=="Australia").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => (c.Address.State ?? c.Address.PostalCode ?? "Australia")=="Australia").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -411,10 +411,10 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => (i.Customer.LastName=="Ramos" ? 1000 : 0)==1000).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
       invoice = invoices
         .Where(i => (i.Customer.LastName=="Ramos" ? 1000 : i.Customer.LastName== "Philips" ? 2000 : 0)==1000).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -422,7 +422,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Length==7).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -430,7 +430,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var mediaTypes = Session.Query.All<MediaType>();
       var mpegType = mediaTypes.Where(c => c.Name.StartsWith("M")).FirstOrDefault();
-      Assert.IsNotNull(mpegType);
+      Assert.That(mpegType, Is.Not.Null);
     }
 
     [Test]
@@ -438,7 +438,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName.StartsWith(c.LastName)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName.EndsWith("s")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -454,7 +454,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName.EndsWith(c.LastName)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -462,7 +462,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName.Contains("and")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -470,7 +470,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName.Contains(c.LastName)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -478,7 +478,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.LastName + "X"=="X").FirstOrDefault();
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
@@ -486,9 +486,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Concat(c.LastName, "X")=="X").FirstOrDefault();
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
       customer = customers.Where(c => string.Concat(c.LastName, "X", c.Address.Country)=="X").FirstOrDefault();
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
@@ -496,7 +496,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.IsNullOrEmpty(c.Address.State)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -504,7 +504,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.ToUpper()=="ORLANDO").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.ToLower()=="orlando").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -520,7 +520,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Replace("land", "earth")=="Oreartho").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -528,7 +528,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Replace('d', 'g')=="Orlango").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -536,7 +536,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Substring(0, 4)=="Orla").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -544,7 +544,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Substring(4)=="ndo").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -552,7 +552,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Remove(1, 2)=="Oando").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -560,7 +560,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Remove(2)=="Or").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -570,7 +570,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.IndexOf("land")==2).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -580,7 +580,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.IndexOf('l')==2).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -588,7 +588,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.Trim()=="Orlando").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -597,7 +597,7 @@ namespace Xtensive.Orm.Tests.Linq
       // just to prove this is a no op
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.ToString()=="Orlando").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -605,7 +605,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate >= new DateTime(i.InvoiceDate.Year, 1, 1)).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -614,7 +614,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate >= new DateTime(i.InvoiceDate.Year, 1, 1, 10, 25, 55)).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -622,7 +622,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => ((DateTime?) i.InvoiceDate) < ((DateTime?) new DateTime(2010, 12, 31))).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -630,7 +630,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Day==5).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -638,7 +638,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Month==12).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -646,7 +646,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Year==2010).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -654,7 +654,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Hour==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -662,7 +662,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Minute==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -670,7 +670,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Second==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -678,7 +678,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.Millisecond==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -687,7 +687,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.DayOfWeek==DayOfWeek.Friday).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -695,7 +695,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceDate.DayOfYear==360).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -703,7 +703,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Abs(i.InvoiceId)==10 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -713,7 +713,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Acos(Math.Sin(i.InvoiceId))==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -723,7 +723,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Asin(Math.Cos(i.InvoiceId))==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -733,9 +733,9 @@ namespace Xtensive.Orm.Tests.Linq
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Atan(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
       invoice = invoices.Where(i => Math.Atan2(i.InvoiceId, 3)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -743,7 +743,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Cos(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -753,7 +753,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Sin(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -763,7 +763,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Tan(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -771,7 +771,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Exp(i.InvoiceId < 1000 ? 1 : 2)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -779,7 +779,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Log(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -787,7 +787,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Log10(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -797,7 +797,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Sqrt(i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -805,7 +805,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Ceiling((double) i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -813,7 +813,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Floor((double) i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -823,7 +823,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Pow(i.InvoiceId < 1000 ? 1 : 2, 3)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -831,7 +831,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Round((decimal) i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -841,7 +841,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Round((decimal) i.InvoiceId, 2)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -849,7 +849,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => Math.Truncate((double) i.InvoiceId)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -857,7 +857,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.LessThan("Orlando")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -865,7 +865,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.LessThanOrEqual("Orlando")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -873,7 +873,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.GreaterThan("Orlando")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -881,7 +881,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.GreaterThanOrEqual("Orlando")).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -889,7 +889,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando") < 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -897,7 +897,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando") <= 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -905,7 +905,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando") > 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -913,7 +913,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando") >= 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -921,7 +921,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando")==0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
 
@@ -930,7 +930,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City.CompareTo("Orlando")!=0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -938,7 +938,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando") < 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -946,7 +946,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando") <= 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -954,7 +954,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando") > 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -962,7 +962,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando") >= 0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -970,7 +970,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando")==0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -978,7 +978,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => string.Compare(c.Address.City, "Orlando")!=0).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -987,7 +987,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       // prove that x.CompareTo(y) works for types other than string
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId.CompareTo(1000)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -996,7 +996,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       // prove that type.Compare(x,y) works with decimal
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Compare((decimal) i.InvoiceId, 0.0m)==0 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1004,7 +1004,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Add(i.InvoiceId, 0.0m)==0.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1012,7 +1012,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Subtract(i.InvoiceId, 0.0m)==0.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1020,7 +1020,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Multiply(i.InvoiceId, 1.0m)==1.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1028,7 +1028,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Divide(i.InvoiceId, 1.0m)==1.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1037,7 +1037,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Remainder(i.InvoiceId, 1.0m)==0.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1045,7 +1045,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Negate(i.InvoiceId)==1.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1053,7 +1053,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Ceiling(i.InvoiceId)==0.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1061,7 +1061,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Floor(i.InvoiceId)==0.0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1069,7 +1069,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Round(i.InvoiceId)==0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1079,7 +1079,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
 
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Round(i.InvoiceId, 2)==0.00m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1087,7 +1087,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => decimal.Truncate(i.InvoiceId)==0m || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1096,14 +1096,14 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       // prove that decimals are treated normally with respect to normal comparison operators
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => ((decimal) i.InvoiceId) > 0.0m).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
     public void FkCompareTest()
     {
       var employee = Session.Query.All<Employee>().Where(e => e.ReportsToManager.EmployeeId > 20).FirstOrDefault();
-      Assert.IsNotNull(employee);
+      Assert.That(employee, Is.Not.Null);
     }
 
     [Test]
@@ -1111,7 +1111,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId < 0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1119,7 +1119,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId <= 0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1127,7 +1127,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1135,7 +1135,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId >= 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1143,7 +1143,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId==0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1151,7 +1151,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId!=0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1159,7 +1159,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId + 0==0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1167,7 +1167,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId - 0==0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1175,7 +1175,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId * 1==1 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1183,7 +1183,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId / 1==1 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1191,7 +1191,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId % 1==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1199,7 +1199,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => (i.InvoiceId & 1)==0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1207,7 +1207,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => (i.InvoiceId | 1)==1 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
 
@@ -1216,7 +1216,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => (i.InvoiceId ^ 1)==1).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1224,7 +1224,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => ~i.InvoiceId==0).FirstOrDefault();
-      Assert.IsNull(invoice);
+      Assert.That(invoice, Is.Null);
     }
 
     [Test]
@@ -1232,7 +1232,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => -i.InvoiceId==-1 || i.InvoiceId > 0).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1240,7 +1240,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId > 0 && i.InvoiceId < 4500).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1248,7 +1248,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => i.InvoiceId < 5 || i.InvoiceId > 10).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1256,7 +1256,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var invoices = Session.Query.All<Invoice>();
       var invoice = invoices.Where(i => !(i.InvoiceId==0)).FirstOrDefault();
-      Assert.IsNotNull(invoice);
+      Assert.That(invoice, Is.Not.Null);
     }
 
     [Test]
@@ -1265,17 +1265,17 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       //  TODO: Check IsNull or Equals(null)
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => c.Address.City!=null).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => !c.Address.State.Equals(null)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => c!=null).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => !c.Equals(null)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => c.Address!=null).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = customers.Where(c => !c.Address.Equals(null)).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
@@ -1283,21 +1283,21 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var customers = Session.Query.All<Customer>();
       var customer = customers.Where(c => null!=c.Address.City).FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
     public void TimeSpanTest()
     {
       var maxProcessingTime = new TimeSpan(5, 0, 0, 0);
-      Session.Query.All<Invoice>().Where(i => i.ProcessingTime > maxProcessingTime).ToList();
+      _ = Session.Query.All<Invoice>().Where(i => i.ProcessingTime > maxProcessingTime).ToList();
     }
 
     [Test]
     public void NonPersistentFieldTest()
     {
       var result = from e in Session.Query.All<Employee>() where e.FullName!=null select e;
-      Assert.Throws<QueryTranslationException>(() => result.ToList());
+      _ = Assert.Throws<QueryTranslationException>(() => result.ToList());
     }
 
     [Test]
@@ -1314,7 +1314,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
         where invoice.Commission > 30
         orderby customer.CustomerId , invoice.InvoiceId
         select new {customer, invoice};
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.That(expected.SequenceEqual(list), Is.True);
     }
 
     [Test]
@@ -1325,7 +1325,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
 
       var expected = Customers
         .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m)).ToList().OrderBy(c => c.CustomerId);
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      Assert.That(expected.SequenceEqual(actual), Is.True);
     }
 
     [Test]
@@ -1335,7 +1335,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
       // ReSharper disable once ReplaceWithSingleCallToCount
       var actual = Session.Query.All<Invoice>().Where(c => (c.Status == (InvoiceStatus) 1) == false).Count();
 
-      Assert.AreEqual(expected, actual);
+      Assert.That(actual, Is.EqualTo(expected));
     }
 
     [Test]
@@ -1349,7 +1349,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
         .Where(c => (c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2) == false)
         .Count();
 
-      Assert.AreEqual(expected, actual);
+      Assert.That(actual, Is.EqualTo(expected));
     }
   }
 }

@@ -20,25 +20,25 @@ namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
     protected override void PerformCreate()
     {
       base.PerformCreate();
-      TestLog.Info("Created: {0}", this);
+      TestLog.Info($"Created: {this}");
     }
 
     protected override void PerformMove(Node newParent, string newName, int newIndex)
     {
-      using (TestLog.InfoRegion("Moving: {0}", this)) {
+      using (TestLog.InfoRegion($"Moving: {this}")) {
         if (Parent!=newParent)
-          TestLog.Info("new Parent={0}", newParent);
+          TestLog.Info($"new Parent={newParent}");
         if (Name!=newName)
-          TestLog.Info("new Name={0}", newName);
+          TestLog.Info($"new Name={newName}");
         if (Index!=newIndex)
-          TestLog.Info("new Index={0}", newIndex);
+          TestLog.Info($"new Index={newIndex}");
         base.PerformMove(newParent, newName, newIndex);
       }
     }
 
     protected override void PerformShift(int offset)
     {
-      TestLog.Info("Shifting: {0}, from {1} to {2}", this, Index, Index + offset);
+      TestLog.Info($"Shifting: {this}, from {Index} to {Index + offset}");
       base.PerformShift(offset);
     }
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
     {
       base.PerformRemove(source);
       if (source==this)
-        TestLog.Info("Removed: {0}", this);
+        TestLog.Info($"Removed: {this}");
     }
 
     protected override void OnPropertyChanged(string name)
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
           return;
         if (accessor.IsSystem)
           return;
-        TestLog.Info("Changed: {0}, {1} = {2}", this, name, GetProperty(name));
+        TestLog.Info($"Changed: {this}, {name} = {GetProperty(name)}");
       }
     }
 

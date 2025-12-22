@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Tests.Storage
 
           var deserializedCompany = (Company) formatter.Deserialize(stream);
 
-          Assert.AreSame(company, deserializedCompany);
+          Assert.That(deserializedCompany, Is.SameAs(company));
         }
 
         using (var session = Domain.OpenSession())
@@ -174,9 +174,9 @@ namespace Xtensive.Orm.Tests.Storage
           stream.Position = 0;
           var company = (Company) formatter.Deserialize(stream);
 
-          Assert.AreEqual(companyName, company.Name);
-          Assert.AreEqual(companyId, company.Id);
-          Assert.AreEqual(company.Session, Session.Current);
+          Assert.That(company.Name, Is.EqualTo(companyName));
+          Assert.That(company.Id, Is.EqualTo(companyId));
+          Assert.That(Session.Current, Is.EqualTo(company.Session));
         }
       }
     }
@@ -241,17 +241,17 @@ namespace Xtensive.Orm.Tests.Storage
           var russia = ekaterinburg.Country;
           var china = guangzhou.Country;
 
-          Assert.IsNotNull(russia);
-          Assert.IsNotNull(china);
+          Assert.That(russia, Is.Not.Null);
+          Assert.That(china, Is.Not.Null);
 
-          Assert.AreEqual("Russia", russia.Name);
-          Assert.AreEqual("China", china.Name);
+          Assert.That(russia.Name, Is.EqualTo("Russia"));
+          Assert.That(china.Name, Is.EqualTo("China"));
 
-          Assert.AreEqual("Ekaterinburg", ekaterinburg.Name);
-          Assert.AreEqual("Moscow", moscow.Name);
-          Assert.AreEqual(russia, moscow.Country);
-          Assert.AreEqual("Hong Kong", hongKong.Name);
-          Assert.AreEqual(china, hongKong.Country);
+          Assert.That(ekaterinburg.Name, Is.EqualTo("Ekaterinburg"));
+          Assert.That(moscow.Name, Is.EqualTo("Moscow"));
+          Assert.That(moscow.Country, Is.EqualTo(russia));
+          Assert.That(hongKong.Name, Is.EqualTo("Hong Kong"));
+          Assert.That(hongKong.Country, Is.EqualTo(china));
 
           //Assert.IsNull(russia.Capital); // russia was serialized by reference, not by value
           //
@@ -317,13 +317,13 @@ namespace Xtensive.Orm.Tests.Storage
           var alex = (Emploee) array[2];
           var jef = (Emploee) array[3];
 
-          Assert.AreEqual(firstCompanyId, oldCompany.Id);
-          Assert.AreEqual("Alex", alex.Name);
-          Assert.AreEqual("Jef", jef.Name);
+          Assert.That(oldCompany.Id, Is.EqualTo(firstCompanyId));
+          Assert.That(alex.Name, Is.EqualTo("Alex"));
+          Assert.That(jef.Name, Is.EqualTo("Jef"));
 
-          Assert.AreEqual(oldCompany, jef.Company);
-          Assert.AreEqual(newCompany, alex.Company);
-          Assert.AreEqual(alex, newCompany.Head);
+          Assert.That(jef.Company, Is.EqualTo(oldCompany));
+          Assert.That(alex.Company, Is.EqualTo(newCompany));
+          Assert.That(newCompany.Head, Is.EqualTo(alex));
         }
       }
     }

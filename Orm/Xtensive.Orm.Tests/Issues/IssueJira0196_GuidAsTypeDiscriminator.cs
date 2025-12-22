@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
     private void CheckUserType(User user)
     {
       var expected = new Guid(user.GetType().GetAttribute<TypeDiscriminatorValueAttribute>().Value.ToString());
-      Assert.AreEqual(expected, user.UserType);
+      Assert.That(user.UserType, Is.EqualTo(expected));
     }
   }
 }

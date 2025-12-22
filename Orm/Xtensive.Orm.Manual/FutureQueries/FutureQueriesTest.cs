@@ -79,12 +79,9 @@ namespace Xtensive.Orm.Manual.FutureQueries
           select person
           );
 
-        Console.WriteLine("All persons: {0}", 
-          simpleCompiledQuery.ToCommaDelimitedString());
-        Console.WriteLine("Managed person count: {0}", 
-          managedPersonCount.Value);
-        Console.WriteLine("Person with employees: {0}", 
-          personsWithEmployees.ToCommaDelimitedString());
+        Console.WriteLine($"All persons: {simpleCompiledQuery.ToCommaDelimitedString()}");
+        Console.WriteLine($"Managed person count: {managedPersonCount.Value}");
+        Console.WriteLine($"Person with employees: {personsWithEmployees.ToCommaDelimitedString()}");
 
         transactionScope.Complete();
       }

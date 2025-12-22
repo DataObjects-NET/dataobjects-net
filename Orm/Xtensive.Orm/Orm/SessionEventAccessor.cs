@@ -399,7 +399,9 @@ namespace Xtensive.Orm
         EntitySetItemRemoving(this, new EntitySetItemEventArgs(entitySet, item));
     }
 
+#pragma warning disable IDE0060 // Remove unused parameter
     internal void NotifyEntitySetItemRemoved(Entity entity, EntitySetBase entitySet, Entity item)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
       if (EntitySetItemRemove!=null && AreNotificationsEnabled())
         EntitySetItemRemove(this, new EntitySetItemEventArgs(entitySet, item));

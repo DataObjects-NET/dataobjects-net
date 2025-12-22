@@ -23,13 +23,13 @@ namespace Xtensive.Orm.Security.Tests
 
         var u = session.Query.All<Employee>().First();
         var ic = session.Impersonate(u);
-        Assert.IsNotNull(ic);
-        Assert.IsNotNull(session.GetImpersonationContext());
-        Assert.AreSame(ic, session.GetImpersonationContext());
-        Assert.AreSame(u, ic.Principal);
+        Assert.That(ic, Is.Not.Null);
+        Assert.That(session.GetImpersonationContext(), Is.Not.Null);
+        Assert.That(session.GetImpersonationContext(), Is.SameAs(ic));
+        Assert.That(ic.Principal, Is.SameAs(u));
 
         ic.Undo();
-        Assert.IsNull(session.GetImpersonationContext());
+        Assert.That(session.GetImpersonationContext(), Is.Null);
 
         // Should not fail in case multiple Undo
         ic.Undo();
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Security.Tests
 
         ic = session.Impersonate(u);
         ic.Dispose();
-        Assert.IsNull(session.GetImpersonationContext());
+        Assert.That(session.GetImpersonationContext(), Is.Null);
         // Should not fail if Undo after Dispose
         ic.Undo();
 
@@ -57,25 +57,25 @@ namespace Xtensive.Orm.Security.Tests
         var u1 = users[0];
         var u2 = users[1];
         var ic1 = s.Impersonate(u1);
-        Assert.IsNotNull(ic1);
-        Assert.IsNotNull(s.GetImpersonationContext());
-        Assert.AreSame(ic1, s.GetImpersonationContext());
-        Assert.AreSame(u1, ic1.Principal);
+        Assert.That(ic1, Is.Not.Null);
+        Assert.That(s.GetImpersonationContext(), Is.Not.Null);
+        Assert.That(s.GetImpersonationContext(), Is.SameAs(ic1));
+        Assert.That(ic1.Principal, Is.SameAs(u1));
 
         var ic2 = s.Impersonate(u2);
-        Assert.IsNotNull(ic2);
-        Assert.IsNotNull(s.GetImpersonationContext());
-        Assert.AreSame(ic2, s.GetImpersonationContext());
-        Assert.AreNotSame(ic1, ic2);
-        Assert.AreSame(u2, ic2.Principal);
+        Assert.That(ic2, Is.Not.Null);
+        Assert.That(s.GetImpersonationContext(), Is.Not.Null);
+        Assert.That(s.GetImpersonationContext(), Is.SameAs(ic2));
+        Assert.That(ic1, Is.Not.SameAs(ic2));
+        Assert.That(ic2.Principal, Is.SameAs(u2));
 
         // Outer context can't be undone while is not active
         ic1.Undo();
-        Assert.AreSame(ic2, s.GetImpersonationContext());
+        Assert.That(s.GetImpersonationContext(), Is.SameAs(ic2));
 
         ic2.Undo();
         // After outer context is undone, the nested one becomes outer
-        Assert.AreSame(ic1, s.GetImpersonationContext());
+        Assert.That(s.GetImpersonationContext(), Is.SameAs(ic1));
 
         t.Complete();
       }
@@ -87,35 +87,35 @@ namespace Xtensive.Orm.Security.Tests
       using (var s = Domain.OpenSession())
       using (var t = s.OpenTransaction()) {
 
-        Assert.AreEqual(3, s.Query.All<Customer>().Count());
+        Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(3));
 
         var u1 = s.Query.All<Employee>().Single(u => u.Name == "SalesPerson");
         using (var ic = s.Impersonate(u1)) {
 
-          Assert.AreEqual(1, s.Query.All<Customer>().Count());
-          Assert.AreEqual(0, s.Query.All<VipCustomer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(1));
+          Assert.That(s.Query.All<VipCustomer>().Count(), Is.EqualTo(0));
           ic.Undo();
         }
 
         var u2 = s.Query.All<Employee>().Single(u => u.Name == "SalesManager");
         using (var ic = s.Impersonate(u2)) {
 
-          Assert.AreEqual(3, s.Query.All<Customer>().Count());
-          Assert.AreEqual(2, s.Query.All<VipCustomer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(3));
+          Assert.That(s.Query.All<VipCustomer>().Count(), Is.EqualTo(2));
           ic.Undo();
         }
 
         var u3 = s.Query.All<Employee>().Single(u => u.Name == "AutomobileManager");
         using (var ic = s.Impersonate(u3)) {
 
-          Assert.AreEqual(1, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(1));
           ic.Undo();
         }
 
         var u4 = s.Query.All<Employee>().Single(u => u.Name == "AircraftManager");
         using (var ic = s.Impersonate(u4)) {
 
-          Assert.AreEqual(1, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(1));
           ic.Undo();
         }
 
@@ -123,28 +123,28 @@ namespace Xtensive.Orm.Security.Tests
         _ = u4.Roles.Add(s.Query.All<IRole>().OfType<AutomobileManagerRole>().Single());
         using (var ic = s.Impersonate(u4)) {
 
-          Assert.AreEqual(2, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(2));
           ic.Undo();
         }
 
         var u5 = s.Query.All<Employee>().Single(u => u.Name == "SouthBranchOfficeManager");
         using (var ic = s.Impersonate(u5)) {
 
-          Assert.AreEqual(2, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(2));
           ic.Undo();
         }
 
         var u6 = s.Query.All<Employee>().Single(u => u.Name == "NorthBranchOfficeManager");
         using (var ic = s.Impersonate(u6)) {
 
-          Assert.AreEqual(1, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(1));
           ic.Undo();
         }
 
         var u7 = s.Query.All<Employee>().Single(u => u.Name == "AllBranchOfficeManager");
         using (var ic = s.Impersonate(u7)) {
 
-          Assert.AreEqual(3, s.Query.All<Customer>().Count());
+          Assert.That(s.Query.All<Customer>().Count(), Is.EqualTo(3));
           ic.Undo();
         }
 

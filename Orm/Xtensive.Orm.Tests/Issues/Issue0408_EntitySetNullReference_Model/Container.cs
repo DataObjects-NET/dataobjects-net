@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
     public override string ToString()
     {
-      return String.Format("[Container]<{0}>::Name='{1}'::Count='{2}'", Id, Name, Documents.Count); 
+      return $"[Container]<{Id}>::Name='{Name}'::Count='{Documents.Count}'"; 
     }
   }
 }

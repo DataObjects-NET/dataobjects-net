@@ -134,14 +134,14 @@ namespace Xtensive.Orm.Tests.Issues
     {
       for (int i = 0; i < 10; i++) {
         var user = new User {
-          Name = string.Format("name_{0}", i), 
-          Password = string.Format("password_{0}", i), 
-          PasswordQuestion = string.Format("passwordQuestion_{0}", i), 
-          Email = string.Format("email{0}", i)
+          Name = $"name_{i}", 
+          Password = $"password_{i}", 
+          PasswordQuestion = $"passwordQuestion_{i}", 
+          Email = $"email{i}"
         };
         for (int j = 0; j < 10; j++) {
           var activity = new UserActivity {
-            Comment = string.Format("comment_{0}_{1}", i, j), 
+            Comment = $"comment_{i}_{j}", 
             IsApproved = true, 
             IsLockedOut = false, 
             CreationDate = DateTime.Now, 
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Tests.Issues
               activity.LastLockoutDate
             };
           var result = query.ToList();
-          Assert.Greater(result.Count, 0);
+          Assert.That(result.Count, Is.GreaterThan(0));
         }
       }
     }

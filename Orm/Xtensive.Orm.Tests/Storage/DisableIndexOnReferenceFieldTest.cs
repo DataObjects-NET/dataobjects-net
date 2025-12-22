@@ -152,40 +152,40 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ClassTableTest()
     {
-      Assert.IsEmpty(GetIndexes(typeof (TestClassTable)));
-      Assert.IsEmpty(GetIndexes(typeof(TestClassTableChild)));
+      Assert.That(GetIndexes(typeof(TestClassTable)), Is.Empty);
+      Assert.That(GetIndexes(typeof(TestClassTableChild)), Is.Empty);
     }
 
     [Test]
     public void SingleTableTest()
     {
-      Assert.IsEmpty(GetIndexes(typeof(TestSingleTable)));
-      Assert.IsEmpty(GetIndexes(typeof(TestSingleTableChild)));
+      Assert.That(GetIndexes(typeof(TestSingleTable)), Is.Empty);
+      Assert.That(GetIndexes(typeof(TestSingleTableChild)), Is.Empty);
     }
 
     [Test]
     public void ConcreteTableTest()
     {
-      Assert.IsEmpty(GetIndexes(typeof(TestConcreteTable)));
-      Assert.IsEmpty(GetIndexes(typeof(TestConcreteTableChild)));
+      Assert.That(GetIndexes(typeof(TestConcreteTable)), Is.Empty);
+      Assert.That(GetIndexes(typeof(TestConcreteTableChild)), Is.Empty);
     }
 
     [Test]
     public void ImplementNonIndexedFieldTest()
     {
-      Assert.IsEmpty(GetIndexes(typeof(TestImplementNonIndexedField)));
+      Assert.That(GetIndexes(typeof(TestImplementNonIndexedField)), Is.Empty);
     }
 
     [Test]
     public void AddIndexToImplementedNonIndexedFieldTest()
     {
-      Assert.IsNotEmpty(GetIndexes(typeof (TestAddIndexToImplementedNonIndexedField)));
+      Assert.That(GetIndexes(typeof (TestAddIndexToImplementedNonIndexedField)), Is.Not.Empty);
     }
 
     [Test]
     public void StructureTest()
     {
-      Assert.IsEmpty(GetIndexes(typeof(TestContainer)));
+      Assert.That(GetIndexes(typeof(TestContainer)), Is.Empty);
     }
   }
 }

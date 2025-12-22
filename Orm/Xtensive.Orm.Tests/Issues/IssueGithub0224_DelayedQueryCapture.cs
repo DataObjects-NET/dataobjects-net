@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests.Issues
         t.Complete();
       }
       TestHelper.CollectGarbage(true);
-      Assert.AreEqual(0, OtherService1.InstanceCount);
+      Assert.That(OtherService1.InstanceCount, Is.EqualTo(0));
     }
 
     [Test]
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
 
       TestHelper.CollectGarbage(true);
-      Assert.AreEqual(0, OtherService2.InstanceCount);
+      Assert.That(OtherService2.InstanceCount, Is.EqualTo(0));
     }
 
     [Test]
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
 
       TestHelper.CollectGarbage(true);
-      Assert.AreEqual(0, OtherService3.InstanceCount);
+      Assert.That(OtherService3.InstanceCount, Is.EqualTo(0));
     }
 
     private void DelayedQueryWithEquality(Session session)

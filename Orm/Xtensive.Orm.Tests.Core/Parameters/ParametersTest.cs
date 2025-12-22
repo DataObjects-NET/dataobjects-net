@@ -19,24 +19,24 @@ namespace Xtensive.Orm.Tests.Core.Parameters
       const string parameterName = "TestParameter";
       var parameter = new Parameter<int>(parameterName);
 
-      Assert.AreEqual(parameterName, parameter.Name);
+      Assert.That(parameter.Name, Is.EqualTo(parameterName));
       Assert.Throws<NotSupportedException>(() => _ = parameter.Value);
 
       var firstContext = new ParameterContext();
       firstContext.SetValue(parameter, 10);
-      Assert.AreEqual(10, firstContext.GetValue(parameter));
+      Assert.That(firstContext.GetValue(parameter), Is.EqualTo(10));
       firstContext.SetValue(parameter, 15);
-      Assert.AreEqual(15, firstContext.GetValue(parameter));
+      Assert.That(firstContext.GetValue(parameter), Is.EqualTo(15));
 
       var secondContext = new ParameterContext(firstContext);
-      Assert.AreEqual(15, secondContext.GetValue(parameter));
+      Assert.That(secondContext.GetValue(parameter), Is.EqualTo(15));
       secondContext.SetValue(parameter, 20);
-      Assert.AreEqual(20, secondContext.GetValue(parameter));
+      Assert.That(secondContext.GetValue(parameter), Is.EqualTo(20));
 
-      Assert.AreEqual(15, firstContext.GetValue(parameter));
+      Assert.That(firstContext.GetValue(parameter), Is.EqualTo(15));
       firstContext.SetValue(parameter, 25);
-      Assert.AreEqual(25, firstContext.GetValue(parameter));
-      Assert.AreEqual(20, secondContext.GetValue(parameter));
+      Assert.That(firstContext.GetValue(parameter), Is.EqualTo(25));
+      Assert.That(secondContext.GetValue(parameter), Is.EqualTo(20));
     }
   }
 }

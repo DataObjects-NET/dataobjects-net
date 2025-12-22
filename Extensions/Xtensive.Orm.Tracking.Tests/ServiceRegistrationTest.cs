@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Tracking.Tests
     public void ShouldReturnInstanceOfTrackingMonitor()
     {
       var tm = Domain.Services.Get<IDomainTrackingMonitor>();
-      Assert.IsNotNull(tm);
+      Assert.That(tm, Is.Not.Null);
     }
 
     [Test]
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tracking.Tests
     {
       var tm1 = Domain.Services.Get<IDomainTrackingMonitor>();
       var tm2 = Domain.Services.Get<IDomainTrackingMonitor>();
-      Assert.AreSame(tm1, tm2);
+      Assert.That(tm2, Is.SameAs(tm1));
     }
   }
 }

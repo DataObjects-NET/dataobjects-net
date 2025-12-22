@@ -115,11 +115,11 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
           var expectedFullNames = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName);
-          Assert.Greater(expectedFullNames.Count(), 0);
+          Assert.That(expectedFullNames.Count(), Is.GreaterThan(0));
           var fullNames = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName);
-          Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
+          Assert.That(expectedFullNames.SequenceEqual(fullNames), Is.True);
         }
       }
     }
@@ -133,11 +133,11 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
           var expectedFullNames = session.Query.All<Person>().AsEnumerable()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName2);
-          Assert.Greater(expectedFullNames.Count(), 0);
+          Assert.That(expectedFullNames.Count(), Is.GreaterThan(0));
           var fullNames = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.FullName2);
-          Assert.IsTrue(expectedFullNames.SequenceEqual(fullNames));
+          Assert.That(expectedFullNames.SequenceEqual(fullNames), Is.True);
         }
       }
     }
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
           var resultStrings = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix("Mr. "));
-          Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));
+          Assert.That(expectedStrings.SequenceEqual(resultStrings), Is.True);
         }
       }
     }
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Manual.Advanced.CustomLinqCompiler
           var resultStrings = session.Query.All<Person>()
             .OrderBy(p => p.Id)
             .Select(p => p.AddPrefix(p.Id.ToString()));
-          Assert.IsTrue(expectedStrings.SequenceEqual(resultStrings));
+          Assert.That(expectedStrings.SequenceEqual(resultStrings), Is.True);
         }
       }
     }

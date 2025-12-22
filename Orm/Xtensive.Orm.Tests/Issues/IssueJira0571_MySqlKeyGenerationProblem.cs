@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Issues
       var queryRequest = queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>());
       using var command = queryBuilder.CreateCommand(queryRequest);
       var rowCount = command.ExecuteScalar();
-      Assert.AreEqual(expectedValue, rowCount);
+      Assert.That(rowCount, Is.EqualTo(expectedValue));
     }
 
     private QueryBuilder GetQueryBuilder(Session session)

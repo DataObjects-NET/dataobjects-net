@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Manual.Services
           var sessionState = DirectStateAccessor.Get(session);
 
           // Get the number of cached entities
-          Assert.AreEqual(1, sessionState.Count);
+          Assert.That(sessionState.Count, Is.EqualTo(1));
 
           // Enumerate cached entites
           foreach (var e in sessionState) {
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Manual.Services
           sessionState.Invalidate();
 
           // The field value hasn't been modified due to invalidation
-          Assert.AreEqual(originalValue, entity.Value);
+          Assert.That(entity.Value, Is.EqualTo(originalValue));
 
           tx.Complete();
         }
@@ -108,11 +108,11 @@ namespace Xtensive.Orm.Manual.Services
           var entityState = DirectStateAccessor.Get(entity);
 
           var valueFieldState = entityState.GetFieldState("Value");
-          Assert.AreEqual(PersistentFieldState.Loaded, valueFieldState);
+          Assert.That(valueFieldState, Is.EqualTo(PersistentFieldState.Loaded));
 
           entity.Value += "Modified";
           valueFieldState = entityState.GetFieldState("Value");
-          Assert.AreEqual(PersistentFieldState.Modified, valueFieldState);
+          Assert.That(valueFieldState, Is.EqualTo(PersistentFieldState.Modified));
 
           tx.Complete();
         }
@@ -139,14 +139,14 @@ namespace Xtensive.Orm.Manual.Services
         using (var tx = session.OpenTransaction()) {
           var container = session.Query.Single<Container>(containerKey);
           var entitySetState = DirectStateAccessor.Get(container.Entities);
-          Assert.IsFalse(entitySetState.IsFullyLoaded);
+          Assert.That(entitySetState.IsFullyLoaded, Is.False);
           foreach (var simple in container.Entities) {
             break; // To do nothing, but just call GetEnumerator()
           }
-          Assert.IsTrue(entitySetState.IsFullyLoaded); // Enumeration attempt leads to full loading
-          Assert.IsTrue(entitySetState.IsCountAvailable); // So Count is available as well
-          Assert.AreEqual(3, entitySetState.Count);
-          Assert.IsTrue(entitySetState.Contains(firstContainedKey));
+          Assert.That(entitySetState.IsFullyLoaded, Is.True); // Enumeration attempt leads to full loading
+          Assert.That(entitySetState.IsCountAvailable, Is.True); // So Count is available as well
+          Assert.That(entitySetState.Count, Is.EqualTo(3));
+          Assert.That(entitySetState.Contains(firstContainedKey), Is.True);
         }
       }
     }

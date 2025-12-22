@@ -17,7 +17,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   public class CompilerTests: AdventureWorks
   {
     private SqlConnection sqlConnection;
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
     private DbCommand sqlCommand;
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
     private SqlDriver sqlDriver;
 
     [OneTimeSetUp]
@@ -116,14 +118,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       using (var command = sqlConnection.CreateCommand()) {
         command.CommandText = result.GetCommandText();
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(1, reader.GetInt32(0));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetInt32(0), Is.EqualTo(1));
         }
         var configuration = new SqlPostCompilerConfiguration {AlternativeBranches = {variantId}};
         command.CommandText = result.GetCommandText(configuration);
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(2, reader.GetInt32(0));
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetInt32(0), Is.EqualTo(2));
         }
       }
     }
@@ -142,7 +144,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         parameter.DbType = DbType.Int32;
         parameter.Value = (int) 'x';
         command.Parameters.Add(parameter);
-        Assert.AreEqual((int) 'x', command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo((int) 'x'));
       }
       using (var command = sqlConnection.CreateCommand()) {
         var configuration = new SqlPostCompilerConfiguration {PlaceholderValues = {{placeholderId, "@yyy"}}};
@@ -152,7 +154,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         parameter.DbType = DbType.Int32;
         parameter.Value = (int) 'y';
         command.Parameters.Add(parameter);
-        Assert.AreEqual((int) 'y', command.ExecuteScalar());
+        Assert.That(command.ExecuteScalar(), Is.EqualTo((int) 'y'));
       }
     }
 
@@ -172,7 +174,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         var configuration = new SqlPostCompilerConfiguration {DynamicFilterValues = {{dynamicFilterId, values}}};
         command.CommandText = result.GetCommandText(configuration);
         int count = Convert.ToInt32(command.ExecuteScalar());
-        Assert.AreEqual(2, count);
+        Assert.That(count, Is.EqualTo(2));
       }
     }
     
@@ -193,7 +195,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         var configuration = new SqlPostCompilerConfiguration {DynamicFilterValues = {{dynamicFilterId, values}}};
         command.CommandText = result.GetCommandText(configuration);
         int count = Convert.ToInt32(command.ExecuteScalar());
-        Assert.AreEqual(2, count);
+        Assert.That(count, Is.EqualTo(2));
       }
     }
   }

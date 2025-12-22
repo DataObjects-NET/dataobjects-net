@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Issues
         session.SaveChanges();
         var query = session.Query.All<Token>()
           .Where(t => t.Salt.In(-1, 1) && t.Id.In(tokenId, Guid.Empty));
-        Assert.AreSame(token, query.FirstOrDefault());
+        Assert.That(query.FirstOrDefault(), Is.SameAs(token));
       }
     }
   }

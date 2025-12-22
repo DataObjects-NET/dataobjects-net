@@ -193,14 +193,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
       Assert.That(whereLocal.Length, Is.Not.EqualTo(0));
       Assert.That(whereByServer.Length, Is.Not.EqualTo(0));
-      Assert.IsTrue(whereLocal.SequenceEqual(whereByServer));
+      Assert.That(whereLocal.SequenceEqual(whereByServer), Is.True);
 
       whereByServer = session.Query.All<T>().Where(whereExpression).OrderByDescending(orderByExpression).ToArray();
       whereLocal = session.Query.All<T>().ToArray().Where(compiledWhereExpression).OrderBy(compiledOrderByExpression).ToArray();
 
       Assert.That(whereLocal.Length, Is.Not.EqualTo(0));
       Assert.That(whereByServer.Length, Is.Not.EqualTo(0));
-      Assert.IsFalse(whereLocal.SequenceEqual(whereByServer));
+      Assert.That(whereLocal.SequenceEqual(whereByServer), Is.False);
     }
   }
 }

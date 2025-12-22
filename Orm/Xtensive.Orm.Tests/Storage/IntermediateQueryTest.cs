@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Storage
           .SelectMany(p => p.MyChildren, (p, c) => new {MasterId = p.ID, SlaveId = c.ID})
           .ToList();
 
-        Assert.AreEqual(1, list.Count);
+        Assert.That(list.Count, Is.EqualTo(1));
 
         var p0 = session.Query.All<Parent>().First();
         foreach (var c in p0.MyChildren) {
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Storage
           var result = items
             .Select(e => new {MasterId = e.Master.ID, SlaveId = e.Slave.ID})
             .ToList();
-          Assert.AreEqual(1, list.Count);
+          Assert.That(list.Count, Is.EqualTo(1));
         }
 
         var firstParent = session.Query.All<Parent>().First();

@@ -55,10 +55,10 @@ namespace Xtensive.Orm.Tests.Core.Collections
       for (int i = 0; i < ItemCount; i++) {
         flagCollection.Add(new object(), random.Next(-100,100));
       }
-      Assert.AreEqual(ItemCount, flagCollection.Count );
+      Assert.That(flagCollection.Count, Is.EqualTo(ItemCount));
 
       FlagCollection<object, int> flagCollection1 = new FlagCollection<object, int>(converter, flagCollection);
-      Assert.AreEqual(flagCollection, flagCollection1);
+      Assert.That(flagCollection1, Is.EqualTo(flagCollection));
     }
 
     [Test]
@@ -68,8 +68,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
       flagCollection.Add(new object(), -100);
       flagCollection.Add(new object(), 100);
       IList<int> list = new List<int>(flagCollection.Values);
-      Assert.AreEqual(-1, list[0]);
-      Assert.AreEqual(1, list[1]);
+      Assert.That(list[0], Is.EqualTo(-1));
+      Assert.That(list[1], Is.EqualTo(1));
     }
 
     [Test]
@@ -83,14 +83,14 @@ namespace Xtensive.Orm.Tests.Core.Collections
       FlagCollection<object, int> flagCollection = new FlagCollection<object, int>(converter, collection);
       for (int i = 0; i < ItemCount; i++) {
         KeyValuePair<object, int> pair = collection[i];
-        Assert.AreEqual(pair.Key, flagCollection[i].Key);
-        Assert.AreEqual(pair.Value >= 0, flagCollection[pair.Key] >= 0);
+        Assert.That(flagCollection[i].Key, Is.EqualTo(pair.Key));
+        Assert.That(flagCollection[pair.Key] >= 0, Is.EqualTo(pair.Value >= 0));
       }
 
       foreach (KeyValuePair<object, int> pair in collection) {
         flagCollection.Remove(pair.Key);
       }
-      Assert.AreEqual(0, flagCollection.Count);
+      Assert.That(flagCollection.Count, Is.EqualTo(0));
     }
   }
 }

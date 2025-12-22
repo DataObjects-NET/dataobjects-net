@@ -120,19 +120,19 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var result = session.Query.All<INamed>().ToList();
-        Assert.Greater(result.Count, 0);
+        Assert.That(result.Count, Is.GreaterThan(0));
         foreach (var iNamed in result) {
-          Assert.IsNotNull(iNamed);
-          Assert.IsNotNull(iNamed.Name);
-          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iNamed.Key, iNamed.Name));
+          Assert.That(iNamed, Is.Not.Null);
+          Assert.That(iNamed.Name, Is.Not.Null);
+          Console.Out.WriteLine($"Key: {iNamed.Key}; {iNamed.Name}");
         }
-        Assert.AreEqual(17 * EachCount, result.Count);
+        Assert.That(result.Count, Is.EqualTo(17 * EachCount));
 
         var filtered = session.Query.All<INamed>().Where(i => i.Name == "Name: O'0" || i.Name == "Name: A0" || i.Name == "Name: C0").ToList();
-        Assert.AreEqual(3, filtered.Count);
+        Assert.That(filtered.Count, Is.EqualTo(3));
 
         var startsWith = session.Query.All<INamed>().Where(i => i.Name.StartsWith("Name: J'") || i.Name.StartsWith("Name: L'") || i.Name.StartsWith("Name: C'")).ToList();
-        Assert.AreEqual(2 * EachCount, startsWith.Count);
+        Assert.That(startsWith.Count, Is.EqualTo(2 * EachCount));
 
         t.Complete();
       }
@@ -147,19 +147,19 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var result = session.Query.All<ITagged>().ToList();
-        Assert.Greater(result.Count, 0);
+        Assert.That(result.Count, Is.GreaterThan(0));
         foreach (var iTagged in result) {
-          Assert.IsNotNull(iTagged);
-          Assert.IsNotNull(iTagged.Tag);
-          Console.Out.WriteLine(string.Format("Key: {0}; {1}", iTagged.Key, iTagged.Tag));
+          Assert.That(iTagged, Is.Not.Null);
+          Assert.That(iTagged.Tag, Is.Not.Null);
+          Console.Out.WriteLine($"Key: {iTagged.Key}; {iTagged.Tag}");
         }
-        Assert.AreEqual(12 * EachCount, result.Count);
+        Assert.That(result.Count, Is.EqualTo(12 * EachCount));
 
         var filtered = session.Query.All<ITagged>().Where(i => i.Tag == "Tag: C'0" || i.Tag == "Tag: D0" || i.Tag == "Tag: M'0").ToList();
-        Assert.AreEqual(3, filtered.Count);
+        Assert.That(filtered.Count, Is.EqualTo(3));
 
         var startsWith = session.Query.All<ITagged>().Where(i => i.Tag.StartsWith("Tag: H'") || i.Tag.StartsWith("Tag: C'") || i.Tag.StartsWith("Tag: J'")).ToList();
-        Assert.AreEqual(2 * EachCount, startsWith.Count);
+        Assert.That(startsWith.Count, Is.EqualTo(2 * EachCount));
 
         t.Complete();
       }
@@ -175,20 +175,20 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var result = session.Query.All<IComposite>().ToList();
-        Assert.Greater(result.Count, 0);
+        Assert.That(result.Count, Is.GreaterThan(0));
         foreach (var iComposite in result) {
-          Assert.IsNotNull(iComposite);
-          Assert.IsNotNull(iComposite.First);
-          Assert.IsNotNull(iComposite.Second);
-          Console.Out.WriteLine(string.Format("Key: {0}; {1}; {2}", iComposite.Key, iComposite.First, iComposite.Second));
+          Assert.That(iComposite, Is.Not.Null);
+          Assert.That(iComposite.First, Is.Not.Null);
+          Assert.That(iComposite.Second, Is.Not.Null);
+          Console.Out.WriteLine($"Key: {iComposite.Key}; {iComposite.First}; {iComposite.Second}");
         }
-        Assert.AreEqual(6 * EachCount, result.Count);
+        Assert.That(result.Count, Is.EqualTo(6 * EachCount));
 
         var filtered = session.Query.All<IComposite>().Where(i => i.First == "First: O'0" || i.Second == "Second: O0" || i.First == "First: E'0").ToList();
-        Assert.AreEqual(2, filtered.Count);
+        Assert.That(filtered.Count, Is.EqualTo(2));
 
         var startsWith = session.Query.All<IComposite>().Where(i => i.First.StartsWith("First: O'") || i.Second.StartsWith("Second: O") || i.First.StartsWith("First: E'")).ToList();
-        Assert.AreEqual(2 * EachCount, startsWith.Count);
+        Assert.That(startsWith.Count, Is.EqualTo(2 * EachCount));
 
         t.Complete();
       }
@@ -202,11 +202,11 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var named = session.Query.Single<INamed>(33L);
-        Assert.IsNotNull(named);
-        Assert.AreEqual("Name: D'2", named.Name);
+        Assert.That(named, Is.Not.Null);
+        Assert.That(named.Name, Is.EqualTo("Name: D'2"));
         named = session.Query.Single<INamed>(Key.Create<INamed>(Domain, 51L));
-        Assert.IsNotNull(named);
-        Assert.AreEqual("Name: F0", named.Name);
+        Assert.That(named, Is.Not.Null);
+        Assert.That(named.Name, Is.EqualTo("Name: F0"));
         t.Complete();
       }
 
@@ -218,8 +218,8 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
         for (long i = 1; i <= totalCount; i++) {
           var key = Key.Create<INamed>(Domain, i);
           var named = session.Query.Single<INamed>(key);
-          Assert.IsNotNull(named);
-          Assert.IsNotNull(named.Name);
+          Assert.That(named, Is.Not.Null);
+          Assert.That(named.Name, Is.Not.Null);
           names.Add(named.Name);
         }
         t.Complete();
@@ -232,10 +232,10 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
           .Select(i => new { i.Key, i.Name})
           .OrderBy(i => i.Name)
           .ToList(170);
-        Assert.AreEqual(170, namedQuery.Count); // some records are represented twice
+        Assert.That(namedQuery.Count, Is.EqualTo(170)); // some records are represented twice
 
         var groupByKey = namedQuery.GroupBy(i => i.Key, (a, b)=> new { Key = a, Items = b.ToList(2) }).ToList(150);
-        Assert.AreEqual(totalCount, groupByKey.Count);
+        Assert.That(groupByKey.Count, Is.EqualTo(totalCount));
 
         var abc = names.Zip(groupByKey,
           (name, group) => new {
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
                 : group.Items[1].Name });
 
         foreach(var anon in abc) {
-          Assert.AreEqual(anon.name1, anon.name2);
+          Assert.That(anon.name2, Is.EqualTo(anon.name1));
         }
 
         t.Complete();

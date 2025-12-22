@@ -624,7 +624,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
 
       var actual = actualUnion.Distinct();
 
-      Assert.AreEqual(0, actual.Select(e => e.EmployeeId).Except(query.ToList().Select(e => e.EmployeeId)).Count());
+      Assert.That(actual.Select(e => e.EmployeeId).Except(query.ToList().Select(e => e.EmployeeId)).Count(), Is.EqualTo(0));
 
       QueryDumper.Dump(query);
     }

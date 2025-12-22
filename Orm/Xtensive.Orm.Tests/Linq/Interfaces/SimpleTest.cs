@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     {
       var expected = Invoices.Count();
       var result = Session.Query.All<IHasCommission>().ToList();
-      Assert.AreEqual(expected, result.Count);
-      Assert.IsTrue(result.All(i => i!=null));
+      Assert.That(result.Count, Is.EqualTo(expected));
+      Assert.That(result.All(i => i!=null), Is.True);
     }
 
     [Test]
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       var anonyms = queryable.Select("new(Commission as Commission)");
       foreach (dynamic anonym in anonyms)
         result.Add(new DTO() {Commission = anonym.Commission});
-      Assert.Greater(result.Count, 0);
+      Assert.That(result.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -70,10 +70,10 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
         .ToList();
 
       int expectedCount = result.Count;
-      Assert.Greater(expectedCount, 0);
+      Assert.That(expectedCount, Is.GreaterThan(0));
       foreach (var item in result) {
-        Assert.AreEqual(expectedCount, item.c1);
-        Assert.AreEqual(expectedCount, item.c2);
+        Assert.That(item.c1, Is.EqualTo(expectedCount));
+        Assert.That(item.c2, Is.EqualTo(expectedCount));
       }
     }
 
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     {
       var actual = Session.Query.All<IHasCommission>().ToList();
       var expected = Invoices;
-      Assert.AreEqual(0, expected.Except(actual.Cast<Invoice>()).Count());
+      Assert.That(expected.Except(actual.Cast<Invoice>()).Count(), Is.EqualTo(0));
     }
   }
 }

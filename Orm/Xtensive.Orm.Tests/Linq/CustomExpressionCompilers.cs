@@ -34,12 +34,12 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 
     public string Fullname
     {
-      get { return string.Format("{0} {1}", FirstName, LastName); }
+      get { return $"{FirstName} {LastName}"; }
     }
 
     public string AddPrefix(string prefix)
     {
-      return string.Format("{0}{1}", prefix, LastName);
+      return $"{prefix}{LastName}";
     }
   }
 
@@ -141,13 +141,13 @@ namespace Xtensive.Orm.Tests.Linq
         using (var t = session.OpenTransaction()) {
           Fill();
           var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.Greater(expected1.Count, 0);
+          Assert.That(expected1.Count, Is.GreaterThan(0));
           var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.IsTrue(expected1.SequenceEqual(fullNames1));
+          Assert.That(expected1.SequenceEqual(fullNames1), Is.True);
 
           var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
           var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          Assert.IsTrue(expected2.SequenceEqual(fullNames2));
+          Assert.That(expected2.SequenceEqual(fullNames2), Is.True);
           // Rollback
         }
       }
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Tests.Linq
         new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
 
         var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
-        Assert.AreEqual(2, currentCount);
+        Assert.That(currentCount, Is.EqualTo(2));
         // Rollback
       }
     }
@@ -188,10 +188,10 @@ namespace Xtensive.Orm.Tests.Linq
           // Fake check to force execution at server side
           .Where(item => item.Id >= 0 || item.InstanceMethod == item.InstanceProperty)
           .Single();
-        Assert.AreEqual(RegistrarTestEntity.StaticMethod(1), actual.StaticMethod);
-        Assert.AreEqual(RegistrarTestEntity.StaticProperty, actual.StaticProperty);
-        Assert.AreEqual(test.InstanceMethod(1), actual.InstanceMethod);
-        Assert.AreEqual(test.InstanceProperty, actual.InstanceProperty);
+        Assert.That(actual.StaticMethod, Is.EqualTo(RegistrarTestEntity.StaticMethod(1)));
+        Assert.That(actual.StaticProperty, Is.EqualTo(RegistrarTestEntity.StaticProperty));
+        Assert.That(actual.InstanceMethod, Is.EqualTo(test.InstanceMethod(1)));
+        Assert.That(actual.InstanceProperty, Is.EqualTo(test.InstanceProperty));
       }
     }
 

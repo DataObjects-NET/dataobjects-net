@@ -119,8 +119,8 @@ namespace Xtensive.Orm.Tests.Model
       foreach (var column in hierarchy.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
+        Assert.That(correspondingField, Is.Not.Null);
+        Assert.That(correspondingField.Columns.Contains(column.Name), Is.True);
       }
     }
 
@@ -131,8 +131,8 @@ namespace Xtensive.Orm.Tests.Model
       foreach (var column in simpleClassTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleClassTable.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
+        Assert.That(correspondingField, Is.Not.Null);
+        Assert.That(correspondingField.Columns.Contains(column.Name), Is.True);
       }
     }
 
@@ -143,8 +143,8 @@ namespace Xtensive.Orm.Tests.Model
       foreach (var column in simpleConcreteTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleConcreteTable.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
+        Assert.That(correspondingField, Is.Not.Null);
+        Assert.That(correspondingField.Columns.Contains(column.Name), Is.True);
       }
     }
 
@@ -155,8 +155,8 @@ namespace Xtensive.Orm.Tests.Model
       foreach (var column in simpleSingleTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleSingleTable.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
+        Assert.That(correspondingField, Is.Not.Null);
+        Assert.That(correspondingField.Columns.Contains(column.Name), Is.True);
       }
     }
 

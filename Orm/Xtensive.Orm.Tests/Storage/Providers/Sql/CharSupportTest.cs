@@ -71,10 +71,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
-        Assert.AreEqual(3, result.Count);
-        Assert.IsTrue(result.Contains('X'));
-        Assert.IsTrue(result.Contains('Y'));
-        Assert.IsTrue(result.Contains('Z'));
+        Assert.That(result.Count, Is.EqualTo(3));
+        Assert.That(result.Contains('X'), Is.True);
+        Assert.That(result.Contains('Y'), Is.True);
+        Assert.That(result.Contains('Z'), Is.True);
         transaction.Complete();
       }
     }
@@ -94,8 +94,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual(y, result[0]);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0], Is.EqualTo(y));
         transaction.Complete();
       }
     }
@@ -114,8 +114,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual('Y', result[0]);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0], Is.EqualTo('Y'));
         transaction.Complete();
       }
     }

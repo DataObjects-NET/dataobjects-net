@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
               }
             }
           if (log)
-            TestLog.Info("  Switch rate: {0} ({1:F3}%)", switchCount, switchCount * 1.0 / lockCount);
+            TestLog.Info($"  Switch rate: {switchCount} ({switchCount * 1.0 / lockCount:F3}%)");
         }
       }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
               }
             }
           if (log)
-            TestLog.Info("  Switch rate: {0} ({1:F3}%)", switchCount, switchCount * 1.0 / lockCount);
+            TestLog.Info($"  Switch rate: {switchCount} ({switchCount * 1.0 / lockCount:F3}%)");
         }
       }
 
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
               }
             }
           if (log)
-            TestLog.Info("  Switch rate: {0} ({1:F3}%)", switchCount, switchCount * 1.0 / lockCount);
+            TestLog.Info($"  Switch rate: {switchCount} ({switchCount * 1.0 / lockCount:F3}%)");
         }
       }
 
@@ -229,7 +229,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         }
       }
       else {
-        using (TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+        using (TestLog.InfoRegion($"{threadCount} threads")) {
           ThreadedTest(target, passCountBase,     target.ExecuteLock);
           ThreadedTest(target, passCountBase,     target.ExecuteReadLock);
           ThreadedTest(target, passCountBase,     target.ExecuteWriteLock);
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         ThreadedTest(target, passCountBase/100, target.ExecuteInvokeAsync);
       }
       else {
-        using (TestLog.InfoRegion(string.Format("{0} threads", threadCount))) {
+        using (TestLog.InfoRegion($"{threadCount} threads")) {
           ThreadedTest(target, passCountBase/100, target.ExecuteInvokeAsync);
         }
       }

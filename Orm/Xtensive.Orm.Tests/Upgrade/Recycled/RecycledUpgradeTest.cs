@@ -33,19 +33,19 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled
       using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(4, session.Query.All<Person>().Count());
-        Assert.AreEqual(2, session.Query.All<Employee>().Count());
-        Assert.AreEqual(2, session.Query.All<Customer>().Count());
+        Assert.That(session.Query.All<Person>().Count(), Is.EqualTo(4));
+        Assert.That(session.Query.All<Employee>().Count(), Is.EqualTo(2));
+        Assert.That(session.Query.All<Customer>().Count(), Is.EqualTo(2));
 
-        Assert.AreEqual("Island Trading", session.Query.All<Employee>()
-          .First(employee => employee.Name == "Nancy Davolio").CompanyName);
-        Assert.AreEqual("Cowes, UK", session.Query.All<Customer>()
-          .First(customer => customer.Name == "Helen Bennett").Address);
+        Assert.That(session.Query.All<Employee>()
+          .First(employee => employee.Name == "Nancy Davolio").CompanyName, Is.EqualTo("Island Trading"));
+        Assert.That(session.Query.All<Customer>()
+          .First(customer => customer.Name == "Helen Bennett").Address, Is.EqualTo("Cowes, UK"));
 
-        Assert.AreEqual(4, session.Query.All<Order>().Count());
-        Assert.AreEqual("Maxilaku", session.Query.All<Order>().First(order =>
+        Assert.That(session.Query.All<Order>().Count(), Is.EqualTo(4));
+        Assert.That(session.Query.All<Order>().First(order =>
           order.Employee.Name == "Michael Suyama" && order.Customer.Name == "Helen Bennett")
-          .ProductName);
+          .ProductName, Is.EqualTo("Maxilaku"));
       }
     }
 

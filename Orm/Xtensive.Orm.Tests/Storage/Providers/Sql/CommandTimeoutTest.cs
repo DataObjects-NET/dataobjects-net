@@ -29,11 +29,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
       using (var domain = Domain.Build(domainConfiguration)) {
         using (var session = domain.OpenSession()) {
-          Assert.AreEqual(100, session.CommandTimeout);
+          Assert.That(session.CommandTimeout, Is.EqualTo(100));
         }
         var sessionConfiguration = new SessionConfiguration {DefaultCommandTimeout = 100};
         using (var session = domain.OpenSession(sessionConfiguration)) {
-          Assert.AreEqual(100, session.CommandTimeout);
+          Assert.That(session.CommandTimeout, Is.EqualTo(100));
         }
       }
     }
@@ -48,9 +48,9 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           const int newValue2 = 100;
           session.CommandTimeout = newValue;
           var sqlAccessor = session.Services.Get<DirectSqlAccessor>();
-          Assert.AreEqual(newValue, sqlAccessor.CreateCommand().CommandTimeout);
+          Assert.That(sqlAccessor.CreateCommand().CommandTimeout, Is.EqualTo(newValue));
           using (session.OverrideCommandTimeout(newValue2))
-            Assert.AreEqual(newValue2, sqlAccessor.CreateCommand().CommandTimeout);
+            Assert.That(sqlAccessor.CreateCommand().CommandTimeout, Is.EqualTo(newValue2));
         }
       }
     }

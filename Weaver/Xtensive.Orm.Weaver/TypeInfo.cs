@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Weaver
     public override string ToString()
     {
       var resultBuilder = new StringBuilder();
-      resultBuilder.AppendFormat("{0}", FullName);
-      resultBuilder.AppendFormat(" [kind({0})]", Kind);
+      resultBuilder.AppendFormat($"{FullName}");
+      resultBuilder.AppendFormat($" [kind({Kind})]");
       if (BaseType!=null)
-        resultBuilder.AppendFormat(" [inherits({0})]", BaseType.FullName);
+        resultBuilder.AppendFormat($" [inherits({BaseType.FullName})]");
       foreach (var @interface in Interfaces)
-        resultBuilder.AppendFormat(" [implements({0})]", @interface.FullName);
+        resultBuilder.AppendFormat($" [implements({@interface.FullName})]");
       return resultBuilder.ToString();
     }
 

@@ -96,8 +96,8 @@ namespace Xtensive.Orm.Tests.Issues
     public void AssociationThroughStructureTest()
     {
       var type = Domain.Model.Types[typeof (Owner1)];
-      Assert.AreEqual(2, type.GetOwnerAssociations().Count());
-      Assert.AreEqual(8, Domain.Model.Associations.Count);
+      Assert.That(type.GetOwnerAssociations().Count(), Is.EqualTo(2));
+      Assert.That(Domain.Model.Associations.Count, Is.EqualTo(8));
     }
 
     [Test]
@@ -108,17 +108,17 @@ namespace Xtensive.Orm.Tests.Issues
       var schema = mapping[Domain.Model.Types[typeof (Metadata.Type)]].Schema;
 
       var count = GetForeignKeysCount(schema, typeof(Owner1));
-      Assert.AreEqual(count, GetForeignKeysCount(schema, typeof(Owner2)));
-      Assert.AreEqual(count, GetForeignKeysCount(schema, typeof(Owner3)));
+      Assert.That(GetForeignKeysCount(schema, typeof(Owner2)), Is.EqualTo(count));
+      Assert.That(GetForeignKeysCount(schema, typeof(Owner3)), Is.EqualTo(count));
     }
 
     [Test]
     public void IndexesCountTest()
     {
       var count = GetIndexesCount(typeof (Owner0));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner1)));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner2)));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner3)));
+      Assert.That(GetIndexesCount(typeof(Owner1)), Is.EqualTo(count));
+      Assert.That(GetIndexesCount(typeof(Owner2)), Is.EqualTo(count));
+      Assert.That(GetIndexesCount(typeof(Owner3)), Is.EqualTo(count));
     }
 
     private int GetIndexesCount(Type type)

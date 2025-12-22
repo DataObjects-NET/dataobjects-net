@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.QueryCachingTestModel
       }
 
       return !TypeIdPerNode.TryGetValue(CurrentNodeId, out var result)
-        ? throw new Exception(string.Format("No map for node {0}", CurrentNodeId))
+        ? throw new Exception($"No map for node {CurrentNodeId}")
         : result;
     }
   }

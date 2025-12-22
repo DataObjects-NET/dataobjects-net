@@ -813,8 +813,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
 
           var dataTypeInfo = Driver.ServerInfo.DataTypes[valueType.Type];
           if (dataTypeInfo == null) {
-            throw new NotSupportedException(string.Format("Type '{0}' is not supported",
-              (valueType.Type == SqlType.Unknown) ? valueType.TypeName : valueType.Type.Name));
+            throw new NotSupportedException($"Type '{((valueType.Type == SqlType.Unknown) ? valueType.TypeName : valueType.Type.Name)}' is not supported");
           }
 
           return dataTypeInfo.NativeTypes.First();
@@ -825,8 +824,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v11_0
 
             var dataTypeInfo = Driver.ServerInfo.DataTypes[valueType.Type];
             if (dataTypeInfo == null) {
-              throw new NotSupportedException(string.Format("Type '{0}' is not supported",
-                (valueType.Type == SqlType.Unknown) ? valueType.TypeName : valueType.Type.Name));
+              throw new NotSupportedException($"Type '{((valueType.Type == SqlType.Unknown) ? valueType.TypeName : valueType.Type.Name)}' is not supported");
             }
 
             return dataTypeInfo.NativeTypes.First();

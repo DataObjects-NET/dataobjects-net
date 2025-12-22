@@ -59,44 +59,44 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void SumTest()
     {
-      Assert.AreEqual(all.Sum(x => x.FByte), GlobalSession.Query.All<X>().Sum(x => x.FByte), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Sum(x => x.FSByte), GlobalSession.Query.All<X>().Sum(x => x.FSByte), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FByte), Is.EqualTo(all.Sum(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FSByte), Is.EqualTo(all.Sum(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Sum(x => x.FShort), GlobalSession.Query.All<X>().Sum(x => x.FShort), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Sum(x => x.FUShort), GlobalSession.Query.All<X>().Sum(x => x.FUShort), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FShort), Is.EqualTo(all.Sum(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FUShort), Is.EqualTo(all.Sum(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Sum(x => x.FInt), GlobalSession.Query.All<X>().Sum(x => x.FInt), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Sum(x => x.FUInt), GlobalSession.Query.All<X>().Sum(x => x.FUInt), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FInt), Is.EqualTo(all.Sum(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FUInt), Is.EqualTo(all.Sum(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Sum(x => x.FLong), GlobalSession.Query.All<X>().Sum(x => x.FLong), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Sum(x => x.FFloat), GlobalSession.Query.All<X>().Sum(x => x.FFloat), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Sum(x => x.FDecimal), GlobalSession.Query.All<X>().Sum(x => x.FDecimal), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FLong), Is.EqualTo(all.Sum(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FFloat), Is.EqualTo(all.Sum(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Sum(x => x.FDecimal), Is.EqualTo(all.Sum(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
     [Test]
     public void SumNoLambdaTest()
     {
-      Assert.AreEqual(all.Sum(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Sum(), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Sum(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Sum(), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Sum(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Sum(), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Sum(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Sum(), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Sum(), Is.EqualTo(all.Sum(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Sum(), Is.EqualTo(all.Sum(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Sum(), Is.EqualTo(all.Sum(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Sum(), Is.EqualTo(all.Sum(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
     [Test]
     public void SumByValueItselfTest()
     {
-      Assert.AreEqual(all.Sum(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Sum(x => x), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Sum(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Sum(x => x), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Sum(x => x), Is.EqualTo(all.Sum(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Sum(x => x), Is.EqualTo(all.Sum(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Sum(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Sum(x => x), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Sum(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Sum(x => x), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Sum(x => x), Is.EqualTo(all.Sum(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Sum(x => x), Is.EqualTo(all.Sum(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Sum(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Sum(x => x), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Sum(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Sum(x => x), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Sum(x => x), Is.EqualTo(all.Sum(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Sum(x => x), Is.EqualTo(all.Sum(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Sum(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Sum(x => x), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Sum(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Sum(x => x), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Sum(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Sum(x => x), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Sum(x => x), Is.EqualTo(all.Sum(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Sum(x => x), Is.EqualTo(all.Sum(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Sum(x => x), Is.EqualTo(all.Sum(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
 
@@ -108,26 +108,26 @@ namespace Xtensive.Orm.Tests.Storage
       // © Firebird documentation
       // Funny, isn't it?
       if (Domain.Configuration.ConnectionInfo.Provider==WellKnown.Provider.Firebird) {
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FByte)), GlobalSession.Query.All<X>().Average(x => x.FByte), $"Failed for {nameof(X.FByte)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FSByte)), GlobalSession.Query.All<X>().Average(x => x.FSByte), $"Failed for {nameof(X.FSByte)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FShort)), GlobalSession.Query.All<X>().Average(x => x.FShort), $"Failed for {nameof(X.FShort)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUShort)), GlobalSession.Query.All<X>().Average(x => x.FUShort), $"Failed for {nameof(X.FUShort)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FInt)), GlobalSession.Query.All<X>().Average(x => x.FInt), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUInt)), GlobalSession.Query.All<X>().Average(x => x.FUInt), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FLong)), GlobalSession.Query.All<X>().Average(x => x.FLong), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FByte), Is.EqualTo(Math.Truncate(all.Average(x => x.FByte))), $"Failed for {nameof(X.FByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FSByte), Is.EqualTo(Math.Truncate(all.Average(x => x.FSByte))), $"Failed for {nameof(X.FSByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FShort), Is.EqualTo(Math.Truncate(all.Average(x => x.FShort))), $"Failed for {nameof(X.FShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FUShort), Is.EqualTo(Math.Truncate(all.Average(x => x.FUShort))), $"Failed for {nameof(X.FUShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FInt), Is.EqualTo(Math.Truncate(all.Average(x => x.FInt))), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FUInt), Is.EqualTo(Math.Truncate(all.Average(x => x.FUInt))), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FLong), Is.EqualTo(Math.Truncate(all.Average(x => x.FLong))), $"Failed for {nameof(X.FLong)}");
       }
       else {
-        Assert.AreEqual(all.Average(x => x.FByte), GlobalSession.Query.All<X>().Average(x => x.FByte), $"Failed for {nameof(X.FByte)}");
-        Assert.AreEqual(all.Average(x => x.FSByte), GlobalSession.Query.All<X>().Average(x => x.FSByte), $"Failed for {nameof(X.FSByte)}");
-        Assert.AreEqual(all.Average(x => x.FShort), GlobalSession.Query.All<X>().Average(x => x.FShort), $"Failed for {nameof(X.FShort)}");
-        Assert.AreEqual(all.Average(x => x.FUShort), GlobalSession.Query.All<X>().Average(x => x.FUShort), $"Failed for {nameof(X.FUShort)}");
-        Assert.AreEqual(all.Average(x => x.FInt), GlobalSession.Query.All<X>().Average(x => x.FInt), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(all.Average(x => x.FUInt), GlobalSession.Query.All<X>().Average(x => x.FUInt), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(all.Average(x => x.FLong), GlobalSession.Query.All<X>().Average(x => x.FLong), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FByte), Is.EqualTo(all.Average(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FSByte), Is.EqualTo(all.Average(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FShort), Is.EqualTo(all.Average(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FUShort), Is.EqualTo(all.Average(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FInt), Is.EqualTo(all.Average(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FUInt), Is.EqualTo(all.Average(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Average(x => x.FLong), Is.EqualTo(all.Average(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
       }
 
-      Assert.AreEqual(all.Average(x => x.FFloat), GlobalSession.Query.All<X>().Average(x => x.FFloat), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Average(x => x.FDecimal), GlobalSession.Query.All<X>().Average(x => x.FDecimal), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Average(x => x.FFloat), Is.EqualTo(all.Average(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Average(x => x.FDecimal), Is.EqualTo(all.Average(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
     [Test]
@@ -138,18 +138,18 @@ namespace Xtensive.Orm.Tests.Storage
       // © Firebird documentation
       // Funny, isn't it?
       if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FInt)), GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUInt)), GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FLong)), GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), Is.EqualTo(Math.Truncate(all.Average(x => x.FInt))), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FUInt))), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), Is.EqualTo(Math.Truncate(all.Average(x => x.FLong))), $"Failed for {nameof(X.FLong)}");
       }
       else {
-        Assert.AreEqual(all.Average(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(all.Average(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(all.Average(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), Is.EqualTo(all.Average(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), Is.EqualTo(all.Average(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), Is.EqualTo(all.Average(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
       }
 
-      Assert.AreEqual(all.Average(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Average(), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Average(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Average(), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Average(), Is.EqualTo(all.Average(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Average(), Is.EqualTo(all.Average(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
     [Test]
@@ -160,146 +160,146 @@ namespace Xtensive.Orm.Tests.Storage
       // © Firebird documentation
       // Funny, isn't it?
       if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird) {
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FByte)), GlobalSession.Query.All<X>().Select(x => x.FByte).Average(x => x), $"Failed for {nameof(X.FByte)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FSByte)), GlobalSession.Query.All<X>().Select(x => x.FSByte).Average(x => x), $"Failed for {nameof(X.FSByte)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FShort)), GlobalSession.Query.All<X>().Select(x => x.FShort).Average(x => x), $"Failed for {nameof(X.FShort)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUShort)), GlobalSession.Query.All<X>().Select(x => x.FUShort).Average(x => x), $"Failed for {nameof(X.FUShort)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FInt)), GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUInt)), GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(Math.Truncate(all.Average(x => x.FLong)), GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FByte))), $"Failed for {nameof(X.FByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FSByte))), $"Failed for {nameof(X.FSByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FShort))), $"Failed for {nameof(X.FShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FUShort))), $"Failed for {nameof(X.FUShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), Is.EqualTo(Math.Truncate(all.Average(x => x.FInt))), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), Is.EqualTo(Math.Truncate(all.Average(x => x.FUInt))), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), Is.EqualTo(Math.Truncate(all.Average(x => x.FLong))), $"Failed for {nameof(X.FLong)}");
       }
       else {
-        Assert.AreEqual(all.Average(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Average(x => x), $"Failed for {nameof(X.FByte)}");
-        Assert.AreEqual(all.Average(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Average(x => x), $"Failed for {nameof(X.FSByte)}");
-        Assert.AreEqual(all.Average(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Average(x => x), $"Failed for {nameof(X.FShort)}");
-        Assert.AreEqual(all.Average(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Average(x => x), $"Failed for {nameof(X.FUShort)}");
-        Assert.AreEqual(all.Average(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), $"Failed for {nameof(X.FInt)}");
-        Assert.AreEqual(all.Average(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), $"Failed for {nameof(X.FUInt)}");
-        Assert.AreEqual(all.Average(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), $"Failed for {nameof(X.FLong)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Average(x => x), Is.EqualTo(all.Average(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Average(x => x), Is.EqualTo(all.Average(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Average(x => x), Is.EqualTo(all.Average(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Average(x => x), Is.EqualTo(all.Average(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Average(), Is.EqualTo(all.Average(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Average(x => x), Is.EqualTo(all.Average(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
+        Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Average(), Is.EqualTo(all.Average(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
       }
 
-      Assert.AreEqual(all.Average(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Average(), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Average(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Average(), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Average(), Is.EqualTo(all.Average(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Average(), Is.EqualTo(all.Average(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
     }
 
     [Test]
     public void MinTest()
     {
-      Assert.AreEqual(all.Min(x => x.FByte), GlobalSession.Query.All<X>().Min(x => x.FByte), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Min(x => x.FSByte), GlobalSession.Query.All<X>().Min(x => x.FSByte), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FByte), Is.EqualTo(all.Min(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FSByte), Is.EqualTo(all.Min(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Min(x => x.FShort), GlobalSession.Query.All<X>().Min(x => x.FShort), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Min(x => x.FUShort), GlobalSession.Query.All<X>().Min(x => x.FUShort), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FShort), Is.EqualTo(all.Min(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FUShort), Is.EqualTo(all.Min(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Min(x => x.FInt), GlobalSession.Query.All<X>().Min(x => x.FInt), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Min(x => x.FUInt), GlobalSession.Query.All<X>().Min(x => x.FUInt), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FInt), Is.EqualTo(all.Min(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FUInt), Is.EqualTo(all.Min(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Min(x => x.FLong), GlobalSession.Query.All<X>().Min(x => x.FLong), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Min(x => x.FFloat), GlobalSession.Query.All<X>().Min(x => x.FFloat), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Min(x => x.FDecimal), GlobalSession.Query.All<X>().Min(x => x.FDecimal), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FLong), Is.EqualTo(all.Min(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FFloat), Is.EqualTo(all.Min(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FDecimal), Is.EqualTo(all.Min(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Min(x => x.FDateTime), GlobalSession.Query.All<X>().Min(x => x.FDateTime), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Min(x => x.FTimeSpan), GlobalSession.Query.All<X>().Min(x => x.FTimeSpan), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FDateTime), Is.EqualTo(all.Min(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Min(x => x.FTimeSpan), Is.EqualTo(all.Min(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
 
     [Test]
     public void MinNoLambdaTest()
     {
-      Assert.AreEqual(all.Min(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Min(), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Min(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Min(), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Min(), Is.EqualTo(all.Min(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Min(), Is.EqualTo(all.Min(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Min(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Min(), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Min(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Min(), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Min(), Is.EqualTo(all.Min(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Min(), Is.EqualTo(all.Min(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Min(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Min(), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Min(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Min(), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Min(), Is.EqualTo(all.Min(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Min(), Is.EqualTo(all.Min(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Min(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Min(), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Min(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Min(), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Min(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Min(), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Min(), Is.EqualTo(all.Min(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Min(), Is.EqualTo(all.Min(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Min(), Is.EqualTo(all.Min(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Min(x => x.FDateTime), GlobalSession.Query.All<X>().Select(x => x.FDateTime).Min(), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Min(x => x.FTimeSpan), GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Min(), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDateTime).Min(), Is.EqualTo(all.Min(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Min(), Is.EqualTo(all.Min(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
 
     [Test]
     public void MinByValueItselfTest()
     {
-      Assert.AreEqual(all.Min(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Min(x => x), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Min(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Min(x => x), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Min(x => x), Is.EqualTo(all.Min(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Min(x => x), Is.EqualTo(all.Min(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Min(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Min(x => x), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Min(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Min(x => x), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Min(x => x), Is.EqualTo(all.Min(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Min(x => x), Is.EqualTo(all.Min(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Min(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Min(x => x), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Min(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Min(x => x), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Min(x => x), Is.EqualTo(all.Min(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Min(x => x), Is.EqualTo(all.Min(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Min(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Min(x => x), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Min(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Min(x => x), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Min(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Min(x => x), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Min(x => x), Is.EqualTo(all.Min(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Min(x => x), Is.EqualTo(all.Min(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Min(x => x), Is.EqualTo(all.Min(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Min(x => x.FDateTime), GlobalSession.Query.All<X>().Select(x => x.FDateTime).Min(x => x), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Min(x => x.FTimeSpan), GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Min(x => x), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDateTime).Min(x => x), Is.EqualTo(all.Min(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Min(x => x), Is.EqualTo(all.Min(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
 
     [Test]
     public void MaxTest()
     {
-      Assert.AreEqual(all.Max(x => x.FByte), GlobalSession.Query.All<X>().Max(x => x.FByte), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Max(x => x.FSByte), GlobalSession.Query.All<X>().Max(x => x.FSByte), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FByte), Is.EqualTo(all.Max(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FSByte), Is.EqualTo(all.Max(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Max(x => x.FShort), GlobalSession.Query.All<X>().Max(x => x.FShort), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Max(x => x.FUShort), GlobalSession.Query.All<X>().Max(x => x.FUShort), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FShort), Is.EqualTo(all.Max(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FUShort), Is.EqualTo(all.Max(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Max(x => x.FInt), GlobalSession.Query.All<X>().Max(x => x.FInt), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Max(x => x.FUInt), GlobalSession.Query.All<X>().Max(x => x.FUInt), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FInt), Is.EqualTo(all.Max(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FUInt), Is.EqualTo(all.Max(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Max(x => x.FLong), GlobalSession.Query.All<X>().Max(x => x.FLong), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Max(x => x.FFloat), GlobalSession.Query.All<X>().Max(x => x.FFloat), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Max(x => x.FDecimal), GlobalSession.Query.All<X>().Max(x => x.FDecimal), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FLong), Is.EqualTo(all.Max(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FFloat), Is.EqualTo(all.Max(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FDecimal), Is.EqualTo(all.Max(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Max(x => x.FDateTime), GlobalSession.Query.All<X>().Max(x => x.FDateTime), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Max(x => x.FTimeSpan), GlobalSession.Query.All<X>().Max(x => x.FTimeSpan), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FDateTime), Is.EqualTo(all.Max(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Max(x => x.FTimeSpan), Is.EqualTo(all.Max(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
 
     [Test]
     public void MaxNoLambdaTest()
     {
-      Assert.AreEqual(all.Max(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Max(), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Max(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Max(), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Max(), Is.EqualTo(all.Max(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Max(), Is.EqualTo(all.Max(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Max(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Max(), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Max(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Max(), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Max(), Is.EqualTo(all.Max(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Max(), Is.EqualTo(all.Max(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Max(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Max(), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Max(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Max(), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Max(), Is.EqualTo(all.Max(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Max(), Is.EqualTo(all.Max(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Max(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Max(), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Max(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Max(), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Max(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Max(), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Max(), Is.EqualTo(all.Max(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Max(), Is.EqualTo(all.Max(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Max(), Is.EqualTo(all.Max(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Max(x => x.FDateTime), GlobalSession.Query.All<X>().Select(x => x.FDateTime).Max(), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Max(x => x.FTimeSpan), GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Max(), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDateTime).Max(), Is.EqualTo(all.Max(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Max(), Is.EqualTo(all.Max(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
 
     [Test]
     public void MaxByValueItselfTest()
     {
-      Assert.AreEqual(all.Max(x => x.FByte), GlobalSession.Query.All<X>().Select(x => x.FByte).Max(x => x), $"Failed for {nameof(X.FByte)}");
-      Assert.AreEqual(all.Max(x => x.FSByte), GlobalSession.Query.All<X>().Select(x => x.FSByte).Max(x => x), $"Failed for {nameof(X.FSByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FByte).Max(x => x), Is.EqualTo(all.Max(x => x.FByte)), $"Failed for {nameof(X.FByte)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FSByte).Max(x => x), Is.EqualTo(all.Max(x => x.FSByte)), $"Failed for {nameof(X.FSByte)}");
 
-      Assert.AreEqual(all.Max(x => x.FShort), GlobalSession.Query.All<X>().Select(x => x.FShort).Max(x => x), $"Failed for {nameof(X.FShort)}");
-      Assert.AreEqual(all.Max(x => x.FUShort), GlobalSession.Query.All<X>().Select(x => x.FUShort).Max(x => x), $"Failed for {nameof(X.FUShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FShort).Max(x => x), Is.EqualTo(all.Max(x => x.FShort)), $"Failed for {nameof(X.FShort)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUShort).Max(x => x), Is.EqualTo(all.Max(x => x.FUShort)), $"Failed for {nameof(X.FUShort)}");
 
-      Assert.AreEqual(all.Max(x => x.FInt), GlobalSession.Query.All<X>().Select(x => x.FInt).Max(x => x), $"Failed for {nameof(X.FInt)}");
-      Assert.AreEqual(all.Max(x => x.FUInt), GlobalSession.Query.All<X>().Select(x => x.FUInt).Max(x => x), $"Failed for {nameof(X.FUInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FInt).Max(x => x), Is.EqualTo(all.Max(x => x.FInt)), $"Failed for {nameof(X.FInt)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FUInt).Max(x => x), Is.EqualTo(all.Max(x => x.FUInt)), $"Failed for {nameof(X.FUInt)}");
 
-      Assert.AreEqual(all.Max(x => x.FLong), GlobalSession.Query.All<X>().Select(x => x.FLong).Max(x => x), $"Failed for {nameof(X.FLong)}");
-      Assert.AreEqual(all.Max(x => x.FFloat), GlobalSession.Query.All<X>().Select(x => x.FFloat).Max(x => x), $"Failed for {nameof(X.FFloat)}");
-      Assert.AreEqual(all.Max(x => x.FDecimal), GlobalSession.Query.All<X>().Select(x => x.FDecimal).Max(x => x), $"Failed for {nameof(X.FDecimal)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FLong).Max(x => x), Is.EqualTo(all.Max(x => x.FLong)), $"Failed for {nameof(X.FLong)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FFloat).Max(x => x), Is.EqualTo(all.Max(x => x.FFloat)), $"Failed for {nameof(X.FFloat)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDecimal).Max(x => x), Is.EqualTo(all.Max(x => x.FDecimal)), $"Failed for {nameof(X.FDecimal)}");
 
-      Assert.AreEqual(all.Max(x => x.FDateTime), GlobalSession.Query.All<X>().Select(x => x.FDateTime).Max(x => x), $"Failed for {nameof(X.FDateTime)}");
-      Assert.AreEqual(all.Max(x => x.FTimeSpan), GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Max(x => x), $"Failed for {nameof(X.FTimeSpan)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FDateTime).Max(x => x), Is.EqualTo(all.Max(x => x.FDateTime)), $"Failed for {nameof(X.FDateTime)}");
+      Assert.That(GlobalSession.Query.All<X>().Select(x => x.FTimeSpan).Max(x => x), Is.EqualTo(all.Max(x => x.FTimeSpan)), $"Failed for {nameof(X.FTimeSpan)}");
     }
   }
 }

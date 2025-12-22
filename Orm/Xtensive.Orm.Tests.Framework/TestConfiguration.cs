@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests
 
       var items = value.Split(new[] {'[', ']'}, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
       if (items.Length!=2)
-        throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", value));
+        throw new InvalidOperationException($"Invalid connection string format: {value}");
       return new ConnectionInfo(items[0], items[1]);
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests
       if (configuration.TryGetValue(Storage + "cs", out var info)) {
         var items = info.Split(new[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
         if (items.Length != 2)
-          throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", info));
+          throw new InvalidOperationException($"Invalid connection string format: {info}");
         var provider = items[0];
         if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.OrdinalIgnoreCase))
           InitPostgreSqlSwitches();

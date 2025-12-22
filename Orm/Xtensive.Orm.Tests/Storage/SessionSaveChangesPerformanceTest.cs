@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -72,13 +72,13 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var session2 = Domain.OpenSession(clientProfile)) {
           var item2 = session2.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
-          Assert.AreEqual("Hello from session 1", item2.Title);
+          Assert.That(item2.Title, Is.EqualTo("Hello from session 1"));
           item2.Title = "Hello from session 2";
           session2.SaveChanges();
         }
 
         item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
-        Assert.AreEqual("Hello from session 2", item1.Title);
+        Assert.That(item1.Title, Is.EqualTo("Hello from session 2"));
       }
     }
   }

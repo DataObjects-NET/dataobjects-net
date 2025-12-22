@@ -22,8 +22,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Console.WriteLine(e.ToString(true));
         var x = e.ToExpressionTree();
         var y = e.ToExpressionTree();
-        Assert.AreEqual(x, y);
-        Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+        Assert.That(y, Is.EqualTo(x));
+        Assert.That(y.GetHashCode(), Is.EqualTo(x.GetHashCode()));
         Console.WriteLine("OK");
       }
     }
@@ -32,8 +32,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     public void SameExpressionTest()
     {
       var e = CreateSum().ToExpressionTree();
-      Assert.AreEqual(e, e);
-      Assert.AreEqual(e.GetHashCode(), e.GetHashCode());
+      Assert.That(e, Is.EqualTo(e));
+      Assert.That(e.GetHashCode(), Is.EqualTo(e.GetHashCode()));
     }
     
     [Test]
@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     {
       var x = CreateSum().ToExpressionTree();
       var y = CreateSum().ToExpressionTree();
-      Assert.AreEqual(x, y);
-      Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+      Assert.That(y, Is.EqualTo(x));
+      Assert.That(y.GetHashCode(), Is.EqualTo(x.GetHashCode()));
     }
 
     [Test]
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     {
       var x = CreateSum().ToExpressionTree();
       var y = CreateProduct().ToExpressionTree();
-      Assert.AreNotEqual(x, y);
+      Assert.That(y, Is.Not.EqualTo(x));
     }
 
     [Test]
@@ -58,8 +58,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     {
       var x = CreateSum().ToExpressionTree();
       var y = CreateSum2().ToExpressionTree();
-      Assert.AreEqual(x, y);
-      Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+      Assert.That(y, Is.EqualTo(x));
+      Assert.That(y.GetHashCode(), Is.EqualTo(x.GetHashCode()));
     }
 
     [Test]
@@ -69,8 +69,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
       Expression<Func<int, object>> y = k => new {Value = k};
       var tx = x.ToExpressionTree();
       var ty = y.ToExpressionTree();
-      Assert.AreEqual(tx, ty);
-      Assert.AreEqual(tx.GetHashCode(), ty.GetHashCode());
+      Assert.That(ty, Is.EqualTo(tx));
+      Assert.That(ty.GetHashCode(), Is.EqualTo(tx.GetHashCode()));
     }
 
     [Test]
@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
       Expression<Func<int, int, int>> sum = (a, b) => new { Result = a + b * 2 / a }.Result + DateTime.Now.Day * a * b - a + b;
       var x = sum.ToExpressionTree();
       var y = sum.ToExpressionTree();
-      Assert.AreEqual(x, y);
-      Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
+      Assert.That(y, Is.EqualTo(x));
+      Assert.That(y.GetHashCode(), Is.EqualTo(x.GetHashCode()));
     }
 
     [Test]
@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
       var p1 = i1.Parameters[0].ToExpressionTree();
       var p2 = i2.Parameters[0].ToExpressionTree();
 
-      Assert.AreEqual(p1, p2);
-      Assert.AreEqual(p1.GetHashCode(), p2.GetHashCode());
+      Assert.That(p2, Is.EqualTo(p1));
+      Assert.That(p2.GetHashCode(), Is.EqualTo(p1.GetHashCode()));
     }
 
     [Test]

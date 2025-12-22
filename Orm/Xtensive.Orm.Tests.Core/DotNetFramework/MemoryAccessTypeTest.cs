@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestAccess(100, 100, OrderedSequence, true);
       TestAccess(100, 100, RandomSequence, true);
       // Actual tests
-      TestLog.Info("Item size: {0} bytes", ItemSize);
+      TestLog.Info($"Item size: {ItemSize} bytes");
       int ramSizeMax = TestInfo.IsPerformanceTestRunning ? RamSizeMaxP : RamSizeMaxN;
       using (TestLog.InfoRegion("Sequential access"))
         for (int ramSize = RamSizeMin; ramSize<=ramSizeMax; ramSize *= 2)
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestHelper.CollectGarbage();
       using (warmup ? (IDisposable)new Disposable(delegate { }) : 
         new Measurement(
-          string.Format("{0,6:F2} MB", (double)size * ItemSize / MbSize), 
+          $"{(double) size * ItemSize / MbSize,6:F2} MB", 
           MeasurementOptions.Log, count)) {
         for (i = 0; i < count; i+=10) {
           current = pairs[current.Second];

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -40,9 +40,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var groupByLocal = Query.All<T>().ToArray().GroupBy(compiledGroupByExpression).ToArray();
       var groupByServer = Query.All<T>().GroupBy(groupByExpression);
       foreach (var group in groupByServer) {
-        Assert.Contains(group, groupByLocal);
+        Assert.That(groupByLocal, Does.Contain(group));
         var localGroup = groupByLocal.Single(c => c.Key.Equals(group.Key));
-        Assert.IsTrue(group.OrderBy(compiledOrderByExpression).SequenceEqual(localGroup.OrderBy(compiledOrderByExpression)));
+        Assert.That(group.OrderBy(compiledOrderByExpression).SequenceEqual(localGroup.OrderBy(compiledOrderByExpression)), Is.True);
       }
     }
   }

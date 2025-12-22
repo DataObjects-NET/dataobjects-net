@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Weaver
       var resultBuilder = new StringBuilder();
       if (location!=null)
         resultBuilder.Append(location);
-      resultBuilder.AppendFormat("{0} {1}: {2}", GetMessageTypeName(type), messageCode, messageText);
+      resultBuilder.AppendFormat($"{GetMessageTypeName(type)} {messageCode}: {messageText}");
       if (Exception!=null) {
         resultBuilder.AppendLine();
         resultBuilder.Append(Exception.StackTrace);

@@ -35,46 +35,46 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByItself() =>
-      Assert.AreSame(typeof(List<int>).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(List<int>).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByItsDirectNonGenericAncestor() =>
-      Assert.AreSame(typeof(ListInt).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(ListInt).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByItsIndirectNonGenericAncestor() =>
-      Assert.AreSame(typeof(ListIntLvl1).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(ListIntLvl1).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByItsDirectGenericAncestor() =>
-      Assert.AreSame(typeof(GenericList<int>).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(GenericList<int>).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByItsIndirectGenericAncestor() =>
-      Assert.AreSame(typeof(GenericListLvl1<int>).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(GenericListLvl1<int>).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByAnAncestorOfItsDirectGenericAncestor() =>
-      Assert.AreSame(typeof(GenericListIntLvl1).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(GenericListIntLvl1).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericTypeIsDiscoverable_ByAnAncestorOfItsIndirectGenericAncestor() =>
-      Assert.AreSame(typeof(GenericListLvl1Int).GetGenericType(typeof(List<>)), typeof(List<int>));
+      Assert.That(typeof(List<int>), Is.SameAs(typeof(GenericListLvl1Int).GetGenericType(typeof(List<>))));
 
     [Test]
     public void ParameterizedGenericInterfaceIsDiscoverable_ByItself() =>
-      Assert.AreSame(typeof(IList<int>).GetGenericType(typeof(IList<>)), typeof(IList<int>));
+      Assert.That(typeof(IList<int>), Is.SameAs(typeof(IList<int>).GetGenericType(typeof(IList<>))));
 
     [Test]
     public void ParameterizedGenericInterfaceIsNotDiscoverable_ByItsImplementation() =>
-      Assert.IsNull(typeof(List<int>).GetGenericType(typeof(IList<>)));
+      Assert.That(typeof(List<int>).GetGenericType(typeof(IList<>)), Is.Null);
 
     [Test]
     public void NullIsReturnedIfNoMatchFound() =>
-      Assert.IsNull(typeof(Stack<int>).GetGenericType(typeof(List<>)));
+      Assert.That(typeof(Stack<int>).GetGenericType(typeof(List<>)), Is.Null);
 
     [Test]
     public void NullIsAcceptedAsFirstParameter() =>
-      Assert.IsNull(TypeHelper.GetGenericType(null, typeof(List<>)));
+      Assert.That(TypeHelper.GetGenericType(null, typeof(List<>)), Is.Null);
   }
 }

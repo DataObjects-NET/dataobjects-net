@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => new { InvoicesFiled = c.Invoices });
       var expected = Customers
         .Select(c => new { InvoicesFiled = c.Invoices });
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -47,10 +47,10 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
       var expected = Customers.OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
-      Assert.Greater(result.Count, 0);
-      Assert.AreEqual(expected.Count, result.Count);
+      Assert.That(result.Count, Is.GreaterThan(0));
+      Assert.That(result.Count, Is.EqualTo(expected.Count));
       for (var i = 0; i < result.Count; i++) {
-        Assert.AreSame(expected[i], result[i]);
+        Assert.That(result[i], Is.SameAs(expected[i]));
       }
     }
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(i => i.InvoiceId)
         .Select(i => i.InvoiceId)
         .ToList();
-      Assert.IsTrue(expected.SequenceEqual(actual));
+      Assert.That(expected.SequenceEqual(actual), Is.True);
     }
 
     [Test]
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Invoices.Count)
         .ToList()
         .Sum();
-      Assert.AreEqual(expected, count);
+      Assert.That(count, Is.EqualTo(expected));
     }
 
     [Test]
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
         .First();
       var result = Session.Query.All<Customer>()
         .Where(c => c.Invoices.Contains(bestInvoice));
-      Assert.AreEqual(bestInvoice.Customer.CustomerId, result.ToList().Single().CustomerId);
+      Assert.That(result.ToList().Single().CustomerId, Is.EqualTo(bestInvoice.Customer.CustomerId));
     }
 
     [Test]
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customer = GetCustomer();
       var result = Session.Query.All<Invoice>().Where(i => customer.Invoices.Contains(i));
-      Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(customer.Invoices.Count));
     }
 
     [Test]
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Linq
         from i in customer.Invoices
         join e in Session.Query.All<Employee>() on i.DesignatedEmployee equals e
         select e;
-      Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
+      Assert.That(result.ToList().Count, Is.EqualTo(customer.Invoices.Count));
     }
 
     private Customer GetCustomer()

@@ -19,19 +19,19 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var tuple = Tuple.Create(1, false);
       var clone = CloneBySerialization(tuple);
-      Assert.IsFalse(clone==null);
-      Assert.AreEqual(tuple, clone);
+      Assert.That(clone==null, Is.False);
+      Assert.That(clone, Is.EqualTo(tuple));
     }
 
     [Test]
     public void CombinedTest()
     {
       var t = Tuple.Create(1, false);
-      Assert.AreEqual(t, CloneBySerialization(t));
+      Assert.That(CloneBySerialization(t), Is.EqualTo(t));
       
       t = Tuple.Create(t.Descriptor);
       t.SetValue(1, true);
-      Assert.AreEqual(t, CloneBySerialization(t));
+      Assert.That(CloneBySerialization(t), Is.EqualTo(t));
     }
 
     [Test]
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       t.SetValue(0, null);
       t.SetValue(1, null);
 
-      Assert.AreEqual(t, CloneBySerialization(t));
+      Assert.That(CloneBySerialization(t), Is.EqualTo(t));
     }
 
     [Test]
@@ -60,10 +60,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       var dt1Clone = clone[0];
       var dt2Clone = clone[1];
       var originClone = dt1Clone.Origin;
-      Assert.AreSame(originClone, dt2Clone.Origin);
+      Assert.That(dt2Clone.Origin, Is.SameAs(originClone));
       originClone.SetValue(0,2);
-      Assert.AreEqual(2, dt1Clone.GetValue(0));
-      Assert.AreEqual(2, dt2Clone.GetValue(0));
+      Assert.That(dt1Clone.GetValue(0), Is.EqualTo(2));
+      Assert.That(dt2Clone.GetValue(0), Is.EqualTo(2));
     }
 
     private static Tuple CloneBySerialization(Tuple source)

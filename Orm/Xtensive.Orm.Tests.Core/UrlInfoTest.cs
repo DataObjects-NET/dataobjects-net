@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Tests.Core
       UrlInfo aX = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue");
       UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
 
-      Assert.IsTrue(a1.GetHashCode()==a2.GetHashCode());
-      Assert.IsTrue(a1.GetHashCode()!=aX.GetHashCode());
-      Assert.IsTrue(a1.GetHashCode()!=b.GetHashCode());
+      Assert.That(a1.GetHashCode()==a2.GetHashCode(), Is.True);
+      Assert.That(a1.GetHashCode()!=aX.GetHashCode(), Is.True);
+      Assert.That(a1.GetHashCode()!=b.GetHashCode(), Is.True);
 
-      Assert.IsTrue(a1.Equals(a2));
-      Assert.IsFalse(a1.Equals(aX));
-      Assert.IsFalse(a1.Equals(b));
+      Assert.That(a1.Equals(a2), Is.True);
+      Assert.That(a1.Equals(aX), Is.False);
+      Assert.That(a1.Equals(b), Is.False);
     }
   }
 }

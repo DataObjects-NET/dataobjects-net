@@ -97,9 +97,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Session session)
     {
       EntitySetState state;
-      Assert.IsTrue(session.Handler.LookupState(key, field, out state));
-      Assert.AreEqual(count, state.Count());
-      Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
+      Assert.That(session.Handler.LookupState(key, field, out state), Is.True);
+      Assert.That(state.Count(), Is.EqualTo(count));
+      Assert.That(state.IsFullyLoaded, Is.EqualTo(isFullyLoaded));
     }
 
     internal GraphContainer GetSingleGraphContainer(PrefetchManager prefetchManager)

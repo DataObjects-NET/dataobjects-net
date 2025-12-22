@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       }
 
       if (!map.TryGetValue(storageNodeId, out var typesMap)) {
-        throw new Exception(string.Format("Unknown node {0}. Probably you don't populate data", storageNodeId));
+        throw new Exception($"Unknown node {storageNodeId}. Probably you don't populate data");
       }
 
       var entity1 = a[0];
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var storageNodeIdText = GetStorageNodeText(session.StorageNodeId);
 
       if (!map.TryGetValue(storageNodeId, out var typesMap)) {
-        throw new Exception(string.Format("Unknown node {0}. Probably you don't populate data", storageNodeId));
+        throw new Exception($"Unknown node {storageNodeId}. Probably you don't populate data");
       }
 
       if (NodeConfiguration != NodeConfigurationType.MultischemaNodes) {
@@ -338,10 +338,10 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var storageNodeIdText = GetStorageNodeText(session.StorageNodeId);
 
       if (!map.TryGetValue(storageNodeId, out var typesMap)) {
-        throw new Exception(string.Format("Unknown node {0}. Probably you don't populate data", storageNodeId));
+        throw new Exception($"Unknown node {storageNodeId}. Probably you don't populate data");
       }
 
-      var text = string.Format("{0}_new", storageNodeIdText);
+      var text = $"{storageNodeIdText}_new";
 
       var a = new model.Part1.TestEntity1(session) { Text = text };
       var databaseAndSchema = typesMap[a.GetType()];
@@ -392,11 +392,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var storageNodeIdText = GetStorageNodeText(session.StorageNodeId);
 
       if (!map.TryGetValue(storageNodeId, out var typesMap)) {
-        throw new Exception(string.Format("Unknown node {0}. Probably you don't populate data", storageNodeId));
+        throw new Exception($"Unknown node {storageNodeId}. Probably you don't populate data");
       }
 
-      var updatedText = string.Format("{0}_new_updated", storageNodeIdText);
-      var text = string.Format("{0}_new", storageNodeIdText);
+      var updatedText = $"{storageNodeIdText}_new_updated";
+      var text = $"{storageNodeIdText}_new";
 
       var databaseAndSchema = typesMap[typeof(model.Part1.TestEntity1)];
       var a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == text);
@@ -470,10 +470,10 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var storageNodeIdText = GetStorageNodeText(session.StorageNodeId);
 
       if (!map.TryGetValue(storageNodeId, out var typesMap)) {
-        throw new Exception(string.Format("Unknown node {0}. Probably you don't populate data", storageNodeId));
+        throw new Exception($"Unknown node {storageNodeId}. Probably you don't populate data");
       }
 
-      var updatedText = string.Format("{0}_new_updated", storageNodeIdText);
+      var updatedText = $"{storageNodeIdText}_new_updated";
 
       var databaseAndSchema = typesMap[typeof(model.Part1.TestEntity1)];
       var a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText);

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -73,17 +73,17 @@ namespace Xtensive.Sql
     public override string ToString()
     {
       var builder = new StringBuilder();
-      builder.AppendFormat(Strings.TypeX, type);
+      _ = builder.AppendFormat(Strings.TypeX, type);
       if (!string.IsNullOrEmpty(database))
-        builder.AppendFormat(Strings.DatabaseX, database);
+        _ = builder.AppendFormat(Strings.DatabaseX, database);
       if (!string.IsNullOrEmpty(table))
-        builder.AppendFormat(Strings.TableX, table);
+        _ = builder.AppendFormat(Strings.TableX, table);
       if (!string.IsNullOrEmpty(column))
-        builder.AppendFormat(Strings.ColumnX, column);
+        _ = builder.AppendFormat(Strings.ColumnX, column);
       if (!string.IsNullOrEmpty(value))
-        builder.AppendFormat(Strings.ValueX, value);
+        _ = builder.AppendFormat(Strings.ValueX, value);
       if (!string.IsNullOrEmpty(constraint))
-        builder.AppendFormat(Strings.ConstraintX, constraint);
+        _ = builder.AppendFormat(Strings.ConstraintX, constraint);
       return builder.ToString();
     }
 

@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       var s = t.Format();
       var tt = Xtensive.Tuples.Tuple.Parse(t.Descriptor, s);
 
-      Assert.AreEqual(t, tt);
+      Assert.That(tt, Is.EqualTo(t));
     }
 
 
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       var tuple = Xtensive.Tuples.Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var clone = tuple.Clone();
-      Assert.AreEqual(tuple.GetHashCode(), clone.GetHashCode());
+      Assert.That(clone.GetHashCode(), Is.EqualTo(tuple.GetHashCode()));
       var equals = AdvancedComparer<Xtensive.Tuples.Tuple>.System.Equals;
 
       // Warmup

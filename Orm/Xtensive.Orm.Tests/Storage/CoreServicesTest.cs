@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessor = session.Services.Get<DirectPersistentAccessor>();
         var myEntity = (MyEntity) accessor.CreateEntity(typeof(MyEntity));
         accessor.SetFieldValue(myEntity, myEntity.TypeInfo.Fields["Value"], "Value");
-        Assert.AreEqual("Value", myEntity.Value);
+        Assert.That(myEntity.Value, Is.EqualTo("Value"));
         Assert.That(myEntity.PersistenceState, Is.EqualTo(PersistenceState.New));
         t.Complete();
       }
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Tests.Storage
         var myEntity = session.Query.All<MyEntity>().First(e => e.Id == entityId);
         updatedValue = "Value";
         accessor.SetFieldValue(myEntity, myEntity.TypeInfo.Fields["Value"], updatedValue);
-        Assert.AreEqual(updatedValue, myEntity.Value);
+        Assert.That(myEntity.Value, Is.EqualTo(updatedValue));
         Assert.That(myEntity.PersistenceState, Is.EqualTo(PersistenceState.Modified));
         t.Complete();
       }
@@ -273,7 +273,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessor = session.Services.Get<DirectPersistentAccessor>();
         var myStructure = (MyStructure) accessor.CreateStructure(typeof(MyStructure));
         accessor.SetFieldValue(myStructure, myStructure.TypeInfo.Fields["Value"], "Value");
-        Assert.AreEqual("Value", myStructure.Value);
+        Assert.That(myStructure.Value, Is.EqualTo("Value"));
         Assert.That(myStructure.Owner, Is.Null);
         t.Complete();
       }
@@ -287,10 +287,10 @@ namespace Xtensive.Orm.Tests.Storage
         var accessor = session.Services.Get<DirectPersistentAccessor>();
         var myEntity = (MyEntity) accessor.CreateEntity(typeof(MyEntity));
         var key = myEntity.Key;
-        Assert.IsNotNull(session.Query.SingleOrDefault(key));
+        Assert.That(session.Query.SingleOrDefault(key), Is.Not.Null);
         accessor.Remove(myEntity);
-        Assert.AreEqual(PersistenceState.Removed, myEntity.PersistenceState);
-        Assert.IsNull(session.Query.SingleOrDefault(key));
+        Assert.That(myEntity.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+        Assert.That(session.Query.SingleOrDefault(key), Is.Null);
         t.Complete();
       }
     }
@@ -310,11 +310,11 @@ namespace Xtensive.Orm.Tests.Storage
         var entitySet = entitySetAccessor.GetEntitySet(container, field);
         _ = entitySetAccessor.Add(entitySet, item1);
         _ = entitySetAccessor.Add(entitySet, item2);
-        Assert.AreEqual(2, entitySet.Count);
+        Assert.That(entitySet.Count, Is.EqualTo(2));
         _ = entitySetAccessor.Remove(entitySet, item2);
-        Assert.AreEqual(1, entitySet.Count);
+        Assert.That(entitySet.Count, Is.EqualTo(1));
         entitySetAccessor.Clear(entitySet);
-        Assert.AreEqual(0, entitySet.Count);
+        Assert.That(entitySet.Count, Is.EqualTo(0));
         t.Complete();
       }
     }

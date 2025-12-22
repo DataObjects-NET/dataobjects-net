@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        _ = new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
         tx.Complete();
       }
 
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        _ = new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
         tx.Complete();
       }
 
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        _ = new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
         tx.Complete();
       }
 
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        _ = new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
         tx.Complete();
       }
 
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
         var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
-        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+        configuration.ConnectionInitializationSql = $"SET TIME ZONE INTERVAL '{localZoneString}' HOUR TO MINUTE";
       }
       return configuration;
     }
@@ -216,11 +216,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       where T : Entity, ITestEntity
     {
       var entity = Query.All<T>().FirstOrDefault();
-      Assert.IsNotNull(entity);
+      Assert.That(entity, Is.Not.Null);
       var k = entity.FirstDateTimeOffset;
       var r = k.Year;
       var localDefaultDateTimeOffset = TryMoveToLocalTimeZone(defaultDateTimeOffset);
-      Assert.AreEqual(entity.FirstDateTimeOffset, localDefaultDateTimeOffset);
+      Assert.That(entity.FirstDateTimeOffset, Is.EqualTo(localDefaultDateTimeOffset));
     }
 
     private DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)

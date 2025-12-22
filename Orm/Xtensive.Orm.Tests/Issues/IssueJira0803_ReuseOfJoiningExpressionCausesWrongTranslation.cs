@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(3, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
 
         leftJoinWithExpression = session.Query.All<TestEntity>()
           .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(3, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
       }
     }
 
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(1, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(1));
 
         leftJoinWithExpression = session.Query.All<TestEntity>()
           .Join(session.Query.All<TestEntity>().Where(it => it.Description == null),
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(1, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(1));
       }
     }
 

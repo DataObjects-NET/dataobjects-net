@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       Assert.That(x.Ref, Is.Not.Null);
 
       for (var i = 0; i < 200; i++) {
-        _ = new Country { Value = string.Format("Country{0}", i) };
+        _ = new Country { Value = $"Country{i}" };
       }
     }
 
@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       Assert.That(ioPostsInfosCount, Is.EqualTo(2));
 
       for (var i = 0; i < 200; i++) {
-        _ = new Manufacturer { Name = string.Format("Manufacturer{0}", i) };
+        _ = new Manufacturer { Name = $"Manufacturer{i}" };
       }
     }
   }

@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
         var result = items.ToList();
         t.Complete();
 
-        Assert.AreEqual(3, result.Count);
+        Assert.That(result.Count, Is.EqualTo(3));
       }
     }
   }

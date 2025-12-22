@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -52,12 +52,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var orderedByServer = Query.All<T>().OrderBy(orderByExpression).ThenBy(thenByExpression);
       var orderedByServerDescending = Query.All<T>().OrderByDescending(orderByExpression).ThenBy(thenByExpression);
 
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocalDescending.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocal.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
+      Assert.That(notOrderedLocal.SequenceEqual(orderedLocal), Is.False);
+      Assert.That(notOrderedLocal.SequenceEqual(orderedByServer), Is.False);
+      Assert.That(orderedLocal.SequenceEqual(orderedByServer), Is.True);
+      Assert.That(orderedLocalDescending.SequenceEqual(orderedByServerDescending), Is.True);
+      Assert.That(orderedLocal.SequenceEqual(orderedByServerDescending), Is.False);
+      Assert.That(orderedLocalDescending.SequenceEqual(orderedByServer), Is.False);
     }
 
     protected void OrderByPrivate<T1, T2, T3>(Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
@@ -71,12 +71,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var orderedByServer = Query.All<T1>().Select(selectorExpression).OrderBy(orderByExpression);
       var orderedByServerDescending = Query.All<T1>().Select(selectorExpression).OrderByDescending(orderByExpression);
 
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocalDescending.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocal.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
+      Assert.That(notOrderedLocal.SequenceEqual(orderedLocal), Is.False);
+      Assert.That(notOrderedLocal.SequenceEqual(orderedByServer), Is.False);
+      Assert.That(orderedLocal.SequenceEqual(orderedByServer), Is.True);
+      Assert.That(orderedLocalDescending.SequenceEqual(orderedByServerDescending), Is.True);
+      Assert.That(orderedLocal.SequenceEqual(orderedByServerDescending), Is.False);
+      Assert.That(orderedLocalDescending.SequenceEqual(orderedByServer), Is.False);
     }
   }
 }

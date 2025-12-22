@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
     private static void InternalListPerformanceTest(int nodeCount, int averageConnectionCount, bool allowLoops)
     {
-      TestLog.Info("Building graph: {0} nodes, {1} connections/node in average.", nodeCount, averageConnectionCount);
+      TestLog.Info($"Building graph: {nodeCount} nodes, {averageConnectionCount} connections/node in average.");
       var rnd = new Random();
       var nodes = new List<Node<int, int>>();
       for (var i = 0; i < nodeCount; i++) {
@@ -80,14 +80,14 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       using (new Measurement("Sorting", nodeCount + connectionCount)) {
         var result = TopologicalSorter.SortToList(nodes, out var removedEdges);
         if (!allowLoops)
-          Assert.AreEqual(nodeCount, result.Count);
+          Assert.That(result.Count, Is.EqualTo(nodeCount));
       }
       _ = GC.GetTotalMemory(true);
     }
 
     private static void InternalEnumerablePerformanceTest(int nodeCount, int averageConnectionCount, bool allowLoops)
     {
-      TestLog.Info("Building graph: {0} nodes, {1} connections/node in average.", nodeCount, averageConnectionCount);
+      TestLog.Info($"Building graph: {nodeCount} nodes, {averageConnectionCount} connections/node in average.");
       var rnd = new Random();
       var nodes = new List<Node<int, int>>();
       for (var i = 0; i < nodeCount; i++) {
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       using (new Measurement("Sorting", nodeCount + connectionCount)) {
         var result = TopologicalSorter.Sort(nodes, out _).ToList(nodeCount);
         if (!allowLoops)
-          Assert.AreEqual(nodeCount, result.Count);
+          Assert.That(result.Count, Is.EqualTo(nodeCount));
       }
       _ = GC.GetTotalMemory(true);
     }
@@ -127,16 +127,16 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       connection2.BindToNodes();
 
       var result = TopologicalSorter.SortToList(EnumerableUtils.One(node1), out var removedEdges1);
-      Assert.AreEqual(1, result.Count);
-      Assert.AreEqual(node1.Item, result[0]);
-      Assert.AreEqual(1, removedEdges1.Count);
-      Assert.AreEqual(connection1, removedEdges1[0]);
+      Assert.That(result.Count, Is.EqualTo(1));
+      Assert.That(result[0], Is.EqualTo(node1.Item));
+      Assert.That(removedEdges1.Count, Is.EqualTo(1));
+      Assert.That(removedEdges1[0], Is.EqualTo(connection1));
 
       result = TopologicalSorter.Sort(EnumerableUtils.One(node2), out var removedEdges2).ToList(1);
-      Assert.AreEqual(1, result.Count);
-      Assert.AreEqual(node2.Item, result[0]);
-      Assert.AreEqual(1, removedEdges2.Count);
-      Assert.AreEqual(connection2, removedEdges2[0]);
+      Assert.That(result.Count, Is.EqualTo(1));
+      Assert.That(result[0], Is.EqualTo(node2.Item));
+      Assert.That(removedEdges2.Count, Is.EqualTo(1));
+      Assert.That(removedEdges2[0], Is.EqualTo(connection2));
     }
 
     [Test]
@@ -212,12 +212,12 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
       // Remove edge by edge.
       var result = TopologicalSorter.Sort(new[] { node2, node1 }, out var removedEdges).ToList();
-      Assert.AreEqual(2, result.Count);
-      Assert.AreEqual(node1.Item, result[0]);
-      Assert.AreEqual(node2.Item, result[1]);
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(result[0], Is.EqualTo(node1.Item));
+      Assert.That(result[1], Is.EqualTo(node2.Item));
 
-      Assert.AreEqual(1, removedEdges.Count);
-      Assert.AreEqual(connection21_1, removedEdges[0]);
+      Assert.That(removedEdges.Count, Is.EqualTo(1));
+      Assert.That(removedEdges[0], Is.EqualTo(connection21_1));
 
       // Remove whole node
       connection12_1.BindToNodes();
@@ -225,12 +225,12 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       connection21_1.BindToNodes();
 
       result = TopologicalSorter.Sort(new[] { node2, node1 }, out removedEdges, true).ToList();
-      Assert.AreEqual(2, result.Count);
-      Assert.AreEqual(node1.Item, result[1]);
-      Assert.AreEqual(node2.Item, result[0]);
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(result[1], Is.EqualTo(node1.Item));
+      Assert.That(result[0], Is.EqualTo(node2.Item));
 
-      Assert.AreEqual(2, removedEdges.Count);
-      Assert.AreEqual(0, removedEdges.Except(new[] { connection12_1, connection12_2 }).Count());
+      Assert.That(removedEdges.Count, Is.EqualTo(2));
+      Assert.That(removedEdges.Except(new[] { connection12_1, connection12_2 }).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -247,12 +247,12 @@ namespace Xtensive.Orm.Tests.Core.Helpers
 
       // Remove edge by edge.
       var result = TopologicalSorter.SortToList(new[] { node2, node1 }, out var removedEdges);
-      Assert.AreEqual(2, result.Count);
-      Assert.AreEqual(node1.Item, result[0]);
-      Assert.AreEqual(node2.Item, result[1]);
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(result[0], Is.EqualTo(node1.Item));
+      Assert.That(result[1], Is.EqualTo(node2.Item));
 
-      Assert.AreEqual(1, removedEdges.Count);
-      Assert.AreEqual(connection21_1, removedEdges[0]);
+      Assert.That(removedEdges.Count, Is.EqualTo(1));
+      Assert.That(removedEdges[0], Is.EqualTo(connection21_1));
 
       // Remove whole node
       connection12_1.BindToNodes();
@@ -260,12 +260,12 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       connection21_1.BindToNodes();
 
       result = TopologicalSorter.SortToList(new[] { node2, node1 }, out removedEdges, true);
-      Assert.AreEqual(2, result.Count);
-      Assert.AreEqual(node1.Item, result[1]);
-      Assert.AreEqual(node2.Item, result[0]);
+      Assert.That(result.Count, Is.EqualTo(2));
+      Assert.That(result[1], Is.EqualTo(node1.Item));
+      Assert.That(result[0], Is.EqualTo(node2.Item));
 
-      Assert.AreEqual(2, removedEdges.Count);
-      Assert.AreEqual(0, removedEdges.Except(new[] { connection12_1, connection12_2 }).Count());
+      Assert.That(removedEdges.Count, Is.EqualTo(2));
+      Assert.That(removedEdges.Except(new[] { connection12_1, connection12_2 }).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -354,16 +354,16 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       var sortWithRemove = (!toList)
         ? TopologicalSorter.Sort(data, connector, out List<NodeConnection<T, object>> _).ToList()
         : TopologicalSorter.SortToList(data, connector, out List<NodeConnection<T, object>> _);
-      Assert.AreEqual(sortWithRemove.Count, data.Length);
+      Assert.That(data.Length, Is.EqualTo(sortWithRemove.Count));
 
       if (loops == null) {
         var actualAsList = toList
           ? (IReadOnlyList<T>) actual
           : actual.ToList();
 
-        Assert.AreEqual(sortWithRemove.Count, actualAsList.Count);
+        Assert.That(actualAsList.Count, Is.EqualTo(sortWithRemove.Count));
         for (var i = 0; i < actualAsList.Count; i++) {
-          Assert.AreEqual(sortWithRemove[i], actualAsList[i]);
+          Assert.That(actualAsList[i], Is.EqualTo(sortWithRemove[i]));
         }
       }
       else {
@@ -387,7 +387,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       var sortWithRemove = toList
         ? TopologicalSorter.Sort(data, connector, out List<NodeConnection<T, object>> _).ToList()
         : TopologicalSorter.SortToList(data, connector, out List<NodeConnection<T, object>> _);
-      Assert.AreEqual(sortWithRemove.Count, data.Length);
+      Assert.That(data.Length, Is.EqualTo(sortWithRemove.Count));
     }
 
     private void TestEdgeRemoval<T>(T[] data, Predicate<T, T> connector, T[] expected, (T source, T target)[] expectedRemovedEdges, bool toList)
@@ -398,7 +398,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
         ? TopologicalSorter.Sort(data, connector, out removedEdges)
         : TopologicalSorter.SortToList(data, connector, out removedEdges);
       Assert.That(sortWithRemove, Is.Not.Null);
-      Assert.AreEqual(sortWithRemove.Count(), data.Length);
+      Assert.That(data.Length, Is.EqualTo(sortWithRemove.Count()));
       Assert.That(sortWithRemove.SequenceEqual(expected), Is.True);
 
       if (expectedRemovedEdges == null) {
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
         ? TopologicalSorter.Sort(data, connector, out removedEdges, true)
         : TopologicalSorter.SortToList(data, connector, out removedEdges, true);
       Assert.That(sortWithRemove, Is.Not.Null);
-      Assert.AreEqual(sortWithRemove.Count(), data.Length);
+      Assert.That(data.Length, Is.EqualTo(sortWithRemove.Count()));
       Assert.That(sortWithRemove.SequenceEqual(expected), Is.True);
 
       if (expectedRemovedEdges == null) {

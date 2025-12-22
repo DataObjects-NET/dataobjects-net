@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
         using (var t = session.OpenTransaction()) {
 
           var fs = session.Services.Get<QueryFormatter>();
-          Assert.IsNotNull(fs);
+          Assert.That(fs, Is.Not.Null);
 
           var query = session.Query.All<FakeClass>().Where(f => f.Id > 0);
           string result = fs.ToSqlString(query);

@@ -321,8 +321,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName)
     {
-      string lockedTable;
-      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(oldTable), out lockedTable);
+      _ = sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(oldTable), out var lockedTable);
       if (!lockedTable.IsNullOrEmpty())
         throw new SchemaSynchronizationException(lockedTable);
       var newTable = newSchema.CreateTable(newName);
@@ -345,7 +344,7 @@ namespace Xtensive.Orm.Upgrade
         else {
           newColumn.DefaultValue = oldColumn.DefaultValue;
         }
-        recreatedColumns.Add(oldColumn);
+        _ = recreatedColumns.Add(oldColumn);
       }
 
       // Clone primary key
@@ -377,7 +376,7 @@ namespace Xtensive.Orm.Upgrade
       // Removing table
       currentOutput.RegisterCommand(SqlDdl.Drop(oldTable));
 
-      newTable.Schema.Tables.Remove(newTable);
+      _ = newTable.Schema.Tables.Remove(newTable);
     }
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
@@ -421,7 +420,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (providerInfo.Supports(ProviderFeatures.ColumnDrop)) {
         commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
-        table.TableColumns.Remove(column);
+        _ = table.TableColumns.Remove(column);
         return;
       }
 
@@ -430,7 +429,7 @@ namespace Xtensive.Orm.Upgrade
       var tempName = GetTemporaryName(table);
 
       // Recreate table without dropped column
-      table.TableColumns.Remove(column);
+      _ = table.TableColumns.Remove(column);
       RecreateTableWithNewName(table, table.Schema, tempName);
       RenameSchemaTable(table, table.Schema, table.Schema, tempName);
 
@@ -537,7 +536,7 @@ namespace Xtensive.Orm.Upgrade
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
       currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
-      table.TableConstraints.Remove(primaryKey);
+      _ = table.TableConstraints.Remove(primaryKey);
     }
 
     private void VisitAlterPrimaryKeyAction(NodeAction action)
@@ -656,7 +655,7 @@ namespace Xtensive.Orm.Upgrade
         var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
         var sequence = node.GetSequence();
         currentOutput.RegisterCommand(SqlDdl.Drop(sequence));
-        node.Schema.Sequences.Remove(sequence);
+        _ = node.Schema.Sequences.Remove(sequence);
       }
       else {
         DropGeneratorTable(sequenceInfo);
@@ -736,7 +735,7 @@ namespace Xtensive.Orm.Upgrade
         ? currentOutput.ForStage(SqlUpgradeStage.NonTransactionalProlog)
         : currentOutput;
       fullTextOutput.RegisterCommand(SqlDdl.Drop(ftIndex));
-      table.Indexes.Remove(ftIndex);
+      _ = table.Indexes.Remove(ftIndex);
     }
 
     private void ProcessClearDataActions(bool postCopy)
@@ -893,9 +892,9 @@ namespace Xtensive.Orm.Upgrade
       // Rename old column
       var tempName = GetTemporaryName(column);
       if(recreatedColumns.Contains(column)) {
-        recreatedColumns.Remove(column);
+        _ = recreatedColumns.Remove(column);
         RenameColumn(column, tempName);
-        recreatedColumns.Add(column);
+        _ = recreatedColumns.Add(column);
       }
       else
         RenameColumn(column, tempName);
@@ -1001,9 +1000,9 @@ namespace Xtensive.Orm.Upgrade
       var node = resolver.Resolve(sqlModel, tableInfo.Name);
       var table = node.Schema.CreateTable(node.Name);
       foreach (var columnInfo in tableInfo.Columns)
-        CreateColumn(columnInfo, table);
+        _ = CreateColumn(columnInfo, table);
       if (tableInfo.PrimaryIndex!=null)
-        CreatePrimaryKey(tableInfo, table);
+        _ = CreatePrimaryKey(tableInfo, table);
       createdTables.Add(table);
       return table;
     }
@@ -1066,7 +1065,7 @@ namespace Xtensive.Orm.Upgrade
         if (driver.ServerInfo.DataTypes[column.DataType.Type].Features.Supports(DataTypeFeatures.Spatial)) {
 
           var spatialIndex = table.CreateSpatialIndex(indexInfo.Name);
-          spatialIndex.CreateIndexColumn(column);
+          _ = spatialIndex.CreateIndexColumn(column);
           return spatialIndex;
         }
       }
@@ -1075,7 +1074,7 @@ namespace Xtensive.Orm.Upgrade
       index.IsUnique = indexInfo.IsUnique;
       index.IsClustered = indexInfo.IsClustered;
       foreach (var keyColumn in indexInfo.KeyColumns)
-        index.CreateIndexColumn(
+        _ = index.CreateIndexColumn(
           FindColumn(table, keyColumn.Value.Name),
           keyColumn.Direction==Direction.Positive);
       index.NonkeyColumns.AddRange(
@@ -1098,7 +1097,7 @@ namespace Xtensive.Orm.Upgrade
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
+      _ = sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;
@@ -1110,12 +1109,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.GetTable();
-      string lockedTable;
-      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(sequenceTable), out lockedTable);
+      _ = sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(sequenceTable), out var lockedTable);
       if (!lockedTable.IsNullOrEmpty())
         throw new SchemaSynchronizationException(lockedTable);
       currentOutput.RegisterCommand(SqlDdl.Drop(sequenceTable));
-      node.Schema.Tables.Remove(sequenceTable);
+      _ = node.Schema.Tables.Remove(sequenceTable);
     }
 
     private void RenameSchemaTable(Table table, Schema oldSchema, Schema newSchema, string newName)
@@ -1124,7 +1122,7 @@ namespace Xtensive.Orm.Upgrade
 
       // Renamed table must be removed and added with new name
       // for reregistring in dictionary
-      oldSchema.Tables.Remove(table);
+      _ = oldSchema.Tables.Remove(table);
       table.Name = newName;
       newSchema.Tables.Add(table);
     }
@@ -1134,7 +1132,7 @@ namespace Xtensive.Orm.Upgrade
       // Renamed column must be removed and added with new name
       // for reregistring in dictionary
       var table = column.Table;
-      table.TableColumns.Remove(column);
+      _ = table.TableColumns.Remove(column);
       column.Name = newName;
       table.TableColumns.Add(column);
     }

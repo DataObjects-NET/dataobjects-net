@@ -410,18 +410,18 @@ namespace Xtensive.Orm.Tests.Issues
       var connectionUrl = connectionInfo.ConnectionUrl;
 
       var initialString = (!string.IsNullOrEmpty(connectionUrl.User) && !string.IsNullOrEmpty(connectionUrl.Password))
-        ? string.Format("{0}://{1}:{2}@", connectionUrl.Protocol, connectionUrl.User, connectionUrl.Password)
-        : string.Format("{0}://", connectionUrl.Protocol);
+        ? $"{connectionUrl.Protocol}://{connectionUrl.User}:{connectionUrl.Password}@"
+        : $"{connectionUrl.Protocol}://";
 
       var stringBuilder = new StringBuilder(initialString)
-        .AppendFormat("{0}{1}", connectionUrl.Host, (connectionUrl.Port > 0) ? string.Format(":{0}", connectionUrl.Port) : string.Empty)
+        .AppendFormat($"{connectionUrl.Host}{((connectionUrl.Port > 0) ? string.Format(":{0}", connectionUrl.Port) : string.Empty)}")
         .Append("/{0}{1}");
 
       var paramsString = string.Empty;
       foreach (var pair in connectionUrl.Params) {
         paramsString += string.IsNullOrEmpty(paramsString)
-          ? string.Format("?{0}={1}", pair.Key, pair.Value)
-          : string.Format("&{0}={1}", pair.Key, pair.Value);
+          ? $"?{pair.Key}={pair.Value}"
+          : $"&{pair.Key}={pair.Value}";
       }
 
       singleDatabaseConnectionStringDatabase1 = string.Format(stringBuilder.ToString(), Database1Name, paramsString);

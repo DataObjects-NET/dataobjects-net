@@ -64,7 +64,7 @@ namespace Xtensive.Orm
     public static void Require(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      session.DemandTransaction();
+      _ = session.DemandTransaction();
     }
 
     #endregion

@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(personDto => personDto.Name == "Alex");
         var result = query.ToList();
         var firstPerson = query.SingleOrDefault();
-        Assert.IsTrue(firstPerson.Name == "Alex");
+        Assert.That(firstPerson.Name == "Alex", Is.True);
       }
     }
 
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq
         var count = session.Query.All<Person>()
           .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Tag = p.Tag, BudgetType = p.BudgetType})
           .Where(x => x.Tag == 5 && x.BudgetType == BudgetType.Regional).OrderBy(dto => dto.Id).Count();
-        Assert.AreEqual(1, count);
+        Assert.That(count, Is.EqualTo(1));
       }
     }
 
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Linq
             Name = p.Name, 
             ManagerId = p.Manager != null ? (int?)p.Manager.Id : null});
         var result = query.ToList();
-        Assert.AreEqual(6, result.Count);
+        Assert.That(result.Count, Is.EqualTo(6));
       }
     }
 
@@ -222,13 +222,13 @@ namespace Xtensive.Orm.Tests.Linq
           .Select(p => p.BudgetType)
           .Distinct()
           .ToList();
-        Assert.AreEqual(4, types.Count);
+        Assert.That(types.Count, Is.EqualTo(4));
 
         var groups = session.Query.All<Person>()
           .GroupBy(p => p.BudgetType)
           .Select(g => new {g.Key, Count = g.Count()})
           .ToList();
-        Assert.AreEqual(4, groups.Count);
+        Assert.That(groups.Count, Is.EqualTo(4));
 
         var arrays = session.Query.All<Person>()
           .Select(p => new PersonDto(){Id = p.Id, Name = p.Name, BudgetType = p.BudgetType})
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Tests.Linq
           .OrderBy(g => g.Key)
           .Select(g => new[] {(object) g.Key, (object) g.Count()})
           .ToList();
-        Assert.AreEqual(4, arrays.Count);
+        Assert.That(arrays.Count, Is.EqualTo(4));
       }
     }
 

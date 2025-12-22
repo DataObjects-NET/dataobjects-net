@@ -46,8 +46,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var x = Xtensive.Tuples.Tuple.Create(10);
       var y = Xtensive.Tuples.Tuple.Create(10);
-      Assert.IsTrue(ManualEquals(x,y));
-      Assert.AreEqual(x,y);
+      Assert.That(ManualEquals(x,y), Is.True);
+      Assert.That(y, Is.EqualTo(x));
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     [Test]
     public void BaseTest()
     {
-      Assert.AreEqual("TupleComparer", advancedComparer.Implementation.GetType().Name);
+      Assert.That(advancedComparer.Implementation.GetType().Name, Is.EqualTo("TupleComparer"));
 
       Xtensive.Tuples.Tuple tuple1 = Xtensive.Tuples.Tuple.Create(types1);
       Xtensive.Tuples.Tuple tuple2 = Xtensive.Tuples.Tuple.Create(types2);
@@ -122,11 +122,11 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var guid1 = Guid.NewGuid();
       var guid2 = Guid.NewGuid();
-      Assert.IsFalse(guid1.Equals(guid2));
+      Assert.That(guid1.Equals(guid2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(guid1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(guid2);
       var condition = tuple1.Equals(tuple2);
-      Assert.IsFalse(condition);
+      Assert.That(condition, Is.False);
     }
 
     [Test]
@@ -134,10 +134,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var dateTime1 = DateTime.Now;
       var dateTime2 = dateTime1.AddMinutes(1);
-      Assert.IsFalse(dateTime1.Equals(dateTime2));
+      Assert.That(dateTime1.Equals(dateTime2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(dateTime1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(dateTime2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      Assert.That(tuple1.Equals(tuple2), Is.False);
     }
 
     [Test]
@@ -145,10 +145,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var timeSpan1 = TimeSpan.FromMinutes(10);
       var timeSpan2 = TimeSpan.FromMinutes(15);
-      Assert.IsFalse(timeSpan1.Equals(timeSpan2));
+      Assert.That(timeSpan1.Equals(timeSpan2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(timeSpan1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(timeSpan2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      Assert.That(tuple1.Equals(tuple2), Is.False);
     }
 
     [Test]
@@ -156,10 +156,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var int1 = 10;
       var int2 = 15;
-      Assert.IsFalse(int1.Equals(int2));
+      Assert.That(int1.Equals(int2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(int1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(int2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      Assert.That(tuple1.Equals(tuple2), Is.False);
     }
 
     [Test]
@@ -167,10 +167,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var char1 = 'a';
       var char2 = 'b';
-      Assert.IsFalse(char1.Equals(char2));
+      Assert.That(char1.Equals(char2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(char1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(char2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      Assert.That(tuple1.Equals(tuple2), Is.False);
     }
 
     [Test]
@@ -178,25 +178,25 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var string1 = "a";
       var string2 = "b";
-      Assert.IsFalse(string1.Equals(string2));
+      Assert.That(string1.Equals(string2), Is.False);
       var tuple1 = Xtensive.Tuples.Tuple.Create(string1);
       var tuple2 = Xtensive.Tuples.Tuple.Create(string2);
-      Assert.IsFalse(tuple1.Equals(tuple2));
+      Assert.That(tuple1.Equals(tuple2), Is.False);
     }
 
     private void CheckComparisons(Xtensive.Tuples.Tuple x, Xtensive.Tuples.Tuple y, int expectedResult)
     {
       expectedResult = Normalize(expectedResult);
       bool boolResult = expectedResult==0;
-      Assert.AreEqual(boolResult, x.Equals(y));
-      Assert.AreEqual(boolResult, equalityComparer.Equals(x, y));
-      Assert.AreEqual(boolResult, advancedComparer.Equals(x, y));
+      Assert.That(x.Equals(y), Is.EqualTo(boolResult));
+      Assert.That(equalityComparer.Equals(x, y), Is.EqualTo(boolResult));
+      Assert.That(advancedComparer.Equals(x, y), Is.EqualTo(boolResult));
 
       // Reverse
       expectedResult *= -1;
-      Assert.AreEqual(boolResult, equalityComparer.Equals(y, x));
-      Assert.AreEqual(boolResult, y.Equals(x));
-      Assert.AreEqual(boolResult, advancedComparer.Equals(y, x));
+      Assert.That(equalityComparer.Equals(y, x), Is.EqualTo(boolResult));
+      Assert.That(y.Equals(x), Is.EqualTo(boolResult));
+      Assert.That(advancedComparer.Equals(y, x), Is.EqualTo(boolResult));
     }
 
     private static int Normalize(int i)

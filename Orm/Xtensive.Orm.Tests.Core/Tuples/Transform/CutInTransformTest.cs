@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Elena Vakhtina
@@ -28,32 +28,32 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     public void BaseTest()
     {
       TestLog.InfoRegion("CutInTransform test");
-      TestLog.Info("Originals: {0}, {1}, index {2}", t1, t2, CutInIndex);
+      TestLog.Info($"Originals: {t1}, {t2}, index {CutInIndex}");
       CutInTransform ct = new CutInTransform(false, CutInIndex, t1.Descriptor, t2.Descriptor);
       CutInTransform ctro = new CutInTransform(true, CutInIndex, t1.Descriptor, t2.Descriptor);
       Xtensive.Tuples.Tuple wt1 = ct.Apply(TupleTransformType.TransformedTuple, t1, t2);
-      TestLog.Info("Wrapper:   {0}", wt1);
+      TestLog.Info($"Wrapper:   {wt1}");
       Xtensive.Tuples.Tuple ct1 = ct.Apply(TupleTransformType.Tuple, t1, t2);
-      TestLog.Info("Copy:      {0}", ct1);
+      TestLog.Info($"Copy:      {ct1}");
       Xtensive.Tuples.Tuple wt2 = ctro.Apply(TupleTransformType.TransformedTuple, t1, t2);
       Xtensive.Tuples.Tuple ct2 = ctro.Apply(TupleTransformType.Tuple, t1, t2);
-      Assert.AreEqual(wt1, wt2);
-      Assert.AreEqual(wt2, ct1);
-      Assert.AreEqual(ct1, ct2);
+      Assert.That(wt2, Is.EqualTo(wt1));
+      Assert.That(ct1, Is.EqualTo(wt2));
+      Assert.That(ct2, Is.EqualTo(ct1));
 
       TestLog.InfoRegion("CutInTransform<T> test");
-      TestLog.Info("Originals: {0}, {1}, index {2}", t1, value, CutInIndex);
+      TestLog.Info($"Originals: {t1}, {value}, index {CutInIndex}");
       CutInTransform<string> ctt = new CutInTransform<string>(false, CutInIndex, t1.Descriptor);
       CutInTransform<string> cttro = new CutInTransform<string>(true, CutInIndex, t1.Descriptor);
       Xtensive.Tuples.Tuple wtt1 = ctt.Apply(TupleTransformType.TransformedTuple, t1, value);
-      TestLog.Info("Wrapper:   {0}", wtt1);
+      TestLog.Info($"Wrapper:   {wtt1}");
       Xtensive.Tuples.Tuple ctt1 = ctt.Apply(TupleTransformType.Tuple, t1, value);
-      TestLog.Info("Copy:      {0}", ctt1);
+      TestLog.Info($"Copy:      {ctt1}");
       Xtensive.Tuples.Tuple wtt2 = cttro.Apply(TupleTransformType.TransformedTuple, t1, value);
       Xtensive.Tuples.Tuple ctt2 = cttro.Apply(TupleTransformType.Tuple, t1, value);
-      Assert.AreEqual(wtt1, wtt2);
-      Assert.AreEqual(wtt2, ctt1);
-      Assert.AreEqual(ctt1, ctt2);
+      Assert.That(wtt2, Is.EqualTo(wtt1));
+      Assert.That(ctt1, Is.EqualTo(wtt2));
+      Assert.That(ctt2, Is.EqualTo(ctt1));
       
    }
 

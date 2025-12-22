@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void Test(double speedFactor)
     {
-      TestLog.Info("Class size: {0} bytes", ClassSize);
+      TestLog.Info($"Class size: {ClassSize} bytes");
       TestClassAllocation(speedFactor);
       TestStructAllocation(speedFactor);
     }

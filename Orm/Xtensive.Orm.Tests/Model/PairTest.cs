@@ -54,17 +54,17 @@ namespace Xtensive.Orm.Tests.Model
         using (var t = session.OpenTransaction()) {
           Master m1 = new Master();
           m1.Slave = new Slave();
-          Assert.AreEqual(m1, m1.Slave.Master);
+          Assert.That(m1.Slave.Master, Is.EqualTo(m1));
           Master m2 = new Master();
           m2.Slave = new Slave();
-          Assert.AreEqual(m2, m2.Slave.Master);
+          Assert.That(m2.Slave.Master, Is.EqualTo(m2));
           Slave s1 = m1.Slave;
           Slave s2 = m2.Slave;
           m1.Slave = m2.Slave;
-          Assert.IsNull(m2.Slave);
-          Assert.IsNull(s1.Master);
-          Assert.AreEqual(m1.Slave, s2);
-          Assert.AreEqual(m1, s2.Master);
+          Assert.That(m2.Slave, Is.Null);
+          Assert.That(s1.Master, Is.Null);
+          Assert.That(s2, Is.EqualTo(m1.Slave));
+          Assert.That(s2.Master, Is.EqualTo(m1));
           t.Complete();
         }
       }

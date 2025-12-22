@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
@@ -50,8 +50,8 @@ namespace Xtensive.Orm.Tests.Issues
       var list2 = result2.ToList();
 
       var count = result1.Count();
-      Assert.AreEqual(list1.Count, count);
-      Assert.Greater(list2.Count, count);
+      Assert.That(count, Is.EqualTo(list1.Count));
+      Assert.That(list2.Count, Is.GreaterThan(count));
     }
   }
 }

@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
       // This part ensures everything below is JITter
       using (Measurement m = new Measurement()) {
         TestLog.Info("Ignore: TimeSpent = " + m.TimeSpent.TotalMilliseconds.ToString());
-        Assert.AreEqual(m.Name, "Unnamed");
+        Assert.That(m.Name, Is.EqualTo("Unnamed"));
         m.OperationCount = 10;
-        Assert.AreEqual(m.OperationCount,10);
+        Assert.That(m.OperationCount, Is.EqualTo(10));
         TestLog.Info("Ignore: MemoryAllocated = " + m.MemoryAllocated.ToString());
-        Assert.IsTrue(m.MemoryAllocated < 2000000);
+        Assert.That(m.MemoryAllocated < 2000000, Is.True);
         TestLog.Info("Before array allocation: "+m.ToString());
         object[] a = new object[1000];
         Thread.Sleep(10);
@@ -36,19 +36,19 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
       // Actual test
       {
         Measurement m = new Measurement("Named");
-        Assert.AreEqual(m.Name, "Named");
+        Assert.That(m.Name, Is.EqualTo("Named"));
         m.OperationCount = 10;
-        Assert.AreEqual(m.OperationCount, 10);
+        Assert.That(m.OperationCount, Is.EqualTo(10));
         m.OperationCount = 0;
-        Assert.IsTrue(m.TimeSpent.TotalMilliseconds < 5);
+        Assert.That(m.TimeSpent.TotalMilliseconds < 5, Is.True);
         TestLog.Info("Before array allocation: "+m.ToString());
         long before = m.MemoryAllocated;
         byte[] a = new byte[1000000];
         a[0] = 1;
         long diff = m.MemoryAllocated-before;
         TestLog.Info("Difference: " + diff);
-        Assert.IsTrue(diff>900000);
-        Assert.IsTrue(diff<1100000);
+        Assert.That(diff>900000, Is.True);
+        Assert.That(diff<1100000, Is.True);
         TestLog.Info("After array allocation: "+m.ToString());
         Thread.Sleep(150);
         a = null;
@@ -59,9 +59,9 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
         }
         catch (InvalidOperationException) {
         }
-        Assert.IsTrue(m.TimeSpent.TotalMilliseconds > 100);
-        Assert.IsTrue(m.TimeSpent.TotalMilliseconds < 200);
-        Assert.IsTrue(m.MemoryAllocated < 1000);
+        Assert.That(m.TimeSpent.TotalMilliseconds > 100, Is.True);
+        Assert.That(m.TimeSpent.TotalMilliseconds < 200, Is.True);
+        Assert.That(m.MemoryAllocated < 1000, Is.True);
       }
     }
   }

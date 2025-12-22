@@ -91,25 +91,25 @@ namespace Xtensive.Orm.Tests.Sql
     public void ConnectionUrlTest()
     {
       var url = UrlInfo.Parse("sqlserver://appserver/AdventureWorks?Connection Timeout=5");
-      Assert.AreEqual(url.Protocol, "sqlserver");
-      Assert.AreEqual(url.Host, "appserver");
-      Assert.AreEqual(url.Resource, "AdventureWorks");
+      Assert.That(url.Protocol, Is.EqualTo("sqlserver"));
+      Assert.That(url.Host, Is.EqualTo("appserver"));
+      Assert.That(url.Resource, Is.EqualTo("AdventureWorks"));
 
       url = UrlInfo.Parse("sqlserver://localhost/database");
-      Assert.AreEqual("database", url.GetDatabase());
-      Assert.AreEqual("default schema", url.GetSchema("default schema"));
+      Assert.That(url.GetDatabase(), Is.EqualTo("database"));
+      Assert.That(url.GetSchema("default schema"), Is.EqualTo("default schema"));
 
       url = UrlInfo.Parse("sqlserver://localhost/database/");
-      Assert.AreEqual("database", url.GetDatabase());
-      Assert.AreEqual("default schema", url.GetSchema("default schema"));
+      Assert.That(url.GetDatabase(), Is.EqualTo("database"));
+      Assert.That(url.GetSchema("default schema"), Is.EqualTo("default schema"));
 
       url = UrlInfo.Parse("sqlserver://localhost/database/schema");
-      Assert.AreEqual("database", url.GetDatabase());
-      Assert.AreEqual("schema", url.GetSchema(string.Empty));
+      Assert.That(url.GetDatabase(), Is.EqualTo("database"));
+      Assert.That(url.GetSchema(string.Empty), Is.EqualTo("schema"));
 
       url = UrlInfo.Parse("sqlserver://localhost/database/schema/");
-      Assert.AreEqual("database", url.GetDatabase());
-      Assert.AreEqual("schema", url.GetSchema(string.Empty));
+      Assert.That(url.GetDatabase(), Is.EqualTo("database"));
+      Assert.That(url.GetSchema(string.Empty), Is.EqualTo("schema"));
     }
 
     [Test]
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       var driver = TestSqlDriver.Create(url);
-      Assert.Greater(driver.CoreServerInfo.ServerVersion.Major, 8);
+      Assert.That(driver.CoreServerInfo.ServerVersion.Major, Is.GreaterThan(8));
     }
 
     [Test]
@@ -347,8 +347,8 @@ namespace Xtensive.Orm.Tests.Sql
 
     private static void TestProvider(string providerName, string connectionString, string connectionUrl)
     {
-      Assert.IsNotNull(TestSqlDriver.Create(connectionUrl));
-      Assert.IsNotNull(TestSqlDriver.Create(providerName, connectionString));
+      Assert.That(TestSqlDriver.Create(connectionUrl), Is.Not.Null);
+      Assert.That(TestSqlDriver.Create(providerName, connectionString), Is.Not.Null);
     }
 
     private static bool GetCheckConnectionIsAliveFlag(SqlDriver driver)

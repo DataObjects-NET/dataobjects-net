@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string FullName {
       get {
-        return string.Format("{0} {1}", Name, SecondName);
+        return $"{Name} {SecondName}";
       }
     }
 
@@ -53,8 +53,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     public string ToString(bool withFriends)
     {
       if (withFriends)
-        return string.Format("Person('{0}', Friends={1})", FullName, Friends.ToCommaDelimitedString());
-      return string.Format("Person('{0}')", FullName);
+        return $"Person('{FullName}', Friends={Friends.ToCommaDelimitedString()})";
+      return $"Person('{FullName}')";
     }
 
     public Person(Session session, string fullName)
@@ -94,8 +94,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     public string ToString(bool withPersons)
     {
       if (withPersons)
-        return string.Format("Company('{0}', Employees: {1})", Name, Employees.ToCommaDelimitedString());
-      return string.Format("Company('{0}')", Name);
+        return $"Company('{Name}', Employees: {Employees.ToCommaDelimitedString()})";
+      return $"Company('{Name}')";
     }
 
     public Company(Session session, string name)
@@ -134,8 +134,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
           alex.Friends.Add(dmitri);
           // Automatically provided versions won't change because of change in EntitySet!
-          Assert.AreEqual(alexVersion, alex.VersionInfo);
-          Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
+          Assert.That(alex.VersionInfo, Is.EqualTo(alexVersion));
+          Assert.That(dmitri.VersionInfo, Is.EqualTo(dmitriVersion));
 
           xtensive = new Company (session, "X-tensive.com");
           xtensiveVersion = xtensive.VersionInfo;
@@ -145,17 +145,17 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
         using (var tx = session.OpenTransaction()) {
           string newName = "Xtensive";
-          Console.WriteLine("Changing {0} name to {1}", xtensive.Name, newName);
+          Console.WriteLine($"Changing {xtensive.Name} name to {newName}");
           xtensive.Name = newName; 
           Dump(xtensive);
-          Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo); // company version changed
+          Assert.That(xtensive.VersionInfo, Is.Not.EqualTo(xtensiveVersion)); // company version changed
           xtensiveVersion = xtensive.VersionInfo;
 
           Console.WriteLine("Xtensive.Employees.Add(Alex)");
           xtensive.Employees.Add(alex);
           Dump(xtensive);
-          Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo); // company version already updated in current transaction
-          Assert.AreNotEqual(alexVersion, alex.VersionInfo);
+          Assert.That(xtensive.VersionInfo, Is.EqualTo(xtensiveVersion)); // company version already updated in current transaction
+          Assert.That(alex.VersionInfo, Is.Not.EqualTo(alexVersion));
           xtensiveVersion = xtensive.VersionInfo;
           alexVersion = alex.VersionInfo;
           tx.Complete();
@@ -166,8 +166,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         Console.WriteLine("Dmitri.Company = Xtensive");
           dmitri.Company = xtensive;
           Dump(xtensive);
-          Assert.AreNotEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreNotEqual(dmitriVersion, dmitri.VersionInfo);
+          Assert.That(xtensive.VersionInfo, Is.Not.EqualTo(xtensiveVersion));
+          Assert.That(dmitri.VersionInfo, Is.Not.EqualTo(dmitriVersion));
           xtensiveVersion = xtensive.VersionInfo;
           dmitriVersion = dmitri.VersionInfo;
 
@@ -181,18 +181,18 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           xtensive.Employees.Remove(alex);
           // Xtensive version is changed
           var newXtensiveVersionInsideTransaction = xtensive.VersionInfo;
-          Assert.AreNotEqual(xtensiveVersion, newXtensiveVersionInsideTransaction);
-          Assert.AreEqual(xtensiveVersionFieldValue, xtensive.Version - 1); // Incremented
+          Assert.That(newXtensiveVersionInsideTransaction, Is.Not.EqualTo(xtensiveVersion));
+          Assert.That(xtensive.Version - 1, Is.EqualTo(xtensiveVersionFieldValue)); // Incremented
           // Alex version is changed
-          Assert.AreNotEqual(alexVersion, alex.VersionInfo);
+          Assert.That(alex.VersionInfo, Is.Not.EqualTo(alexVersion));
 
           xtensive.Employees.Remove(dmitri);
           // Xtensive version is NOT changed, since we try to update each version
           // just once per transaction
-          Assert.AreEqual(newXtensiveVersionInsideTransaction, xtensive.VersionInfo);
-          Assert.AreEqual(xtensiveVersionFieldValue, xtensive.Version - 1); // No increment now
+          Assert.That(xtensive.VersionInfo, Is.EqualTo(newXtensiveVersionInsideTransaction));
+          Assert.That(xtensive.Version - 1, Is.EqualTo(xtensiveVersionFieldValue)); // No increment now
           // Dmitri's version is changed
-          Assert.AreNotEqual(dmitriVersion, dmitri.VersionInfo);
+          Assert.That(dmitri.VersionInfo, Is.Not.EqualTo(dmitriVersion));
 
           Console.WriteLine("Transaction rollback test, inside:");
           Dump(xtensive);
@@ -205,10 +205,10 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           Dump(xtensive);
 
           // Let's check if everything is rolled back
-          Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreEqual(xtensiveVersionFieldValue, xtensive.Version);
-          Assert.AreEqual(xtensiveVersion, xtensive.VersionInfo);
-          Assert.AreEqual(dmitriVersion, dmitri.VersionInfo);
+          Assert.That(xtensive.VersionInfo, Is.EqualTo(xtensiveVersion));
+          Assert.That(xtensive.Version, Is.EqualTo(xtensiveVersionFieldValue));
+          Assert.That(xtensive.VersionInfo, Is.EqualTo(xtensiveVersion));
+          Assert.That(dmitri.VersionInfo, Is.EqualTo(dmitriVersion));
         }
       }
     }
@@ -273,20 +273,15 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     private void Dump(Entity entity)
     {
-      Console.WriteLine("Entity: {0}", entity);
-      Console.WriteLine("          Key: {0}", entity.Key);
-      Console.WriteLine("  VersionInfo: {0}", entity.VersionInfo);
+      Console.WriteLine($"Entity: {entity}");
+      Console.WriteLine($"          Key: {entity.Key}");
+      Console.WriteLine($"  VersionInfo: {entity.VersionInfo}");
       Console.WriteLine();
     }
 
     private void Dump(VersionSet versions)
     {
-      Console.WriteLine("VersionSet: \r\n{0}",
-        versions
-        .Select(pair => new Pair<Key, VersionInfo>(pair.Key, pair.Value))
-        .ToDelimitedString("\r\n")
-        .Indent(2, true)
-        );
+      Console.WriteLine($"VersionSet: \r\n{versions.Select(pair => new Pair<Key, VersionInfo>(pair.Key, pair.Value)).ToDelimitedString("\r\n").Indent(2, true)}");
       Console.WriteLine();
     }
 

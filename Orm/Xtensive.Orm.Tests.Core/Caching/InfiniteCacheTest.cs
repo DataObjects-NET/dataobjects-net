@@ -62,12 +62,12 @@ namespace Xtensive.Orm.Tests.Core.Caching
     {
       var cache = new InfiniteCache<string, TestItem>(value => value.Key);
 
-      Assert.IsNotNull(cache.KeyExtractor);
+      Assert.That(cache.KeyExtractor, Is.Not.Null);
 
       var item = new TestItem("100");
       cache.Add(item);
 
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -89,28 +89,28 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       TestItem item = new TestItem("1");
       cache.Add(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       item = new TestItem("2");
       cache.Add(item);
-      Assert.AreEqual(2, cache.Count);
-      Assert.AreEqual(item, cache[item.Key, false]);
+      Assert.That(cache.Count, Is.EqualTo(2));
+      Assert.That(cache[item.Key, false], Is.EqualTo(item));
 
       ICache<string, TestItem> icache = cache;
-      Assert.AreEqual(item, icache[item.Value, false]);
-      Assert.AreEqual(null, icache["3", false]);
+      Assert.That(icache[item.Value, false], Is.EqualTo(item));
+      Assert.That(icache["3", false], Is.EqualTo(null));
 
       item = new TestItem("2", "3");
       cache.Add(item, false);
-      Assert.AreEqual("2", cache["2", false].Value);
+      Assert.That(cache["2", false].Value, Is.EqualTo("2"));
       cache.Add(item, true);
-      Assert.AreEqual("3", cache["2", false].Value);
+      Assert.That(cache["2", false].Value, Is.EqualTo("3"));
 
       cache.Remove(item);
-      Assert.AreEqual(1, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(1));
 
       cache.Clear();
-      Assert.AreEqual(0, cache.Count);
+      Assert.That(cache.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -142,15 +142,15 @@ namespace Xtensive.Orm.Tests.Core.Caching
       for (int i = 0; i < 100; i++)
         cache.Add(new TestItem("item " + i));
 
-      Assert.AreEqual(cache.Count, 100);
+      Assert.That(100, Is.EqualTo(cache.Count));
 
       int itemsCount = 0;
       foreach (TestItem testClass in cache)
       {
-        Assert.IsTrue(testClass != null);
+        Assert.That(testClass != null, Is.True);
         itemsCount++;
       }
-      Assert.AreEqual(itemsCount, 100);
+      Assert.That(100, Is.EqualTo(itemsCount));
     }
 
     private static bool canFinish = true;
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
           removeThreads[i].Join();
         }
       }
-      Assert.IsTrue(globalCache.Count >= 0);
+      Assert.That(globalCache.Count >= 0, Is.True);
 
       globalCache = null;
     }

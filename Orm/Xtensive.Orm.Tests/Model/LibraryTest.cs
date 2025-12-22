@@ -153,29 +153,29 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
     private void VerifyTypeCollection()
     {
       var types = context.ModelDef.Types;
-      Assert.IsNull(types.FindAncestor(types[typeof (Entity)]));
-      Assert.IsNull(types.FindAncestor(types[typeof (IEntity)]));
-      Assert.IsNull(types.FindAncestor(types[typeof (Structure)]));
-      Assert.AreEqual(types.FindAncestor(types[typeof (Passport)]), types[typeof (Structure)]);
-      Assert.AreEqual(types.FindAncestor(types[typeof (IdentityCard)]), types[typeof (Structure)]);
-      Assert.AreEqual(types.FindAncestor(types[typeof (Person)]), types[typeof (Entity)]);
-      Assert.AreEqual(types.FindAncestor(types[typeof (Book)]), types[typeof (Entity)]);
-      Assert.AreEqual(types.FindAncestor(types[typeof (BookReview)]), types[typeof (Entity)]);
-      Assert.AreEqual(types.FindAncestor(types[typeof (Author)]), types[typeof (Person)]);
+      Assert.That(types.FindAncestor(types[typeof (Entity)]), Is.Null);
+      Assert.That(types.FindAncestor(types[typeof (IEntity)]), Is.Null);
+      Assert.That(types.FindAncestor(types[typeof (Structure)]), Is.Null);
+      Assert.That(types[typeof (Structure)], Is.EqualTo(types.FindAncestor(types[typeof (Passport)])));
+      Assert.That(types[typeof (Structure)], Is.EqualTo(types.FindAncestor(types[typeof (IdentityCard)])));
+      Assert.That(types[typeof (Entity)], Is.EqualTo(types.FindAncestor(types[typeof (Person)])));
+      Assert.That(types[typeof (Entity)], Is.EqualTo(types.FindAncestor(types[typeof (Book)])));
+      Assert.That(types[typeof (Entity)], Is.EqualTo(types.FindAncestor(types[typeof (BookReview)])));
+      Assert.That(types[typeof (Person)], Is.EqualTo(types.FindAncestor(types[typeof (Author)])));
     }
 
     private void RedefineTypes()
     {
       context.ModelDef.Types.Clear();
-      context.ModelDef.DefineType(typeof (BookReview));
-      context.ModelDef.DefineType(typeof (Book));
-      context.ModelDef.DefineType(typeof (Person));
-      context.ModelDef.DefineType(typeof (Author));
-      context.ModelDef.DefineType(typeof (Structure));
-      context.ModelDef.DefineType(typeof (Passport));
-      context.ModelDef.DefineType(typeof (IdentityCard));
-      context.ModelDef.DefineType(typeof (Entity));
-      context.ModelDef.DefineType(typeof (IEntity));
+      _ = context.ModelDef.DefineType(typeof (BookReview));
+      _ = context.ModelDef.DefineType(typeof (Book));
+      _ = context.ModelDef.DefineType(typeof (Person));
+      _ = context.ModelDef.DefineType(typeof (Author));
+      _ = context.ModelDef.DefineType(typeof (Structure));
+      _ = context.ModelDef.DefineType(typeof (Passport));
+      _ = context.ModelDef.DefineType(typeof (IdentityCard));
+      _ = context.ModelDef.DefineType(typeof (Entity));
+      _ = context.ModelDef.DefineType(typeof (IEntity));
     }
 
     private void RedefineFields()
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
           if (attributes==null || attributes.Length==0)
             continue;
           if (!properties[index].Name.Contains("."))
-            type.DefineField(properties[index]);
+            _ = type.DefineField(properties[index]);
         }
       }
 
@@ -218,127 +218,126 @@ namespace Xtensive.Orm.Tests.Model.LibraryModel
 
     private void VerifyDefinition()
     {
-      Assert.IsNotNull(context.ModelDef.Types[typeof (Entity)]);
-      Assert.IsNotNull(context.ModelDef.Types[typeof (IEntity)]);
+      Assert.That(context.ModelDef.Types[typeof (Entity)], Is.Not.Null);
+      Assert.That(context.ModelDef.Types[typeof (IEntity)], Is.Not.Null);
 
       #region IdentityCard
 
       TypeDef typeDef = context.ModelDef.Types[typeof (IdentityCard)];
-      Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(typeDef.Fields["FirstName"]);
-      Assert.AreEqual("FirstName", typeDef.Fields["FirstName"].Name);
-      Assert.AreEqual(64, typeDef.Fields["FirstName"].Length);
-      Assert.IsNotNull(typeDef.Fields["SecondName"]);
-      Assert.AreEqual("SecondName", typeDef.Fields["SecondName"].Name);
-      Assert.AreEqual(64, typeDef.Fields["SecondName"].Length);
-      Assert.IsNotNull(typeDef.Fields["LastName"]);
-      Assert.AreEqual("LastName", typeDef.Fields["LastName"].Name);
-      Assert.AreEqual(64, typeDef.Fields["LastName"].Length);
+      Assert.That(typeDef, Is.Not.Null);
+      Assert.That(typeDef.Fields["FirstName"], Is.Not.Null);
+      Assert.That(typeDef.Fields["FirstName"].Name, Is.EqualTo("FirstName"));
+      Assert.That(typeDef.Fields["FirstName"].Length, Is.EqualTo(64));
+      Assert.That(typeDef.Fields["SecondName"], Is.Not.Null);
+      Assert.That(typeDef.Fields["SecondName"].Name, Is.EqualTo("SecondName"));
+      Assert.That(typeDef.Fields["SecondName"].Length, Is.EqualTo(64));
+      Assert.That(typeDef.Fields["LastName"], Is.Not.Null);
+      Assert.That(typeDef.Fields["LastName"].Name, Is.EqualTo("LastName"));
+      Assert.That(typeDef.Fields["LastName"].Length, Is.EqualTo(64));
 
       #endregion
 
       #region Passport
 
       typeDef = context.ModelDef.Types[typeof (Passport)];
-      Assert.IsNotNull(typeDef.Fields["Number"]);
-      Assert.AreEqual("Number", typeDef.Fields["Number"].Name);
-      Assert.IsNotNull(typeDef.Fields["Card"]);
-      Assert.AreEqual("Card", typeDef.Fields["Card"].Name);
+      Assert.That(typeDef.Fields["Number"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Number"].Name, Is.EqualTo("Number"));
+      Assert.That(typeDef.Fields["Card"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Card"].Name, Is.EqualTo("Card"));
 
       #endregion
 
       #region Person
 
       typeDef = context.ModelDef.Types[typeof (Person)];
-      Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(context.ModelDef.Types["Person"]);
-      Assert.AreEqual(typeDef, context.ModelDef.Types["Person"]);
-      Assert.AreEqual("Person", typeDef.Name);
+      Assert.That(typeDef, Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Person"], Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Person"], Is.EqualTo(typeDef));
+      Assert.That(typeDef.Name, Is.EqualTo("Person"));
 
       // Fields
-      Assert.IsNotNull(typeDef.Fields["Passport"]);
-      Assert.AreEqual("Passport", typeDef.Fields["Passport"].Name);
-      Assert.IsTrue(typeDef.Fields["Passport"].IsStructure);
-      Assert.IsFalse(typeDef.Fields["Passport"].IsEntity);
-      Assert.IsFalse(typeDef.Fields["Passport"].IsEntitySet);
+      Assert.That(typeDef.Fields["Passport"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Passport"].Name, Is.EqualTo("Passport"));
+      Assert.That(typeDef.Fields["Passport"].IsStructure, Is.True);
+      Assert.That(typeDef.Fields["Passport"].IsEntity, Is.False);
+      Assert.That(typeDef.Fields["Passport"].IsEntitySet, Is.False);
 
       #endregion
 
       #region Author
 
       typeDef = context.ModelDef.Types[typeof (Author)];
-      Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(context.ModelDef.Types["Author"]);
-      Assert.AreEqual(typeDef, context.ModelDef.Types["Author"]);
-      Assert.AreEqual("Author", typeDef.Name);
+      Assert.That(typeDef, Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Author"], Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Author"], Is.EqualTo(typeDef));
+      Assert.That(typeDef.Name, Is.EqualTo("Author"));
 
       // Fields
-      Assert.IsNotNull(typeDef.Fields["PenName"]);
-      Assert.AreEqual("PenName", typeDef.Fields["PenName"].Name);
+      Assert.That(typeDef.Fields["PenName"], Is.Not.Null);
+      Assert.That(typeDef.Fields["PenName"].Name, Is.EqualTo("PenName"));
 
       // Indexes
-      Assert.IsNotNull(typeDef.Indexes["IX_PENNAME"]);
-      Assert.IsNotNull(typeDef.Indexes[0]);
-      Assert.AreEqual(typeDef.Indexes["IX_PENNAME"], typeDef.Indexes[0]);
-      Assert.IsFalse(typeDef.Indexes["IX_PENNAME"].IsPrimary);
-      Assert.IsFalse(typeDef.Indexes["IX_PENNAME"].IsUnique);
-      Assert.AreEqual(1, typeDef.Indexes[0].KeyFields.Count);
-      Assert.IsNotNull(typeDef.Indexes[0].KeyFields[0]);
-      Assert.AreEqual("PenName", typeDef.Indexes[0].KeyFields[0].Key);
-      Assert.AreEqual(Direction.Negative, typeDef.Indexes[0].KeyFields[0].Value);
+      Assert.That(typeDef.Indexes["IX_PENNAME"], Is.Not.Null);
+      Assert.That(typeDef.Indexes[0], Is.Not.Null);
+      Assert.That(typeDef.Indexes[0], Is.EqualTo(typeDef.Indexes["IX_PENNAME"]));
+      Assert.That(typeDef.Indexes["IX_PENNAME"].IsPrimary, Is.False);
+      Assert.That(typeDef.Indexes["IX_PENNAME"].IsUnique, Is.False);
+      Assert.That(typeDef.Indexes[0].KeyFields.Count, Is.EqualTo(1));
+      Assert.That(typeDef.Indexes[0].KeyFields[0].Key, Is.EqualTo("PenName"));
+      Assert.That(typeDef.Indexes[0].KeyFields[0].Value, Is.EqualTo(Direction.Negative));
 
       #endregion
 
       #region Book
 
       typeDef = context.ModelDef.Types[typeof (Book)];
-      Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(context.ModelDef.Types["Book"]);
-      Assert.AreEqual(typeDef, context.ModelDef.Types["Book"]);
-      Assert.AreEqual("Book", typeDef.Name);
+      Assert.That(typeDef, Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Book"], Is.Not.Null);
+      Assert.That(context.ModelDef.Types["Book"], Is.EqualTo(typeDef));
+      Assert.That(typeDef.Name, Is.EqualTo("Book"));
 
       // Fields
-      Assert.IsNotNull(typeDef.Fields["Isbn"]);
-      Assert.AreEqual("Isbn", typeDef.Fields["Isbn"].Name);
-      Assert.AreEqual(32, typeDef.Fields["Isbn"].Length);
+      Assert.That(typeDef.Fields["Isbn"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Isbn"].Name, Is.EqualTo("Isbn"));
+      Assert.That(typeDef.Fields["Isbn"].Length, Is.EqualTo(32));
 
-      Assert.IsNotNull(typeDef.Fields["Title"]);
-      Assert.AreEqual("Title", typeDef.Fields["Title"].Name);
-      Assert.AreEqual(128, typeDef.Fields["Title"].Length);
+      Assert.That(typeDef.Fields["Title"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Title"].Name, Is.EqualTo("Title"));
+      Assert.That(typeDef.Fields["Title"].Length, Is.EqualTo(128));
 
-      Assert.IsNotNull(typeDef.Fields["Author"]);
-      Assert.AreEqual(OnRemoveAction.Deny, typeDef.Fields["Author"].OnTargetRemove);
-      Assert.AreEqual("Author", typeDef.Fields["Author"].Name);
+      Assert.That(typeDef.Fields["Author"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Author"].OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
+      Assert.That(typeDef.Fields["Author"].Name, Is.EqualTo("Author"));
 
-      Assert.IsNotNull(typeDef.Indexes["IX_Title"]);
-      Assert.IsFalse(typeDef.Indexes["IX_Title"].IsPrimary);
-      Assert.IsFalse(typeDef.Indexes["IX_Title"].IsUnique);
-      Assert.AreEqual(1, typeDef.Indexes["IX_Title"].KeyFields.Count);
-      Assert.AreEqual("Title", typeDef.Indexes["IX_Title"].KeyFields[0].Key);
-      Assert.AreEqual(Direction.Positive, typeDef.Indexes["IX_Title"].KeyFields[0].Value);
+      Assert.That(typeDef.Indexes["IX_Title"], Is.Not.Null);
+      Assert.That(typeDef.Indexes["IX_Title"].IsPrimary, Is.False);
+      Assert.That(typeDef.Indexes["IX_Title"].IsUnique, Is.False);
+      Assert.That(typeDef.Indexes["IX_Title"].KeyFields.Count, Is.EqualTo(1));
+      Assert.That(typeDef.Indexes["IX_Title"].KeyFields[0].Key, Is.EqualTo("Title"));
+      Assert.That(typeDef.Indexes["IX_Title"].KeyFields[0].Value, Is.EqualTo(Direction.Positive));
 
       #endregion
 
       #region BookReview
 
       typeDef = context.ModelDef.Types[typeof (BookReview)];
-      Assert.IsNotNull(typeDef);
-      Assert.IsNotNull(context.ModelDef.Types["BookReview"]);
-      Assert.AreEqual(typeDef, context.ModelDef.Types["BookReview"]);
-      Assert.AreEqual("BookReview", typeDef.Name);
+      Assert.That(typeDef, Is.Not.Null);
+      Assert.That(context.ModelDef.Types["BookReview"], Is.Not.Null);
+      Assert.That(context.ModelDef.Types["BookReview"], Is.EqualTo(typeDef));
+      Assert.That(typeDef.Name, Is.EqualTo("BookReview"));
 
       // Fields
-      Assert.IsNotNull(typeDef.Fields["Book"]);
-      Assert.AreEqual("Book", typeDef.Fields["Book"].Name);
-      Assert.AreEqual(OnRemoveAction.Cascade, typeDef.Fields["Book"].OnTargetRemove);
+      Assert.That(typeDef.Fields["Book"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Book"].Name, Is.EqualTo("Book"));
+      Assert.That(typeDef.Fields["Book"].OnTargetRemove, Is.EqualTo(OnRemoveAction.Cascade));
 
-      Assert.IsNotNull(typeDef.Fields["Reviewer"]);
-      Assert.AreEqual("Reviewer", typeDef.Fields["Reviewer"].Name);
-      Assert.AreEqual(OnRemoveAction.Clear, typeDef.Fields["Reviewer"].OnTargetRemove);
+      Assert.That(typeDef.Fields["Reviewer"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Reviewer"].Name, Is.EqualTo("Reviewer"));
+      Assert.That(typeDef.Fields["Reviewer"].OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
 
-      Assert.IsNotNull(typeDef.Fields["Text"]);
-      Assert.AreEqual("Text", typeDef.Fields["Text"].Name);
-      Assert.AreEqual(4096, typeDef.Fields["Text"].Length);
+      Assert.That(typeDef.Fields["Text"], Is.Not.Null);
+      Assert.That(typeDef.Fields["Text"].Name, Is.EqualTo("Text"));
+      Assert.That(typeDef.Fields["Text"].Length, Is.EqualTo(4096));
 
       #endregion
 
@@ -393,38 +392,33 @@ namespace Xtensive.Orm.Tests.Model
     private static void VerifyModel(Domain domain)
     {
       TypeInfoCollection types = domain.Model.Types;
-      Assert.AreEqual(types[typeof (Person)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Book)].Ancestor, null);
-      Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
-
-      Assert.AreEqual(types[typeof (Person)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Book)].Ancestor, null);
-      Assert.AreEqual(types[typeof (BookReview)].Ancestor, null);
-      Assert.AreEqual(types[typeof (Author)].Ancestor, types[typeof (Person)]);
+      Assert.That(types[typeof(Person)].Ancestor, Is.Null);
+      Assert.That(types[typeof(Book)].Ancestor, Is.Null);
+      Assert.That(types[typeof(BookReview)].Ancestor, Is.Null);
+      Assert.That(types[typeof (Person)], Is.EqualTo(types[typeof (Author)].Ancestor));
 
       var collection = types.Structures;
-      Assert.IsTrue(collection.Any());
+      Assert.That(collection.Any(), Is.True);
       foreach (TypeInfo item in collection) {
-        Assert.IsTrue(item.IsStructure);
-        Assert.IsFalse(item.IsInterface);
-        Assert.IsFalse(item.IsEntity);
+        Assert.That(item.IsStructure, Is.True);
+        Assert.That(item.IsInterface, Is.False);
+        Assert.That(item.IsEntity, Is.False);
       }
 
       collection = types.Interfaces;
-      Assert.IsFalse(collection.Any());
+      Assert.That(collection.Any(), Is.False);
       foreach (TypeInfo item in collection) {
-        Assert.IsTrue(item.IsInterface);
-        Assert.IsFalse(item.IsStructure);
-        Assert.IsFalse(item.IsEntity);
+        Assert.That(item.IsInterface, Is.True);
+        Assert.That(item.IsStructure, Is.False);
+        Assert.That(item.IsEntity, Is.False);
       }
 
       collection = types.Entities;
-      Assert.IsTrue(collection.Any());
+      Assert.That(collection.Any(), Is.True);
       foreach (TypeInfo item in collection) {
-        Assert.IsTrue(item.IsEntity);
-        Assert.IsFalse(item.IsInterface);
-        Assert.IsFalse(item.IsStructure);
+        Assert.That(item.IsEntity, Is.True);
+        Assert.That(item.IsInterface, Is.False);
+        Assert.That(item.IsStructure, Is.False);
       }
 
       #region IdentityCard
@@ -432,21 +426,21 @@ namespace Xtensive.Orm.Tests.Model
       TypeInfo typeInfo = domain.Model.Types[typeof (IdentityCard)];
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["FirstName"]);
-      Assert.AreEqual("FirstName", typeInfo.Fields["FirstName"].Name);
-      Assert.AreEqual(64, typeInfo.Fields["FirstName"].Length);
-      Assert.IsTrue(typeInfo.Fields["FirstName"].IsDeclared);
-      Assert.IsFalse(typeInfo.Fields["FirstName"].IsInherited);
-      Assert.IsNotNull(typeInfo.Fields["SecondName"]);
-      Assert.AreEqual("SecondName", typeInfo.Fields["SecondName"].Name);
-      Assert.AreEqual(64, typeInfo.Fields["SecondName"].Length);
-      Assert.IsTrue(typeInfo.Fields["SecondName"].IsDeclared);
-      Assert.IsFalse(typeInfo.Fields["SecondName"].IsInherited);
-      Assert.IsNotNull(typeInfo.Fields["LastName"]);
-      Assert.AreEqual("LastName", typeInfo.Fields["LastName"].Name);
-      Assert.AreEqual(64, typeInfo.Fields["LastName"].Length);
-      Assert.IsTrue(typeInfo.Fields["LastName"].IsDeclared);
-      Assert.IsFalse(typeInfo.Fields["LastName"].IsInherited);
+      Assert.That(typeInfo.Fields["FirstName"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["FirstName"].Name, Is.EqualTo("FirstName"));
+      Assert.That(typeInfo.Fields["FirstName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Fields["FirstName"].IsDeclared, Is.True);
+      Assert.That(typeInfo.Fields["FirstName"].IsInherited, Is.False);
+      Assert.That(typeInfo.Fields["SecondName"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["SecondName"].Name, Is.EqualTo("SecondName"));
+      Assert.That(typeInfo.Fields["SecondName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Fields["SecondName"].IsDeclared, Is.True);
+      Assert.That(typeInfo.Fields["SecondName"].IsInherited, Is.False);
+      Assert.That(typeInfo.Fields["LastName"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["LastName"].Name, Is.EqualTo("LastName"));
+      Assert.That(typeInfo.Fields["LastName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Fields["LastName"].IsDeclared, Is.True);
+      Assert.That(typeInfo.Fields["LastName"].IsInherited, Is.False);
 
       #endregion
 
@@ -455,140 +449,140 @@ namespace Xtensive.Orm.Tests.Model
       typeInfo = domain.Model.Types[typeof (Passport)];
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["Number"]);
-      Assert.AreEqual("Number", typeInfo.Fields["Number"].Name);
-      Assert.IsTrue(typeInfo.Fields["Number"].IsDeclared);
-      Assert.IsFalse(typeInfo.Fields["Number"].IsInherited);
-      Assert.IsFalse(typeInfo.Fields["Number"].IsStructure);
-      Assert.IsFalse(typeInfo.Fields["Number"].IsEntity);
-      Assert.IsFalse(typeInfo.Fields["Number"].IsEntitySet);
+      Assert.That(typeInfo.Fields["Number"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Number"].Name, Is.EqualTo("Number"));
+      Assert.That(typeInfo.Fields["Number"].IsDeclared, Is.True);
+      Assert.That(typeInfo.Fields["Number"].IsInherited, Is.False);
+      Assert.That(typeInfo.Fields["Number"].IsStructure, Is.False);
+      Assert.That(typeInfo.Fields["Number"].IsEntity, Is.False);
+      Assert.That(typeInfo.Fields["Number"].IsEntitySet, Is.False);
 
-      Assert.IsNotNull(typeInfo.Fields["Card"]);
-      Assert.AreEqual("Card", typeInfo.Fields["Card"].Name);
-      Assert.IsTrue(typeInfo.Fields["Card"].IsStructure);
-      Assert.IsFalse(typeInfo.Fields["Card"].IsEntity);
-      Assert.IsFalse(typeInfo.Fields["Card"].IsEntitySet);
-      Assert.AreEqual(3, typeInfo.Fields["Card"].Fields.Count);
-      Assert.IsTrue(typeInfo.Fields["Card"].IsDeclared);
-      Assert.IsFalse(typeInfo.Fields["Card"].IsInherited);
+      Assert.That(typeInfo.Fields["Card"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Card"].Name, Is.EqualTo("Card"));
+      Assert.That(typeInfo.Fields["Card"].IsStructure, Is.True);
+      Assert.That(typeInfo.Fields["Card"].IsEntity, Is.False);
+      Assert.That(typeInfo.Fields["Card"].IsEntitySet, Is.False);
+      Assert.That(typeInfo.Fields["Card"].Fields.Count, Is.EqualTo(3));
+      Assert.That(typeInfo.Fields["Card"].IsDeclared, Is.True);
+      Assert.That(typeInfo.Fields["Card"].IsInherited, Is.False);
 
-      Assert.IsNotNull(typeInfo.Columns["Card.FirstName"]);
-      Assert.AreEqual("Card.FirstName", typeInfo.Columns["Card.FirstName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Card.FirstName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Card.SecondName"]);
-      Assert.AreEqual("Card.SecondName", typeInfo.Columns["Card.SecondName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Card.SecondName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Card.LastName"]);
-      Assert.AreEqual("Card.LastName", typeInfo.Columns["Card.LastName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Card.LastName"].Length);
+      Assert.That(typeInfo.Columns["Card.FirstName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Card.FirstName"].Name, Is.EqualTo("Card.FirstName"));
+      Assert.That(typeInfo.Columns["Card.FirstName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Card.SecondName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Card.SecondName"].Name, Is.EqualTo("Card.SecondName"));
+      Assert.That(typeInfo.Columns["Card.SecondName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Card.LastName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Card.LastName"].Name, Is.EqualTo("Card.LastName"));
+      Assert.That(typeInfo.Columns["Card.LastName"].Length, Is.EqualTo(64));
 
       #endregion
 
       #region Person
 
       typeInfo = domain.Model.Types[typeof (Person)];
-      Assert.IsNotNull(typeInfo);
-      Assert.IsNotNull(domain.Model.Types["Person"]);
-      Assert.AreEqual(typeInfo, domain.Model.Types["Person"]);
-      Assert.AreEqual("Person", typeInfo.Name);
+      Assert.That(typeInfo, Is.Not.Null);
+      Assert.That(domain.Model.Types["Person"], Is.Not.Null);
+      Assert.That(domain.Model.Types["Person"], Is.EqualTo(typeInfo));
+      Assert.That(typeInfo.Name, Is.EqualTo("Person"));
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["Passport"]);
-      Assert.AreEqual("Passport", typeInfo.Fields["Passport"].Name);
-      Assert.IsTrue(typeInfo.Fields["Passport"].IsStructure);
-      Assert.IsFalse(typeInfo.Fields["Passport"].IsEntity);
-      Assert.IsFalse(typeInfo.Fields["Passport"].IsEntitySet);
+      Assert.That(typeInfo.Fields["Passport"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Passport"].Name, Is.EqualTo("Passport"));
+      Assert.That(typeInfo.Fields["Passport"].IsStructure, Is.True);
+      Assert.That(typeInfo.Fields["Passport"].IsEntity, Is.False);
+      Assert.That(typeInfo.Fields["Passport"].IsEntitySet, Is.False);
       //      Assert.AreEqual(typeInfo.Fields["Passport"].Columns.Count, 4);
 
-      Assert.IsNotNull(typeInfo.Fields["Reviews"]);
-      Assert.AreEqual("Reviews", typeInfo.Fields["Reviews"].Name);
-      Assert.IsFalse(typeInfo.Fields["Reviews"].IsStructure);
-      Assert.IsFalse(typeInfo.Fields["Reviews"].IsEntity);
-      Assert.IsTrue(typeInfo.Fields["Reviews"].IsEntitySet);
+      Assert.That(typeInfo.Fields["Reviews"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Reviews"].Name, Is.EqualTo("Reviews"));
+      Assert.That(typeInfo.Fields["Reviews"].IsStructure, Is.False);
+      Assert.That(typeInfo.Fields["Reviews"].IsEntity, Is.False);
+      Assert.That(typeInfo.Fields["Reviews"].IsEntitySet, Is.True);
 
       // KeyColumns
-      Assert.IsNotNull(typeInfo.Columns["Passport.Number"]);
-      Assert.AreEqual("Passport.Number", typeInfo.Columns["Passport.Number"].Name);
+      Assert.That(typeInfo.Columns["Passport.Number"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Number"].Name, Is.EqualTo("Passport.Number"));
       //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.Key);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.FirstName"]);
-      Assert.AreEqual("Passport.Card.FirstName", typeInfo.Columns["Passport.Card.FirstName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.FirstName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.SecondName"]);
-      Assert.AreEqual("Passport.Card.SecondName", typeInfo.Columns["Passport.Card.SecondName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.SecondName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.LastName"]);
-      Assert.AreEqual("Passport.Card.LastName", typeInfo.Columns["Passport.Card.LastName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.LastName"].Length);
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"].Name, Is.EqualTo("Passport.Card.FirstName"));
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"].Name, Is.EqualTo("Passport.Card.SecondName"));
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"].Name, Is.EqualTo("Passport.Card.LastName"));
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"].Length, Is.EqualTo(64));
 
       // Indexes
       if (IsSingleTable(typeInfo) || IsConcreteTable(typeInfo))
-        Assert.AreEqual(2, typeInfo.Indexes.Count);
+        Assert.That(typeInfo.Indexes.Count, Is.EqualTo(2));
       else
-        Assert.AreEqual(1, typeInfo.Indexes.Count);
-      Assert.IsNotNull(typeInfo.Indexes["PK_Person"]);
-      Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsPrimary);
-      Assert.IsTrue(typeInfo.Indexes["PK_Person"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.Key.TupleDescriptor.Count, typeInfo.Indexes["PK_Person"].KeyColumns.Count);
-      Assert.AreEqual(typeInfo.Columns["PassportNumber"], typeInfo.Indexes["PK_Person"].KeyColumns[0].Key);
+        Assert.That(typeInfo.Indexes.Count, Is.EqualTo(1));
+      Assert.That(typeInfo.Indexes["PK_Person"], Is.Not.Null);
+      Assert.That(typeInfo.Indexes["PK_Person"].IsPrimary, Is.True);
+      Assert.That(typeInfo.Indexes["PK_Person"].IsUnique, Is.True);
+      Assert.That(typeInfo.Indexes["PK_Person"].KeyColumns.Count, Is.EqualTo(typeInfo.Hierarchy.Key.TupleDescriptor.Count));
+      Assert.That(typeInfo.Indexes["PK_Person"].KeyColumns[0].Key, Is.EqualTo(typeInfo.Columns["PassportNumber"]));
 
       #endregion
 
       #region Author
 
       typeInfo = domain.Model.Types[typeof (Author)];
-      Assert.IsNotNull(typeInfo);
-      Assert.IsNotNull(domain.Model.Types["Author"]);
-      Assert.AreEqual(typeInfo, domain.Model.Types["Author"]);
-      Assert.AreEqual("Author", typeInfo.Name);
+      Assert.That(typeInfo, Is.Not.Null);
+      Assert.That(domain.Model.Types["Author"], Is.Not.Null);
+      Assert.That(domain.Model.Types["Author"], Is.EqualTo(typeInfo));
+      Assert.That(typeInfo.Name, Is.EqualTo("Author"));
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["Passport"]);
-      Assert.AreEqual("Passport", typeInfo.Fields["Passport"].Name);
-      Assert.IsTrue(typeInfo.Fields["Passport"].IsStructure);
-      Assert.IsTrue(typeInfo.Fields["Passport"].IsInherited);
-      Assert.AreEqual(5, typeInfo.Fields["Passport"].Fields.Count);
-      Assert.IsNotNull(typeInfo.Fields["PenName"]);
-      Assert.AreEqual(true, typeInfo.Fields["PenName"].IsNullable);
-      Assert.AreEqual("PenName", typeInfo.Fields["PenName"].Name);
-      Assert.AreEqual(64, typeInfo.Fields["PenName"].Length);
-      Assert.IsNotNull(typeInfo.Fields["Books"]);
-      Assert.AreEqual(true, typeInfo.Fields["Books"].IsNullable);
-      Assert.AreEqual("Books", typeInfo.Fields["Books"].Name);
+      Assert.That(typeInfo.Fields["Passport"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Passport"].Name, Is.EqualTo("Passport"));
+      Assert.That(typeInfo.Fields["Passport"].IsStructure, Is.True);
+      Assert.That(typeInfo.Fields["Passport"].IsInherited, Is.True);
+      Assert.That(typeInfo.Fields["Passport"].Fields.Count, Is.EqualTo(5));
+      Assert.That(typeInfo.Fields["PenName"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["PenName"].IsNullable, Is.EqualTo(true));
+      Assert.That(typeInfo.Fields["PenName"].Name, Is.EqualTo("PenName"));
+      Assert.That(typeInfo.Fields["PenName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Fields["Books"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Books"].IsNullable, Is.EqualTo(true));
+      Assert.That(typeInfo.Fields["Books"].Name, Is.EqualTo("Books"));
 
-      Assert.AreEqual(2, typeInfo.Fields.Find(FieldAttributes.Declared).Count());
-      Assert.AreEqual(9, typeInfo.Fields.Find(FieldAttributes.Inherited).Count());
+      Assert.That(typeInfo.Fields.Find(FieldAttributes.Declared).Count(), Is.EqualTo(2));
+      Assert.That(typeInfo.Fields.Find(FieldAttributes.Inherited).Count(), Is.EqualTo(9));
 
       // KeyColumns
-      Assert.IsNotNull(typeInfo.Columns["PassportNumber"]);
-      Assert.AreEqual("PassportNumber", typeInfo.Columns["PassportNumber"].Name);
+      Assert.That(typeInfo.Columns["PassportNumber"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["PassportNumber"].Name, Is.EqualTo("PassportNumber"));
       //      Assert.AreEqual(person.Fields["Passport"].Indexes[0], person.Key);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.FirstName"]);
-      Assert.AreEqual("Passport.Card.FirstName", typeInfo.Columns["Passport.Card.FirstName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.FirstName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.SecondName"]);
-      Assert.AreEqual("Passport.Card.SecondName", typeInfo.Columns["Passport.Card.SecondName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.SecondName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["Passport.Card.LastName"]);
-      Assert.AreEqual("Passport.Card.LastName", typeInfo.Columns["Passport.Card.LastName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["Passport.Card.LastName"].Length);
-      Assert.IsNotNull(typeInfo.Columns["PenName"]);
-      Assert.AreEqual(true, typeInfo.Columns["PenName"].IsNullable);
-      Assert.AreEqual("PenName", typeInfo.Columns["PenName"].Name);
-      Assert.AreEqual(64, typeInfo.Columns["PenName"].Length);
-      Assert.IsFalse(typeInfo.Columns.Contains("Reviews"));
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"].Name, Is.EqualTo("Passport.Card.FirstName"));
+      Assert.That(typeInfo.Columns["Passport.Card.FirstName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"].Name, Is.EqualTo("Passport.Card.SecondName"));
+      Assert.That(typeInfo.Columns["Passport.Card.SecondName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"].Name, Is.EqualTo("Passport.Card.LastName"));
+      Assert.That(typeInfo.Columns["Passport.Card.LastName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns["PenName"], Is.Not.Null);
+      Assert.That(typeInfo.Columns["PenName"].IsNullable, Is.EqualTo(true));
+      Assert.That(typeInfo.Columns["PenName"].Name, Is.EqualTo("PenName"));
+      Assert.That(typeInfo.Columns["PenName"].Length, Is.EqualTo(64));
+      Assert.That(typeInfo.Columns.Contains("Reviews"), Is.False);
 
       // Indexes
       if (!IsSingleTable(typeInfo)) {
         if (IsConcreteTable(typeInfo))
-          Assert.AreEqual(2, typeInfo.Indexes.Count);
+          Assert.That(typeInfo.Indexes.Count, Is.EqualTo(2));
         else
-          Assert.AreEqual(3, typeInfo.Indexes.Count);
-        Assert.IsNotNull(typeInfo.Indexes["Author.IX_PENNAME"]);
-        Assert.IsNotNull(typeInfo.Indexes[0]);
-        Assert.AreEqual(typeInfo.Indexes[0], typeInfo.Indexes["Author.IX_PENNAME"]);
-        Assert.AreEqual(1, typeInfo.Indexes[0].KeyColumns.Count);
-        Assert.IsNotNull(typeInfo.Indexes[0].KeyColumns[0]);
-        Assert.AreEqual(typeInfo.Columns["PenName"], typeInfo.Indexes[0].KeyColumns[0].Key);
+          Assert.That(typeInfo.Indexes.Count, Is.EqualTo(3));
+        Assert.That(typeInfo.Indexes["Author.IX_PENNAME"], Is.Not.Null);
+        Assert.That(typeInfo.Indexes[0], Is.Not.Null);
+        Assert.That(typeInfo.Indexes["Author.IX_PENNAME"], Is.EqualTo(typeInfo.Indexes[0]));
+        Assert.That(typeInfo.Indexes[0].KeyColumns.Count, Is.EqualTo(1));
+        Assert.That(typeInfo.Indexes[0].KeyColumns[0], Is.Not.EqualTo(default(KeyValuePair<ColumnInfo,Direction>)));
+        Assert.That(typeInfo.Indexes[0].KeyColumns[0].Key, Is.EqualTo(typeInfo.Columns["PenName"]));
       }
 
       #endregion
@@ -596,82 +590,82 @@ namespace Xtensive.Orm.Tests.Model
       #region Book
 
       typeInfo = domain.Model.Types[typeof (Book)];
-      Assert.IsNotNull(typeInfo);
-      Assert.IsNotNull(domain.Model.Types["Book"]);
-      Assert.AreEqual(typeInfo, domain.Model.Types["Book"]);
-      Assert.AreEqual(typeInfo.Name, "Book");
+      Assert.That(typeInfo, Is.Not.Null);
+      Assert.That(domain.Model.Types["Book"], Is.Not.Null);
+      Assert.That(domain.Model.Types["Book"], Is.EqualTo(typeInfo));
+      Assert.That("Book", Is.EqualTo(typeInfo.Name));
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["Isbn"]);
-      Assert.AreEqual(typeInfo.Fields["Isbn"].Name, "Isbn");
-      Assert.AreEqual(typeInfo.Fields["Isbn"].Length, 32);
+      Assert.That(typeInfo.Fields["Isbn"], Is.Not.Null);
+      Assert.That("Isbn", Is.EqualTo(typeInfo.Fields["Isbn"].Name));
+      Assert.That(32, Is.EqualTo(typeInfo.Fields["Isbn"].Length));
       //      Assert.AreEqual(book.Fields["Isbn"].Indexes[0], book.Key);
 
-      Assert.IsNotNull(typeInfo.Fields["Title"]);
-      Assert.AreEqual(typeInfo.Fields["Title"].Name, "Title");
-      Assert.AreEqual(typeInfo.Fields["Title"].Length, 128);
+      Assert.That(typeInfo.Fields["Title"], Is.Not.Null);
+      Assert.That("Title", Is.EqualTo(typeInfo.Fields["Title"].Name));
+      Assert.That(128, Is.EqualTo(typeInfo.Fields["Title"].Length));
 
-      Assert.IsNotNull(typeInfo.Fields["Author"]);
-      Assert.AreEqual(typeInfo.Fields["Author"].Name, "Author");
-      Assert.IsFalse(typeInfo.Fields["Author"].IsStructure);
-      Assert.IsTrue(typeInfo.Fields["Author"].IsEntity);
-      Assert.IsFalse(typeInfo.Fields["Author"].IsEntitySet);
-      Assert.AreEqual(OnRemoveAction.Deny, typeInfo.Fields["Author"].Associations.Last().OnTargetRemove);
+      Assert.That(typeInfo.Fields["Author"], Is.Not.Null);
+      Assert.That("Author", Is.EqualTo(typeInfo.Fields["Author"].Name));
+      Assert.That(typeInfo.Fields["Author"].IsStructure, Is.False);
+      Assert.That(typeInfo.Fields["Author"].IsEntity, Is.True);
+      Assert.That(typeInfo.Fields["Author"].IsEntitySet, Is.False);
+      Assert.That(typeInfo.Fields["Author"].Associations.Last().OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
 
       // Indexes
-      Assert.AreEqual(6, typeInfo.Indexes.Count);
-      Assert.IsNotNull(typeInfo.Indexes["PK_Book"]);
-      Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsPrimary);
-      Assert.IsTrue(typeInfo.Indexes["PK_Book"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.Key.TupleDescriptor.Count, typeInfo.Indexes["PK_Book"].KeyColumns.Count);
-      Assert.AreEqual("Isbn", typeInfo.Indexes["PK_Book"].KeyColumns[0].Key.Name);
-      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_Book"].KeyColumns[0].Value);
+      Assert.That(typeInfo.Indexes.Count, Is.EqualTo(6));
+      Assert.That(typeInfo.Indexes["PK_Book"], Is.Not.Null);
+      Assert.That(typeInfo.Indexes["PK_Book"].IsPrimary, Is.True);
+      Assert.That(typeInfo.Indexes["PK_Book"].IsUnique, Is.True);
+      Assert.That(typeInfo.Indexes["PK_Book"].KeyColumns.Count, Is.EqualTo(typeInfo.Hierarchy.Key.TupleDescriptor.Count));
+      Assert.That(typeInfo.Indexes["PK_Book"].KeyColumns[0].Key.Name, Is.EqualTo("Isbn"));
+      Assert.That(typeInfo.Indexes["PK_Book"].KeyColumns[0].Value, Is.EqualTo(Direction.Positive));
 
-      Assert.IsNotNull(typeInfo.Indexes["Book.FK_Author"]);
-      Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsPrimary);
-      Assert.IsFalse(typeInfo.Indexes["Book.FK_Author"].IsUnique);
-      Assert.AreEqual(domain.Model.Types[typeof(Author)].Hierarchy.Key.TupleDescriptor.Count, typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count);
-      Assert.AreEqual("BookAuthor", typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name);
-      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Value);
+      Assert.That(typeInfo.Indexes["Book.FK_Author"], Is.Not.Null);
+      Assert.That(typeInfo.Indexes["Book.FK_Author"].IsPrimary, Is.False);
+      Assert.That(typeInfo.Indexes["Book.FK_Author"].IsUnique, Is.False);
+      Assert.That(typeInfo.Indexes["Book.FK_Author"].KeyColumns.Count, Is.EqualTo(domain.Model.Types[typeof(Author)].Hierarchy.Key.TupleDescriptor.Count));
+      Assert.That(typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Key.Name, Is.EqualTo("BookAuthor"));
+      Assert.That(typeInfo.Indexes["Book.FK_Author"].KeyColumns[0].Value, Is.EqualTo(Direction.Positive));
 
-      Assert.IsNotNull(typeInfo.Indexes["Book.IX_Title"]);
-      Assert.IsFalse(typeInfo.Indexes["Book.IX_Title"].IsPrimary);
-      Assert.IsFalse(typeInfo.Indexes["Book.IX_Title"].IsUnique);
-      Assert.AreEqual(1, typeInfo.Indexes["Book.IX_Title"].KeyColumns.Count);
-      Assert.AreEqual("Title", typeInfo.Indexes["Book.IX_Title"].KeyColumns[0].Key.Name);
-      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["Book.IX_Title"].KeyColumns[0].Value);
+      Assert.That(typeInfo.Indexes["Book.IX_Title"], Is.Not.Null);
+      Assert.That(typeInfo.Indexes["Book.IX_Title"].IsPrimary, Is.False);
+      Assert.That(typeInfo.Indexes["Book.IX_Title"].IsUnique, Is.False);
+      Assert.That(typeInfo.Indexes["Book.IX_Title"].KeyColumns.Count, Is.EqualTo(1));
+      Assert.That(typeInfo.Indexes["Book.IX_Title"].KeyColumns[0].Key.Name, Is.EqualTo("Title"));
+      Assert.That(typeInfo.Indexes["Book.IX_Title"].KeyColumns[0].Value, Is.EqualTo(Direction.Positive));
 
       #endregion
 
       #region BookReview
 
       typeInfo = domain.Model.Types[typeof (BookReview)];
-      Assert.IsNotNull(typeInfo);
-      Assert.IsNotNull(domain.Model.Types["BookReview"]);
-      Assert.AreEqual(typeInfo, domain.Model.Types["BookReview"]);
-      Assert.AreEqual("BookReview", typeInfo.Name);
+      Assert.That(typeInfo, Is.Not.Null);
+      Assert.That(domain.Model.Types["BookReview"], Is.Not.Null);
+      Assert.That(domain.Model.Types["BookReview"], Is.EqualTo(typeInfo));
+      Assert.That(typeInfo.Name, Is.EqualTo("BookReview"));
 
       // Fields
-      Assert.IsNotNull(typeInfo.Fields["Book"]);
-      Assert.AreEqual("Book", typeInfo.Fields["Book"].Name);
-      Assert.AreEqual(OnRemoveAction.Cascade, typeInfo.Fields["Book"].Associations.Last().OnTargetRemove);
+      Assert.That(typeInfo.Fields["Book"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Book"].Name, Is.EqualTo("Book"));
+      Assert.That(typeInfo.Fields["Book"].Associations.Last().OnTargetRemove, Is.EqualTo(OnRemoveAction.Cascade));
 
-      Assert.IsNotNull(typeInfo.Fields["Reviewer"]);
-      Assert.AreEqual("Reviewer", typeInfo.Fields["Reviewer"].Name);
-      Assert.AreEqual(OnRemoveAction.Clear, typeInfo.Fields["Reviewer"].Associations.Last().OnTargetRemove);
+      Assert.That(typeInfo.Fields["Reviewer"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Reviewer"].Name, Is.EqualTo("Reviewer"));
+      Assert.That(typeInfo.Fields["Reviewer"].Associations.Last().OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
 
-      Assert.IsNotNull(typeInfo.Fields["Text"]);
-      Assert.AreEqual("Text", typeInfo.Fields["Text"].Name);
-      Assert.AreEqual(4096, typeInfo.Fields["Text"].Length);
+      Assert.That(typeInfo.Fields["Text"], Is.Not.Null);
+      Assert.That(typeInfo.Fields["Text"].Name, Is.EqualTo("Text"));
+      Assert.That(typeInfo.Fields["Text"].Length, Is.EqualTo(4096));
 
       // Indexes
-      Assert.AreEqual(6, typeInfo.Indexes.Count);
-      Assert.IsNotNull(typeInfo.Indexes["PK_BookReview"]);
-      Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsPrimary);
-      Assert.IsTrue(typeInfo.Indexes["PK_BookReview"].IsUnique);
-      Assert.AreEqual(typeInfo.Hierarchy.Key.TupleDescriptor.Count, typeInfo.Indexes["PK_BookReview"].KeyColumns.Count);
-      Assert.AreEqual("Book", typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name);
-      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Value);
+      Assert.That(typeInfo.Indexes.Count, Is.EqualTo(6));
+      Assert.That(typeInfo.Indexes["PK_BookReview"], Is.Not.Null);
+      Assert.That(typeInfo.Indexes["PK_BookReview"].IsPrimary, Is.True);
+      Assert.That(typeInfo.Indexes["PK_BookReview"].IsUnique, Is.True);
+      Assert.That(typeInfo.Indexes["PK_BookReview"].KeyColumns.Count, Is.EqualTo(typeInfo.Hierarchy.Key.TupleDescriptor.Count));
+      Assert.That(typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Key.Name, Is.EqualTo("Book"));
+      Assert.That(typeInfo.Indexes["PK_BookReview"].KeyColumns[0].Value, Is.EqualTo(Direction.Positive));
 //      Assert.AreEqual("Reviewer.PassportNumber", typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Key.Name);
 //      Assert.AreEqual(Direction.Positive, typeInfo.Indexes["PK_BookReview"].KeyColumns[1].Value);
 
@@ -692,10 +686,10 @@ namespace Xtensive.Orm.Tests.Model
 
           var k = Key.Create<Book>(Domain, "0976470705").Format();
           var key = Key.Parse(Domain, k);
-          Assert.AreEqual(key, Key.Create<Book>(Domain, "0976470705"));
+          Assert.That(Key.Create<Book>(Domain, "0976470705"), Is.EqualTo(key));
 
-          Assert.IsNull(session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")));
-          Assert.AreEqual(null, session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")));
+          Assert.That(session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")), Is.Null);
+          Assert.That(session.Query.SingleOrDefault(Key.Create<Book>(Domain, "0976470705")), Is.EqualTo(null));
         }
       }
     }
@@ -720,8 +714,8 @@ namespace Xtensive.Orm.Tests.Model
           reviewer.Passport.Card.LastName = "Kochetov";
           reviewer.Passport.Card.FirstName = "Alexius";
           BookReview review = new BookReview(book, reviewer);
-          Assert.AreEqual((object) book, review.Book);
-          Assert.AreEqual((object) reviewer, review.Reviewer);
+          Assert.That(review.Book, Is.EqualTo((object) book));
+          Assert.That(review.Reviewer, Is.EqualTo((object) reviewer));
         }
       }
     }

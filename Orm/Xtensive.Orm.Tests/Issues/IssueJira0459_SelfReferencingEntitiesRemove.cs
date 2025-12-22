@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
           where a.Key == selfReferencedInstanceKey
           select a).FirstOrDefault();
         transaction.Complete();
-        Assert.AreEqual(deletedEntity, null);
+        Assert.That(deletedEntity, Is.Null);
       }
     }
   }

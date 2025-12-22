@@ -36,27 +36,27 @@ namespace Xtensive.Orm.Tests.Storage
           return isSessionActive ? session : null;
         };
 
-        Assert.IsNull(Session.Current);
+        Assert.That(Session.Current, Is.Null);
 
-        Assert.AreEqual(1, resolveCount);
-        Assert.IsFalse(session.IsActive);
-        Assert.AreEqual(2, resolveCount);
+        Assert.That(resolveCount, Is.EqualTo(1));
+        Assert.That(session.IsActive, Is.False);
+        Assert.That(resolveCount, Is.EqualTo(2));
 
         isSessionActive = true;
 
-        Assert.AreEqual(session, Session.Current);
-        Assert.AreEqual(3, resolveCount);
-        Assert.IsTrue(session.IsActive);
-        Assert.AreEqual(4, resolveCount);
+        Assert.That(Session.Current, Is.EqualTo(session));
+        Assert.That(resolveCount, Is.EqualTo(3));
+        Assert.That(session.IsActive, Is.True);
+        Assert.That(resolveCount, Is.EqualTo(4));
 
         isSessionActive = false;
 
         using (session.Activate()) {
-          Assert.AreEqual(session, Session.Current);
-          Assert.IsTrue(session.IsActive);
+          Assert.That(Session.Current, Is.EqualTo(session));
+          Assert.That(session.IsActive, Is.True);
         }
 
-        Assert.AreEqual(4, resolveCount);
+        Assert.That(resolveCount, Is.EqualTo(4));
       }
     }
   }

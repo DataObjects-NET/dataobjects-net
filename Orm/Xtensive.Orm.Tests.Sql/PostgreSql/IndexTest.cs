@@ -46,11 +46,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       var s2 = c2.DefaultSchema;
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[ExpressionIndexName];
-      Assert.IsNotNull(i2);
-      Assert.AreEqual(4, i2.Columns.Count);
+      Assert.That(i2, Is.Not.Null);
+      Assert.That(i2.Columns.Count, Is.EqualTo(4));
 
-      Assert.IsTrue(i2.Columns[2].Expression is not null);
-      Assert.IsTrue(i2.Columns[3].Expression is not null);
+      Assert.That(i2.Columns[2].Expression is not null, Is.True);
+      Assert.That(i2.Columns[3].Expression is not null, Is.True);
     }
 
   }

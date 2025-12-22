@@ -18,15 +18,13 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
   [TestFixture]
   public class Issue0754_CopyFieldHint_MoveFieldHint
   {
-    private Domain domain;
-
     [SetUp]
     public void SetUp()
     {
-      BuildDomain(typeof (ModelVersion1.A), DomainUpgradeMode.Recreate);
+      using (var domain = BuildDomain(typeof(ModelVersion1.A), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var acticle = new ModelVersion1.B(){Reference = new ModelVersion1.X()};
+          var acticle = new ModelVersion1.B() { Reference = new ModelVersion1.X() };
           tx.Complete();
         }
       }
@@ -36,27 +34,24 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
     public void UpgradeTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
-      BuildDomain(typeof (ModelVersion2.A), DomainUpgradeMode.PerformSafely);
+      using (var domain = BuildDomain(typeof(ModelVersion2.A), DomainUpgradeMode.PerformSafely))
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var result = session.Query.All<ModelVersion2.B>().ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.IsNotNull(result[0].Reference);
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result[0].Reference, Is.Not.Null);
         }
       }
     }
 
-    private void BuildDomain(Type type, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(Type type, DomainUpgradeMode upgradeMode)
     {
-      if (domain!=null)
-        domain.DisposeSafely();
-
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), type.Namespace);
       configuration.Types.Register(typeof (Upgrader));
 
-      domain = Domain.Build(configuration);
+      return Domain.Build(configuration);
     }
   }
 }

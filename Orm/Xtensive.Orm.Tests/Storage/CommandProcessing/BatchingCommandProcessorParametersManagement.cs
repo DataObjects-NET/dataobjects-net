@@ -1087,7 +1087,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       var sessionOf25ItemsBatch = new SessionConfiguration(WellKnown.Sessions.Default, SessionOptions.Default | SessionOptions.AutoActivation) { BatchSize = 25 };
       using (var session = Domain.OpenSession(sessionOf25ItemsBatch))
       using (var tx = session.OpenTransaction()) {
-        Assert.AreEqual(0, session.Query.All<OneHundredFieldsEntity>().Count());
+        Assert.That(session.Query.All<OneHundredFieldsEntity>().Count(), Is.EqualTo(0));
 
         for (var i = 0; i < session.Configuration.BatchSize; i++) {
           var item = new OneHundredFieldsEntity();
@@ -1098,7 +1098,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         }
 
         var count = session.Query.All<OneHundredFieldsEntity>().ToArray().Length;
-        Assert.AreEqual(session.Configuration.BatchSize, count);
+        Assert.That(count, Is.EqualTo(session.Configuration.BatchSize));
       }
     }
 

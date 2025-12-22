@@ -41,7 +41,7 @@ namespace Xtensive.Tuples
           tuple1.SetValue(j, (object) data[j]);
         // Testing reads (untyped)
         for (var j = 0; j < count; j++)
-          Assert.AreEqual(data[j], tuple1.GetValue(j));
+          Assert.That(tuple1.GetValue(j), Is.EqualTo(data[j]));
 
         // Testing writes (untyped)
         var tuple2 = Tuple.Create(fields);
@@ -49,7 +49,7 @@ namespace Xtensive.Tuples
         for (var j = 0; j < count; j++)
           tuple2.SetValue(j, data[j]);
         for (var j = 0; j < count; j++)
-          Assert.AreEqual(data[j], tuple2.GetValue<DateTimeOffset>(j));
+          Assert.That(tuple2.GetValue<DateTimeOffset>(j), Is.EqualTo(data[j]));
       }
     }
   }

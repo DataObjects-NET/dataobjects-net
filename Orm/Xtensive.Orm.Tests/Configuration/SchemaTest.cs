@@ -58,34 +58,34 @@ namespace Xtensive.Orm.Tests.Configuration
       }
       catch (XmlException exception) {
         hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
-        Console.WriteLine("LineNumber = {0}", exception.LineNumber);
-        Console.WriteLine("LinePosition = {0}", exception.LinePosition);
+        Console.WriteLine($"{exception.GetType()}: {exception.Message}");
+        Console.WriteLine($"LineNumber = {exception.LineNumber}");
+        Console.WriteLine($"LinePosition = {exception.LinePosition}");
       }
       catch (XmlSchemaException exception) {
         hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
-        Console.WriteLine("LineNumber = {0}", exception.LineNumber);
-        Console.WriteLine("LinePosition = {0}", exception.LinePosition);
+        Console.WriteLine($"{exception.GetType()}: {exception.Message}");
+        Console.WriteLine($"LineNumber = {exception.LineNumber}");
+        Console.WriteLine($"LinePosition = {exception.LinePosition}");
       }
       catch (ArgumentNullException exception) {
         hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
+        Console.WriteLine($"{exception.GetType()}: {exception.Message}");
       }
       catch (InvalidOperationException exception) {
         hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
+        Console.WriteLine($"{exception.GetType()}: {exception.Message}");
       }
       catch (Exception exception) {
         hasErrors = true;
-        Console.WriteLine("{0}: {1}", exception.GetType(), exception.Message);
+        Console.WriteLine($"{exception.GetType()}: {exception.Message}");
       }
       finally {
         File.Delete(ConfigFileName);
         File.Delete(XsdInLowerCaseFileName);
       }
 
-      Assert.IsFalse(hasErrors);
+      Assert.That(hasErrors, Is.False);
     }
 
     public void ValidationHandler(object sender, ValidationEventArgs validationEventArgs)

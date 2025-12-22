@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => c.Flag==null);
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => c.Flag!=null);
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => c.Flag.HasValue);
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => !c.Flag.HasValue);
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => !c.Flag.GetValueOrDefault());
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => c.Flag.GetValueOrDefault(true));
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => c.Flag ?? true);
-          Assert.AreEqual(2, result);
+          Assert.That(result, Is.EqualTo(2));
           // Rollback
         }
       }
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<FlagContainer>().Count(c => !(c.Flag ?? true));
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }

@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
             .Where(container => container.Items.Any())
             .ToList();
 
-          Assert.AreEqual(1, l.Count);
+          Assert.That(l.Count, Is.EqualTo(1));
         }
       }
     }

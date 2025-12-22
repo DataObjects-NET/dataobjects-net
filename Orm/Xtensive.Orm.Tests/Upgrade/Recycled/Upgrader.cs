@@ -87,8 +87,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled
       }
       foreach (var order in orders)
         log.Add(order.ToString());
-      TestLog.Info("Orders: {0}", Environment.NewLine + 
-        string.Join(Environment.NewLine, log.ToArray()));
+      TestLog.Info($"Orders: {Environment.NewLine + string.Join(Environment.NewLine, log.ToArray())}");
     }
 
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)

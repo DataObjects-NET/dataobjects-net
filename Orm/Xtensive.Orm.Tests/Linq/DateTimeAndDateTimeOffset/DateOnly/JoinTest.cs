@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
         .OrderBy(orderByExpression)
         .ThenBy(thenByExpression);
 
-      Assert.IsTrue(joinLocal.SequenceEqual(joinServer));
+      Assert.That(joinLocal.SequenceEqual(joinServer), Is.True);
 
       joinServer = session.Query.All<T1>()
         .Join(session.Query.All<T2>(), leftJoinExpression, rightJoinExpression, joinResultExpression)
         .OrderByDescending(orderByExpression)
         .ThenBy(thenByExpression);
-      Assert.IsFalse(joinLocal.SequenceEqual(joinServer));
+      Assert.That(joinLocal.SequenceEqual(joinServer), Is.False);
     }
   }
 }

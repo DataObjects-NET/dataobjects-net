@@ -19,21 +19,21 @@ namespace Xtensive.Orm.Tests.Sql
       var s1 = c1.CreateSchema("schema1");
       var s2 = c2.CreateSchema("schema2");
 
-      Assert.AreEqual(s1, c1.DefaultSchema);
-      Assert.AreEqual(s2, c2.DefaultSchema);
+      Assert.That(c1.DefaultSchema, Is.EqualTo(s1));
+      Assert.That(c2.DefaultSchema, Is.EqualTo(s2));
 
       s2.Catalog = c1;
-      Assert.AreEqual(c1.Schemas.Count, 2);
-      Assert.AreEqual(s1.Catalog, s2.Catalog);
+      Assert.That(c1.Schemas.Count, Is.EqualTo(2));
+      Assert.That(s2.Catalog, Is.EqualTo(s1.Catalog));
 
       s2.Catalog = c2;
-      Assert.AreNotEqual(s1.Catalog, s2.Catalog);
-      Assert.AreEqual(c1.Schemas.Count, 1);
-      Assert.AreEqual(c2.Schemas.Count, 1);
+      Assert.That(s2.Catalog, Is.Not.EqualTo(s1.Catalog));
+      Assert.That(c1.Schemas.Count, Is.EqualTo(1));
+      Assert.That(c2.Schemas.Count, Is.EqualTo(1));
 
       s2.Catalog = null;
-      Assert.IsNull(s2.Catalog);
-      Assert.AreEqual(c2.Schemas.Count, 0);
+      Assert.That(s2.Catalog, Is.Null);
+      Assert.That(c2.Schemas.Count, Is.EqualTo(0));
     }
   }
 }

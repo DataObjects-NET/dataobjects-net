@@ -59,50 +59,50 @@ namespace Xtensive.Orm.Tests.Linq
     public void FirstTest()
     {
       var customer = Session.Query.All<Customer>().First();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
     public void FirstPredicateTest()
     {
       var customer = Session.Query.All<Customer>().First(c => c.FirstName == "Frank");
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
     public void WhereFirstTest()
     {
       var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").First();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
     public void FirstOrDefaultTest()
     {
       var customer = Session.Query.All<Customer>().FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
     }
 
     [Test]
     public void FirstOrDefaultPredicateTest()
     {
       var customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "Frank");
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "Aaron");
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "ThereIsNoSuchFirstName");
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
     public void WhereFirstOrDefaultTest()
     {
       var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").FirstOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       customer = Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").FirstOrDefault();
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SinglePredicateTest()
     {
       var customer = Session.Query.All<Customer>().Single(c => c.FirstName == "Aaron");
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").Single());
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").Single());
     }
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void WhereSingleTest()
     {
       var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").Single());
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").Single());
     }
@@ -139,20 +139,20 @@ namespace Xtensive.Orm.Tests.Linq
     public void SingleOrDefaultPredicateTest()
     {
       var customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "Aaron");
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "Frank"));
       customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "ThereIsNoSuchFirstName");
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
     public void WhereSingleOrDefaultTest()
     {
       var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").SingleOrDefault();
-      Assert.IsNotNull(customer);
+      Assert.That(customer, Is.Not.Null);
       _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").SingleOrDefault());
       customer = Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").SingleOrDefault();
-      Assert.IsNull(customer);
+      Assert.That(customer, Is.Null);
     }
 
     [Test]
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Linq
             .Invoice
         };
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
       QueryDumper.Dump(list, true);
     }
 
@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
       var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.First());
       var list = result.ToList();
-      Assert.AreEqual(customersCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(customersCount));
       QueryDumper.Dump(list, true);
     }
 
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customersCount = Session.Query.All<Customer>().Count();
       var result = Session.Query.All<Customer>().Select(c => c.Invoices.FirstOrDefault());
       var list = result.ToList();
-      Assert.AreEqual(customersCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(customersCount));
     }
 
     [Test]
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
       var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Take(1).Single());
       var list = result.ToList();
-      Assert.AreEqual(customersCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(customersCount));
     }
 
     [Test]
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
       var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
       var list = result.ToList();
-      Assert.AreEqual(customersCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(customersCount));
     }
 
     [Test]
@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customersCount = Session.Query.All<Customer>().Count();
       var result = Session.Query.All<Customer>().Select(c => c.Invoices.Take(1).SingleOrDefault());
       var list = result.ToList();
-      Assert.AreEqual(customersCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(customersCount));
     }
 
     [Test]
@@ -271,7 +271,7 @@ namespace Xtensive.Orm.Tests.Linq
           p.Tracks.Take(1).SingleOrDefault().Album
         });
       var list = result.ToList();
-      Assert.AreEqual(playlistCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(playlistCount));
     }
 
     [Test]
@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Tests.Linq
           t.Album
         });
       var list = result.ToList();
-      Assert.AreEqual(playlistCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(playlistCount));
     }
 
     [Test]
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Linq
           p.Tracks.First().Album
         });
       var list = result.ToList();
-      Assert.AreEqual(playlistCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(playlistCount));
     }
 
     [Test]
@@ -314,7 +314,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(p => p.Tracks.First())
         .Select(t => new { Track = t, t.Name, t.Album });
       var list = result.ToList();
-      Assert.AreEqual(playlistCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(playlistCount));
     }
   }
 }

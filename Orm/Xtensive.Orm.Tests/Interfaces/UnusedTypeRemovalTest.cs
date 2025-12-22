@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Interfaces
     [Test]
     public void MainTest()
     {
-      Assert.IsNull(Domain);
+      Assert.That(Domain, Is.Null);
     }
 
     protected override DomainConfiguration BuildConfiguration()

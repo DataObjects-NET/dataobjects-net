@@ -31,15 +31,15 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       foreach (CultureInfo cultureInfo in CultureInfo.GetCultures(CultureTypes.AllCultures)) {
         TestLog.Info(cultureInfo.EnglishName);
         int result = cultureInfo.CompareInfo.Compare(x, y, CompareOptions.None);
-        Assert.Greater(result, 0);
+        Assert.That(result, Is.GreaterThan(0));
         result = cultureInfo.CompareInfo.Compare(x, y, CompareOptions.IgnoreKanaType);
-        Assert.Greater(result, 0);
+        Assert.That(result, Is.GreaterThan(0));
         result = cultureInfo.CompareInfo.Compare(x, y, CompareOptions.Ordinal);
-        Assert.Greater(result, 0);
+        Assert.That(result, Is.GreaterThan(0));
         result = cultureInfo.CompareInfo.Compare(x, y, CompareOptions.OrdinalIgnoreCase);
-        Assert.Greater(result, 0);
+        Assert.That(result, Is.GreaterThan(0));
         result = cultureInfo.CompareInfo.Compare(x, y, CompareOptions.StringSort);
-        Assert.Greater(result, 0);
+        Assert.That(result, Is.GreaterThan(0));
       }
 
       Func<string, string, int> compare0 = CultureInfo.GetCultureInfo(0x7c04).CompareInfo.Compare;
@@ -58,14 +58,14 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       int actual6 = compare4(x, y, CompareOptions.Ordinal);
       int actual7 = compare5(x, y);
 
-      Assert.Greater(actual0, 0);
-      Assert.Greater(actual1, 0);
-      Assert.Greater(actual2, 0);
-      Assert.Greater(actual3, 0);
-      Assert.Greater(actual4, 0);
-      Assert.Greater(actual5, 0);
-      Assert.Greater(actual6, 0);
-      Assert.Greater(actual7, 0);
+      Assert.That(actual0, Is.GreaterThan(0));
+      Assert.That(actual1, Is.GreaterThan(0));
+      Assert.That(actual2, Is.GreaterThan(0));
+      Assert.That(actual3, Is.GreaterThan(0));
+      Assert.That(actual4, Is.GreaterThan(0));
+      Assert.That(actual5, Is.GreaterThan(0));
+      Assert.That(actual6, Is.GreaterThan(0));
+      Assert.That(actual7, Is.GreaterThan(0));
     }
 
     [Test]

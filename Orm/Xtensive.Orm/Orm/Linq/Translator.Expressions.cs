@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Linq
               || u.Type.IsAssignableFrom(u.Operand.Type)
               || !WellKnownOrmInterfaces.Entity.IsAssignableFrom(u.Operand.Type))
               return base.VisitUnary(u);
-            throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
+            throw new InvalidOperationException(string.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
           }
           else if (u.Type == WellKnownTypes.Object && State.ShouldOmitConvertToObject) {
             var expression = u.StripCasts();
@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Linq
           return newArrayExpression.Expressions[(int) indexExpression.Value];
         }
 
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
+        throw new NotSupportedException(string.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
       }
 
       return resultBinaryExpression;
@@ -554,15 +554,15 @@ namespace Xtensive.Orm.Linq
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex == null)
-        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       var searchCriteria = expressions[0];
       if (compiledQueryScope != null
           && searchCriteria.NodeType == ExpressionType.Constant
           && searchCriteria.Type == WellKnownTypes.String)
-        throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
+        throw new InvalidOperationException(string.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
       // Prepare parameter
       Func<ParameterContext, string> compiledParameter;
@@ -612,10 +612,10 @@ namespace Xtensive.Orm.Linq
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex == null)
-        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       if (!context.ProviderInfo.Supports(ProviderFeatures.SingleKeyRankTableFullText))
         throw new NotSupportedException(Strings.ExCurrentProviderDoesNotSupportContainsTableFunctionality);
 
@@ -824,7 +824,7 @@ namespace Xtensive.Orm.Linq
           var leftKeyExpression = left as KeyExpression;
           var rightKeyExpression = right as KeyExpression;
           if (leftKeyExpression == null && rightKeyExpression == null)
-            throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
+            throw new InvalidOperationException(string.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
           // Check key compatibility
           leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
           // Key split to it's fields.
@@ -840,7 +840,7 @@ namespace Xtensive.Orm.Linq
           if (leftEntityExpression == null && rightEntityExpression == null)
             if (!IsConditionalOrWellknown(left) && !IsConditionalOrWellknown(right))
               throw new NotSupportedException(
-                String.Format(
+                string.Format(
                   Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression,
                   binaryExpression));
           var type = left.Type == WellKnownTypes.Object
@@ -875,7 +875,7 @@ namespace Xtensive.Orm.Linq
           var leftStructureExpression = left as StructureFieldExpression;
           var rightStructureExpression = right as StructureFieldExpression;
           if (leftStructureExpression == null && rightStructureExpression == null)
-            throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
+            throw new NotSupportedException(string.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
           StructureFieldExpression structureFieldExpression = (leftStructureExpression ?? rightStructureExpression);
           leftExpressions = GetStructureFields(left, structureFieldExpression.Fields, structureFieldExpression.Type);
@@ -939,7 +939,7 @@ namespace Xtensive.Orm.Linq
             pairExpression = Expression.NotEqual(leftItem, rightItem);
             break;
           default:
-            throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
+            throw new NotSupportedException(string.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
               binaryExpression.NodeType));
         }
 
@@ -1279,7 +1279,7 @@ namespace Xtensive.Orm.Linq
         }
         return null;
       });
-      entityFinder.Replace(expression);
+      _ = entityFinder.Replace(expression);
       return found;
     }
 
@@ -1308,10 +1308,10 @@ namespace Xtensive.Orm.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (State.Parameters.Length == 0)
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
+        throw Exceptions.InternalError(string.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
       if (!resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT))
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
+        throw Exceptions.InternalError(string.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[State.Parameters[0]]);
       if (subQuery.Type != resultType)

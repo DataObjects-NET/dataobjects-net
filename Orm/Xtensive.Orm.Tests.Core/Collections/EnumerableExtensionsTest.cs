@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       expected.Add(root.Children[2]);
       expected.Add(root.Children[3]);
       expected.Add(root.Children[4]);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       expected.Add(root.Children[3]);
       expected.Add(root.Children[4]);
       expected.Add(root);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       expected.Add(hierarchy.Children[3]);
       expected.Add(hierarchy.Children[4]);
       var cachedResult = result.ToList();
-      Assert.IsTrue(cachedResult.SequenceEqual(exitActionResult));
+      Assert.That(cachedResult.SequenceEqual(exitActionResult), Is.True);
     }
 
     private static Node CreateHierarchy()
@@ -123,15 +123,15 @@ namespace Xtensive.Orm.Tests.Core.Collections
       const int maximalBatchSize = 32;
       const int fastFirstCount = 10;
       var result = source.Batch(fastFirstCount, initialBatchSize, maximalBatchSize);
-      Assert.AreEqual(fastFirstCount, result.TakeWhile(e => !(e is List<int>)).Count());
+      Assert.That(result.TakeWhile(e => !(e is List<int>)).Count(), Is.EqualTo(fastFirstCount));
       var batchSize = initialBatchSize;
-      Assert.IsTrue(result.Skip(fastFirstCount).All(e => {
+      Assert.That(result.Skip(fastFirstCount).All(e => {
         var r = ((List<int>) e).Count==batchSize;
         if(batchSize < maximalBatchSize)
           batchSize *= 2;
         return r;
-      }));
-      Assert.AreEqual(batchSize, 32);
+      }), Is.True);
+      Assert.That(32, Is.EqualTo(batchSize));
     }
 
     [Test]
@@ -142,27 +142,27 @@ namespace Xtensive.Orm.Tests.Core.Collections
       var source = InstanceGenerationUtils<int>.GetInstances(new Random(), 0.1).Take(totalCount);
       var batches = source.Batch(0, batchSize, batchSize);
       var count = 0;
-      Assert.AreEqual(totalCount / batchSize, batches.ApplyBeforeAndAfter(() => count++, null).Count());
-      Assert.AreEqual(totalCount / batchSize + 1, count);
+      Assert.That(batches.ApplyBeforeAndAfter(() => count++, null).Count(), Is.EqualTo(totalCount / batchSize));
+      Assert.That(count, Is.EqualTo(totalCount / batchSize + 1));
       count = 0;
-      Assert.AreEqual(totalCount / batchSize, batches.ApplyBeforeAndAfter(null, () => count++).Count());
-      Assert.AreEqual(totalCount / batchSize + 1, count);
+      Assert.That(batches.ApplyBeforeAndAfter(null, () => count++).Count(), Is.EqualTo(totalCount / batchSize));
+      Assert.That(count, Is.EqualTo(totalCount / batchSize + 1));
     }
 
     [Test]
     public void AtLeastAtMostTest()
     {
-      Assert.AreEqual(true, new[] {1, 2, 3, 4}.AtLeast(3));
-      Assert.AreEqual(true, new[] {1, 2, 3}.AtLeast(3));
-      Assert.AreEqual(false, new[] {1}.AtLeast(2));
-      Assert.AreEqual(true, new[] {1, 2}.AtLeast(0));
-      Assert.AreEqual(true, new int[0].AtLeast(-1));
+      Assert.That(new[] {1, 2, 3, 4}.AtLeast(3), Is.EqualTo(true));
+      Assert.That(new[] {1, 2, 3}.AtLeast(3), Is.EqualTo(true));
+      Assert.That(new[] {1}.AtLeast(2), Is.EqualTo(false));
+      Assert.That(new[] {1, 2}.AtLeast(0), Is.EqualTo(true));
+      Assert.That(new int[0].AtLeast(-1), Is.EqualTo(true));
 
-      Assert.AreEqual(false, new[] {1, 2, 3, 4}.AtMost(3));
-      Assert.AreEqual(true, new[] {1, 2, 3}.AtMost(3));
-      Assert.AreEqual(true, new[] {1}.AtMost(2));
-      Assert.AreEqual(false, new[] {1, 2}.AtMost(0));
-      Assert.AreEqual(false, new int[0].AtMost(-1));
+      Assert.That(new[] {1, 2, 3, 4}.AtMost(3), Is.EqualTo(false));
+      Assert.That(new[] {1, 2, 3}.AtMost(3), Is.EqualTo(true));
+      Assert.That(new[] {1}.AtMost(2), Is.EqualTo(true));
+      Assert.That(new[] {1, 2}.AtMost(0), Is.EqualTo(false));
+      Assert.That(new int[0].AtMost(-1), Is.EqualTo(false));
     }
 
     [Test]

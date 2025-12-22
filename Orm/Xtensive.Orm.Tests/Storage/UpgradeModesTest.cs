@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       int personTypeId = types[typeof (Person)];
 
       types = BuildBookPersonDomain(DomainUpgradeMode.Validate);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
 
       AssertEx.Throws<SchemaSynchronizationException>(() => {
         BuildPersonDomain(DomainUpgradeMode.Validate);
@@ -95,8 +95,8 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       });
 
       types = BuildBookPersonDomain(DomainUpgradeMode.Validate);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
     }
 
     [Test]
@@ -108,18 +108,18 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       int personTypeId = types[typeof (Person)];
 
       types = BuildBookPersonDomain(DomainUpgradeMode.Skip);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
 
       types = BuildPersonDomain(DomainUpgradeMode.Skip);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
 
       types = BuildBookDomain(DomainUpgradeMode.Skip);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
 
       types = BuildBookPersonDomain(DomainUpgradeMode.Skip);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
 
       //Exceptions no longer throws because in Skip mode DO no longer get Sql schema
       //AssertEx.Throws<Exception>(() => {
@@ -135,30 +135,30 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       int personTypeId = types[typeof (Person)];
 
       types = BuildFullDomain(DomainUpgradeMode.Perform);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
       AssertEx.HasSameElements(new [] {100,101,102}, types.Values.OrderBy(id => id));
 
       types = BuildPersonDomain(DomainUpgradeMode.Perform);
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
       AssertEx.HasSameElements(new [] {personTypeId}, types.Values.OrderBy(id => id));
       int maxTypeId = types.Values.Max();
 
       types = BuildFullDomain(DomainUpgradeMode.Perform);
       int bookTypeId = types[typeof (Book)];
-      Assert.AreEqual(personTypeId, types[typeof (Person)]);
-      Assert.Less(maxTypeId, types[typeof (Book)]);
-      Assert.Less(maxTypeId, types[typeof (Author)]);
+      Assert.That(types[typeof (Person)], Is.EqualTo(personTypeId));
+      Assert.That(maxTypeId, Is.LessThan(types[typeof (Book)]));
+      Assert.That(maxTypeId, Is.LessThan(types[typeof (Author)]));
 
       types = BuildBookDomain(DomainUpgradeMode.Perform);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
       AssertEx.HasSameElements(new [] {bookTypeId}, types.Values.OrderBy(id => id));
       maxTypeId = types.Values.Max();
 
       types = BuildFullDomain(DomainUpgradeMode.Perform);
-      Assert.AreEqual(bookTypeId, types[typeof (Book)]);
-      Assert.AreNotEqual(personTypeId, types[typeof (Person)]);
-      Assert.Less(maxTypeId, types[typeof (Person)]);
-      Assert.Less(maxTypeId, types[typeof (Author)]);
+      Assert.That(types[typeof (Book)], Is.EqualTo(bookTypeId));
+      Assert.That(types[typeof (Person)], Is.Not.EqualTo(personTypeId));
+      Assert.That(maxTypeId, Is.LessThan(types[typeof (Person)]));
+      Assert.That(maxTypeId, Is.LessThan(types[typeof (Author)]));
     }
 
     [Test]
@@ -223,16 +223,16 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       var cfg = BuildConfiguration();
       cfg.UpgradeMode = upgradeMode;
       Console.WriteLine();
-      Console.WriteLine("Building {0} Domain in {1} mode.", type, upgradeMode);
+      Console.WriteLine($"Building {type} Domain in {upgradeMode} mode.");
       try {
         Dictionary<Type, int> result = new Dictionary<Type, int>();
         using (m = new Measurement("metrics"))
           result = CheckTypeCount(typeCount, Domain.Build(cfg));
-        Console.WriteLine("  Done, {0}", m);
+        Console.WriteLine($"  Done, {m}");
         return result;
       }
       catch (Exception e) {
-        Console.WriteLine("  Failed with {0}.", e.GetType().GetShortName());
+        Console.WriteLine($"  Failed with {e.GetType().GetShortName()}.");
         throw;
       }
     }
@@ -247,8 +247,8 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
         select type
         ).ToList();
       foreach (var type in types)
-        Console.WriteLine("    Id = {0,3}: {1}", type.TypeId, type.Name);
-      Assert.AreEqual(expectedTypeCount, types.Count);
+        Console.WriteLine($"    Id = {type.TypeId,3}: {type.Name}");
+      Assert.That(types.Count, Is.EqualTo(expectedTypeCount));
       return types.ToDictionary(type => type.UnderlyingType, type => type.TypeId);
     }
   }

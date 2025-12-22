@@ -70,24 +70,24 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
 
         ResetLastXxx();
         book2.Title = "Book 2";
-        Assert.AreEqual("Title", lastChangedProperty);
-        Assert.AreSame(book2, lastSenderObject);
+        Assert.That(lastChangedProperty, Is.EqualTo("Title"));
+        Assert.That(lastSenderObject, Is.SameAs(book2));
 
         ResetLastXxx();
         book1.RelatedBooks.Add(book2);
-        Assert.AreEqual(NotifyCollectionChangedAction.Add, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Add));
+        Assert.That(lastSenderCollection, Is.SameAs(book1.RelatedBooks));
 
         { // Test 1
           ResetLastXxx();
           book1.RelatedBooks.Remove(book2);
           // "Reset", coz collection is considered as not fully loaded
 #if DEBUG
-          Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
+          Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Reset));
 #else
-          Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
+          Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Remove));
 #endif
-          Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+          Assert.That(lastSenderCollection, Is.SameAs(book1.RelatedBooks));
         }
 
         // Restoring removed item
@@ -99,21 +99,21 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
           ResetLastXxx();
           book1.RelatedBooks.Remove(book2);
           // Now we must get "Remove" event, since item index can be found
-          Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
-          Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+          Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Remove));
+          Assert.That(lastSenderCollection, Is.SameAs(book1.RelatedBooks));
         }
 
         ResetLastXxx();
         book1.RelatedBooks.Clear();
-        Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Reset));
+        Assert.That(lastSenderCollection, Is.SameAs(book1.RelatedBooks));
 
         ResetLastXxx();
         session.NotifyChanged();
-        Assert.AreEqual(null, lastChangedProperty);
-        Assert.AreSame(book2, lastSenderObject);
-        Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
+        Assert.That(lastChangedProperty, Is.EqualTo(null));
+        Assert.That(lastSenderObject, Is.SameAs(book2));
+        Assert.That(lastChangeAction, Is.EqualTo(NotifyCollectionChangedAction.Reset));
+        Assert.That(lastSenderCollection, Is.SameAs(book1.RelatedBooks));
         // tx.Complete();
       }
     }
@@ -128,14 +128,14 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
 
     private void Book_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      TestLog.Info("PropertyChanged: Sender = {0}, Property = {1}", sender, e.PropertyName);
+      TestLog.Info($"PropertyChanged: Sender = {sender}, Property = {e.PropertyName}");
       lastSenderObject = sender;
       lastChangedProperty = e.PropertyName;
     }
 
     private void RelatedBooks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      TestLog.Info("CollectionChanged: Sender = {0}, Action = {1}", sender, e.Action);
+      TestLog.Info($"CollectionChanged: Sender = {sender}, Action = {e.Action}");
       lastSenderCollection = sender;
       lastChangeAction = e.Action;
     }

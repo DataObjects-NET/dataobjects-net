@@ -61,17 +61,17 @@ namespace Xtensive.Orm.Tests.Issues
         new SomeWithNullable {Name = "A", Tag = "Tag", Ref=reference};
 
         var result = session.Query.All<SomeWithNullable>().Where(s => s.Name == "A").ToList();
-        Assert.AreEqual(4, result.Count);
+        Assert.That(result.Count, Is.EqualTo(4));
         result = session.Query.All<SomeWithNullable>().Where(s => s.Name != "B").ToList();
-        Assert.AreEqual(4, result.Count);
+        Assert.That(result.Count, Is.EqualTo(4));
         result = session.Query.All<SomeWithNullable>().Where(s => s.Tag != "Tag" || s.Tag == null).ToList();
-        Assert.AreEqual(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
         result = session.Query.All<SomeWithNullable>().Where(s => s.Tag != "!Tag" || s.Tag == null).ToList();
-        Assert.AreEqual(4, result.Count);
+        Assert.That(result.Count, Is.EqualTo(4));
         result = session.Query.All<SomeWithNullable>().Where(s => s.Ref == reference).ToList();
-        Assert.AreEqual(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
         result = session.Query.All<SomeWithNullable>().Where(s => s.Ref != reference || s.Ref == null).ToList();
-        Assert.AreEqual(2, result.Count);
+        Assert.That(result.Count, Is.EqualTo(2));
         
         t.Complete();
       }

@@ -118,9 +118,9 @@ namespace Xtensive.Orm.Tests.Issues
           group a by a.B into g
           select new { g.Key.Item.Name, Count = g.Count() };
         var list = query.ToList();
-        Assert.AreEqual(1, list.Count);
-        Assert.AreEqual("Item name", list.Single().Name);
-        Assert.AreEqual(1, list.Single().Count);
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list.Single().Name, Is.EqualTo("Item name"));
+        Assert.That(list.Single().Count, Is.EqualTo(1));
 
         t.Complete();
       }
@@ -140,8 +140,8 @@ namespace Xtensive.Orm.Tests.Issues
         var x = from e in Query.All<My>()
                 select new MyEntityViewModel(e.Status);
         var list = x.ToList();
-        Assert.AreEqual(1, list.Count);
-        Assert.AreEqual("Closed", list.Single().Status);
+        Assert.That(list.Count, Is.EqualTo(1));
+        Assert.That(list.Single().Status, Is.EqualTo("Closed"));
         t.Complete();
       }
       

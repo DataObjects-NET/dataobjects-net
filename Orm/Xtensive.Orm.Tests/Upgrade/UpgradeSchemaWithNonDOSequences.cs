@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         var command = service.CreateCommand();
         command.CommandText = GetSequenceValidatorQuery(seqBaseType, upgradeMode);
         using (command) {
-          Assert.IsTrue((bool)command.ExecuteScalar());
+          Assert.That((bool)command.ExecuteScalar(), Is.True);
         }
       }
     }

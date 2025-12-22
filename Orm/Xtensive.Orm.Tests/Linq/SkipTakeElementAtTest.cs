@@ -25,9 +25,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       _ = Assert.Throws<QueryTranslationException>(() => {
         var result1 = TakeCustomersIncorrect(1).Count();
-        Assert.AreEqual(1, result1);
+        Assert.That(result1, Is.EqualTo(1));
         var result2 = TakeCustomersIncorrect(2).Count();
-        Assert.AreEqual(2, result2);
+        Assert.That(result2, Is.EqualTo(2));
       });
     }
 
@@ -124,16 +124,16 @@ namespace Xtensive.Orm.Tests.Linq
           break;
         }
       }
-      Assert.IsTrue(expected.SequenceEqual(query));
+      Assert.That(expected.SequenceEqual(query), Is.True);
     }
 
     [Test]
     public void ReuseTake2Test()
     {
       var result1 = TakeCustomersCorrect(1).Count();
-      Assert.AreEqual(1, result1);
+      Assert.That(result1, Is.EqualTo(1));
       var result2 = TakeCustomersCorrect(2).Count();
-      Assert.AreEqual(2, result2);
+      Assert.That(result2, Is.EqualTo(2));
     }
 
     [Test]
@@ -142,9 +142,9 @@ namespace Xtensive.Orm.Tests.Linq
       _ = Assert.Throws<QueryTranslationException>(() => {
         var totalCount = Session.Query.All<Customer>().Count();
         var result1 = SkipCustomersIncorrect(1).Count();
-        Assert.AreEqual(totalCount - 1, result1);
+        Assert.That(result1, Is.EqualTo(totalCount - 1));
         var result2 = SkipCustomersIncorrect(2).Count();
-        Assert.AreEqual(totalCount - 2, result2);
+        Assert.That(result2, Is.EqualTo(totalCount - 2));
       });
     }
 
@@ -154,9 +154,9 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var totalCount = Session.Query.All<Customer>().Count();
       var result1 = SkipCustomersCorrect(1).Count();
-      Assert.AreEqual(totalCount - 1, result1);
+      Assert.That(result1, Is.EqualTo(totalCount - 1));
       var result2 = SkipCustomersCorrect(2).Count();
-      Assert.AreEqual(totalCount - 2, result2);
+      Assert.That(result2, Is.EqualTo(totalCount - 2));
     }
 
     [Test]
@@ -164,9 +164,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       _ = Assert.Throws<QueryTranslationException>(() => {
         var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-        Assert.IsTrue(customers.Count > 0);
+        Assert.That(customers.Count > 0, Is.True);
         for (int i = 0; i < customers.Count; i++) {
-          Assert.AreEqual(customers[i], ElementAtIncorrect(i));
+          Assert.That(ElementAtIncorrect(i), Is.EqualTo(customers[i]));
         }
       });
     }
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           var index = i;
@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Tests.Linq
           AssertEx.ThrowsInvalidOperationException(() => ElementAtCorrect(index));
         }
         else {
-          Assert.AreEqual(customers[i], ElementAtCorrect(i));
+          Assert.That(ElementAtCorrect(i), Is.EqualTo(customers[i]));
         }
       }
     }
@@ -198,13 +198,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count) {
-          Assert.IsNull(ElementAtOrDefaultCorrect(i));
+          Assert.That(ElementAtOrDefaultCorrect(i), Is.Null);
         }
         else {
-          Assert.AreEqual(customers[i], ElementAtOrDefaultCorrect(i));
+          Assert.That(ElementAtOrDefaultCorrect(i), Is.EqualTo(customers[i]));
         }
       }
     }
@@ -214,13 +214,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       _ = Assert.Throws<QueryTranslationException>(() => {
         var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-        Assert.IsTrue(customers.Count > 0);
+        Assert.That(customers.Count > 0, Is.True);
         for (var i = -100; i < customers.Count + 100; i++) {
           if (i < 0 || i >= customers.Count) {
-            Assert.IsNull(ElementAtOrDefaultIncorrect(i));
+            Assert.That(ElementAtOrDefaultIncorrect(i), Is.Null);
           }
           else {
-            Assert.AreEqual(customers[i], ElementAtOrDefaultIncorrect(i));
+            Assert.That(ElementAtOrDefaultIncorrect(i), Is.EqualTo(customers[i]));
           }
         }
       });
@@ -231,13 +231,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count) {
-          Assert.IsNull(Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i));
+          Assert.That(Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i), Is.Null);
         }
         else {
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i));
+          Assert.That(Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i), Is.EqualTo(customers[i]));
         }
       }
     }
@@ -247,13 +247,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
       var customers = Session.Query.All<Customer>().ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count) {
-          Assert.IsNull(Session.Query.All<Customer>().ElementAtOrDefault(i));
+          Assert.That(Session.Query.All<Customer>().ElementAtOrDefault(i), Is.Null);
         }
         else {
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().ElementAtOrDefault(i));
+          Assert.That(Session.Query.All<Customer>().ElementAtOrDefault(i), Is.EqualTo(customers[i]));
         }
       }
     }
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           var index = i;
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Tests.Linq
           AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(index));
         }
         else {
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(i));
+          Assert.That(Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(i), Is.EqualTo(customers[i]));
         }
       }
     }
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var customers = Session.Query.All<Customer>().OrderBy(c => c.CustomerId).ToList();
-      Assert.IsTrue(customers.Count > 0);
+      Assert.That(customers.Count > 0, Is.True);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           var index = i;
@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Tests.Linq
           AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().ElementAt(index));
         }
         else {
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().ElementAt(i));
+          Assert.That(Session.Query.All<Customer>().ElementAt(i), Is.EqualTo(customers[i]));
         }
       }
     }

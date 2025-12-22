@@ -15,8 +15,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class GenericTest
   {
-    private Domain domain;
-
     [HierarchyRoot]
     public class PropertyVersion<T> : Entity
     {
@@ -30,13 +28,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void CombinedTest()
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(PropertyVersion<decimal?>));
-      domain = Domain.Build(configuration);
+      using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var v = new PropertyVersion<decimal?>() {PropertyValue = 123};
@@ -44,14 +39,13 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var t = session.OpenTransaction()) {
           var count = session.Query.All<PropertyVersion<decimal?>>().Count();
-          Assert.AreEqual(1, count);
+          Assert.That(count, Is.EqualTo(1));
           var v = session.Query.All<PropertyVersion<decimal?>>().FirstOrDefault();
-          Assert.IsNotNull(v);
-          Assert.AreEqual(123, v.PropertyValue);
+          Assert.That(v, Is.Not.Null);
+          Assert.That(v.PropertyValue, Is.EqualTo(123));
           t.Complete();
         }
       }
-
     }
   }
 }

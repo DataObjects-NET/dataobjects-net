@@ -103,15 +103,15 @@ namespace Xtensive.Orm.Tests
       memoryAllocated = GC.GetTotalMemory((options & MeasurementOptions.CollectGarbageOnLeave)>0)-initialBytesAllocated;
       if ((options & MeasurementOptions.Log)>0) {
         if ((options & MeasurementOptions.LogEnter)>0)
-          CoreLog.Info("Measurement: Leave {0}.", this);
+          CoreLog.Info($"Measurement: Leave {this}.");
         else
-          CoreLog.Info("Measurement: {0}.", this);
+          CoreLog.Info($"Measurement: {this}.");
       }
     }
 
     protected virtual void UpdateFullName()
     {
-      FullName = string.Format("{0} ({1})", name, operationCount);
+      FullName = $"{name} ({operationCount})";
     }
 
     /// <inheritdoc/>
@@ -131,11 +131,7 @@ namespace Xtensive.Orm.Tests
         kmbFormat = "{0:F3} B/s";
         kmbBase = kmbBase/1000;
       }
-      return string.Format(
-        "{0}: Time: {1}ms, Memory: {2}kb{3}{4}",
-        FullName, TimeSpent.TotalMilliseconds, MemoryAllocated/1000.0,
-        operationCount!=0 ? string.Format(", Operations: "+kmbFormat, kmbBase) : "",
-        !isCompleted ? ", not completed yet" : "");
+      return $"{FullName}: Time: {TimeSpent.TotalMilliseconds}ms, Memory: {MemoryAllocated / 1000.0}kb{(operationCount != 0 ? string.Format(", Operations: " + kmbFormat, kmbBase) : "")}{(!isCompleted ? ", not completed yet" : "")}";
     }
     
 
@@ -218,7 +214,7 @@ namespace Xtensive.Orm.Tests
       this.operationCount = operationCount;
       Name = name;
       if ((options & MeasurementOptions.LogEnter)>0)
-        CoreLog.Info("Measurement: Enter {0}.", FullName);
+        CoreLog.Info($"Measurement: Enter {FullName}.");
       initialBytesAllocated = GC.GetTotalMemory((options & MeasurementOptions.CollectGarbageOnEnter)>0);
       initialTime = HighResolutionTime.Now;
     }

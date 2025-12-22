@@ -92,9 +92,9 @@ namespace Xtensive.Orm.Tests.Storage
           var stores = new List<Store>();
           var store = new Store();
           for (var i = 0; i < expectedAuthorsCount; i++) {
-            var author = new Author { Name = string.Format("Author {0}", i) };
+            var author = new Author { Name = $"Author {i}" };
             for (var j = 0; j < booksPerAuthor; j++)
-              author.Books.Add(new Book { Title = string.Format("Book {0} of Author {1}", j, i) });
+              author.Books.Add(new Book { Title = $"Book {j} of Author {i}" });
 
             foreach (var book in author.Books) {
               new Comment { Book = book };
@@ -105,22 +105,22 @@ namespace Xtensive.Orm.Tests.Storage
           var states = session.EntityChangeRegistry.GetItems(PersistenceState.New).ToList();
 
           foreach (var state in states.Where(state => !state.Type.IsAuxiliary))
-            Assert.IsTrue(state.Key.IsTemporary(Domain));
+            Assert.That(state.Key.IsTemporary(Domain), Is.True);
 
           session.SaveChanges();
 
-          Assert.AreEqual(store.Books.Count, expectedAuthorsCount * booksPerAuthor);
+          Assert.That(expectedAuthorsCount * booksPerAuthor, Is.EqualTo(store.Books.Count));
 
           foreach (var author in authors) {
-            Assert.IsFalse(author.Key.IsTemporary(Domain));
-            Assert.Greater(author.Id, 0);
+            Assert.That(author.Key.IsTemporary(Domain), Is.False);
+            Assert.That(author.Id, Is.GreaterThan(0));
             foreach (var book in author.Books) {
-              Assert.IsFalse(book.Key.IsTemporary(Domain));
-              Assert.Greater(book.Id, 0);
-              Assert.AreEqual(book.Stores.Count, 0);
+              Assert.That(book.Key.IsTemporary(Domain), Is.False);
+              Assert.That(book.Id, Is.GreaterThan(0));
+              Assert.That(0, Is.EqualTo(book.Stores.Count));
               foreach (var comment in book.Comments) {
-                Assert.IsFalse(comment.Key.IsTemporary(Domain));
-                Assert.Greater(comment.Id, 0);
+                Assert.That(comment.Key.IsTemporary(Domain), Is.False);
+                Assert.That(comment.Id, Is.GreaterThan(0));
               }
             }
           }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -67,13 +67,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         .OrderBy(orderByExpression)
         .ThenBy(thenByExpression);
 
-      Assert.IsTrue(joinLocal.SequenceEqual(joinServer));
+      Assert.That(joinLocal.SequenceEqual(joinServer), Is.True);
 
       joinServer = Query.All<T1>()
         .Join(Query.All<T2>(), leftJoinExpression, rightJoinExpression, joinResultExpression)
         .OrderByDescending(orderByExpression)
         .ThenBy(thenByExpression);
-      Assert.IsFalse(joinLocal.SequenceEqual(joinServer));
+      Assert.That(joinLocal.SequenceEqual(joinServer), Is.False);
     }
   }
 }

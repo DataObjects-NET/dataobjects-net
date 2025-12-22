@@ -14,11 +14,12 @@
 [bulkoperations] Switch to .NET8/.NET10-only support
 [localization] Switch to .NET8/.NET10-only support, nuget packages actualized
 [localization] Removed obsolete member of ConfigurationSection type
-[logging.log4net] Switch to .NET8/.NET10-only support
-[logging.NLog] Switch to .NET8/.NET10-only support
+[logging.log4net] Switch to .NET8/.NET10-only support, nuget packages actualize
+[logging.NLog] Switch to .NET8/.NET10-only support, nuget packages actualized
 [reprocessing] Switch to .NET8/.NET10-only support, nuget packages actualized
 [reprocessing] Removed obsolete member of ConfigurationSection type
 [security] Switch to .NET8/.NET10-only support, nuget packages actualized
 [security] Removed obsolete member of ConfigurationSection type
 [tracking] Switch to .NET8/.NET10-only support, nuget packages actualized
 [web] Switch to .NET8/.NET10-only support, nuget packages actualized
+[web] Project references actual shared libraries of the framework instead of stand-alone outdated packages

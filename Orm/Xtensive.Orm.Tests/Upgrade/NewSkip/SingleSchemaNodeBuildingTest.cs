@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         Assert.That(x.Ref, Is.Not.Null);
 
         for (var i = 0; i < 200; i++) {
-          _ = new Country { Value = string.Format("Country{0}", i) };
+          _ = new Country { Value = $"Country{i}" };
         }
 
         transaction.Complete();

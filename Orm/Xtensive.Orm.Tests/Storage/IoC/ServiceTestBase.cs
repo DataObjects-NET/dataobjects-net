@@ -49,23 +49,23 @@ namespace Xtensive.Orm.Tests.Storage.IoC
           // Domain-level singleton service
           var domainSingleton1 = Domain.Services.Get<IMyService>("singleton");
           var domainSingleton2 = Domain.Services.Get<IMyService>("singleton");
-          Assert.AreSame(domainSingleton1, domainSingleton2);
+          Assert.That(domainSingleton2, Is.SameAs(domainSingleton1));
 
           // Domain-level transient service
           var domainTransient1 = Domain.Services.Get<IMyService>("transient");
           var domainTransient2 = Domain.Services.Get<IMyService>("transient");
-          Assert.AreNotSame(domainTransient1, domainTransient2);
+          Assert.That(domainTransient1, Is.Not.SameAs(domainTransient2));
 
           // Session-level singleton service
           var sessionSingleton1 = session.Services.Get<IMyService>();
           var sessionSingleton2 = session.Services.Get<IMyService>();
-          Assert.AreSame(sessionSingleton1, sessionSingleton2);
+          Assert.That(sessionSingleton2, Is.SameAs(sessionSingleton1));
 
           using (var session2 = Domain.OpenSession()) {
             using (session2.OpenTransaction()) {
               // Session-level singleton service from another session
               var sessionSingleton3 = Session.Current.Services.Get<IMyService>();
-              Assert.AreNotSame(sessionSingleton1, sessionSingleton3);
+              Assert.That(sessionSingleton1, Is.Not.SameAs(sessionSingleton3));
             }
           }
         }

@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
+        Assert.That(session.Query.All<M2.Person>().Count(), Is.EqualTo(1));
       }
     }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       using (var domain = await BuildDomainAsync("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<M2.Person>().Count());
+        Assert.That(session.Query.All<M2.Person>().Count(), Is.EqualTo(1));
       }
     }
 

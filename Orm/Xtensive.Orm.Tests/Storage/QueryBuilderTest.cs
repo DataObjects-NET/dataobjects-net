@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         var query = Query.All<CheckEntity>();
         var translated = builder.TranslateQuery(query);
-        Assert.That(translated, Is.Not.Null);
+        Assert.That(translated, Is.Not.EqualTo(default(QueryTranslationResult)));
         Assert.That(translated.Query, Is.Not.Null);
         Assert.That(translated.ParameterBindings, Is.Not.Null);
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(compiled, Is.Not.Null);
 
         var request = builder.CreateRequest(compiled, translated.ParameterBindings);
-        Assert.That(request, Is.Not.Null);
+        Assert.That(request, Is.Not.EqualTo(default(QueryRequest)));
 
         var command = builder.CreateCommand(request);
         Assert.That(command, Is.Not.Null);
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(compiled, Is.Not.Null);
 
         var request = builder.CreateRequest(compiled, new[] { binding });
-        Assert.That(request, Is.Not.Null);
+        Assert.That(request, Is.Not.EqualTo(default(QueryRequest)));
 
         var command = builder.CreateCommand(request);
         Assert.That(command, Is.Not.Null);

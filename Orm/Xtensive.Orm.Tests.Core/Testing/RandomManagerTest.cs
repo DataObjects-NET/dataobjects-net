@@ -48,15 +48,12 @@ namespace Xtensive.Orm.Tests.Core.Testing
     {
       RandomManagerInvoker r1 = new RandomManagerInvoker();
       RandomManagerInvoker r2 = new RandomManagerInvoker2();
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.None).Next(),
-        r2.CreateRandom1(SeedVariatorType.None).Next());
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.None).Next(),
-        r1.CreateRandom2(SeedVariatorType.None).Next());
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.None).Next(),
-        r2.CreateRandom1(SeedVariatorType.None).Next());
+      Assert.That(
+        r2.CreateRandom1(SeedVariatorType.None).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.None).Next()));
+      Assert.That(
+        r1.CreateRandom2(SeedVariatorType.None).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.None).Next()));
+      Assert.That(
+        r2.CreateRandom1(SeedVariatorType.None).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.None).Next()));
     }
 
     [Test]
@@ -64,15 +61,12 @@ namespace Xtensive.Orm.Tests.Core.Testing
     {
       RandomManagerInvoker r1 = new RandomManagerInvoker();
       RandomManagerInvoker r2 = new RandomManagerInvoker2();
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingMethod).Next(),
-        r1.CreateRandom1(SeedVariatorType.CallingMethod).Next());
-      Assert.AreNotEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingMethod).Next(),
-        r1.CreateRandom2(SeedVariatorType.CallingMethod).Next());
-      Assert.AreNotEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingMethod).Next(),
-        r2.CreateRandom1(SeedVariatorType.CallingMethod).Next());
+      Assert.That(
+        r1.CreateRandom1(SeedVariatorType.CallingMethod).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingMethod).Next()));
+      Assert.That(
+        r1.CreateRandom2(SeedVariatorType.CallingMethod).Next(), Is.Not.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingMethod).Next()));
+      Assert.That(
+        r2.CreateRandom1(SeedVariatorType.CallingMethod).Next(), Is.Not.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingMethod).Next()));
     }
 
     [Test]
@@ -80,15 +74,12 @@ namespace Xtensive.Orm.Tests.Core.Testing
     {
       RandomManagerInvoker r1 = new RandomManagerInvoker();
       RandomManagerInvoker r2 = new RandomManagerInvoker2();
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingType).Next(),
-        r1.CreateRandom1(SeedVariatorType.CallingType).Next());
-      Assert.AreEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingType).Next(),
-        r1.CreateRandom2(SeedVariatorType.CallingType).Next());
-      Assert.AreNotEqual(
-        r1.CreateRandom1(SeedVariatorType.CallingType).Next(),
-        r2.CreateRandom1(SeedVariatorType.CallingType).Next());
+      Assert.That(
+        r1.CreateRandom1(SeedVariatorType.CallingType).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingType).Next()));
+      Assert.That(
+        r1.CreateRandom2(SeedVariatorType.CallingType).Next(), Is.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingType).Next()));
+      Assert.That(
+        r2.CreateRandom1(SeedVariatorType.CallingType).Next(), Is.Not.EqualTo(r1.CreateRandom1(SeedVariatorType.CallingType).Next()));
     }
   }
 }

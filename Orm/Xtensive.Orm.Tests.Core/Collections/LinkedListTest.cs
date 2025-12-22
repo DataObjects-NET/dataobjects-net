@@ -22,16 +22,16 @@ namespace Xtensive.Orm.Tests.Core.Collections
       list = list.Add(1);
       list = list.Add(2);
       list = list.Add(3);
-      Assert.AreEqual(4, list.Count);
-      Assert.IsTrue(list.SequenceEqual(new []{3,2,1,0}));
+      Assert.That(list.Count, Is.EqualTo(4));
+      Assert.That(list.SequenceEqual(new []{3,2,1,0}), Is.True);
     }
 
     [Test]
     public void SequenceTest()
     {
       var list = new SinglyLinkedList<int>(new[] {0, 1, 2, 3});
-      Assert.AreEqual(4, list.Count);
-      Assert.IsTrue(list.SequenceEqual(new[] {0, 1, 2, 3}));
+      Assert.That(list.Count, Is.EqualTo(4));
+      Assert.That(list.SequenceEqual(new[] {0, 1, 2, 3}), Is.True);
     }
   }
 }

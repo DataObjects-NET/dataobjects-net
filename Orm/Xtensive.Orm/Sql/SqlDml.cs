@@ -558,7 +558,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDateTimePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDateTimePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlDateTimePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -568,7 +568,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand, nameof(operand));
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDatePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDatePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlDatePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -578,7 +578,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand, nameof(operand));
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlTimePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlTimePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlTimePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -588,7 +588,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlIntervalPart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlIntervalPart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlIntervalPart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }

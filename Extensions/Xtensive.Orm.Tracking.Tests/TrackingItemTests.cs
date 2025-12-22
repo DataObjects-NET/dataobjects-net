@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsFalse(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Created, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.False);
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Created));
     }
 
     [Test]
@@ -44,9 +44,9 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsFalse(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Created, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.False);
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Created));
     }
 
     [Test]
@@ -62,9 +62,9 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsFalse(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Deleted, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.False);
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Deleted));
     }
 
     [Test]
@@ -80,10 +80,10 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsTrue(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value1", target.RawData.Origin.GetValue<string>(0));
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Changed, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.True);
+      Assert.That(target.RawData.Origin.GetValue<string>(0), Is.EqualTo("value1"));
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Changed));
     }
 
     [Test]
@@ -99,10 +99,10 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsTrue(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value1", target.RawData.Origin.GetValue<string>(0));
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Deleted, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.True);
+      Assert.That(target.RawData.Origin.GetValue<string>(0), Is.EqualTo("value1"));
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Deleted));
     }
 
     [Test]
@@ -118,10 +118,10 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsTrue(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value1", target.RawData.Origin.GetValue<string>(0));
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Deleted, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.True);
+      Assert.That(target.RawData.Origin.GetValue<string>(0), Is.EqualTo("value1"));
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Deleted));
     }
 
     [Test]
@@ -137,9 +137,9 @@ namespace Xtensive.Orm.Tracking.Tests
 
       TestHelper.Merge(target, source);
 
-      Assert.IsFalse(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available);
-      Assert.AreEqual("value2", target.RawData.Difference.GetValue<string>(0));
-      Assert.AreEqual(TrackingItemState.Changed, target.State);
+      Assert.That(target.RawData.Origin.GetFieldState(0) == TupleFieldState.Available, Is.False);
+      Assert.That(target.RawData.Difference.GetValue<string>(0), Is.EqualTo("value2"));
+      Assert.That(target.State, Is.EqualTo(TrackingItemState.Changed));
     }
   }
 }

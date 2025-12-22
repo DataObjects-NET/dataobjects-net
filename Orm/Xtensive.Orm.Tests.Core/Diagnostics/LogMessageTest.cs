@@ -20,55 +20,55 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
       string param2 = "'(Exception, string, object[])'";
 
       TestLog.InfoRegion("Information logs");
-      TestLog.Info("Message for {0} log parameters.",param1);
+      TestLog.Info($"Message for {param1} log parameters.");
       try
       {
         throw new InvalidOperationException("Exception text.");
       }
       catch (Exception e)
       {
-        TestLog.Info(e, "Message for {0} log parameters.", param2);
+        TestLog.Info($"Message for {param2} log parameters.");
       }
 
       TestLog.InfoRegion("Error logs");
-      TestLog.Error("Message for {0} log parameters.", param1);
+      TestLog.Error($"Message for {param1} log parameters.");
       try{
         throw new InvalidOperationException("Exception text.");
       }
       catch (Exception e){
-        TestLog.Error(e, "Message for {0} log parameters.", param2);
+        TestLog.Error($"Message for {param2} log parameters.");
       }
 
       TestLog.DebugRegion("Debug logs");
-      TestLog.Debug("Message for {0} log parameters.", param1);
+      TestLog.Debug($"Message for {param1} log parameters.");
       try {
         throw new InvalidOperationException("Exception text.");
       }
       catch (Exception e)
       {
-        TestLog.Debug(e, "Message for {0} log parameters.", param2);
+        TestLog.Debug($"Message for {param2} log parameters.");
       }
 
       TestLog.InfoRegion("Warning logs");
-      TestLog.Warning("Message for {0} log parameters.", param1);
+      TestLog.Warning($"Message for {param1} log parameters.");
       try
       {
         throw new InvalidOperationException("Exception text.");
       }
       catch (Exception e)
       {
-        TestLog.Warning(e, "Message for {0} log parameters.", param2);
+        TestLog.Warning($"Message for {param2} log parameters.");
       }
 
       TestLog.InfoRegion("Fatal error logs");
-      TestLog.FatalError("Message for {0} log parameters.", param1);
+      TestLog.FatalError($"Message for {param1} log parameters.");
       try
       {
         throw new InvalidOperationException("Exception text.");
       }
       catch (Exception e)
       {
-        TestLog.FatalError(e, "Message for {0} log parameters.", param2);
+        TestLog.FatalError($"Message for {param2} log parameters.");
       }
 
     }

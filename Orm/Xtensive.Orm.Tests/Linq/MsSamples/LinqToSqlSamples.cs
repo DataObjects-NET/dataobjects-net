@@ -1345,8 +1345,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
       Customer cust1 = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
       Customer cust2 = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
 
-      Console.WriteLine("cust1 and cust2 refer to the same object in memory: {0}",
-        Object.ReferenceEquals(cust1, cust2));
+      Console.WriteLine($"cust1 and cust2 refer to the same object in memory: {Object.ReferenceEquals(cust1, cust2)}");
     }
 
     [Category("Object Identity")]
@@ -1364,8 +1363,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
         .First()
         .Customer;
 
-      Console.WriteLine("cust1 and cust2 refer to the same object in memory: {0}",
-        Object.ReferenceEquals(cust1, cust2));
+      Console.WriteLine($"cust1 and cust2 refer to the same object in memory: {Object.ReferenceEquals(cust1, cust2)}");
     }
 
     [Category("Object Loading")]
@@ -1382,7 +1380,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
 
       foreach (var cust in custs) {
         foreach (var inv in cust.Invoices) {
-          Console.WriteLine("Id {0} has an InvoiceID {1}.", cust.CustomerId, inv.InvoiceId);
+          Console.WriteLine($"Id {cust.CustomerId} has an InvoiceID {inv.InvoiceId}.");
         }
       }
     }
@@ -1404,7 +1402,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
 
       foreach (var emp in emps) {
         foreach (var inv in emp.Invoices) {
-          Console.WriteLine("Employee {0} is responsible for invoice #{1}.", emp.FirstName, inv.InvoiceId);
+          Console.WriteLine($"Employee {emp.FirstName} is responsible for invoice #{inv.InvoiceId}.");
         }
       }
     }
@@ -1442,7 +1440,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
       select c;
 
       foreach (Employee emp in emps) {
-        Console.WriteLine("{0}", emp.LastName);
+        Console.WriteLine($"{emp.LastName}");
       }
     }
 
@@ -1508,7 +1506,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
       Dictionary<int, Track> qDictionary = q.ToDictionary(t => t.TrackId);
 
       foreach (int key in qDictionary.Keys) {
-        Console.WriteLine("Key {0}:", key);
+        Console.WriteLine($"Key {key}:");
         QueryDumper.Dump(qDictionary[key]);
         Console.WriteLine();
       }
@@ -1654,9 +1652,9 @@ namespace Xtensive.Orm.Tests.Linq.Samples
       select c;
       Assert.Throws<QueryTranslationException>(() => {
         foreach (var con in cons) {
-          Console.WriteLine("Company name: {0}", con.CompanyName);
-          Console.WriteLine("Phone: {0}", con.Phone);
-          Console.WriteLine("This is a {0}", con.GetType());
+          Console.WriteLine($"Company name: {con.CompanyName}");
+          Console.WriteLine($"Phone: {con.Phone}");
+          Console.WriteLine($"This is a {con.GetType()}");
           Console.WriteLine();
         }
       });

@@ -25,12 +25,12 @@ namespace Xtensive.Orm.Tests.Storage.StructureModel
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      TestLog.Debug("Structure field setting. Field: {0}; Value: {1}", field.Name, value);
+      TestLog.Debug($"Structure field setting. Field: {field.Name}; Value: {value}");
     }
 
     protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      TestLog.Debug("Structure field set. Field: {0}; Value: {1}", field.Name, newValue);
+      TestLog.Debug($"Structure field set. Field: {field.Name}; Value: {newValue}");
     }
 
     public Point()
@@ -60,12 +60,12 @@ namespace Xtensive.Orm.Tests.Storage.StructureModel
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      TestLog.Debug("Entity field setting. Field: {0}; Value: {1}", field.Name, value);
+      TestLog.Debug($"Entity field setting. Field: {field.Name}; Value: {value}");
     }
 
     protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      TestLog.Debug("Entity field set. Field: {0}; Value: {1}", field.Name, newValue);
+      TestLog.Debug($"Entity field set. Field: {field.Name}; Value: {newValue}");
     }
 
 
@@ -105,13 +105,13 @@ namespace Xtensive.Orm.Tests.Storage
           Point p1 = new Point();
           p1.X = 1;
           p1.Y = 2;
-          Assert.AreEqual(1, p1.X);
-          Assert.AreEqual(2, p1.Y);
+          Assert.That(p1.X, Is.EqualTo(1));
+          Assert.That(p1.Y, Is.EqualTo(2));
 
           Point p2 = new Point(p1.X, p1.Y);
-          Assert.AreEqual(p1.X, p2.X);
-          Assert.AreEqual(p1.Y, p2.Y);
-          Assert.IsTrue(p1.Equals(p2));
+          Assert.That(p2.X, Is.EqualTo(p1.X));
+          Assert.That(p2.Y, Is.EqualTo(p1.Y));
+          Assert.That(p1.Equals(p2), Is.True);
         }
       }
     }
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Storage
           transactionScope.Complete();
         }
         using (session.OpenTransaction()) {
-          Assert.AreEqual(3, ray.Vertex.X);
+          Assert.That(ray.Vertex.X, Is.EqualTo(3));
         }
       }
     } 
@@ -156,22 +156,22 @@ namespace Xtensive.Orm.Tests.Storage
           // Creating new Ray entity from Point. Values should be copied from "p".
           Point p1 = new Point(1, 2);
           Ray ray1 = new Ray(p1);
-          Assert.AreEqual(1, ray1.Vertex.X);
-          Assert.AreEqual(2, ray1.Vertex.Y);
+          Assert.That(ray1.Vertex.X, Is.EqualTo(1));
+          Assert.That(ray1.Vertex.Y, Is.EqualTo(2));
 
           // Updating values in both Ray & Point. Values should differ.
           ray1.Vertex.X = 10;
-          Assert.AreEqual(10, ray1.Vertex.X);
+          Assert.That(ray1.Vertex.X, Is.EqualTo(10));
           p1.X = 22;
-          Assert.AreEqual(22, p1.X);
-          Assert.AreEqual(10, ray1.Vertex.X);
+          Assert.That(p1.X, Is.EqualTo(22));
+          Assert.That(ray1.Vertex.X, Is.EqualTo(10));
 
           // Getting reference to ray1.Vertex. Values should be equal.
           Point p2 = ray1.Vertex;
-          Assert.AreEqual(10, p2.X);
-          Assert.AreEqual(2, p2.Y);
+          Assert.That(p2.X, Is.EqualTo(10));
+          Assert.That(p2.Y, Is.EqualTo(2));
           p2.X = 15;
-          Assert.AreEqual(15, ray1.Vertex.X);
+          Assert.That(ray1.Vertex.X, Is.EqualTo(15));
 
           // Copying Vertex from one ray to another. Values will be be copied.
           Ray ray2 = new Ray();
@@ -179,13 +179,13 @@ namespace Xtensive.Orm.Tests.Storage
 
           // Assigning new value to ray2.Vertex.X. ray1.Vertex.X will be unchanged.
           ray2.Vertex.X = 100;
-          Assert.AreEqual(100, ray2.Vertex.X);
-          Assert.AreEqual(15, ray1.Vertex.X);
+          Assert.That(ray2.Vertex.X, Is.EqualTo(100));
+          Assert.That(ray1.Vertex.X, Is.EqualTo(15));
 
           // Checking reference equality
           Point p3 = ray1.Vertex;
           Point p4 = ray1.Vertex;
-          Assert.AreSame(p3, p4);
+          Assert.That(p4, Is.SameAs(p3));
         }
       }
     }

@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Sql
       {
         if (FieldNames == null)
           FieldNames = new string[0];
-        return string.Format("Fields: '{0}'; Rows: {1}", string.Join("', '", FieldNames), RowCount);
+        return $"Fields: '{string.Join("', '", FieldNames)}'; Rows: {RowCount}";
       }
     }
 

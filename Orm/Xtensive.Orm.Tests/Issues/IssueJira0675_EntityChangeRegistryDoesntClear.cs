@@ -254,15 +254,15 @@ namespace Xtensive.Orm.Tests.Issues
               {
                 deadlockDetected = true;
                 if (retry + 1 < retryCount) {
-                  Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  Console.WriteLine($"Deadlock detected : retrying transactional method for UpdateEntities({instanceId}, {i})");
                   var currentValue = GetEntityValue(session, i);
                   if (currentValue != initialValue) {
-                    Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                    Console.WriteLine($"Deadlock detected : retrying transactional method for UpdateEntities({instanceId}, {i})");
                   }
                   continue;
                 }
                 else {
-                  Console.WriteLine("Deadlock detected on last try : giving up on UpdateEntities2({0})", i);
+                  Console.WriteLine($"Deadlock detected on last try : giving up on UpdateEntities2({i})");
                   throw;
                 }
               }
@@ -294,15 +294,15 @@ namespace Xtensive.Orm.Tests.Issues
                   ex is TransactionSerializationFailureException ||
                   (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException))) {
                 if (retry + 1 < retryCount) {
-                  Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  Console.WriteLine($"Deadlock detected : retrying transactional method for UpdateEntities({instanceId}, {i})");
                   var currentValue = GetEntityValue(session, i);
                   if (currentValue != initialValue) {
-                    Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                    Console.WriteLine($"Deadlock detected : retrying transactional method for UpdateEntities({instanceId}, {i})");
                   }
                   continue;
                 }
                 else {
-                  Console.WriteLine("Deadlock detected on last try : giving up on UpdateEntities2({0})", i);
+                  Console.WriteLine($"Deadlock detected on last try : giving up on UpdateEntities2({i})");
                   throw;
                 }
               }

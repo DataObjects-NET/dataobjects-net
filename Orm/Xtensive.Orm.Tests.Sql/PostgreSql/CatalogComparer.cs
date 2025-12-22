@@ -17,55 +17,55 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     public void CompareCatalogs(Catalog created, Catalog extracted)
     {
-      Assert.AreEqual(created.Name, extracted.Name);
+      Assert.That(extracted.Name, Is.EqualTo(created.Name));
 
       foreach (var s1 in created.Schemas) {
         var s2 = extracted.Schemas[s1.Name];
-        Assert.IsNotNull(s2);
+        Assert.That(s2, Is.Not.Null);
         CompareSchemas(s1, s2);
       }
     }
 
     private void CompareSchemas(Schema s1, Schema s2)
     {
-      Assert.IsNotNull(s1);
-      Assert.IsNotNull(s2);
-      Assert.IsNotNull(s1.Name);
-      Assert.IsNotNull(s2.Name);
-      Assert.AreEqual(s1.Name, s2.Name);
+      Assert.That(s1, Is.Not.Null);
+      Assert.That(s2, Is.Not.Null);
+      Assert.That(s1.Name, Is.Not.Null);
+      Assert.That(s2.Name, Is.Not.Null);
+      Assert.That(s2.Name, Is.EqualTo(s1.Name));
       //The created model does not assign Owner, it is assigned by PgSql implicitly
       //Assert.IsNotNull(s1.Owner);
-      Assert.IsNotNull(s2.Owner);
-      
-      Assert.AreEqual(s1.Domains.Count, s2.Domains.Count);
-      Assert.AreEqual(s1.Sequences.Count, s2.Sequences.Count);
-      Assert.AreEqual(s1.Tables.Count, s2.Tables.Count);
-      Assert.AreEqual(s1.Views.Count, s2.Views.Count);
+      Assert.That(s2.Owner, Is.Not.Null);
+
+      Assert.That(s2.Domains.Count, Is.EqualTo(s1.Domains.Count));
+      Assert.That(s2.Sequences.Count, Is.EqualTo(s1.Sequences.Count));
+      Assert.That(s2.Tables.Count, Is.EqualTo(s1.Tables.Count));
+      Assert.That(s2.Views.Count, Is.EqualTo(s1.Views.Count));
 
       foreach (var d1 in s1.Domains) {
         var d2 = s2.Domains[d1.Name];
-        Assert.IsNotNull(d2);
+        Assert.That(d2, Is.Not.Null);
 
         CompareDomains(d1, d2);
       }
 
       foreach (var sq1 in s1.Sequences) {
         var sq2 = s2.Sequences[sq1.Name];
-        Assert.IsNotNull(sq2);
+        Assert.That(sq2, Is.Not.Null);
 
         CompareSequences(sq1, sq2);
       }
 
       foreach (var t1 in s1.Tables) {
         var t2 = s2.Tables[t1.Name];
-        Assert.IsNotNull(t2);
+        Assert.That(t2, Is.Not.Null);
 
         CompareTables(t1, t2);
       }
 
       foreach (var v1 in s1.Views) {
         var v2 = s2.Views[v1.Name];
-        Assert.IsNotNull(v2);
+        Assert.That(v2, Is.Not.Null);
 
         CompareViews(v1, v2);
       }
@@ -73,45 +73,45 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     private void CompareDomains(Xtensive.Sql.Model.Domain d1, Xtensive.Sql.Model.Domain d2)
     {
-      Assert.IsNotNull(d1.Name);
-      Assert.IsNotNull(d2.Name);
-      Assert.AreEqual(d1.Name, d2.Name);
+      Assert.That(d1.Name, Is.Not.Null);
+      Assert.That(d2.Name, Is.Not.Null);
+      Assert.That(d2.Name, Is.EqualTo(d1.Name));
       CompareSqlValueTypes(d1.DataType, d2.DataType);
-      Assert.AreEqual(d1.Schema.Name, d2.Schema.Name);
+      Assert.That(d2.Schema.Name, Is.EqualTo(d1.Schema.Name));
 
       foreach (DomainConstraint dc1 in d1.DomainConstraints) {
         DomainConstraint dc2 = d2.DomainConstraints[dc1.Name];
-        Assert.IsNotNull(dc2);
+        Assert.That(dc2, Is.Not.Null);
         CompareDomainConstraints(dc1, dc2);
       }
     }
 
     private void CompareDomainConstraints(DomainConstraint dc1, DomainConstraint dc2)
     {
-      Assert.IsNotNull(dc1.Domain);
-      Assert.AreEqual(dc1.Domain, dc2.Domain);
-      Assert.AreEqual(dc1.IsDeferrable, dc2.IsDeferrable);
-      Assert.AreEqual(dc1.IsInitiallyDeferred, dc2.IsInitiallyDeferred);
-      Assert.IsNotNull(dc1.Owner);
-      Assert.AreEqual(dc1.Owner.Name, dc2.Owner.Name);
+      Assert.That(dc1.Domain, Is.Not.Null);
+      Assert.That(dc2.Domain, Is.EqualTo(dc1.Domain));
+      Assert.That(dc2.IsDeferrable, Is.EqualTo(dc1.IsDeferrable));
+      Assert.That(dc2.IsInitiallyDeferred, Is.EqualTo(dc1.IsInitiallyDeferred));
+      Assert.That(dc1.Owner, Is.Not.Null);
+      Assert.That(dc2.Owner.Name, Is.EqualTo(dc1.Owner.Name));
     }
 
     private void CompareSequences(Sequence sq1, Sequence sq2)
     {
-      Assert.IsNotNull(sq1);
-      Assert.IsNotNull(sq2);
-      Assert.IsNotNull(sq2.Name);
-      Assert.AreEqual(sq1.Name, sq2.Name);
-      Assert.AreEqual(sq1.Schema.Name, sq2.Schema.Name);
+      Assert.That(sq1, Is.Not.Null);
+      Assert.That(sq2, Is.Not.Null);
+      Assert.That(sq2.Name, Is.Not.Null);
+      Assert.That(sq2.Name, Is.EqualTo(sq1.Name));
+      Assert.That(sq2.Schema.Name, Is.EqualTo(sq1.Schema.Name));
       //When creating the model, these values are not specified, but gets default values by PgSql
       //if(sq1.SequenceDescriptor.Increment!=null)
-      Assert.AreEqual(sq1.SequenceDescriptor.Increment ?? 1, sq2.SequenceDescriptor.Increment);
+      Assert.That(sq2.SequenceDescriptor.Increment, Is.EqualTo(sq1.SequenceDescriptor.Increment ?? 1));
       //if(sq1.SequenceDescriptor.IsCyclic != null)
-      Assert.AreEqual(sq1.SequenceDescriptor.IsCyclic ?? false, sq2.SequenceDescriptor.IsCyclic);
+      Assert.That(sq2.SequenceDescriptor.IsCyclic, Is.EqualTo(sq1.SequenceDescriptor.IsCyclic ?? false));
       if (sq1.SequenceDescriptor.MaxValue != null)
-        Assert.AreEqual(sq1.SequenceDescriptor.MaxValue, sq2.SequenceDescriptor.MaxValue);
+        Assert.That(sq2.SequenceDescriptor.MaxValue, Is.EqualTo(sq1.SequenceDescriptor.MaxValue));
       if (sq1.SequenceDescriptor.MinValue != null)
-        Assert.AreEqual(sq1.SequenceDescriptor.MinValue, sq2.SequenceDescriptor.MinValue);
+        Assert.That(sq2.SequenceDescriptor.MinValue, Is.EqualTo(sq1.SequenceDescriptor.MinValue));
       //start value cannot be extracted
       /*
       if(sq1.SequenceDescriptor.StartValue != null)
@@ -121,38 +121,38 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     private void CompareSqlValueTypes(SqlValueType t1, SqlValueType t2)
     {
-      Assert.IsNotNull(t1);
-      Assert.IsNotNull(t2);
-      Assert.AreEqual(t1.Type, t2.Type);
-      Assert.AreEqual(t1.Precision, t2.Precision);
-      Assert.AreEqual(t1.Scale, t2.Scale);
-      Assert.AreEqual(t1.Length, t2.Length);
+      Assert.That(t1, Is.Not.Null);
+      Assert.That(t2, Is.Not.Null);
+      Assert.That(t2.Type, Is.EqualTo(t1.Type));
+      Assert.That(t2.Precision, Is.EqualTo(t1.Precision));
+      Assert.That(t2.Scale, Is.EqualTo(t1.Scale));
+      Assert.That(t2.Length, Is.EqualTo(t1.Length));
     }
 
     private void CompareTables(Table t1, Table t2)
     {
-      Assert.IsNotNull(t1);
-      Assert.IsNotNull(t2);
-      Assert.AreEqual(t1.Filegroup, t2.Filegroup);
-      Assert.AreEqual(t1.Schema.Name, t2.Schema.Name);
-      Assert.AreEqual(t1.TableColumns.Count, t2.TableColumns.Count);
-      Assert.AreEqual(t1.TableConstraints.Count, t2.TableConstraints.Count);
+      Assert.That(t1, Is.Not.Null);
+      Assert.That(t2, Is.Not.Null);
+      Assert.That(t2.Filegroup, Is.EqualTo(t1.Filegroup));
+      Assert.That(t2.Schema.Name, Is.EqualTo(t1.Schema.Name));
+      Assert.That(t2.TableColumns.Count, Is.EqualTo(t1.TableColumns.Count));
+      Assert.That(t2.TableConstraints.Count, Is.EqualTo(t1.TableConstraints.Count));
 
       foreach (var c1 in t1.TableColumns) {
         var c2 = t2.TableColumns[c1.Name];
-        Assert.IsNotNull(c2);
+        Assert.That(c2, Is.Not.Null);
         CompareTableColumns(c1, c2);
       }
 
       foreach (var i1 in t1.Indexes) {
         var i2 = t2.Indexes[i1.Name];
-        Assert.IsNotNull(i2);
+        Assert.That(i2, Is.Not.Null);
         CompareTableIndexes(i1, i2);
       }
 
       foreach (TableConstraint tc1 in t1.TableConstraints) {
         var tc2 = t2.TableConstraints[tc1.Name];
-        Assert.IsNotNull(tc2);
+        Assert.That(tc2, Is.Not.Null);
         if (tc1 is CheckConstraint)
           CompareCheckConstraints(tc1 as CheckConstraint, tc2 as CheckConstraint);
         else if (tc1 is PrimaryKey)
@@ -166,59 +166,57 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     private void CompareTableColumns(TableColumn c1, TableColumn c2)
     {
-      Assert.IsNotNull(c1);
-      Assert.IsNotNull(c2);
-      Assert.AreEqual(c1.DataTable.Name, c2.DataTable.Name);
+      Assert.That(c1, Is.Not.Null);
+      Assert.That(c2, Is.Not.Null);
+      Assert.That(c2.DataTable.Name, Is.EqualTo(c1.DataTable.Name));
       CompareSqlValueTypes(c1.DataType, c2.DataType);
-      Assert.IsTrue(c1.Domain == null && c2.Domain == null
-        || c1.Domain != null && c2.Domain != null && c1.Domain.Name == c2.Domain.Name);
-      Assert.AreEqual(c1.IsNullable, c2.IsNullable);
-      Assert.AreEqual(c1.Table.Name, c2.Table.Name);
+      Assert.That(c1.Domain == null && c2.Domain == null
+        || c1.Domain != null && c2.Domain != null && c1.Domain.Name == c2.Domain.Name, Is.True);
+      Assert.That(c2.IsNullable, Is.EqualTo(c1.IsNullable));
+      Assert.That(c2.Table.Name, Is.EqualTo(c1.Table.Name));
     }
 
     private void CompareTableIndexes(Index i1, Index i2)
     {
-      Assert.IsNotNull(i1);
-      Assert.IsNotNull(i2);
-      Assert.AreEqual(i1.DataTable.Name, i2.DataTable.Name);
-      Assert.AreEqual(i1.Filegroup, i2.Filegroup);
+      Assert.That(i1, Is.Not.Null);
+      Assert.That(i2, Is.Not.Null);
+      Assert.That(i2.DataTable.Name, Is.EqualTo(i1.DataTable.Name));
+      Assert.That(i2.Filegroup, Is.EqualTo(i1.Filegroup));
 
       var ver = connection.Driver.CoreServerInfo.ServerVersion;
       if (ver.Major * 100 + ver.Minor >= 802) {
         if (i1.FillFactor != null) {
-          Assert.AreEqual(i1.FillFactor, i2.FillFactor);
+          Assert.That(i2.FillFactor, Is.EqualTo(i1.FillFactor));
         }
       }
-      Assert.AreEqual(i1.IsBitmap, i2.IsBitmap);
-      Assert.AreEqual(i1.IsClustered, i2.IsClustered);
-      Assert.AreEqual(i1.IsUnique, i2.IsUnique);
+      Assert.That(i2.IsBitmap, Is.EqualTo(i1.IsBitmap));
+      Assert.That(i2.IsClustered, Is.EqualTo(i1.IsClustered));
+      Assert.That(i2.IsUnique, Is.EqualTo(i1.IsUnique));
 
-      Assert.AreEqual(i1.Columns.Count, i2.Columns.Count);
+      Assert.That(i2.Columns.Count, Is.EqualTo(i1.Columns.Count));
       foreach (var ic1 in i1.Columns) {
         var ic2 = i2.Columns[ic1.Name];
-        Assert.IsNotNull(ic2);
+        Assert.That(ic2, Is.Not.Null);
         CompareIndexColumns(ic1, ic2);
       }
     }
 
     private void CompareIndexColumns(IndexColumn ic1, IndexColumn ic2)
     {
-      Assert.IsNotNull(ic1);
-      Assert.IsNotNull(ic2);
-      Assert.IsNotNull(ic2.Name);
-      Assert.AreEqual(ic1.Name, ic2.Name);
-      Assert.AreEqual(ic1.Ascending, ic2.Ascending);
-      Assert.AreEqual(ic1.Column.Name, ic2.Column.Name);
-      Assert.AreEqual(ic1.Index.Name, ic2.Index.Name);
+      Assert.That(ic1, Is.Not.Null);
+      Assert.That(ic2, Is.Not.Null);
+      Assert.That(ic2.Name, Is.Not.Null);
+      Assert.That(ic2.Name, Is.EqualTo(ic1.Name));
+      Assert.That(ic2.Ascending, Is.EqualTo(ic1.Ascending));
+      Assert.That(ic2.Column.Name, Is.EqualTo(ic1.Column.Name));
+      Assert.That(ic2.Index.Name, Is.EqualTo(ic1.Index.Name));
     }
 
     private void CompareTableConstraints(TableConstraint tc1, TableConstraint tc2)
     {
-      //Assert.AreEqual(tc1.IsDeferrable, tc2.IsDeferrable);
-      //Assert.AreEqual(tc1.IsInitiallyDeferred, tc2.IsInitiallyDeferred);
-      Assert.AreEqual(tc1.Name, tc2.Name);
-      Assert.AreEqual(tc1.Owner.Name, tc2.Owner.Name);
-      Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
+      Assert.That(tc2.Name, Is.EqualTo(tc1.Name));
+      Assert.That(tc2.Owner.Name, Is.EqualTo(tc1.Owner.Name));
+      Assert.That(tc2.Table.Name, Is.EqualTo(tc1.Table.Name));
     }
 
     private void CompareCheckConstraints(CheckConstraint cc1, CheckConstraint cc2)
@@ -230,12 +228,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       CompareTableConstraints(cc1, cc2);
 
-      Assert.AreEqual(cc1.Columns.Count, cc2.Columns.Count);
+      Assert.That(cc2.Columns.Count, Is.EqualTo(cc1.Columns.Count));
       foreach (var tc1 in cc1.Columns) {
         var tc2 = cc2.Columns[tc1.Name];
-        Assert.IsNotNull(tc2);
-        Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
-        Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
+        Assert.That(tc2, Is.Not.Null);
+        Assert.That(tc2.Table.Schema.Name, Is.EqualTo(tc1.Table.Schema.Name));
+        Assert.That(tc2.Table.Name, Is.EqualTo(tc1.Table.Name));
       }
     }
 
@@ -247,40 +245,40 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     private void CompareForeignKeys(ForeignKey fk1, ForeignKey fk2)
     {
       CompareTableConstraints(fk1, fk2);
-      Assert.AreEqual(fk1.IsDeferrable ?? false, fk2.IsDeferrable);
-      Assert.AreEqual(fk1.IsInitiallyDeferred ?? false, fk2.IsInitiallyDeferred);
-      Assert.AreEqual(fk1.MatchType, fk2.MatchType);
-      Assert.AreEqual(fk1.OnDelete, fk2.OnDelete);
-      Assert.AreEqual(fk1.OnUpdate, fk2.OnUpdate);
-      Assert.AreEqual(fk1.Table.Schema.Name, fk2.Table.Schema.Name);
-      Assert.AreEqual(fk1.Table.Name, fk2.Table.Name);
+      Assert.That(fk2.IsDeferrable, Is.EqualTo(fk1.IsDeferrable ?? false));
+      Assert.That(fk2.IsInitiallyDeferred, Is.EqualTo(fk1.IsInitiallyDeferred ?? false));
+      Assert.That(fk2.MatchType, Is.EqualTo(fk1.MatchType));
+      Assert.That(fk2.OnDelete, Is.EqualTo(fk1.OnDelete));
+      Assert.That(fk2.OnUpdate, Is.EqualTo(fk1.OnUpdate));
+      Assert.That(fk2.Table.Schema.Name, Is.EqualTo(fk1.Table.Schema.Name));
+      Assert.That(fk2.Table.Name, Is.EqualTo(fk1.Table.Name));
       //columns
-      Assert.AreEqual(fk1.Columns.Count, fk2.Columns.Count);
+      Assert.That(fk2.Columns.Count, Is.EqualTo(fk1.Columns.Count));
       foreach (var tc1 in fk1.Columns) {
         var tc2 = fk2.Columns[tc1.Name];
-        Assert.IsNotNull(tc2);
-        Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
-        Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
+        Assert.That(tc2, Is.Not.Null);
+        Assert.That(tc2.Table.Schema.Name, Is.EqualTo(tc1.Table.Schema.Name));
+        Assert.That(tc2.Table.Name, Is.EqualTo(tc1.Table.Name));
       }
 
-      Assert.AreEqual(fk1.ReferencedTable.Schema.Name, fk2.ReferencedTable.Schema.Name);
-      Assert.AreEqual(fk1.ReferencedTable.Name, fk2.ReferencedTable.Name);
+      Assert.That(fk2.ReferencedTable.Schema.Name, Is.EqualTo(fk1.ReferencedTable.Schema.Name));
+      Assert.That(fk2.ReferencedTable.Name, Is.EqualTo(fk1.ReferencedTable.Name));
       //referenced columns
-      Assert.AreEqual(fk1.ReferencedColumns.Count, fk2.ReferencedColumns.Count);
+      Assert.That(fk2.ReferencedColumns.Count, Is.EqualTo(fk1.ReferencedColumns.Count));
       foreach (var tc1 in fk1.ReferencedColumns) {
         var tc2 = fk2.ReferencedColumns[tc1.Name];
-        Assert.IsNotNull(tc2);
-        Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
-        Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
+        Assert.That(tc2, Is.Not.Null);
+        Assert.That(tc2.Table.Schema.Name, Is.EqualTo(tc1.Table.Schema.Name));
+        Assert.That(tc2.Table.Name, Is.EqualTo(tc1.Table.Name));
       }
     }
 
     private void CompareViews(View v1, View v2)
     {
-      Assert.IsNotNull(v1);
-      Assert.IsNotNull(v2);
-      Assert.AreEqual(v1.Name, v2.Name);
-      Assert.AreEqual(v1.Schema.Name, v2.Schema.Name);
+      Assert.That(v1, Is.Not.Null);
+      Assert.That(v2, Is.Not.Null);
+      Assert.That(v2.Name, Is.EqualTo(v1.Name));
+      Assert.That(v2.Schema.Name, Is.EqualTo(v1.Schema.Name));
       //columns
       //In the created model no columns are created.
       /*

@@ -58,21 +58,21 @@ namespace Xtensive.Orm.Tests.Storage
           var person = new Person();
           var personErrorInfo = ((IDataErrorInfo) person);
 
-          Assert.AreEqual("Person is invalid.", personErrorInfo.Error);
-          Assert.AreEqual("Value should not be null.", personErrorInfo["Name"]);
-          Assert.AreEqual("Value should not be less than 1.", personErrorInfo["Age"]);
+          Assert.That(personErrorInfo.Error, Is.EqualTo("Person is invalid."));
+          Assert.That(personErrorInfo["Name"], Is.EqualTo("Value should not be null."));
+          Assert.That(personErrorInfo["Age"], Is.EqualTo("Value should not be less than 1."));
 
           person.Name = "Alex";
           person.Age = 26;
           person.IsValid = true;
           session.ValidateAndGetErrors();
-          Assert.AreEqual(string.Empty, personErrorInfo.Error);
-          Assert.AreEqual(string.Empty, personErrorInfo["Name"]);
-          Assert.AreEqual(string.Empty, personErrorInfo["Age"]);
+          Assert.That(personErrorInfo.Error, Is.EqualTo(string.Empty));
+          Assert.That(personErrorInfo["Name"], Is.EqualTo(string.Empty));
+          Assert.That(personErrorInfo["Age"], Is.EqualTo(string.Empty));
 
           person.Age = -1;
           session.ValidateAndGetErrors();
-          Assert.AreEqual("Value should not be less than 1.", personErrorInfo["Age"]);
+          Assert.That(personErrorInfo["Age"], Is.EqualTo("Value should not be less than 1."));
 
           AssertEx.Throws<ValidationFailedException>(session.Validate);
         }

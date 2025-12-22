@@ -132,13 +132,13 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
           var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Take(Count - 1).ToList();
-          Assert.IsTrue(expected.Count>0);
-          Assert.AreEqual(expected.Count, result.Count);
+          Assert.That(expected.Count>0, Is.True);
+          Assert.That(result.Count, Is.EqualTo(expected.Count));
           for (int i = 0; i < expected.Count; i++) {
             var areMatch = Equals(expected[i], result[i]);
-            Assert.IsTrue(areMatch);
+            Assert.That(areMatch, Is.True);
           }
-          Assert.IsTrue(expected.SequenceEqual(result));
+          Assert.That(expected.SequenceEqual(result), Is.True);
         }
       }
     }
@@ -150,13 +150,13 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
           var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).Take(Count - 10).ToList();
-          Assert.IsTrue(expected.Count>0);
-          Assert.AreEqual(expected.Count, result.Count);
+          Assert.That(expected.Count>0, Is.True);
+          Assert.That(result.Count, Is.EqualTo(expected.Count));
           for (int i = 0; i < expected.Count; i++) {
             bool areMatch = Equals(expected[i], result[i]);
-            Assert.IsTrue(areMatch);
+            Assert.That(areMatch, Is.True);
           }
-          Assert.IsTrue(expected.SequenceEqual(result));
+          Assert.That(expected.SequenceEqual(result), Is.True);
         }
       }
     }
@@ -168,13 +168,13 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<Article>().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
           var expected = session.Query.All<Article>().AsEnumerable().OrderByDescending(a => a.PublishedOn).Skip(5).ToList();
-          Assert.AreEqual(expected.Count, result.Count);
-          Assert.IsTrue(expected.Count>0);
+          Assert.That(result.Count, Is.EqualTo(expected.Count));
+          Assert.That(expected.Count>0, Is.True);
           for (int i = 0; i < expected.Count; i++) {
             bool areMatch = Equals(expected[i], result[i]);
-            Assert.IsTrue(areMatch);
+            Assert.That(areMatch, Is.True);
           }
-          Assert.IsTrue(expected.SequenceEqual(result));
+          Assert.That(expected.SequenceEqual(result), Is.True);
         }
       }
     }
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var result = session.Query.All<Article>().Select(p => p.Category);
           foreach (var category in result) {
-            Assert.IsNotNull(category);
+            Assert.That(category, Is.Not.Null);
           }
         }
       }
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Issues
         var id = a1.Id;
 
         var a2 = session.Query.SingleOrDefault<Article2>(id);
-        Assert.IsNull(a2);
+        Assert.That(a2, Is.Null);
       }
     }
 
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var t = session.OpenTransaction()) {
         var url = "http://localhost/page_1.htm";
         var result = session.Query.All<BlogPost>().Where(p => p.SitePage.Url == url).SingleOrDefault();
-        Assert.IsNotNull(result);
+        Assert.That(result, Is.Not.Null);
       }
     }
 
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Issues
         var person = new Person();
         var category = new Category();
         var sitePage = new SitePage() {
-          Url = string.Format("http://localhost/page_{0}.htm", i)
+          Url = $"http://localhost/page_{i}.htm"
         };
         var image = new Image();
         var article = new Article {
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Tests.Issues
           CreatedOn =  new DateTime(1800 + i, 1, 1),
           PublishedOn = new DateTime(1800 + (i % 2) * Count + i, 1, 1),
           SitePage = sitePage,
-          Title = string.Format("Article_{0}", i),
+          Title = $"Article_{i}",
           TeaserImage = image
         };
       }

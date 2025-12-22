@@ -77,11 +77,11 @@ namespace Xtensive.Orm.Tests.Issues
 //        session.Persist();
 
         var rank = session.Query.All<Position>().Where(r => r.Rank == 1).Single().Rank; // Ok here
-        Assert.AreEqual(1, rank);
+        Assert.That(rank, Is.EqualTo(1));
         var people = session.Query.All<Person>()
           .Where(p => p.Rank == session.Query.All<Position>().Where(r => r.Rank == 1).Single().Rank)
           .ToList(); //Exception
-        Assert.AreEqual(1, people.Count);
+        Assert.That(people.Count, Is.EqualTo(1));
         t.Complete();
       }  
     }

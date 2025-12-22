@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       for (int i = 0; i < count; i++)
         buffer1.Add(i);
 
-      Assert.AreEqual(count, buffer1.Count);
+      Assert.That(buffer1.Count, Is.EqualTo(count));
       
       foreach (var buf in buffer1) {
         Assert.That(buf, Is.EqualTo(index));
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
       var buffer1 = new ChainedBuffer<int>(intArray);
 
-      Assert.AreEqual(arrayCount, buffer1.Count);
+      Assert.That(buffer1.Count, Is.EqualTo(arrayCount));
 
       foreach (var buf in buffer1) {
         Assert.That(buf, Is.EqualTo(index));
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
       var buffer1 = new ChainedBuffer<int>(intArray, maxNodeSize);
 
-      Assert.AreEqual(arrayCount, buffer1.Count);
+      Assert.That(buffer1.Count, Is.EqualTo(arrayCount));
 
       foreach (var buf in buffer1) {
         Assert.That(buf, Is.EqualTo(index));
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       for (int i = 0; i < count; i++)
         buffer1.Add(i);
 
-      Assert.AreEqual(count, buffer1.Count);
+      Assert.That(buffer1.Count, Is.EqualTo(count));
 
       foreach (var buf in buffer1) {
         Assert.That(buf, Is.EqualTo(index));

@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Indexing
     {
       var coutBefore = table.SecondaryIndexes.Count;
       new SecondaryIndexInfo(table, "secondary2");
-      Assert.AreEqual(coutBefore + 1, table.SecondaryIndexes.Count);
+      Assert.That(table.SecondaryIndexes.Count, Is.EqualTo(coutBefore + 1));
     }
 
     [Test]
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Indexing
       int countBefore = table.SecondaryIndexes.Count;
       AssertEx.Throws<ArgumentException>(() => new SecondaryIndexInfo(null, "secondary2"));
       AssertEx.Throws<ArgumentException>(() => new SecondaryIndexInfo(table, ""));
-      Assert.AreEqual(countBefore, table.SecondaryIndexes.Count);
+      Assert.That(table.SecondaryIndexes.Count, Is.EqualTo(countBefore));
     }
 
     [Test]
@@ -62,10 +62,10 @@ namespace Xtensive.Orm.Tests.Indexing
     {
       new KeyColumnRef(secondary, primaryValue1, Direction.Negative);
       new KeyColumnRef(secondary, primaryValue2, Direction.Negative);
-      Assert.AreEqual(2, secondary.KeyColumns.Count);
+      Assert.That(secondary.KeyColumns.Count, Is.EqualTo(2));
       Dump();
       secondary.KeyColumns[0].Remove();
-      Assert.AreEqual(1, secondary.KeyColumns.Count);
+      Assert.That(secondary.KeyColumns.Count, Is.EqualTo(1));
     }
 
     [Test]
