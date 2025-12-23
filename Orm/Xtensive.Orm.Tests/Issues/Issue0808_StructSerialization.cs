@@ -51,18 +51,10 @@ namespace Xtensive.Orm.Tests.Issues
       var t = typeof(UnifiedCustomerID);
       Expression<Func<int, UnifiedCustomerID>> ex = a => new UnifiedCustomerID { Id = 2 };
       var serializableExpression = ex.ToSerializableExpression();
-      using (var memoryStream = new MemoryStream()) {
-        var serializer = new DataContractSerializer(typeof(SerializableLambdaExpression),
-          SerializableExpressionTypes.Except(Enumerable.Repeat(typeof(SerializableLambdaExpression), 1)));
+      var deserializedExpression = (SerializableLambdaExpression) Cloner.CloneViaDataContractSerializer(serializableExpression,
+        SerializableExpressionTypes.Except(Enumerable.Repeat(typeof(SerializableLambdaExpression), 1)));
 
-        serializer.WriteObject(memoryStream, serializableExpression);
-
-        memoryStream.Position = 0;
-
-        var deserializedExpression = (SerializableLambdaExpression) serializer.ReadObject(memoryStream);
-
-        var ex2 = deserializedExpression.ToExpression();
-      }
+      var ex2 = deserializedExpression.ToExpression();
     }
   }
 }

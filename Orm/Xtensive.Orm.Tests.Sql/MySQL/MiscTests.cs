@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
@@ -68,14 +68,11 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      using (var mStream = new MemoryStream()) {
-        var dcSerializer = new DataContractSerializer(typeof(SqlSelect), [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
-        dcSerializer.WriteObject(mStream, select);
-        _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) dcSerializer.ReadObject(mStream);
-      }
+      var cloned = Cloner.CloneViaDataContractSerializer(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
 
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(cloned).GetCommandText());
+
     }
 
     [Test]

@@ -72,14 +72,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      using(var mStream = new MemoryStream()) {
-        var dcSerializer = new DataContractSerializer(typeof(SqlSelect), [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
-        dcSerializer.WriteObject(mStream, select);
-        _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) dcSerializer.ReadObject(mStream);
-      }
+      var cloned = Cloner.CloneViaDataContractSerializer(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(sqlDriver.Compile(cloned).GetCommandText());
     }
 
     [Test]
