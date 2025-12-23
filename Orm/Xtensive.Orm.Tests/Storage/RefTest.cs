@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Author).Assembly, typeof (Author).Namespace);
+      config.Types.Register(typeof (Author));
       return config;
     }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         tx.Complete();
       }
 
-      authorRef = Cloner.Clone(authorRef);
+      authorRef = Cloner.CloneViaBinarySerialization(authorRef);
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {

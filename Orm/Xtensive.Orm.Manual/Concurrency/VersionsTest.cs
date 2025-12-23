@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
         }
 
         // Let's clone VersionSet (actually - serialize & deserialize)
-        versions = Cloner.Clone(versions);
+        versions = Cloner.CloneViaBinarySerialization(versions);
         // And dump it
         Dump(versions);
 

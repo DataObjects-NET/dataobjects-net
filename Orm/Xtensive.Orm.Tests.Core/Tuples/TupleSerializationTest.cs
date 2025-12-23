@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       dt1.SetValue(1,4);
       var all = new[] {dt1, dt2};
       
-      var clone = Cloner.Clone(all);
+      var clone = Cloner.CloneViaBinarySerialization(all);
       AssertEx.HasSameElements(all, clone);
 
       var dt1Clone = clone[0];
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     private static Tuple CloneBySerialization(Tuple source)
     {
-      return Cloner.Clone(source);
+      return Cloner.CloneViaBinarySerialization(source);
     }
   }
 }

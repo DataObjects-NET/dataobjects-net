@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Orm.Tests.Storage.VersionRootModel;
 
 #region Model
 
@@ -118,8 +119,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionRootModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  using VersionRootModel;
-
   [TestFixture]
   public class VersionRootTests
     : AutoBuildTest
@@ -255,7 +254,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       }
       Assert.That(itemVersion.IsVoid, Is.False);
-      var clone = Cloner.Clone(itemVersion);
+      var clone = Cloner.CloneViaBinarySerialization(itemVersion);
       Assert.That(clone.IsVoid, Is.False);
       Assert.That(itemVersion==clone, Is.True);
     }

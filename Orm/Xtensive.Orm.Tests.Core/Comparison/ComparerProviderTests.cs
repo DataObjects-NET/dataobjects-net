@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     {
       var comparer = AdvancedComparer<T>.Default;
       Assert.That(comparer.Compare, Is.Not.Null);
-      var deserializedComparer = Cloner.Clone(comparer);
+      var deserializedComparer = Cloner.CloneViaBinarySerialization(comparer);
       Assert.That(deserializedComparer.Compare, Is.Not.Null);
     }
 

@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     [Ignore("TODO: AY check it ASAP")]
     public void SerializationTest()
     {
-      var clone = Cloner.Clone(srv);
+      var clone = Cloner.CloneViaBinarySerialization(srv);
 //      clone.Dump();
       clone.Validate();
     }

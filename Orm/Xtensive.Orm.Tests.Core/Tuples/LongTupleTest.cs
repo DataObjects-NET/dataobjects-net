@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
           for (int j = 0; j < count; j++)
             Assert.That(tuple.GetValue(j), Is.EqualTo(data[j]));
           // Testing serialization 
-          var tuple2 = Cloner.Clone(tuple);
+          var tuple2 = Cloner.CloneViaBinarySerialization(tuple);
           Assert.That(tuple2, Is.EqualTo(tuple));
           Assert.That(tuple2.Descriptor, Is.EqualTo(tuple.Descriptor));
           // Testing reads (untyped));

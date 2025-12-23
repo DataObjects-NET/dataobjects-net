@@ -10,7 +10,8 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using System.Linq;
-using M=Xtensive.Orm.Model;
+using M = Xtensive.Orm.Model;
+using Xtensive.Orm.Tests.Storage.VersionModel;
 
 #region Model
 
@@ -231,8 +232,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  using VersionModel;
-
   [TestFixture]
   public class UpdateVersionTest : AutoBuildTest
   {
@@ -521,7 +520,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       }
       Assert.That(versionInfo.IsVoid, Is.False);
-      var clone = Cloner.Clone(versionInfo);
+      var clone = Cloner.CloneViaBinarySerialization(versionInfo);
       Assert.That(clone.IsVoid, Is.False);
       Assert.That(versionInfo==clone, Is.True);
     }

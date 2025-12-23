@@ -18,11 +18,10 @@ namespace Xtensive.Orm.Tests
     private static readonly IFormatter Formatter = new BinaryFormatter();
 
     /// <summary>
-    /// Clones the <paramref name="source"/> using 
-    /// provided <see cref="Formatter"/>.
+    /// Clones the <paramref name="source"/> using <see cref="BinaryFormatter"/>.
     /// </summary>
     /// <param name="source">The source to clone.</param>
-    public static T Clone<T>(T source)
+    public static T CloneViaBinarySerialization<T>(T source)
     {
       using (var stream = new MemoryStream()) {
         Formatter.Serialize(stream, source);
