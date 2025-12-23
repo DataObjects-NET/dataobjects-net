@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -49,8 +50,8 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
     private static byte[] Serialize(ObservableCollection<int> collection)
     {
       using (var ms = new MemoryStream()) {
-        var bf = new BinaryFormatter();
-        bf.Serialize(ms, collection);
+        var dcSerializer = new DataContractSerializer(typeof(ObservableCollection<int>), new[] { typeof(int) });
+        dcSerializer.WriteObject(ms, collection);
         return ms.ToArray();
       }
     }
@@ -58,8 +59,8 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
     private static ObservableCollection<int> Deserialize(byte[] bytes)
     {
       using (var ms = new MemoryStream(bytes)) {
-        var bf = new BinaryFormatter();
-        return (ObservableCollection<int>) bf.Deserialize(ms);
+        var dcSerializer = new DataContractSerializer(typeof(ObservableCollection<int>), new[] { typeof(int) });
+        return (ObservableCollection<int>) dcSerializer.ReadObject(ms);
       }
     }
 

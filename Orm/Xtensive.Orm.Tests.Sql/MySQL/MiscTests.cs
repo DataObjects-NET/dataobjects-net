@@ -11,6 +11,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using NUnit.Framework;
@@ -68,11 +69,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Where = SqlDml.In(1, i);
 
       using (var mStream = new MemoryStream()) {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(mStream, select);
-
+        var dcSerializer = new DataContractSerializer(typeof(SqlSelect), [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
+        dcSerializer.WriteObject(mStream, select);
         _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) formatter.Deserialize(mStream);
+        select = (SqlSelect) dcSerializer.ReadObject(mStream);
       }
 
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());

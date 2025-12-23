@@ -14,6 +14,7 @@ using Xtensive.Sql.Dml;
 using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Model;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
@@ -71,12 +72,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      using (var mStream = new MemoryStream()) {
-        var formatter = new BinaryFormatter();
-        formatter.Serialize(mStream, select);
-
+      using(var mStream = new MemoryStream()) {
+        var dcSerializer = new DataContractSerializer(typeof(SqlSelect), [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
+        dcSerializer.WriteObject(mStream, select);
         _ = mStream.Seek(0, SeekOrigin.Begin);
-        select = (SqlSelect) formatter.Deserialize(mStream);
+        select = (SqlSelect) dcSerializer.ReadObject(mStream);
       }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());

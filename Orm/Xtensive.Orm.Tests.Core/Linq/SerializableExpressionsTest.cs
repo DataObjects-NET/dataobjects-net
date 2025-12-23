@@ -58,11 +58,13 @@ namespace Xtensive.Orm.Tests.Core.Linq
       }
     }
 
+#if NET8_0
     [Test]
     public void BinaryFormatterSerializeTest()
     {
       RunSerializeTest(new BinaryFormatter());
     }
+#endif
 
     [Test]
     public void NetDataContractSerializeTest()
