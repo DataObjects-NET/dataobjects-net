@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
       Expression<Func<int, UnifiedCustomerID>> ex = a => new UnifiedCustomerID { Id = 2 };
       var serializableExpression = ex.ToSerializableExpression();
       var deserializedExpression = (SerializableLambdaExpression) Cloner.CloneViaDataContractSerializer(serializableExpression,
-        SerializableExpressionTypes.Except(Enumerable.Repeat(typeof(SerializableLambdaExpression), 1)));
+        SerializableExpressionTypes);
 
       var ex2 = deserializedExpression.ToExpression();
     }
