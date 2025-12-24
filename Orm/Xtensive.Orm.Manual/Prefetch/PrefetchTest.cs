@@ -8,8 +8,6 @@ using System;
 using NUnit.Framework;
 using System.Linq;
 using System.Threading.Tasks;
-using Xtensive.Core;
-using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests;
 
@@ -44,7 +42,7 @@ namespace Xtensive.Orm.Manual.Prefetch
 
     public Person(Session session)
       : base(session)
-    {}
+    { }
   }
 
   #endregion
@@ -63,10 +61,10 @@ namespace Xtensive.Orm.Manual.Prefetch
     [TearDown]
     public void ClearContent()
     {
-      using(var session = Domain.OpenSession())
-      using(var tx = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var people = session.Query.All<Person>().ToList();
-        foreach(var person in people) {
+        foreach (var person in people) {
           person.Manager = null;
         }
         session.SaveChanges();
@@ -247,7 +245,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       var count = 1000;
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()){
+      using (var transactionScope = session.OpenTransaction()) {
         var people = new Person[count];
         for (var i = 0; i < count; i++) {
           people[i] = new Person(session) { Name = i.ToString(), Photo = new[] { (byte) (i % 256) } };
