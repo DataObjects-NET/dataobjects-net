@@ -45,25 +45,17 @@ namespace Xtensive.Orm.Tests.Interfaces.KeyStructureConflictTestModel
 
 namespace Xtensive.Orm.Tests.Interfaces
 {
-  public class KeyStructureConflictTest : AutoBuildTest
+  public class KeyStructureConflictTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void MainTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Root1).Assembly, typeof (Root1).Namespace);
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      try {
-        base.BuildDomain(configuration);
-        Assert.Fail();
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return null;
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Root1).Assembly, typeof(Root1).Namespace);
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var message = ex.Message;
+      Assert.That(message.Contains("IChild") && message.Contains("different key structure") && message.Contains("Root1 & Root2"),
+        Is.True);
     }
   }
 }
