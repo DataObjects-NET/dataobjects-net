@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -209,11 +209,27 @@ namespace Xtensive.Orm
     /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public static ValueTask<Entity> SingleAsync(Key key, CancellationToken token = default)
+    {
+      return Session.Demand().Query.SingleAsync(key, token);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <param name="key">The key to resolve.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    [CanBeNull] public static Entity SingleOrDefault(Key key)
+    [CanBeNull]
+    public static Entity SingleOrDefault(Key key)
     {
       return Session.Demand().Query.SingleOrDefault(key);
     }
@@ -222,32 +238,16 @@ namespace Xtensive.Orm
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
-    /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
+    /// <param name="token">The token to cancel this operation.</param>
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public static T Single<T>(Key key)
-      where T : class, IEntity
+    [CanBeNull]
+    public static ValueTask<Entity> SingleOrDefaultAsync(Key key, CancellationToken token = default)
     {
-      return Session.Demand().Query.Single<T>(key);
-    }
-
-    /// <summary>
-    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="Session"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of the entity.</typeparam>
-    /// <param name="keyValues">Key values.</param>
-    /// <returns>
-    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
-    /// <see langword="null"/>, if there is no such entity.
-    /// </returns>
-    public static T Single<T>(params object[] keyValues)
-      where T : class, IEntity
-    {
-      return Session.Demand().Query.Single<T>(keyValues);
+      return Session.Demand().Query.SingleOrDefaultAsync(key, token);
     }
 
     /// <summary>
@@ -259,10 +259,28 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    [CanBeNull] public static T SingleOrDefault<T>(Key key)
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public static T Single<T>(Key key)
       where T : class, IEntity
     {
-      return Session.Demand().Query.SingleOrDefault<T>(key);
+      return Session.Demand().Query.Single<T>(key);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="key">The key to resolve.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public static Task<T> SingleAsync<T>(Key key, CancellationToken token = default)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleAsync<T>(key, token);
     }
 
     /// <summary>
@@ -274,10 +292,97 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    [CanBeNull] public static T SingleOrDefault<T>(params object[] keyValues)
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public static T Single<T>(params object[] keyValues)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.Single<T>(keyValues);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public static Task<T> SingleAsync<T>(object[] keyValues, CancellationToken token)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleAsync<T>(keyValues, token);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="key">The key to resolve.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    [CanBeNull]
+    public static T SingleOrDefault<T>(Key key)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleOrDefault<T>(key);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="key">The key to resolve.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    [CanBeNull]
+    public static Task<T> SingleOrDefaultAsync<T>(Key key, CancellationToken token)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleOrDefaultAsync<T>(key, token);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    [CanBeNull]
+    public static T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return Session.Demand().Query.SingleOrDefault<T>(keyValues);
+    }
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public static Task<T> SingleOrDefault<T>(object[] keyValues, CancellationToken token)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleOrDefaultAsync<T>(keyValues, token);
     }
 
     #region Execute
