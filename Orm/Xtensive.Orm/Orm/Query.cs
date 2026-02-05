@@ -379,7 +379,7 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public static Task<T> SingleOrDefault<T>(object[] keyValues, CancellationToken token)
+    public static Task<T> SingleOrDefaultAsync<T>(object[] keyValues, CancellationToken token)
       where T : class, IEntity
     {
       return Session.Demand().Query.SingleOrDefaultAsync<T>(keyValues, token);
