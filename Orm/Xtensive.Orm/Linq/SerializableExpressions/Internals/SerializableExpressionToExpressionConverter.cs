@@ -14,8 +14,22 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal sealed class SerializableExpressionToExpressionConverter
   {
+    private readonly struct LambdaParameterScope : IDisposable
+    {
+      private readonly SerializableExpressionToExpressionConverter converter;
+
+      public void Dispose() => converter.parameterScopes.Pop();
+
+      public LambdaParameterScope(SerializableExpressionToExpressionConverter converter, Dictionary<string, ParameterExpression> currentScope)
+      {
+        this.converter = converter;
+        this.converter.parameterScopes.Push(currentScope);
+      }
+    }
+
     private readonly SerializableExpression source;
     private readonly Dictionary<SerializableExpression, Expression> cache;
+    private readonly Stack<Dictionary<string, ParameterExpression>> parameterScopes;
 
     public Expression Convert()
     {
@@ -137,12 +151,12 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitConditional(SerializableConditionalExpression c)
     {
-      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
+      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse), c.Type);
     }
 
     private Expression VisitParameter(SerializableParameterExpression p)
     {
-      return Expression.Parameter(p.Type, p.Name);
+      return GetCachedParameter(p.Type, p.Name) ?? Expression.Parameter(p.Type, p.Name);
     }
 
     private Expression VisitMemberAccess(SerializableMemberExpression m)
@@ -167,7 +181,10 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)));
+      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToList();
+      using (CreateParameterScope(parameters)) {
+        return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
+      }
     }
 
     private Expression VisitNew(SerializableNewExpression n)
@@ -238,12 +255,49 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return expressions.Select(e => Visit(e));
     }
 
+    private LambdaParameterScope CreateParameterScope(IReadOnlyList<ParameterExpression> lambdaParameters)
+    {
+      var parameters = new Dictionary<string, ParameterExpression>(lambdaParameters.Count);
+      foreach (var lambdaParameter in lambdaParameters) {
+        parameters.Add(lambdaParameter.Name, lambdaParameter);
+      }
+      return new LambdaParameterScope(this, parameters);
+    }
+
+    private ParameterExpression GetCachedParameter(Type type, string name)
+    {
+      var replacement = FindParameterFast(type, name);
+      if (replacement == null && parameterScopes.Count > 1)
+        return FindParameterSlow(type, name);
+      return replacement;
+    }
+
+    private ParameterExpression FindParameterFast(Type type, string name)
+    {
+      if (parameterScopes.Count > 0) {
+        var currentParameters = parameterScopes.Peek();
+        if (currentParameters.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
+
+    private ParameterExpression FindParameterSlow(Type type, string name)
+    {
+      foreach (var scope in parameterScopes) {
+        if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
+
     #endregion
 
     public SerializableExpressionToExpressionConverter(SerializableExpression source)
     {
       this.source = source;
       cache = new Dictionary<SerializableExpression, Expression>();
+      parameterScopes = new Stack<Dictionary<string, ParameterExpression>>();
     }
   }
 }
