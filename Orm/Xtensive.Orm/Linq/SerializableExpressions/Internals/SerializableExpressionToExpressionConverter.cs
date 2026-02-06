@@ -18,7 +18,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     {
       private readonly SerializableExpressionToExpressionConverter converter;
 
-      public void Dispose() => converter.parameterScopes.Pop();
+      public void Dispose() => converter.parameterScopes.TryPop(out _);
 
       public LambdaParameterScope(SerializableExpressionToExpressionConverter converter, Dictionary<string, ParameterExpression> currentScope)
       {
@@ -274,8 +274,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private ParameterExpression FindParameterFast(Type type, string name)
     {
-      if (parameterScopes.Count > 0) {
-        var currentParameters = parameterScopes.Peek();
+      if (parameterScopes.TryPeek(out var currentParameters)) {
         if (currentParameters.TryGetValue(name, out var replacement) && replacement.Type == type)
           return replacement;
       }
@@ -284,7 +283,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private ParameterExpression FindParameterSlow(Type type, string name)
     {
-      foreach (var scope in parameterScopes) {
+      foreach (var scope in parameterScopes.Skip(1)) {
         if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
           return replacement;
       }
