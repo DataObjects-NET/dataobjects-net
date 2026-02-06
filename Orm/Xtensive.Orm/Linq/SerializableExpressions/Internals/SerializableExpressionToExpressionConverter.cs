@@ -79,6 +79,9 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.Constant:
           result = VisitConstant((SerializableConstantExpression)e);
           break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression)e);
+          break;
         case ExpressionType.Parameter:
           result = VisitParameter((SerializableParameterExpression)e);
           break;
@@ -133,6 +136,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     private Expression VisitConstant(SerializableConstantExpression c)
     {
       return Expression.Constant(c.Value, c.Type);
+    }
+
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
     }
 
     private Expression VisitConditional(SerializableConditionalExpression c)
