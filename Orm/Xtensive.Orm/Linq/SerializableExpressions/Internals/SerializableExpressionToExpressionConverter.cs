@@ -43,6 +43,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
           result = VisitUnary((SerializableUnaryExpression)e);
           break;
         case ExpressionType.Add:
@@ -68,10 +73,15 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
           result = VisitBinary((SerializableBinaryExpression)e);
           break;
         case ExpressionType.TypeIs:
           result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
           result = VisitConditional((SerializableConditionalExpression)e);
@@ -131,6 +141,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     private Expression VisitTypeIs(SerializableTypeBinaryExpression tb)
     {
       return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
+    }
+
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), tb.TypeOperand);
     }
 
     private Expression VisitConstant(SerializableConstantExpression c)
