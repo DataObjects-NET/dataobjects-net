@@ -34,25 +34,17 @@ namespace Xtensive.Orm.Tests.Interfaces.TypeIdModeConflictTestModel
 
 namespace Xtensive.Orm.Tests.Interfaces
 {
-  public class TypeIdModeConflictTest : AutoBuildTest
+  public class TypeIdModeConflictTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void MainTest()
     {
-      var config = base.BuildConfiguration();
+      var config = DomainConfigurationFactory.Create();
       config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      try {
-        base.BuildDomain(configuration);
-        Assert.Fail();
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return null;
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var message = ex.Message;
+      Assert.That(message.Contains("IRoot") && message.Contains("one of which includes TypeId, but another doesn't") && message.Contains("Root1 & Root2"),
+        Is.True);
     }
   }
 }
