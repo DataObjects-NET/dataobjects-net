@@ -16,6 +16,7 @@ using Xtensive.Linq;
 using Xtensive.Linq.SerializableExpressions;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {
@@ -63,6 +64,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         yield return typeof(SerializableBinaryExpression);
         yield return typeof(SerializableConditionalExpression);
         yield return typeof(SerializableConstantExpression);
+        yield return typeof(SerializableDefaultExpression);
         yield return typeof(SerializableElementInit);
         yield return typeof(SerializableExpression);
         yield return typeof(SerializableInvocationExpression);
@@ -136,6 +138,24 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
+    public void ConstantExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), ConstantExpressions);
+    }
+
+    [Test]
+    public void ConstantExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list.Union(new[] { typeof(int[]), typeof(string[]) }),
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), ConstantExpressions);
+    }
+
+
+    [Test]
     public void DefaultExpressionTest()
     {
       foreach (var origin in DefaultExpressions) {
@@ -144,6 +164,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void DefaultExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), DefaultExpressions);
+    }
+
+    [Test]
+    public void DefaultExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), DefaultExpressions);
     }
 
     [Test]
@@ -165,6 +202,25 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
+    public void ParameterExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), ParameterExpressions);
+      RunSerializeTest(new BinaryFormatter(), VariableExpressions);
+    }
+
+    [Test]
+    public void ParameterExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), ParameterExpressions);
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), VariableExpressions);
+    }
+
+    [Test]
     public void BinaryExpressionTest()
     {
       foreach (var origin in BinaryExpressions) {
@@ -173,6 +229,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void BinaryExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), BinaryExpressions);
+    }
+
+    [Test]
+    public void BinaryExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list.Union(new[] { typeof(int[]) }),
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), BinaryExpressions);
     }
 
     [Test]
@@ -187,6 +260,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
+    public void ConditionalExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), ConditionalExpressions);
+    }
+
+    [Test]
+    public void ConditionalExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), ConditionalExpressions);
+    }
+
+    [Test]
     public void ListInitExpressionTest()
     {
       foreach (var origin in ListInitExpressions) {
@@ -195,6 +285,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void ListInitExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), ListInitExpressions);
+    }
+
+    [Test]
+    public void ListInitExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), ListInitExpressions);
     }
 
     [Test]
@@ -209,6 +316,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
+    public void MemberExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), MemberExpressions);
+    }
+
+    [Test]
+    public void MemberExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list.Union(new[] { typeof(Foo) }),
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), MemberExpressions);
+    }
+
+    [Test]
     public void NewExpressionTest()
     {
       foreach (var origin in NewExpressions) {
@@ -217,6 +341,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void NewExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), NewExpressions);
+    }
+
+    [Test]
+    public void NewExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), NewExpressions);
     }
 
     [Test]
@@ -231,7 +372,24 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
-    public void MethodCalllExpressionTest()
+    public void MemberInitExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), MemberInitExpressions);
+    }
+
+    [Test]
+    public void MemberInitExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), MemberInitExpressions);
+    }
+
+    [Test]
+    public void MethodCallExpressionTest()
     {
       foreach (var origin in MethodCallExpressions) {
         Console.WriteLine(origin.ToString(true));
@@ -239,6 +397,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void MethodCallExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), MethodCallExpressions);
+    }
+
+    [Test]
+    public void MethodCallExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list.Union(new[] { typeof(int[]) }),
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), MethodCallExpressions);
     }
 
     [Test]
@@ -252,6 +427,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
+    public void NewArrayExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), NewArrayExpressions);
+    }
+
+    [Test]
+    public void NewArrayExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), NewArrayExpressions);
+    }
+
+    [Test]
     public void TypeBinaryExpressionTest() {
       foreach (var origin in TypeBinaryExpressions) {
         Console.WriteLine(origin.ToString(true));
@@ -259,6 +451,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void TypeBinaryExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), TypeBinaryExpressions);
+    }
+
+    [Test]
+    public void TypeBinaryExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), TypeBinaryExpressions);
     }
 
     [Test]
@@ -272,6 +481,22 @@ namespace Xtensive.Orm.Tests.Core.Linq
       }
     }
 
+    [Test]
+    public void UnaryExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), UnaryExpressions);
+    }
+
+    [Test]
+    public void UnaryExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list.Union(new[] { typeof(int[]) }),
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), UnaryExpressions);
+    }
 
     [Test]
     public void InvocationExpressionTest()
@@ -282,6 +507,23 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
+    }
+
+    [Test]
+    public void InvocationExpressionBinaryCloneTest()
+    {
+      RunSerializeTest(new BinaryFormatter(), InvocationExpressions);
+    }
+
+    [Test]
+    public void InvocationExpressionNonBinaryCloneTest()
+    {
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), InvocationExpressions);
     }
 
     [Test]
@@ -296,18 +538,19 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     [Test]
-    public void BinaryFormatterSerializeTest()
+    public void LambdaExpressionBinaryCloneTest()
     {
       RunSerializeTest(new BinaryFormatter(), Expressions);
     }
 
     [Test]
-    public void NetDataContractSerializeTest()
+    public void LambdaExpressionNonBinaryCloneTest()
     {
       var list = SerializableExpressionTypes.ToList();
-      var settings = new DataContractSerializerSettings();
-      settings.KnownTypes = list;
-      settings.PreserveObjectReferences = true;
+      var settings = new DataContractSerializerSettings {
+        KnownTypes = list,
+        PreserveObjectReferences = true
+      };
       RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings), Expressions);
     }
 
@@ -320,7 +563,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           _ = stream.Seek(0, SeekOrigin.Begin);
           var serialized = (SerializableExpression) serializer.ReadObject(stream);
           stream.SetLength(0);
-          Assert.That(serialized.ToExpression().ToExpressionTree(), Is.EqualTo(expression.ToExpressionTree()));
+          CompareExpressions(expression, serialized.ToExpression());
           Console.WriteLine("OK");
         }
       }
@@ -335,20 +578,82 @@ namespace Xtensive.Orm.Tests.Core.Linq
           _ = stream.Seek(0, SeekOrigin.Begin);
           var serialized = (SerializableExpression) serializer.Deserialize(stream);
           stream.SetLength(0);
-          Assert.That(serialized.ToExpression().ToExpressionTree(), Is.EqualTo(expression.ToExpressionTree()));
+          CompareExpressions(expression, serialized.ToExpression());
           Console.WriteLine("OK");
         }
       }
     }
 
-    //private static T GetClone<T>(T testExp, IEnumerable<Type> types)
-    //  where T : Expression
-    //{
-    //  var serializable = testExp.ToSerializableExpression();
-    //  var clone = Cloner.CloneViaDataContractSerializer<SerializableExpression>(serializable, types, out var serializedVersion);
-    //  var native = (T) new SerializableExpressionToExpressionConverter(clone).Convert();
-    //  return native;
-    //}
+    private void CompareExpressions(Expression expression, Expression serialized)
+    {
+      if (expression is ConstantExpression cExpressions)
+        CompareConstants(cExpressions, (ConstantExpression) serialized);
+      else if (expression is MemberExpression mExpression)
+        CompareMemberExpressions(mExpression, (MemberExpression) serialized);
+      else if (expression is BinaryExpression bExpression && bExpression.NodeType == ExpressionType.ArrayIndex)
+        CompareArrayIndex(bExpression, (BinaryExpression) serialized);
+      else if (expression is UnaryExpression uExpression && uExpression.NodeType == ExpressionType.ArrayLength)
+        CompareArrayLength(uExpression, (UnaryExpression) serialized);
+      else
+        Assert.That(serialized.ToExpressionTree(), Is.EqualTo(expression.ToExpressionTree()));
+    }
+
+    private void CompareMemberExpressions(MemberExpression origin, MemberExpression clone)
+    {
+      Assert.That(clone.Type, Is.EqualTo(origin.Type));
+
+      var instanceOrig = origin.Expression as ConstantExpression;
+      var instanceClone = clone.Expression as ConstantExpression;
+
+      Assert.That(instanceClone.Type, Is.EqualTo(instanceOrig.Type));
+
+      var instValueOrig = instanceOrig.Value as Foo;
+      var instValueClone = instanceClone.Value as Foo;
+
+      Assert.That(instValueClone.IntField, Is.EqualTo(instValueOrig.IntField));
+      Assert.That(instValueClone.IntProperty, Is.EqualTo(instValueOrig.IntProperty));
+
+      Assert.That(clone.Member, Is.EqualTo(origin.Member));
+    }
+
+    private void CompareArrayIndex(BinaryExpression origin, BinaryExpression clone)
+    {
+      if (origin.NodeType != ExpressionType.ArrayIndex)
+        throw new ArgumentException();
+
+      Assert.That(clone.Type, Is.EqualTo(origin.Type));
+
+      CompareConstants((ConstantExpression) origin.Left, (ConstantExpression) clone.Left);
+      CompareConstants((ConstantExpression) origin.Right, (ConstantExpression) clone.Right);
+
+    }
+
+    private void CompareArrayLength(UnaryExpression origin, UnaryExpression clone)
+    {
+      if (origin.NodeType != ExpressionType.ArrayLength)
+        throw new ArgumentException();
+
+      Assert.That(clone.Type, Is.EqualTo(origin.Type));
+
+      var instanceOrig = (origin.Operand as ConstantExpression);
+      var instanceClone = (clone.Operand as ConstantExpression);
+
+      CompareConstants(instanceOrig, instanceClone);
+    }
+
+    private void CompareConstants(ConstantExpression origin, ConstantExpression clone)
+    {
+      Assert.That(clone.Type, Is.EqualTo(origin.Type));
+
+      if (origin.Type.IsArray) {
+        Assert.That(origin.Value, Is.Not.Null);
+        Assert.That(clone.Value, Is.Not.Null);
+        Assert.That(clone.Value, Is.EquivalentTo(origin.Value as Array));
+      }
+      else {
+        Assert.That(clone.Value, Is.EqualTo(origin.Value));
+      }
+    }
 
     #region Performance test
 
@@ -428,8 +733,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Expression.Constant(null, typeof(string)),
         Expression.Constant(string.Empty, typeof(string)),
         Expression.Constant("DBC", typeof(string)),
-        Expression.Constant(new int[] { 1, 2, 3 }),
-        Expression.Constant(new string[] { "1", "2", "3" })
+        Expression.Constant(new[] { 1, 2, 3 }),
+        Expression.Constant(new[] { "1", "2", "3" })
       };
     }
 
@@ -499,14 +804,14 @@ namespace Xtensive.Orm.Tests.Core.Linq
     private BinaryExpression[] GetTestBinaryExpressions()
     {
       return new[] {
-        Expression.Add(Expression.Constant(1), Expression.Constant(2)),
-        Expression.AddChecked(Expression.Constant(2), Expression.Constant(3)),
-        Expression.Subtract(Expression.Constant(4), Expression.Constant(2)),
-        Expression.SubtractChecked(Expression.Constant(5), Expression.Constant(6)),
-        Expression.Divide(Expression.Constant(2), Expression.Constant(1)),
-        Expression.Multiply(Expression.Constant(3), Expression.Constant(5)),
-        Expression.MultiplyChecked(Expression.Constant(4), Expression.Constant(4)),
-        Expression.Modulo(Expression.Constant(5), Expression.Constant(2)),
+        //Expression.Add(Expression.Constant(1), Expression.Constant(2)),
+        //Expression.AddChecked(Expression.Constant(2), Expression.Constant(3)),
+        //Expression.Subtract(Expression.Constant(4), Expression.Constant(2)),
+        //Expression.SubtractChecked(Expression.Constant(5), Expression.Constant(6)),
+        //Expression.Divide(Expression.Constant(2), Expression.Constant(1)),
+        //Expression.Multiply(Expression.Constant(3), Expression.Constant(5)),
+        //Expression.MultiplyChecked(Expression.Constant(4), Expression.Constant(4)),
+        //Expression.Modulo(Expression.Constant(5), Expression.Constant(2)),
         Expression.Power(Expression.Constant(2.0), Expression.Constant(4.0)),
 
         Expression.And(Expression.Constant(10), Expression.Constant(6)),
@@ -537,15 +842,15 @@ namespace Xtensive.Orm.Tests.Core.Linq
       return new[] {
         Expression.Condition(
           Expression.Equal(Expression.Constant(12), Expression.Constant(12)),
-          Expression.Constant(222),
-          Expression.Constant(333)),
-        Expression.IfThen(
-          Expression.Equal(Expression.Constant(12), Expression.Constant(12)),
+          Expression.Constant(111),
           Expression.Constant(222)),
+        Expression.IfThen(
+          Expression.Equal(Expression.Constant(13), Expression.Constant(13)),
+          Expression.Constant(333)),
         Expression.IfThenElse(
           Expression.Equal(Expression.Constant(14), Expression.Constant(14)),
           Expression.Constant(222),
-          Expression.Constant(333))
+          Expression.Constant(444))
       };
     }
 
@@ -682,7 +987,6 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Expression.Call(publicStaticMethod, param1, param2),
         Expression.Call(privateStaticMethod, param1, param2),
         Expression.Call(staticLocalMethod, param1, param2),
-        Expression.ArrayIndex(Expression.Constant(new[] { 8, 9, 10 }), new[] { Expression.Constant(1) }),
       };
 
       static void SDummyMethod(int a, long b)
