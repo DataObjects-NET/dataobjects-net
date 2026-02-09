@@ -51,6 +51,11 @@ namespace Xtensive.Linq
       case ExpressionType.ArrayLength:
       case ExpressionType.Quote:
       case ExpressionType.TypeAs:
+      case ExpressionType.Decrement:
+      case ExpressionType.Increment:
+      case ExpressionType.IsFalse:
+      case ExpressionType.IsTrue:
+      case ExpressionType.OnesComplement:
         return VisitUnary((UnaryExpression) x, (UnaryExpression) y);
       case ExpressionType.Add:
       case ExpressionType.AddChecked:
@@ -75,13 +80,19 @@ namespace Xtensive.Linq
       case ExpressionType.RightShift:
       case ExpressionType.LeftShift:
       case ExpressionType.ExclusiveOr:
+      case ExpressionType.Power:
+      case ExpressionType.Assign:
         return VisitBinary((BinaryExpression) x, (BinaryExpression) y);
       case ExpressionType.TypeIs:
         return VisitTypeIs((TypeBinaryExpression) x, (TypeBinaryExpression) y);
+      case ExpressionType.TypeEqual:
+        return VisitTypeEqual((TypeBinaryExpression) x, (TypeBinaryExpression) y);
       case ExpressionType.Conditional:
         return VisitConditional((ConditionalExpression) x, (ConditionalExpression) y);
       case ExpressionType.Constant:
         return VisitConstant((ConstantExpression) x, (ConstantExpression) y);
+      case ExpressionType.Default:
+        return true; // types and references are already compared
       case ExpressionType.Parameter:
         return VisitParameter((ParameterExpression) x, (ParameterExpression) y);
       case ExpressionType.MemberAccess:
@@ -234,6 +245,11 @@ namespace Xtensive.Linq
     private bool VisitTypeIs(TypeBinaryExpression x, TypeBinaryExpression y)
     {
       return x.TypeOperand==y.TypeOperand && Visit(x.Expression, y.Expression);
+    }
+
+    private bool VisitTypeEqual(TypeBinaryExpression x, TypeBinaryExpression y)
+    {
+      return x.TypeOperand == y.TypeOperand && Visit(x.Expression, y.Expression);
     }
 
     private bool VisitBinary(BinaryExpression x, BinaryExpression y)
