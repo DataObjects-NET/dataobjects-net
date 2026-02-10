@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
 
     private DomainConfiguration BuildDomainConfiguration(DomainUpgradeMode upgradeMode, TypeRegistration[] registrations)
     {
-      var configuration = BuildDomainConfiguration();
+      var configuration = DomainConfigurationFactory.Create();
       registrations.ForEach(t => configuration.Types.Register(t));
       configuration.UpgradeMode = upgradeMode;
       ApplyCustomConfigurationSettings(configuration);
@@ -479,7 +479,7 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
       return configuration;
     }
 
-    private void InitializeGenerators(DomainConfiguration configuration, long seedIncrease = 0, long cacheSizeIncrease = 0)
+    protected virtual void InitializeGenerators(DomainConfiguration configuration, long seedIncrease = 0, long cacheSizeIncrease = 0)
     {
       configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int16") { Seed = 16 + seedIncrease, CacheSize = 16 + cacheSizeIncrease });
       configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int32") { Seed = 32 + seedIncrease, CacheSize = 32 + cacheSizeIncrease });
