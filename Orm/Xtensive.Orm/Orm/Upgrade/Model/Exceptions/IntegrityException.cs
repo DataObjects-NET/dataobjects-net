@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Describes errors detected during <see cref="StorageModel"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
+  [Obsolete("No longer in use")]
   public class IntegrityException : Exception
   {
     /// <summary>

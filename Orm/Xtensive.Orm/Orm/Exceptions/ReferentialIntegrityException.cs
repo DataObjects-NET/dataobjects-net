@@ -23,22 +23,22 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the association.
     /// </summary>
-    public AssociationInfo Association { get; private set; }
+    public AssociationInfo Association { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the initiator of removing action.
     /// </summary>
-    public Key Initiator { get; private set; }
+    public Key Initiator { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the referencing object.
     /// </summary>
-    public Key ReferencingObject { get; private set; }
+    public Key ReferencingObject { get; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> of the referenced object.
     /// </summary>
-    public Key ReferencedObject { get; private set; }
+    public Key ReferencedObject { get; }
 
 
     // Constructors

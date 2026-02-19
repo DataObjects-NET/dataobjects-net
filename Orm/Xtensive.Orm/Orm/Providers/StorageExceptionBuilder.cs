@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
@@ -33,27 +34,26 @@ namespace Xtensive.Orm.Providers
       if (storageExceptionInfo!=null) {
         var storageErrorDetails = storageExceptionInfo.ToString();
         if (!string.IsNullOrEmpty(storageErrorDetails)) {
-          builder.AppendLine();
-          builder.AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
+          _ = builder.AppendLine()
+            .AppendFormat(Strings.StorageErrorDetailsX, storageErrorDetails);
         }
       }
       var sqlErrorDetails = sqlExceptionInfo.ToString();
       if (!string.IsNullOrEmpty(sqlErrorDetails)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.SqlErrorDetailsX, sqlErrorDetails);
+        _ = builder.AppendLine()
+          .AppendFormat(Strings.SqlErrorDetailsX, sqlErrorDetails);
       }
       if (!string.IsNullOrEmpty(queryText) && includeSqlInExceptions) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.QueryX, queryText);
+        _ = builder.AppendLine()
+          .AppendFormat(Strings.QueryX, queryText);
       }
       var sqlMessage = origin.Message;
       if (!string.IsNullOrEmpty(sqlMessage)) {
-        builder.AppendLine();
-        builder.AppendFormat(Strings.OriginalMessageX, sqlMessage);
+        _ = builder.AppendLine()
+          .AppendFormat(Strings.OriginalMessageX, sqlMessage);
       }
 
-      var storageException = CreateStorageException(sqlExceptionInfo.Type, builder.ToString(), origin);
-      storageException.Info = storageExceptionInfo;
+      var storageException = CreateStorageException(sqlExceptionInfo.Type, builder.ToString(), origin, storageExceptionInfo);
       return storageException;
     }
 
@@ -73,27 +73,27 @@ namespace Xtensive.Orm.Providers
     }
 
     private static StorageException CreateStorageException(SqlExceptionType type, string message,
-      Exception innerException)
+      Exception innerException, StorageExceptionInfo storageExceptionInfo)
     {
       switch (type) {
       case SqlExceptionType.ConnectionError:
-        return new ConnectionErrorException(message, innerException);
+        return new ConnectionErrorException(message, innerException) { Info = storageExceptionInfo};
       case SqlExceptionType.SyntaxError:
-        return new SyntaxErrorException(message, innerException);
+        return new SyntaxErrorException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.CheckConstraintViolation:
-        return new CheckConstraintViolationException(message, innerException);
+        return new CheckConstraintViolationException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.UniqueConstraintViolation:
-        return new UniqueConstraintViolationException(message, innerException);
+        return new UniqueConstraintViolationException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.ReferentialConstraintViolation:
-        return new ReferentialConstraintViolationException(message, innerException);
+        return new ReferentialConstraintViolationException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.Deadlock:
-        return new DeadlockException(message, innerException);
+        return new DeadlockException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.SerializationFailure:
-        return new TransactionSerializationFailureException(message, innerException);
+        return new TransactionSerializationFailureException(message, innerException) { Info = storageExceptionInfo };
       case SqlExceptionType.OperationTimeout:
-        return new OperationTimeoutException(message, innerException);
+        return new OperationTimeoutException(message, innerException) { Info = storageExceptionInfo };
       default:
-        return new StorageException(message, innerException);
+        return new StorageException(message, innerException) { Info = storageExceptionInfo };
       }
     }
 

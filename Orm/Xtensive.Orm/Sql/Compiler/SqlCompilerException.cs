@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Sql.Compiler
@@ -11,16 +10,11 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// An <see cref="SqlCompiler"/> exception.
   /// </summary>
-  [Serializable]
-  public class SqlCompilerException : Exception
+  /// <remarks>
+  /// Initializes new instance of this type.
+  /// </remarks>
+  /// <param name="message">The message.</param>
+  public class SqlCompilerException(string message) : Exception(message)
   {
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    public SqlCompilerException(string message)
-      : base(message)
-    {
-    }
   }
 }

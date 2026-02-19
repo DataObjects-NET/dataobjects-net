@@ -17,19 +17,10 @@ namespace Xtensive.Orm
   [Serializable]
   public class StorageException : Exception
   {
-    private StorageExceptionInfo info;
-
     /// <summary>
     /// Context information about occurred error.
     /// </summary>
-    public StorageExceptionInfo Info {
-      get { return info; }
-      set {
-        if (info!=null)
-          throw new InvalidOperationException(Strings.ExValueIsAlreadyAssigned);
-        info = value;
-      }
-    }
+    public StorageExceptionInfo Info { get; init; }
 
     // Constructors
 

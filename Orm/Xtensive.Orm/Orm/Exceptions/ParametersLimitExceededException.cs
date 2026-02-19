@@ -16,12 +16,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Current number of parameters in <see cref="System.Data.Common.DbCommand"/> which caused exception.
     /// </summary>
-    public int CurrentParameterCount { get; private set; }
+    public int CurrentParameterCount { get; }
 
     /// <summary>
     /// Maximum number of parameters declared for <see cref="System.Data.Common.DbCommand"/> which is allowed.
     /// </summary>
-    public int MaxParameterCount { get; private set; }
+    public int MaxParameterCount { get; }
 
     public ParametersLimitExceededException(int currentParameterCount, int maxParameterCount)
       : base(string.Format(Strings.ExQueryHasTooManyParametersMaxCountOfParametersIsX, maxParameterCount), null)

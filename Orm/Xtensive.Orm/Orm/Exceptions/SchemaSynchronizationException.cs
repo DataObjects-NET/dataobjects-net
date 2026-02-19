@@ -22,7 +22,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets or sets the schema comparison result.
     /// </summary>
-    public SchemaComparisonResult ComparisonResult { get; private set; }
+    public SchemaComparisonResult ComparisonResult { get; }
 
     // Constructors
 
