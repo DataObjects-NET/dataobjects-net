@@ -179,6 +179,10 @@ namespace Xtensive.Orm.Linq
                 false,
                 mc);
             }
+#if NET10_0_OR_GREATER
+          case QueryableMethodKind.LeftJoin:
+            return VisitLeftJoin(mc);
+#endif
           case QueryableMethodKind.OrderBy:
           case QueryableMethodKind.OrderByDescending:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
