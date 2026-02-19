@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Linq
   internal sealed partial class Translator
   {
     private static readonly Type OrmCollectionExtensionsType = typeof(CollectionExtensionsEx);
-    private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensions);
+    private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensionsEx);
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
@@ -503,9 +503,11 @@ namespace Xtensive.Orm.Linq
 #pragma warning restore 612,618
 
         // Visit Queryable extensions.
-        if (methodDeclaringType == typeof(QueryableExtensions)) {
+        if (methodDeclaringType == typeof(QueryableExtensionsEx)) {
           return methodName switch {
+#if !NET10_0_OR_GREATER
             Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
+#endif
             Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
             Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),
             Reflection.WellKnown.QueryableExtensions.Take => VisitTake(mc.Arguments[0], mc.Arguments[1]),

@@ -7,19 +7,21 @@ namespace Xtensive.Reflection
   public partial class WellKnown
   {
     /// <summary>
-    /// Various well-known constants related to <see cref="Orm.QueryableExtensions" />
+    /// Various well-known constants related to <see cref="Orm.QueryableExtensionsEx" />
     /// </summary>
     public static class QueryableExtensions
     {
-      public const string Count = nameof(Orm.QueryableExtensions.Count);
-      public const string LeftJoin = nameof(Orm.QueryableExtensions.LeftJoin);
-      public const string Lock = nameof(Orm.QueryableExtensions.Lock);
-      public const string Take = nameof(Orm.QueryableExtensions.Take);
-      public const string Skip = nameof(Orm.QueryableExtensions.Skip);
-      public const string ElementAt = nameof(Orm.QueryableExtensions.ElementAt);
-      public const string ElementAtOrDefault = nameof(Orm.QueryableExtensions.ElementAtOrDefault);
-      public const string Tag = nameof(Orm.QueryableExtensions.Tag);
-      public const string In = nameof(Orm.QueryableExtensions.In);
+      public const string Count = nameof(Orm.QueryableExtensionsEx.Count);
+#if !NET10_0_OR_GREATER
+      public const string LeftJoin = nameof(Orm.QueryableExtensionsEx.LeftJoin);
+#endif
+      public const string Lock = nameof(Orm.QueryableExtensionsEx.Lock);
+      public const string Take = nameof(Orm.QueryableExtensionsEx.Take);
+      public const string Skip = nameof(Orm.QueryableExtensionsEx.Skip);
+      public const string ElementAt = nameof(Orm.QueryableExtensionsEx.ElementAt);
+      public const string ElementAtOrDefault = nameof(Orm.QueryableExtensionsEx.ElementAtOrDefault);
+      public const string Tag = nameof(Orm.QueryableExtensionsEx.Tag);
+      public const string In = nameof(Orm.QueryableExtensionsEx.In);
     }
   }
 }

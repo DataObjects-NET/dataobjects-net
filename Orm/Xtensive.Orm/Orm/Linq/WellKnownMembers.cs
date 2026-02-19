@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Linq
 
     private static MethodInfo GetQueryableExtensionsMethod(string name, int numberOfGenericArgument, int numberOfArguments)
     {
-      return GetMethod(typeof (QueryableExtensions), name, numberOfGenericArgument, numberOfArguments);
+      return GetMethod(typeof (QueryableExtensionsEx), name, numberOfGenericArgument, numberOfArguments);
     }
   }
 }

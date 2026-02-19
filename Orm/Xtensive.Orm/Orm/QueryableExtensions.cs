@@ -24,7 +24,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
-  public static partial class QueryableExtensions
+  public static partial class QueryableExtensionsEx
   {
     /// <summary>
     /// Tags query with given <paramref name="tag"/> string 
@@ -257,6 +257,7 @@ namespace Xtensive.Orm
       values == null ? false : values.Contains(source);
 #pragma warning restore IDE0060 // Remove unused parameter
 
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Correlates the elements of two sequences based on matching keys.
     /// </summary>
@@ -290,6 +291,7 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }
+#endif
 
     /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
