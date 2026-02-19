@@ -5,7 +5,6 @@
 // Created:    2010.02.08
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Orm
@@ -16,7 +15,6 @@ namespace Xtensive.Orm
   /// <seealso cref="UniqueConstraintViolationException"/>
   /// <seealso cref="CheckConstraintViolationException"/>
   /// </summary>
-  [Serializable]
   public abstract class ConstraintViolationException : StorageException
   {
     // Constructors
@@ -37,23 +35,6 @@ namespace Xtensive.Orm
     /// <param name="innerException">The inner exception.</param>
     public ConstraintViolationException(string message, Exception innerException)
       : base(message, innerException)
-    {
-    }
-
-    // Serialization
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ConstraintViolationException"/> class.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
-    /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
-    /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected ConstraintViolationException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

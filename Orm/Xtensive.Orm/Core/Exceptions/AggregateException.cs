@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Linq;
 
@@ -17,7 +15,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Aggregates a set of caught exceptions.
   /// </summary>
-  [Serializable]
   public class AggregateException : Exception
   {
     private Exception[] exceptions;
@@ -129,38 +126,6 @@ namespace Xtensive.Core
       : base(message, exceptions.First())
     {
       SetExceptions(exceptions);
-    }
-
-
-    // Serialization
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected AggregateException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      exceptions = (Exception[]) info.GetValue("Exceptions", typeof (Exception[]));
-    }
-
-    /// <summary>
-    /// Serializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    [SecurityCritical]
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("Exceptions", exceptions);
     }
   }
 }

@@ -11,7 +11,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// An exception that is throws when number of parameters in <see cref="System.Data.Common.DbCommand"/> exeeded maximum value for the storage.
   /// </summary>
-  [Serializable]
   public sealed class ParametersLimitExceededException : StorageException
   {
     /// <summary>

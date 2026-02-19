@@ -5,8 +5,6 @@
 // Created:    2010.01.30
 
 using System;
-using System.Runtime.Serialization;
-
 using Xtensive.IoC;
 
 namespace Xtensive.Core
@@ -14,8 +12,7 @@ namespace Xtensive.Core
   /// <summary>
   /// Thrown by <see cref="ServiceContainerBase"/> on activation errors.
   /// </summary>
-  [Serializable]
-  public class ActivationException : Exception
+  public sealed class ActivationException : Exception
   {
     /// <summary>
     /// Initializes new instance of this type.
@@ -40,19 +37,6 @@ namespace Xtensive.Core
     /// <param name="innerException">The inner exception.</param>
     public ActivationException(string message, Exception innerException) 
       : base(message, innerException)
-    {
-    }
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected ActivationException(SerializationInfo info, StreamingContext context) 
-      : base(info, context)
     {
     }
   }

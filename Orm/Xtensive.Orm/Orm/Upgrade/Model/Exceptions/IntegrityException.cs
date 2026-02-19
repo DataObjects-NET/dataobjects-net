@@ -5,7 +5,6 @@
 // Created:    2009.03.23
 
 using System;
-using System.Runtime.Serialization;
 
 using Xtensive.Modelling;
 
@@ -14,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Describes errors detected during <see cref="StorageModel"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
-  [Serializable]
   public class IntegrityException : Exception
   {
     /// <summary>
@@ -38,24 +36,6 @@ namespace Xtensive.Orm.Upgrade.Model
       : base(message)
     {
       NodePath = nodePath;
-    }
-
-    // Serialization
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="IntegrityException"/> class.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> that holds the serialized object data about the exception being thrown.</param>
-    /// <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext"/> that contains contextual information about the source or destination.</param>
-    /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
-    ///   
-    /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    public IntegrityException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

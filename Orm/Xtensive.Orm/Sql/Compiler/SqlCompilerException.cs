@@ -22,20 +22,5 @@ namespace Xtensive.Sql.Compiler
       : base(message)
     {
     }
-
-    // Serialization
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected SqlCompilerException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }

@@ -5,7 +5,6 @@
 // Created:    2009.03.23
 
 using System;
-using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// Describes errors detected during 
   /// <see cref="Node.Validate"/>.<see cref="Node"/> execution.
   /// </summary>
-  [Serializable]
   public class ValidationException : Exception
   {
     /// <summary>

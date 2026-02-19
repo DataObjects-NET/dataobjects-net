@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Validation
@@ -8,10 +7,8 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Validation failure error.
   /// </summary>
-  [Serializable]
-  public class ValidationFailedException : StorageException
+  public sealed class ValidationFailedException : StorageException
   {
-    [NonSerialized]
     private IList<EntityErrorInfo> validationErrors;
 
     /// <summary>
@@ -44,19 +41,6 @@ namespace Xtensive.Orm.Validation
     /// <param name="inner">Inner exception.</param>
     public ValidationFailedException(string message, Exception inner)
       : base(message, inner)
-    {
-    }
-
-    /// <summary>
-    /// Performs deserialization.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected ValidationFailedException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }
