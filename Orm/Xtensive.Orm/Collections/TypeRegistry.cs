@@ -151,14 +151,14 @@ namespace Xtensive.Collections
 
     #region ICloneable members
 
+    /// <inheritdoc/>
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public virtual object Clone()
-    {
-      return new TypeRegistry(this);
-    }
+    public virtual TypeRegistry Clone() => new TypeRegistry(this);
 
     #endregion
 

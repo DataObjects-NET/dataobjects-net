@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable methods
 
     /// <inheritdoc/>
-    public object Clone()
+    public ExtensionConfigurationCollection Clone()
     {
       return new ExtensionConfigurationCollection(this);
     }

@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return mapping;
     }
 
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override BinaryExpression VisitBinary(BinaryExpression b)
     {
       var result = (BinaryExpression) base.VisitBinary(b);
       var expressions = new[] {result.Left, result.Right};

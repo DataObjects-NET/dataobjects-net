@@ -576,7 +576,7 @@ namespace Xtensive.Orm
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
-        ? (ValidationContext) new RealValidationContext()
+        ? new RealValidationContext()
         : new VoidValidationContext();
 
       // Creating Services

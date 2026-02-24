@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Linq
         currentIndex++;
       }
 
-      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
+      CompilableProvider recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))

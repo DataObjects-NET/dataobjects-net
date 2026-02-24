@@ -12,8 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class CharComparer : ValueTypeComparer<char>
   {
-    protected override IAdvancedComparer<char> CreateNew(ComparisonRules rules)
-      => new CharComparer(Provider, ComparisonRules.Combine(rules));
+    protected override CharComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

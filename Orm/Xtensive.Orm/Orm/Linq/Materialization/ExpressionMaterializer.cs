@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       return expression.NativeBindings.Count == 0
         ? newExpression
-        : (Expression) Expression.MemberInit(newExpression, expression
+        : Expression.MemberInit(newExpression, expression
           .NativeBindings
           .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
           .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
