@@ -272,6 +272,7 @@ namespace Xtensive.Orm
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
+    [Obsolete(".NET 10 has its own LeftJoin method declared, which will conflict with this. Use LeftJoinEx to prepare your code for future .NET change")]
     public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
       ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
@@ -288,6 +289,40 @@ namespace Xtensive.Orm
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
+      return outer.Provider.CreateQuery<TResult>(expression);
+    }
+
+    /// <summary>
+    /// Correlates the elements of two sequences based on matching keys.
+    /// </summary>
+    /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+    /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+    /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+    /// <typeparam name="TResult">The type of the result elements.</typeparam>
+    /// <param name="outer">The first sequence to join.</param>
+    /// <param name="inner">The sequence to join to the first sequence.</param>
+    /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+    /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+    /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
+    /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
+    public static IQueryable<TResult> LeftJoinEx<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
+      ArgumentValidator.EnsureArgumentNotNull(inner, nameof(inner));
+      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, nameof(outerKeySelector));
+      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, nameof(innerKeySelector));
+      ArgumentValidator.EnsureArgumentNotNull(resultSelector, nameof(resultSelector));
+
+      var outerProviderType = outer.Provider.GetType();
+      if (outerProviderType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
+      }
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
+      var expression = Expression.Call(null, genericMethod, new[] { outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector });
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 

@@ -1,0 +1,2 @@
+[main] LeftJoin extension marked as Obsolete to prepare movement to .NET 10, LeftJoinEx provided as substitution
+[main] IPriorityQueue interface became Obsolete

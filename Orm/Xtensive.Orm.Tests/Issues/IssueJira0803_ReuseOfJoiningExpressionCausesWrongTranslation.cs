@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
 
         var leftJoinWithExpression = session.Query.All<TestEntity>()
-          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+          .LeftJoinEx(session.Query.All<TestEntity>().Where(it => it.Description == null),
             o => o.Id,
             key,
             (o, i) => o)
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.AreEqual(3, leftJoinWithExpression.Count);
 
         leftJoinWithExpression = session.Query.All<TestEntity>()
-          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+          .LeftJoinEx(session.Query.All<TestEntity>().Where(it => it.Description == null),
             key,
             i => i.Id,
             (o, i) => o)
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var ex = Assert.Throws<QueryTranslationException>(() =>
           _ = session.Query.All<TestEntity>()
-          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+          .LeftJoinEx(session.Query.All<TestEntity>().Where(it => it.Description == null),
             key,
             key,
             (o, i) => o)
