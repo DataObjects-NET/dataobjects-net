@@ -247,10 +247,9 @@ namespace Xtensive.Orm.Linq.Materialization
         var typeInfo = expression.PersistentType;
         var tuplePrototype = typeInfo.TuplePrototype;
         var mappingInfo = expression.Fields
-          .OfType<FieldExpression>()
-          .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
-          .OrderBy(f => f.Field.MappingInfo.Offset)
-          .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+          .OfExactlyFieldExpression()
+          .OrderBy(static f => f.Field.MappingInfo.Offset)
+          .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
           .Distinct()
           .ToArray();
 
@@ -296,10 +295,9 @@ namespace Xtensive.Orm.Linq.Materialization
       var typeInfo = expression.PersistentType;
       var tuplePrototype = typeInfo.TuplePrototype;
       var mappingInfo = expression.Fields
-        .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
-        .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .OfExactlyFieldExpression()
+        .OrderBy(static f => f.Field.MappingInfo.Offset)
+        .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
@@ -361,10 +359,9 @@ namespace Xtensive.Orm.Linq.Materialization
       var typeIdIndex = typeIdField == null ? -1 : typeIdField.Mapping.Offset;
 
       var mappingInfo = expression.Fields
-        .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType == ExtendedExpressionType.Field)
-        .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .OfExactlyFieldExpression()
+        .OrderBy(static f => f.Field.MappingInfo.Offset)
+        .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
