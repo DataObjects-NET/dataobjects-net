@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private Dictionary<string, string> CloneSchemas(Catalog newCatalog, Catalog sourceCatalog, MappingResolver mappingResolver)
     {
-      var schemaMap = new Dictionary<string, string>();
+      var schemaMap = new Dictionary<string, string>(sourceCatalog.Schemas.Count);
       foreach (var schema in sourceCatalog.Schemas) {
         var complexName = mappingResolver.GetNodeName(newCatalog.Name, schema.Name, "Dummy");
         var names = complexName.Split(NameElementSeparator);
@@ -336,16 +336,14 @@ namespace Xtensive.Orm.Upgrade.Internals
         return;
       }
 
-      var uniqueConstraint = sourceConstraint as UniqueConstraint;
-      if (uniqueConstraint!=null) {
-        var primaryKey = sourceConstraint as PrimaryKey;
-        if (primaryKey!=null) {
-          var columns = primaryKey.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
-          var pk =newTable.CreatePrimaryKey(primaryKey.Name, columns);
+      if (sourceConstraint is UniqueConstraint uniqueConstraint) {
+        if (sourceConstraint is PrimaryKey primaryKey) {
+          var columns = primaryKey.Columns.SelectToArray(c => newTable.TableColumns[c.Name]);
+          var pk = newTable.CreatePrimaryKey(primaryKey.Name, columns);
           CopyDbName(pk, primaryKey);
         }
         else {
-          var columns = uniqueConstraint.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
+          var columns = uniqueConstraint.Columns.SelectToArray(c => newTable.TableColumns[c.Name]);
           var uc = newTable.CreateUniqueConstraint(uniqueConstraint.Name, columns);
           CopyDbName(uc, uniqueConstraint);
         }

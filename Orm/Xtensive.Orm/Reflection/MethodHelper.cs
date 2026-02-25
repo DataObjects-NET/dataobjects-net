@@ -112,7 +112,7 @@ namespace Xtensive.Reflection
       }
       else if (parameterTypes.All(o => o is Type)) {
         return type.GetConstructor(bindingFlags, null,
-          parameterTypes.Select(o => (Type) o).ToArray(parameterTypes.Length), null);
+          parameterTypes.SelectToArray(o => (Type) o), null);
       }
 
       ConstructorInfo lastMatch = null;

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 
 namespace Xtensive.Linq.SerializableExpressions.Internals
 {
@@ -177,7 +178,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToList();
+      var parameters = l.Parameters.SelectToArray(p => (ParameterExpression) Visit(p));
       using (CreateParameterScope(parameters)) {
         return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
       }

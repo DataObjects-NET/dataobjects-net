@@ -610,7 +610,7 @@ namespace Xtensive.Collections
     /// <param name="source">The initial contents of the <see cref="Deque{T}"/>.</param>
     public Deque(IEnumerable<T> source)
     {
-      items = new List<T>(source).ToArray();
+      items = source.ToArray();
       headPos = -1;
       tailPos = items.Length;
       count = items.Length;

@@ -67,8 +67,8 @@ namespace Xtensive.Orm.Upgrade.Model
         ea.Execute(base.ValidateState);
 
         // Secondary key columns: empty set, duplicates
-        var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToList();
-        if (keyColumns.Count==0)
+        var keyColumns = KeyColumns.Select(valueRef => valueRef.Value).ToArray(KeyColumns.Count);
+        if (keyColumns.Length==0)
           ea.Execute(() => {
             throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
           });

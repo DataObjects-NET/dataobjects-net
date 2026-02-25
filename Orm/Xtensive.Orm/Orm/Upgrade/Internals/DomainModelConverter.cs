@@ -113,17 +113,17 @@ namespace Xtensive.Orm.Upgrade
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
       foreach (var type in domainModel.Types.Entities) {
-        if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
+        if (type.Hierarchy is null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          Dictionary<TypeInfo, int> typeOrder = type.Ancestors
+          var typeOrder = type.Ancestors
             .Append(type)
-            .Select((t, i) => (Type: t, Index: i))
-            .ToDictionary(a => a.Type, a => a.Index);
-          List<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
+            .Select(static (t, i) => (Type: t, Index: i))
+            .ToDictionary(static a => a.Type, static a => a.Index, capacity: type.Ancestors.Count);
+          var realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
             .OrderBy(index => typeOrder[index.ReflectedType])
-            .ToList();
-          for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
+            .ToArray(type.Indexes.RealPrimaryIndexes.Count);
+          for (int i = 0, edge = realPrimaryIndexes.Length - 1; i < edge; i++) {
             if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
               var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
               indexPairs[pair] = null;
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Upgrade
         var referencingTable = targetModel.Tables[resolver.GetNodeName(referencingIndex.ReflectedType)];
         var referencedTable = targetModel.Tables[resolver.GetNodeName(referencedIndex.ReflectedType)];
         var storageReferencingIndex = FindIndex(
-          referencingTable, referencingIndex.KeyColumns.Select(ci => ci.Key.Name).ToList());
+          referencingTable, referencingIndex.KeyColumns.Select(static ci => ci.Key.Name).ToArray());
 
         string foreignKeyName = nameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
@@ -320,19 +320,19 @@ namespace Xtensive.Orm.Upgrade
       return primaryIndex;
     }
 
-    private IEnumerable<TableInfo> CreateTables(IndexInfo index)
+    private IReadOnlyList<TableInfo> CreateTables(IndexInfo index)
     {
-      var result = new List<TableInfo>();
       var type = index.ReflectedType;
-      if (configuration.IsMultidatabase && type.UnderlyingType.Namespace==MetadataNamespace) {
+      if (configuration.IsMultidatabase && type.UnderlyingType.Namespace == MetadataNamespace) {
+        var parts = new List<TableInfo>(sourceModel.Databases.Count);
         foreach (var db in sourceModel.Databases) {
           var name = resolver.GetNodeName(db.Name, type.MappingSchema, type.MappingName);
-          result.Add(new TableInfo(targetModel, name));
+          parts.Add(new TableInfo(targetModel, name));
         }
+        return parts;
       }
       else
-        result.Add(new TableInfo(targetModel, resolver.GetNodeName(type)));
-      return result;
+        return new[] { new TableInfo(targetModel, resolver.GetNodeName(type)) };
     }
 
     #region Not supported
@@ -401,17 +401,24 @@ namespace Xtensive.Orm.Upgrade
 
     private static StorageIndexInfo FindIndex(TableInfo table, ICollection<string> keyColumns)
     {
-      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name).ToList();
+      var primaryIndex = table.PrimaryIndex;
+      var primaryKeyColumns = primaryIndex.KeyColumns.Select(ColumnNameSelector).ToList(primaryIndex.KeyColumns.Count);
 
       if (!primaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(primaryKeyColumns)).Any())
         return table.PrimaryIndex;
 
       foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
-        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name).ToList();
+        var secondaryKeyColumns = index.KeyColumns.Select(ColumnNameSelector).ToList(index.KeyColumns.Count);
         if (!secondaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(secondaryKeyColumns)).Any())
           return index;
       }
       return null;
+
+
+      static string ColumnNameSelector(KeyColumnRef cr)
+      {
+        return cr.Value.Name;
+      }
     }
 
     private TableInfo GetTable(TypeInfo type)
@@ -440,7 +447,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
-      var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
+      var foreignColumns = referencingField.Columns.SelectToArray(column => referencingTable.Columns[column.Name]);
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,

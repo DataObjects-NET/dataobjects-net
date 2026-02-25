@@ -146,8 +146,8 @@ namespace Xtensive.Sql
 
     public static SqlArray Array(IEnumerable<object> values)
     {
-      var valueList = values.ToList();
-      if (valueList.Count==0)
+      var valueList = values.ToArray();
+      if (valueList.Length==0)
         return Array(System.Array.Empty<int>());
       var itemType = valueList[0].GetType();
       foreach (var t in values.Select(value => value.GetType())) {

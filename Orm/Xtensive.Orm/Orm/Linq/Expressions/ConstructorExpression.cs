@@ -35,10 +35,10 @@ namespace Xtensive.Orm.Linq
         e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.BindParameter(parameter, processedExpressions));
       return new ConstructorExpression(
         Type,
-        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
-        NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value)),
+        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value), Bindings.Count),
+        NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value), NativeBindings.Count),
         Constructor,
-        ConstructorArguments.Select(genericBinder).ToList());
+        ConstructorArguments.Select(genericBinder).ToArray());
     }
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Linq
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
         NativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
         Constructor,
-        ConstructorArguments.Select(genericRemover).ToList());
+        ConstructorArguments.Select(genericRemover).ToArray());
       return result;
     }
 

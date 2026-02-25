@@ -352,7 +352,11 @@ namespace Xtensive.Orm.Upgrade
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
+#if NET8_0_OR_GREATER
+      serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToArray().AsReadOnly();
+#else
       serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToList().AsReadOnly();
+#endif
     }
 
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -398,7 +402,12 @@ namespace Xtensive.Orm.Upgrade
 
       // Storing the result
       serviceAccessor.UpgradeHandlers = new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
-      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList().AsReadOnly();
+#if NET8_0_OR_GREATER
+      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToArray(handlers.Count).AsReadOnly();
+#else
+      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList(handlers.Count).AsReadOnly();
+#endif
+
     }
 
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)

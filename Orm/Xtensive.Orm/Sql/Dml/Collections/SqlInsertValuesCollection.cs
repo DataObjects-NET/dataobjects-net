@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Dml.Collections
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          var rowList = new List<SqlExpression>();
+          var rowList = new List<SqlExpression>(columns.Count);
           foreach (var column in columns) {
             if (row.TryGetValue(column, out var value)) {
               rowList.Add(value);

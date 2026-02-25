@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       bool isGenericMethod = attribute.NumberOfGenericArguments > 0;
       bool isGenericType = targetType.IsGenericType;
       bool isGeneric = isGenericType || isGenericMethod;
-      
+
       string memberName = attribute.TargetMember;
 
       if (memberName.IsNullOrEmpty())
@@ -191,18 +191,21 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       if (isCtor)
         bindingFlags |= BindingFlags.Instance;
-      else
+      else {
         if (!isStatic) {
-          if (parameterTypes.Length==0)
+          if (parameterTypes.Length == 0)
             throw new InvalidOperationException(string.Format(
               Strings.ExCompilerXShouldHaveThisParameter,
               compiler.GetFullName(true)));
 
-          parameterTypes = parameterTypes.Skip(1).ToArray();
+          var noInstanceParameter = new Type[parameterTypes.Length - 1];
+          Array.Copy(parameterTypes, 1, noInstanceParameter, 0, noInstanceParameter.Length);
+          parameterTypes = noInstanceParameter;
           bindingFlags |= BindingFlags.Instance;
         }
         else
           bindingFlags |= BindingFlags.Static;
+      }
 
       if (isPropertyGetter) {
         bindingFlags |= BindingFlags.GetProperty;

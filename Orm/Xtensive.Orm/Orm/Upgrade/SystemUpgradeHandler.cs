@@ -192,9 +192,13 @@ namespace Xtensive.Orm.Upgrade
         var database = group.Key;
         var metadata = group.Value;
         Func<TypeInfo, bool> filter = t => t.MappingDatabase==database;
-        var types = model.Types.Where(filter).ToList();
+        var types = new List<TypeInfo>(model.Types.Count);
+        var assemblies = new HashSet<Assembly>();
+        foreach (var databaseType in model.Types.Where(filter)) {
+          types.Add(databaseType);
+          _ = assemblies.Add(databaseType.UnderlyingType.Assembly);
+        }
         var typeMetadata = GetTypeMetadata(types, registry);
-        var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
         var assemblyMetadata = GetAssemblyMetadata(assemblies);
         var storedModel = model.ToStoredModel(registry, filter);
         // Since we support storage nodes, stored domain model and real model of a node

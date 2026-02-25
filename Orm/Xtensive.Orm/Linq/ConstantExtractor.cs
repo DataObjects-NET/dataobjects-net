@@ -49,7 +49,7 @@ namespace Xtensive.Linq
       if (constantValues != null)
         throw new InvalidOperationException();
       constantValues = new List<object>();
-      var parameters = EnumerableUtils.One(ConstantParameter).Concat(lambda.Parameters).ToArray();
+      var parameters = EnumerableUtils.One(ConstantParameter).Concat(lambda.Parameters).ToArray(lambda.Parameters.Count + 1);
       var body = Visit(lambda.Body);
       // Preserve original delegate type because it may differ from types of parameters / return value
       return FastExpression.Lambda(FixDelegateType(lambda.Type), body, parameters);
