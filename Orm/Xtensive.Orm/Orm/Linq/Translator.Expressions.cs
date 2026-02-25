@@ -1370,7 +1370,7 @@ namespace Xtensive.Orm.Linq
     {
       var newExpression = mi.NewExpression;
       VisitNewExpressionArgumentsSkipResults(newExpression);
-      var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
+      var bindings = VisitBindingList((IReadOnlyList<MemberBinding>) mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
       foreach (var binding in bindings) {
         var member = binding.Member.MemberType == MemberTypes.Property

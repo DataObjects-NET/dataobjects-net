@@ -45,13 +45,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var oldConstructorArguments = expression.ConstructorArguments.ToList().AsReadOnly();
+      var oldConstructorArguments = expression.ConstructorArguments.ToList();
       var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
 
-      var oldBindings = expression.Bindings.SelectToList(b => b.Value).AsReadOnly();
+      var oldBindings = expression.Bindings.SelectToList(b => b.Value);
       var newBindings = VisitExpressionList(oldBindings);
 
-      var oldNativeBindings = expression.NativeBindings.SelectToList(b => b.Value).AsReadOnly();
+      var oldNativeBindings = expression.NativeBindings.SelectToList(b => b.Value);
       var newNativeBindings = VisitExpressionList(oldNativeBindings);
       
       var notChanged =

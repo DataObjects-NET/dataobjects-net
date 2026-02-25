@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new KeyExtractorNode<T>(GetExtractor<T>(), nestedNodes);
     }
 
-    private static Func<T, IReadOnlyCollection<Key>> GetExtractor<T>()
+    private static Func<T, IReadOnlyList<Key>> GetExtractor<T>()
     {
       return target => new[] {((IEntity) target).Key};
     }
