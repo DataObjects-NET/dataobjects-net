@@ -4,6 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.22
 
+using System;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -36,8 +37,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected UnaryProvider(ProviderType type, CompilableProvider source)
       : base(type, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      Source = source;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
     }
   }
 }

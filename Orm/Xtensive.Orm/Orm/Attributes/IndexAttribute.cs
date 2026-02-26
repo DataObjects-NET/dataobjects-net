@@ -89,7 +89,7 @@ namespace Xtensive.Orm
     /// <param name="keyFields">The other (optional) key fields.</param>
     public IndexAttribute(string keyField, params string[] keyFields)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyField, "keyField");
+      ArgumentNullException.ThrowIfNull(keyField, "keyField");
 
       if (keyFields==null || keyFields.Length==0) {
         KeyFields = new[] {keyField};

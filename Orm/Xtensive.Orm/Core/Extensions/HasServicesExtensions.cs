@@ -32,7 +32,7 @@ namespace Xtensive.Core
     public static T GetService<T>(this IHasServices serviceProvider, bool failIfNone)
       where T: class
     {
-      ArgumentValidator.EnsureArgumentNotNull(serviceProvider, "serviceProvider");
+      ArgumentNullException.ThrowIfNull(serviceProvider, "serviceProvider");
       var service = serviceProvider.GetService<T>();
       if (failIfNone && service == null)
         throw new InvalidOperationException(

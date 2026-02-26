@@ -335,7 +335,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override CompilableProvider VisitStore(StoreProvider provider)
     {
-      if (!(provider.Source is CompilableProvider compilableSource)) {
+      if (provider.Source is not CompilableProvider compilableSource) {
         return provider;
       }
 

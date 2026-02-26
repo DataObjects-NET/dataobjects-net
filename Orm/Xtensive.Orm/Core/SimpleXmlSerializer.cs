@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2013 Xtensive LLC
+// Copyright (C) 2013 Xtensive LLC
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2013.07.18
 
+using System;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -24,7 +25,7 @@ namespace Xtensive.Core
     /// <returns>Deserialized instance.</returns>
     public T Deserialize(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "serialized");
+      ArgumentNullException.ThrowIfNull(value, "serialized");
 
       using (var reader = new StringReader(value))
         return (T) serializer.Deserialize(reader);
@@ -37,7 +38,7 @@ namespace Xtensive.Core
     /// <returns>Serialized instance.</returns>
     public string Serialize(T value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value, "value");
 
       using (var writer = new StringWriter()) {
         serializer.Serialize(writer, value);

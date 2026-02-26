@@ -114,7 +114,7 @@ namespace Xtensive.Orm
     public new void AddRange<TElement>(IEnumerable<TElement> items)
       where TElement: TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items, "items");
       base.AddRange(items);
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Orm
     public new void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other, "other");
       base.IntersectWith(other);
     }
 
@@ -140,7 +140,7 @@ namespace Xtensive.Orm
     public new void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other, "other");
       base.UnionWith(other);
     }
 
@@ -152,7 +152,7 @@ namespace Xtensive.Orm
     public new void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other, "other");
       base.ExceptWith(other);
     }
 

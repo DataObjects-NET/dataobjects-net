@@ -75,7 +75,7 @@ namespace Xtensive.Core
 
     public AsyncFutureResult(Func<T> worker, BaseLog logger)
     {
-      ArgumentValidator.EnsureArgumentNotNull(worker, nameof(worker));
+      ArgumentNullException.ThrowIfNull(worker, nameof(worker));
 
       this.logger = logger;
 
@@ -84,7 +84,7 @@ namespace Xtensive.Core
 
     public AsyncFutureResult(Func<Task<T>> worker, BaseLog logger, bool startWorker)
     {
-      ArgumentValidator.EnsureArgumentNotNull(worker, nameof(worker));
+      ArgumentNullException.ThrowIfNull(worker, nameof(worker));
 
       this.logger = logger;
 

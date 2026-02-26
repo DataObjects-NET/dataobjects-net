@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Model
     public int this[TypeInfo type]
     {
       get {
-        ArgumentValidator.EnsureArgumentNotNull(type, "type");
+        ArgumentNullException.ThrowIfNull(type, "type");
         return !mapping.TryGetValue(type, out var result)
           ? throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name))
           : result;
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Model
     /// otherwise false.</returns>
     public bool Contains(TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       return mapping.ContainsKey(type);
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Model
     /// otherwise <see cref="TypeInfo.NoTypeId"/>.</returns>
     public int GetTypeId(TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       return !mapping.TryGetValue(type, out var result) ? TypeInfo.NoTypeId : result;
     }
 
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Model
     /// <param name="type">Type.</param>
     public void Register(int typeId, TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       EnsureNotLocked();
 
       mapping[type] = typeId;

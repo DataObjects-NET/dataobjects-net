@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// Copyright (C) 2013-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
@@ -116,7 +116,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array, "array");
       ArgumentValidator.EnsureArgumentIsInRange(arrayIndex, 0, int.MaxValue, "arrayIndex");
 
       if (array.Length < totalItemCount + arrayIndex)
@@ -135,7 +135,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void AddRange(IEnumerable<T> items)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items, "items");
       foreach (var item in items)
         Add(item);
     }

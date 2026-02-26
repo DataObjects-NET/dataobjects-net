@@ -4,6 +4,7 @@
 // Created by: Alex Kofman
 // Created:    2008.08.14
 
+using System;
 using System.Diagnostics;
 
 
@@ -31,8 +32,7 @@ namespace Xtensive.Core
     [DebuggerStepThrough]
     protected Parameter(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(name, nameof(name));
-      Name = name;
+      Name = name ?? throw new ArgumentNullException(nameof(name));
     }
   }
 }

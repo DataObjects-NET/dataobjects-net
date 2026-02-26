@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public TypeDef FindAncestor(TypeDef item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item, "item");
 
       if (item.IsInterface)
         return null;
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     public IEnumerable<TypeDef> FindInterfaces(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
 
       var interfaces = TypeHelper.GetInterfacesUnordered(type);
       return interfaces.Select(TryGetValue).Where(result => result != null);

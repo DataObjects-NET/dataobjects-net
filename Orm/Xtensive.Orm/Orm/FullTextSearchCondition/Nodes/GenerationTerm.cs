@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -32,8 +32,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal GenerationTerm(IOperator source, GenerationType generationType, ICollection<string> terms)
       : base(SearchConditionNodeType.GenerationTerm, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(terms, "terms");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(terms, "terms");
       if (terms.Count==0)
         throw new ArgumentException(Strings.ExCollectionIsEmpty, "terms");
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))

@@ -49,7 +49,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     public void Remove(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
-      ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
+      ArgumentNullException.ThrowIfNull(entities, "entities");
       var isEmpty = true;
       foreach (var entity in entities) {
         isEmpty = false;

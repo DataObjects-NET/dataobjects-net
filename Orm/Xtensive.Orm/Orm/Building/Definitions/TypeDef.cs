@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns></returns>
     public FieldDef DefineField(PropertyInfo property)
     {
-      ArgumentValidator.EnsureArgumentNotNull(property, nameof(property));
+      ArgumentNullException.ThrowIfNull(property, nameof(property));
 
       if (property.ReflectedType != UnderlyingType) {
         throw new DomainBuilderException(
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Building.Definitions
     public FieldDef DefineField(string name, Type valueType)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
-      ArgumentValidator.EnsureArgumentNotNull(valueType, nameof(valueType));
+      ArgumentNullException.ThrowIfNull(valueType, nameof(valueType));
 
       var field = builder.DefineField(UnderlyingType, name, valueType);
       fields.Add(field);

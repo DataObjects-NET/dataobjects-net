@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.05.17
 
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -30,9 +31,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public DomainCachingSequenceProvider(IStorageSequenceAccessor accessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(accessor, "accessor");
-
-      this.accessor = accessor;
+      this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
     }
   }
 }

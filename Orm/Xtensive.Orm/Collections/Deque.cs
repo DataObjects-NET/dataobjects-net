@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
@@ -271,7 +272,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array, "array");
       array.EnsureIndexIsValid<T>(arrayIndex);
 
       if (arrayIndex + count > array.Length)
@@ -282,7 +283,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(Array array, int index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array, "array");
       array.EnsureIndexIsValid(index);
 
       if (array.Rank!=1)
@@ -388,9 +389,6 @@ namespace Xtensive.Collections
     {
       ArgumentValidator.EnsureArgumentIsInRange(index, 0, this.count-1, "index");
       ArgumentValidator.EnsureArgumentIsInRange(count, 0, this.count-index, "count");
-
-      if (count < 0 || (count > this.count - index))
-        throw new ArgumentOutOfRangeException("count");
 
       int bufferIndex = ConvertToBufferIndex(index);
       if (this.count > 0) {

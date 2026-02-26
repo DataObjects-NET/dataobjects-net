@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Providers
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(configuration, "configuration");
 
       var preCompiler = preCompilerProvider.Invoke(configuration);
       var compiler = compilerProvider.Invoke(configuration);
@@ -57,13 +57,9 @@ namespace Xtensive.Orm.Providers
       Func<CompilerConfiguration, IPreCompiler> preCompilerProvider,
       Func<CompilerConfiguration, ICompiler, IPostCompiler> postCompilerProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerProvider, "compilerProvider");
-      ArgumentValidator.EnsureArgumentNotNull(compilerProvider, "preCompilerProvider");
-      ArgumentValidator.EnsureArgumentNotNull(compilerProvider, "postCompilerProvider");
-
-      this.compilerProvider = compilerProvider;
-      this.preCompilerProvider = preCompilerProvider;
-      this.postCompilerProvider = postCompilerProvider;
+      this.compilerProvider = compilerProvider ?? throw new ArgumentNullException(nameof(compilerProvider));
+      this.preCompilerProvider = preCompilerProvider ?? throw new ArgumentNullException(nameof(preCompilerProvider));
+      this.postCompilerProvider = postCompilerProvider ?? throw new ArgumentNullException(nameof(postCompilerProvider));
     }
   }
 }

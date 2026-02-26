@@ -131,7 +131,7 @@ namespace Xtensive.Core
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       return new ChainedBuffer<T>(source);
     }
 
@@ -146,8 +146,8 @@ namespace Xtensive.Core
     /// <returns>A sequence of converted elements.</returns>
     public static IEnumerable<TNewItem> Convert<TItem, TNewItem>(this IEnumerable<TItem> source, Converter<TItem, TNewItem> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(converter, "converter");
       foreach (TItem item in source)
         yield return converter(item);
     }
@@ -377,9 +377,9 @@ namespace Xtensive.Core
       IEqualityComparer<TKey> comparer,
       int capacity)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(keySelector, nameof(keySelector));
-      ArgumentValidator.EnsureArgumentNotNull(elementSelector, nameof(elementSelector));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(keySelector, nameof(keySelector));
+      ArgumentNullException.ThrowIfNull(elementSelector, nameof(elementSelector));
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
 
       var dictionary = comparer != null
@@ -574,8 +574,8 @@ namespace Xtensive.Core
     /// <returns>Topologically sorted <paramref name="values"/> if no cycles exist, otherwise null.</returns>
     public static List<TValue> SortTopologically<TValue>(this IEnumerable<TValue> values, Func<TValue, TValue, bool> edgeTester)
     {
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      ArgumentValidator.EnsureArgumentNotNull(edgeTester, "edgeTester");
+      ArgumentNullException.ThrowIfNull(values, "values");
+      ArgumentNullException.ThrowIfNull(edgeTester, "edgeTester");
 
       var graph = new Graph<Node<TValue>, Edge>();
       graph.Nodes.AddRange(values.Select(p => new Node<TValue>(p)));

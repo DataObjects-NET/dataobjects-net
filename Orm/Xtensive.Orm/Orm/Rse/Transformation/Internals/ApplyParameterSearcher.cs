@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public ApplyParameter Find(LambdaExpression predicate)
     {
-      ArgumentValidator.EnsureArgumentNotNull(predicate, "predicate");
+      ArgumentNullException.ThrowIfNull(predicate, "predicate");
       result = null;
       Visit(predicate);
       return result;

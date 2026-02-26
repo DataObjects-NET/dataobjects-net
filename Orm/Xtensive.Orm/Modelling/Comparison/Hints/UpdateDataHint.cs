@@ -60,7 +60,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       IList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {
-      ArgumentValidator.EnsureArgumentNotNull(updateParameters, "updateParameters");
+      ArgumentNullException.ThrowIfNull(updateParameters, "updateParameters");
       UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters);
     }
 

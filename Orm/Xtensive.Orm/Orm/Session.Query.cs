@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     /// once <see cref="IDisposable.Dispose"/> is called.</returns>
     public IDisposable OverrideQueryRoot(IQueryRootBuilder queryRootBuilder)
     {
-      ArgumentValidator.EnsureArgumentNotNull(queryRootBuilder, "queryRootBuilder");
+      ArgumentNullException.ThrowIfNull(queryRootBuilder, "queryRootBuilder");
       var oldQuery = Query;
       var newQuery = new QueryEndpoint(oldQuery, queryRootBuilder);
       Query = newQuery;

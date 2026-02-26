@@ -1,6 +1,10 @@
+// Copyright (C) 2012-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -580,8 +584,8 @@ namespace Xtensive.Orm.Providers
 
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(select, "select");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentNullException.ThrowIfNull(select, "select");
+      ArgumentNullException.ThrowIfNull(providerInfo, "providerInfo");
       new SqlSelectProcessor(select, providerInfo).Visit(select);
     }
 

@@ -478,7 +478,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
+        ArgumentNullException.ThrowIfNull(value, "Parent");
         parent = value;
         parent.Fields.Add(this);
         reflectedType = value.ReflectedType;

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Internals
     /// <exception cref="NotSupportedException">Unsupported <paramref name="currentVersion"/> type.</exception>
     public static object GenerateNextVersion(object currentVersion)
     {
-      ArgumentValidator.EnsureArgumentNotNull(currentVersion, "currentValue");
+      ArgumentNullException.ThrowIfNull(currentVersion, "currentValue");
 
       TypeCode code = Type.GetTypeCode(currentVersion.GetType());
       switch (code) {

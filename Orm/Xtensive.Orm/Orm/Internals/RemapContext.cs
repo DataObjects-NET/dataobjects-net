@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2014.04.07
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Core;
@@ -37,8 +38,8 @@ namespace Xtensive.Orm.Internals
     /// <param name="realKey">Actual key</param>
     public void RegisterKeyMap(Key localKey, Key realKey)
     {
-      ArgumentValidator.EnsureArgumentNotNull(localKey, "localKey");
-      ArgumentValidator.EnsureArgumentNotNull(realKey, "realKey");
+      ArgumentNullException.ThrowIfNull(localKey, "localKey");
+      ArgumentNullException.ThrowIfNull(realKey, "realKey");
       if(localKey!=realKey)
         keyMap.Add(localKey, realKey);
     }
@@ -58,8 +59,7 @@ namespace Xtensive.Orm.Internals
 
     public RemapContext(EntityChangeRegistry registry)
     {
-      ArgumentValidator.EnsureArgumentNotNull(registry, "registry");
-      this.registry = registry;
+      this.registry = registry ?? throw new ArgumentNullException(nameof(registry));
       keyMap = new Dictionary<Key, Key>();
     }
   }

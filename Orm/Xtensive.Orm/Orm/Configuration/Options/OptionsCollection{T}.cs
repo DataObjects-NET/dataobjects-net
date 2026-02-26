@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Configuration.Options
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, nameof(array));
+      ArgumentNullException.ThrowIfNull(array, nameof(array));
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(arrayIndex, 0, nameof(arrayIndex));
 
       if (array.Length - arrayIndex < map.Count) {

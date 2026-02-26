@@ -289,7 +289,7 @@ namespace Xtensive.Comparison
     {
       if (value.Direction==Direction.None)
         throw Exceptions.InvalidArgument(value.Direction, "value.Direction");
-      ArgumentValidator.EnsureArgumentNotNull(tail, "tail");
+      ArgumentNullException.ThrowIfNull(tail, "tail");
       this.value = value;
       if (composite!=null) {
         int tailIndex = composite.Length-1;

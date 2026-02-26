@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Rse.Providers
     public RawProvider(RecordSetHeader header, Expression<Func<ParameterContext, IEnumerable<Tuple>>> source)
       : base(ProviderType.Raw)
     {
-      Source = source;
-      this.header = header;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
+      this.header = header ?? throw new ArgumentNullException(nameof(header));
       Initialize();
     }
   }

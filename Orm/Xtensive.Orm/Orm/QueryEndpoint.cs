@@ -95,7 +95,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextString.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -115,7 +115,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria, int topNByRank) 
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.FreeTextStringTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(topNByRank));
@@ -134,7 +134,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, new[] { searchCriteria });
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -154,7 +154,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria, int topNByRank)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
@@ -173,7 +173,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria)
       where T: Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.ContainsTableExpr.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria);
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -194,8 +194,8 @@ namespace Xtensive.Orm
       [NotNull] Expression<Func<T, object>>[] targetFields)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(targetFields, "targetFields");
       var method = WellKnownMembers.Query.ContainsTableExprWithColumns.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -217,7 +217,7 @@ namespace Xtensive.Orm
     public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria, int topNByRank)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
@@ -244,8 +244,8 @@ namespace Xtensive.Orm
       int topNByRank)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      ArgumentNullException.ThrowIfNull(searchCriteria, "searchCriteria");
+      ArgumentNullException.ThrowIfNull(targetFields, "targetFields");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expression.Constant(topNByRank));
@@ -839,7 +839,7 @@ namespace Xtensive.Orm
     private Key GetKeyByValues<T>(object[] keyValues)
       where T : class, IEntity
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyValues, "keyValues");
+      ArgumentNullException.ThrowIfNull(keyValues, "keyValues");
       if (keyValues.Length == 0)
         throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
       if (keyValues.Length == 1) {
@@ -867,15 +867,15 @@ namespace Xtensive.Orm
 
     internal QueryEndpoint(QueryProvider provider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider, "provider");
       Provider = provider;
       session = provider.Session;
     }
 
     internal QueryEndpoint(QueryEndpoint outerEndpoint, IQueryRootBuilder queryRootBuilder)
     {
-      ArgumentValidator.EnsureArgumentNotNull(outerEndpoint, "outerEndpoint");
-      ArgumentValidator.EnsureArgumentNotNull(queryRootBuilder, "queryRootBuilder");
+      ArgumentNullException.ThrowIfNull(outerEndpoint, "outerEndpoint");
+      ArgumentNullException.ThrowIfNull(queryRootBuilder, "queryRootBuilder");
       Provider = outerEndpoint.Provider;
       session = outerEndpoint.session;
       RootBuilder = queryRootBuilder;

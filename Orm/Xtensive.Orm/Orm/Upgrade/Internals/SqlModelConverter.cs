@@ -342,9 +342,9 @@ namespace Xtensive.Orm.Upgrade
     public SqlModelConverter(UpgradeServiceAccessor services, SchemaExtractionResult sourceModel,
       IEnumerable<StoredPartialIndexFilterInfo> partialIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(services, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(partialIndexes, "partialIndexes");
+      ArgumentNullException.ThrowIfNull(services);
+      ArgumentNullException.ThrowIfNull(sourceModel);
+      ArgumentNullException.ThrowIfNull(partialIndexes);
 
       this.sourceModel = sourceModel;
 

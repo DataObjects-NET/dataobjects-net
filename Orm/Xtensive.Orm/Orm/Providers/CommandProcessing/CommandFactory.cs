@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers
 
     public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, in string parameterNamePrefix)
     {
-      ArgumentValidator.EnsureArgumentNotNull(task, "task");
+      ArgumentNullException.ThrowIfNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
       var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers
 
     public virtual CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentNullException.ThrowIfNull(request, "request");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
       int parameterIndex = 0;
@@ -291,13 +291,9 @@ namespace Xtensive.Orm.Providers
 
     public CommandFactory(StorageDriver driver, Session session, SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-
-      Driver = driver;
-      Session = session;
-      Connection = connection;
+      Driver = driver ?? throw new ArgumentNullException(nameof(driver));
+      Session = session ?? throw new ArgumentNullException(nameof(session));
+      Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
       emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
       shareStorageNodesOverNodes = session.Domain.Configuration.ShareStorageSchemaOverNodes;

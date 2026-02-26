@@ -89,7 +89,7 @@ namespace Xtensive.Orm
         return state;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         if (state!=null)
           throw Exceptions.AlreadyInitialized("State");
         state = value;
@@ -858,7 +858,7 @@ namespace Xtensive.Orm
       : base(session)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+        ArgumentNullException.ThrowIfNull(keyTuple, "keyTuple");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
@@ -891,7 +891,7 @@ namespace Xtensive.Orm
     protected Entity(params object[] values)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        ArgumentNullException.ThrowIfNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
@@ -943,7 +943,7 @@ namespace Xtensive.Orm
       : base(session)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        ArgumentNullException.ThrowIfNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();

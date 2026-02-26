@@ -55,7 +55,7 @@ namespace Xtensive.Core
     /// </returns>
     public static bool IsNull(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       if (expression.NodeType==ExpressionType.Constant) {
         var constantExpression = (ConstantExpression) expression;
         return constantExpression.Value==null;
@@ -166,7 +166,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">The root node of expression isn't of <see cref="MemberExpression"/> type.</exception>
     public static MemberInfo GetMember(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var me = expression as MemberExpression;
       if (me==null)
@@ -215,7 +215,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static MethodInfo GetMethod(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var mce = expression as MethodCallExpression;
       if (mce==null)
@@ -232,7 +232,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static PropertyInfo GetIndexer(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var ie = expression as IndexExpression;
       if (ie==null)
@@ -249,7 +249,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static ConstructorInfo GetConstructor(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var ne = expression as NewExpression;
       if (ne==null)

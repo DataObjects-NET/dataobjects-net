@@ -274,8 +274,8 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     internal DomainExtractedModelBuilder(UpgradeServiceAccessor services, StorageModel model, bool makeSharedFinally)
     {
-      ArgumentValidator.EnsureArgumentNotNull(services, "services");
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
+      ArgumentNullException.ThrowIfNull(services, "services");
+      ArgumentNullException.ThrowIfNull(model, "model");
       this.model = model;
       this.makeSharedFinally = makeSharedFinally;
 

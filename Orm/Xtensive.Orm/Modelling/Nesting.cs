@@ -72,9 +72,8 @@ namespace Xtensive.Modelling
 
     internal Nesting(Node node, string propertyName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(propertyName, "propertyName");
-      Node = node;
+      Node = node ?? throw new ArgumentNullException(nameof(node));
       PropertyName = propertyName;
       Initialize();
     }

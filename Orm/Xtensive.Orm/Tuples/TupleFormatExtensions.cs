@@ -51,7 +51,7 @@ namespace Xtensive.Tuples
     /// </returns>
     public static string Format(this Tuple source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "tuple");
+      ArgumentNullException.ThrowIfNull(source);
       var descriptor = source.Descriptor;
       var count = source.Count;
       var targets = new string[count];
@@ -71,7 +71,7 @@ namespace Xtensive.Tuples
     /// can't be parsed to a <see cref="Tuple"/> with specified <paramref name="descriptor"/>.</exception>
     public static Tuple Parse(this TupleDescriptor descriptor, string source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
+      ArgumentNullException.ThrowIfNull(descriptor);
       var target = Tuple.Create(descriptor);
       var count = target.Count;
       var sources = source.RevertibleSplit(Escape, Comma).ToArray();

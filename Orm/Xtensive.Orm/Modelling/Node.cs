@@ -66,7 +66,7 @@ namespace Xtensive.Modelling
       get { return parent; }
       [DebuggerStepThrough]
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         if (value==Parent)
           return;
         NodeCollection collection = null;
@@ -338,10 +338,10 @@ namespace Xtensive.Modelling
       using (CloningScope.Open()) {
         var isModel = this is IModel;
         if (!isModel) {
-          ArgumentValidator.EnsureArgumentNotNull(newParent, nameof(newParent));
+          ArgumentNullException.ThrowIfNull(newParent, nameof(newParent));
         }
 
-        ArgumentValidator.EnsureArgumentNotNull(newName, nameof(newName));
+        ArgumentNullException.ThrowIfNull(newName, nameof(newName));
 
         // Cloning the instance
         var model = isModel ? null : (IModel) newParent.Model;
@@ -850,7 +850,7 @@ namespace Xtensive.Modelling
 
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type, nameof(type));
 
       static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
       {
@@ -1006,7 +1006,7 @@ namespace Xtensive.Modelling
     protected Node(Node parent, string name)
     {
       if (!(this is IModel)) {
-        ArgumentValidator.EnsureArgumentNotNull(parent, nameof(parent));
+        ArgumentNullException.ThrowIfNull(parent, nameof(parent));
       }
 
       if (!(this is IUnnamedNode)) {

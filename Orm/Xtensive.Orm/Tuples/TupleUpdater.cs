@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
@@ -45,8 +45,7 @@ namespace Xtensive.Tuples
     /// <param name="tuple">The tuple to wrap.</param>
     public TupleUpdater(Tuple tuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
-      this.tuple = tuple;
+      this.tuple = tuple ?? throw new ArgumentNullException(nameof(tuple));
     }
   }
 }

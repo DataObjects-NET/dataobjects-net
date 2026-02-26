@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Operations
     protected EntityOperation(Key key)
       : base(key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key, "key");
     }
 
     /// <inheritdoc/>

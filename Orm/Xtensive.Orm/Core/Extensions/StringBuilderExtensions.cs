@@ -76,8 +76,8 @@ namespace Xtensive.Core
     /// <returns>Original <paramref name="builder"/>.</returns>
     public static StringBuilder AppendHexArray(this StringBuilder builder, byte[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      ArgumentNullException.ThrowIfNull(builder, "builder");
+      ArgumentNullException.ThrowIfNull(values, "values");
 
       const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
@@ -97,7 +97,7 @@ namespace Xtensive.Core
     /// <returns>Original <paramref name="builder"/>.</returns>
     public static StringBuilder AppendHexArray(this StringBuilder builder, in ReadOnlySpan<byte> values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
+      ArgumentNullException.ThrowIfNull(builder, "builder");
 
       const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {

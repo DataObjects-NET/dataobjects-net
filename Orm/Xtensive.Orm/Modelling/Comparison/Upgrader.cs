@@ -119,8 +119,8 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
     public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
-      ArgumentValidator.EnsureArgumentNotNull(comparer, nameof(comparer));
+      ArgumentNullException.ThrowIfNull(hints, nameof(hints));
+      ArgumentNullException.ThrowIfNull(comparer, nameof(comparer));
       if (difference == null) {
         return Array.Empty<NodeAction>();
       }

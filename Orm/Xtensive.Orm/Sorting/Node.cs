@@ -124,7 +124,7 @@ namespace Xtensive.Sorting
     /// <param name="connectionItem">Item of connection.</param>
     public NodeConnection<TNodeItem, TConnectionItem> AddConnection(Node<TNodeItem, TConnectionItem> node, TConnectionItem connectionItem)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       var connection = new NodeConnection<TNodeItem, TConnectionItem>(this, node, connectionItem);
       connection.BindToNodes();
       return connection;
@@ -138,7 +138,6 @@ namespace Xtensive.Sorting
     /// <param name="connectionType">Type of connection.</param>
     public NodeConnection<TNodeItem, TConnectionItem> AddConnection(Node<TNodeItem, TConnectionItem> node, TConnectionItem connectionItem, ConnectionType connectionType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
       var connection = new NodeConnection<TNodeItem, TConnectionItem>(this, node, connectionItem, connectionType);
       connection.BindToNodes();
       return connection;
@@ -150,7 +149,7 @@ namespace Xtensive.Sorting
     /// <param name="destination">Paired node.</param>
     public IEnumerable<NodeConnection<TNodeItem, TConnectionItem>> RemoveConnections(Node<TNodeItem, TConnectionItem> destination)
     {
-      ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
+      ArgumentNullException.ThrowIfNull(destination);
       if (outgoingConnections==null)
         return Enumerable.Empty<NodeConnection<TNodeItem, TConnectionItem>>();
 

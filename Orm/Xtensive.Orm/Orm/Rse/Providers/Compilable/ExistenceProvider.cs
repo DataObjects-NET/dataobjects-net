@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -43,6 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ExistenceProvider(CompilableProvider source, string existenceColumnName)
       : base(ProviderType.Existence, source)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(existenceColumnName, nameof(existenceColumnName));
       ExistenceColumnName = existenceColumnName;
       Initialize();
     }

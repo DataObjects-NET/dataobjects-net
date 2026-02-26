@@ -45,7 +45,7 @@ namespace Xtensive.Orm
     /// <returns><see cref="ImpersonationContext"/> instance.</returns>
     public static ImpersonationContext GetImpersonationContext(this Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session);
 
       return session.Extensions.Get<ImpersonationContext>();
     }
@@ -58,8 +58,8 @@ namespace Xtensive.Orm
     /// <returns><see cref="ImpersonationContext"/> instance.</returns>
     public static ImpersonationContext Impersonate(this Session session, IPrincipal principal)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(principal, "principal");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(principal);
 
       var currentContext = session.GetImpersonationContext();
 
@@ -101,23 +101,23 @@ namespace Xtensive.Orm
 
     private static void ClearImpersonationContext(this Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session);
 
       session.Extensions.Set<ImpersonationContext>(null);
     }
 
     private static void SetImpersonationContext(this Session session, ImpersonationContext context)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(context);
 
       session.Extensions.Set(context);
     }
 
     internal static void UndoImpersonation(this Session session, ImpersonationContext innerContext, ImpersonationContext outerContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(innerContext, "innerContext");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(innerContext);
       // outerContext can be null
 
       var currentContext = session.GetImpersonationContext();

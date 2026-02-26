@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -30,7 +31,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <returns>Built domain.</returns>
     public static Domain Run(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, nameof(builderConfiguration));
+      ArgumentNullException.ThrowIfNull(builderConfiguration, nameof(builderConfiguration));
 
       var context = new BuildingContext(builderConfiguration);
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).Name)) {

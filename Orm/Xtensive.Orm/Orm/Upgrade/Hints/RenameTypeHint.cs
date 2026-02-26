@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newType">The new type.</param>
     public RenameTypeHint(string oldType, Type newType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(newType, nameof(newType));
+      ArgumentNullException.ThrowIfNull(newType, nameof(newType));
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, nameof(oldType));
 
       if (!oldType.Contains(".", StringComparison.Ordinal))

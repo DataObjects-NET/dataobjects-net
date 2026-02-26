@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.01.14
 
-using Xtensive.Core;
+using System;
 
 namespace Xtensive.Orm.Services
 {
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static SessionStateAccessor Get(Session source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       return new SessionStateAccessor(source);
     }
 
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static PersistentStateAccessor Get(Persistent source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       return new PersistentStateAccessor(source);
     }
     
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static EntitySetStateAccessor Get(EntitySetBase source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       return new EntitySetStateAccessor(source);
     }
   }

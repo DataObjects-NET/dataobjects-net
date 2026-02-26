@@ -1002,12 +1002,12 @@ namespace Xtensive.Orm.Upgrade
       StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hintsProcessingResult, nameof(hintsProcessingResult));
-      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
-      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
+      ArgumentNullException.ThrowIfNull(hintsProcessingResult);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
 
       typeMapping = hintsProcessingResult.TypeMapping;
       reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;

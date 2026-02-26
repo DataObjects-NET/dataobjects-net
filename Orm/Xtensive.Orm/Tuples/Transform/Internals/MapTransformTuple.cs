@@ -79,9 +79,8 @@ namespace Xtensive.Tuples.Transform.Internals
     public MapTransformTuple(MapTransform transform, params Tuple[] sources)
       : base(transform)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sources, "tuples");
       // Other checks are omitted: this transform should be fast, so delayed errors are ok
-      this.tuples = sources;
+      this.tuples = sources ?? throw new ArgumentNullException(nameof(sources));
     }
   }
 }

@@ -94,7 +94,7 @@ namespace Xtensive.Core
     /// <returns>Indented <paramref name="value"/>.</returns>
     public static string Indent(this string value, int indentSize, bool indentFirstLine)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value, "value");
       var indent = new string(' ', indentSize);
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       if (indentFirstLine)
@@ -202,7 +202,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -239,7 +239,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -278,7 +278,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -310,10 +310,9 @@ namespace Xtensive.Core
     /// <param name="escapedChars">Chars to escape.</param>
     public static string Escape(this string source, char escape, char[] escapedChars)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
-      if (escapedChars==null)
-        throw new ArgumentNullException("escapedChars");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(escapedChars);
+
       var chars = escapedChars.Append(escape);
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       foreach (var c in source) {
@@ -334,8 +333,8 @@ namespace Xtensive.Core
     /// <param name="escape">The escape char.</param>
     public static string Unescape(this string source, char escape)
     {
-      if (source==null)
-        throw new ArgumentNullException("source");
+      ArgumentNullException.ThrowIfNull(source);
+
       var sb = new ValueStringBuilder(source.Length);
       var previousCharIsEscape = false;
       foreach (var c in source) {
@@ -361,8 +360,8 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
       var regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
@@ -388,8 +387,8 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern, char escapeCharacter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
       const string regExSpecialChars = @"[]\/^$.|?*+(){}";
 
       if(char.IsControl(escapeCharacter))
@@ -438,8 +437,8 @@ namespace Xtensive.Core
 
     internal static bool Contains(this string str, string value, StringComparison comparison)
     {
-      ArgumentValidator.EnsureArgumentNotNull(str, nameof(str));
-      ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(str, nameof(str));
+      ArgumentNullException.ThrowIfNull(value, nameof(value));
 
       return str.IndexOf(value, comparison) >= 0;
     }

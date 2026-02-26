@@ -39,7 +39,7 @@ namespace Xtensive.Collections
     /// starting from the <paramref name="first"/> one.</returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next, "next");
       var current = first;
       while (current!=null) {
         yield return current;
@@ -62,7 +62,7 @@ namespace Xtensive.Collections
     /// </returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, bool> include, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next, "next");
       var current = first;
       while (include.Invoke(current)) {
         yield return current;

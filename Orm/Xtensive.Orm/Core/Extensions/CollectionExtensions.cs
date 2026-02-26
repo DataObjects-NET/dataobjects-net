@@ -43,8 +43,8 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small.</exception>
     public static void Copy<TItem>(this ICollection<TItem> source, TItem[] target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(target, "target");
       if (targetIndex < 0 || targetIndex > target.Length)
         throw new ArgumentOutOfRangeException("targetIndex");
       if ((target.Length - targetIndex) < source.Count)
@@ -67,8 +67,8 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small or multidimensional.</exception>
     public static void Copy<TItem>(this ICollection<TItem> source, Array target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(target, "target");
       if (targetIndex < 0 || targetIndex > target.Length)
         throw new ArgumentOutOfRangeException("targetIndex");
       if ((target.Length - targetIndex) < source.Count)
@@ -208,9 +208,9 @@ namespace Xtensive.Core
     internal static Pair<TFirst[], TSecond[]> SelectToArrays<TSource, TFirst,TSecond>(
       this ICollection<TSource> source, Func<TSource, TFirst> firstArraySelector, Func<TSource, TSecond> secondArraySelector)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(firstArraySelector, nameof(firstArraySelector));
-      ArgumentValidator.EnsureArgumentNotNull(secondArraySelector, nameof(secondArraySelector));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(firstArraySelector, nameof(firstArraySelector));
+      ArgumentNullException.ThrowIfNull(secondArraySelector, nameof(secondArraySelector));
 
       var first = new TFirst[source.Count];
       var second = new TSecond[source.Count];

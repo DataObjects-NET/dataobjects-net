@@ -19,7 +19,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     protected override void PerformExecute(IModel model, IPathNode item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item, "item");
       var node = (Node) item;
       node.Remove();
     }

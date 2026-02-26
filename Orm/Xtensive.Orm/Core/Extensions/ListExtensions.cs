@@ -52,9 +52,9 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small.</exception>
     public static void Copy<TItem>(this IList<TItem> source, TItem[] target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(target, "target");
       if (targetIndex < 0 || targetIndex > target.Length)
         throw new ArgumentOutOfRangeException("targetIndex");
       if ((target.Length - targetIndex) < source.Count)
@@ -78,8 +78,8 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Destination array is too small or multidimensional.</exception>
     public static void Copy<TItem>(this IList<TItem> source, Array target, int targetIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(target, "target");
       if (targetIndex < 0 || targetIndex > target.Length)
         throw new ArgumentOutOfRangeException("targetIndex");
       if ((target.Length - targetIndex) < source.Count)

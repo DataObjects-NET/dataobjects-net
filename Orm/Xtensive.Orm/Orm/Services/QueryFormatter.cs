@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.02
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A string containing formatted query.</returns>
     public string ToSqlString<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query, "query");
 
       var part = GetCommandPart(query);
       return part!=null ? part.Statement : string.Empty;
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A string containing formatted query.</returns>
     public string ToString<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query, "query");
 
       return query.Expression.ToString(true);
     }
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A <see cref="DbCommand"/>.</returns>
     public DbCommand ToDbCommand<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query, "query");
 
       var part = GetCommandPart(query);
       if (part==null)

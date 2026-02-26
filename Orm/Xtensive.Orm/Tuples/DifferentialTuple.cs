@@ -202,8 +202,7 @@ namespace Xtensive.Tuples
     /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
     public DifferentialTuple(Tuple origin)
     {
-      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
-      this.origin = origin;
+      this.origin = origin ?? throw new ArgumentNullException(nameof(origin));
       difference = null;
       backupedDifference = null;
     }
@@ -216,7 +215,7 @@ namespace Xtensive.Tuples
     /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
     public DifferentialTuple(Tuple origin, Tuple difference)
     {
-      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
+      ArgumentNullException.ThrowIfNull(origin);
       if (difference!=null && origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(
           string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),

@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -61,9 +62,9 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration, bool defaultNodeIsUnreadable)
     {
-      ArgumentValidator.EnsureArgumentNotNull(services, "services");
-      ArgumentValidator.EnsureArgumentNotNull(defaultNode, "defaultNode");
-      ArgumentValidator.EnsureArgumentNotNull(buildingNodeConfiguration, "buildingNodeConfiguration");
+      ArgumentNullException.ThrowIfNull(services);
+      ArgumentNullException.ThrowIfNull(defaultNode);
+      ArgumentNullException.ThrowIfNull(buildingNodeConfiguration);
 
       mappingResolver = services.MappingResolver;
       this.buildingNodeConfiguration = buildingNodeConfiguration;

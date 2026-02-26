@@ -621,15 +621,10 @@ namespace Xtensive.Orm.Upgrade
       IFullTextCatalogNameBuilder fulltextCatalogNameBuilder,
       bool isUpgradingStage)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
-      ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-
-      this.handlers = handlers;
-      this.compiler = compiler;
-      this.typeIdProvider = typeIdProvider;
-      this.resolver = resolver;
+      this.handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
+      this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
+      this.typeIdProvider = typeIdProvider ?? throw new ArgumentNullException(nameof(typeIdProvider));
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
       this.isUpgradingStage = isUpgradingStage;
       this.fulltextCatalogNameBuilder = fulltextCatalogNameBuilder;
 

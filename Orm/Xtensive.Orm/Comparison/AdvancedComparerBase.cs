@@ -154,12 +154,11 @@ namespace Xtensive.Comparison
     /// <param name="comparisonRules">Comparison rules.</param>
     public AdvancedComparerBase(IComparerProvider provider, ComparisonRules comparisonRules)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       valueRangeInfo = new ValueRangeInfo<T>(
         false, default(T),
         false, default(T),
         false, default(T));
-      this.provider = provider;
+      this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
       ComparisonRules = comparisonRules;
       DefaultDirectionMultiplier = comparisonRules.Value.Direction == Direction.Negative ? -1 : 1;
     }

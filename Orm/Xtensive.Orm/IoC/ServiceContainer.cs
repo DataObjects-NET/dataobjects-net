@@ -202,7 +202,7 @@ namespace Xtensive.IoC
     /// <exception cref="ArgumentException">Wrong container type.</exception>
     public static IServiceContainer Create(Type containerType, object configuration, IServiceContainer parent)
     {
-      ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
+      ArgumentNullException.ThrowIfNull(containerType, "containerType");
       if (!iServiceContainerType.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
           Strings.ExContainerTypeMustImplementX, iServiceContainerType.Name), "containerType");

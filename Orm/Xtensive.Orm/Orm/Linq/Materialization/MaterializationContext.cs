@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private int ResolveTypeToNodeSpecificTypeIdentifier(TypeInfo typeInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(typeInfo, "typeInfo");
+      ArgumentNullException.ThrowIfNull(typeInfo, "typeInfo");
       return TypeIdRegistry[typeInfo];
     }
 

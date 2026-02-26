@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
+using System;
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -23,13 +24,11 @@ namespace Xtensive.Orm.Rse.Transformation
       ParameterExpression substituteParameter, ColumnCollection sourceColumns,
       ColumnCollection targetColumns)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentNotNull(substituteParameter, "substituteParameter");
-      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
-      ArgumentValidator.EnsureArgumentNotNull(targetColumns, "targetColumns");
-      substitute = substituteParameter;
-      this.sourceColumns = sourceColumns;
-      this.targetColumns = targetColumns;
+      ArgumentNullException.ThrowIfNull(expression, "expression");
+
+      substitute = substituteParameter ?? throw new ArgumentNullException(nameof(substituteParameter));
+      this.sourceColumns = sourceColumns ?? throw new ArgumentNullException(nameof(sourceColumns));
+      this.targetColumns = targetColumns ?? throw new ArgumentNullException(nameof(targetColumns));
       return (LambdaExpression) Visit(expression);
     }
 

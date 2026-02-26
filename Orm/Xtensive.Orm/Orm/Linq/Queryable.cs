@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>
     public Queryable(QueryProvider provider, Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type)) {
         throw new ArgumentOutOfRangeException(nameof(expression));
       }

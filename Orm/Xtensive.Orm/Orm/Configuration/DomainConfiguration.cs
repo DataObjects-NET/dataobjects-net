@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Configuration
       get => name;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         name = value;
       }
     }
@@ -376,7 +376,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sessions;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         EnsureNotLocked();
         sessions = value;
       }
@@ -389,7 +389,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => mappingRules;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         EnsureNotLocked();
         mappingRules = value;
       }
@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => databases;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         EnsureNotLocked();
         databases = value;
       }
@@ -415,7 +415,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => keyGenerators;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value, "value");
         EnsureNotLocked();
         keyGenerators = value;
       }
@@ -918,7 +918,7 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
     public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection, nameof(configurationSection));
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();
@@ -936,7 +936,7 @@ namespace Xtensive.Orm.Configuration
 
     public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot, nameof(configurationRoot));
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();
@@ -954,7 +954,7 @@ namespace Xtensive.Orm.Configuration
 
     public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string sectionName, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot, nameof(configurationRoot));
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();

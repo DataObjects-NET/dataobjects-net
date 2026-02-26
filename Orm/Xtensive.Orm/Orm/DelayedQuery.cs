@@ -89,9 +89,9 @@ namespace Xtensive.Orm.Internals
     /// <param name="outerParameterContext">The parameter context.</param>
     internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext outerParameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      ArgumentValidator.EnsureArgumentNotNull(translatedQuery, nameof(translatedQuery));
-      ArgumentValidator.EnsureArgumentNotNull(outerParameterContext, nameof(outerParameterContext));
+      ArgumentNullException.ThrowIfNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(translatedQuery, nameof(translatedQuery));
+      ArgumentNullException.ThrowIfNull(outerParameterContext, nameof(outerParameterContext));
 
       Session = session;
       LifetimeToken = session.GetLifetimeToken();

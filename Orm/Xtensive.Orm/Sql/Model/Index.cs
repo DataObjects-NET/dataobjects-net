@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Model
     /// <param name="ascending">The sort direction.</param>
     public IndexColumn CreateIndexColumn(DataTableColumn column, bool ascending)
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column);
       return new IndexColumn(this, column, ascending);
     }
 
@@ -63,9 +63,9 @@ namespace Xtensive.Sql.Model
     /// <returns><see cref="IndexColumn"/> instance.</returns>
     public IndexColumn CreateIndexColumn(SqlExpression expression, bool ascending)
     {
-      if (expression is null)
-        throw new ArgumentNullException("expression");
-      return new IndexColumn(this, expression, ascending);
+      return new IndexColumn(this,
+        expression ?? throw new ArgumentNullException(nameof(expression)),
+        ascending);
     }
 
     /// <summary>

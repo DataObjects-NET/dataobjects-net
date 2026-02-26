@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Providers
     [ServiceConstructor]
     public StorageSequenceAccessor(HandlerAccessor handlers)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(handlers, "handlers");
 
       queryBuilder = handlers.SequenceQueryBuilder;
       domain = handlers.Domain;

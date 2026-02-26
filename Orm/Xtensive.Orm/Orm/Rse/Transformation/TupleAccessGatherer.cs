@@ -64,8 +64,8 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
     public List<int> Gather(Expression expression, ParameterExpression parameter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(parameter, "parameter");
       tupleParameter = parameter;
       var result = Gather(expression);
       tupleParameter = null;
