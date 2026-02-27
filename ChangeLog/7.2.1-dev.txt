@@ -1,0 +1,1 @@
+[main] Addressed issue of not disposing IAsyncEnumerator which caused query being open
