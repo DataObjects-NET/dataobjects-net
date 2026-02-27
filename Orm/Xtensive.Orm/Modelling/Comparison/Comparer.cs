@@ -490,7 +490,7 @@ namespace Xtensive.Modelling.Comparison
         let nodeDiff = diff as NodeDifference
         where nodeDiff!=null && (nodeDiff.MovementInfo & MovementInfo.Changed)!=0
         select nodeDiff;
-      // query = query.ToList();
+
       return query.Any();
     }
 
