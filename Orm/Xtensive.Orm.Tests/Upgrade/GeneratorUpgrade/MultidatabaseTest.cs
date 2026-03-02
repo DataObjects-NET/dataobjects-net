@@ -4,17 +4,9 @@
 // Created by: Alexey Kulakov
 // Created:    2019.12.10
 
-using System;
 using System.Linq;
-using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Providers;
-using Xtensive.Sql;
-using Xtensive.Sql.Compiler;
-using refModel = Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.ReferenceModel;
-using lessGeneratorsModel = Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.LessGenerators;
 
 namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
 {
@@ -28,11 +20,40 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
       base.ApplyCustomConfigurationSettings(configuration);
       configuration.DefaultDatabase = DefaultDatabase;
       configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
-      var namespaces = configuration.Types.GroupBy(t => t.Namespace).Select(g => g.Key).ToArray();
-      configuration.MappingRules.Map(namespaces[0]).ToDatabase(DefaultDatabase);
-      configuration.MappingRules.Map(namespaces[0]).ToDatabase(AlternativeDatabase);
+      var namespaces = configuration.Types
+        .Where(t => t.Namespace.Contains("Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade"))
+        .GroupBy(t => t.Namespace)
+        .Select(g => g.Key)
+        .ToArray();
+      if (namespaces.Length == 0) {
+        configuration.MappingRules.Map("Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.ReferenceModel.Part1").ToDatabase(DefaultDatabase);
+        configuration.MappingRules.Map("Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade.ReferenceModel.Part2").ToDatabase(AlternativeDatabase);
+      }
+      else {
+        configuration.MappingRules.Map(namespaces[0]).ToDatabase(DefaultDatabase);
+        configuration.MappingRules.Map(namespaces[1]).ToDatabase(AlternativeDatabase);
+      }
     }
 
     protected override string[] GetUsedCatalogs() => new[] { DefaultDatabase, AlternativeDatabase };
+
+    protected override void InitializeGenerators(DomainConfiguration configuration, long seedIncrease = 0, long cacheSizeIncrease = 0)
+    {
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int16") { Seed = 16 + seedIncrease, CacheSize = 16 + cacheSizeIncrease, Database = DefaultDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int32") { Seed = 32 + seedIncrease, CacheSize = 32 + cacheSizeIncrease, Database = DefaultDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int64") { Seed = 64 + seedIncrease, CacheSize = 64 + cacheSizeIncrease, Database = DefaultDatabase });
+
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int16") { Seed = 16 + seedIncrease, CacheSize = 16 + cacheSizeIncrease, Database = AlternativeDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int32") { Seed = 32 + seedIncrease, CacheSize = 32 + cacheSizeIncrease, Database = AlternativeDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("Int64") { Seed = 64 + seedIncrease, CacheSize = 64 + cacheSizeIncrease, Database = AlternativeDatabase });
+
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedShortKeyEntityPart1") { Seed = 16 + seedIncrease, CacheSize = 16 + cacheSizeIncrease, Database = DefaultDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedIntKeyEntityPart1") { Seed = 32 + seedIncrease, CacheSize = 32 + cacheSizeIncrease, Database = DefaultDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedLongKeyEntityPart1") { Seed = 64 + seedIncrease, CacheSize = 64 + cacheSizeIncrease, Database = DefaultDatabase });
+
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedShortKeyEntityPart2") { Seed = 16 + seedIncrease, CacheSize = 16 + cacheSizeIncrease, Database = AlternativeDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedIntKeyEntityPart2") { Seed = 32 + seedIncrease, CacheSize = 32 + cacheSizeIncrease, Database = AlternativeDatabase });
+      configuration.KeyGenerators.Add(new KeyGeneratorConfiguration("NamedLongKeyEntityPart2") { Seed = 64 + seedIncrease, CacheSize = 64 + cacheSizeIncrease, Database = AlternativeDatabase });
+    }
   }
 }
