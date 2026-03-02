@@ -172,7 +172,13 @@ namespace Xtensive.Orm.Upgrade
         driver.CommitTransaction(null, connection);
       }
       catch {
-        driver.RollbackTransaction(null, connection);
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          driver.RollbackTransaction(null, connection);
+        }
         throw;
       }
     }
@@ -190,7 +196,13 @@ namespace Xtensive.Orm.Upgrade
         await driver.CommitTransactionAsync(null, connection, token);
       }
       catch {
-        await driver.RollbackTransactionAsync(null, connection, token);
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          await driver.RollbackTransactionAsync(null, connection, token);
+        }
         throw;
       }
     }

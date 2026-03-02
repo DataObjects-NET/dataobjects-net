@@ -1,2 +1,4 @@
 [main] Added Query.SingleAsync()/SingleOrDefaultAsync and QueryEndpoint.SingleAsync()/SingleOrDefaultAsync methods
 [main] Addressed issue of not disposing IAsyncEnumerator which caused query being open
+[main] Addressed issue of overwriting exception on attempt to rollback the transaction of Domain upgrade if commit operation failed
+[postgresql] Update Npgsql to 9.0.4
