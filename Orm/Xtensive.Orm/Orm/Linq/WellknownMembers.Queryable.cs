@@ -80,6 +80,7 @@ namespace Xtensive.Orm.Linq
       // Queryable extensions
       public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
       public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
+      public static readonly MethodInfo ExtensionLeftJoinEx = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoinEx), 4, 5);
       public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
       public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
       public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);

@@ -294,6 +294,7 @@ namespace Xtensive.Tuples.Transform
     protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
       : this(isReadOnly)
     {
+      ArgumentValidator.EnsureArgumentIsNotDefault(descriptor, nameof(descriptor));
       Descriptor = descriptor;
       this.isReadOnly = isReadOnly;
     }

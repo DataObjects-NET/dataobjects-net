@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
@@ -17,8 +16,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal abstract class EntityContainer
   {
-    private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
-
     private SortedDictionary<int, ColumnInfo> columns;
 
     protected readonly PrefetchManager Manager;

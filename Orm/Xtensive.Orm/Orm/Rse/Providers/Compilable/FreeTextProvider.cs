@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
       FullFeatured = fullFeatured;
-      TopN = topN ?? throw new ArgumentNullException(nameof(topN));
+      TopN = topN;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
       if (FullFeatured) {
         var primaryIndexRecordsetHeader = index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();

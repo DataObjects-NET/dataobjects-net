@@ -119,8 +119,6 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
     public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
-      ArgumentNullException.ThrowIfNull(hints, nameof(hints));
-      ArgumentNullException.ThrowIfNull(comparer, nameof(comparer));
       if (difference == null) {
         return Array.Empty<NodeAction>();
       }
@@ -129,7 +127,7 @@ namespace Xtensive.Modelling.Comparison
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
-      Comparer = comparer;
+      Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
       if (Hints.SourceModel != SourceModel) {
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       }

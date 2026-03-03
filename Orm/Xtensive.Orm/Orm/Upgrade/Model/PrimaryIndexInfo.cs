@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Upgrade.Model
             throw new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
           });
 
-        var values = ValueColumns.Select(valueRef => valueRef.Value).ToArray(KeyColumns.Count);
+        var values = ValueColumns.Select(valueRef => valueRef.Value).ToArray(ValueColumns.Count);
         var allCount = keys.Length + values.Length;
         if (allCount!=tableColumns.Count)
           ea.Execute(() => {
