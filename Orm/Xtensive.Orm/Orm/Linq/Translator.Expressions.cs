@@ -690,17 +690,14 @@ namespace Xtensive.Orm.Linq
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       // ReSharper restore HeuristicUnreachableCode
 
-      IList<Expression> arguments = VisitNewExpressionArguments(newExpression);
-      if (arguments.Count == 0)
-        arguments = Array.Empty<Expression>();
+      var arguments = VisitNewExpressionArguments(newExpression, out var constructorParameters);
       if (newExpression.IsAnonymousConstructor()) {
         return newExpression.Members == null
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
       }
 
-      var constructorParameters = newExpression.GetConstructorParameters();
-      if (constructorParameters.Length != arguments.Count)
+      if (constructorParameters.Length != arguments.Length)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
 
       var bindings = GetBindingsForConstructor(constructorParameters, arguments, newExpression);
