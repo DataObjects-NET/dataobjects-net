@@ -690,9 +690,11 @@ namespace Xtensive.Orm.Linq
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       // ReSharper restore HeuristicUnreachableCode
 
-      var arguments = VisitNewExpressionArguments(newExpression);
+      IList<Expression> arguments = VisitNewExpressionArguments(newExpression);
+      if (arguments.Count == 0)
+        arguments = Array.Empty<Expression>();
       if (newExpression.IsAnonymousConstructor()) {
-        return newExpression.Members==null
+        return newExpression.Members == null
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
       }
