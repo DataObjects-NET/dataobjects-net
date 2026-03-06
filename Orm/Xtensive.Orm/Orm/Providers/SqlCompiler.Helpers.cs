@@ -16,6 +16,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers
 {
@@ -28,7 +29,7 @@ namespace Xtensive.Orm.Providers
     protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
-      var extraBindings = extraBinding!=null ? Enumerable.Repeat(extraBinding, 1) : null;
+      var extraBindings = extraBinding!=null ? EnumerableUtils.One(extraBinding) : null;
       return CreateProvider(statement, extraBindings, origin, sources);
     }
 

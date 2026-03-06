@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Providers
 
       long hiValue = Execute(query, session);
       if (executionFromUpgrade && !hasAISettingsInMemory)
-        CleanUp(Enumerable.Repeat(sequenceInfo, 1), session);
+        CleanUp(EnumerableUtils.One(sequenceInfo), session);
 
       var increment = sequenceInfo.Increment;
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;
