@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq.Materialization
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
     private const string RootQueryTagsPrefix = "Root query tags ->";
-
+    private const int NumberOfItemsOnStack = 64;
     private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
@@ -246,12 +246,29 @@ namespace Xtensive.Orm.Linq.Materialization
       if (expression.Owner == null) {
         var typeInfo = expression.PersistentType;
         var tuplePrototype = typeInfo.TuplePrototype;
-        var mappingInfo = expression.Fields
+
+        var mappingSequence = expression.Fields
           .OfExactlyFieldExpression()
           .OrderBy(static f => f.Field.MappingInfo.Offset)
           .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-          .Distinct()
-          .ToArray();
+          .Distinct();
+
+        Pair<int>[] mappingInfo;
+        if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
+          mappingInfo = mappingSequence.ToArray();
+        }
+        else {
+          Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+            ? stackalloc Pair<int>[expression.Fields.Count]
+            : new Pair<int>[expression.Fields.Count];
+
+          int actualCount = 0;
+          foreach (var map in mappingSequence) {
+            mappingInfoSpan[actualCount++] = map;
+          }
+
+          mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+        }
 
         var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -294,12 +311,29 @@ namespace Xtensive.Orm.Linq.Materialization
 
       var typeInfo = expression.PersistentType;
       var tuplePrototype = typeInfo.TuplePrototype;
-      var mappingInfo = expression.Fields
+
+      var mappingSequence = expression.Fields
         .OfExactlyFieldExpression()
         .OrderBy(static f => f.Field.MappingInfo.Offset)
         .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-        .Distinct()
-        .ToArray();
+        .Distinct();
+
+      Pair<int>[] mappingInfo;
+      if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
+        mappingInfo = mappingSequence.ToArray();
+      }
+      else {
+        Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc Pair<int>[expression.Fields.Count]
+          : new Pair<int>[expression.Fields.Count];
+
+        int actualCount = 0;
+        foreach (var map in mappingSequence) {
+          mappingInfoSpan[actualCount++] = map;
+        }
+
+        mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+      }
 
       var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -358,12 +392,28 @@ namespace Xtensive.Orm.Linq.Materialization
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name == WellKnown.TypeIdFieldName);
       var typeIdIndex = typeIdField == null ? -1 : typeIdField.Mapping.Offset;
 
-      var mappingInfo = expression.Fields
+      var mappingSequence = expression.Fields
         .OfExactlyFieldExpression()
         .OrderBy(static f => f.Field.MappingInfo.Offset)
         .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-        .Distinct()
-        .ToArray();
+        .Distinct();
+
+      Pair<int>[] mappingInfo;
+      if (expression.Fields.Count > NumberOfItemsOnStack * 4) {
+        mappingInfo = mappingSequence.ToArray();
+      }
+      else {
+        Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc Pair<int>[expression.Fields.Count]
+          : new Pair<int>[expression.Fields.Count];
+
+        int actualCount = 0;
+        foreach (var map in mappingSequence) {
+          mappingInfoSpan[actualCount++] = map;
+        }
+
+        mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+      }
 
       var isMaterializedExpression = Expression.Call(
         itemMaterializationContextParameter,
