@@ -397,12 +397,12 @@ namespace Xtensive.Orm
 
     internal void RemoveLaterInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.EnqueueForRemoval(Enumerable.Repeat(this, 1), reason);
     }
 
     internal void RemoveInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.Remove(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.Remove(Enumerable.Repeat(this, 1), reason);
     }
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>

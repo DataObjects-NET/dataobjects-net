@@ -619,7 +619,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         AssertEx.Throws<KeyNotFoundException>(() => session.Query.All<Track>()
           .Prefetch(t => t.PersistenceState)
           .ToList());
-        var d = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
+        var d = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(Key.Create<Model.OfferContainer>(Domain, 1), 1))
           .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book)
           .ToList();
       }
@@ -639,7 +639,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         _ = Assert.ThrowsAsync<KeyNotFoundException>(async () => (await session.Query.All<Track>()
           .Prefetch(t => t.PersistenceState).ExecuteAsync())
           .ToList());
-        var d = (await session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
+        var d = (await session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(Key.Create<Model.OfferContainer>(Domain, 1), 1))
           .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book).ExecuteAsync())
           .ToList();
       }
@@ -699,7 +699,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<Model.Book>().AsEnumerable()
-            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
+            .Concat(Enumerable.Repeat<Model.Book>(null, 1)).Prefetch(b => b.Title);
           var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
           var titleType = Domain.Model.Types[typeof(Model.Title)];
           var count = 0;
@@ -727,7 +727,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         await using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<Model.Book>().AsEnumerable()
-            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title).AsAsyncEnumerable();
+            .Concat(Enumerable.Repeat<Model.Book>(null, 1)).Prefetch(b => b.Title).AsAsyncEnumerable();
           var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
           var titleType = Domain.Model.Types[typeof(Model.Title)];
           var count = 0;
@@ -804,7 +804,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
+          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(Enumerable.Repeat<Model.Book>(null, 1))
             .Prefetch(b => b.Title.Book);
           var titleField = Domain.Model.Types[typeof (Model.Book)].Fields["Title"];
           var titleType = Domain.Model.Types[typeof (Model.Title)];
@@ -834,7 +834,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
 
         await using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
+          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(Enumerable.Repeat<Model.Book>(null, 1))
             .Prefetch(b => b.Title.Book).AsAsyncEnumerable();
           var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
           var titleType = Domain.Model.Types[typeof(Model.Title)];
@@ -861,7 +861,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.RealOffer.Book)
           .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop);
         foreach (var key in containers) {
@@ -879,7 +879,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.RealOffer.Book)
           .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop).AsAsyncEnumerable();
         await foreach (var key in containers) {
@@ -897,7 +897,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.IntermediateOffer);
         foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
@@ -914,7 +914,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.IntermediateOffer).AsAsyncEnumerable();
         await foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,

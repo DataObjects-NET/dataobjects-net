@@ -34,7 +34,9 @@ namespace Xtensive.Collections
       var types =
         registration.Type==null
           ? FindTypes(registration.Assembly, BaseType, (type, typeFilter) => IsAcceptable(registration, type))
-          : EnumerableUtils.One(registration.Type).Where(t => IsAcceptable(registration, t));
+          : IsAcceptable(registration, registration.Type)
+            ? Enumerable.Repeat(registration.Type, 1)
+            : Enumerable.Empty<Type>();
       foreach (var type in types)
         Process(registry, registration, type);
     }

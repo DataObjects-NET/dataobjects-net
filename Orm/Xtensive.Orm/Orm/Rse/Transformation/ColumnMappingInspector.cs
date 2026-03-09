@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var currentMapping = mappings[provider.Source];
       var calulatedColumn = provider.Header.Columns.Last();
-      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(calulatedColumn.Index));
+      mappings[provider] = Merge(currentMapping, Enumerable.Repeat(calulatedColumn.Index, 1));
       if (source == provider.Source) {
         return provider;
       }
@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newSource = VisitCompilable(provider.Source);
       var currentMapping = mappings[provider.Source];
       var rowNumberColumn = provider.Header.Columns.Last();
-      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(rowNumberColumn.Index));
+      mappings[provider] = Merge(currentMapping, Enumerable.Repeat(rowNumberColumn.Index, 1));
       return newSource == provider.Source
         ? provider
         : new RowNumberProvider(newSource, rowNumberColumn.Name);

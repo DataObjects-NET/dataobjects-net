@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq
       public void Add(Type type)
       {
         count++;
-        types = types==null ? EnumerableUtils.One(type) : types.Concat(EnumerableUtils.One(type));
+        types = types==null ? Enumerable.Repeat(type, 1) : types.Append(type);
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)

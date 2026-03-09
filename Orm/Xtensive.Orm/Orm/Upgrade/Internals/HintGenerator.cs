@@ -811,7 +811,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
     {
-      var result = EnumerableUtils.One(type);
+      var result = Enumerable.Repeat(type, 1);
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
       }
@@ -824,7 +824,7 @@ namespace Xtensive.Orm.Upgrade
     private static StoredTypeInfo[] GetAffectedMappedTypesAsArray(StoredTypeInfo type, bool includeInheritors)
     {
       var count = 1;
-      var result = EnumerableUtils.One(type);
+      var result = Enumerable.Repeat(type, 1);
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
         count += type.AllDescendants.Length;

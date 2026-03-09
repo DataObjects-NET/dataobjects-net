@@ -21,6 +21,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <typeparam name="TItem">The type of enumerated item.</typeparam>
     /// <returns>Sequence with value inside.</returns>
+    [Obsolete("Inefficient compared with Enumerable.Repeat(value, 1), or .Append(value)/.Prepend(value) extensions.")]
     public static IEnumerable<TItem> One<TItem>(TItem value)
     {
       yield return value;

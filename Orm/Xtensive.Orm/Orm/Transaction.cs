@@ -276,7 +276,7 @@ namespace Xtensive.Orm
     private void PromoteLifetimeTokensToSession()
     {
       if (Outer == null
-          && Session.TryPromoteTokens(EnumerableUtils.One(LifetimeToken).Union(lifetimeTokens))) {
+          && Session.TryPromoteTokens(Enumerable.Repeat(LifetimeToken, 1).Union(lifetimeTokens))) {
         ClearLifetimeTokens();
       }
     }

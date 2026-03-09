@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         result = new FieldNode(path, field);
       }
 
-      return EnumerableUtils.One(result);
+      return Enumerable.Repeat(result, 1);
     }
 
     private static ObjectModel.ReadOnlyCollection<BaseFieldNode> WrapNodes(IEnumerable<BaseFieldNode> nodes)

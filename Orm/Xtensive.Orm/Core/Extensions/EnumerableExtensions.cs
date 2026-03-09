@@ -417,13 +417,13 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentIsInRange(maximalBatchSize, 0, int.MaxValue, "maximalBatchSize");
       if(maximalBatchSize < initialBatchSize)
         throw new ArgumentException(String.Format(Strings.ExArgumentXIsLessThanArgumentY,
-          "maximalBatchSize", "initialBatchSize"));
+          nameof(maximalBatchSize), nameof(initialBatchSize)));
       var currentCount = 0;
       var currentBatchSize = initialBatchSize;
       using (var enumerator = source.GetEnumerator()) {
         while (currentCount < firstFastCount && enumerator.MoveNext()) {
           currentCount++;
-          yield return EnumerableUtils.One(enumerator.Current);
+          yield return Enumerable.Repeat(enumerator.Current, 1);
         }
         while (enumerator.MoveNext()) {
           currentCount = 0;
