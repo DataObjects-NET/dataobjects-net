@@ -41,12 +41,12 @@ namespace Xtensive.Orm.Providers
 
     public override IEnumerable<SqlExtractionTask> GetSchemaTasks()
     {
-      return EnumerableUtils.One(extractionTask);
+      return Enumerable.Repeat(extractionTask, 1);
     }
 
     public override IEnumerable<SqlExtractionTask> GetMetadataTasks()
     {
-      return EnumerableUtils.One(extractionTask);
+      return Enumerable.Repeat(extractionTask, 1);
     }
 
     // Constructors

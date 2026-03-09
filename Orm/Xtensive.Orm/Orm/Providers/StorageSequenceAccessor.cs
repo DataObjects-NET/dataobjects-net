@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers
 
       long hiValue = Execute(query, session);
       if (executionFromUpgrade && !hasAISettingsInMemory)
-        CleanUp(EnumerableUtils.One(sequenceInfo), session);
+        CleanUp(Enumerable.Repeat(sequenceInfo, 1), session);
 
       var increment = sequenceInfo.Increment;
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;

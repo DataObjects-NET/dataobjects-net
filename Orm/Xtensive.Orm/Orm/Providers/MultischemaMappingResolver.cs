@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Providers
 
     public override IEnumerable<SqlExtractionTask> GetMetadataTasks()
     {
-      return EnumerableUtils.One(metadataTask);
+      return Enumerable.Repeat(metadataTask, 1);
     }
 
     private string FormatNodeName(string mappingSchema, string mappingName)

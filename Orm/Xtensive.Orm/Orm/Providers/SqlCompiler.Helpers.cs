@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
     protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
-      var extraBindings = extraBinding!=null ? EnumerableUtils.One(extraBinding) : null;
+      var extraBindings = extraBinding!=null ? Enumerable.Repeat(extraBinding, 1) : null;
       return CreateProvider(statement, extraBindings, origin, sources);
     }
 
