@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     public override void SetValue(Persistent obj, T value)
     {
       var field = Field;
-      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
       var valueType = value.GetType();
       if (field.ValueType != valueType)
         throw new InvalidOperationException(String.Format(

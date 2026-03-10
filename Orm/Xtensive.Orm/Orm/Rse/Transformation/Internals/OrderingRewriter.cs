@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Transformation
       CompilableProvider originProvider, 
       Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
-      ArgumentNullException.ThrowIfNull(originProvider, nameof(originProvider));
+      ArgumentNullException.ThrowIfNull(originProvider);
       var rewriter = new OrderingRewriter(orderingDescriptorResolver);
       if (originProvider.Type == ProviderType.Select) {
         var selectProvider = (SelectProvider) originProvider;

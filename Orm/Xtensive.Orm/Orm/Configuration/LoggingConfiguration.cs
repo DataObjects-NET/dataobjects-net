@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)
     {
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
 
       var section = (ConfigurationSection) configuration.GetSection(sectionName);

@@ -20,7 +20,7 @@ namespace Xtensive.Linq
 
     public int CalculateHashCode(Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       try {
         return Visit(expression);
       }

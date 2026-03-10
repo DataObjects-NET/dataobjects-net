@@ -45,7 +45,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public object Get(Type extensionType)
     {
-      ArgumentNullException.ThrowIfNull(extensionType, "extensionType");
+      ArgumentNullException.ThrowIfNull(extensionType);
       if (extensions==null)
         return null;
       object result;
@@ -68,13 +68,13 @@ namespace Xtensive.Collections
     public void Set(Type extensionType, object value)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(extensionType, "extensionType");
+      ArgumentNullException.ThrowIfNull(extensionType);
       if (extensionType.IsValueType)
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), "extensionType");
+          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), nameof(extensionType));
       if (value!=null && !extensionType.IsAssignableFrom(value.GetType()))
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), "value");
+          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), nameof(value));
       
       if (extensions==null)
         if (value==null)
@@ -153,7 +153,7 @@ namespace Xtensive.Collections
     public ExtensionCollection(IExtensionCollection source)
       : this()
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Count==0)
         return;
       if (source is ExtensionCollection sourceLikeMe) {

@@ -584,8 +584,8 @@ namespace Xtensive.Orm.Providers
 
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
-      ArgumentNullException.ThrowIfNull(select, "select");
-      ArgumentNullException.ThrowIfNull(providerInfo, "providerInfo");
+      ArgumentNullException.ThrowIfNull(select);
+      ArgumentNullException.ThrowIfNull(providerInfo);
       new SqlSelectProcessor(select, providerInfo).Visit(select);
     }
 

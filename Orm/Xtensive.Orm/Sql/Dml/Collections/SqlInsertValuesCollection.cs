@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dml.Collections
     /// -or- <paramref name="row"/> is empty.</exception>
     public void Add(Dictionary<SqlColumn, SqlExpression> row)
     {
-      ArgumentNullException.ThrowIfNull(row, nameof(row));
+      ArgumentNullException.ThrowIfNull(row);
       if (row.Count == 0) {
         throw new ArgumentException("Empty row is not allowed.");
       }

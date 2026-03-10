@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     /// once <see cref="IDisposable.Dispose"/> is called.</returns>
     public IDisposable OverrideQueryRoot(IQueryRootBuilder queryRootBuilder)
     {
-      ArgumentNullException.ThrowIfNull(queryRootBuilder, "queryRootBuilder");
+      ArgumentNullException.ThrowIfNull(queryRootBuilder);
       var oldQuery = Query;
       var newQuery = new QueryEndpoint(oldQuery, queryRootBuilder);
       Query = newQuery;

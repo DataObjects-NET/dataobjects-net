@@ -132,7 +132,7 @@ namespace Xtensive.Comparison
     public AdvancedComparer(IAdvancedComparer<T> implementation)
       : this(implementation, implementation, implementation)
     {
-      ArgumentNullException.ThrowIfNull(implementation, "implementation");
+      ArgumentNullException.ThrowIfNull(implementation);
     }
 
     /// <summary>

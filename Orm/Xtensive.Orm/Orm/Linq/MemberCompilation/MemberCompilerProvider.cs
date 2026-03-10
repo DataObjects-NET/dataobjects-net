@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentNullException.ThrowIfNull(target, nameof(target));
+      ArgumentNullException.ThrowIfNull(target);
 
       return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentNullException.ThrowIfNull(compilerContainer, "compilerContainer");
+      ArgumentNullException.ThrowIfNull(compilerContainer);
       EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentNullException.ThrowIfNull(compilerDefinitions, "compilerDefinitions");
+      ArgumentNullException.ThrowIfNull(compilerDefinitions);
       EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));

@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Providers
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
-      ArgumentNullException.ThrowIfNull(provider, "provider");
-      ArgumentNullException.ThrowIfNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(provider);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var preCompiler = preCompilerProvider.Invoke(configuration);
       var compiler = compilerProvider.Invoke(configuration);

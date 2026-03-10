@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <returns>Built domain.</returns>
     public static Domain Run(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentNullException.ThrowIfNull(builderConfiguration, nameof(builderConfiguration));
+      ArgumentNullException.ThrowIfNull(builderConfiguration);
 
       var context = new BuildingContext(builderConfiguration);
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).Name)) {

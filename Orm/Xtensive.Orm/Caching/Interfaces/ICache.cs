@@ -92,7 +92,7 @@ namespace Xtensive.Caching
     /// <param name="item">The item to remove.</param>
     void Remove(TItem item)
     {
-      ArgumentNullException.ThrowIfNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       RemoveKey(KeyExtractor(item));
     }
 

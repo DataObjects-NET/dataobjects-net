@@ -140,9 +140,9 @@ namespace Xtensive.Orm.Linq
     public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
       CompiledQueryProcessingScope compiledQueryScope)
     {
-      ArgumentNullException.ThrowIfNull(session, nameof(session));
-      ArgumentNullException.ThrowIfNull(rseCompilerConfiguration, nameof(rseCompilerConfiguration));
-      ArgumentNullException.ThrowIfNull(query, nameof(query));
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(rseCompilerConfiguration);
+      ArgumentNullException.ThrowIfNull(query);
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;

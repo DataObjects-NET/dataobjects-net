@@ -69,8 +69,8 @@ namespace Xtensive.Collections
 
     private static IList<Type> FindTypes(Assembly assembly, Type baseType, TypeFilter filter)
     {
-      ArgumentNullException.ThrowIfNull(assembly, "assembly");
-      ArgumentNullException.ThrowIfNull(baseType, "baseType");
+      ArgumentNullException.ThrowIfNull(assembly);
+      ArgumentNullException.ThrowIfNull(baseType);
 
       Type[] allTypes;
       try {

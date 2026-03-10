@@ -60,7 +60,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       IList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {
-      ArgumentNullException.ThrowIfNull(updateParameters, "updateParameters");
+      ArgumentNullException.ThrowIfNull(updateParameters);
       UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters);
     }
 

@@ -29,7 +29,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     protected override void PerformExecute(IModel model, IPathNode item)
     {
-      ArgumentNullException.ThrowIfNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var node = (Node) item;
       foreach (var pair in properties)
         node.SetProperty(pair.Key, PathNodeReference.Resolve(model, pair.Value));

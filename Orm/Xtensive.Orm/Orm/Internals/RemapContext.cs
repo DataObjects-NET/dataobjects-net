@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Internals
     /// <param name="realKey">Actual key</param>
     public void RegisterKeyMap(Key localKey, Key realKey)
     {
-      ArgumentNullException.ThrowIfNull(localKey, "localKey");
-      ArgumentNullException.ThrowIfNull(realKey, "realKey");
+      ArgumentNullException.ThrowIfNull(localKey);
+      ArgumentNullException.ThrowIfNull(realKey);
       if(localKey!=realKey)
         keyMap.Add(localKey, realKey);
     }

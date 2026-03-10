@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Building.Builders
 
     public static Dictionary<Type, IMemberCompilerProvider> Build(DomainConfiguration configuration, IEnumerable<Type> systemCompilerContainers)
     {
-      ArgumentNullException.ThrowIfNull(configuration, "configuration");
-      ArgumentNullException.ThrowIfNull(systemCompilerContainers, "systemCompilerContainers");
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(systemCompilerContainers);
       var builder = new MemberCompilerProviderBuilder(configuration, systemCompilerContainers);
       builder.Build();
       return builder.memberCompilerProviders;

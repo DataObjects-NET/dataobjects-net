@@ -94,7 +94,7 @@ namespace Xtensive.Orm
     [NotNull]
     public TypeInfo ResolveTypeInfo([NotNull, InstantHandle] Session session)
     {
-      ArgumentNullException.ThrowIfNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session);
 
       if (TypeReference.Accuracy==TypeReferenceAccuracy.ExactType)
         return TypeReference.Type;
@@ -280,7 +280,7 @@ namespace Xtensive.Orm
       if (source==null)
         return null;
 
-      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain);
 
       var parts = source.RevertibleSplit(KeyFormatEscape, KeyFormatDelimiter).ToList();
       if (parts.Count!=2 && parts.Count!=3 || parts.Contains(null))
@@ -350,8 +350,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static Key Generate([NotNull] Session session, [NotNull] Type type)
     {
-      ArgumentNullException.ThrowIfNull(session, "session");
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(type);
 
       return Generate(session, session.Domain.Model.Types[type]);
     }
@@ -424,9 +424,9 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] Tuple value)
     {
-      ArgumentNullException.ThrowIfNull(domain, "domain");
-      ArgumentNullException.ThrowIfNull(type, "type");
-      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(value);
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, value);
     }
@@ -497,10 +497,10 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] params object[] values)
     {
-      ArgumentNullException.ThrowIfNull(domain, "domain");
-      ArgumentNullException.ThrowIfNull(nodeId, "nodeId");
-      ArgumentNullException.ThrowIfNull(type, "type");
-      ArgumentNullException.ThrowIfNull(values, "values");
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(nodeId);
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(values);
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, values);
     }

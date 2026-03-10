@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="items">Mappings to add to this instance.</param>
     public NameMappingCollection([NotNull] IEnumerable<KeyValuePair<string, string>> items)
     {
-      ArgumentNullException.ThrowIfNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
 
       foreach (var item in items)
         Add(item.Key, item.Value);

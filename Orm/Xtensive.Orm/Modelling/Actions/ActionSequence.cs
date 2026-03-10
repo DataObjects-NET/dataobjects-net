@@ -41,7 +41,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public void Add(NodeAction action)
     {
-      ArgumentNullException.ThrowIfNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;
@@ -63,7 +63,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public void Add(IEnumerable<NodeAction> actions)
     {
-      ArgumentNullException.ThrowIfNull(actions, "actions");
+      ArgumentNullException.ThrowIfNull(actions);
       foreach (NodeAction action in actions)
         Add(action);
     }

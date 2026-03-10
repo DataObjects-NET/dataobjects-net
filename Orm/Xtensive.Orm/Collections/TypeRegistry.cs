@@ -58,7 +58,7 @@ namespace Xtensive.Collections
     public void Register(Type type)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (!isProcessingPendingActions)
         Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
@@ -79,7 +79,7 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       Register(new TypeRegistration(assembly));
     }
 
@@ -96,8 +96,8 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly, string @namespace)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
+      ArgumentNullException.ThrowIfNull(assembly);
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, nameof(@namespace));
       Register(new TypeRegistration(assembly, @namespace));
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Collections
     public bool Register(TypeRegistration action)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       if (actionSet.Contains(action))
         return false;
       actionSet.Add(action);

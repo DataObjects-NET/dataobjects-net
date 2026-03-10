@@ -110,8 +110,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     private async ValueTask<StrongReferenceContainer> Prefetch(
       Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
     {
-      ArgumentNullException.ThrowIfNull(key, nameof(key));
-      ArgumentNullException.ThrowIfNull(descriptors, nameof(descriptors));
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(descriptors);
 
       if (descriptors.Count == 0) {
         return null;

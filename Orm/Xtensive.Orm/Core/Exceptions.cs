@@ -163,8 +163,8 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException ContextRequired(Type contextType, Type scopeType)
     {
-      ArgumentNullException.ThrowIfNull(contextType, "contextType");
-      ArgumentNullException.ThrowIfNull(scopeType, "scopeType");
+      ArgumentNullException.ThrowIfNull(contextType);
+      ArgumentNullException.ThrowIfNull(scopeType);
       return new InvalidOperationException(
         string.Format(Strings.ExContextRequired, contextType.GetShortName(), scopeType.GetShortName()));
     }
@@ -189,7 +189,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException ScopeRequired(Type scopeType)
     {
-      ArgumentNullException.ThrowIfNull(scopeType, "scopeType");
+      ArgumentNullException.ThrowIfNull(scopeType);
       return new InvalidOperationException(
         string.Format(Strings.ExScopeRequired, scopeType.GetShortName()));
     }
@@ -212,7 +212,7 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException LambdaParameterIsOutOfScope(ParameterExpression parameter)
     {
-      ArgumentNullException.ThrowIfNull(parameter, "parameter");
+      ArgumentNullException.ThrowIfNull(parameter);
       return new InvalidOperationException(string.Format(Strings.ExLambdaParameterXIsOutOfScope, parameter.Name));
     }
   }

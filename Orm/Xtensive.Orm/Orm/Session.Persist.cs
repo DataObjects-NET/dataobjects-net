@@ -246,7 +246,7 @@ namespace Xtensive.Orm
     public IDisposable DisableSaveChanges(IEntity target)
     {
       EnsureNotDisposed();
-      ArgumentNullException.ThrowIfNull(target, "target");
+      ArgumentNullException.ThrowIfNull(target);
       if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
         return null; // No need to pin in this case
 

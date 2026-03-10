@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Providers
 
     public SequenceQueryBuilder(StorageDriver driver)
     {
-      ArgumentNullException.ThrowIfNull(driver, "driver");
+      ArgumentNullException.ThrowIfNull(driver);
 
       this.driver = driver;
 

@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
     {
-      ArgumentNullException.ThrowIfNull(columnIndexes, nameof(columnIndexes));
+      ArgumentNullException.ThrowIfNull(columnIndexes);
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
 
       this.type = type ?? throw new ArgumentNullException(nameof(type));

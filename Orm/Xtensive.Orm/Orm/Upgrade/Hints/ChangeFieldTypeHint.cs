@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="fieldName">Name of field that changes type.</param>
     public ChangeFieldTypeHint(Type type, string fieldName)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
 
       Type = type;

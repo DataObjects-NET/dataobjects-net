@@ -67,8 +67,8 @@ namespace Xtensive.Orm
     public static Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
     }
@@ -116,8 +116,8 @@ namespace Xtensive.Orm
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, bool>(
         WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
@@ -144,7 +144,7 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync(this IQueryable<int> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<int, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
@@ -167,7 +167,7 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync(this IQueryable<int?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<int?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
@@ -193,8 +193,8 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int32],
@@ -221,8 +221,8 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
@@ -248,7 +248,7 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync(this IQueryable<long> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<long, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
@@ -271,7 +271,7 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync(this IQueryable<long?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<long?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
@@ -297,8 +297,8 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int64],
@@ -325,8 +325,8 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
@@ -352,7 +352,7 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync(this IQueryable<double> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<double, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Double], source, cancellationToken);
@@ -375,7 +375,7 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync(this IQueryable<double?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<double?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
@@ -401,8 +401,8 @@ namespace Xtensive.Orm
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Double],
@@ -429,8 +429,8 @@ namespace Xtensive.Orm
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
@@ -456,7 +456,7 @@ namespace Xtensive.Orm
     public static Task<float> AverageAsync(this IQueryable<float> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<float, float>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Single], source, cancellationToken);
@@ -479,7 +479,7 @@ namespace Xtensive.Orm
     public static Task<float?> AverageAsync(this IQueryable<float?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<float?, float?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
@@ -505,8 +505,8 @@ namespace Xtensive.Orm
     public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, float>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Single],
@@ -533,8 +533,8 @@ namespace Xtensive.Orm
     public static Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, float?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableSingle],
@@ -560,7 +560,7 @@ namespace Xtensive.Orm
     public static Task<decimal> AverageAsync(this IQueryable<decimal> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<decimal, decimal>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
@@ -583,7 +583,7 @@ namespace Xtensive.Orm
     public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<decimal?, decimal?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
@@ -609,8 +609,8 @@ namespace Xtensive.Orm
     public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, decimal>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Decimal],
@@ -637,8 +637,8 @@ namespace Xtensive.Orm
     public static Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, decimal?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
@@ -668,7 +668,7 @@ namespace Xtensive.Orm
     public static Task<bool> ContainsAsync<TSource>(this IQueryable<TSource> source, TSource item,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Contains,
         source, Expression.Constant(item, typeof(TSource)), cancellationToken);
@@ -694,7 +694,7 @@ namespace Xtensive.Orm
     public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
     }
@@ -718,8 +718,8 @@ namespace Xtensive.Orm
     public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
         source, predicate, cancellationToken);
@@ -749,7 +749,7 @@ namespace Xtensive.Orm
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
     }
@@ -773,8 +773,8 @@ namespace Xtensive.Orm
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate,
         source, predicate, cancellationToken);
@@ -801,7 +801,7 @@ namespace Xtensive.Orm
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
     }
@@ -827,8 +827,8 @@ namespace Xtensive.Orm
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate,
         source, predicate, cancellationToken);
@@ -857,7 +857,7 @@ namespace Xtensive.Orm
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
     }
@@ -881,8 +881,8 @@ namespace Xtensive.Orm
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
         source, predicate, cancellationToken);
@@ -909,7 +909,7 @@ namespace Xtensive.Orm
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
     }
@@ -935,8 +935,8 @@ namespace Xtensive.Orm
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate,
         source, predicate, cancellationToken);
@@ -965,7 +965,7 @@ namespace Xtensive.Orm
     public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
     }
@@ -991,8 +991,8 @@ namespace Xtensive.Orm
     public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate,
         source, predicate, cancellationToken);
@@ -1022,7 +1022,7 @@ namespace Xtensive.Orm
     public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
     }
@@ -1048,8 +1048,8 @@ namespace Xtensive.Orm
     public static Task<TResult> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MaxWithSelector,
         source, selector, cancellationToken);
@@ -1074,7 +1074,7 @@ namespace Xtensive.Orm
     public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
     }
@@ -1099,8 +1099,8 @@ namespace Xtensive.Orm
     public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MinWithSelector,
         source, selector, cancellationToken);
@@ -1131,7 +1131,7 @@ namespace Xtensive.Orm
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
     }
@@ -1156,8 +1156,8 @@ namespace Xtensive.Orm
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate,
         source, predicate, cancellationToken);
@@ -1186,7 +1186,7 @@ namespace Xtensive.Orm
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source,
         cancellationToken);
@@ -1214,8 +1214,8 @@ namespace Xtensive.Orm
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(predicate, nameof(predicate));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(predicate);
 
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefaultWithPredicate,
         source, predicate, cancellationToken);
@@ -1244,7 +1244,7 @@ namespace Xtensive.Orm
     public static Task<int> SumAsync(this IQueryable<int> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<int, int>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
@@ -1267,7 +1267,7 @@ namespace Xtensive.Orm
     public static Task<int?> SumAsync(this IQueryable<int?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<int?, int?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
@@ -1293,8 +1293,8 @@ namespace Xtensive.Orm
     public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, int>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int32],
@@ -1321,8 +1321,8 @@ namespace Xtensive.Orm
     public static Task<int?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, int?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
@@ -1348,7 +1348,7 @@ namespace Xtensive.Orm
     public static Task<long> SumAsync(this IQueryable<long> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<long, long>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
@@ -1371,7 +1371,7 @@ namespace Xtensive.Orm
     public static Task<long?> SumAsync(this IQueryable<long?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<long?, long?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
@@ -1397,8 +1397,8 @@ namespace Xtensive.Orm
     public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, long>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int64],
@@ -1425,8 +1425,8 @@ namespace Xtensive.Orm
     public static Task<long?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, long?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
@@ -1452,7 +1452,7 @@ namespace Xtensive.Orm
     public static Task<double> SumAsync(this IQueryable<double> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<double, double>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Double], source, cancellationToken);
@@ -1475,7 +1475,7 @@ namespace Xtensive.Orm
     public static Task<double?> SumAsync(this IQueryable<double?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<double?, double?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
@@ -1501,8 +1501,8 @@ namespace Xtensive.Orm
     public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Double],
@@ -1529,8 +1529,8 @@ namespace Xtensive.Orm
     public static Task<double?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
@@ -1556,7 +1556,7 @@ namespace Xtensive.Orm
     public static Task<float> SumAsync(this IQueryable<float> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<float, float>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Single], source, cancellationToken);
@@ -1579,7 +1579,7 @@ namespace Xtensive.Orm
     public static Task<float?> SumAsync(this IQueryable<float?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<float?, float?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
@@ -1605,8 +1605,8 @@ namespace Xtensive.Orm
     public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, float>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Single],
@@ -1633,8 +1633,8 @@ namespace Xtensive.Orm
     public static Task<float?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, float?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableSingle],
@@ -1660,7 +1660,7 @@ namespace Xtensive.Orm
     public static Task<decimal> SumAsync(this IQueryable<decimal> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<decimal, decimal>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
@@ -1683,7 +1683,7 @@ namespace Xtensive.Orm
     public static Task<decimal?> SumAsync(this IQueryable<decimal?> source,
       CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       return ExecuteScalarAsync<decimal?, decimal?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
@@ -1709,8 +1709,8 @@ namespace Xtensive.Orm
     public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, decimal>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Decimal],
@@ -1737,8 +1737,8 @@ namespace Xtensive.Orm
     public static Task<decimal?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(selector, nameof(selector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(selector);
 
       return ExecuteScalarAsync<TSource, decimal?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
@@ -1991,7 +1991,7 @@ namespace Xtensive.Orm
     /// <returns>The query results.</returns>
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
 
       if (source is IAsyncEnumerable<TSource> nativeAsyncEnumerable) {
         return nativeAsyncEnumerable;

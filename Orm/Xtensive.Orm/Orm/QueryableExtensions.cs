@@ -37,8 +37,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, string tag)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(tag, nameof(tag));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(tag);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -61,8 +61,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable Tag(this IQueryable source, string tag)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(tag, nameof(tag));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(tag);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -81,7 +81,7 @@ namespace Xtensive.Orm
     /// <param name="source">The source sequence.</param>
     public static int Count([InstantHandle] this IQueryable source)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       return (int) source.Provider.Execute(
         Expression.Call(
           WellKnownTypes.Queryable, nameof(Queryable.Count),
@@ -98,8 +98,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(count, nameof(count));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(count);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -122,8 +122,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(count, nameof(count));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(count);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -146,8 +146,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAt<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(index, nameof(index));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(index);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -170,8 +170,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(index, nameof(index));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(index);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -194,9 +194,7 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "apply lock" hint.</returns>
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(lockMode, nameof(lockMode));
-      ArgumentNullException.ThrowIfNull(lockBehavior, nameof(lockBehavior));
+      ArgumentNullException.ThrowIfNull(source);
 
       var providerType = source.Provider.GetType();
       if (providerType!=WellKnownOrmTypes.QueryProvider) {
@@ -275,11 +273,11 @@ namespace Xtensive.Orm
     [Obsolete(".NET 10 has its own LeftJoin method declared, which will conflict with this. Use LeftJoinEx to prepare your code for future .NET change")]
     public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
-      ArgumentNullException.ThrowIfNull(outer, nameof(outer));
-      ArgumentNullException.ThrowIfNull(inner, nameof(inner));
-      ArgumentNullException.ThrowIfNull(outerKeySelector, nameof(outerKeySelector));
-      ArgumentNullException.ThrowIfNull(innerKeySelector, nameof(innerKeySelector));
-      ArgumentNullException.ThrowIfNull(resultSelector, nameof(resultSelector));
+      ArgumentNullException.ThrowIfNull(outer);
+      ArgumentNullException.ThrowIfNull(inner);
+      ArgumentNullException.ThrowIfNull(outerKeySelector);
+      ArgumentNullException.ThrowIfNull(innerKeySelector);
+      ArgumentNullException.ThrowIfNull(resultSelector);
 
       var outerProviderType = outer.Provider.GetType();
       if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {
@@ -309,11 +307,11 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
     public static IQueryable<TResult> LeftJoinEx<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
-      ArgumentNullException.ThrowIfNull(outer, nameof(outer));
-      ArgumentNullException.ThrowIfNull(inner, nameof(inner));
-      ArgumentNullException.ThrowIfNull(outerKeySelector, nameof(outerKeySelector));
-      ArgumentNullException.ThrowIfNull(innerKeySelector, nameof(innerKeySelector));
-      ArgumentNullException.ThrowIfNull(resultSelector, nameof(resultSelector));
+      ArgumentNullException.ThrowIfNull(outer);
+      ArgumentNullException.ThrowIfNull(inner);
+      ArgumentNullException.ThrowIfNull(outerKeySelector);
+      ArgumentNullException.ThrowIfNull(innerKeySelector);
+      ArgumentNullException.ThrowIfNull(resultSelector);
 
       var outerProviderType = outer.Provider.GetType();
       if (outerProviderType != WellKnownOrmTypes.QueryProvider) {

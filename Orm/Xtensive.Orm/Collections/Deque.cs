@@ -272,26 +272,26 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentNullException.ThrowIfNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid<T>(arrayIndex);
 
       if (arrayIndex + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(array));
       InnerCopyTo(array, arrayIndex);
     }
 
     /// <inheritdoc/>
     public void CopyTo(Array array, int index)
     {
-      ArgumentNullException.ThrowIfNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid(index);
 
       if (array.Rank!=1)
-        throw new ArgumentException(Strings.ExArrayIsMultidimensional, "array");
+        throw new ArgumentException(Strings.ExArrayIsMultidimensional, nameof(array));
       if (array.GetLowerBound(0)!=0)
-        throw new ArgumentException(Strings.ExArrayDoesNotHaveZeroBasedIndexing, "array");
+        throw new ArgumentException(Strings.ExArrayDoesNotHaveZeroBasedIndexing, nameof(array));
       if (index + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(array));
       InnerCopyTo(array, index);
     }
 

@@ -146,8 +146,7 @@ namespace Xtensive.Orm.Model
     {
       if (item==null)
         return false;
-      TypeInfo result;
-      if (!TryGetValue(item.UnderlyingType, out result))
+      if (!TryGetValue(item.UnderlyingType, out var result))
         return false;
       return result==item;
     }
@@ -162,9 +161,8 @@ namespace Xtensive.Orm.Model
     /// <see langword="null" />, if there is no type with specified full name.</returns>
     public TypeInfo Find(string fullName)
     {
-      ArgumentNullException.ThrowIfNull(fullName, "fullName");
-      TypeInfo result;
-      return fullNameTable.TryGetValue(fullName, out result) ? result : null;
+      ArgumentNullException.ThrowIfNull(fullName);
+      return fullNameTable.TryGetValue(fullName, out var result) ? result : null;
     }
 
     /// <summary>

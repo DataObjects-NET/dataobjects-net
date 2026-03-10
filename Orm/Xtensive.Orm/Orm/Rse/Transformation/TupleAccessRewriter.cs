@@ -68,8 +68,8 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <returns></returns>
     public virtual Expression Rewrite(Expression expression, ParameterExpression parameter)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
-      ArgumentNullException.ThrowIfNull(parameter, "parameter");
+      ArgumentNullException.ThrowIfNull(expression);
+      ArgumentNullException.ThrowIfNull(parameter);
       tupleParameter = parameter;
       return Visit(expression);
     }

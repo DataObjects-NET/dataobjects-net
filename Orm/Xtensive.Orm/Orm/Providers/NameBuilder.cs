@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Providers
     /// <returns>Type name.</returns>
     public string BuildTypeName(BuildingContext context, TypeDef type)
     {
-      ArgumentNullException.ThrowIfNull(context, "context");
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(context);
+      ArgumentNullException.ThrowIfNull(type);
 
       if (type.UnderlyingType.IsGenericType)
         return ApplyNamingRules(BuildGenericTypeName(context, type.UnderlyingType, type.MappingName));
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Column name.</returns>
     public string BuildTableColumnName(ColumnInfo columnInfo)
     {
-      ArgumentNullException.ThrowIfNull(columnInfo, "columnInfo");
+      ArgumentNullException.ThrowIfNull(columnInfo);
       return ApplyNamingRules(columnInfo.Name);
     }
 
@@ -162,9 +162,9 @@ namespace Xtensive.Orm.Providers
     /// <returns>Foreign key name.</returns>
     public string BuildReferenceForeignKeyName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
-      ArgumentNullException.ThrowIfNull(ownerType, "ownerType");
-      ArgumentNullException.ThrowIfNull(ownerField, "ownerField");
-      ArgumentNullException.ThrowIfNull(targetType, "targetType");
+      ArgumentNullException.ThrowIfNull(ownerType);
+      ArgumentNullException.ThrowIfNull(ownerField);
+      ArgumentNullException.ThrowIfNull(targetType);
       return ApplyNamingRules(string.Format(ReferenceForeignKeyFormat, ownerType.Name, ownerField.Name, targetType.Name));
     }
 
@@ -174,8 +174,8 @@ namespace Xtensive.Orm.Providers
     /// <returns>Foreign key name.</returns>
     public string BuildHierarchyForeignKeyName(TypeInfo baseType, TypeInfo descendantType)
     {
-      ArgumentNullException.ThrowIfNull(baseType, "baseType");
-      ArgumentNullException.ThrowIfNull(descendantType, "descendantType");
+      ArgumentNullException.ThrowIfNull(baseType);
+      ArgumentNullException.ThrowIfNull(descendantType);
       return ApplyNamingRules(string.Format(HierarchyForeignKeyFormat, baseType.Name, descendantType.Name));
     }
 
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Field name.</returns>
     public string BuildFieldName(FieldDef field)
     {
-      ArgumentNullException.ThrowIfNull(field, "field");
+      ArgumentNullException.ThrowIfNull(field);
       string result = field.Name;
       if (field.UnderlyingProperty != null)
         return BuildFieldNameInternal(field.UnderlyingProperty);
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
     {
-      ArgumentNullException.ThrowIfNull(propertyInfo, "propertyInfo");
+      ArgumentNullException.ThrowIfNull(propertyInfo);
       return BuildFieldNameInternal(propertyInfo);
     }
 
@@ -226,8 +226,8 @@ namespace Xtensive.Orm.Providers
     /// <returns>Nested field name.</returns>
     public string BuildNestedFieldName(FieldInfo complexField, FieldInfo childField)
     {
-      ArgumentNullException.ThrowIfNull(complexField, "complexField");
-      ArgumentNullException.ThrowIfNull(childField, "childField");
+      ArgumentNullException.ThrowIfNull(complexField);
+      ArgumentNullException.ThrowIfNull(childField);
       var nameSource = complexField;
       while (nameSource.Parent != null)
         nameSource = nameSource.Parent;
@@ -257,8 +257,8 @@ namespace Xtensive.Orm.Providers
     /// <returns>Column name.</returns>
     public string BuildColumnName(FieldInfo field, ColumnInfo baseColumn)
     {
-      ArgumentNullException.ThrowIfNull(field, "field");
-      ArgumentNullException.ThrowIfNull(baseColumn, "baseColumn");
+      ArgumentNullException.ThrowIfNull(field);
+      ArgumentNullException.ThrowIfNull(baseColumn);
 
       var result = field.MappingName ?? field.Name;
       return ApplyNamingRules(result);
@@ -272,7 +272,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Column name.</returns>
     public string BuildColumnName(ColumnInfo column)
     {
-      ArgumentNullException.ThrowIfNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column);
       if (column.Name.StartsWith(column.Field.DeclaringType.Name + ".", StringComparison.Ordinal))
         throw new InvalidOperationException();
       string result = string.Concat(column.Field.DeclaringType.Name, ".", column.Name);
@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Index name.</returns>
     public string BuildIndexName(TypeDef type, IndexDef index)
     {
-      ArgumentNullException.ThrowIfNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index);
 
       string result = string.Empty;
       if (!index.Name.IsNullOrEmpty())
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Index name.</returns>
     public string BuildIndexName(TypeInfo type, IndexInfo index)
     {
-      ArgumentNullException.ThrowIfNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index);
       if (!index.Name.IsNullOrEmpty())
         return index.Name;
 
@@ -597,9 +597,9 @@ namespace Xtensive.Orm.Providers
 
     internal NameBuilder(DomainConfiguration configuration, ProviderInfo providerInfo)
     {
-      ArgumentNullException.ThrowIfNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(configuration);
       ArgumentNullException.ThrowIfNull(configuration.NamingConvention, "configuration.NamingConvention");
-      ArgumentNullException.ThrowIfNull(providerInfo, "providerInfo");
+      ArgumentNullException.ThrowIfNull(providerInfo);
 
       namingConvention = configuration.NamingConvention;
       isMultidatabase = configuration.IsMultidatabase;

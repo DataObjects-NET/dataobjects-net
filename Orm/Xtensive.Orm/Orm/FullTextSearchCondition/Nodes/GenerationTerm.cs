@@ -32,12 +32,12 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal GenerationTerm(IOperator source, GenerationType generationType, ICollection<string> terms)
       : base(SearchConditionNodeType.GenerationTerm, source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(terms, "terms");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(terms);
       if (terms.Count==0)
-        throw new ArgumentException(Strings.ExCollectionIsEmpty, "terms");
+        throw new ArgumentException(Strings.ExCollectionIsEmpty, nameof(terms));
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))
-        throw new ArgumentException(Strings.ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues, "terms");
+        throw new ArgumentException(Strings.ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues, nameof(terms));
       GenerationType = generationType;
       Terms = terms.ToList().AsReadOnly();
     }

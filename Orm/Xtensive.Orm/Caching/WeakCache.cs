@@ -87,7 +87,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentNullException.ThrowIfNull(item, nameof(item));
+      ArgumentNullException.ThrowIfNull(item);
       RegisterOperation(2);
       var key = KeyExtractor(item);
       if (items == null) {

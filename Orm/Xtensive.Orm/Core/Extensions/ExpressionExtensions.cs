@@ -55,7 +55,7 @@ namespace Xtensive.Core
     /// </returns>
     public static bool IsNull(this Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       if (expression.NodeType==ExpressionType.Constant) {
         var constantExpression = (ConstantExpression) expression;
         return constantExpression.Value==null;
@@ -166,12 +166,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">The root node of expression isn't of <see cref="MemberExpression"/> type.</exception>
     public static MemberInfo GetMember(this Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var me = expression as MemberExpression;
       if (me==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), nameof(expression));
       return me.Member;
     }
 
@@ -215,12 +215,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static MethodInfo GetMethod(this Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var mce = expression as MethodCallExpression;
       if (mce==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), nameof(expression));
       return mce.Method;
     }
 
@@ -232,12 +232,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static PropertyInfo GetIndexer(this Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ie = expression as IndexExpression;
       if (ie==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), nameof(expression));
       return ie.Indexer;
     }
 
@@ -249,12 +249,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static ConstructorInfo GetConstructor(this Expression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ne = expression as NewExpression;
       if (ne==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), nameof(expression));
       return ne.Constructor;
     }
 

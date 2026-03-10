@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Configuration
       where T : ConfigurationBase
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(value);
 
       var extensionConfigurationType = typeof(T);
 
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Configuration
     public ExtensionConfigurationCollection(ExtensionConfigurationCollection source)
       : this()
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Count == 0)
         return;
       extensionConfigurations = new Dictionary<Type, ConfigurationBase>(source.extensionConfigurations);

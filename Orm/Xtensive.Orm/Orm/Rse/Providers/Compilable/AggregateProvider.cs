@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Rse.Providers
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
-      ArgumentNullException.ThrowIfNull(columnDescriptors, nameof(columnDescriptors));
+      ArgumentNullException.ThrowIfNull(columnDescriptors);
       groupIndexes = groupIndexes ?? Array.Empty<int>();
       var columns = new AggregateColumn[columnDescriptors.Count];
       for (int i = 0, count = columnDescriptors.Count; i < count; i++) {

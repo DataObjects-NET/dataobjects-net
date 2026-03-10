@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Model
     /// <param name="columnInfo">The <see cref="ColumnInfo"/> instance.</param>
     public ColumnInfoRef(ColumnInfo columnInfo)
     {
-      ArgumentNullException.ThrowIfNull(columnInfo, "columnInfo");
+      ArgumentNullException.ThrowIfNull(columnInfo);
       TypeName = columnInfo.Field.DeclaringType.Name;
       FieldName = columnInfo.Field.Name;
       ColumnName = columnInfo.Name;

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Linq
   {
     public static Type Extract(BinaryExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       if (expression.Right.StripMarkers() is KeyExpression key) {
         return key.EntityType.UnderlyingType;
       }

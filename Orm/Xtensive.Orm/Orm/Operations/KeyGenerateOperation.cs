@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Operations
     public KeyGenerateOperation(Key key)
       : base(key)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
     }
 
     /// <inheritdoc/>

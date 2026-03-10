@@ -49,7 +49,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     public void Remove(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
-      ArgumentNullException.ThrowIfNull(entities, "entities");
+      ArgumentNullException.ThrowIfNull(entities);
       var isEmpty = true;
       foreach (var entity in entities) {
         isEmpty = false;
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       if (isEmpty) {
         return;
       }
-      var processedEntities = new List<Entity>();
+      IReadOnlyList<Entity> processedEntities = Array.Empty<Entity>();
       var notifiedEntities = new HashSet<Entity>();
       try {
         var operations = Session.Operations;

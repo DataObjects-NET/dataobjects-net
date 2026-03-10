@@ -72,7 +72,7 @@ namespace Xtensive.Collections.Graphs
     /// Otherwise is must return null.</param>
     public void AddEdges(Func<TNode, TNode, TEdge> connector)
     {
-      ArgumentNullException.ThrowIfNull(connector, "connector");
+      ArgumentNullException.ThrowIfNull(connector);
       foreach (var source in Nodes)
         foreach (var target in Nodes) {
           var edge = connector.Invoke(source, target);

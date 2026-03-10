@@ -45,7 +45,7 @@ namespace Xtensive.Modelling.Actions
     /// <param name="action">The action to add.</param>
     public void Add(NodeAction action)
     {
-      ArgumentNullException.ThrowIfNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;

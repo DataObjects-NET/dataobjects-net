@@ -126,14 +126,14 @@ namespace Xtensive.Sql.Dml
     {
       if (rowCount is not null) {
         if (option != SqlFetchOption.Absolute && option != SqlFetchOption.Relative)
-          throw new ArgumentException(Strings.ExInvalidUsageOfTheRowCountArgument, "rowCount");
+          throw new ArgumentException(Strings.ExInvalidUsageOfTheRowCountArgument, nameof(rowCount));
         SqlValidator.EnsureIsArithmeticExpression(rowCount);
       }
       else if (option == SqlFetchOption.Absolute || option == SqlFetchOption.Relative)
-        throw new ArgumentException(Strings.ExInvalidUsageOfTheOrientationArgument, "option");
+        throw new ArgumentException(Strings.ExInvalidUsageOfTheOrientationArgument, nameof(option));
       if (target != null)
         for (int i = 0, l = target.Length; i < l; i++)
-          ArgumentNullException.ThrowIfNull(target[i], "target");
+          ArgumentNullException.ThrowIfNull(target[i], $"target[{i}]");
       return new SqlFetch(option, rowCount, this, target);
     }
 

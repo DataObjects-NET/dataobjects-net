@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse.Transformation
     public LambdaExpression Replace(LambdaExpression sourceExpression, ParameterExpression oldParameter,
       ParameterExpression newParameter)
     {
-      ArgumentNullException.ThrowIfNull(sourceExpression, nameof(sourceExpression));
+      ArgumentNullException.ThrowIfNull(sourceExpression);
 
       this.oldParameter = oldParameter ?? throw new ArgumentNullException(nameof(oldParameter));
       this.newParameter = newParameter ?? throw new ArgumentNullException(nameof(newParameter));

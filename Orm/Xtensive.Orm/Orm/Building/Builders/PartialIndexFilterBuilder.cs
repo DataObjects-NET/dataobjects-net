@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildFilter(IndexInfo index)
     {
-      ArgumentNullException.ThrowIfNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index);
       var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {

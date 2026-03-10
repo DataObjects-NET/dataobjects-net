@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Include, source)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, nameof (resultColumnName));
-      ArgumentNullException.ThrowIfNull(filteredColumns, nameof(filteredColumns));
+      ArgumentNullException.ThrowIfNull(filteredColumns);
 
       Algorithm = algorithm;
       IsInlined = isInlined;

@@ -153,7 +153,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentNullException.ThrowIfNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       OnOperation2();
       var key = KeyExtractor(item);
       CachedItem cached;

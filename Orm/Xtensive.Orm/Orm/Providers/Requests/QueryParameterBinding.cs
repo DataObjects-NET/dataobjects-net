@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
       switch (bindingType) {
       case QueryParameterBindingType.Regular:
       case QueryParameterBindingType.SmartNull:
-        ArgumentNullException.ThrowIfNull(typeMapping, "typeMapping");
+        ArgumentNullException.ThrowIfNull(typeMapping);
         break;
       }
 

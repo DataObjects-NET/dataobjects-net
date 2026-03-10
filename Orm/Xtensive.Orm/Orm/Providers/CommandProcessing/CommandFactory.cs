@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Providers
 
     public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, in string parameterNamePrefix)
     {
-      ArgumentNullException.ThrowIfNull(task, "task");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+      ArgumentNullException.ThrowIfNull(task);
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, nameof(parameterNamePrefix));
 
       var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
       var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : Session.StorageNode.Configuration;
@@ -95,8 +95,8 @@ namespace Xtensive.Orm.Providers
 
     public virtual CommandPart CreateQueryPart(IQueryRequest request, in string parameterNamePrefix, ParameterContext parameterContext)
     {
-      ArgumentNullException.ThrowIfNull(request, "request");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
+      ArgumentNullException.ThrowIfNull(request);
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, nameof(parameterNamePrefix));
 
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();

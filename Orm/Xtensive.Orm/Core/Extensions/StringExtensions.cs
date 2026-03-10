@@ -94,7 +94,7 @@ namespace Xtensive.Core
     /// <returns>Indented <paramref name="value"/>.</returns>
     public static string Indent(this string value, int indentSize, bool indentFirstLine)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
       var indent = new string(' ', indentSize);
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       if (indentFirstLine)
@@ -202,7 +202,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -239,7 +239,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -278,7 +278,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       if (escape==delimiter)
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -360,8 +360,8 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(sqlLikePattern);
       var regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
@@ -387,14 +387,14 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern, char escapeCharacter)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(sqlLikePattern);
       const string regExSpecialChars = @"[]\/^$.|?*+(){}";
 
       if(char.IsControl(escapeCharacter))
-        throw new ArgumentException(Strings.ExControlCharacterUsedAsEscapeCharacter, "escapeCharacter");
+        throw new ArgumentException(Strings.ExControlCharacterUsedAsEscapeCharacter, nameof(escapeCharacter));
       if(escapeCharacter=='%' || escapeCharacter== '_')
-        throw new ArgumentException(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter), "escapeCharacter");
+        throw new ArgumentException(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter), nameof(escapeCharacter));
 
       var escChar = new string(escapeCharacter, 1);
       if (regExSpecialChars.Contains(escapeCharacter))
@@ -437,8 +437,8 @@ namespace Xtensive.Core
 
     internal static bool Contains(this string str, string value, StringComparison comparison)
     {
-      ArgumentNullException.ThrowIfNull(str, nameof(str));
-      ArgumentNullException.ThrowIfNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(str);
+      ArgumentNullException.ThrowIfNull(value);
 
       return str.IndexOf(value, comparison) >= 0;
     }

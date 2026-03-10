@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers
 
     public StorageDriver CreateNew(Domain domain)
     {
-      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain);
       return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), connectionAccessorFactories);
     }
 
@@ -213,8 +213,8 @@ namespace Xtensive.Orm.Providers
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
     {
-      ArgumentNullException.ThrowIfNull(driverFactory, nameof(driverFactory));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(driverFactory);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
       var driverConfiguration = new SqlDriverConfiguration(accessors) {
@@ -232,8 +232,8 @@ namespace Xtensive.Orm.Providers
     public static async Task<StorageDriver> CreateAsync(
       SqlDriverFactory driverFactory, DomainConfiguration configuration, CancellationToken token)
     {
-      ArgumentNullException.ThrowIfNull(driverFactory, nameof(driverFactory));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(driverFactory);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
       var driverConfiguration = new SqlDriverConfiguration(accessors) {

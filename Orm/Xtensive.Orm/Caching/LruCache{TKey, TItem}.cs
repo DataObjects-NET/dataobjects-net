@@ -106,7 +106,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentNullException.ThrowIfNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var key = KeyExtractor(item);
       var cached = new KeyValuePair<TKey, TItem>(key, item);
       KeyValuePair<TKey, TItem> oldCached;

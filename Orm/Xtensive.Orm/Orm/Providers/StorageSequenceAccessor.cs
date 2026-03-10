@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Providers
     [ServiceConstructor]
     public StorageSequenceAccessor(HandlerAccessor handlers)
     {
-      ArgumentNullException.ThrowIfNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       queryBuilder = handlers.SequenceQueryBuilder;
       domain = handlers.Domain;

@@ -501,9 +501,9 @@ namespace Xtensive.Orm.Providers
       in bool preferCaseOverVariant,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      ArgumentNullException.ThrowIfNull(lambda, "lambda");
-      ArgumentNullException.ThrowIfNull(handlers, "handlers");
-      ArgumentNullException.ThrowIfNull(sourceColumns, "sourceColumns");
+      ArgumentNullException.ThrowIfNull(lambda);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(sourceColumns);
 
       if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);

@@ -53,8 +53,8 @@ namespace Xtensive.Orm.Internals
 
     public IEnumerable<EntityState> GetRemovedReferencesTo(EntityState target, AssociationInfo association)
     {
-      ArgumentNullException.ThrowIfNull(target, "target");
-      ArgumentNullException.ThrowIfNull(association, "association");
+      ArgumentNullException.ThrowIfNull(target);
+      ArgumentNullException.ThrowIfNull(association);
 
       return association.IsPaired || !removedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
         ? Array.Empty<EntityState>()
@@ -63,8 +63,8 @@ namespace Xtensive.Orm.Internals
 
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
     {
-      ArgumentNullException.ThrowIfNull(target, "target");
-      ArgumentNullException.ThrowIfNull(association, "association");
+      ArgumentNullException.ThrowIfNull(target);
+      ArgumentNullException.ThrowIfNull(association);
 
       return association.IsPaired || !addedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
         ? Array.Empty<EntityState>()
@@ -83,8 +83,8 @@ namespace Xtensive.Orm.Internals
 
     private void RegisterChange(EntityState referencedState, EntityState referencingState, EntityState noLongerReferencedState, AssociationInfo association)
     {
-      ArgumentNullException.ThrowIfNull(association, "association");
-      ArgumentNullException.ThrowIfNull(referencingState, "referencingState");
+      ArgumentNullException.ThrowIfNull(association);
+      ArgumentNullException.ThrowIfNull(referencingState);
 
       if (!Session.DisableAutoSaveChanges || association.IsPaired
         || (referencedState == null && noLongerReferencedState == null)) {

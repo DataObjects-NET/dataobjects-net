@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Transformation
       ParameterExpression substituteParameter, ColumnCollection sourceColumns,
       ColumnCollection targetColumns)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
 
       substitute = substituteParameter ?? throw new ArgumentNullException(nameof(substituteParameter));
       this.sourceColumns = sourceColumns ?? throw new ArgumentNullException(nameof(sourceColumns));

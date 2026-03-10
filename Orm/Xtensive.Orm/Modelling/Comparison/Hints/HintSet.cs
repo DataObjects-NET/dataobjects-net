@@ -66,7 +66,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <see cref="Hint.GetTargets"/> method isn't found.</exception>
     public void Add(Hint hint)
     {
-      ArgumentNullException.ThrowIfNull(hint, "hint");
+      ArgumentNullException.ThrowIfNull(hint);
 
       if (set.Contains(hint))
         throw new InvalidOperationException(Strings.ExItemAlreadyExists);
@@ -165,7 +165,7 @@ namespace Xtensive.Modelling.Comparison.Hints
 
     private Dictionary<Type, object> GetNodeHints(Node node)
     {
-      ArgumentNullException.ThrowIfNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
 
       if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
         hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());

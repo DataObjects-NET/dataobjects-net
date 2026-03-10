@@ -44,7 +44,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public IProximityTerm GenericProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTermsConstructor)
     {
-      ArgumentNullException.ThrowIfNull(proximityTermsConstructor, "proximityTermsConstructor");
+      ArgumentNullException.ThrowIfNull(proximityTermsConstructor);
 
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTermsConstructor.Invoke(proximityOperandRoot);
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTermsConstructor)
     {
-      ArgumentNullException.ThrowIfNull(proximityTermsConstructor, "proximityTermsConstructor");
+      ArgumentNullException.ThrowIfNull(proximityTermsConstructor);
 
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTermsConstructor.Invoke(proximityOperandRoot);
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTermsConstructor, long maximumDistance)
     {
-      ArgumentNullException.ThrowIfNull(proximityTermsConstructor, "proximityTermsConstructor");
+      ArgumentNullException.ThrowIfNull(proximityTermsConstructor);
 
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTermsConstructor.Invoke(proximityOperandRoot);
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTermsConstructor, long maximumDistance, bool matchOrder)
     {
-      ArgumentNullException.ThrowIfNull(proximityTermsConstructor, "proximityTermsConstructor");
+      ArgumentNullException.ThrowIfNull(proximityTermsConstructor);
 
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTermsConstructor.Invoke(proximityOperandRoot);
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public IWeightedTerm WeightedTerm(Func<WeightedTermEndpoint, IWeightedTermConstructionFlow> weightedTermsConstructor)
     {
-      ArgumentNullException.ThrowIfNull(weightedTermsConstructor, "weightedTermsConstructor");
+      ArgumentNullException.ThrowIfNull(weightedTermsConstructor);
 
       var endpoint = new WeightedTermEndpoint();
       var constructionFlow = weightedTermsConstructor.Invoke(endpoint);
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     /// <inheritdoc/>
     public IComplexTerm ComplexTerm(Func<ConditionEndpoint, IOperand> complexTermConstructor)
     {
-      ArgumentNullException.ThrowIfNull(complexTermConstructor, "complexTermConstructor");
+      ArgumentNullException.ThrowIfNull(complexTermConstructor);
 
       var endpoint = SearchConditionNodeFactory.CreateConditonRoot();
       return SearchConditionNodeFactory.CreateComplexTerm(this, complexTermConstructor.Invoke(endpoint));

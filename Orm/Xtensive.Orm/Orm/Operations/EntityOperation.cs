@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Operations
     protected EntityOperation(Key key)
       : base(key)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
     }
 
     /// <inheritdoc/>

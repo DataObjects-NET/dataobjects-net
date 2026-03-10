@@ -80,7 +80,7 @@ namespace Xtensive.Collections.Graphs
       where TNode: Node
       where TEdge: Edge
     {
-      ArgumentNullException.ThrowIfNull(graph, "graph");
+      ArgumentNullException.ThrowIfNull(graph);
 
       var result = new TopologicalSortResult<TNode, TEdge>();
 

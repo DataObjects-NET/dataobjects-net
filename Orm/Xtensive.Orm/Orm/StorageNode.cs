@@ -116,10 +116,10 @@ namespace Xtensive.Orm
 
     internal StorageNode(Domain domain, NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
-      ArgumentNullException.ThrowIfNull(domain, nameof(domain));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-      ArgumentNullException.ThrowIfNull(mapping, nameof(mapping));
-      ArgumentNullException.ThrowIfNull(typeIdRegistry, nameof(typeIdRegistry));
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(typeIdRegistry);
 
       EntityLockProviderCache = new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
       EntityFetchQueryCache = new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
