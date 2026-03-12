@@ -486,11 +486,6 @@ namespace Xtensive.Orm.Rse.Transformation
         if (usageMap[i])
           resultList.Add(i);
       }
-      if (resultList.Count != uniqueCount) {
-        //
-        result = null;
-        return false;
-      }
       result = resultList;
       return true;
     }
