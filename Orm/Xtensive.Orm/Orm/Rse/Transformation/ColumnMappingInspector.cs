@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public virtual CompilableProvider RemoveRedundantColumns()
     {
-      mappings.Add(rootProvider, CollectionUtils.RangeToList(0, rootProvider.Header.Length));
+      mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
       var visitedProvider = VisitCompilable(rootProvider);
       return visitedProvider != rootProvider
         ? visitedProvider
@@ -89,25 +89,25 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <inheritdoc/>
     protected override FreeTextProvider VisitFreeText(FreeTextProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     protected override IndexProvider VisitIndex(IndexProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     protected override SeekProvider VisitSeek(SeekProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
