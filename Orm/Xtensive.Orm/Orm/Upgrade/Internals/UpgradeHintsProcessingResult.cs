@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2015.01.22
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
@@ -53,25 +54,15 @@ namespace Xtensive.Orm.Upgrade.Internals
       IReadOnlyList<StoredTypeInfo> currentNonConnectorTypes,
       IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
-      ArgumentValidator.EnsureArgumentNotNull(typeMapping, nameof(typeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, nameof(reverseTypeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, nameof(fieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseFieldMapping, nameof(reverseFieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(currentModelTypes, nameof(currentModelTypes));
-      ArgumentValidator.EnsureArgumentNotNull(suspiciousTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(currentNonConnectorTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
-
-      Hints = hints;
-      TypeMapping = typeMapping;
-      ReverseTypeMapping = reverseTypeMapping;
-      FieldMapping = fieldMapping;
-      ReverseFieldMapping = reverseFieldMapping;
-      CurrentModelTypes = currentModelTypes;
-      SuspiciousTypes = suspiciousTypes;
-      CurrentNonConnectorTypes = currentNonConnectorTypes;
-      ExtractedNonConnectorTypes = extractedNonConnectorTypes;
+      Hints                      = hints ?? throw new ArgumentNullException(nameof(hints));
+      TypeMapping                = typeMapping ?? throw new ArgumentNullException(nameof(typeMapping));
+      ReverseTypeMapping         = reverseTypeMapping ?? throw new ArgumentNullException(nameof(reverseTypeMapping));
+      FieldMapping               = fieldMapping ?? throw new ArgumentNullException(nameof(fieldMapping));
+      ReverseFieldMapping        = reverseFieldMapping ?? throw new ArgumentNullException(nameof(reverseFieldMapping));
+      CurrentModelTypes          = currentModelTypes ?? throw new ArgumentNullException(nameof(currentModelTypes));
+      SuspiciousTypes            = suspiciousTypes ?? throw new ArgumentNullException(nameof(suspiciousTypes));
+      CurrentNonConnectorTypes   = currentNonConnectorTypes ?? throw new ArgumentNullException(nameof(currentNonConnectorTypes));
+      ExtractedNonConnectorTypes = extractedNonConnectorTypes ?? throw new ArgumentNullException(nameof(extractedNonConnectorTypes));
     }
   }
 }

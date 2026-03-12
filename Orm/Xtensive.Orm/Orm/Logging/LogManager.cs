@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Logging
     /// <param name="logProvider">Instance of class, which implements <see cref="LogProvider"/>.</param>
     public void Initialize(LogProvider logProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(logProvider, "logProvider");
+      ArgumentNullException.ThrowIfNull(logProvider);
       lock (syncObj) {
         EnsureIsNotInitialized();
         provider = logProvider;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Logging
     /// <param name="configuration">Configuration of logging.</param>
     public void Initialize(LoggingConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(configuration);
       lock (syncObj) {
         EnsureIsNotInitialized();
         if (!string.IsNullOrEmpty(configuration.Provider)) {

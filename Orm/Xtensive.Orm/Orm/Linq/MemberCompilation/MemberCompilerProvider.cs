@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
+      ArgumentNullException.ThrowIfNull(target);
 
       return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
+      ArgumentNullException.ThrowIfNull(compilerContainer);
       EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
+      ArgumentNullException.ThrowIfNull(compilerDefinitions);
       EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       bool isGenericMethod = attribute.NumberOfGenericArguments > 0;
       bool isGenericType = targetType.IsGenericType;
       bool isGeneric = isGenericType || isGenericMethod;
-      
+
       string memberName = attribute.TargetMember;
 
       if (memberName.IsNullOrEmpty())
@@ -191,18 +191,21 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       if (isCtor)
         bindingFlags |= BindingFlags.Instance;
-      else
+      else {
         if (!isStatic) {
-          if (parameterTypes.Length==0)
+          if (parameterTypes.Length == 0)
             throw new InvalidOperationException(string.Format(
               Strings.ExCompilerXShouldHaveThisParameter,
               compiler.GetFullName(true)));
 
-          parameterTypes = parameterTypes.Skip(1).ToArray();
+          var noInstanceParameter = new Type[parameterTypes.Length - 1];
+          Array.Copy(parameterTypes, 1, noInstanceParameter, 0, noInstanceParameter.Length);
+          parameterTypes = noInstanceParameter;
           bindingFlags |= BindingFlags.Instance;
         }
         else
           bindingFlags |= BindingFlags.Static;
+      }
 
       if (isPropertyGetter) {
         bindingFlags |= BindingFlags.GetProperty;

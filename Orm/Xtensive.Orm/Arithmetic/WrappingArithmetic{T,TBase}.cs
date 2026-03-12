@@ -34,7 +34,7 @@ namespace Xtensive.Arithmetic
     public WrappingArithmetic(IArithmeticProvider provider, ArithmeticRules rules)
       : base(provider, rules)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       BaseArithmetic = provider.GetArithmetic<TBase>();
     }
   }

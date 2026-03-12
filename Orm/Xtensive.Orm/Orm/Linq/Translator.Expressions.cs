@@ -506,6 +506,7 @@ namespace Xtensive.Orm.Linq
         if (methodDeclaringType == typeof(QueryableExtensions)) {
           return methodName switch {
             Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
+            Reflection.WellKnown.QueryableExtensions.LeftJoinEx => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
             Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),
             Reflection.WellKnown.QueryableExtensions.Take => VisitTake(mc.Arguments[0], mc.Arguments[1]),
@@ -689,15 +690,14 @@ namespace Xtensive.Orm.Linq
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       // ReSharper restore HeuristicUnreachableCode
 
-      var arguments = VisitNewExpressionArguments(newExpression);
+      var arguments = VisitNewExpressionArguments(newExpression, out var constructorParameters);
       if (newExpression.IsAnonymousConstructor()) {
-        return newExpression.Members==null
+        return newExpression.Members == null
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
       }
 
-      var constructorParameters = newExpression.GetConstructorParameters();
-      if (constructorParameters.Length != arguments.Count)
+      if (constructorParameters.Length != arguments.Length)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
 
       var bindings = GetBindingsForConstructor(constructorParameters, arguments, newExpression);
@@ -1370,7 +1370,7 @@ namespace Xtensive.Orm.Linq
     {
       var newExpression = mi.NewExpression;
       VisitNewExpressionArgumentsSkipResults(newExpression);
-      var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
+      var bindings = VisitBindingList((IReadOnlyList<MemberBinding>) mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
       foreach (var binding in bindings) {
         var member = binding.Member.MemberType == MemberTypes.Property

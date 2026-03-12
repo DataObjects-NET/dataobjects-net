@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -61,9 +61,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public CachingSequence(IStorageSequenceAccessor accessor, bool threadSafe)
     {
-      ArgumentValidator.EnsureArgumentNotNull(accessor, "accessor");
-
-      this.accessor = accessor;
+      this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
 
       if (threadSafe)
         syncRoot = new object();

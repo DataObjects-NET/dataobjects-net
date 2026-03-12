@@ -940,7 +940,7 @@ namespace Xtensive.Orm
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)
             .ToList()
-        : CollectionUtils.RangeToList(0, targetDescriptor.Count);
+        : Enumerable.Range(0, targetDescriptor.Count).ToList();
 
       var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
       var keyFieldTypes = ownerDescriptor

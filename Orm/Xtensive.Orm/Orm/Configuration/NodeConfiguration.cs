@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -98,18 +98,20 @@ namespace Xtensive.Orm.Configuration
       databaseMapping.Lock();
     }
 
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
     /// Creates clone of this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public object Clone()
+    public NodeConfiguration Clone()
     {
       var clone = new NodeConfiguration {
         nodeId = nodeId,
         connectionInfo = connectionInfo,
         connectionInitializationSql = connectionInitializationSql,
-        databaseMapping = (NameMappingCollection) databaseMapping.Clone(),
-        schemaMapping = (NameMappingCollection) schemaMapping.Clone(),
+        databaseMapping = databaseMapping.Clone(),
+        schemaMapping = schemaMapping.Clone(),
       };
       return clone;
     }

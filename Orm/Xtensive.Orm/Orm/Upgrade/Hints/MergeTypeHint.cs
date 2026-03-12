@@ -70,11 +70,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newType">The new type.</param>
     public MergeTypeHint(Type oldType, Type newType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(newType, nameof(newType));
-      ArgumentValidator.EnsureArgumentNotNull(oldType, nameof(oldType));
-
-      OldType = oldType;
-      NewType = newType;
+      OldType = oldType ?? throw new ArgumentNullException(nameof(oldType));
+      NewType = newType ?? throw new ArgumentNullException(nameof(newType));
 
       throw new NotImplementedException();
     }

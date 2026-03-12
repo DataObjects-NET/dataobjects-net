@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     /// <inheritdoc/>
     public IEnumerator<TreeNode> GetEnumerator()
     {
-      return EnumerableUtils.One(Root).Flatten(node => node.Children, null, true).GetEnumerator();
+      return Enumerable.Repeat(Root, 1).Flatten(node => node.Children, null, true).GetEnumerator();
     }
 
     /// <inheritdoc/>

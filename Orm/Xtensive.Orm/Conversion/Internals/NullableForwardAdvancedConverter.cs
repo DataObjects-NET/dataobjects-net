@@ -18,7 +18,7 @@ namespace Xtensive.Conversion
     public override TTo Convert(TFrom? value)
     {
       if (toIsValueType && !value.HasValue)
-        throw new ArgumentNullException("value");
+        throw new ArgumentNullException(nameof(value));
       return BaseConverter.Convert(value.GetValueOrDefault());
     }
 

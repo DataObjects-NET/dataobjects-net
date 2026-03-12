@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.29
 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -294,10 +295,8 @@ namespace Xtensive.Orm.Providers
 
     public SqlExecutor(StorageDriver driver, SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, nameof(driver));
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      this.driver = driver;
-      this.connection = connection;
+      this.driver = driver ?? throw new ArgumentNullException(nameof(driver));
+      this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
     }
 
     public SqlExecutor(StorageDriver driver, SqlConnection connection, Session session)

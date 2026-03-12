@@ -353,7 +353,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     {
       SqlSelect select = SqlDml.Select();
       var table = Catalog.DefaultSchema.Tables["Address"];
-      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", EnumerableUtils.One(table.Columns[0].Name).ToList(), EnumerableUtils.One(table.Columns[0].Name).ToList()));
+      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", new[] { table.Columns[0].Name }, new[] { table.Columns[0].Name }));
       select.Columns.Add(select.From.Asterisk);
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }

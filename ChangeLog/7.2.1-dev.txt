@@ -1,5 +1,9 @@
 [main] Added Query.SingleAsync()/SingleOrDefaultAsync and QueryEndpoint.SingleAsync()/SingleOrDefaultAsync methods
 [main] Addressed issue of not disposing IAsyncEnumerator which caused query being open
 [main] Addressed issue of overwriting exception on attempt to rollback the transaction of Domain upgrade if commit operation failed
+[main] LeftJoin extension marked as Obsolete to prepare movement to .NET 10, LeftJoinEx provided as substitution
+[main] IPriorityQueue interface became Obsolete
+[main] EnumerableUtils.One() marked as Obsolete
+[main] Performance and memory usage improvements
 [postgresql] Update Npgsql to 9.0.4
 [weaver] Updated Mono.Cecil package to v0.11.6, which resolves certain issues of unsynced pdb files

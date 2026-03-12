@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Localization
 
     public static void Initialize(Domain domain)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, nameof(domain));
+      ArgumentNullException.ThrowIfNull(domain);
 
       var existing = domain.Extensions.Get<TypeLocalizationMap>();
       if (existing != null) {

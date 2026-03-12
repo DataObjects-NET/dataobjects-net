@@ -62,8 +62,7 @@ namespace Xtensive.Sql.Model
     /// <param name="name">The name.</param>
     protected DataTableNode(DataTable dataTable, string name) : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
-      DataTable = dataTable;
+      DataTable = dataTable ?? throw new ArgumentNullException(nameof(dataTable));
     }
 
     #endregion

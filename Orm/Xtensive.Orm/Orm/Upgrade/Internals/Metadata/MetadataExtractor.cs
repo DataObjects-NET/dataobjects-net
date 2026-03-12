@@ -175,11 +175,8 @@ namespace Xtensive.Orm.Upgrade
 
     public MetadataExtractor(MetadataMapping mapping, ISqlExecutor executor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
-      ArgumentValidator.EnsureArgumentNotNull(executor, nameof(executor));
-
-      this.mapping = mapping;
-      this.executor = executor;
+      this.mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+      this.executor = executor ?? throw new ArgumentNullException(nameof(executor));
     }
   }
 }

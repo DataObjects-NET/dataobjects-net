@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlAlterSequence Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterSequence(t.sequence, (SequenceDescriptor)t.sequenceDescriptor.Clone(), t.infoOption));
+        new SqlAlterSequence(t.sequence, t.sequenceDescriptor.Clone(), t.infoOption));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

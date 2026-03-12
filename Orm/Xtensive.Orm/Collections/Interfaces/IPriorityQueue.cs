@@ -16,6 +16,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="T"><see cref="Type"/> of items to be stored in queue.</typeparam>
   /// <typeparam name="TPriority"><see cref="Type"/> of priority value.</typeparam>
+  [Obsolete]
   public interface IPriorityQueue<T, TPriority> : 
     IEnumerable<T>, ICloneable
     where TPriority : IComparable<TPriority>

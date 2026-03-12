@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.07
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
@@ -44,11 +45,8 @@ namespace Xtensive.Sql.Compiler
 
     public SqlPostCompilerConfiguration([NotNull] IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
     {
-      ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
-      ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
-
-      DatabaseMapping = databaseMapping;
-      SchemaMapping = schemaMapping;
+      DatabaseMapping = databaseMapping ?? throw new ArgumentNullException(nameof(databaseMapping));
+      SchemaMapping = schemaMapping ?? throw new ArgumentNullException(nameof(schemaMapping));
     }
   }
 }

@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void MartinTest()
     {
       _ = Session.Query.All<Customer>()
-        .LeftJoin(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new { Customer = c, Invoice = i })
+        .LeftJoinEx(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new { Customer = c, Invoice = i })
         .GroupBy(i => new { i.Customer.FirstName, i.Customer.LastName })
         .Select(g => new { Key = g.Key, Count = g.Count(j => j.Invoice != null) })
         .ToList();
