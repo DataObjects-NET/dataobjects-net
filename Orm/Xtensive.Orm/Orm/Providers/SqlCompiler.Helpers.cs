@@ -16,6 +16,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers
 {

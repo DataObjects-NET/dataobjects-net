@@ -377,8 +377,8 @@ namespace Xtensive.Orm.Rse
       TupleDescriptor? orderKeyDescriptor,
       DirectionCollection<int> order)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
+      ArgumentValidator.EnsureArgumentIsNotDefault(tupleDescriptor, nameof(tupleDescriptor));
+      ArgumentNullException.ThrowIfNull(columns);
 
       TupleDescriptor = tupleDescriptor;
       // Unsafe perf. optimization: if you pass a list, it should be immutable!

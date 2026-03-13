@@ -19,8 +19,7 @@ namespace Xtensive.Comparison
   internal sealed class TupleDescriptorComparer: WrappingComparer<TupleDescriptor, Type[]>,
     ISystemComparer<TupleDescriptor>
   {
-    protected override IAdvancedComparer<TupleDescriptor> CreateNew(ComparisonRules rules)
-      => new TupleDescriptorComparer(Provider, ComparisonRules.Combine(rules));
+    protected override TupleDescriptorComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(TupleDescriptor x, TupleDescriptor y) => throw new NotSupportedException();
 

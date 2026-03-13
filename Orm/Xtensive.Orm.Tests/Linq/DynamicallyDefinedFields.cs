@@ -1265,7 +1265,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (session.Activate())
       using (var transction = session.OpenTransaction()) {
         Assert.DoesNotThrow(() => {
-          session.Query.All<Area>().LeftJoin(session.Query.All<Group>(), area => (Group)area[testData.GroupFieldName],
+          session.Query.All<Area>().LeftJoinEx(session.Query.All<Group>(), area => (Group)area[testData.GroupFieldName],
             group => group, (area, @group) => new { Area = area, Group = group });
         });
       }

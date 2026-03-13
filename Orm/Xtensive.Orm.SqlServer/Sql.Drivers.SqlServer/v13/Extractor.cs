@@ -53,11 +53,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
 
       public ExtractionContext(Catalog catalog, IReadOnlyCollection<string> targetSchemas)
       {
-        ArgumentValidator.EnsureArgumentNotNull(catalog, nameof(catalog));
-        ArgumentValidator.EnsureArgumentNotNull(targetSchemas, nameof(targetSchemas));
-
-        Catalog = catalog;
-        TargetSchemas = targetSchemas;
+        Catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+        TargetSchemas = targetSchemas ?? throw new ArgumentNullException(nameof(targetSchemas));
         QuotedCatalogName = SqlHelper.QuoteIdentifierWithBrackets(new[] { catalog.Name });
 
         SchemaIndex = new Dictionary<int, Schema>();

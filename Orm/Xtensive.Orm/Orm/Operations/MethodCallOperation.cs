@@ -104,9 +104,8 @@ namespace Xtensive.Orm.Operations
       Action<OperationExecutionContext, object[]> executeAction,
       params object[] arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNull(executeAction, "executeAction");
       this.prepareAction = prepareAction;
-      this.executeAction = executeAction;
+      this.executeAction = executeAction ?? throw new ArgumentNullException(nameof(executeAction));
       this.arguments = arguments;
     }
   }

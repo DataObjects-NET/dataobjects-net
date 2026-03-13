@@ -9,13 +9,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 
 namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal sealed class SerializableExpressionToExpressionConverter
   {
+    private readonly struct LambdaParameterScope : IDisposable
+    {
+      private readonly SerializableExpressionToExpressionConverter converter;
+
+      public void Dispose() => converter.parameterScopes.TryPop(out _);
+
+      public LambdaParameterScope(SerializableExpressionToExpressionConverter converter, Dictionary<string, ParameterExpression> currentScope)
+      {
+        this.converter = converter;
+        this.converter.parameterScopes.Push(currentScope);
+      }
+    }
+
     private readonly SerializableExpression source;
     private readonly Dictionary<SerializableExpression, Expression> cache;
+    private readonly Stack<Dictionary<string, ParameterExpression>> parameterScopes;
 
     public Expression Convert()
     {
@@ -43,6 +58,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
           result = VisitUnary((SerializableUnaryExpression)e);
           break;
         case ExpressionType.Add:
@@ -68,16 +88,24 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
           result = VisitBinary((SerializableBinaryExpression)e);
           break;
         case ExpressionType.TypeIs:
           result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
           result = VisitConditional((SerializableConditionalExpression)e);
           break;
         case ExpressionType.Constant:
           result = VisitConstant((SerializableConstantExpression)e);
+          break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression)e);
           break;
         case ExpressionType.Parameter:
           result = VisitParameter((SerializableParameterExpression)e);
@@ -130,19 +158,29 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
     }
 
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), tb.TypeOperand);
+    }
+
     private Expression VisitConstant(SerializableConstantExpression c)
     {
       return Expression.Constant(c.Value, c.Type);
     }
 
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
+    }
+
     private Expression VisitConditional(SerializableConditionalExpression c)
     {
-      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
+      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse), c.Type);
     }
 
     private Expression VisitParameter(SerializableParameterExpression p)
     {
-      return Expression.Parameter(p.Type, p.Name);
+      return GetCachedParameter(p.Type, p.Name) ?? Expression.Parameter(p.Type, p.Name);
     }
 
     private Expression VisitMemberAccess(SerializableMemberExpression m)
@@ -163,7 +201,10 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)));
+      var parameters = l.Parameters.SelectToArray(p => (ParameterExpression) Visit(p));
+      using (CreateParameterScope(parameters)) {
+        return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
+      }
     }
 
     private Expression VisitNew(SerializableNewExpression n)
@@ -234,12 +275,48 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return expressions.Select(e => Visit(e));
     }
 
+    private LambdaParameterScope CreateParameterScope(IReadOnlyList<ParameterExpression> lambdaParameters)
+    {
+      var parameters = new Dictionary<string, ParameterExpression>(lambdaParameters.Count);
+      foreach (var lambdaParameter in lambdaParameters) {
+        parameters.Add(lambdaParameter.Name, lambdaParameter);
+      }
+      return new LambdaParameterScope(this, parameters);
+    }
+
+    private ParameterExpression GetCachedParameter(Type type, string name)
+    {
+      var replacement = FindParameterFast(type, name);
+      if (replacement == null && parameterScopes.Count > 1)
+        return FindParameterSlow(type, name);
+      return replacement;
+    }
+
+    private ParameterExpression FindParameterFast(Type type, string name)
+    {
+      if (parameterScopes.TryPeek(out var currentParameters)) {
+        if (currentParameters.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
+
+    private ParameterExpression FindParameterSlow(Type type, string name)
+    {
+      foreach (var scope in parameterScopes.Skip(1)) {
+        if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
+
     #endregion
 
     public SerializableExpressionToExpressionConverter(SerializableExpression source)
     {
       this.source = source;
       cache = new Dictionary<SerializableExpression, Expression>();
+      parameterScopes = new Stack<Dictionary<string, ParameterExpression>>();
     }
   }
 }

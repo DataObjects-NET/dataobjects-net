@@ -203,13 +203,11 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, nameof(columnIndexes));
+      ArgumentNullException.ThrowIfNull(columnIndexes);
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
-      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
 
-      this.type = type;
-      this.manager = manager;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
       var cachedHashCode = 0;
       foreach (var columnIndex in columnIndexes) {
         cachedHashCode = unchecked (379 * cachedHashCode + columnIndex);

@@ -117,11 +117,8 @@ namespace Xtensive.Orm.Building.Builders
 
     public TypeIdBuilder(Domain domain, ITypeIdProvider typeIdProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
-
-      this.domain = domain;
-      this.typeIdProvider = typeIdProvider;
+      this.domain = domain ?? throw new ArgumentNullException(nameof(domain));
+      this.typeIdProvider = typeIdProvider ?? throw new ArgumentNullException(nameof(typeIdProvider));
     }
   }
 }

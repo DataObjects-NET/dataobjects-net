@@ -142,7 +142,7 @@ jobs:
     name: Tests on SQLite 3
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net6.0', 'net8.0' ] # only LTS
     # For security reasons we allow test runs either for pushes from the team or for pull-requests after their changes were seen and approved by someone
     #
     # push filter - to cover pushes from the team to main branch of major version

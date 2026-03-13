@@ -40,7 +40,7 @@ namespace Xtensive.Comparison
     private readonly AdvancedComparer<TSource> sourceComparer;
 
     /// <inheritdoc/>
-    protected override IAdvancedComparer<TTarget> CreateNew(ComparisonRules rules)
+    protected override CastingComparer<TSource, TTarget> CreateNew(ComparisonRules rules)
       => new CastingComparer<TSource, TTarget>(sourceComparer.ApplyRules(rules));
 
     /// <inheritdoc/>

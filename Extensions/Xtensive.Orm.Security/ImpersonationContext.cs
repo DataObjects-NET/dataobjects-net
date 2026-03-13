@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Security
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Security
     public ImpersonationContext(IPrincipal principal, ImpersonationContext outerContext)
       : base(principal.Session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(principal, "principal");
+      ArgumentNullException.ThrowIfNull(principal);
 
       this.outerContext = outerContext;
       Principal = principal;

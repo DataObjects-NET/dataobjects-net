@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;

@@ -12,8 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class DecimalComparer : ValueTypeComparer<decimal>
   {
-    protected override IAdvancedComparer<decimal> CreateNew(ComparisonRules rules)
-      => new DecimalComparer(Provider, ComparisonRules.Combine(rules));
+    protected override DecimalComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

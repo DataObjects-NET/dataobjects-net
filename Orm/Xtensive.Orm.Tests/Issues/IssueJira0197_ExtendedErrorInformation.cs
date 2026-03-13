@@ -43,68 +43,51 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (ErrorProvider).Assembly, typeof (ErrorProvider).Namespace);
+      config.Types.Register(typeof(ErrorProvider));
       return config;
     }
 
     [Test]
     public void InsertNullTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          try {
-            new ErrorProvider(1);
-            session.SaveChanges();
-          }
-          catch (CheckConstraintViolationException exception) {
-            var expected = Domain.Model.Types[typeof (ErrorProvider)];
-            Assert.That(exception.Info.Type, Is.EqualTo(expected));
-            Assert.That(exception.Info.Field, Is.EqualTo(expected.Fields["NotNull"]));
-          }
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new ErrorProvider(1);
+        var ex = Assert.Throws<CheckConstraintViolationException>(() => session.SaveChanges());
+        var expected = Domain.Model.Types[typeof(ErrorProvider)];
+        Assert.That(ex.Info.Type, Is.EqualTo(expected));
+        Assert.That(ex.Info.Field, Is.EqualTo(expected.Fields[nameof(ErrorProvider.NotNull)]));
       }
     }
 
     [Test]
     public void DuplicateUniqueIndexTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          try {
-            new ErrorProvider(2) {NotNull = string.Empty, Unique = 2};
-            session.SaveChanges();
-            new ErrorProvider(3) {NotNull = string.Empty, Unique = 2};
-            session.SaveChanges();
-            Assert.Fail();
-          }
-          catch (UniqueConstraintViolationException exception) {
-            Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof (ErrorProvider)]));
-          }
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new ErrorProvider(2) { NotNull = string.Empty, Unique = 2 };
+        session.SaveChanges();
+        _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 2 };
+        var ex = Assert.Throws<UniqueConstraintViolationException>(() => session.SaveChanges());
+        Assert.That(ex.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
       }
     }
 
     [Test]
     public void DuplicatePrimaryKeyTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          new ErrorProvider(3) {NotNull = string.Empty, Unique = 31};
-          t.Complete();
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 31 };
+        t.Complete();
       }
 
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          try {
-            new ErrorProvider(3) {NotNull = string.Empty, Unique = 32};
-            session.SaveChanges();
-            Assert.Fail();
-          }
-          catch (UniqueConstraintViolationException exception) {
-            Assert.That(exception.Info.Type, Is.EqualTo(Domain.Model.Types[typeof (ErrorProvider)]));
-          }
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new ErrorProvider(3) { NotNull = string.Empty, Unique = 32 };
+
+        var ex = Assert.Throws<UniqueConstraintViolationException>(() => session.SaveChanges());
+        Assert.That(ex.Info.Type, Is.EqualTo(Domain.Model.Types[typeof(ErrorProvider)]));
       }
     }
   }

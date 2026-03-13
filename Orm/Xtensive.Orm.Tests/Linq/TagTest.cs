@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.Linq
         var inner = session.Query.All<BusinessUnit>().Tag("inner");
         var outer = session.Query.All<Property>().Tag("outer");
 
-        var query = outer.LeftJoin(inner, o => o.Owner.Id, i => i.Id, (i, o) => new { i, o });
+        var query = outer.LeftJoinEx(inner, o => o.Owner.Id, i => i.Id, (i, o) => new { i, o });
 
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
@@ -514,7 +514,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Tag("AfterSelect")
           .Where(g => g.Items.Count() >= 0)
           .Tag("AfterWhere")
-          .LeftJoin(session.Query.All<BusinessUnit>().Tag("WithinJoin"), g => g.Key, bu => bu.Id, (g, bu) => new { Key = bu, Items = g.Items });
+          .LeftJoinEx(session.Query.All<BusinessUnit>().Tag("WithinJoin"), g => g.Key, bu => bu.Id, (g, bu) => new { Key = bu, Items = g.Items });
 
         using (var tagScope = session.Tag("sessionTag6")) {
           session.Events.DbCommandExecuting += SqlCapturer;

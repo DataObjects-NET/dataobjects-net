@@ -96,14 +96,20 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public object Clone()
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public NamingConvention Clone()
     {
-      EnsureNotLocked();
-      var result = new NamingConvention();
-      result.letterCasePolicy = letterCasePolicy;
-      result.namespacePolicy = namespacePolicy;
-      result.namingRules = namingRules;
-      result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
+      var result = new NamingConvention {
+        letterCasePolicy = letterCasePolicy,
+        namespacePolicy = namespacePolicy,
+        namingRules = namingRules,
+        namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms)
+      };
       return result;
     }
 

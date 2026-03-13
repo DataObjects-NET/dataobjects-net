@@ -30,8 +30,7 @@ namespace Xtensive.Sql.Model
     internal DefaultConstraint(Table table, string name, TableColumn column)
       : base(table, name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
-      Column = column;
+      Column = column ?? throw new ArgumentNullException(nameof(column));
       NameIsStale = false;
     }
   }

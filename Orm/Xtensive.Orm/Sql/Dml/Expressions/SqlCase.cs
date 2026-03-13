@@ -18,8 +18,8 @@ namespace Xtensive.Sql.Dml
 
     public SqlCase Add(SqlExpression key, SqlExpression value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(value);
       cases.Add(new KeyValuePair<SqlExpression, SqlExpression>(key, value));
       return this;
     }
@@ -66,8 +66,8 @@ namespace Xtensive.Sql.Dml
       }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNull(key, "key");
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
         int index = IndexOf(key);
         KeyValuePair<SqlExpression, SqlExpression> @case = new KeyValuePair<SqlExpression, SqlExpression>(key, value);
         if (index >= 0)

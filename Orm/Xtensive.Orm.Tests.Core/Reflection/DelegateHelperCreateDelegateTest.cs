@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
     public static IEnumerable<TItem> Reverse<TItem>(IList<TItem> list)
     {
-      ArgumentValidator.EnsureArgumentNotNull(list, "list");
+      ArgumentNullException.ThrowIfNull(list);
       for (int i = list.Count-1; i>=0; i--)
         yield return list[i];
     }

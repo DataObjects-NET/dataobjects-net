@@ -94,8 +94,8 @@ namespace Xtensive.Sql.Model
     {
       if (!IsNamesReadingDenied)
         return Name;
-      if (nodeNameMap==null)
-        throw new ArgumentNullException("nodeNameMap");
+
+      ArgumentNullException.ThrowIfNull(nodeNameMap);
 
       var name = GetNameInternal();
       string actualName;
@@ -108,8 +108,8 @@ namespace Xtensive.Sql.Model
     {
       if (!IsNamesReadingDenied)
         return DbName;
-      if (nodeNameMap==null)
-        throw new ArgumentNullException("nodeNameMap");
+
+      ArgumentNullException.ThrowIfNull(nodeNameMap);
 
       var name = GetDbNameInternal();
       if (nodeNameMap.TryGetValue(name, out var actualName))
@@ -127,8 +127,7 @@ namespace Xtensive.Sql.Model
     protected CatalogNode(Catalog catalog, string name)
       : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
-      Catalog = catalog;
+      Catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
     }
 
     #endregion

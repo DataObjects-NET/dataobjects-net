@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public IEnumerable<ColumnExpression> Columns =>
       Fields
         .SelectMany(field => field.Value is ColumnExpression
-          ? EnumerableUtils.One(field.Value)
+          ? Enumerable.Repeat(field.Value, 1)
           : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
         .Cast<ColumnExpression>();
 

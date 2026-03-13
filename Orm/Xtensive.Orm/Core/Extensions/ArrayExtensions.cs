@@ -46,7 +46,7 @@ namespace Xtensive.Core
     /// <returns>An array of converted elements.</returns>
     public static TNewItem[] Convert<TItem, TNewItem>(this TItem[] source, Converter<TItem, TNewItem> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
+      ArgumentNullException.ThrowIfNull(converter);
       var items = new TNewItem[source.Length];
       int i = 0;
       foreach (TItem item in source)
@@ -69,7 +69,7 @@ namespace Xtensive.Core
     /// </returns>
     public static int IndexOf<TItem>(this TItem[] items, TItem item) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       for (int i = 0; i < items.Length; i++)
         if (AdvancedComparerStruct<TItem>.System.Equals(item, items[i]))
           return i;
@@ -86,7 +86,7 @@ namespace Xtensive.Core
     /// <returns>An enumerable iterating through the segment.</returns>
     public static IEnumerable<TItem> Segment<TItem>(this TItem[] items, int offset, int length)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       int lastIndex = offset + length;
       if (offset<0)
         offset = 0;
@@ -114,7 +114,7 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Value type is passed instead of class.</exception>
     public static int IndexOf<TItem>(this TItem[] items, TItem item, bool byReference) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       if (!byReference)
         return IndexOf(items, item);
       if (typeof(TItem).IsValueType)

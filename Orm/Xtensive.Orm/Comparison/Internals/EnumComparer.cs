@@ -26,8 +26,7 @@ namespace Xtensive.Comparison
     private readonly Dictionary<TEnum, int> valueToIndex;
     private readonly int maxIndex;
 
-    protected override IAdvancedComparer<TEnum> CreateNew(ComparisonRules rules)
-      => new EnumComparer<TEnum, TSystem>(Provider, ComparisonRules.Combine(rules));
+    protected override EnumComparer<TEnum, TSystem> CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(TEnum x, TEnum y) => BaseComparer.Compare(EnumToSystem(x), EnumToSystem(y));
 

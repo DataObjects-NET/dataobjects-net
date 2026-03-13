@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
   public partial class SqlCompiler 
   {
     /// <inheritdoc/>
-    protected override SqlProvider VisitInclude(IncludeProvider provider)
+    protected override SqlIncludeProvider VisitInclude(IncludeProvider provider)
     {
       var source = Compile(provider.Source);
       var resultQuery = ExtractSqlSelect(provider, source);

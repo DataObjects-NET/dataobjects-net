@@ -170,7 +170,7 @@ namespace Xtensive.Tuples
     /// describing the specified set of fields.</returns>
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
+      ArgumentNullException.ThrowIfNull(fieldTypes);
       if (fieldTypes.Length == 0) {
         return Empty;
       }

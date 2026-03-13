@@ -126,13 +126,13 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       var connection2 = new NodeConnection<int, string>(node2, node2, "ConnectionItem");
       connection2.BindToNodes();
 
-      var result = TopologicalSorter.SortToList(EnumerableUtils.One(node1), out var removedEdges1);
+      var result = TopologicalSorter.SortToList(Enumerable.Repeat(node1, 1), out var removedEdges1);
       Assert.That(result.Count, Is.EqualTo(1));
       Assert.That(result[0], Is.EqualTo(node1.Item));
       Assert.That(removedEdges1.Count, Is.EqualTo(1));
       Assert.That(removedEdges1[0], Is.EqualTo(connection1));
 
-      result = TopologicalSorter.Sort(EnumerableUtils.One(node2), out var removedEdges2).ToList(1);
+      result = TopologicalSorter.Sort(Enumerable.Repeat(node2, 1), out var removedEdges2).ToList(1);
       Assert.That(result.Count, Is.EqualTo(1));
       Assert.That(result[0], Is.EqualTo(node2.Item));
       Assert.That(removedEdges2.Count, Is.EqualTo(1));

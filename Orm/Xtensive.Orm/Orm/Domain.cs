@@ -226,7 +226,7 @@ namespace Xtensive.Orm
 
     internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -300,7 +300,7 @@ namespace Xtensive.Orm
     /// <seealso cref="Session"/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       SessionScope sessionScope = null;
       try {

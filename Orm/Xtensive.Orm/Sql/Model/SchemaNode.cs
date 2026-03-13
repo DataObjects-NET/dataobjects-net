@@ -58,8 +58,7 @@ namespace Xtensive.Sql.Model
     /// <param name="name">The name.</param>
     protected SchemaNode(Schema schema, string name) : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-      Schema = schema;
+      Schema = schema ?? throw new ArgumentNullException(nameof(schema));
     }
 
     #endregion

@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sectionName;
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, nameof(value));
         if (sectionNameIsDefined) {
           throw Exceptions.AlreadyInitialized(nameof(SectionName));
         }
@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Configuration
       get => name;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         name = value;
       }
     }
@@ -376,7 +376,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sessions;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         sessions = value;
       }
@@ -389,7 +389,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => mappingRules;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         mappingRules = value;
       }
@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => databases;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         databases = value;
       }
@@ -415,7 +415,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => keyGenerators;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         keyGenerators = value;
       }
@@ -779,14 +779,14 @@ namespace Xtensive.Orm.Configuration
       connectionInfo = configuration.ConnectionInfo;
       defaultSchema = configuration.DefaultSchema;
       defaultDatabase = configuration.DefaultDatabase;
-      types = (DomainTypeRegistry) configuration.Types.Clone();
-      linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
-      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
+      types = configuration.Types.Clone();
+      linqExtensions = configuration.LinqExtensions.Clone();
+      namingConvention = configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
+      sessions = configuration.Sessions.Clone();
       upgradeMode = configuration.UpgradeMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
@@ -800,15 +800,15 @@ namespace Xtensive.Orm.Configuration
       multidatabaseKeys = configuration.MultidatabaseKeys;
       ensureConnectionIsAlive = configuration.EnsureConnectionIsAlive;
       options = configuration.Options;
-      databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
-      mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
-      keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
-      ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
+      databases = configuration.Databases.Clone();
+      mappingRules = configuration.MappingRules.Clone();
+      keyGenerators = configuration.KeyGenerators.Clone();
+      ignoreRules = configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
-      versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
+      versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
-      extensionConfigurations = (ExtensionConfigurationCollection) configuration.ExtensionConfigurations.Clone();
+      extensionConfigurations = configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>
@@ -918,7 +918,7 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
     public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection);
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();
@@ -936,7 +936,7 @@ namespace Xtensive.Orm.Configuration
 
     public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();
@@ -954,7 +954,7 @@ namespace Xtensive.Orm.Configuration
 
     public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string sectionName, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       var jsonParser = new JsonToDomainConfigurationReader();
       var xmlParser = new XmlToDomainConfigurationReader();

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2025 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -16,6 +16,7 @@ using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using PrefetchModel =Xtensive.Orm.Tests.Storage.Prefetch.Model;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -39,7 +40,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       var config = base.BuildConfiguration();
       config.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
-      config.Types.RegisterCaching(typeof(Model.Offer).Assembly, typeof(Model.Offer).Namespace);
+      // additonal types complementing Chinook model
+      config.Types.RegisterCaching(typeof(PrefetchModel.Offer).Assembly, typeof(PrefetchModel.Offer).Namespace);
       return config;
     }
 
@@ -619,7 +621,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         AssertEx.Throws<KeyNotFoundException>(() => session.Query.All<Track>()
           .Prefetch(t => t.PersistenceState)
           .ToList());
-        var d = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
+        var d = session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(Key.Create<Model.OfferContainer>(Domain, 1), 1))
           .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book)
           .ToList();
       }
@@ -639,7 +641,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         _ = Assert.ThrowsAsync<KeyNotFoundException>(async () => (await session.Query.All<Track>()
           .Prefetch(t => t.PersistenceState).ExecuteAsync())
           .ToList());
-        var d = (await session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))
+        var d = (await session.Query.Many<Model.OfferContainer>(Enumerable.Repeat(Key.Create<Model.OfferContainer>(Domain, 1), 1))
           .Prefetch(oc => oc.IntermediateOffer.AnotherContainer.RealOffer.Book).ExecuteAsync())
           .ToList();
       }
@@ -694,14 +696,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Title = new PrefetchModel.Title { Text = "T0" }, Category = "1" };
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable()
-            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
-          var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
-          var titleType = Domain.Model.Types[typeof(Model.Title)];
+          var books = session.Query.All<PrefetchModel.Book>().AsEnumerable()
+            .Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1)).Prefetch(b => b.Title);
+          var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
+          var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           var count = 0;
           foreach (var book in books) {
             count++;
@@ -721,15 +723,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       await using (var session = await Domain.OpenSessionAsync()) {
         await using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Title = new PrefetchModel.Title { Text = "T0" }, Category = "1" };
           tx.Complete();
         }
 
         await using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable()
-            .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title).AsAsyncEnumerable();
-          var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
-          var titleType = Domain.Model.Types[typeof(Model.Title)];
+          var books = session.Query.All<PrefetchModel.Book>().AsEnumerable()
+            .Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1)).Prefetch(b => b.Title).AsAsyncEnumerable();
+          var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
+          var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           var count = 0;
           await foreach (var book in books) {
             count++;
@@ -749,15 +751,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
-          _ = new Model.Book { Category = "2" };
+          _ = new PrefetchModel.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Category = "2" };
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var prefetcher = session.Query.All<Model.Book>()
+          var prefetcher = session.Query.All<PrefetchModel.Book>()
             .Prefetch(b => b.Title.Book);
-          var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
-          var titleType = Domain.Model.Types[typeof(Model.Title)];
+          var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(Model.Book.Title)];
+          var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           foreach (var book in prefetcher) {
             var titleKey = book.GetReferenceKey(titleField);
             if (titleKey != null) {
@@ -774,16 +776,16 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       await using (var session = await Domain.OpenSessionAsync()) {
         await using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
-          _ = new Model.Book { Category = "2" };
+          _ = new PrefetchModel.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Category = "2" };
           tx.Complete();
         }
 
         await using (var tx = session.OpenTransaction()) {
-          var prefetcher = session.Query.All<Model.Book>()
+          var prefetcher = session.Query.All<PrefetchModel.Book>()
             .Prefetch(b => b.Title.Book).AsAsyncEnumerable();
-          var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
-          var titleType = Domain.Model.Types[typeof(Model.Title)];
+          var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
+          var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           await foreach (var book in prefetcher) {
             var titleKey = book.GetReferenceKey(titleField);
             if (titleKey != null) {
@@ -800,14 +802,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Title = new PrefetchModel.Title { Text = "T0" }, Category = "1" };
           tx.Complete();
         }
         using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
+          var books = session.Query.All<PrefetchModel.Book>().AsEnumerable().Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1))
             .Prefetch(b => b.Title.Book);
-          var titleField = Domain.Model.Types[typeof (Model.Book)].Fields["Title"];
-          var titleType = Domain.Model.Types[typeof (Model.Title)];
+          var titleField = Domain.Model.Types[typeof (PrefetchModel.Book)].Fields["Title"];
+          var titleType = Domain.Model.Types[typeof (PrefetchModel.Title)];
           var count = 0;
           foreach (var book in books) {
             count++;
@@ -829,15 +831,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       RemoveAllBooks();
       await using (var session = await Domain.OpenSessionAsync()) {
         await using (var tx = session.OpenTransaction()) {
-          _ = new Model.Book { Title = new Model.Title { Text = "T0" }, Category = "1" };
+          _ = new PrefetchModel.Book { Title = new PrefetchModel.Title { Text = "T0" }, Category = "1" };
           tx.Complete();
         }
 
         await using (var tx = session.OpenTransaction()) {
-          var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
+          var books = session.Query.All<PrefetchModel.Book>().AsEnumerable().Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1))
             .Prefetch(b => b.Title.Book).AsAsyncEnumerable();
-          var titleField = Domain.Model.Types[typeof(Model.Book)].Fields[nameof(Model.Book.Title)];
-          var titleType = Domain.Model.Types[typeof(Model.Title)];
+          var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
+          var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           var count = 0;
           await foreach (var book in books) {
             count++;
@@ -861,7 +863,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.RealOffer.Book)
           .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop);
         foreach (var key in containers) {
@@ -879,7 +881,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.RealOffer.Book)
           .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop).AsAsyncEnumerable();
         await foreach (var key in containers) {
@@ -897,7 +899,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.IntermediateOffer);
         foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
@@ -914,7 +916,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
-        var containers = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(containerKey))
+        var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.IntermediateOffer).AsAsyncEnumerable();
         await foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
@@ -927,7 +929,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        foreach (var book in session.Query.All<Model.Book>()) {
+        foreach (var book in session.Query.All<PrefetchModel.Book>()) {
           book.Remove();
         }
         tx.Complete();

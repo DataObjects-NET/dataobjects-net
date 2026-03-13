@@ -39,13 +39,13 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override AggregateColumn Clone(int newIndex)
     {
       return new AggregateColumn(this, newIndex);
     }
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
+    public override AggregateColumn Clone(string newName)
     {
       return new AggregateColumn(this, newName);
     }

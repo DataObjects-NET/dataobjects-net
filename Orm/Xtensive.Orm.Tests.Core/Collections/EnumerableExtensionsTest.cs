@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
     private static IEnumerable<Node> Flatten(Node root, bool rootFirst, Action<Node> exitAction)
     {
-      return EnumerableUtils.One(root).Flatten(n => n != null ? n.Children : null, exitAction, rootFirst);
+      return Enumerable.Repeat(root, 1).Flatten(n => n != null ? n.Children : null, exitAction, rootFirst);
     }
 
     [Test]

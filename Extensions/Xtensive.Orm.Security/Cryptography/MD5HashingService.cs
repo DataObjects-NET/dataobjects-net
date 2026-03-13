@@ -17,10 +17,7 @@ namespace Xtensive.Orm.Security.Cryptography
   public class MD5HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-    // direct creation is more efficient than MD5.Create()
-    protected override HashAlgorithm GetHashAlgorithm() => new MD5CryptoServiceProvider();
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
+    protected override HashAlgorithm GetHashAlgorithm() => MD5.Create();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MD5HashingService"/> class.

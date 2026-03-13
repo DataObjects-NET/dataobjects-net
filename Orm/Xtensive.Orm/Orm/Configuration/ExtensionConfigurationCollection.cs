@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Configuration
       where T : ConfigurationBase
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(value);
 
       var extensionConfigurationType = typeof(T);
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable methods
 
     /// <inheritdoc/>
-    public object Clone()
+    public ExtensionConfigurationCollection Clone()
     {
       return new ExtensionConfigurationCollection(this);
     }
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Configuration
     public ExtensionConfigurationCollection(ExtensionConfigurationCollection source)
       : this()
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       if (source.Count == 0)
         return;
       extensionConfigurations = new Dictionary<Type, ConfigurationBase>(source.extensionConfigurations);

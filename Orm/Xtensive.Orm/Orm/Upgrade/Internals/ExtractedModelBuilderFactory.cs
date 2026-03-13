@@ -1,10 +1,10 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
-using Xtensive.Core;
+using System;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
 
 namespace Xtensive.Orm.Upgrade.Internals
@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Upgrade.Internals
   {
     public static ISchemaExtractionResultBuilder GetBuilder(UpgradeContext context)
     {
-      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      ArgumentNullException.ThrowIfNull(context);
       if (context.ParentDomain==null) {
         var makeShared = context.Configuration.ShareStorageSchemaOverNodes;
         return new DomainExtractedModelBuilder(context.Services, context.TargetStorageModel, makeShared);

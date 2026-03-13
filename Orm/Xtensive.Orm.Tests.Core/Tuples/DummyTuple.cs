@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 {
   public class DummyTuple: Xtensive.Tuples.Tuple
   {
-    private TupleDescriptor descriptor;
+    private readonly TupleDescriptor descriptor;
     private BitArray available;
     private object[] values;
 
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public DummyTuple(TupleDescriptor descriptor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
+      ArgumentValidator.EnsureArgumentIsNotDefault(descriptor, nameof(descriptor));
       this.descriptor = descriptor;
       values = new object[descriptor.Count];
       available = new BitArray(new bool[descriptor.Count]);
