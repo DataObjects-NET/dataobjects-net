@@ -58,6 +58,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
           result = VisitUnary((SerializableUnaryExpression)e);
           break;
         case ExpressionType.Add:
@@ -83,16 +88,24 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
           result = VisitBinary((SerializableBinaryExpression)e);
           break;
         case ExpressionType.TypeIs:
           result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
           result = VisitConditional((SerializableConditionalExpression)e);
           break;
         case ExpressionType.Constant:
           result = VisitConstant((SerializableConstantExpression)e);
+          break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression)e);
           break;
         case ExpressionType.Parameter:
           result = VisitParameter((SerializableParameterExpression)e);
@@ -145,9 +158,19 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
     }
 
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), tb.TypeOperand);
+    }
+
     private Expression VisitConstant(SerializableConstantExpression c)
     {
       return Expression.Constant(c.Value, c.Type);
+    }
+
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
     }
 
     private Expression VisitConditional(SerializableConditionalExpression c)

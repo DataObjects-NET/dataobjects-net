@@ -135,7 +135,7 @@ namespace Xtensive.Core
     /// <returns>Object value of default value.</returns>
     public static object GetDefaultValue(this DefaultExpression defaultExpression)
     {
-      if (defaultExpression.Type.IsValueType) {
+      if (defaultExpression.Type != typeof(void) && defaultExpression.Type.IsValueType) {
         return StructDefaultValues.GetOrAdd<DefaultExpression>(
           defaultExpression.Type,
           (type, expr) => { return ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(); },

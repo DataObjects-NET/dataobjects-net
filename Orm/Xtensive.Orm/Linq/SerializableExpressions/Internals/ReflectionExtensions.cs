@@ -30,7 +30,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         serializableName += method.ToString();
       else
         serializableName += method.GetGenericMethodDefinition() + Environment.NewLine +
-                            String.Join(Environment.NewLine,
+                            string.Join(Environment.NewLine,
                                         method.GetGenericArguments().Select(ty => ty.ToSerializableForm()).ToArray());
       return serializableName;
     }
@@ -42,7 +42,13 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
       var fullName = SplitString(serializedValue);
       var name = fullName[1];
-      var method = Type.GetType(fullName[0]).GetMethods().First(m => m.ToString() == name);
+      var type = Type.GetType(fullName[0]);
+      var publicMethods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+      var method = publicMethods.FirstOrDefault(m => m.ToString() == name);
+      if (method == null) {
+        var nonPublicMethods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+        method = nonPublicMethods.First(m => m.ToString() == name);
+      }
 
       if (method.IsGenericMethod)
         method = method.MakeGenericMethod(fullName.Skip(2).Select(s => GetTypeFromSerializableForm(s)).ToArray());
@@ -64,7 +70,14 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
       var fullName = SplitString(serializedValue);
       var name = fullName[1];
-      var member = Type.GetType(fullName[0]).GetMembers().First(m => m.ToString() == name);
+      var type = Type.GetType(fullName[0]);
+      var publicMemberss = type.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+      var member = publicMemberss.FirstOrDefault(m => m.ToString() == name);
+      if (member == null) {
+        var nonPublicMembers = type.GetMembers(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+        member = nonPublicMembers.First(m => m.ToString() == name);
+      }
+
       return member;
     }
 
