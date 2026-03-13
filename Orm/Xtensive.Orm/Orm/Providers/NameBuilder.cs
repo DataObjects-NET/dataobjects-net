@@ -579,12 +579,10 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     private static string GetHash(string name)
     {
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-      using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
+      using (var hashAlgorithm = MD5.Create()) {
         var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
         return $"H{hash[0]:x2}{hash[1]:x2}{hash[2]:x2}{hash[3]:x2}";
       }
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
     }
 
     private static string FormatKeyGeneratorName(string database, string name)
