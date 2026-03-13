@@ -2389,7 +2389,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(promo => new {
             promo,
             notifications = session.Query.All<Notification>()
-              .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u })
+              .LeftJoinEx(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u })
           })
           .Select(anon => new {
             contacted = anon.notifications.Select(c => c.n.Recipient.User.Id)
@@ -2401,9 +2401,9 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(promo => new { promo })
           .Select(anon => new {
             contacted = session.Query.All<Notification>()
-                .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)
+                .LeftJoinEx(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)
               .Concat(session.Query.All<Notification>()
-                .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)),
+                .LeftJoinEx(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)),
             promo = anon.promo
           }).ToArray();
 

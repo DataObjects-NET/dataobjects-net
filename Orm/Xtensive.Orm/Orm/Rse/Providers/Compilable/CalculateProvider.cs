@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Rse.Providers
     public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
       : base(ProviderType.Calculate, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnDescriptors, nameof(columnDescriptors));
+      ArgumentNullException.ThrowIfNull(columnDescriptors);
 
       IsInlined = isInlined;
       var columns = new CalculatedColumn[columnDescriptors.Count];

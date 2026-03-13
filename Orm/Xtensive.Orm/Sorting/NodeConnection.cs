@@ -80,11 +80,9 @@ namespace Xtensive.Sorting
     /// <param name="connectionType">Connection type.</param>
     public NodeConnection(Node<TNodeItem, TConnectionItem> source, Node<TNodeItem, TConnectionItem> destination, TConnectionItem connectionItem, ConnectionType connectionType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
       ConnectionItem = connectionItem;
-      Source = source;
-      Destination = destination;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
+      Destination = destination ?? throw new ArgumentNullException(nameof(destination));
       ConnectionType = connectionType;
     }
   }

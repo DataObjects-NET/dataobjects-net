@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -56,8 +56,7 @@ namespace Xtensive.Sql
 
     public TypeMappingRegistryBuilder(TypeMapper mapper)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mapper, "mapper");
-      Mapper = mapper;
+      Mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
   }
 }

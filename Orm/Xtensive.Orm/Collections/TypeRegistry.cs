@@ -58,7 +58,7 @@ namespace Xtensive.Collections
     public void Register(Type type)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (!isProcessingPendingActions)
         Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
@@ -79,7 +79,7 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       Register(new TypeRegistration(assembly));
     }
 
@@ -96,8 +96,8 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly, string @namespace)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
+      ArgumentNullException.ThrowIfNull(assembly);
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, nameof(@namespace));
       Register(new TypeRegistration(assembly, @namespace));
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Collections
     public bool Register(TypeRegistration action)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       if (actionSet.Contains(action))
         return false;
       actionSet.Add(action);
@@ -151,14 +151,14 @@ namespace Xtensive.Collections
 
     #region ICloneable members
 
+    /// <inheritdoc/>
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public virtual object Clone()
-    {
-      return new TypeRegistry(this);
-    }
+    public virtual TypeRegistry Clone() => new TypeRegistry(this);
 
     #endregion
 
@@ -198,8 +198,7 @@ namespace Xtensive.Collections
     /// <param name="processor">The registry action processor.</param>
     public TypeRegistry(ITypeRegistrationProcessor processor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
-      this.processor = processor;
+      this.processor = processor ?? throw new ArgumentNullException(nameof(processor));
     }
 
     /// <summary>

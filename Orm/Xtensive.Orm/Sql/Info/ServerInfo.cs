@@ -2,6 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Info
@@ -169,7 +170,7 @@ namespace Xtensive.Sql.Info
     /// <param name="provider">The provider.</param>
     public static ServerInfo Build(ServerInfoProvider provider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       var info = new ServerInfo {
         Assertion = provider.GetAssertionInfo(), 
         CharacterSet = provider.GetCharacterSetInfo(), 

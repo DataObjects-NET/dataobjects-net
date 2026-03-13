@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     public StorageTypeInfo(Type type, SqlValueType nativeType, bool isNullable)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (isNullable && type.IsValueType && !type.IsNullable())
         ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
       Type = type;

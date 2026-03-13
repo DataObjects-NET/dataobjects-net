@@ -35,13 +35,13 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override CalculatedColumn Clone(int newIndex)
     {
       return new CalculatedColumn(this, newIndex);
     }
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
+    public override CalculatedColumn Clone(string newName)
     {
       return new CalculatedColumn(this, newName);
     }

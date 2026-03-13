@@ -74,7 +74,7 @@ namespace Xtensive.Sql.Dml
     /// <exception cref="ArgumentNullException"><paramref name="alias"/> is null.</exception>
     public void Add(SqlColumn column, string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNull(alias, nameof(alias));
+      ArgumentNullException.ThrowIfNull(alias);
       columnList.Add(SqlDml.ColumnRef(column, alias));
     }
 
@@ -92,7 +92,7 @@ namespace Xtensive.Sql.Dml
     /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <see langword="null"/>.</exception>
     public void Add(SqlExpression expression, string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNull(alias, nameof(alias));
+      ArgumentNullException.ThrowIfNull(alias);
       columnList.Add(SqlDml.ColumnRef(SqlDml.Column(expression), alias));
     }
 
@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Dml
     /// -or- <paramref name="index"/> is greater than <see cref="Count"/>.</exception>
     public void Insert(int index, SqlExpression expression, string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNull(alias, nameof(alias));
+      ArgumentNullException.ThrowIfNull(alias);
       columnList.Insert(index, SqlDml.ColumnRef(SqlDml.Column(expression), alias));
     }
 
@@ -115,7 +115,7 @@ namespace Xtensive.Sql.Dml
     /// <param name="columns">Columns to be added.</param>
     public void AddRange(params SqlColumn[] columns)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columns, nameof(columns));
+      ArgumentNullException.ThrowIfNull(columns);
       columnList.AddRange(columns);
     }
 

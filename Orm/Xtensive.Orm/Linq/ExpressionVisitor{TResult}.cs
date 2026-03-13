@@ -161,6 +161,20 @@ namespace Xtensive.Linq
     }
 
     /// <summary>
+    /// Visits the expression list.
+    /// </summary>
+    /// <param name="expressions">The expression list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<TResult> VisitExpressionList(IReadOnlyList<Expression> expressions)
+    {
+      var results = new TResult[expressions.Count];
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        results[i] = Visit(expressions[i]);
+      }
+      return results;
+    }
+
+    /// <summary>
     /// Visits the unknown expression.
     /// </summary>
     /// <param name="e">The unknown expression.</param>

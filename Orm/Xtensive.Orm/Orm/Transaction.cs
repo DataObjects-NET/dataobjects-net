@@ -63,8 +63,8 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
     public static void Require(Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      session.DemandTransaction();
+      ArgumentNullException.ThrowIfNull(session);
+      _ = session.DemandTransaction();
     }
 
     #endregion
@@ -155,7 +155,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool AreChangesVisibleTo(Transaction otherTransaction)
     {
-      ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
+      ArgumentNullException.ThrowIfNull(otherTransaction);
       if (Outermost != otherTransaction.Outermost) {
         return false;
       }
@@ -276,7 +276,7 @@ namespace Xtensive.Orm
     private void PromoteLifetimeTokensToSession()
     {
       if (Outer == null
-          && Session.TryPromoteTokens(EnumerableUtils.One(LifetimeToken).Union(lifetimeTokens))) {
+          && Session.TryPromoteTokens(Enumerable.Repeat(LifetimeToken, 1).Union(lifetimeTokens))) {
         ClearLifetimeTokens();
       }
     }

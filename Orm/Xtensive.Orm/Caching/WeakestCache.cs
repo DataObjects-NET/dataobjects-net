@@ -210,9 +210,9 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var key = KeyExtractor(item);
-      ArgumentValidator.EnsureArgumentNotNull(key, "KeyExtractor.Invoke(item)");
+      ArgumentNullException.ThrowIfNull(key, "KeyExtractor.Invoke(item)");
       RegisterOperation(4);
       WeakEntry entry;
       if (items.TryGetValue(key, out entry)) {
@@ -235,7 +235,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override void RemoveKey(TKey key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
       if (items.Remove(key, out var entry)) {
         entry.Dispose();
       }
@@ -360,10 +360,9 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakestCache(bool trackKeyResurrection, bool trackItemResurrection, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.trackKeyResurrection = trackKeyResurrection;
       this.trackItemResurrection = trackItemResurrection;
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
       items = new Dictionary<object, WeakEntry>(1024, new WeakEntryEqualityComparer());
     }
 

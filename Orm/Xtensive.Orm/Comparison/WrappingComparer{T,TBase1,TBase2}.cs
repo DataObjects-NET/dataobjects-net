@@ -41,7 +41,7 @@ namespace Xtensive.Comparison
     public WrappingComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       BaseComparer1 = provider.GetComparer<TBase1>().ApplyRules(comparisonRules[0]);
       BaseComparer2 = provider.GetComparer<TBase2>().ApplyRules(comparisonRules[1]);
     }

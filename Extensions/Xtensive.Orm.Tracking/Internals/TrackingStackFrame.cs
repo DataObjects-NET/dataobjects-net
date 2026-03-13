@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Tracking
 
     public void Register(TrackingItem item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
 
       var key = item.Key;
       if (!items.TryGetValue(key, out var existing)) {

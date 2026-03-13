@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected OrderProviderBase(ProviderType providerType, CompilableProvider source, DirectionCollection<int> order)
       : base(providerType, source)
     {
-      Order = order;
+      Order = order ?? throw new ArgumentNullException(nameof(order));
     }
   }
 }

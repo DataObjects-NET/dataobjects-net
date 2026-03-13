@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var masterCredit = Query.All<PacioliPosting>();
 
-        var join = from r in masterCredit.LeftJoin(
+        var join = from r in masterCredit.LeftJoinEx(
           tableParts,
           a => a.CreditAccount.Id,
           a => a.Account.Id,

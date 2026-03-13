@@ -31,14 +31,14 @@ namespace Xtensive.Orm.Linq.Rewriters
         return matchFound && @continue && meaningfulLefts.Count==meaningfulRights.Count;
       }
 
-      protected override Expression VisitConstant(ConstantExpression c)
+      protected override ConstantExpression VisitConstant(ConstantExpression c)
       {
         if (c.Value==filterParameter)
           matchFound = true;
         return c;
       }
 
-      protected override Expression VisitBinary(BinaryExpression b)
+      protected override BinaryExpression VisitBinary(BinaryExpression b)
       {
         if (b.NodeType==ExpressionType.Equal) {
           var leftAccess = b.Left.AsTupleAccess();

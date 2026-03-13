@@ -38,8 +38,7 @@ namespace Xtensive.Conversion
     /// <param name="provider">The provider this advanced converter is bound to.</param>
     public AdvancedConverterBase(IAdvancedConverterProvider provider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      this.provider = provider;
+      this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
     }
 
     /// <summary>

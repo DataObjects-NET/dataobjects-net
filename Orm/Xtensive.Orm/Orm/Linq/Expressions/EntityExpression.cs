@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Linq.Expressions
       get => fields;
       private set {
         fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
+        foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
           fieldExpression.Owner = this;
         }
       }
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Linq.Expressions
         _ = entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
       }
       var typeInfo = entityExpression.PersistentType;
-      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field => field.Field))) {
+      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfAnyFieldExpression().Select(field => field.Field))) {
         var nestedFieldExpression = BuildNestedFieldExpression(nestedField, offset);
         if (nestedFieldExpression is FieldExpression fieldExpression) {
           fieldExpression.Owner = entityExpression;

@@ -105,7 +105,7 @@ namespace Xtensive.Tuples
     internal void BackupDifference()
     {
       if (difference != null)
-        backupedDifference = (DifferentialTuple) this.Clone();
+        backupedDifference = this.Clone();
     }
 
     internal void DropBackedUpDifference()
@@ -170,13 +170,13 @@ namespace Xtensive.Tuples
     #region CreateNew, Clone, Reset methods
 
     /// <inheritdoc/>
-    public override Tuple CreateNew()
+    public override DifferentialTuple CreateNew()
     {
       return new DifferentialTuple(origin.CreateNew());
     }
 
     /// <inheritdoc/>
-    public override Tuple Clone()
+    public override DifferentialTuple Clone()
     {
       return new DifferentialTuple(
         origin.Clone(), 
@@ -202,8 +202,7 @@ namespace Xtensive.Tuples
     /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
     public DifferentialTuple(Tuple origin)
     {
-      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
-      this.origin = origin;
+      this.origin = origin ?? throw new ArgumentNullException(nameof(origin));
       difference = null;
       backupedDifference = null;
     }
@@ -216,7 +215,7 @@ namespace Xtensive.Tuples
     /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
     public DifferentialTuple(Tuple origin, Tuple difference)
     {
-      ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
+      ArgumentNullException.ThrowIfNull(origin);
       if (difference!=null && origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(
           string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor),

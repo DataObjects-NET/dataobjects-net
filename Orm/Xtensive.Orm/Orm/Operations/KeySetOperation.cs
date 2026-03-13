@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Operations
 
     /// <inheritdoc/>
     public KeySetOperation(Key key)
-      : this(EnumerableUtils.One(key))
+      : this(Enumerable.Repeat(key, 1))
     {
     }
 

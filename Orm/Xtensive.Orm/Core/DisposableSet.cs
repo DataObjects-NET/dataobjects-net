@@ -85,7 +85,7 @@ namespace Xtensive.Core
     public DisposableSet(IEnumerable initialContent)
       : this()
     {
-      ArgumentValidator.EnsureArgumentNotNull(initialContent, "initialContent");
+      ArgumentNullException.ThrowIfNull(initialContent);
       foreach (object o in initialContent)
         Add(o as IDisposable);
     }

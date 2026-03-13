@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
       case SqlUpgradeStage.Cleanup:
         return result.CleanupCommands;
       default:
-        throw new ArgumentOutOfRangeException("stage");
+        throw new ArgumentOutOfRangeException(nameof(stage));
       }
     }
 
@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Upgrade
 
     public UpgradeActionSequenceBuilder(StorageDriver driver, UpgradeActionSequence result, SqlUpgradeStage stage)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(result, "result");
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(result);
 
       this.driver = driver;
 

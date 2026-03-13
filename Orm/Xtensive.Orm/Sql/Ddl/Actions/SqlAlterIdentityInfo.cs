@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlAlterIdentityInfo Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterIdentityInfo(t.Column, (SequenceDescriptor) t.SequenceDescriptor.Clone(), t.InfoOption));
+        new SqlAlterIdentityInfo(t.Column, t.SequenceDescriptor.Clone(), t.InfoOption));
 
     internal SqlAlterIdentityInfo(TableColumn column, SequenceDescriptor sequenceDescriptor, SqlAlterIdentityInfoOptions infoOption)
     {

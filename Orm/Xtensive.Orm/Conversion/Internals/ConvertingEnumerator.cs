@@ -62,10 +62,8 @@ namespace Xtensive.Conversion
     /// <param name="converter">The converter.</param>
     public ConvertingEnumerator(IEnumerator<T1> innerEnumerator, Converter<T1, T2> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(innerEnumerator, "innerEnumerator");
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
-      this.innerEnumerator = innerEnumerator;
-      this.converter = converter;
+      this.innerEnumerator = innerEnumerator ?? throw new ArgumentNullException(nameof(innerEnumerator));
+      this.converter = converter ?? throw new ArgumentNullException(nameof(converter));
     }
 
 

@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlUserFunctionCall Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlUserFunctionCall(t.Name, t.Arguments.Select(o => (SqlExpression) o.Clone(c)).ToArray(t.Arguments.Count)));
+        new SqlUserFunctionCall(t.Name, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     internal SqlUserFunctionCall(string name, IEnumerable<SqlExpression> arguments)
       : base(SqlFunctionType.UserDefined, arguments)

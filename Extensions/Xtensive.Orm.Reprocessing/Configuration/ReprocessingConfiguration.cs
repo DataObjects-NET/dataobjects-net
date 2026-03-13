@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static ReprocessingConfiguration Load(IConfiguration configuration, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration is IConfigurationRoot configurationRoot) {
         return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static ReprocessingConfiguration Load(IConfigurationRoot configurationRoot, string sectionName = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       return new ReprocessingConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
     }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Reprocessing.Configuration
     /// <returns>Loaded configuration or configuration with default settings.</returns>
     public static ReprocessingConfiguration Load(IConfigurationSection configurationSection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection);
 
       return new ReprocessingConfigurationReader().Read(configurationSection);
     }
