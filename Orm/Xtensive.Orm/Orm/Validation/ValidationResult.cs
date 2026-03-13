@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Validation
     private readonly IValidator source;
     private readonly bool isError;
     private readonly string errorMessage;
-    private readonly FieldInfo field;
+    private readonly FieldInfo @field;
     private readonly object value;
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Gets field validated field.
     /// </summary>
-    public FieldInfo Field { get { return field; } }
+    public FieldInfo Field { get { return @field; } }
 
     /// <summary>
     /// Gets validated value.
