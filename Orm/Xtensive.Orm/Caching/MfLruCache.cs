@@ -153,7 +153,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       OnOperation2();
       var key = KeyExtractor(item);
       CachedItem cached;
@@ -408,14 +408,14 @@ namespace Xtensive.Caching
         ArgumentValidator.EnsureArgumentIsInRange(lruCapacity , 1, int.MaxValue, "lruCapacity");
       if (mfuCapacity < 0)
         ArgumentValidator.EnsureArgumentIsInRange(lruCapacity , 0, int.MaxValue, "mfuCapacity");
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+
       this.lruCapacity = lruCapacity;
       this.mfuCapacity = mfuCapacity;
       capacity = lruCapacity + mfuCapacity;
       this.efficiencyFactor = efficiencyFactor;
       if (efficiencyFactor<0)
         timeShift = -efficiencyFactor-1; // Constant timeShift is defined
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
       this.chainedCache = chainedCache;
       // items = new Dictionary<TKey, CachedItem>(1 + capacity);
       items = new Dictionary<TKey, CachedItem>();

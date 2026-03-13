@@ -61,9 +61,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="type">The recycled type.</param>
     public RecycledTypeHint(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-
-      Type = type;
+      Type = type ?? throw new ArgumentNullException(nameof(type));
 
       throw new NotImplementedException();
     }

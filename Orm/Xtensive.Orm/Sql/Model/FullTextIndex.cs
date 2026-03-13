@@ -68,7 +68,7 @@ namespace Xtensive.Sql.Model
     /// <returns>Newly created <see cref="IndexColumn"/> object.</returns>
     public new IndexColumn CreateIndexColumn(DataTableColumn column)
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column);
       return new IndexColumn(this, column, true);
     }
 

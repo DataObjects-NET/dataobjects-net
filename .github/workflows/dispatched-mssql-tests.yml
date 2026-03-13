@@ -45,7 +45,7 @@ jobs:
     if: ${{ inputs.mssql2017 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mssql2017
@@ -65,7 +65,7 @@ jobs:
     if: ${{ inputs.mssql2019 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mssql2019
@@ -85,7 +85,7 @@ jobs:
     if: ${{ inputs.mssql2022 }}
     strategy:
       matrix:
-        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+        net: [ 'net8.0', 'net10.0' ]
     uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@master
     with:
       storage: mssql2022

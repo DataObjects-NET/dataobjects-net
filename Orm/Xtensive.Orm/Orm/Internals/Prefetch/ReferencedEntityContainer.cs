@@ -121,10 +121,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       bool isOwnerTypeKnown, PrefetchManager manager)
       : base(null, referencingFieldDescriptor.Field.Associations.Last().TargetType, true, manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
-      this.ownerKey = ownerKey;
-      this.referencingFieldDescriptor = referencingFieldDescriptor;
+      this.ownerKey = ownerKey ?? throw new ArgumentNullException(nameof(ownerKey));
+      this.referencingFieldDescriptor = referencingFieldDescriptor ?? throw new ArgumentNullException(nameof(referencingFieldDescriptor));
       this.isOwnerTypeKnown = isOwnerTypeKnown;
     }
   }

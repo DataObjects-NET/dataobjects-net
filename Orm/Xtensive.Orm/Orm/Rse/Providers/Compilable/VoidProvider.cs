@@ -1,10 +1,10 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.01.29
 
-using Xtensive.Core;
+using System;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -20,8 +20,7 @@ namespace Xtensive.Orm.Rse.Providers
     public VoidProvider(RecordSetHeader header)
       : base(ProviderType.Void)
     {
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
-      this.header = header;
+      this.header = header ?? throw new ArgumentNullException(nameof(header));
       Initialize();
     }
   }

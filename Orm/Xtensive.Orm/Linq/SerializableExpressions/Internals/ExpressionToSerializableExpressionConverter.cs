@@ -192,56 +192,48 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     #region Private / internal methods
 
-    private SerializableMemberBinding[] VisitMemberBindingSequence(IEnumerable<MemberBinding> bindings)
+    private SerializableMemberBinding[] VisitMemberBindingSequence(IReadOnlyList<MemberBinding> bindings)
     {
-      var result = new List<SerializableMemberBinding>();
-      foreach (var binding in bindings)
-        switch (binding.BindingType) {
-        case MemberBindingType.Assignment:
-          result.Add(new SerializableMemberAssignment
-            {
-              BindingType = MemberBindingType.Assignment,
-              Member = binding.Member,
-              Expression = Visit(((MemberAssignment) binding).Expression)
-            });
-          break;
-        case MemberBindingType.ListBinding:
-          result.Add(new SerializableMemberListBinding
-            {
-              BindingType = MemberBindingType.ListBinding,
-              Member = binding.Member,
-              Initializers = VisitElementInitSequence(((MemberListBinding) binding).Initializers)
-            });
-          break;
-        case MemberBindingType.MemberBinding:
-          result.Add(new SerializableMemberMemberBinding
-            {
-              BindingType = MemberBindingType.MemberBinding,
-              Member = binding.Member,
-              Bindings = VisitMemberBindingSequence(((MemberMemberBinding) binding).Bindings)
-            });
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
-        }
-      return result.ToArray();
+      var arrayResult = new SerializableMemberBinding[bindings.Count];
+      for (int i = 0, count = bindings.Count; i < count; i++) {
+        var binding = bindings[i];
+        arrayResult[i] = binding.BindingType switch {
+          MemberBindingType.Assignment => new SerializableMemberAssignment() {
+            BindingType = MemberBindingType.Assignment,
+            Member = binding.Member,
+            Expression = Visit(((MemberAssignment) binding).Expression)
+          },
+          MemberBindingType.ListBinding => new SerializableMemberListBinding {
+            BindingType = MemberBindingType.ListBinding,
+            Member = binding.Member,
+            Initializers = VisitElementInitSequence(((MemberListBinding) binding).Initializers)
+          },
+          MemberBindingType.MemberBinding => new SerializableMemberMemberBinding {
+            BindingType = MemberBindingType.MemberBinding,
+            Member = binding.Member,
+            Bindings = VisitMemberBindingSequence(((MemberMemberBinding) binding).Bindings)
+          },
+          _ => throw new ArgumentOutOfRangeException()
+
+        };
+      }
+      return arrayResult;
     }
 
-    private SerializableElementInit[] VisitElementInitSequence(IEnumerable<ElementInit> initializers)
+    private SerializableElementInit[] VisitElementInitSequence(IList<ElementInit> initializers)
     {
       return initializers
-        .Select(initializer => new SerializableElementInit
+        .SelectToArray(initializer => new SerializableElementInit
           {
             AddMethod = initializer.AddMethod,
             Arguments = VisitExpressionSequence(initializer.Arguments)
-          })
-        .ToArray();
+          });
     }
 
-    private SerializableExpression[] VisitExpressionSequence<T>(IEnumerable<T> expressions)
+    private SerializableExpression[] VisitExpressionSequence<T>(IList<T> expressions)
       where T : Expression
     {
-      return expressions.Select(e => Visit(e)).ToArray();
+      return expressions.SelectToArray(e => Visit(e));
     }
 
     #endregion

@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public void RegisterEntityIdentifier(Key key, string identifier)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
 
       // Initializing dictionaries, if necessary
       if (IdentifierByKey == null) {

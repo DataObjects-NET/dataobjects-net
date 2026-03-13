@@ -49,7 +49,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public virtual void Execute(IModel model)
     {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
+      ArgumentNullException.ThrowIfNull(model);
       var item = model.Resolve(path, true);
       ActionHandler.Current.Execute(this);
       PerformExecute(model, item);

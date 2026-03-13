@@ -37,13 +37,17 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
 
-      FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
-
       var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, newMapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
+
+
+      FieldExpression Remap(FieldExpression f)
+      {
+        return (FieldExpression) f.Remap(offset, processedExpressions);
+      }
     }
 
     public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
@@ -93,14 +97,17 @@ namespace Xtensive.Orm.Linq.Expressions
     private Expression BindParameterWithNoCheck(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      FieldExpression BindParameter(FieldExpression f)
-        => (FieldExpression) f.BindParameter(parameter, processedExpressions);
-
       var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
+
+
+      FieldExpression BindParameter(FieldExpression f)
+      {
+        return (FieldExpression) f.BindParameter(parameter, processedExpressions);
+      }
     }
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
@@ -116,21 +123,22 @@ namespace Xtensive.Orm.Linq.Expressions
     // in case processedExpressions dictionary already contains a result.
     private Expression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
     {
-      FieldExpression RemoveOuterParameter(FieldExpression f)
-        => (FieldExpression) f.RemoveOuterParameter(processedExpressions);
-
       var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
+
+
+      FieldExpression RemoveOuterParameter(FieldExpression f)
+      {
+        return (FieldExpression) f.RemoveOuterParameter(processedExpressions);
+      }
     }
 
     public static KeyExpression Create(TypeInfo entityType, int offset)
     {
       var mapping = new Segment<int>(offset, entityType.Key.TupleDescriptor.Count);
-
-      FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
 
       var fields = entityType.IsLocked
         ? entityType.Key.Columns.Select(CreateField).ToArray(entityType.Key.Columns.Count)
@@ -140,6 +148,12 @@ namespace Xtensive.Orm.Linq.Expressions
           .Select(CreateField)
           .ToArray();
       return new KeyExpression(entityType, fields, mapping, WellKnownMembers.IEntityKey, null, false);
+
+
+      FieldExpression CreateField(ColumnInfo c)
+      {
+        return FieldExpression.CreateField(c.Field, offset);
+      }
     }
 
 

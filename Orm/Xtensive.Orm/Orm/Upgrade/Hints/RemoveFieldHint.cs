@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="fieldName">Removing field name.</param>
     public RemoveFieldHint(Type type, string fieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type, nameof(type));
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
 
       Type = type.FullName;

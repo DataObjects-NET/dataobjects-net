@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCustomFunctionCall>(expression);
       FunctionType = replacingExpression.FunctionType;
       Arguments = replacingExpression.Arguments;

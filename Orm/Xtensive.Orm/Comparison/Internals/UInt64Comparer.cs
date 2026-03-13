@@ -12,8 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class UInt64Comparer : ValueTypeComparer<ulong>
   {
-    protected override IAdvancedComparer<ulong> CreateNew(ComparisonRules rules)
-      => new UInt64Comparer(Provider, ComparisonRules.Combine(rules));
+    protected override UInt64Comparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

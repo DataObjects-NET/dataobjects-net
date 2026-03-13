@@ -22,10 +22,7 @@ namespace Xtensive.Comparison
     [NonSerialized]
     private Func<string, string, CompareOptions, bool> stringIsSuffix;
 
-    protected override IAdvancedComparer<string> CreateNew(ComparisonRules rules)
-    {
-      return new StringComparer(Provider, ComparisonRules.Combine(rules));
-    }
+    protected override StringComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(string x, string y)
     {

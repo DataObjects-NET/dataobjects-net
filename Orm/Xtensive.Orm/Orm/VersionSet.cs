@@ -102,7 +102,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool Validate(Entity entity)
     {
-      ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
+      ArgumentNullException.ThrowIfNull(entity);
       return Validate(entity.Key, entity.VersionInfo);
     }
 
@@ -117,7 +117,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool Validate(Entity entity, bool throwOnFailure)
     {
-      ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
+      ArgumentNullException.ThrowIfNull(entity);
       return Validate(entity.Key, entity.VersionInfo, throwOnFailure);
     }
 
@@ -181,7 +181,7 @@ namespace Xtensive.Orm
     /// otherwise, <see langword="false" />.</returns>
     public bool Add(Entity entity, bool overwrite)
     {
-      ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
+      ArgumentNullException.ThrowIfNull(entity);
       var key = entity.Key;
       var version = entity.VersionInfo;
       return Add(key, version, overwrite);
@@ -198,7 +198,7 @@ namespace Xtensive.Orm
     /// otherwise, <see langword="false" />.</returns>
     public bool Add(Key key, VersionInfo version, bool overwrite)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
       if (!Contains(key)) {
         if (version.IsVoid)
           return false;
@@ -227,7 +227,7 @@ namespace Xtensive.Orm
     /// otherwise, <see langword="false" />.</returns>
     public bool Remove(Entity entity)
     {
-      ArgumentValidator.EnsureArgumentNotNull(entity, "entity");
+      ArgumentNullException.ThrowIfNull(entity);
       return Remove(entity.Key);
     }
 
@@ -239,7 +239,7 @@ namespace Xtensive.Orm
     /// otherwise, <see langword="false" />.</returns>
     public bool Remove(Key key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
       return versions.Remove(key);
     }
 

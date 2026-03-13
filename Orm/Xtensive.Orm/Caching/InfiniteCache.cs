@@ -53,7 +53,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var key = KeyExtractor(item);
 
       TItem cachedItem;
@@ -114,9 +114,9 @@ namespace Xtensive.Caching
     /// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is out of range.</exception>
     public InfiniteCache(int capacity, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor);
       if (capacity < 0)
-        throw new ArgumentOutOfRangeException("capacity", capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
+        throw new ArgumentOutOfRangeException(nameof(capacity), capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
       this.KeyExtractor = keyExtractor;
       items = new Dictionary<TKey, TItem>(capacity);
     }

@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Security
     /// <inheritdoc/>
     public IPrincipal Authenticate(IIdentity identity, params object[] args)
     {
-      ArgumentValidator.EnsureArgumentNotNull(identity, "identity");
+      ArgumentNullException.ThrowIfNull(identity);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(identity.Name, "identity.Name");
 
       return Authenticate(identity.Name, args);

@@ -43,7 +43,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override Tuple Apply(TupleTransformType transformType, params object[] arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
+      ArgumentNullException.ThrowIfNull(arguments);
       return Apply(transformType, arguments[0]);
     }
 

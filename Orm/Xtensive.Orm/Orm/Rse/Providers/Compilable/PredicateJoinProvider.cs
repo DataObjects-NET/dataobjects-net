@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
       Expression<Func<Tuple, Tuple, bool>> predicate, JoinType joinType)
       : base(ProviderType.PredicateJoin, left, right)
     {
-      Predicate = predicate;
+      Predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
       JoinType = joinType;
       Initialize();
     }

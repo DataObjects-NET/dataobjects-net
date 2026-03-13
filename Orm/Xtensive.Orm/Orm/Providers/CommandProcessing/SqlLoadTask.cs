@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -47,12 +48,9 @@ namespace Xtensive.Orm.Providers
     /// <param name="parameterContext">A value for <see cref="ParameterContext"/>.</param>
     public SqlLoadTask(QueryRequest request, List<Tuple> output, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(request, "request");
-      ArgumentValidator.EnsureArgumentNotNull(output, "output");
-
-      Request = request;
+      Request = request ?? throw new ArgumentNullException(nameof(request));
       ParameterContext = parameterContext;
-      Output = output;
+      Output = output ?? throw new ArgumentNullException(nameof(output));
     }
   }
 }

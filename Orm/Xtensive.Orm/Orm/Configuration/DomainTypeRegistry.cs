@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public override object Clone() => new DomainTypeRegistry(this);
+    public override DomainTypeRegistry Clone() => new DomainTypeRegistry(this);
 
     #endregion
 

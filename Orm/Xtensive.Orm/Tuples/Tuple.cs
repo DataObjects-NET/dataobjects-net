@@ -312,7 +312,7 @@ namespace Xtensive.Tuples
     public static RegularTuple Create(TupleDescriptor descriptor) =>
       descriptor != default
         ? new PackedTuple(descriptor)
-        : throw new ArgumentNullException("descriptor");
+        : throw new ArgumentNullException(nameof(descriptor));
 
     #endregion
 

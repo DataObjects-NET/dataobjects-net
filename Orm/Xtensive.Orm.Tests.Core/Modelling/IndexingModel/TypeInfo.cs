@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     public TypeInfo(Type type, bool isNullable)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (isNullable && type.IsValueType && !type.IsNullable())
         ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
       Type = type;
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     public TypeInfo(Type type, bool isNullable, int length, CultureInfo culture)
       : this(type, isNullable, length)
     {
-      ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
+      ArgumentNullException.ThrowIfNull(culture);
       Culture = culture;
     }
 

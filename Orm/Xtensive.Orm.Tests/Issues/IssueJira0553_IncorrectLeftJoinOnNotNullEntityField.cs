@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var badResult = session.Query.All<Employee>()
-          .LeftJoin(
+          .LeftJoinEx(
             session.Query.All<EmployeeWithCar>(),
             e => e.Id,
             ewc => ewc.Id,
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var goodResult = session.Query.All<Employee>()
-          .LeftJoin(
+          .LeftJoinEx(
             session.Query.All<EmployeeWithCar>(),
             e => e.Id,
             ewc => ewc.Id,
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var wordaround = session.Query.All<Employee>()
-          .LeftJoin(
+          .LeftJoinEx(
             session.Query.All<EmployeeWithCar>(),
               e => e.Id,
               ewc => ewc.Id,
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.Issues
                 e.Id,
                 CarId = ewc.Car.Id
               })
-          .LeftJoin(
+          .LeftJoinEx(
             session.Query.All<Car>(),
             e => e.CarId,
             c => c.Id,

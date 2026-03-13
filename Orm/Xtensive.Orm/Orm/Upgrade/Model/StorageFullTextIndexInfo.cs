@@ -61,9 +61,8 @@ namespace Xtensive.Orm.Upgrade.Model
         base.ValidateState();
 
         var tableColumns = Parent.Columns;
-        var columns = Columns.Select(keyRef => keyRef.Value).ToList();
         
-        if (columns.Count == 0) {
+        if (Columns.Select(keyRef => keyRef.Value).Any()) {
           ea.Execute(() => {
             throw new ValidationException(Strings.ExEmptyColumnsCollection, Path);
           });

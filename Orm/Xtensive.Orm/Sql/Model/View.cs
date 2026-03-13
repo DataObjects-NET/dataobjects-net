@@ -89,11 +89,7 @@ namespace Xtensive.Sql.Model
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public override IList<DataTableColumn> Columns {
-      get {
-        return ViewColumns.ToArray().Convert(i => (DataTableColumn) i);
-      }
-    }
+    public override IList<DataTableColumn> Columns => ViewColumns.SelectToArray(i => (DataTableColumn) i);
 
     #endregion
 

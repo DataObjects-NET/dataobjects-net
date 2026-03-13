@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var traclCount = Session.Query.All<Track>().Count();
       var result = Session.Query.All<Track>()
-        .LeftJoin(Session.Query.All<Album>(),
+        .LeftJoinEx(Session.Query.All<Album>(),
           track => track.Album.AlbumId,
           album => album.AlbumId,
           (track, album) => new {track.Name, album.Title, album.AlbumId});
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Linq
       Session.Current.SaveChanges();
       var tracks = Session.Query.All<Track>();
       var albums = Session.Query.All<Album>();
-      var result = tracks.LeftJoin(
+      var result = tracks.LeftJoinEx(
         albums,
         track => track.Album,
         album => album,
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Linq
       Session.Current.SaveChanges();
       var tracks = Session.Query.All<Track>();
       var albums = Session.Query.All<Album>();
-      var result = tracks.LeftJoin(
+      var result = tracks.LeftJoinEx(
         albums,
         track => track.Album.AlbumId,
         album => album.AlbumId,

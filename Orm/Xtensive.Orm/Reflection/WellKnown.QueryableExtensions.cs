@@ -14,6 +14,7 @@ namespace Xtensive.Reflection
       public const string Count = nameof(Orm.QueryableExtensionsEx.Count);
 #if !NET10_0_OR_GREATER
       public const string LeftJoin = nameof(Orm.QueryableExtensionsEx.LeftJoin);
+      public const string LeftJoinEx = nameof(Orm.QueryableExtensions.LeftJoinEx);
 #endif
       public const string Lock = nameof(Orm.QueryableExtensionsEx.Lock);
       public const string Take = nameof(Orm.QueryableExtensionsEx.Take);

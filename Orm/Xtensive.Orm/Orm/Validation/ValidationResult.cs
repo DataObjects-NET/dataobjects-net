@@ -1,3 +1,4 @@
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -59,7 +60,7 @@ namespace Xtensive.Orm.Validation
     /// <param name="value">Validated value.</param>
     public ValidationResult(IValidator source, string errorMessage, FieldInfo field = null, object value = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(errorMessage, "errorMessage");
 
       isError = true;

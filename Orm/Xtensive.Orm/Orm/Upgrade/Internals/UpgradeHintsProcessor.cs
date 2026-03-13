@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public UpgradeHintsProcessingResult Process(IEnumerable<UpgradeHint> inputHints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
+      ArgumentNullException.ThrowIfNull(inputHints);
 
       ProcessGenericTypeHints(inputHints);
       ProcessTypeChanges();
@@ -209,8 +209,6 @@ namespace Xtensive.Orm.Upgrade.Internals
       currentNonConnectorTypes = GetNonConnectorTypes(currentModel);
 
       var newModelTypes = currentNonConnectorTypes.ToDictionary(type => type.UnderlyingType, currentModel.Types.Length);
-      //var renameLookup = renameTypeHints.ToDictionary(hint => hint.OldType, renameTypeHints.Count);
-      //var removeLookup = removeTypeHints.ToDictionary(hint => hint.Type, removeTypeHints.Count);
 
       // Types that are neither mapped nor removed.
       var suspects = new HashSet<StoredTypeInfo>();
@@ -606,11 +604,11 @@ namespace Xtensive.Orm.Upgrade.Internals
       StorageModel extractedStorageModel,
       bool autoDetectTypesMovements)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
-      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
 
       // since type mapping is intersection of current types and extracted types
       // it will be equal or less than min size of these two sets

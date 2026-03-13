@@ -51,31 +51,18 @@ namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
 
 namespace Xtensive.Orm.Tests.Interfaces
 {
-  public class UnusedTypeRemovalTest : AutoBuildTest
+  public class UnusedTypeRemovalTest
   {
     [Test]
     public void MainTest()
     {
-      Assert.That(Domain, Is.Null);
-    }
+      var config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(typeof(IFirst).Assembly, typeof(IFirst).Namespace);
 
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (IFirst).Assembly, typeof (IFirst).Namespace);
-      return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      try {
-        base.BuildDomain(configuration);
-        Assert.Fail();
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return null;
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var message = ex.Message;
+      Assert.That(message.Contains("ISecond") && message.Contains("don't belong") && message.Contains("hierarchy"),
+        Is.True);
     }
   }
 }

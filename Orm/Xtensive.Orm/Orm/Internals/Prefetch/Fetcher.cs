@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.20
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -127,8 +128,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       tasks = new HashSet<EntityGroupTask>();
       foundKeys = new HashSet<Key>();
-      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
-      this.manager = manager;
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
     }
   }
 }

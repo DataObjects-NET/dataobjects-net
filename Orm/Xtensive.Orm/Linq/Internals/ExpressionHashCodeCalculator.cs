@@ -20,7 +20,7 @@ namespace Xtensive.Linq
 
     public int CalculateHashCode(Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       try {
         return Visit(expression);
       }
@@ -64,7 +64,7 @@ namespace Xtensive.Linq
     protected override int VisitDefault(DefaultExpression d)
     {
       if (d.Type.IsValueType) {
-        return d.GetDefaultValue().GetHashCode();
+        return d.GetDefaultValue()?.GetHashCode() ?? NullHashCode;
       }
       else {
         return NullHashCode;

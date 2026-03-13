@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     /// <param name="type">The type.</param>
     public static IMemberCompilerProvider Create(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       var concreteType = typeof (MemberCompilerProvider<>).CachedMakeGenericType(type);
       return (IMemberCompilerProvider) Activator.CreateInstance(concreteType);
     }

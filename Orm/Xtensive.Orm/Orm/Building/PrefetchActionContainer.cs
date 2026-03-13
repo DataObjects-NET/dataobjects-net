@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building
     public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction(IEnumerable<AssociationInfo> associations)
     {
       fields = associations.Select(static association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
-        .ToList();
+        .ToArray();
       return fields.Count > 0 ? Prefetch : null;
     }
 

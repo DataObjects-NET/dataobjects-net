@@ -1323,27 +1323,20 @@ namespace Xtensive.Orm.Upgrade
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
-      this.resolver = resolver;
-      this.sqlModel = sqlModel;
-      this.actions = actions;
-      this.sourceModel = sourceModel;
-      this.targetModel = targetModel;
-      this.enforceChangedColumns = enforceChangedColumns;
-      this.sqlExecutor = sqlExecutor;
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+      this.sqlModel = sqlModel ?? throw new ArgumentNullException(nameof(sqlModel));
+      this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
+      this.sourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      this.targetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
+      this.enforceChangedColumns = enforceChangedColumns ?? throw new ArgumentNullException(nameof(enforceChangedColumns));
+      this.sqlExecutor = sqlExecutor ?? throw new ArgumentNullException(nameof(sqlExecutor));
       this.allowCreateConstraints = allowCreateConstraints;
 
       if (providerInfo.Supports(ProviderFeatures.Collations)) {

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool isInlined, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
-      ApplyParameter = applyParameter;
+      ApplyParameter = applyParameter ?? throw new ArgumentNullException(nameof(applyParameter));
       IsInlined = isInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;
