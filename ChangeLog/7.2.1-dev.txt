@@ -5,5 +5,6 @@
 [main] IPriorityQueue interface became Obsolete
 [main] EnumerableUtils.One() marked as Obsolete
 [main] Performance and memory usage improvements
+[main] Fixed certain issues connected with SerializableExpressions deserialization
 [postgresql] Update Npgsql to 9.0.4
 [weaver] Updated Mono.Cecil package to v0.11.6, which resolves certain issues of unsynced pdb files
