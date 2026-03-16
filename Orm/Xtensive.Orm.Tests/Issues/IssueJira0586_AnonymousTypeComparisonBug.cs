@@ -1,6 +1,6 @@
-// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.05.28
 
@@ -91,6 +91,41 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0586_AnonymousTypeComparisonBug : AutoBuildTest
   {
+#if NET10_0_OR_GREATER
+    [Test]
+    public void MainTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var tableParts = from q in Query.All<TpPriceCalc>()
+                         select new {
+                           q.Account,
+                           Check = !q.Check,
+                           FinToolKind = q.Check
+                                        ? null
+                                        : q.Owner
+                         };
+
+        var masterCredit = Query.All<PacioliPosting>();
+
+        var join = from r in masterCredit.LeftJoin(
+          tableParts,
+          a => a.CreditAccount.Id,
+          a => a.Account.Id,
+          (a, pm) => new { pp = a, pm })
+                   let q = r.pp
+                   select new {
+                     Id = q.Id,
+                     MasterFinToolKind = r.pm == null
+                                  ? (FinToolKind) null
+                                  : (!r.pm.Check ? r.pm.FinToolKind : q.FinCredit.FinToolKind)
+                   };
+
+        var result = join.ToArray();
+      }
+    }
+#else
     [Test]
     public void MainTest()
     {
@@ -124,6 +159,7 @@ namespace Xtensive.Orm.Tests.Issues
         var result = join.ToArray();
       }
     }
+#endif
 
     protected override DomainConfiguration BuildConfiguration()
     {
