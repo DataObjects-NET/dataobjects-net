@@ -815,7 +815,7 @@ namespace Xtensive.Orm
     public static DelayedQuery<TElement> CreateDelayedQuery<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, query.Method, query.Target).CreateDelayedQuery(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, key, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     #endregion
