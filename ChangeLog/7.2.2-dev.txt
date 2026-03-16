@@ -1,0 +1,1 @@
+[main] Query.CreateDelayedQuery(key, Func<IOrderedQueryable<TElement>>) applies external key instead of default computed, as it suppose to
