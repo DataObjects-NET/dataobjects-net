@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Linq
 
 #if !NET10_0_OR_GREATER
       public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.LeftJoin), 4, 5);
-      public static readonly MethodInfo ExtensionLeftJoinEx = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoinEx), 4, 5);
 #endif
+      public static readonly MethodInfo ExtensionLeftJoinEx = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.LeftJoinEx), 4, 5);
       public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Lock), 1, 3);
       public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Take), 1, 2);
       public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Skip), 1, 2);

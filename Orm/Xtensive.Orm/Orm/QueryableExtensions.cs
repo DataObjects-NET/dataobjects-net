@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -321,7 +321,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoinEx.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
       var expression = Expression.Call(null, genericMethod, new[] { outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector });
       return outer.Provider.CreateQuery<TResult>(expression);
     }
