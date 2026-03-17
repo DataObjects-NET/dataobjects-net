@@ -385,6 +385,23 @@ namespace Xtensive.Orm
       return Session.Demand().Query.SingleOrDefaultAsync<T>(keyValues, token);
     }
 
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValue"/>
+    /// in the current <see cref="Session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValue">Key value.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValue"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public static Task<T> SingleOrDefaultAsync<T>(object keyValue, CancellationToken token)
+      where T : class, IEntity
+    {
+      return Session.Demand().Query.SingleOrDefaultAsync<T>(keyValue, token);
+    }
+
     #region Execute
 
     /// <summary>

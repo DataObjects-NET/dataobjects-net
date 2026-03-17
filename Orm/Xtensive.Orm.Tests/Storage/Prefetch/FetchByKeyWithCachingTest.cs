@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
-    public async Task SingleOrDefaultByExistingIdAsyncTest()
+    public async Task SingleOrDefaultByExistingIdAsyncTest1()
     {
       await RunWithinSessionAsync(async (s) => {
         var existingId = (int) existingKeys[customerType][0].Value.GetValue(0, out var _);
@@ -342,6 +342,28 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (detector.Attach(s)) {
           // now it is in cache
           var existingEntity = await s.Query.SingleOrDefaultAsync<Customer>(new object[] { existingId });
+        }
+        Assert.That(detector.DbCommandsDetected, Is.False);
+        detector.Reset();
+      });
+    }
+
+    [Test]
+    public async Task SingleOrDefaultByExistingIdAsyncTest2()
+    {
+      await RunWithinSessionAsync(async (s) => {
+        var existingId = (int) existingKeys[customerType][0].Value.GetValue(0, out var _);
+        var detector = new QueryExecutionDetector();
+        using (detector.Attach(s)) {
+          // Entity is not in cache yet
+          var existingEntity = await s.Query.SingleOrDefaultAsync<Customer>(existingId);
+        }
+        Assert.That(detector.DbCommandsDetected, Is.True);
+        detector.Reset();
+
+        using (detector.Attach(s)) {
+          // now it is in cache
+          var existingEntity = await s.Query.SingleOrDefaultAsync<Customer>(existingId);
         }
         Assert.That(detector.DbCommandsDetected, Is.False);
         detector.Reset();
@@ -372,7 +394,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
-    public async Task SingleOrDefaultByInexistentIdAsyncTest()
+    public async Task SingleOrDefaultByInexistentIdAsyncTest1()
     {
       await RunWithinSessionAsync(async (s) => {
         var inexistentId = 9999;
@@ -395,6 +417,29 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       });
     }
 
+    [Test]
+    public async Task SingleOrDefaultByInexistentIdAsyncTest2()
+    {
+      await RunWithinSessionAsync(async (s) => {
+        var inexistentId = 9999;
+
+        var detector = new QueryExecutionDetector();
+        using (detector.Attach(s)) {
+          var shouldBeNull = await s.Query.SingleOrDefaultAsync<Customer>(inexistentId);
+          Assert.That(shouldBeNull, Is.Null);
+        }
+        Assert.That(detector.DbCommandsDetected, Is.True);
+        detector.Reset();
+
+        using (detector.Attach(s)) {
+          var shouldBeNull = await s.Query.SingleOrDefaultAsync<Customer>(inexistentId);
+          Assert.That(shouldBeNull, Is.Null);
+        }
+        Assert.That(detector.DbCommandsDetected, Is.False);
+        detector.Reset();
+        await Task.CompletedTask;
+      });
+    }
 
     private void RunWithinSession(Action<Session> testAction)
     {
