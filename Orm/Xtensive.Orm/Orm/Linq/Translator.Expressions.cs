@@ -531,7 +531,13 @@ namespace Xtensive.Orm.Linq
               return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           }
         }
-
+        if (methodDeclaringType == typeof(System.MemoryExtensions)) {
+          var parameters = method.GetParameters();
+          
+          if (methodName.Equals(nameof(System.MemoryExtensions.Contains), StringComparison.Ordinal) && parameters.Length == 2){
+            return VisitContains(mc.Arguments[0].StripImplicitCast(), mc.Arguments[1], false);
+          }
+        }
 
         // Process local collections
         if (mc.Object.IsLocalCollection(context)) {
