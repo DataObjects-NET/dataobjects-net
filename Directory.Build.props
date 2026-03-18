@@ -63,6 +63,7 @@
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0;net10.0</TargetFrameworks> <!-- fallback to default -->
+    <LangVersion>12.0</LangVersion> <!-- default language for net8.0 -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -75,10 +76,12 @@
    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <LangVersion>14.0</LangVersion> <!-- default language for net10.0 -->
+  </PropertyGroup>
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <LangVersion>12.0</LangVersion> <!-- version assigned to net8.0 -->
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
