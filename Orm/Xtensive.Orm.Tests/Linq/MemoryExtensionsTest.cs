@@ -13,6 +13,10 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture(Description = "Test cases when System.MemoryExtensions are applied instead of more general versions of methods from EnumerableExtensions")]
   public class MemoryExtensionsTest : ChinookDOModelTest
   {
+    private readonly int unknownTracksCount = 0;
+    private readonly int audioTracksCount = 3289;
+    private readonly int videoTracksCount = 214;
+
     private int[] existingGenreIds;
     private string[] existingGenreNames;
 
@@ -387,6 +391,169 @@ namespace Xtensive.Orm.Tests.Linq
         .SingleOrDefault(g => inexistentNames.Contains(g.Name));
 
       Assert.That(genre, Is.Null);
+    }
+
+    #endregion
+
+
+    #region Contains over ReadOnlySpan<T> where T is not IComparable, like enums
+
+    [Test]
+    public void EnumArrayContainsInAllTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var query = Session.Query.All<IntermediateTrack>()
+        .All(t => formats.Contains(t.MediaFormat));
+      Assert.That(query, Is.False);
+
+      query = Session.Query.All<IntermediateTrack>()
+        .All(t => allFormats.Contains(t.MediaFormat));
+      Assert.That(query, Is.True);
+    }
+
+    [Test]
+    public void EnumArrayContainsInAnyTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var query = Session.Query.All<IntermediateTrack>()
+        .Any(t => formats.Contains(t.MediaFormat));
+      Assert.That(query, Is.True);
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      query = Session.Query.All<AudioTrack>().Any(t => inexistentFormats.Contains(t.MediaFormat));
+      Assert.That(query, Is.False);
+    }
+
+    [Test]
+    public void EnumArrayContainsInCountTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var query = Session.Query.All<IntermediateTrack>()
+        .Count(t => formats.Contains(t.MediaFormat));
+      Assert.That(query, Is.EqualTo(unknownTracksCount + audioTracksCount));
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      query = Session.Query.All<AudioTrack>()
+        .Count(t => inexistentFormats.Contains(t.MediaFormat));
+      Assert.That(query, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void EnumArrayContainsInGroupByTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var query = Session.Query.All<IntermediateTrack>()
+        .GroupBy(t => formats.Contains(t.MediaFormat)).ToArray();
+      Assert.That(query.Length, Is.EqualTo(2));
+      var firstGroup = query[0];
+      Assert.That(firstGroup.Key, Is.False);
+      Assert.That(firstGroup.Count(), Is.EqualTo(videoTracksCount));
+
+      var secondGroup = query[1];
+      Assert.That(secondGroup.Key, Is.True);
+      Assert.That(secondGroup.Count(), Is.EqualTo(unknownTracksCount + audioTracksCount));
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      query = Session.Query.All<AudioTrack>()
+        .GroupBy(t => inexistentFormats.Contains(t.MediaFormat)).ToArray();
+      Assert.That(query.Length, Is.EqualTo(1));
+      firstGroup = query[0];
+      Assert.That(firstGroup.Key, Is.False);
+      Assert.That(firstGroup.Count(), Is.EqualTo(audioTracksCount));
+    }
+
+    [Test]
+    public void EnumArrayContainsInOrderByTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var tracks = Session.Query.All<IntermediateTrack>()
+        .OrderBy(t => formats.Contains(t.MediaFormat)).ToArray();
+
+      Assert.That(tracks.Take(videoTracksCount).All(t => !formats.Contains(t.MediaFormat)), Is.True);
+      Assert.That(tracks.Skip(videoTracksCount).All(t => formats.Contains(t.MediaFormat)), Is.True);
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      tracks = Session.Query.All<AudioTrack>()
+        .OrderBy(t => inexistentFormats.Contains(t.MediaFormat)).ToArray();
+      Assert.That(tracks.All(t => !inexistentFormats.Contains(t.MediaFormat)), Is.True);
+    }
+
+    [Test]
+    public void EnumArrayContainsInSelectTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var queryResult = Session.Query.All<IntermediateTrack>()
+        .Select(t => formats.Contains(t.MediaFormat)).ToArray();
+      Assert.That(queryResult.Length, Is.EqualTo(unknownTracksCount + audioTracksCount + videoTracksCount));
+      Assert.That(queryResult.Count(b => b == true), Is.EqualTo(unknownTracksCount + audioTracksCount));
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      queryResult = Session.Query.All<AudioTrack>()
+        .Select(t => inexistentFormats.Contains(t.MediaFormat)).ToArray();
+      Assert.That(queryResult.Length, Is.EqualTo(audioTracksCount));
+      Assert.That(queryResult.Count(b => b == true), Is.EqualTo(0));
+    }
+
+    [Test]
+    public void EnumArrayContainsInWhereTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var tracks = Session.Query.All<IntermediateTrack>()
+        .Where(t => formats.Contains(t.MediaFormat)).ToArray();
+
+      Assert.That(tracks.Length, Is.EqualTo(unknownTracksCount + audioTracksCount));
+      Assert.That(tracks.All(t => formats.Contains(t.MediaFormat)));
+
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      tracks = Session.Query.All<AudioTrack>()
+        .Where(t => inexistentFormats.Contains(t.MediaFormat)).ToArray();
+
+      Assert.That(tracks.Length, Is.EqualTo(0));
+      Assert.That(tracks.All(t => !formats.Contains(t.MediaFormat)));
+    }
+
+    [Test]
+    public void EnumArrayContainsInFirstTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+      var allFormats = (MediaFormat[]) Enum.GetValues(typeof(MediaFormat));
+
+      var track = Session.Query.All<IntermediateTrack>()
+        .First(t => formats.Contains(t.MediaFormat));
+      
+      Assert.That(formats.Contains(track.MediaFormat), Is.True);
+    }
+
+    [Test]
+    public void EnumArrayContainsInFirstOrDefaultTest()
+    {
+      var formats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Audio };
+
+      var track = Session.Query.All<IntermediateTrack>()
+        .FirstOrDefault(t => formats.Contains(t.MediaFormat));
+
+      Assert.That(track, Is.Not.Null);
+      Assert.That(formats.Contains(track.MediaFormat), Is.True);
+
+      var inexistentFormats = new MediaFormat[] { MediaFormat.Unknown, MediaFormat.Video };
+      track = Session.Query.All<AudioTrack>()
+        .FirstOrDefault(t => inexistentFormats.Contains(t.MediaFormat));
+      Assert.That(track, Is.Null);
     }
 
     #endregion
