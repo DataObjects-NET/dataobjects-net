@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,6 +27,12 @@ namespace Xtensive.Linq
       new ConcurrentDictionary<Type, MethodInfo>();
 
     private static readonly Func<Type, MethodInfo> TupleValueAccessorFactory;
+
+    private static readonly Type MemoryExtensionsType = typeof(MemoryExtensions);
+    private static readonly MethodInfo ReadOnlySpanContains2;
+    private static readonly MethodInfo ReadOnlySpanContains3;
+    private static readonly MethodInfo SpanContains;
+    private static readonly MethodInfo EnumerableContains;
 
     ///<summary>
     /// Makes <see cref="Tuples.Tuple.GetValueOrDefault{T}"/> method call.
@@ -72,6 +79,47 @@ namespace Xtensive.Linq
     /// <returns>Expression tree that wraps <paramref name="expression"/>.</returns>
     public static ExpressionTree ToExpressionTree(this Expression expression) => new ExpressionTree(expression);
 
+    /// <summary>
+    /// Transforms <see cref="MemoryExtensions.Contains{T}(ReadOnlySpan{T}, T)"/> applied call into <see cref="Enumerable.Contains{TSource}(IEnumerable{TSource}, TSource)"/>
+    /// if detected.
+    /// </summary>
+    /// <param name="mc">Possible candidate for transformation.</param>
+    /// <returns>New instance of expression, if transformation was required, otherwise, the same expression.</returns>
+    public static MethodCallExpression TryTransformToOldFashionContains(this MethodCallExpression mc)
+    {
+      if (mc.Method.DeclaringType == MemoryExtensionsType) {
+        var genericMethod = mc.Method.GetGenericMethodDefinition();
+        if (genericMethod == ReadOnlySpanContains2 || genericMethod == ReadOnlySpanContains3 || genericMethod == SpanContains) {
+          var arguments = mc.Arguments;
+
+          Type elementType;
+          Expression[] newArguments;
+          
+          if (arguments[0] is MethodCallExpression mcInner && mcInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
+            var wrappedArray = mcInner.Arguments[0];
+            elementType = wrappedArray.Type.GetElementType();
+            newArguments = new[] { wrappedArray, arguments[1] };
+          }
+          else if (arguments[0] is UnaryExpression uInner
+            && uInner.Method is not null
+            && uInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
+
+            elementType = uInner.Operand.Type.GetElementType();
+            newArguments = new[] { uInner.Operand, arguments[1] };
+          }
+          else {
+            return mc;
+          }
+
+          var genericContains = EnumerableContains.MakeGenericMethod(elementType);
+          var replacement = Expression.Call(genericContains, newArguments);
+          return replacement;
+        }
+        return mc;
+      }
+      return mc;
+    }
+
 
     // Type initializer
 
@@ -80,6 +128,32 @@ namespace Xtensive.Linq
       var tupleGenericAccessor = WellKnownOrmTypes.Tuple.GetMethods()
         .Single(mi => mi.Name == nameof(Tuple.GetValueOrDefault) && mi.IsGenericMethod);
       TupleValueAccessorFactory = type => tupleGenericAccessor.CachedMakeGenericMethod(type);
+
+      var genericReadOnlySpan = typeof(ReadOnlySpan<>);
+      var genericSpan = typeof(Span<>);
+
+      var filteredByNameItems = MemoryExtensionsType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Where(m => m.Name.Equals(nameof(System.MemoryExtensions.Contains), StringComparison.OrdinalIgnoreCase));
+
+      var spanCandidates = new List<(MethodInfo, int)>();
+      var readonlyspanCandidates = new List<(MethodInfo, int)>();
+
+      foreach (var method in filteredByNameItems) {
+        var parameters = method.GetParameters();
+        var firstParameter = parameters[0];
+        var genericDef = firstParameter.ParameterType.GetGenericTypeDefinition();
+        if (genericDef == genericReadOnlySpan) {
+          readonlyspanCandidates.Add((method, parameters.Length));
+        }
+        else if (genericDef == genericSpan) {
+          spanCandidates.Add((method, parameters.Length));
+        }
+      }
+
+      ReadOnlySpanContains2 = readonlyspanCandidates.Where(c => c.Item2 == 2).Select(c => c.Item1).First();
+      ReadOnlySpanContains3 = readonlyspanCandidates.Where(c => c.Item2 == 3).Select(c => c.Item1).FirstOrDefault();
+      SpanContains = spanCandidates.Where(c => c.Item2 == 2).Select(c => c.Item1).First();
+      EnumerableContains = typeof(System.Linq.Enumerable).GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
     }
   }
 }
