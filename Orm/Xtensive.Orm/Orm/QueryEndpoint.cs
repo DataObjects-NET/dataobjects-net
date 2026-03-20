@@ -521,7 +521,7 @@ namespace Xtensive.Orm
     /// <param name="keyValue">Key value.</param>
     /// <param name="token">The token to cancel this operation.</param>
     /// <returns>
-    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// The <see cref="Entity"/> specified <paramref name="keyValue"/> identify.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
     public async Task<T> SingleOrDefaultAsync<T>(object keyValue, CancellationToken token = default)
