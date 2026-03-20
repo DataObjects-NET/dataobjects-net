@@ -530,6 +530,17 @@ namespace Xtensive.Orm.Linq
           }
         }
 
+        if (methodDeclaringType == typeof(MemoryExtensions)) {
+          var parameters = method.GetParameters();
+
+          if (methodName.Equals(nameof(MemoryExtensions.Contains), StringComparison.Ordinal)) {
+            // There might be 2 or 3 arguments.
+            // In case of three, last one is IEqualityComparer<T> which will probably have default value
+            // Comparer doesn't matter in context of our queries, so we ignore it
+            return VisitContains(mc.Arguments[0].StripImplicitCast(), mc.Arguments[1], false);
+          }
+        }
+
 
         // Process local collections
         if (mc.Object.IsLocalCollection(context)) {
