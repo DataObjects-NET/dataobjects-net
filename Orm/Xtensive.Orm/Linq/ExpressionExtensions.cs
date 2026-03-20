@@ -29,9 +29,11 @@ namespace Xtensive.Linq
     private static readonly Func<Type, MethodInfo> TupleValueAccessorFactory;
 
     private static readonly Type MemoryExtensionsType = typeof(MemoryExtensions);
-    private static readonly MethodInfo ReadOnlySpanContains2;
-    private static readonly MethodInfo ReadOnlySpanContains3;
-    private static readonly MethodInfo SpanContains;
+
+    private static readonly int[] MemoryExtensionsContainsMethodTokens;
+    //private static readonly MethodInfo ReadOnlySpanContains2;
+    //private static readonly MethodInfo ReadOnlySpanContains3;
+    //private static readonly MethodInfo SpanContains;
     private static readonly MethodInfo EnumerableContains;
 
     ///<summary>
@@ -89,7 +91,7 @@ namespace Xtensive.Linq
     {
       if (mc.Method.DeclaringType == MemoryExtensionsType) {
         var genericMethod = mc.Method.GetGenericMethodDefinition();
-        if (genericMethod == ReadOnlySpanContains2 || genericMethod == ReadOnlySpanContains3 || genericMethod == SpanContains) {
+        if (MemoryExtensionsContainsMethodTokens.Contains(genericMethod.MetadataToken)) {
           var arguments = mc.Arguments;
 
           Type elementType;
@@ -98,20 +100,20 @@ namespace Xtensive.Linq
           if (arguments[0] is MethodCallExpression mcInner && mcInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
             var wrappedArray = mcInner.Arguments[0];
             elementType = wrappedArray.Type.GetElementType();
-            newArguments = new[] { wrappedArray, arguments[1] };
+            newArguments = [wrappedArray, arguments[1]];
           }
           else if (arguments[0] is UnaryExpression uInner
             && uInner.Method is not null
             && uInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
 
             elementType = uInner.Operand.Type.GetElementType();
-            newArguments = new[] { uInner.Operand, arguments[1] };
+            newArguments = [uInner.Operand, arguments[1]];
           }
           else {
             return mc;
           }
 
-          var genericContains = EnumerableContains.MakeGenericMethod(elementType);
+          var genericContains = EnumerableContains.CachedMakeGenericMethod(elementType);
           var replacement = Expression.Call(genericContains, newArguments);
           return replacement;
         }
@@ -135,24 +137,20 @@ namespace Xtensive.Linq
       var filteredByNameItems = MemoryExtensionsType.GetMethods(BindingFlags.Public | BindingFlags.Static)
         .Where(m => m.Name.Equals(nameof(System.MemoryExtensions.Contains), StringComparison.OrdinalIgnoreCase));
 
-      var spanCandidates = new List<(MethodInfo, int)>();
-      var readonlyspanCandidates = new List<(MethodInfo, int)>();
+      var candiates = new List<int>();
 
       foreach (var method in filteredByNameItems) {
         var parameters = method.GetParameters();
-        var firstParameter = parameters[0];
-        var genericDef = firstParameter.ParameterType.GetGenericTypeDefinition();
+        var genericDef = parameters[0].ParameterType.GetGenericTypeDefinition();
         if (genericDef == genericReadOnlySpan) {
-          readonlyspanCandidates.Add((method, parameters.Length));
+          if (parameters.Length == 2 || parameters.Length==3)
+            candiates.Add(method.MetadataToken);
         }
-        else if (genericDef == genericSpan) {
-          spanCandidates.Add((method, parameters.Length));
+        else if (genericDef == genericSpan && parameters.Length == 2) {
+          candiates.Add(method.MetadataToken);
         }
       }
-
-      ReadOnlySpanContains2 = readonlyspanCandidates.Where(c => c.Item2 == 2).Select(c => c.Item1).First();
-      ReadOnlySpanContains3 = readonlyspanCandidates.Where(c => c.Item2 == 3).Select(c => c.Item1).FirstOrDefault();
-      SpanContains = spanCandidates.Where(c => c.Item2 == 2).Select(c => c.Item1).First();
+      MemoryExtensionsContainsMethodTokens = candiates.ToArray();
       EnumerableContains = typeof(System.Linq.Enumerable).GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
     }
   }
