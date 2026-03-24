@@ -31,9 +31,6 @@ namespace Xtensive.Linq
     private static readonly Type MemoryExtensionsType = typeof(MemoryExtensions);
 
     private static readonly int[] MemoryExtensionsContainsMethodTokens;
-    //private static readonly MethodInfo ReadOnlySpanContains2;
-    //private static readonly MethodInfo ReadOnlySpanContains3;
-    //private static readonly MethodInfo SpanContains;
     private static readonly MethodInfo EnumerableContains;
 
     ///<summary>
@@ -143,7 +140,7 @@ namespace Xtensive.Linq
         var parameters = method.GetParameters();
         var genericDef = parameters[0].ParameterType.GetGenericTypeDefinition();
         if (genericDef == genericReadOnlySpan) {
-          if (parameters.Length == 2 || parameters.Length==3)
+          if (parameters.Length is 2 or 3)
             candiates.Add(method.MetadataToken);
         }
         else if (genericDef == genericSpan && parameters.Length == 2) {
@@ -151,7 +148,7 @@ namespace Xtensive.Linq
         }
       }
       MemoryExtensionsContainsMethodTokens = candiates.ToArray();
-      EnumerableContains = typeof(System.Linq.Enumerable).GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
+      EnumerableContains = WellKnownTypes.Enumerable.GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
     }
   }
 }
