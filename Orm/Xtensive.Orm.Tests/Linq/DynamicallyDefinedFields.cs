@@ -1,6 +1,6 @@
-// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.06.24
 
@@ -1258,6 +1258,20 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void LeftJoinTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (var transction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(() => {
+          session.Query.All<Area>().LeftJoin(session.Query.All<Group>(), area => (Group) area[testData.GroupFieldName],
+            group => group, (area, @group) => new { Area = area, Group = group });
+        });
+      }
+    }
+#else
     [Test]
     public void LeftJoinTest()
     {
@@ -1270,6 +1284,7 @@ namespace Xtensive.Orm.Tests.Linq
         });
       }
     }
+#endif
 
     private void TestFields(Area area, Group group, SomeClass someClass, ITestInterface implementor)
     {

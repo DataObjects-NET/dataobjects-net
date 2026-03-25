@@ -315,6 +315,32 @@ namespace Xtensive.Core
       return expression;
     }
 
+    /// <summary>
+    /// Strips implicit cast operators calls.
+    /// </summary>
+    /// <param name="expression">Expression to process.</param>
+    /// <returns><paramref name="expression"/> with chan of implicit casts removed (if any).</returns>
+    public static Expression StripImplicitCast(this Expression expression)
+    {
+      while (expression.NodeType is ExpressionType.Call or ExpressionType.Convert or ExpressionType.ConvertChecked) {
+        if (expression.NodeType == ExpressionType.Call) {
+          var mc = expression as MethodCallExpression;
+          if (mc.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = mc.Arguments[0];
+          else
+            break;
+        }
+        else {
+          var unary = expression as UnaryExpression;
+          if (unary.Method is not null && unary.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = unary.Operand;
+          else
+            break;
+        }
+      }
+      return expression;
+    }
+
     #endregion
   }
 }

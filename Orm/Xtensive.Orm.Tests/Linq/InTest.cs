@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
@@ -72,6 +71,17 @@ namespace Xtensive.Orm.Tests.Linq
       QueryDumper.Dump(query2);
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void MartinTest()
+    {
+      _ = Session.Query.All<Customer>()
+        .LeftJoin(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new { Customer = c, Invoice = i })
+        .GroupBy(i => new { i.Customer.FirstName, i.Customer.LastName })
+        .Select(g => new { Key = g.Key, Count = g.Count(j => j.Invoice != null) })
+        .ToList();
+    }
+#else
     [Test]
     public void MartinTest()
     {
@@ -82,6 +92,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
     }
 
+#endif
     [Test]
     public void LongSequenceIntTest()
     {

@@ -521,14 +521,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.In(value, SqlDml.Row(expressions));
     }
 
-    [Compiler(typeof (QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof (QueryableExtensionsEx), nameof(QueryableExtensionsEx.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInEnumerable(
       MemberInfo member, SqlExpression value, [Type(typeof(IEnumerable<>))] SqlExpression sequence)
     {
       return EnumerableContains(member, sequence, value);
     }
 
-    [Compiler(typeof(QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof(QueryableExtensionsEx), nameof(QueryableExtensionsEx.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInArray(
       MemberInfo member, SqlExpression value, [Type(typeof(MethodHelper.AnyArrayPlaceholder))] SqlExpression sequence)
     {

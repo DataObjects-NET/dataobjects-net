@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2020 Xtensive LLC.
+// Copyright (C) 2015-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -68,8 +68,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
+#if NET10_0_OR_GREATER
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
+#else
           .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
           .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+#endif
           let item = joinResult.pp
           select new CustomPosting() {
             Id = item.Id,
@@ -149,8 +154,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
+#if NET10_0_OR_GREATER
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
+#else
           .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
           .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+#endif
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -230,8 +240,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
+#if NET10_0_OR_GREATER
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
+#else
           .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
           .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+#endif
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -312,8 +327,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
+#if NET10_0_OR_GREATER
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
+#else
           .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
           .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+#endif
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -393,8 +413,14 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
+#if NET10_0_OR_GREATER
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
+#else
           .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
           .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+#endif
+
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -561,8 +587,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var result =
           from r in
+#if NET10_0_OR_GREATER
+            preResult.Join(tp.Distinct(), a => a.MasterAccount, a => a.Account, (a, pm) => new { pp = a, pm })
+              .LeftJoin(Query.All<TablePartBase.FinToolKind>(), a => a.pm.FinToolKind, a => a.Id, (a, b) => new { pp = a.pp, pm = a.pm, fk = b })
+#else
             preResult.Join(tp.Distinct(), a => a.MasterAccount, a => a.Account, (a, pm) => new {pp = a, pm})
               .LeftJoinEx(Query.All<TablePartBase.FinToolKind>(), a => a.pm.FinToolKind, a => a.Id, (a, b) => new {pp = a.pp, pm = a.pm, fk = b})
+#endif
           let q = r.pp
           select
             new {

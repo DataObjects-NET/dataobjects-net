@@ -17,9 +17,9 @@ namespace Xtensive.Orm.BulkOperations
 
     public static readonly Type IncludeAlgorithmType = typeof(IncludeAlgorithm);
     public static readonly Type QueryableType = typeof(Queryable);
-    public static readonly Type QueryableExtensionsType = typeof(QueryableExtensions);
+    public static readonly Type QueryableExtensionsType = typeof(QueryableExtensionsEx);
 
-    public const string InMethodName = nameof(QueryableExtensions.In);
+    public const string InMethodName = nameof(QueryableExtensionsEx.In);
 
     public static readonly MethodInfo TranslateQueryMethod =
       typeof(QueryBuilder).GetMethod(nameof(QueryBuilder.TranslateQuery));

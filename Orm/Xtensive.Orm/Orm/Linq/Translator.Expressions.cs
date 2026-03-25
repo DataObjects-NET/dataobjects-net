@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2024 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Linq
   internal sealed partial class Translator
   {
     private static readonly Type OrmCollectionExtensionsType = typeof(CollectionExtensionsEx);
-    private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensions);
+    private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensionsEx);
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
@@ -503,9 +503,11 @@ namespace Xtensive.Orm.Linq
 #pragma warning restore 612,618
 
         // Visit Queryable extensions.
-        if (methodDeclaringType == typeof(QueryableExtensions)) {
+        if (methodDeclaringType == typeof(QueryableExtensionsEx)) {
           return methodName switch {
+#if !NET10_0_OR_GREATER
             Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
+#endif
             Reflection.WellKnown.QueryableExtensions.LeftJoinEx => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
             Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),
@@ -529,7 +531,16 @@ namespace Xtensive.Orm.Linq
               return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           }
         }
-
+        if (methodDeclaringType == typeof(System.MemoryExtensions)) {
+          var parameters = method.GetParameters();
+          
+          if (methodName.Equals(nameof(System.MemoryExtensions.Contains), StringComparison.Ordinal)){
+            // There might be 2 or 3 arguments.
+            // In case of three, last one is IEqualityComparer<T> which will probably have default value
+            // Comparer doesn't matter in context of our queries, so we ignore it
+            return VisitContains(mc.Arguments[0].StripImplicitCast(), mc.Arguments[1], false);
+          }
+        }
 
         // Process local collections
         if (mc.Object.IsLocalCollection(context)) {

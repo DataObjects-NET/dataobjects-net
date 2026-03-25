@@ -22,17 +22,17 @@ namespace Xtensive.Orm.Model
     private TypeInfo @default;
     private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
     private readonly Dictionary<TypeInfo, object> reversedMap = new Dictionary<TypeInfo, object>();
-    private FieldInfo field;
+    private FieldInfo @field;
 
     public FieldInfo Field
     {
-      get { return field; }
+      get { return @field; }
       set
       {
         EnsureNotLocked();
-        if (field != null)
+        if (@field != null)
           throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
-        field = value;
+        @field = value;
       }
     }
 

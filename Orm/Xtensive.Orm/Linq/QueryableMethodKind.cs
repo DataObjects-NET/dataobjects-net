@@ -40,6 +40,10 @@ namespace Xtensive.Linq
     GroupJoin,
     Intersect,
     Join,
+#if NET10_0_OR_GREATER
+    LeftJoin,
+    RightJoin,
+#endif
     Last,
     LastOrDefault,
     LongCount,
