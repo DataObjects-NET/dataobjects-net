@@ -1,2 +1,3 @@
 [main] Query.CreateDelayedQuery(key, Func<IOrderedQueryable<TElement>>) applies external key instead of default computed, as it suppose to
 [main] QueryEndpoint.SingleAsync()/SingleOrDefaultAsync() get overloads that can recieve one key value as parameter without need to create array explicitly
+[main] Support for C#14+ optimization that applies ReadOnlySpan<T>.Contains() extension instead of IEnumerable<T>.Contains() one to arrays
