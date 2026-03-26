@@ -33,9 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
       return CalculatedColumns.ToCommaDelimitedString();
     }
 
-
-    // Constructors
-
+    #region Header build
     private static RecordSetHeader BuildHeaderAndColumns(
       CompilableProvider source,
       IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors,
@@ -51,6 +49,9 @@ namespace Xtensive.Orm.Rse.Providers
 
       return sourceHeader.Add(calculatedColumns);
     }
+    #endregion
+
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -59,7 +60,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     [Obsolete]
     public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
-      : this(source, false, columnDescriptors)
+      : this(source, columnDescriptors, false)
     {
     }
 
@@ -71,10 +72,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     [Obsolete]
     public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
-      : base(ProviderType.Calculate, BuildHeaderAndColumns(source, columnDescriptors, out var calculatedColumns), source)
+      : this(source, columnDescriptors, isInlined)
     {
-      IsInlined = isInlined;
-      CalculatedColumns = calculatedColumns;
     }
 
     /// <summary>

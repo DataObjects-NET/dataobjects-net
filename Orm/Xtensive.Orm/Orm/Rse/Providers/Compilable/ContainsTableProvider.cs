@@ -26,11 +26,10 @@ namespace Xtensive.Orm.Rse.Providers
 
     public Func<ParameterContext, int> TopN { get; }
 
-    public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; } 
+    public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; }
+    
 
-
-    // Constructors
-
+    #region Header build
     private static RecordSetHeader BuildHeader(FullTextIndexInfo index, string rankColumnName, bool fullFeatured)
     {
       if (fullFeatured) {
@@ -55,6 +54,9 @@ namespace Xtensive.Orm.Rse.Providers
         return new RecordSetHeader(tupleDescriptor, columns);
       }
     }
+    #endregion
+
+    // Constructors
 
     public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)

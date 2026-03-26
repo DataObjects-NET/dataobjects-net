@@ -157,6 +157,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     #endregion
 
+    #region Header build
     private static RecordSetHeader BuildHeaderAndColumns(
       CompilableProvider source,
       IReadOnlyList<AggregateColumnDescriptor> columnDescriptors,
@@ -196,6 +197,7 @@ namespace Xtensive.Orm.Rse.Providers
 
       return sourceHeader.Select(groupIndexes).Add(aggregateColumns);
     }
+    #endregion
 
     // Constructors
 
@@ -207,7 +209,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     [Obsolete]
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
-      : base(ProviderType.Aggregate, BuildHeaderAndColumns(source, columnDescriptors, ref groupIndexes, out var columns), source)
+      : this(source,groupIndexes, (IReadOnlyList<AggregateColumnDescriptor>)columnDescriptors)
     {
     }
 
@@ -220,7 +222,6 @@ namespace Xtensive.Orm.Rse.Providers
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, BuildHeaderAndColumns(source, columnDescriptors, ref groupIndexes, out var columns), source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnDescriptors, nameof(columnDescriptors));
       AggregateColumns = columns;
       GroupColumnIndexes = groupIndexes;
     }

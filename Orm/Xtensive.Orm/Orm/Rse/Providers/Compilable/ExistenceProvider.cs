@@ -24,12 +24,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public string ExistenceColumnName { get; }
 
-
+    #region Header build
     private static RecordSetHeader BuildHeader(string existenceColumnName)
     {
       return new RecordSetHeader(
         BoolTupleDescriptor, new[] { new SystemColumn(existenceColumnName, 0, WellKnownTypes.Bool) });
     }
+    #endregion
 
 
     // Constructors

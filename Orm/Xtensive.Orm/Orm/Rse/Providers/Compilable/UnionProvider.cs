@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class UnionProvider : BinaryProvider
   {
-
+    #region Header build
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
       var leftHeader = left.Header;
@@ -60,6 +60,7 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Union operation"));
       }
     }
+    #endregion
 
     // Constructors
 

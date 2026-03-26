@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ConcatProvider : BinaryProvider
   {
-
+    #region Header build
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
       var leftHeader = left.Header;
@@ -59,6 +59,7 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Concatenation"));
       }
     }
+    #endregion
 
     // Constructors
 

@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     public bool FullFeatured { get; }
 
+    #region Header build
     private static RecordSetHeader BuildHeader(FullTextIndexInfo index, string rankColumnName, bool fullFeatured)
     {
       if (fullFeatured) {
@@ -51,6 +52,7 @@ namespace Xtensive.Orm.Rse.Providers
         return new RecordSetHeader(tupleDescriptor, columns);
       }
     }
+    #endregion
 
     // Constructors
 

@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class IntersectProvider : BinaryProvider
   {
+    #region Header build
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
       var leftHeader = left.Header;
@@ -26,6 +27,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
       return leftHeader;
     }
+    #endregion
 
     // Constructors
 

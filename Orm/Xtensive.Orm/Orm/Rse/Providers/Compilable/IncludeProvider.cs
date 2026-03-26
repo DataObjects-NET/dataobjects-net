@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     public TupleDescriptor FilteredTupleDescriptor { get; }
 
-
+    #region Header build
     private static RecordSetHeader BuildHeaderAndFilteredTupleDescriptor(
       CompilableProvider source, IReadOnlyList<int> filteredColumns, string resultColumnName, out TupleDescriptor filteredTupleDescriptor)
     {
@@ -65,6 +65,7 @@ namespace Xtensive.Orm.Rse.Providers
       filteredTupleDescriptor = TupleDescriptor.Create(fieldTypes);
       return header;
     }
+    #endregion
 
     // Constructors
 
