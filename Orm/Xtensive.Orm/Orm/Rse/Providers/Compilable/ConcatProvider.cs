@@ -5,6 +5,7 @@
 // Created:    2009.04.01
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,24 +24,30 @@ namespace Xtensive.Orm.Rse.Providers
       var leftHeader = left.Header;
       var rightHeader = right.Header;
       EnsureConcatIsPossible(leftHeader, rightHeader);
+
       var mappedColumnIndexes = new List<int>();
-      var columns = new List<Column>();
-      for (int i = 0; i < leftHeader.Columns.Count; i++) {
+      var rented = ArrayPool<Column>.Shared.Rent(Math.Max(leftHeader.Columns.Count, 64));
+      var lastIndex = 0;
+      for (int i = 0, count = leftHeader.Columns.Count; i < count; i++) {
         var leftColumn = leftHeader.Columns[i];
         var rightColumn = rightHeader.Columns[i];
         if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
           if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-            columns.Add(leftMappedColumn);
+            rented[lastIndex++] = leftColumn;
             mappedColumnIndexes.Add(i);
           }
           else {
-            columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+            rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
           }
         }
         else {
-          columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+          rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
         }
       }
+      var columns = new Column[lastIndex];
+      Array.Copy(rented, columns, lastIndex);
+      ArrayPool<Column>.Shared.Return(rented, true);
+
       var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
       return new RecordSetHeader(

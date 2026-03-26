@@ -5,6 +5,7 @@
 // Created:    2009.04.01
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -25,28 +26,34 @@ namespace Xtensive.Orm.Rse.Providers
       var rightHeader = right.Header;
       EnsureUnionIsPossible(leftHeader, rightHeader);
       var mappedColumnIndexes = new List<int>();
-      var columns = new List<Column>();
+      // we can use shared array here and then fast-copy to be more memory-efficient and GC-friendly
+      var rented = ArrayPool<Column>.Shared.Rent(Math.Max(leftHeader.Columns.Count, 64)); // reduce pool growth
+      var lastIndex = 0;
       for (int i = 0; i < leftHeader.Columns.Count; i++) {
         var leftColumn = leftHeader.Columns[i];
         var rightColumn = rightHeader.Columns[i];
-        if (leftColumn is MappedColumn && rightColumn is MappedColumn) {
-          var leftMappedColumn = (MappedColumn) leftColumn;
-          var rightMappedColumn = (MappedColumn) rightColumn;
+        if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
           if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-            columns.Add(leftMappedColumn);
+            rented[lastIndex++] = leftColumn;
             mappedColumnIndexes.Add(i);
-            }
-          else
-            columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+          }
+          else {
+            rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+          }
         }
-        else
-          columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+        else {
+          rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+        }
       }
+      var columns = new Column[lastIndex];
+      Array.Copy(rented, columns, lastIndex);
+      ArrayPool<Column>.Shared.Return(rented, true); // not sure we can make it false, becasue 
+
       var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
       return new RecordSetHeader(
         leftHeader.TupleDescriptor, 
-        columns, 
+        columns,
         columnGroups,
         null,
         null);

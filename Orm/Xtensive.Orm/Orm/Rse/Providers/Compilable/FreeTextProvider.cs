@@ -40,15 +40,11 @@ namespace Xtensive.Orm.Rse.Providers
         var primaryIndexKeyColumns = index.PrimaryIndex.KeyColumns;
         if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
-        var fieldTypes = primaryIndexKeyColumns
-          .Select(static columnInfo => columnInfo.Key.ValueType)
-          .Append(WellKnownTypes.Double)
-          .ToArray(primaryIndexKeyColumns.Count + 1);
+
+        var keyValueType = primaryIndexKeyColumns[0].Key.ValueType;
+        var fieldTypes = new Type[2] { keyValueType, WellKnownTypes.Double };
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-        var columns = primaryIndexKeyColumns
-          .Select(static (c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
-          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
-          .ToArray(primaryIndexKeyColumns.Count + 1);
+        var columns = new Column[2] { new MappedColumn("KEY", 0, keyValueType), new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double) };
         return new RecordSetHeader(tupleDescriptor, columns);
       }
     }
