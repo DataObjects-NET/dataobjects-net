@@ -15,7 +15,23 @@ namespace Xtensive.Orm.Rse.Transformation
   /// </summary>
   public sealed class ApplyProviderCorrector : IPreCompiler
   {
+    private static readonly Lazy<ApplyProviderCorrector> exceptionThrowingCorrector = new(() => new ApplyProviderCorrector(true));
+    private static readonly Lazy<ApplyProviderCorrector> silentCorrector = new(() => new ApplyProviderCorrector(false));
+
     private readonly bool throwOnCorrectionFault;
+
+    /// <summary>
+    /// Gets existing instance or creates new one and cache it.
+    /// </summary>
+    /// <param name="throwOnCorrectionFault">if set to <see langword="true"/> 
+    /// then <see cref="InvalidOperationException"/> will be thrown in case of 
+    /// the correction's fault; otherwise the origin <see cref="CompilableProvider"/> 
+    /// will be returned.</param>
+    public static ApplyProviderCorrector GetOrCreate(bool throwOnCorrectionFault) =>
+      (throwOnCorrectionFault)
+        ? exceptionThrowingCorrector.Value
+        : silentCorrector.Value;
+    
 
     /// <inheritdoc/>
     public CompilableProvider Process(CompilableProvider rootProvider)
@@ -33,7 +49,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// then <see cref="InvalidOperationException"/> will be thrown in case of 
     /// the correction's fault; otherwise the origin <see cref="CompilableProvider"/> 
     /// will be returned.</param>
-    public ApplyProviderCorrector(bool throwOnCorrectionFault)
+    private ApplyProviderCorrector(bool throwOnCorrectionFault)
     {
       this.throwOnCorrectionFault = throwOnCorrectionFault;
     }
