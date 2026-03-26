@@ -63,19 +63,19 @@ namespace Xtensive.Orm.Rse.Providers
 
     private void AppendTitleTo(StringBuilder sb, int indent)
     {      
-      sb.Append(TitleToString().Indent(indent))
+      _ = sb.Append(TitleToString().Indent(indent))
         .AppendLine();
     }
 
     private string TitleToString()
     {
       var sb = new StringBuilder();
-      string providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
-      string parameters = ParametersToString();
+      var providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
+      var parametersAsString = ParametersToString();
 
-      sb.Append(providerName);
-      if (!parameters.IsNullOrEmpty()) {
-        sb.AppendFormat(ToString_Parameters, parameters);
+      _ = sb.Append(providerName);
+      if (!parametersAsString.IsNullOrEmpty()) {
+        _ = sb.AppendFormat(ToString_Parameters, parametersAsString);
       }
       return sb.ToString();
     }
@@ -85,10 +85,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// for the <see cref="ToString"/> method.
     /// </summary>
     /// <returns>Provider parameters as a single line string.</returns>
-    protected virtual string ParametersToString()
-    {
-      return string.Empty;
-    }
+    protected virtual string ParametersToString() => string.Empty;
 
     #endregion
 
@@ -104,8 +101,10 @@ namespace Xtensive.Orm.Rse.Providers
     protected Provider(ProviderType type, RecordSetHeader header, Provider[] sources)
     {
       Type = type;
-      Header = header;
-      Sources = sources;
+      Header = header ?? throw new ArgumentNullException(nameof(header));
+      Sources = (sources.Any(p => p is null))
+        ? throw new ArgumentNullException(nameof(header))
+        : sources;
     }
   }
 }
