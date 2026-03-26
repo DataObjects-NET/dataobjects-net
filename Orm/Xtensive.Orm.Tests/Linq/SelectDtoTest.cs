@@ -25,8 +25,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [HierarchyRoot]
-    public class Manager
-      : Entity
+    public class Manager : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -36,11 +35,15 @@ namespace Xtensive.Orm.Tests.Linq
 
       [Field,Association(PairTo = "Manager")]
       public EntitySet<Person> Persons { get; private set; }
+
+      public Manager(Session session)
+        : base(session)
+      {
+      }
     }
 
     [HierarchyRoot]
-    public class Person
-     : Entity
+    public class Person : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -56,6 +59,11 @@ namespace Xtensive.Orm.Tests.Linq
 
       [Field]
       public BudgetType? BudgetType { get; set; }
+
+      public Person(Session session)
+        : base(session)
+      {
+      }
     }
 
     public class ManagerDto
@@ -81,7 +89,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      config.Types.RegisterCaching(typeof(Person).Assembly, typeof(Person).Namespace);
       return config;
     }
 
@@ -90,7 +98,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var alex = new Person() { Name = "Alex" };
+        var alex = new Person(session) { Name = "Alex" };
         var query = session.Query.All<Person>()
           .Select(p => new PersonDto {Name = p.Name})
           .Where(personDto => personDto.Name == "Alex");
@@ -105,8 +113,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var person5 = new Person() {Name = "John", Tag = 5, BudgetType = BudgetType.Regional};
-        var personEmpty = new Person() {Name = "John"};
+        var person5 = new Person(session) {Name = "John", Tag = 5, BudgetType = BudgetType.Regional};
+        var personEmpty = new Person(session) {Name = "John"};
 
         var count = session.Query.All<Person>()
           .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Tag = p.Tag, BudgetType = p.BudgetType})
@@ -118,24 +126,58 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EnumTest()
     {
+      BudgetType budgetType = BudgetType.Regional;
+      BudgetType budgetTypeNotNullable = BudgetType.State;
+      BudgetType? budgetTypeNullable = BudgetType.Default;
+      BudgetType? nullBudgetType = null;
+
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        BudgetType budgetType = BudgetType.Regional;
-        BudgetType budgetTypeNotNullable = BudgetType.Regional;
-        BudgetType? budgetTypeNullable = BudgetType.Regional;
+        _ = new Person(session) { Name = "A", BudgetType = BudgetType.Default };
+        _ = new Person(session) { Name = "B", BudgetType = BudgetType.Default };
+        _ = new Person(session) { Name = "C", BudgetType = BudgetType.Regional };
+        _ = new Person(session) { Name = "D", BudgetType = BudgetType.State };
+        _ = new Person(session) { Name = "E" };
+        _ = new Person(session) { Name = "F" };
+        _ = new Person(session) { Name = null };
+        _ = new Person(session) { Name = null };
+
+        session.SaveChanges();
+
         Expression<Func<Person, bool>> filterExpression = p => p.BudgetType == budgetType;
+        var regionalBudgetPeople = session.Query.All<Person>().Where(filterExpression).ToList();
+        Assert.That(regionalBudgetPeople.Count, Is.EqualTo(1));
+        Assert.That(regionalBudgetPeople[0].Name, Is.EqualTo("C"));
+
+        Expression<Func<Person, bool>> filterNotNullableExpression = p => p.BudgetType == budgetTypeNotNullable;
+        var stateBudgetPeople = session.Query.All<Person>().Where(filterNotNullableExpression).ToList();
+        Assert.That(stateBudgetPeople.Count, Is.EqualTo(1));
+        Assert.That(stateBudgetPeople[0].Name, Is.EqualTo("D"));
+       
         Expression<Func<Person, bool>> filterNullableExpression = p => p.BudgetType == budgetTypeNullable;
-        Expression<Func<Person, bool>> filterNotNullableExpression = p => budgetTypeNotNullable == budgetType;
+        var defaultBudgetPeople = session.Query.All<Person>().Where(filterNullableExpression).ToList();
+        Assert.That(defaultBudgetPeople.Count, Is.EqualTo(2));
+        Assert.That(defaultBudgetPeople[0].Name, Is.EqualTo("A").Or.EqualTo("B"));
+        Assert.That(defaultBudgetPeople[1].Name, Is.EqualTo("A").Or.EqualTo("B"));
+
+        Expression<Func<Person, bool>> filterNullExpression = p => p.BudgetType == nullBudgetType;
+        var undefinedBudgetPeople = session.Query.All<Person>().Where(filterNullExpression).ToList();
+        Assert.That(undefinedBudgetPeople.Count, Is.EqualTo(4));
+        foreach (var person in undefinedBudgetPeople) {
+          Assert.That(undefinedBudgetPeople[0].Name, Is.EqualTo("E").Or.EqualTo("F").Or.EqualTo(null));
+        }
+
         Expression<Func<Person, BudgetType?>> propertyExpression = p => p.BudgetType;
         var valueExpression = Expression.Convert(Expression.Constant(budgetType), typeof(BudgetType?));
         var body = Expression.Convert(propertyExpression.Body, typeof(BudgetType?));
-        Expression<Func<Person, bool>> customFilterExpression = Expression.Lambda<Func<Person, bool>>(
+        var customFilterExpression = Expression.Lambda<Func<Person, bool>>(
           Expression.Equal(body, valueExpression),
           propertyExpression.Parameters);
-        var persons = session.Query.All<Person>().Where(filterExpression).ToList();
-        var customPersons = session.Query.All<Person>().Where(customFilterExpression).ToList();
+        var customFilterExpressionResults = session.Query.All<Person>().Where(customFilterExpression).ToList();
+        Assert.That(customFilterExpressionResults.OrderBy(p => p.Id).SequenceEqual(regionalBudgetPeople.OrderBy(p => p.Id)), Is.True);
+
         var func = customFilterExpression.Compile();
-        func(new Person() {BudgetType = BudgetType.Regional});
+        Assert.That(func(new Person(session) {BudgetType = BudgetType.Regional}),Is.True);
       }
     }
 
@@ -144,14 +186,14 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var manager1 = new Manager() {Name = "M0"};
-        var manager2 = new Manager() {Name = "M0"};
-        new Person() { Name = "A", Manager = manager1};
-        new Person() { Name = "B", Manager = manager1};
-        new Person() { Name = "C", Manager = manager2};
-        new Person() { Name = "D", Manager = manager2};
-        new Person() { Name = "E" };
-        new Person() { Name = "F" };
+        var manager1 = new Manager(session) {Name = "M0"};
+        var manager2 = new Manager(session) {Name = "M0"};
+        _ = new Person(session) { Name = "A", Manager = manager1};
+        _ = new Person(session) { Name = "B", Manager = manager1};
+        _ = new Person(session) { Name = "C", Manager = manager2};
+        _ = new Person(session) { Name = "D", Manager = manager2};
+        _ = new Person(session) { Name = "E" };
+        _ = new Person(session) { Name = "F" };
         
         var query = session.Query.All<Person>()
           .Select(p => new PersonDto {
@@ -169,12 +211,12 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Person() {Name = "A", BudgetType = BudgetType.Default};
-        new Person() {Name = "B", BudgetType = BudgetType.Default};
-        new Person() {Name = "C", BudgetType = BudgetType.Regional};
-        new Person() {Name = "D", BudgetType = BudgetType.State};
-        new Person() {Name = "E"};
-        new Person() {Name = "F"};
+        _ = new Person(session) {Name = "A", BudgetType = BudgetType.Default};
+        _ = new Person(session) {Name = "B", BudgetType = BudgetType.Default};
+        _ = new Person(session) {Name = "C", BudgetType = BudgetType.Regional};
+        _ = new Person(session) {Name = "D", BudgetType = BudgetType.State};
+        _ = new Person(session) {Name = "E"};
+        _ = new Person(session) {Name = "F"};
 
         var types = session.Query.All<Person>()
           .Select(p => p.BudgetType)
@@ -203,24 +245,33 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Person() { Name = "A", BudgetType = BudgetType.Default };
-        new Person() { Name = "B", BudgetType = BudgetType.Default };
-        new Person() { Name = "C", BudgetType = BudgetType.Regional };
-        new Person() { Name = "D", BudgetType = BudgetType.State };
-        new Person() { Name = "E" };
-        new Person() { Name = "F" };
-        new Person() { Name = null };
-        new Person() { Name = null };
+        _ = new Person(session) { Name = "A", BudgetType = BudgetType.Default };
+        _ = new Person(session) { Name = "B", BudgetType = BudgetType.Default };
+        _ = new Person(session) { Name = "C", BudgetType = BudgetType.Regional };
+        _ = new Person(session) { Name = "D", BudgetType = BudgetType.State };
+        _ = new Person(session) { Name = "E" };
+        _ = new Person(session) { Name = "F" };
+        _ = new Person(session) { Name = null };
+        _ = new Person(session) { Name = null };
 
         var selectedMethod = session.Query.All<Person>()
           .Select(p => new PersonDto() {Id = p.Id, Name = p.Name, Description = GetDescription(p)})
           .OrderBy(x => x.Name)
           .ToList();
 
+        Assert.That(selectedMethod.Count, Is.EqualTo(8));
+        Assert.That(selectedMethod[0].Name, Is.Null);
+        Assert.That(selectedMethod[1].Name, Is.Null);
+        Assert.That(selectedMethod.Skip(2).Select(dto => dto.Name).SequenceEqual(new[] { "A", "B", "C", "D", "E", "F" }), Is.True);
+
         var selectedMethod2 = session.Query.All<Person>()
          .Select(p => new PersonDto() { Id = p.Id, Name = p.Name, Description = p.Name ?? GetDescription(p) })
          .Where(x => x.Name == null)
          .ToList();
+
+        Assert.That(selectedMethod2.Count, Is.EqualTo(2));
+        Assert.That(selectedMethod2[0].Name, Is.Null);
+        Assert.That(selectedMethod2[1].Name, Is.Null);
       }
     }
 
@@ -230,18 +281,18 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var manager = new Manager() {
+        var manager = new Manager(session) {
           Name = "Manager"
         };
-        var looser = new Manager() {
+        var looser = new Manager(session) {
           Name = "Looser"
         };
-        new Person() { Name = "A", BudgetType = BudgetType.Default, Manager = manager};
-        new Person() { Name = "B", BudgetType = BudgetType.Default, Manager = manager};
-        new Person() { Name = "C", BudgetType = BudgetType.Regional, Manager = manager };
-        new Person() { Name = "D", BudgetType = BudgetType.State, Manager = manager };
-        new Person() { Name = "E" };
-        new Person() { Name = "F" };
+        _ = new Person(session) { Name = "A", BudgetType = BudgetType.Default, Manager = manager};
+        _ = new Person(session) { Name = "B", BudgetType = BudgetType.Default, Manager = manager};
+        _ = new Person(session) { Name = "C", BudgetType = BudgetType.Regional, Manager = manager };
+        _ = new Person(session) { Name = "D", BudgetType = BudgetType.State, Manager = manager };
+        _ = new Person(session) { Name = "E" };
+        _ = new Person(session) { Name = "F" };
 
         var list = session.Query.All<Manager>()
           .Select(m => new { Entity = m, FirstPerson = m.Persons.FirstOrDefault() })
@@ -250,6 +301,14 @@ namespace Xtensive.Orm.Tests.Linq
               FirstPersonId = g.FirstPerson != null ? (int?)g.FirstPerson.Id : null,
             })
           .ToList();
+
+        Assert.That(list.Count, Is.EqualTo(2));
+        foreach(var dto in list) {
+          var constraint = (dto.Id == looser.Id)
+            ? Is.Null
+            : Is.Not.Null;
+          Assert.That(dto.FirstPersonId, constraint);
+        }
       }
     }
 

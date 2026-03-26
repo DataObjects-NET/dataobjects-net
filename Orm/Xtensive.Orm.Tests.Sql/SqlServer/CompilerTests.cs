@@ -40,8 +40,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     public void TearDown()
     {
       try {
-        if ((sqlConnection!=null) && (sqlConnection.State!=ConnectionState.Closed))
+        if ((sqlConnection!=null) && (sqlConnection.State!=ConnectionState.Closed)) {
           sqlConnection.Close();
+        }
+        sqlConnection?.Dispose();
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);

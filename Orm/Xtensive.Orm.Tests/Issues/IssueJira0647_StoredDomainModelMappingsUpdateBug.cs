@@ -535,7 +535,7 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.ConnectionInitializationSql = nodeConfig.InitializationSql;
       configuration.UpgradeMode = upgradeMode;
       configuration.DefaultSchema = nodeConfig.DefaultSchema;
-      configuration.Types.Register(modelType.Assembly, modelType.Namespace);
+      configuration.Types.RegisterCaching(modelType.Assembly, modelType.Namespace);
       return configuration;
     }
 

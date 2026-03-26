@@ -2,6 +2,8 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Localization.Tests.Model;
+using English = Xtensive.Orm.Localization.Tests.WellKnownCultures.English;
+using Spanish = Xtensive.Orm.Localization.Tests.WellKnownCultures.Spanish;
 
 namespace Xtensive.Orm.Localization.Tests
 {
@@ -16,14 +18,14 @@ namespace Xtensive.Orm.Localization.Tests
           var welcomePage = new Page(session);
 
           // Editing localizable properties through CurrentThread.CurrentCulture
-          Thread.CurrentThread.CurrentCulture = EnglishCulture;
-          welcomePage.Title = EnglishTitle;
-          welcomePage.Content = EnglishContent;
+          Thread.CurrentThread.CurrentCulture = English.Culture;
+          welcomePage.Title = English.Title;
+          welcomePage.Content = English.Content;
 
           // The same entity, the same properties, but another culture
-          Thread.CurrentThread.CurrentCulture = SpanishCulture;
-          welcomePage.Title = SpanishTitle;
-          welcomePage.Content = SpanishContent;
+          Thread.CurrentThread.CurrentCulture = Spanish.Culture;
+          welcomePage.Title = Spanish.Title;
+          welcomePage.Content = Spanish.Content;
 
           ts.Complete();
         }
@@ -37,13 +39,13 @@ namespace Xtensive.Orm.Localization.Tests
           Assert.AreEqual(2, session.Query.All<PageLocalization>().Count());
 
           var page = session.Query.All<Page>().First();
-          Thread.CurrentThread.CurrentCulture = EnglishCulture;
-          Assert.AreEqual(EnglishTitle, page.Title);
-          Assert.AreEqual(EnglishContent, page.Content);
+          Thread.CurrentThread.CurrentCulture = English.Culture;
+          Assert.AreEqual(English.Title, page.Title);
+          Assert.AreEqual(English.Content, page.Content);
 
-          Thread.CurrentThread.CurrentCulture = SpanishCulture;
-          Assert.AreEqual(SpanishTitle, page.Title);
-          Assert.AreEqual(SpanishContent, page.Content);
+          Thread.CurrentThread.CurrentCulture = Spanish.Culture;
+          Assert.AreEqual(Spanish.Title, page.Title);
+          Assert.AreEqual(Spanish.Content, page.Content);
 
           ts.Complete();
         }

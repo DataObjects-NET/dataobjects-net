@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
+      config.Types.RegisterCaching(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
       config.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
@@ -24,13 +25,12 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
-    private readonly static System.Type TagProviderType = typeof(TagProvider);
-
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
+    private readonly Dictionary<MemberInfo, int> queryReuses;
 
     public CompilerConfiguration RseCompilerConfiguration { get; }
 
@@ -54,30 +54,19 @@ namespace Xtensive.Orm.Linq
 
     public LinqBindingCollection Bindings { get; }
 
-    public bool IsRoot(Expression expression)
-    {
-      return Query==expression;
-    }
+    public IReadOnlyList<string> SessionTags { get; private set; }
 
-    public string GetNextAlias()
-    {
-      return resultAliasGenerator.Next();
-    }
+    public bool IsRoot(Expression expression) => Query == expression;
 
-    public string GetNextColumnAlias()
-    {
-      return columnAliasGenerator.Next();
-    }
+    public string GetNextAlias() => resultAliasGenerator.Next();
 
-    public ApplyParameter GetApplyParameter(ProjectionExpression projection)
-    {
-      return GetApplyParameter(projection.ItemProjector.DataSource);
-    }
+    public string GetNextColumnAlias() => columnAliasGenerator.Next();
+
+    public ApplyParameter GetApplyParameter(ProjectionExpression projection) => GetApplyParameter(projection.ItemProjector.DataSource);
 
     public ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
-      ApplyParameter parameter;
-      if (!applyParameters.TryGetValue(provider, out parameter)) {
+      if (!applyParameters.TryGetValue(provider, out var parameter)) {
         parameter = new ApplyParameter(provider.GetType().GetShortName());
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
@@ -87,26 +76,28 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    public IReadOnlyList<string> GetAllTags()
-    {
-      if (Domain.Configuration.TagsLocation == TagsLocation.Nowhere)
-        return Array.Empty<string>();
+    public IReadOnlyList<string> GetMainQueryTags() =>
+      Domain.TagsEnabled
+        ? applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList()
+        : Array.Empty<string>();
 
-      return applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
+    public IDisposable DisableSessionTags()
+    {
+      var originalTags = SessionTags;
+      SessionTags = null;
+      return new Disposable((b) => SessionTags = originalTags);
     }
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
     {
-      ApplyParameter parameter;
-      if (applyParameters.TryGetValue(old, out parameter)) {
+      if (applyParameters.TryGetValue(old, out var parameter)) {
         applyParameters[@new] = parameter;
       }
     }
 
     public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
     {
-      Parameter<Tuple> parameter;
-      if (!tupleParameters.TryGetValue(expression, out parameter)) {
+      if (!tupleParameters.TryGetValue(expression, out var parameter)) {
         parameter = new Parameter<Tuple>(expression.ToString());
         tupleParameters.Add(expression, parameter);
       }
@@ -115,18 +106,30 @@ namespace Xtensive.Orm.Linq
 
     public ItemProjectorExpression GetBoundItemProjector(ParameterExpression parameter, ItemProjectorExpression itemProjector)
     {
-      ItemProjectorExpression result;
-      if (!boundItemProjectors.TryGetValue(parameter, out result)) {
+      if (!boundItemProjectors.TryGetValue(parameter, out var result)) {
         result = itemProjector.BindOuterParameter(parameter);
         boundItemProjectors.Add(parameter, result);
       }
       return result;
     }
 
+    public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
+    {
+      _ = queryReuses.TryAdd(memberInfo, 0);
+    }
+
+    public bool CheckIfQueryReusePossible(MemberInfo memberInfo)
+    {
+      if (queryReuses.TryGetValue(memberInfo, out var uses)) {
+        queryReuses[memberInfo] = uses + 1;
+        return uses > 0;
+      }
+      return false;
+    }
+
     private Expression ApplyPreprocessor(IQueryPreprocessor preprocessor, Session session, Expression query)
     {
-      var preprocessor2 = preprocessor as IQueryPreprocessor2;
-      return preprocessor2!=null
+      return preprocessor is IQueryPreprocessor2 preprocessor2
         ? preprocessor2.Apply(session, query)
         : preprocessor.Apply(query);
     }
@@ -142,6 +145,7 @@ namespace Xtensive.Orm.Linq
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
+      SessionTags = (Domain.TagsEnabled) ? session.Tags : null;
 
       // Applying query preprocessors
       query = Domain.Handler.QueryPreprocessors
@@ -169,6 +173,7 @@ namespace Xtensive.Orm.Linq
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
       tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
       boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
+      queryReuses = new Dictionary<MemberInfo, int>();
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration =  base.BuildConfiguration();
-      configuration.Types.Register(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void NonPairedEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void PairedEnitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void RemoveFromEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void RemoveFromPairedEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;

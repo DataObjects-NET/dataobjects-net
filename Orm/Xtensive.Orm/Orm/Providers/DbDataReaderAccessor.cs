@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    internal DbDataReaderAccessor(TupleDescriptor descriptor, IEnumerable<TypeMapping> mappings)
+    internal DbDataReaderAccessor(in TupleDescriptor descriptor, IEnumerable<TypeMapping> mappings)
     {
       Descriptor = descriptor;
       this.mappings = mappings.ToArray();

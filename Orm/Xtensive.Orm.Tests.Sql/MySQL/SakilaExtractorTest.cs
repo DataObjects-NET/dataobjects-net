@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -100,25 +100,21 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       return SqlDriver.Compile(statement);
     }
 
-    private static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
+    private DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
     {
       DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try
-      {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+      SqlConnection.BeginTransaction();
+      try {
+        cmd.Transaction = SqlConnection.ActiveTransaction;
         int rowCount = 0;
         int fieldCount = 0;
         string[] fieldNames = new string[0];
-        using (IDataReader reader = cmd.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            if (rowCount == 0)
-            {
+        using (IDataReader reader = cmd.ExecuteReader()) {
+          while (reader.Read()) {
+            if (rowCount == 0) {
               fieldCount = reader.FieldCount;
               fieldNames = new string[fieldCount];
-              for (int i = 0; i < fieldCount; i++)
-              {
+              for (int i = 0; i < fieldCount; i++) {
                 fieldNames[i] = reader.GetName(i);
               }
             }
@@ -129,30 +125,22 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         result.FieldCount = fieldCount;
         result.FieldNames = fieldNames;
       }
-      //      catch (Exception e) {
-      //        Console.WriteLine(e);
-      //      }
-      finally
-      {
-        cmd.Transaction.Rollback();
+      finally {
+        SqlConnection.Rollback();
       }
       return result;
     }
 
-    private static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
+    private DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
       DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try
-      {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
+      SqlConnection.BeginTransaction();
+      try {
+        cmd.Transaction = SqlConnection.ActiveTransaction;
         result.RowCount = cmd.ExecuteNonQuery();
       }
-      //      catch (Exception e) {
-      //        Console.WriteLine(e);
-      //      }
-      finally
-      {
-        cmd.Transaction.Rollback();
+      finally {
+        SqlConnection.Rollback();
       }
       return result;
     }
@@ -746,7 +734,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       SqlSelect select = SqlDml.Select(customer);
       select.Columns.Add(customer["last_name"]);
-      select.OrderBy.Add(SqlDml.Collate(customer["last_name"], schema.CreateCollation("utf8_general_ci")));
+      var collation = schema.Collations["utf8_general_ci"] ?? schema.CreateCollation("utf8_general_ci");
+      select.OrderBy.Add(SqlDml.Collate(customer["last_name"], collation));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }

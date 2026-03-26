@@ -301,9 +301,9 @@ namespace Xtensive.Orm
 
     public static bool operator==(Structure left, Structure right)
     {
-      if (!ReferenceEquals(left, null))
+      if (left is not null)
         return left.Equals(right);
-      return ReferenceEquals(right, null);
+      return right is null;
     }
 
     public static bool operator !=(Structure left, Structure rigth)
@@ -334,12 +334,12 @@ namespace Xtensive.Orm
       if (thisIsBound) {
         EnsureIsFetched(Field);
         if (Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
-          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+          throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, Entity.TypeInfo.Name));
       }
       if (otherIsBound) {
         other.EnsureIsFetched(other.Field);
         if (other.Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
-          throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+          throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, other.Entity.TypeInfo.Name));
       }
       return Equals(Tuple, other.Tuple);
     }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.09.02
 
@@ -145,12 +145,18 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void Test(int count)
     {
-      using (warmup ? new Disposable(delegate { }) :
-        TestLog.InfoRegion("With boxing"))
+      if (warmup) {
         TestTupleAccess(new BoxingTuple(), count);
-      using (warmup ? new Disposable(delegate { }) :
-        TestLog.InfoRegion("Without boxing"))
         TestTupleAccess(new NonBoxingTuple(), count);
+      }
+      else {
+        using(TestLog.InfoRegion("With boxing")) {
+          TestTupleAccess(new BoxingTuple(), count);
+        }
+        using (TestLog.InfoRegion("Without boxing")) {
+          TestTupleAccess(new NonBoxingTuple(), count);
+        }
+      }
     }
 
     private void TestTupleAccess(TestTuple tuple, int count)

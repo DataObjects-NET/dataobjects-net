@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.System) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.System)
           : (Attributes & ~FieldAttributes.System);
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.SkipVersion) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.SkipVersion)
           : (Attributes & ~FieldAttributes.SkipVersion);
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.Declared) > 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Declared) & ~FieldAttributes.Inherited
           : (Attributes & ~FieldAttributes.Declared) | FieldAttributes.Inherited;
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Enum) > 0; }
       private set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Enum)
           : (Attributes & ~FieldAttributes.Enum);
@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.Inherited) > 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Inherited) & ~FieldAttributes.Declared
           : (Attributes & ~FieldAttributes.Inherited) | FieldAttributes.Declared;
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.PrimaryKey) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.PrimaryKey : Attributes & ~FieldAttributes.PrimaryKey;
         if (column != null)
           column.IsPrimaryKey = true;
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.Explicit) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Explicit : Attributes & ~FieldAttributes.Explicit;
       }
     }
@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.InterfaceImplementation) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.InterfaceImplementation : Attributes & ~FieldAttributes.InterfaceImplementation;
       }
     }
@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.Nullable) != 0; }
       [DebuggerStepThrough]
       private set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
       }
     }
@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & FieldAttributes.LazyLoad) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
       }
     }
@@ -323,7 +323,7 @@ namespace Xtensive.Orm.Model
     {
       get { return originalName; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ValidateName(value);
         originalName = value;
       }
@@ -338,7 +338,7 @@ namespace Xtensive.Orm.Model
       get => valueType;
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         valueType = value;
         IsEnum = valueType.IsNullable()
           ? valueType.GetGenericArguments()[0].IsEnum
@@ -355,7 +355,7 @@ namespace Xtensive.Orm.Model
       get { return itemType; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         itemType = value;
       }
     }
@@ -369,7 +369,7 @@ namespace Xtensive.Orm.Model
       get { return length; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         length = value;
       }
     }
@@ -383,7 +383,7 @@ namespace Xtensive.Orm.Model
       get { return scale; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         scale = value;
       }
     }
@@ -397,7 +397,7 @@ namespace Xtensive.Orm.Model
       get { return precision; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         precision = value;
       }
     }
@@ -412,7 +412,7 @@ namespace Xtensive.Orm.Model
       get { return defaultValue; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultValue = value;
       }
     }
@@ -428,7 +428,7 @@ namespace Xtensive.Orm.Model
       get { return defaultSqlExpression; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultSqlExpression = value;
       }
     }
@@ -452,7 +452,7 @@ namespace Xtensive.Orm.Model
       get { return underlyingProperty; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         underlyingProperty = value;
       }
     }
@@ -474,7 +474,7 @@ namespace Xtensive.Orm.Model
       get { return parent; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
         parent = value;
         parent.Fields.Add(this);
@@ -498,7 +498,7 @@ namespace Xtensive.Orm.Model
       get { return reflectedType; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         reflectedType = value;
       }
     }
@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Model
       get { return declaringType; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         declaringType = value;
       }
     }
@@ -531,7 +531,7 @@ namespace Xtensive.Orm.Model
       get { return column; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         column = value;
       }
     }
@@ -570,7 +570,7 @@ namespace Xtensive.Orm.Model
       get { return adapterIndex; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         adapterIndex = value;
       }
     }
@@ -583,7 +583,7 @@ namespace Xtensive.Orm.Model
     {
       get { return validators; }
       internal set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         validators = value;
       }
     }
@@ -624,15 +624,10 @@ namespace Xtensive.Orm.Model
 
         var result = new ColumnInfoCollection(this, "Columns");
         GetColumns(result);
+        columns = result;
         return result;
       }
     }
-
-    /// <summary>
-    /// Gets a value indicating whether field is dynamically defined.
-    /// </summary>
-    [Obsolete("Use IsDynamicallyDefined property")]
-    public bool IsDynalicallyDefined => IsDynamicallyDefined;
 
     /// <summary>
     /// Gets a value indicating whether field is dynamically defined.
@@ -657,8 +652,8 @@ namespace Xtensive.Orm.Model
       Fields.UpdateState();
       if (column != null)
         column.UpdateState();
-      columns = new ColumnInfoCollection(this, "Columns");
-      GetColumns(columns);
+      columns?.Clear();           // To prevent event handler leak
+      columns = null;
 
       HasImmediateValidators = validators.Count > 0 && validators.Any(v => v.IsImmediate);
 
@@ -712,7 +707,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public bool Equals(FieldInfo obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

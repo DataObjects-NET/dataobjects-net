@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 
@@ -41,7 +40,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// <exception cref="ValidationException">Validation error.</exception>
     protected override void ValidateState()
     {
-      using (var ea = new ExceptionAggregator()) {
+      using (var ea = new Xtensive.Core.ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
         base.ValidateState();
 
@@ -63,7 +62,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });
-        if (all.Zip(tableColumns).Where(p => p.First!=p.Second).Any())
+        if (all.Zip(tableColumns, (first, second) => new {First = first, Second = second }).Where(p => p.First!=p.Second).Any())
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });

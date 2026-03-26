@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

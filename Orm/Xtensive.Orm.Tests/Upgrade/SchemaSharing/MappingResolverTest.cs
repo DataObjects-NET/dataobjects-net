@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     {
       var domainConfiguration = DomainConfigurationFactory.Create();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
       using (var domain = Domain.Build(domainConfiguration)) {
         var node = domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
         var nodeConfiguration = node.Configuration;
@@ -158,10 +158,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
       var domainConfiguration = DomainConfigurationFactory.Create();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
 
       domainConfiguration.MappingRules.Map(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace).ToSchema(Schema1);
       domainConfiguration.MappingRules.Map(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace).ToSchema(Schema1);
@@ -267,10 +267,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       var domainConfiguration = DomainConfigurationFactory.Create();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      domainConfiguration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
 
       domainConfiguration.MappingRules.Map(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace).ToSchema(Schema1);
       domainConfiguration.MappingRules.Map(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace).ToSchema(Schema1);
@@ -379,10 +379,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
       var domainConfiguration = DomainConfigurationFactory.Create();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
 
       _ = domainConfiguration.Databases.Add(DOTests1Db);
       _ = domainConfiguration.Databases.Add(DOTests2Db);
@@ -540,10 +540,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
       var domainConfiguration = DomainConfigurationFactory.Create();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.Types.Register(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
-      domainConfiguration.Types.Register(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace);
 
       _ = domainConfiguration.Databases.Add(DOTests1Db);
       _ = domainConfiguration.Databases.Add(DOTests2Db);

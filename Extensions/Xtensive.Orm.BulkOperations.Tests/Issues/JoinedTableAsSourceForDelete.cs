@@ -1,11 +1,14 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.BulkOperations.Tests.Issues.WrongAliassesIssue;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.BulkOperations.Tests.Issues
 {
   public class JoinedTableAsSourceForOperationsCauseWrongAliases : BulkOperationBaseTest
   {
+    protected override void CheckRequirements() => Require.ProviderIsNot(StorageProvider.MySql);
+
     [Test]
     public void CustomerCase()
     {

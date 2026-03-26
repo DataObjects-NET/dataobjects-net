@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Firebird);
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Энимал).Assembly, typeof(Энимал).Namespace);
+      config.Types.RegisterCaching(typeof(Энимал).Assembly, typeof(Энимал).Namespace);
       var domain = Domain.Build(config);
       domain.Dispose();
     }

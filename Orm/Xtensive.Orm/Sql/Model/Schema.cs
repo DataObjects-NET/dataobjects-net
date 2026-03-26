@@ -190,7 +190,7 @@ namespace Xtensive.Sql.Model
         return null;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (defaultCharacterSet == value)
           return;
         if (value!=null && !CharacterSets.Contains(value))

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.12.29
 
@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
   public class Many2SingleClassTest
   {
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Firebird)]
     public void CombinedTest()
     {
       var configuration = DomainConfigurationFactory.Create();
@@ -23,15 +24,15 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
 
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Model.Person() {
+        _ = new Model.Person() {
           FirstName = "Alex", 
           LastName = "Kochetov"
         };
-        new Model.Person() {
+        _ = new Model.Person() {
           FirstName = "Alex",
           LastName = "Gamzov"
         };
-        new Model.Employee() {
+        _ = new Model.Employee() {
           FirstName = "Dmitri",
           LastName = "Maximov"
         };

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -22,11 +22,41 @@ namespace Xtensive.Orm
   public static partial class QueryableExtensions
   {
     /// <summary>
+    /// A wrapper to transform non-<see cref="IAsyncEnumerable{T}"/>, yet based on <see cref="QueryProvider"/>,
+    /// <see cref="IQueryable{T}"/> implementation, such as <see cref="EntitySet{TItem}"/>, into <see cref="IAsyncEnumerable{T}"/>.
+    /// </summary>
+    private sealed class QueryAsAsyncEnumerable<T> : IAsyncEnumerable<T>
+    {
+      private readonly QueryProvider queryProvider;
+      private readonly Expression expression;
+
+      /// <inheritdoc/>
+      public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+      {
+        var result = await queryProvider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwait(false);
+        var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+        await foreach (var element in asyncSource) {
+          yield return element;
+        }
+      }
+
+      public QueryAsAsyncEnumerable(QueryProvider queryProvider, Expression expression)
+      {
+        this.queryProvider = queryProvider;
+        this.expression = expression;
+      }
+    }
+
+    /// <summary>
     /// Asynchronously determines whether all the elements of a sequence satisfy a condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> whose elements to test for a condition.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -46,9 +76,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously determines whether a sequence contains any elements.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to check for being empty.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
@@ -65,9 +99,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously determines whether any element of a sequence satisfies a condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> whose elements to test for a condition.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -85,14 +123,20 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
     }
 
+    #region AverageAsync
+
     // Average<int>
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -109,9 +153,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -129,9 +177,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -153,9 +205,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -178,9 +234,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -197,9 +257,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -217,9 +281,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -241,9 +309,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -266,9 +338,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -285,9 +361,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -305,9 +385,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -329,9 +413,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -354,9 +442,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -373,9 +465,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -393,9 +489,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -417,9 +517,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -442,9 +546,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -461,9 +569,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -481,9 +593,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -505,9 +621,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the average of a sequence of values that is obtained
     /// by invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to calculate the average of.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -525,14 +645,20 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    #endregion
+
     // Contains
 
     /// <summary>
     /// Asynchronously determines whether a sequence contains a specified element.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the ssingle element of.</param>
     /// <param name="item">The object to locate in the sequence.</param>
@@ -548,14 +674,18 @@ namespace Xtensive.Orm
         source, Expression.Constant(item, typeof(TSource)), cancellationToken);
     }
 
-    // Count
+    #region Count
 
     /// <summary>
     /// Asynchronously returns the number of elements in a sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains elements to be counted.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -572,9 +702,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously returns the number of elements in a sequence that satisfy a condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains elements to be counted.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -591,14 +725,22 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
+    #endregion
+
+    #region First, FirstOrDefault
+
     // First
 
     /// <summary>
     /// Asynchronously returns the first element of a sequence
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -615,9 +757,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously returns the first element of a sequence that satisfies a specified condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -640,9 +786,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns the first element of a sequence, or a default value if
     /// the sequence contains no elements.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -660,9 +810,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns the first element of a sequence that satisfies a specified
     /// condition or a default value if no such element is found.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -680,14 +834,21 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
+    #endregion
+
+    #region Last, LastOrDefault
     // Last
 
     /// <summary>
     /// Asynchronously returns the last element of a sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -704,9 +865,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously returns the last element of a sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -729,9 +894,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns the last element of a sequence, or a default value if
     /// the sequence contains no elements.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -749,9 +918,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns the last element of a sequence that satisfies a specified
     /// condition or a default value if no such element is found.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -769,15 +942,21 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
-    // LongCount
+    #endregion
+
+    #region LongCount
 
     /// <summary>
     /// Asynchronously returns an System.Int64 that represents the number of elements
     /// in a sequence that satisfy a condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements to be counted.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -795,9 +974,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns an System.Int64 that represents the number of elements
     /// in a sequence that satisfy a condition.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements to be counted.</param>
     /// <param name="predicate">A function to test each element for a condition.</param>
@@ -815,14 +998,22 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
+    #endregion
+
+    #region Min, Max
+
     // Max
 
     /// <summary>
     /// Asynchronously returns the maximum value of a sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the maximum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -840,9 +1031,13 @@ namespace Xtensive.Orm
     /// Asynchronously invokes a projection function on each element of a sequence and
     /// returns the maximum resulting value.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TResult">he type of the value returned by the function represented by selector.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the maximum of.</param>
@@ -865,9 +1060,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously returns the minimum value of a sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the minimum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -881,12 +1080,16 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// synchronously invokes a projection function on each element of a sequence and
+    /// Asynchronously invokes a projection function on each element of a sequence and
     /// returns the minimum resulting value.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TResult">The type of the value returned by the function represented by selector.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the minimum of.</param>
@@ -903,15 +1106,23 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    #endregion
+
+    #region Single, SingleOrDefault
+
     // Single
 
     /// <summary>
     /// Asynchronously returns the only element of a sequence that satisfies a specified
     /// condition, and throws an exception if more than one such element exists.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -929,9 +1140,13 @@ namespace Xtensive.Orm
     /// Asynchronously returns the only element of a sequence that satisfies a specified
     /// condition, and throws an exception if more than one such element exists.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
     /// <param name="predicate">A function to test an element for a condition.</param>
@@ -955,9 +1170,13 @@ namespace Xtensive.Orm
     /// the sequence is empty; this method throws an exception if there is more than
     /// one element in the sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -978,9 +1197,13 @@ namespace Xtensive.Orm
     /// the sequence is empty; this method throws an exception if there is more than
     /// one element in the sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
     /// <param name="predicate">A function to test an element for a condition.</param>
@@ -998,14 +1221,22 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
+    #endregion
+
+    #region Sum
+
     // Sum<int>
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1022,9 +1253,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1042,9 +1277,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1066,9 +1305,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1091,9 +1334,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1110,9 +1357,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1130,9 +1381,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1154,9 +1409,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1179,9 +1438,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1198,9 +1461,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1218,9 +1485,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1242,9 +1513,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1267,9 +1542,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1286,9 +1565,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1306,9 +1589,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1330,9 +1617,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1355,9 +1646,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1374,9 +1669,13 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <param name="source">A sequence of values to calculate the sum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
@@ -1394,9 +1693,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1418,9 +1721,13 @@ namespace Xtensive.Orm
     /// Asynchronously computes the sum of the sequence of values that is obtained by
     /// invoking a projection function on each element of the input sequence.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
     /// <param name="selector">A projection function to apply to each element.</param>
@@ -1438,7 +1745,9 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Collection methods
+    #endregion
+
+    #region Collection methods
 
     private static readonly MethodInfo TupleCreateMethod =
       typeof(Tuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -1448,9 +1757,13 @@ namespace Xtensive.Orm
     /// Asynchronously creates a <see cref="List{TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="List{TSource}"/> from.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -1472,9 +1785,13 @@ namespace Xtensive.Orm
     /// Asynchronously creates an array from an <see cref="IQueryable{TSource}"/> System.Linq.IQueryable`1
     /// by enumerating it asynchronously.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to create an array from.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -1488,9 +1805,13 @@ namespace Xtensive.Orm
     /// Creates a <see cref="Dictionary{TKey, TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously according to a specified key selector function.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TKey">>The type of the key returned by <paramref name="keySelector"/>.</typeparam>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="Dictionary{TKey, TSource}"/> from.</param>
@@ -1522,9 +1843,13 @@ namespace Xtensive.Orm
     /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously according to a specified key selector and value selector functions.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TKey">>The type of the key returned by <paramref name="keySelector"/>.</typeparam>
     /// <typeparam name="TValue">>The type of the key returned by <paramref name="valueSelector"/>.</typeparam>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
@@ -1560,9 +1885,13 @@ namespace Xtensive.Orm
     /// Asynchronously creates a <see cref="HashSet{TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="HashSet{TSource}"/> from.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
@@ -1574,7 +1903,7 @@ namespace Xtensive.Orm
       var hashSet = new HashSet<TSource>();
       var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
       await foreach (var element in asyncSource) {
-        hashSet.Add(element);
+        _ = hashSet.Add(element);
       }
 
       return hashSet;
@@ -1584,9 +1913,13 @@ namespace Xtensive.Orm
     /// Asynchronously creates a <see cref="ILookup{TKey, TSource}"/> from an <see cref="IQueryable{T}"/>
     /// by enumerating it asynchronously according to a specified key selector function.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="ILookup{TKey, TSource}"/> from.</param>
@@ -1613,9 +1946,13 @@ namespace Xtensive.Orm
     /// by enumerating it asynchronously according to a specified key selector and an
     /// element selector function.
     /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <remarks>
+    /// Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
+    /// another method in this session.
+    /// Notice that operation executes query so with some session options (like <see cref="Configuration.SessionOptions.ClientProfile"/>)
+    /// result may not include newly created or locally removed entities or their data. Save local changes for them to be taken into account.
+    /// </remarks>
     /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
     /// <typeparam name="TValue">The type of the value returned by <paramref name="valueSelector"/>.</typeparam>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
@@ -1641,6 +1978,8 @@ namespace Xtensive.Orm
       return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
+    #endregion
+
     /// <summary>
     /// Returns an <see cref="IAsyncEnumerable{TSource}"/> which can be enumerated asynchronously.
     /// </summary>
@@ -1654,8 +1993,12 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
-        return asyncEnumerable;
+      if (source is IAsyncEnumerable<TSource> nativeAsyncEnumerable) {
+        return nativeAsyncEnumerable;
+      }
+
+      if (source.Provider is QueryProvider doProvider) {
+        return new QueryAsAsyncEnumerable<TSource>(doProvider, source.Expression);
       }
 
       throw new InvalidOperationException("Query can't be executed asynchronously.");

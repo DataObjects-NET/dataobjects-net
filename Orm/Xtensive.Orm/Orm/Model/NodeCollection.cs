@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Model
     [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
 
-    protected Dictionary<string, TNode> NameIndex = new Dictionary<string, TNode>();
+    protected readonly Dictionary<string, TNode> NameIndex;
     
     /// <summary>
     /// Gets empty collection.
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TNode> nodes)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (var node in nodes) {
         Add(node);
       }
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach(var item in this) {
         TryUnsubscribe(item);
       }
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Model
     {
       if (this==Empty)
         return;
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (TNode node in this)
         node.UpdateState();
     }
@@ -221,8 +221,14 @@ namespace Xtensive.Orm.Model
     /// <param name="owner">The owner.</param>
     /// <param name="name">The name.</param>
     public NodeCollection(Node owner, string name)
+      : this(owner, name, new Dictionary<string, TNode>())
+    {
+    }
+
+    protected NodeCollection(Node owner, string name, Dictionary<string, TNode> nameIndex)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      NameIndex = nameIndex;
       Owner = owner;
       Name = name;
       itemChangingHandler = OnItemChanging;

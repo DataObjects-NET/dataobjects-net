@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj)) {
+        if (obj is null) {
           return false;
         }
         if (obj.GetType() != typeof (RootContainerCacheKey)) {
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private const int MaxContainerCount = 120;
     private const int ColumnIndexesCacheSize = 256;
 
-    private readonly HashSet<GraphContainer> graphContainers = new HashSet<GraphContainer>();
+    private readonly Dictionary<(Key key, TypeInfo type), GraphContainer> graphContainers = new Dictionary<(Key key, TypeInfo type), GraphContainer>();
     private readonly ICache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
     private readonly Fetcher fetcher;
     private readonly Session session;
@@ -177,9 +177,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
       try {
         var batchExecuted =
-          await fetcher.ExecuteTasks(graphContainers, skipPersist, isAsync, token).ConfigureAwait(false);
+          await fetcher.ExecuteTasks(graphContainers.Values, skipPersist, isAsync, token).ConfigureAwait(false);
         TaskExecutionCount += batchExecuted;
-        foreach (var graphContainer in graphContainers) {
+        foreach (var graphContainer in graphContainers.Values) {
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         }
         return referenceContainer;
@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
       }
 
-      if (type.GetInterfaces(true).Contains(key.TypeReference.Type)
-        || key.TypeReference.Type.GetInterfaces(true).Contains(type)) {
+      if (type.AllInterfaces.Contains(key.TypeReference.Type)
+        || key.TypeReference.Type.AllInterfaces.Contains(type)) {
         return;
       }
 
@@ -313,15 +313,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private GraphContainer GetGraphContainer(Key key, TypeInfo type, bool exactType)
-    {
-      var newTaskContainer = new GraphContainer(key, type, exactType, this);
-      if (!graphContainers.TryGetValue(newTaskContainer, out var registeredTaskContainer)) {
-        _ = graphContainers.Add(newTaskContainer);
-        return newTaskContainer;
-      }
-      return registeredTaskContainer;
-    }
+    private GraphContainer GetGraphContainer(Key key, TypeInfo type, bool exactType) =>
+      graphContainers.GetValueOrDefault((key, type))
+        ?? (graphContainers[(key, type)] = new GraphContainer(key, type, exactType, this));
 
     private static IEnumerable<ColumnInfo> ExtractColumns(IEnumerable<PrefetchFieldDescriptor> descriptors)
     {

@@ -203,8 +203,8 @@ namespace Xtensive.Orm.Tests.Configuration
 
       var good = configuration.Clone();
       good.IgnoreRules.Clear();
-      good.IgnoreRules.IgnoreTable("ignored-table").WhenDatabase("Other-DO40-Test").WhenSchema("dbo");
-      good.IgnoreRules.IgnoreColumn("ignored-column");
+      _ = good.IgnoreRules.IgnoreTable("ignored-table").WhenDatabase("Other-DO40-Test").WhenSchema("dbo");
+      _ = good.IgnoreRules.IgnoreColumn("ignored-column");
       good.Lock();
     }
 
@@ -382,13 +382,136 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
       Assert.That(configuration.DefaultSchema, Is.EqualTo("dbo"));
-      Assert.That(configuration.IgnoreRules.Count, Is.EqualTo(11));
-      var rule = configuration.IgnoreRules[0];
+
+      var rules = configuration.IgnoreRules;
+      Assert.That(rules.Count, Is.EqualTo(18));
+
+      var rule = rules[0];
       Assert.That(rule.Database, Is.EqualTo("Other-DO40-Tests"));
-      var rule2 = configuration.IgnoreRules[2];
-      Assert.That(rule2.Schema, Is.EqualTo("some-schema3"));
-      Assert.That(rule2.Table, Is.EqualTo("table2"));
-      Assert.That(rule2.Column, Is.EqualTo("col3"));
+      Assert.That(rule.Schema, Is.EqualTo("some-schema1"));
+      Assert.That(rule.Table, Is.EqualTo("table1"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[1];
+      Assert.That(rule.Database, Is.EqualTo("some-database"));
+      Assert.That(rule.Schema, Is.EqualTo("some-schema2"));
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.EqualTo("column2"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[2];
+      Assert.That(rule.Database, Is.EqualTo("some-database"));
+      Assert.That(rule.Schema, Is.EqualTo("some-schema2"));
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("index2"));
+
+      rule = rules[3];
+      Assert.That(rule.Database, Is.EqualTo("some-database"));
+      Assert.That(rule.Schema, Is.EqualTo("some-schema3"));
+      Assert.That(rule.Table, Is.EqualTo("table2"));
+      Assert.That(rule.Column, Is.EqualTo("col3"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[4];
+      Assert.That(rule.Database, Is.EqualTo("some-database"));
+      Assert.That(rule.Schema, Is.EqualTo("some-schema3"));
+      Assert.That(rule.Table, Is.EqualTo("table2"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("index3"));
+
+      rule = rules[5];
+      Assert.That(rule.Database, Is.EqualTo("another-some-database"));
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.EqualTo("some-table"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[6];
+      Assert.That(rule.Database, Is.EqualTo("database1"));
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.EqualTo("some-column"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[7];
+      Assert.That(rule.Database, Is.EqualTo("database1"));
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("some-index"));
+
+      rule = rules[8];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.EqualTo("schema1"));
+      Assert.That(rule.Table, Is.EqualTo("table1"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[9];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.EqualTo("schema1"));
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.EqualTo("column2"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[10];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.EqualTo("schema1"));
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("index2"));
+
+      rule = rules[11];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.EqualTo("schema1"));
+      Assert.That(rule.Table, Is.EqualTo("table2"));
+      Assert.That(rule.Column, Is.EqualTo("column3"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[12];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.EqualTo("schema1"));
+      Assert.That(rule.Table, Is.EqualTo("table2"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("index3"));
+
+      rule = rules[13];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.EqualTo("table4"));
+      Assert.That(rule.Column, Is.EqualTo("column3"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[14];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.EqualTo("table4"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("index2"));
+
+      rule = rules[15];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.EqualTo("single-table"));
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[16];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.EqualTo("single-column"));
+      Assert.That(rule.Index, Is.Null.Or.Empty);
+
+      rule = rules[17];
+      Assert.That(rule.Database, Is.Null.Or.Empty);
+      Assert.That(rule.Schema, Is.Null.Or.Empty);
+      Assert.That(rule.Table, Is.Null.Or.Empty);
+      Assert.That(rule.Column, Is.Null.Or.Empty);
+      Assert.That(rule.Index, Is.EqualTo("single-index"));
+
       var databases = configuration.Databases;
       Assert.That(databases.Count, Is.EqualTo(2));
       Assert.That(databases[0].Name, Is.EqualTo("main"));

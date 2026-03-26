@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -40,10 +40,11 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
 
-      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType != WellKnownOrmTypes.QueryProvider)
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag)});
@@ -63,10 +64,11 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
 
-      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType != WellKnownOrmTypes.QueryProvider)
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
@@ -288,33 +290,6 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <returns>A task which runs query.</returns>
-    [Obsolete("Use ExecuteAsync(IQueryable<T>) method instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source) =>
-      await ExecuteAsync(source, CancellationToken.None).ConfigureAwait(false);
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>A task which runs query.</returns>
-    [Obsolete("Use ExecuteAsync(IQueryable<T>, CancellationToken) method instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken token) =>
-      await ExecuteAsync(source, token).ConfigureAwait(false);
 
     /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.

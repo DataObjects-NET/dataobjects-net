@@ -47,5 +47,10 @@ namespace Xtensive.Orm.Providers
     /// <see cref="ParameterBinding.TypeMapping"/> is ignored in this case.
     /// </summary>
     RowFilter,
+    /// <summary>
+    /// Indicated that parameter is type indentifier.
+    /// <see cref="QueryParameterBinding.ValueAccessor"/> is ignored in this case.
+    /// </summary>
+    TypeIdentifier,
   }
 }

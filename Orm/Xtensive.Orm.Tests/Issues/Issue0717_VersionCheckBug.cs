@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      configuration.Types.RegisterCaching(typeof(Person).Assembly, typeof(Person).Namespace);
       configuration.Sessions.Default.BatchSize = 25;
       configuration.Sessions.Default.DefaultIsolationLevel = IsolationLevel.ReadCommitted;
       configuration.Sessions.Default.CacheSize = 1000;

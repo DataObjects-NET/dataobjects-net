@@ -1,6 +1,6 @@
-// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.26
 
@@ -17,25 +17,20 @@ namespace Xtensive.Orm.Services
   /// might contain reference to a session thus turning corresponding request
   /// to a session-dependent object.
   /// </summary>
-  public sealed class QueryRequest
+  public readonly struct QueryRequest
   {
     /// <summary>
     /// Gets compiled statement.
     /// </summary>
-    public SqlCompilationResult CompiledQuery
-    {
-      get { return RealRequest.GetCompiledStatement(); }
-    }
+    public SqlCompilationResult CompiledQuery => RealRequest.GetCompiledStatement();
 
     /// <summary>
     /// Gets all <see cref="QueryParameterBinding"/> associated with this request.
     /// </summary>
-    public IEnumerable<QueryParameterBinding> ParameterBindings
-    {
-      get { return RealRequest.ParameterBindings.Select(b => new QueryParameterBinding(b)); }
-    }
+    public IEnumerable<QueryParameterBinding> ParameterBindings =>
+      RealRequest.ParameterBindings.Select(b => new QueryParameterBinding(b));
 
-    internal UserQueryRequest RealRequest { get; private set; }
+    internal UserQueryRequest RealRequest { get; }
 
     // Constructors
 

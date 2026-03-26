@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void CombinedTest()
     {
       var configurationTemplate = DomainConfigurationFactory.Create();
-      configurationTemplate.Types.Register(typeof(BuildAgent).Assembly, typeof(BuildAgent).Namespace);
+      configurationTemplate.Types.RegisterCaching(typeof(BuildAgent).Assembly, typeof(BuildAgent).Namespace);
 
       var initialConfiguration = configurationTemplate.Clone();
       initialConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public async Task CombinedAsyncTest()
     {
       var configurationTemplate = DomainConfigurationFactory.Create();
-      configurationTemplate.Types.Register(typeof(BuildAgent).Assembly, typeof(BuildAgent).Namespace);
+      configurationTemplate.Types.RegisterCaching(typeof(BuildAgent).Assembly, typeof(BuildAgent).Namespace);
 
       var initialConfiguration = configurationTemplate.Clone();
       initialConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;

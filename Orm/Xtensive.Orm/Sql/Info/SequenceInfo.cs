@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Info
       get { return features; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

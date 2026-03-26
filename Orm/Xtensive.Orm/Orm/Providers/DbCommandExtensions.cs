@@ -29,10 +29,22 @@ namespace Xtensive.Orm.Providers
       result.Append(" [");
       foreach (DbParameter parameter in command.Parameters) {
         var value = parameter.Value;
-        if (value is DateTime)
-          value = ((DateTime) value).ToString("yyyy-MM-dd HH:mm:ss.fffffff");
-        else if (value is DateTimeOffset)
-          value = ((DateTimeOffset) value).ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
+        switch (value) {
+          case DateTime dateTime:
+            value = dateTime.ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+            break;
+          case DateTimeOffset dateTimeOffset:
+            value = dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
+            break;
+#if NET6_0_OR_GREATER
+          case DateOnly dateOnly:
+            value = dateOnly.ToString("yyyy-MM-dd");
+            break;
+          case TimeOnly timeOnly:
+            value = timeOnly.ToString("HH:mm:ss.fffffff");
+            break;
+#endif
+        }
         result.AppendFormat("{0}='{1}';", parameter.ParameterName, value);
       }
       result.Remove(result.Length - 1, 1);

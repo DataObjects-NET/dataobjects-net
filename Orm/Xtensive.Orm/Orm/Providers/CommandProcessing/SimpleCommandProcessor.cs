@@ -14,12 +14,16 @@ namespace Xtensive.Orm.Providers
 {
   internal sealed class SimpleCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
-    private readonly Queue<SqlTask> tasks;
+    // equals to default batch size from SessionConfiguration
+    // hard to choose particular value so let it be some known number :)
+    private const int DefaultTaskQueueCapacity = 25;
+
+    private Queue<SqlTask> tasks = new(DefaultTaskQueueCapacity);
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
       var part = Factory.CreateQueryPart(task);
-      ValidateCommandParameters(part);
+      ValidateCommandPartParameters(part);
       context.ActiveCommand.AddPart(part);
       context.ActiveTasks.Add(task);
     }
@@ -29,7 +33,7 @@ namespace Xtensive.Orm.Providers
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         try {
-          ValidateCommandParameters(part);
+          ValidateCommandPartParameters(part);
           context.ActiveCommand.AddPart(part);
           var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount == 0) {
@@ -51,8 +55,8 @@ namespace Xtensive.Orm.Providers
 
     public override void ExecuteTasks(CommandProcessorContext context)
     {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
+      context.ProcessingTasks = tasks;
+      tasks = new Queue<SqlTask>(DefaultTaskQueueCapacity);
 
       while (context.ProcessingTasks.Count > 0) {
         AllocateCommand(context);
@@ -79,8 +83,8 @@ namespace Xtensive.Orm.Providers
 
     public override async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
+      context.ProcessingTasks = tasks;
+      tasks = new Queue<SqlTask>(DefaultTaskQueueCapacity);
 
       while (context.ProcessingTasks.Count > 0) {
         AllocateCommand(context);
@@ -115,7 +119,7 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-      ValidateCommandParameters(commandPart);
+      ValidateCommandPartParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
@@ -133,18 +137,11 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-      ValidateCommandParameters(commandPart);
+      ValidateCommandPartParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
-    }
-
-    private void ValidateCommandParameters(CommandPart commandPart)
-    {
-      if (GetCommandExecutionBehavior(new[] { commandPart }, 0) == ExecutionBehavior.TooLargeForAnyCommand) {
-        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
-      }
     }
 
     // Constructors
@@ -152,7 +149,6 @@ namespace Xtensive.Orm.Providers
     public SimpleCommandProcessor(CommandFactory factory, int maxQueryParameterCount)
       : base(factory, maxQueryParameterCount)
     {
-      tasks = new Queue<SqlTask>();
     }
   }
 }

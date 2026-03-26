@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       config.Sessions.Add(new SessionConfiguration("Default"));
       // config.Sessions.Default.CacheSize = BaseCount;
       config.Sessions.Default.CacheType = SessionCacheType.Infinite;
-      config.Types.Register(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
+      config.Types.RegisterCaching(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
       return config;
     }
 

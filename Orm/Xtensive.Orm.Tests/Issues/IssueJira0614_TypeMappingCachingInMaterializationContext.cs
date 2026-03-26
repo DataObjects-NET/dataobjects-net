@@ -454,7 +454,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(type.Assembly, type.Namespace);
+      configuration.Types.RegisterCaching(type.Assembly, type.Namespace);
       configuration.DefaultSchema = defaultSchema;
       return configuration;
     }

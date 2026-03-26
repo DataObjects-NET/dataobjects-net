@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.04.22
 
@@ -27,7 +27,7 @@ namespace Xtensive.Modelling.Actions
     public string Comment {
       get { return comment; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         comment = value;
       }
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Modelling.Actions
     public void Add(NodeAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;
       if (ca!=null && actions.Count!=0) {

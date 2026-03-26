@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Configuration
       get { return realName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         realName = value;
       }
     }
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets type ID minimal value
     /// for types mapped to this database.
-    /// Default value is 100.
+    /// Default value is <see cref="TypeInfo.MinTypeId"/>.
     /// </summary>
     public int MinTypeId
     {
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         minTypeId = value;
       }
     }

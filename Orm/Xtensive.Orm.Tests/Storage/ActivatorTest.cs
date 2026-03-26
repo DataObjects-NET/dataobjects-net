@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.ActivatorModel
     public InitializebleClass()
     {
       syncRoot = new object();
-      // Логика, которая юзает syncRoot.
+      // Г‹Г®ГЈГЁГЄГ , ГЄГ®ГІГ®Г°Г Гї ГѕГ§Г ГҐГІ syncRoot.
       Assert.IsNotNull(syncRoot);
     }
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Storage.ActivatorModel");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Storage.ActivatorModel");
       return config;
     }
 

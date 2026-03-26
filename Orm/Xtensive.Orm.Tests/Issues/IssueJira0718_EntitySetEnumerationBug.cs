@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017-2020 Xtensive LLC.
+// Copyright (C) 2017-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Julian Mamokin
@@ -1118,7 +1118,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(CustomerOrderItem).Assembly, typeof(CustomerOrderItem).Namespace);
+      config.Types.RegisterCaching(typeof(CustomerOrderItem).Assembly, typeof(CustomerOrderItem).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }

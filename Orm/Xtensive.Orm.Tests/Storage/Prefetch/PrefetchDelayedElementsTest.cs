@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Types.RegisterCaching(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
 

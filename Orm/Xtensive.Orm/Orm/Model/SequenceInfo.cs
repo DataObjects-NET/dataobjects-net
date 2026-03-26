@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Model
       get { return seed; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         seed = value;
       }
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Model
       get { return increment; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         increment = value;
       }
     }

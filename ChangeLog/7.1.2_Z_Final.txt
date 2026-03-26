@@ -1,0 +1,9 @@
+[main] Addressed issue when cycles in Entity dependency graph were not detected
+[main] Intoduced DomainConfuguration.ExtensionConfigurations as unified configuration storage for extensions' configurations
+[main] DomainConfiguration.Load() method now has overloads which gets abstractions from Microsoft.Extensions.Configuration API
+[localization] LocalizationConfiguration.Load() method now has overloads which gets abstractions from Microsoft.Extensions.Configuration API
+[localization] ConfigureLocalizationExtension() extensions for DomainConfiguration are added, check ReadMe/documentation for examples of usage
+[reprocessing] ReprocessingConfiguration.Load() method now has overloads which gets abstractions from Microsoft.Extensions.Configuration API
+[reprocessing] ConfigureReprocessingExtension() extensions for DomainConfiguration are added, check ReadMe/documentation for examples of usage
+[security] SecurityConfiguration.Load() method now has overloads which gets abstractions from Microsoft.Extensions.Configuration API
+[security] ConfigureSecurityExtension() extensions for DomainConfiguration are added, check ReadMe/documentation for examples of usage

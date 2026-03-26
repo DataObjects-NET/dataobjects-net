@@ -1,12 +1,14 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.01.27
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Caching;
@@ -114,16 +116,18 @@ namespace Xtensive.Orm.Internals
       parameterContext.SetValue(queryParameter, queryTarget);
       var scope = new CompiledQueryProcessingScope(
         queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+
       using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
 
       var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null) {
+      if (parameterizedQuery == null && queryTarget != null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      PutCachedQuery(parameterizedQuery);
+      PutQueryToCache(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
@@ -143,7 +147,8 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      PutCachedQuery(parameterizedQuery);
+      PutQueryToCache(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
@@ -164,8 +169,9 @@ namespace Xtensive.Orm.Internals
           if ((expression as ConstantExpression).Value == null) {
             return null;
           }
-          if (expression.Type.IsClosure()) {
-            if (expression.Type == closureType) {
+          var expressionType = expression.Type;
+          if (expressionType.IsClosure()) {
+            if (expressionType == closureType) {
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
             }
             else {
@@ -175,18 +181,20 @@ namespace Xtensive.Orm.Internals
           }
 
           if (closureType.DeclaringType == null) {
-            if (expression.Type.IsAssignableFrom(closureType))
+            if (expressionType.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
           else {
-            if (expression.Type.IsAssignableFrom(closureType))
+            if (expressionType.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
-              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo != null)
-                return Expression.MakeMemberAccess(
+            if (expressionType.IsAssignableFrom(closureType.DeclaringType)) {
+              var members = closureType.TryGetFieldInfoFromClosure(expressionType);
+              if (members != null) {
+                var newExpression = members.Aggregate(
                   Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                  memberInfo);
+                  (left, right) => Expression.MakeMemberAccess(left, right));
+                return newExpression;
+              }
             }
           }
         }
@@ -197,7 +205,7 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetCachedQuery() =>
       domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
-    private void PutCachedQuery(ParameterizedQuery parameterizedQuery) =>
+    private void PutQueryToCache(ParameterizedQuery parameterizedQuery) =>
       domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
@@ -216,9 +224,13 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+
+      var domainConfig = domain.Configuration;
+      this.queryKey = domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters
+        ? queryKey
+        : new Pair<object, string>(queryKey, session.StorageNodeId);
     }
   }
 }

@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Apple).Assembly, typeof (Apple).Namespace);
+      configuration.Types.RegisterCaching(typeof (Apple).Assembly, typeof (Apple).Namespace);
       return configuration;
     }
 

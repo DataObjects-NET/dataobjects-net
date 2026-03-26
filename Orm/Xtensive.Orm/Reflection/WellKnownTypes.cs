@@ -1,8 +1,9 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -56,6 +57,13 @@ namespace Xtensive.Reflection
     public static readonly Type NullableDateTime = typeof(DateTime?);
     public static readonly Type DateTimeOffset = typeof(DateTimeOffset);
     public static readonly Type NullableDateTimeOffset = typeof(DateTimeOffset?);
+#if NET6_0_OR_GREATER
+    public static readonly Type DateOnly = typeof(DateOnly);
+    public static readonly Type TimeOnly = typeof(TimeOnly);
+    public static readonly Type NullableDateOnly = typeof(DateOnly?);
+    public static readonly Type NullableTimeOnly = typeof(TimeOnly?);
+#endif
+
     public static readonly Type Guid = typeof(Guid);
     public static readonly Type NullableGuid = typeof(Guid?);
 

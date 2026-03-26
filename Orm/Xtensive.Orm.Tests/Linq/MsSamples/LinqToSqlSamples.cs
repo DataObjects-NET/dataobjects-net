@@ -431,7 +431,7 @@ namespace Xtensive.Orm.Tests.Linq.Samples
     {
       var q =
         from i in Session.Query.All<Invoice>()
-        where i.Customer.Address.Country=="USA" && i.Status==InvoiceStatus.Paid
+        where i.Customer.Address.Country=="United States" && i.Status==InvoiceStatus.Paid
         select i;
 
       QueryDumper.Dump(q);

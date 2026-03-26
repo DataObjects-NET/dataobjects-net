@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.07.23
 
 using System;
 using Xtensive.Orm.Providers;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -30,44 +31,37 @@ namespace Xtensive.Orm.Tests
 
     public ProviderInfo Info { get; private set; }
 
-    public bool CheckProviderIs(StorageProvider requiredProviders)
-    {
-      return (Provider & requiredProviders)!=0;
-    }
+    public IStorageTimeZoneProvider TimeZoneProvider { get; private set; }
 
-    public bool CheckProviderIsNot(StorageProvider disallowedProviders)
-    {
-      return (Provider & disallowedProviders)==0;
-    }
+    public bool CheckProviderIs(StorageProvider requiredProviders) =>
+      (Provider & requiredProviders) != 0;
 
-    public bool CheckProviderVersionIsAtLeast(Version minimalVersion)
-    {
-      return Info.StorageVersion >= minimalVersion;
-    }
+    public bool CheckProviderIsNot(StorageProvider disallowedProviders) =>
+      (Provider & disallowedProviders) == 0;
 
-    public bool CheckProviderVersionIsAtMost(Version maximalVersion)
-    {
-      return Info.StorageVersion <= maximalVersion;
-    }
+    public bool CheckProviderVersionIsAtLeast(Version minimalVersion) =>
+      Info.StorageVersion >= minimalVersion;
 
-    public bool CheckAllFeaturesSupported(ProviderFeatures requiredFeatures)
-    {
-      return (Info.ProviderFeatures & requiredFeatures)==requiredFeatures;
-    }
+    public bool CheckProviderVersionIsAtMost(Version maximalVersion) =>
+      Info.StorageVersion <= maximalVersion;
 
-    public bool CheckAllFeaturesNotSupported(ProviderFeatures disallowedFeatures)
-    {
-      return (Info.ProviderFeatures & disallowedFeatures)==0;
-    }
+    public bool CheckAllFeaturesSupported(ProviderFeatures requiredFeatures) =>
+      (Info.ProviderFeatures & requiredFeatures) == requiredFeatures;
 
-    public bool CheckAnyFeatureSupported(ProviderFeatures requiredFeatures)
-    {
-      return (Info.ProviderFeatures & requiredFeatures)!=0;
-    }
+    public bool CheckAllFeaturesNotSupported(ProviderFeatures disallowedFeatures) =>
+      (Info.ProviderFeatures & disallowedFeatures) == 0;
 
-    public bool CheckAnyFeatureNotSupported(ProviderFeatures disallowedFeatures)
+    public bool CheckAnyFeatureSupported(ProviderFeatures requiredFeatures) =>
+      (Info.ProviderFeatures & requiredFeatures) != 0;
+
+    public bool CheckAnyFeatureNotSupported(ProviderFeatures disallowedFeatures) =>
+      (Info.ProviderFeatures & disallowedFeatures) != disallowedFeatures;
+
+    public IDisposable ReplaceTimeZoneProvider(IStorageTimeZoneProvider newProvder)
     {
-      return (Info.ProviderFeatures & disallowedFeatures)!=disallowedFeatures;
+      var oldProvider = TimeZoneProvider;
+      TimeZoneProvider = newProvder;
+      return new Core.Disposable((b) => TimeZoneProvider = oldProvider);
     }
 
     private StorageProviderInfo()
@@ -76,28 +70,46 @@ namespace Xtensive.Orm.Tests
       var providerName = config.ConnectionInfo.Provider;
 
       Provider = ParseProvider(providerName);
-      Info = ProviderInfoBuilder.Build(providerName, TestSqlDriver.Create(config.ConnectionInfo));
+      var sqlDriver = TestSqlDriver.Create(config.ConnectionInfo);
+      TimeZoneProvider = GetTimeZoneProvider(Provider, sqlDriver);
+      Info = ProviderInfoBuilder.Build(providerName, sqlDriver);
     }
 
     private static StorageProvider ParseProvider(string provider)
     {
       switch (provider) {
-      case WellKnown.Provider.SqlServer:
-        return StorageProvider.SqlServer;
-      case WellKnown.Provider.SqlServerCe:
-        return StorageProvider.SqlServerCe;
-      case WellKnown.Provider.PostgreSql:
-        return StorageProvider.PostgreSql;
-      case WellKnown.Provider.Oracle:
-        return StorageProvider.Oracle;
-      case WellKnown.Provider.MySql:
-        return StorageProvider.MySql;
-      case WellKnown.Provider.Firebird:
-        return StorageProvider.Firebird;
-      case WellKnown.Provider.Sqlite:
-        return StorageProvider.Sqlite;
-      default:
-        throw new ArgumentOutOfRangeException("provider");
+        case WellKnown.Provider.SqlServer:
+          return StorageProvider.SqlServer;
+        case WellKnown.Provider.SqlServerCe:
+          return StorageProvider.SqlServerCe;
+        case WellKnown.Provider.PostgreSql:
+          return StorageProvider.PostgreSql;
+        case WellKnown.Provider.Oracle:
+          return StorageProvider.Oracle;
+        case WellKnown.Provider.MySql:
+          return StorageProvider.MySql;
+        case WellKnown.Provider.Firebird:
+          return StorageProvider.Firebird;
+        case WellKnown.Provider.Sqlite:
+          return StorageProvider.Sqlite;
+        default:
+          throw new ArgumentOutOfRangeException("provider");
+      }
+    }
+
+    private static IStorageTimeZoneProvider GetTimeZoneProvider(StorageProvider provider, SqlDriver sqlDriver)
+    {
+      switch (provider) {
+        case StorageProvider.SqlServer:
+          return new SqlServerTimeZoneProvider(sqlDriver);
+        case StorageProvider.PostgreSql:
+          return new PgSqlTimeZoneProvider(sqlDriver);
+        case StorageProvider.Oracle:
+          return new OracleTimeZoneProvider(sqlDriver);
+        case StorageProvider.Sqlite:
+          return new SqliteTimeZoneProvider(sqlDriver);
+        default:
+          return new LocalTimeZoneProvider();
       }
     }
   }

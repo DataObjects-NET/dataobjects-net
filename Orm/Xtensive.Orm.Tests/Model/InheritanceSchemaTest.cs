@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
     protected override DomainConfiguration BuildConfiguration()
     {
       var dc = base.BuildConfiguration();
-      dc.Types.Register(typeof(A).Assembly, typeof(A).Namespace);
+      dc.Types.RegisterCaching(typeof(A).Assembly, typeof(A).Namespace);
       dc.UpgradeMode = DomainUpgradeMode.Recreate;
       return dc;
     }

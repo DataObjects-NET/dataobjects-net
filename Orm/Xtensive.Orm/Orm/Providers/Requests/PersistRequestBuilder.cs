@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyCollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = CreatePersistRequest(batch, bindings, node.Configuration);
+        var batchRequest = new PersistRequest(driver, batch, bindings);
         batchRequest.Prepare();
         return new List<PersistRequest> {batchRequest}.AsReadOnly();
       }
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Providers
           }
         }
 
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Providers
         if (requiresVersionValidation) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings,context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
 
       return result;
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Providers
         if (context.Task.ValidateVersion) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Providers
           context.VersionParameterBindings.Add(column, binding);
         }
         var filteredColumn = filteredTable[column.Name];
-        if (filteredColumn.IsNullReference()) {
+        if (filteredColumn is null) {
           continue;
         }
         var filterValue = binding.ParameterReference;
@@ -190,6 +190,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    [Obsolete("Use constructor directly")]
     protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
     {
       return Handlers.Domain.Configuration.ShareStorageSchemaOverNodes
@@ -201,7 +202,7 @@ namespace Xtensive.Orm.Providers
     {
       foreach (var column in context.Type.GetVersionColumns()) {
         var columnExpression = filteredTable[column.Name];
-        if (columnExpression.IsNullReference()) {
+        if (columnExpression is null) {
           continue;
         }
         var index = GetFieldIndex(context.Type, column);

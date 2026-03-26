@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -16,10 +16,7 @@ namespace Xtensive.Orm.Security.Cryptography
   public class SHA384HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-    protected override HashAlgorithm GetHashAlgorithm()
-    {
-      return SHA384.Create();
-    }
+    protected override HashAlgorithm GetHashAlgorithm() => SHA384.Create();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SHA384HashingService"/> class.

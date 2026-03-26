@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      return Provider.CreateQuery<T>(BuildRootExpression(typeof (T)));
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
     }
 
     /// <summary>
@@ -78,8 +78,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IQueryable All(Type elementType)
     {
-      var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(BuildRootExpression(elementType));
+      return ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
     }
 
     #region Full-text related
@@ -293,7 +292,7 @@ namespace Xtensive.Orm
         EntityState state;
         if (!session.LookupStateInCache(key, out state)) {
           if (session.IsDebugEventLoggingEnabled) {
-            OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+            OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
           }
 
           state = session.Handler.FetchEntityState(key);
@@ -803,87 +802,6 @@ namespace Xtensive.Orm
     public DelayedQuery<TElement> CreateDelayedQuery<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
 
-    /// <summary>
-    /// Creates future scalar query and registers it for the later execution.
-    /// The query associated with the future scalar will be cached.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="key">An object identifying this query in cache.</param>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint, TResult> query) =>
-      CreateDelayedQuery(key, query);
-
-    /// <summary>
-    /// Creates future scalar query and registers it for the later execution.
-    /// The query associated with the future scalar will not be cached.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query) =>
-      CreateDelayedQuery(query);
-
-    /// <summary>
-    /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
-    /// <param name="key">An object identifying this query in cache.</param>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
-      CreateDelayedQuery(key, query);
-
-    /// <summary>
-    /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
-      CreateDelayedQuery(query);
-
-    /// <summary>
-    /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
-    /// <param name="key">An object identifying this query in cache.</param>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
-      CreateDelayedQuery(key, query);
-
-    /// <summary>
-    /// Creates future query and registers it for the later execution.
-    /// The associated query will be cached.
-    /// </summary>
-    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
-    /// <param name="query">A delegate performing the query to cache.</param>
-    /// <returns>
-    /// The future that will be executed when its result is requested.
-    /// </returns>
-    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
-      CreateDelayedQuery(query);
-
     #endregion
 
     /// <summary>
@@ -925,11 +843,12 @@ namespace Xtensive.Orm
       if (keyValues.Length == 0)
         throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
       if (keyValues.Length == 1) {
-        var keyValue = keyValues[0];
-        if (keyValue is Key)
-          return keyValue as Key;
-        if (keyValue is Entity)
-          return (keyValue as Entity).Key;
+        switch (keyValues[0]) {
+          case Key key:
+            return key;
+          case Entity entity:
+            return entity.Key;
+        }
       }
       return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
     }
@@ -938,7 +857,7 @@ namespace Xtensive.Orm
     {
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
-        : Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(elementType));
+        : session.Domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
     }
 
     #endregion

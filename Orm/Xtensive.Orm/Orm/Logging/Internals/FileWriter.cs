@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Logging
     private readonly object syncRoot = new object();
 
     /// <inheritdoc/>
-    public override void Write(LogEventInfo logEvent)
+    public override void Write(in LogEventInfo logEvent)
     {
       lock (syncRoot) {
         using (var streamWriter = new StreamWriter(fileName, true)) {

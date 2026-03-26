@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
@@ -11,14 +11,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Translator : v09.Translator
   {
-    public override string FloatFormatString { get { return base.FloatFormatString + "f"; } }
-    public override string DoubleFormatString { get { return base.DoubleFormatString + "d"; } }
-    
     // Constructors
 
     public Translator(SqlDriver driver)
       : base(driver)
     {
+      FloatFormatString = base.FloatFormatString + "f";
+      DoubleFormatString = base.DoubleFormatString + "d";
     }
   }
 }

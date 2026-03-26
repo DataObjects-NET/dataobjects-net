@@ -1326,5 +1326,29 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
         .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m));
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
+
+    [Test]
+    public void WhereBoolEquals()
+    {
+      var expected = Session.Query.All<Invoice>().Count(c => c.Status != (InvoiceStatus) 1);
+      // ReSharper disable once ReplaceWithSingleCallToCount
+      var actual = Session.Query.All<Invoice>().Where(c => (c.Status == (InvoiceStatus) 1) == false).Count();
+
+      Assert.AreEqual(expected, actual);
+    }
+
+    [Test]
+    public void WhereBoolEqualsComplex()
+    {
+      var expected = Session.Query.All<Invoice>()
+        .Count(c => !(c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2));
+
+      // ReSharper disable once ReplaceWithSingleCallToCount
+      var actual = Session.Query.All<Invoice>()
+        .Where(c => (c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2) == false)
+        .Count();
+
+      Assert.AreEqual(expected, actual);
+    }
   }
 }

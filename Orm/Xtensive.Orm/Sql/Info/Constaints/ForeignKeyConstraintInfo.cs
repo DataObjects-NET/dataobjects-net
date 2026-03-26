@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Info
     public ForeignKeyConstraintFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Info
     public ForeignKeyConstraintActions Actions {
       get { return actions; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         actions = value;
       }
     }

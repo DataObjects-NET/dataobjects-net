@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.23
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -16,11 +17,6 @@ namespace Xtensive.Sql.Compiler
     }
 
     public virtual void Visit(ContainerNode node)
-    {
-      throw new InvalidOperationException();
-    }
-
-    public virtual void Visit(DelimiterNode node)
     {
       throw new InvalidOperationException();
     }
@@ -45,11 +41,10 @@ namespace Xtensive.Sql.Compiler
       throw new InvalidOperationException();
     }
 
-    protected void VisitNodeSequence(Node node)
+    protected void VisitNodes(IEnumerable<Node> nodes)
     {
-      while (node != null) {
+      foreach (var node in nodes) {
         node.AcceptVisitor(this);
-        node = node.Next;
       }
     }
   }

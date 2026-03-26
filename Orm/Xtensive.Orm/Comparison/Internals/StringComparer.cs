@@ -51,7 +51,7 @@ namespace Xtensive.Comparison
     }
 
     public override int GetHashCode(string obj)
-      => ReferenceEquals(obj, null) ? EmptyHash : obj.GetHashCode();
+      => obj is null ? EmptyHash : obj.GetHashCode();
 
     public override string GetNearestValue(string value, Direction direction)
     {

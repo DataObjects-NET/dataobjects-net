@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
+      configuration.Types.RegisterCaching(typeof(Customer).Assembly, typeof(Customer).Namespace);
       return configuration;
     }
 

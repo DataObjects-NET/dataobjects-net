@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -113,6 +113,14 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime FDateTime { get; set; }
 
+#if NET6_0_OR_GREATER
+    [Field]
+    public DateOnly FDateOnly { get; set; }
+
+    [Field]
+    public TimeOnly FTimeOnly { get; set; }
+
+#endif
     [Field]
     public TimeSpan FTimeSpan { get; set; }
 
@@ -198,6 +206,14 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public DateTime? FNDateTime { get; set; }
 
+#if NET6_0_OR_GREATER
+    [Field]
+    public DateOnly? FNDateOnly { get; set; }
+
+    [Field]
+    public TimeOnly? FNTimeOnly { get; set; }
+
+#endif
     [Field]
     public TimeSpan? FNTimeSpan { get; set; }
 
@@ -225,6 +241,15 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public EULong? FNEULong { get; set; }
 
+    public X(Session session)
+      : base(session)
+    {
+    }
+
+    public X()
+      : base()
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -238,6 +263,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field(Precision = 18, Scale = 0)]
     public decimal d18_0 { get; set; }
+
+    public DecimalContainer(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -248,6 +278,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field]
     public double FDouble { get; set; }
+
+    public DoubleContainer(Session session)
+      : base(session)
+    {
+    }
   }
 }
 
@@ -259,7 +294,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      config.Types.RegisterCaching(typeof (X).Assembly, typeof (X).Namespace);
       return config;
     }
 
@@ -274,17 +309,37 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
 
-        var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-        var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
+        var sqlDriver = TestSqlDriver.Create(session.Domain.Configuration.ConnectionInfo);
         var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
-        var minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
+        var dateTimeMinValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
 
+#if NET6_0_OR_GREATER
+        dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateOnly;
+        var dateOnlyMinValue = ((ValueRange<DateOnly>) dataTypeInfo.ValueRange).MinValue;
+
+        dataTypeInfo = sqlDriver.ServerInfo.DataTypes.TimeOnly;
+        var timeOnlyMinValue = ((ValueRange<TimeOnly>) dataTypeInfo.ValueRange).MinValue;
+
+#endif
         using (var t = session.OpenTransaction()) {
           X x = session.Query.SingleOrDefault<X>(key);
           Assert.AreEqual(false, x.FBool);
           Assert.AreEqual(0, x.FByte);
           Assert.AreEqual(null, x.FByteArray);
-          Assert.AreEqual(minValue, x.FDateTime);
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
+            Assert.AreEqual(DateTime.MinValue, x.FDateTime);
+#if NET6_0_OR_GREATER
+            Assert.AreEqual(DateOnly.MinValue, x.FDateOnly);
+            Assert.AreEqual(TimeOnly.MinValue, x.FTimeOnly);
+#endif
+          }
+          else {
+            Assert.AreEqual(dateTimeMinValue, x.FDateTime);
+#if NET6_0_OR_GREATER
+            Assert.AreEqual(dateOnlyMinValue, x.FDateOnly);
+            Assert.AreEqual(timeOnlyMinValue, x.FTimeOnly);
+#endif
+          }
           Assert.AreEqual(0, x.FDecimal);
           Assert.AreEqual(0, x.FDouble);
           Assert.AreEqual(EByte.Default, x.FEByte);
@@ -312,6 +367,10 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(null, x.FNBool);
           Assert.AreEqual(null, x.FNByte);
           Assert.AreEqual(null, x.FNDateTime);
+#if NET6_0_OR_GREATER
+          Assert.AreEqual(null, x.FNDateOnly);
+          Assert.AreEqual(null, x.FNTimeOnly);
+#endif
           Assert.AreEqual(null, x.FNDecimal);
           Assert.AreEqual(null, x.FNDouble);
           Assert.AreEqual(null, x.FNEByte);
@@ -357,7 +416,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Key key;
         using (var transactionScope = session.OpenTransaction()) {
-          var container = new DecimalContainer() {
+          var container = new DecimalContainer(session) {
             d18_9 = d18_9,
             d18_0 = d18_0
           };

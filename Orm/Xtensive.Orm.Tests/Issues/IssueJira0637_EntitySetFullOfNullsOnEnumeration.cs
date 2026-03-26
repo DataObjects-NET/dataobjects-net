@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Table).Assembly, typeof (Table).Namespace);
+      configuration.Types.RegisterCaching(typeof (Table).Assembly, typeof (Table).Namespace);
       return configuration;
     }
   }

@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Model
       get { return isGlobal; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isGlobal = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Sql.Model
       get { return preserveRows; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         preserveRows = value;
       }
     }

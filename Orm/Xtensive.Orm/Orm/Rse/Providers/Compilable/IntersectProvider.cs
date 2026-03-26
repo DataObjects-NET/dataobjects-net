@@ -16,19 +16,18 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class IntersectProvider : BinaryProvider
   {
-
-    // Constructors
-
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
       var leftHeader = left.Header;
       var leftDescriptor = leftHeader.TupleDescriptor;
       var rightDescriptor = right.Header.TupleDescriptor;
       if (leftDescriptor != rightDescriptor) {
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Intersection"));
+        throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Intersection"));
       }
       return leftHeader;
     }
+
+    // Constructors
 
     /// <summary>
     ///  Initializes a new instance of this class.

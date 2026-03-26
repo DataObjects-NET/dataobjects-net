@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Model
       get { return fullTextCatalog; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fullTextCatalog = value;
       }
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Model
       get { return changeTrackingMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         changeTrackingMode = value;
       }
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Model
       get { return underlyingUniqueIndex; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         underlyingUniqueIndex = value;
       }
     }

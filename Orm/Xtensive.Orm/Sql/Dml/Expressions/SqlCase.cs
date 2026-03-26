@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -95,9 +95,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlCase>(expression, "expression");
-      SqlCase replacingExpression = expression as SqlCase;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCase>(expression);
       value = replacingExpression.Value;
       @else = replacingExpression.Else;
       cases.Clear();
@@ -111,9 +109,9 @@ namespace Xtensive.Sql.Dml
         return v;
       }
 
-      var clone = new SqlCase(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
+      var clone = new SqlCase(value is null ? null : (SqlExpression) value.Clone(context));
 
-      if (!@else.IsNullReference())
+      if (@else is not null)
         clone.Else = (SqlExpression) @else.Clone(context);
 
       foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)

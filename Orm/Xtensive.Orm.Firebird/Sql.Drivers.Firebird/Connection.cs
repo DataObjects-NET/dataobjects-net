@@ -13,8 +13,8 @@ namespace Xtensive.Sql.Drivers.Firebird
 {
   internal class Connection : SqlConnection
   {
-    private FbConnection underlyingConnection;
-    private FbTransaction activeTransaction;
+    protected FbConnection underlyingConnection;
+    protected FbTransaction activeTransaction;
 
     /// <inheritdoc/>
     public override DbConnection UnderlyingConnection => underlyingConnection;
@@ -36,26 +36,26 @@ namespace Xtensive.Sql.Drivers.Firebird
 
       var transactionOptions = CreateTransactionOptions(isolationLevel);
       activeTransaction = underlyingConnection.BeginTransaction(transactionOptions);
-    }
 
-    private static FbTransactionOptions CreateTransactionOptions(IsolationLevel isolationLevel)
-    {
-      var transactionOptions = new FbTransactionOptions {WaitTimeout = TimeSpan.FromSeconds(10)};
-      switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
-        case IsolationLevel.ReadCommitted:
-          transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted
-            | FbTransactionBehavior.NoRecVersion
-            | FbTransactionBehavior.Write
-            | FbTransactionBehavior.NoWait;
-          break;
-        case IsolationLevel.Serializable:
-          transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency
-            | FbTransactionBehavior.Write
-            | FbTransactionBehavior.Wait;
-          break;
+      static FbTransactionOptions CreateTransactionOptions(IsolationLevel isolationLevel)
+      {
+        var transactionOptions = new FbTransactionOptions { WaitTimeout = TimeSpan.FromSeconds(10) };
+        switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
+          case IsolationLevel.ReadCommitted:
+            transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted
+              | FbTransactionBehavior.NoRecVersion
+              | FbTransactionBehavior.Write
+              | FbTransactionBehavior.NoWait;
+            break;
+          case IsolationLevel.Serializable:
+            transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency
+              | FbTransactionBehavior.Write
+              | FbTransactionBehavior.Wait;
+            break;
+        }
+
+        return transactionOptions;
       }
-
-      return transactionOptions;
     }
 
     /// <inheritdoc/>
@@ -85,4 +85,4 @@ namespace Xtensive.Sql.Drivers.Firebird
       underlyingConnection = new FbConnection();
     }
   }
-} ;
+}

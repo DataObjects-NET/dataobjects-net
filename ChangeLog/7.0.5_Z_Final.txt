@@ -1,0 +1,5 @@
+[main] Some constructors of SqlPersistTask marked Obsolete, new constructors provided
+[main] Some constructors of CalculateProvider marked Obsolete, new constructors provided
+[main] Some constructors of AggregateProvider marked Obsolete, new constructors provided
+[main] Updated BitFaster.Caching package
+[main] Certain optimizations connected to query translation made

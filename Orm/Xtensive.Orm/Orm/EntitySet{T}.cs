@@ -228,12 +228,12 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return qe => GetItemsQuery(qe, field).LongCount();
+      return qe => GetItemsQuery(qe, field, this.Session.Domain).LongCount();
     }
 
-    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
+    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field, Domain domain)
     {
-      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field, domain);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 

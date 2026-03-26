@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
+      config.Types.RegisterCaching(typeof (User).Assembly, typeof (User).Namespace);
       return config;
     }
 

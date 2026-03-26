@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.21
 
@@ -78,5 +78,15 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public static readonly ValueRange<System.TimeSpan> TimeSpan =
       new ValueRange<System.TimeSpan>(System.TimeSpan.MinValue, System.TimeSpan.MaxValue);
+#if NET6_0_OR_GREATER
+    /// <summary>
+    /// Standard value range for <see cref="System.DateOnly"/>
+    /// </summary>
+    public static readonly ValueRange<System.DateOnly> DateOnly = new(System.DateOnly.MinValue, System.DateOnly.MaxValue);
+    /// <summary>
+    /// Standard value range for <see cref="System.TimeOnly"/>
+    /// </summary>
+    public static readonly ValueRange<System.TimeOnly> TimeOnly = new(System.TimeOnly.MinValue, System.TimeOnly.MaxValue);
+#endif
   }
 }

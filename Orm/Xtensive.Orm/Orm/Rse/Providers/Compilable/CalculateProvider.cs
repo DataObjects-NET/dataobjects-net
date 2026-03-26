@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -36,12 +37,15 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     private static RecordSetHeader BuildHeaderAndColumns(
-      CompilableProvider source, CalculatedColumnDescriptor[] columnDescriptors, out CalculatedColumn[] calculatedColumns)
+      CompilableProvider source,
+      IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors,
+      out CalculatedColumn[] calculatedColumns)
     {
       var sourceHeader = source.Header;
       var sourceHeaderLength = sourceHeader.Length;
-      calculatedColumns = new CalculatedColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
+      var descriptorsCount = columnDescriptors.Count;
+      calculatedColumns = new CalculatedColumn[descriptorsCount];
+      for (int i = 0; i < descriptorsCount; i++) {
         calculatedColumns[i] = new CalculatedColumn(columnDescriptors[i], sourceHeaderLength + i);
       }
 
@@ -53,6 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
+    [Obsolete]
     public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
       : this(source, false, columnDescriptors)
     {
@@ -64,7 +69,21 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
+    [Obsolete]
     public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
+      : base(ProviderType.Calculate, BuildHeaderAndColumns(source, columnDescriptors, out var calculatedColumns), source)
+    {
+      IsInlined = isInlined;
+      CalculatedColumns = calculatedColumns;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
+    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
+    public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
       : base(ProviderType.Calculate, BuildHeaderAndColumns(source, columnDescriptors, out var calculatedColumns), source)
     {
       IsInlined = isInlined;

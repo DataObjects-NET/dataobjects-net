@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Upgrade
           }
         }
         catch (Exception exception) {
-          UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, metadataTask.Catalog, metadataTask.Schema, exception);
+          UpgradeLog.Warning(nameof(Strings.LogFailedToExtractMetadataFromXYZ), metadataTask.Catalog, metadataTask.Schema, exception);
         }
       }
       result.Metadata = set;

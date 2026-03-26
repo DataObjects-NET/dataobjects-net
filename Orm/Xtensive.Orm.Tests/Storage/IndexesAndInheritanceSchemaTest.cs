@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage
     private Domain BuildDomain(InheritanceSchema schema)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (ParentEntity).Assembly, typeof (ParentEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (ParentEntity).Assembly, typeof (ParentEntity).Namespace);
       configuration.Types.Register(typeof (ClassTableSchemaModifier));
       configuration.Types.Register(typeof (SingleTableSchemaModifier));
       configuration.Types.Register(typeof (SingleTableSchemaModifier));

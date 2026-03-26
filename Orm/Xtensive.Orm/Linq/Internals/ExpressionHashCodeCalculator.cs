@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -58,6 +59,16 @@ namespace Xtensive.Linq
     protected override int VisitConstant(ConstantExpression c)
     {
       return c.Value != null ? c.Value.GetHashCode() : NullHashCode;
+    }
+
+    protected override int VisitDefault(DefaultExpression d)
+    {
+      if (d.Type.IsValueType) {
+        return d.GetDefaultValue().GetHashCode();
+      }
+      else {
+        return NullHashCode;
+      }
     }
 
     protected override int VisitConditional(ConditionalExpression c)

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(BusinessUnit).Assembly, typeof(BusinessUnit).Namespace);
+      configuration.Types.RegisterCaching(typeof(BusinessUnit).Assembly, typeof(BusinessUnit).Namespace);
       return configuration;
     }
 

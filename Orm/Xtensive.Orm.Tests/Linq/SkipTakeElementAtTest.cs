@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeTest(int takeValue)
     {
       var query = Session.Query.All<Customer>()
-        .Where(c => c.Address.Country == "USA")
+        .Where(c => c.Address.Country == "United States")
         .Select(c => c.Key)
         .Take(takeValue);
       if (takeValue <= 0) {
@@ -64,9 +64,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void SkipTest(int skipValue)
     {
       var customersFromGermanyOverallCount = Session.Query.All<Customer>()
-       .Where(c => c.Address.Country == "USA").Count();
+       .Where(c => c.Address.Country == "United States").Count();
       var query = Session.Query.All<Customer>()
-       .Where(c => c.Address.Country == "USA")
+       .Where(c => c.Address.Country == "United States")
        .Select(c => c.Key)
        .Skip(skipValue);
 
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ElementAtIsRootTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var customers = Session.Query.All<Customer>().ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(c => c.CustomerId).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (var i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {

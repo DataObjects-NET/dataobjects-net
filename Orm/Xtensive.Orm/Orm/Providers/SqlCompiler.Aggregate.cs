@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -11,10 +11,11 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler 
   {
     /// <inheritdoc/>
     protected override SqlProvider VisitAggregate(AggregateProvider provider)
@@ -27,10 +28,12 @@ namespace Xtensive.Orm.Providers
       var columnNames = columns.Select((c, i) =>
         i >= sqlSelect.Columns.Count
           ? sqlSelect.From.Columns[i].Name
-          : sqlSelect.Columns[i].Name).ToList();
+          : sqlSelect.Columns[i].Name).ToArray(columns.Count);
       sqlSelect.Columns.Clear();
 
-      for (int i = 0; i < provider.GroupColumnIndexes.Length; i++) {
+      var groupColumnIndexes = provider.GroupColumnIndexes;
+      sqlSelect.Columns.Capacity = groupColumnIndexes.Length + provider.AggregateColumns.Length;
+      for (int i = 0, length = groupColumnIndexes.Length; i < length; i++) {
         var columnIndex = provider.GroupColumnIndexes[i];
         var column = columns[columnIndex];
         sqlSelect.GroupBy.Add(column);

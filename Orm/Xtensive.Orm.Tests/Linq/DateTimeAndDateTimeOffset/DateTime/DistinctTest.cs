@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
@@ -15,32 +15,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
   public class DistinctTest : DateTimeBaseTest
   {
     [Test]
-    public void DistinctByDateTimeTest()
-    {
-      ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, DateTime>(c => c.DateTime));
-    }
+    public void DistinctByDateTimeTest() =>
+      ExecuteInsideSession((s) => DistinctPrivate<DateTimeEntity, DateTime>(s,c => c.DateTime));
 
     [Test]
-    public void DistinctByDateTimeWithMillisecondsTest()
-    {
-      ExecuteInsideSession(() => DistinctPrivate<MillisecondDateTimeEntity, DateTime>(c => c.DateTime));
-    }
+    public void DistinctByDateTimeWithMillisecondsTest() =>
+      ExecuteInsideSession((s) => DistinctPrivate<MillisecondDateTimeEntity, DateTime>(s, c => c.DateTime));
 
     [Test]
-    public void DistinctByNullableDateTimeTest()
-    {
-      ExecuteInsideSession(() => DistinctPrivate<NullableDateTimeEntity, DateTime?>(c => c.DateTime));
-    }
+    public void DistinctByNullableDateTimeTest() =>
+      ExecuteInsideSession((s) => DistinctPrivate<NullableDateTimeEntity, DateTime?>(s, c => c.DateTime));
 
-    private void DistinctPrivate<T, TK>(Expression<Func<T, TK>> selectExpression)
+    private static void DistinctPrivate<T, TK>(Session session, Expression<Func<T, TK>> selectExpression)
       where T : Entity
     {
       var compiledSelectExpression = selectExpression.Compile();
-      var distinctLocal = Query.All<T>().ToArray().Select(compiledSelectExpression).Distinct().OrderBy(c => c);
-      var distinctByServer = Query.All<T>().Select(selectExpression).Distinct().OrderBy(c => c);
+      var distinctLocal = session.Query.All<T>().ToArray().Select(compiledSelectExpression).Distinct().OrderBy(c => c);
+      var distinctByServer = session.Query.All<T>().Select(selectExpression).Distinct().OrderBy(c => c);
       Assert.IsTrue(distinctLocal.SequenceEqual(distinctByServer));
 
-      distinctByServer = Query.All<T>().Select(selectExpression).Distinct().OrderByDescending(c => c);
+      distinctByServer = session.Query.All<T>().Select(selectExpression).Distinct().OrderByDescending(c => c);
       Assert.IsFalse(distinctLocal.SequenceEqual(distinctByServer));
     }
   }

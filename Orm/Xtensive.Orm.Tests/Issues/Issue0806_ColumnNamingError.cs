@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Kalina2RngGasObjectMatchGuess).Assembly, typeof (Kalina2RngGasObjectMatchGuess).Namespace);
+      config.Types.RegisterCaching(typeof (Kalina2RngGasObjectMatchGuess).Assembly, typeof (Kalina2RngGasObjectMatchGuess).Namespace);
       return config;
     }
 

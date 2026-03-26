@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2021 Xtensive LLC.
+// Copyright (C) 2019-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -12,8 +12,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
   internal class Translator : v9_1.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
+      var output = context.Output;
       switch (section) {
         case JoinSection.Specification: {
           if (node.Expression == null) {
@@ -24,21 +26,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
               case SqlJoinType.FullOuterJoin:
                 throw new NotSupportedException();
               case SqlJoinType.CrossApply:
-                return "CROSS JOIN LATERAL";
+                _ = output.Append("CROSS JOIN LATERAL");
+                return;
               case SqlJoinType.LeftOuterApply:
-                return "LEFT JOIN LATERAL";
+                _ = output.Append("LEFT JOIN LATERAL");
+                return;
             }
           }
-          return Translate(node.JoinType) + " JOIN";
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
+          break;
         }
         case JoinSection.Exit: {
           if (node.JoinType == SqlJoinType.LeftOuterApply) {
-            return "ON TRUE";
+            _ = output.Append("ON TRUE");
           }
-          return string.Empty;
+          break;
         }
+        default:
+          base.Translate(context, node, section);
+          break;
       }
-      return base.Translate(context, node, section);
     }
 
     // Constructors

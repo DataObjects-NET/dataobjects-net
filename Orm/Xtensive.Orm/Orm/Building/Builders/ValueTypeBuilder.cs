@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -58,6 +58,22 @@ namespace Xtensive.Orm.Building.Builders
         timespan = TimeSpan.FromTicks(ticks);
         return timespan;
       }
+#if NET6_0_OR_GREATER
+
+      if (valueType == WellKnownTypes.TimeOnly) {
+        if (value is string timeOnlyString && !TimeOnly.TryParse(timeOnlyString, out var timeOnly)) {
+          throw FailToParseValue(fieldName, timeOnlyString);
+        }
+        return timeOnly;
+      }
+
+      if (valueType == WellKnownTypes.DateOnly) {
+        if (value is string dateOnlyString && !DateOnly.TryParse(dateOnlyString, out var dateOnly)) {
+          throw FailToParseValue(fieldName, dateOnlyString);
+        }
+        return dateOnly;
+      }
+#endif
 
       return Convert.ChangeType(value, valueType);
     }

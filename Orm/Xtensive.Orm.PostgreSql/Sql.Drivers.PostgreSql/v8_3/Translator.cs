@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,32 +15,41 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Translator : v8_2.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       var index = node.Index;
       if (!index.IsFullText) {
-        return base.Translate(context, node, section);
+        base.Translate(context, node, section);
+        return;
       }
 
+      var output = context.Output;
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE INDEX {0} ON {1} USING gin ("
-            , QuoteIdentifier(index.Name)
-            , Translate(context, index.DataTable));
+          _ = output.Append("CREATE INDEX ");
+          TranslateIdentifier(output, index.Name);
+          _ = output.Append(" ON ");
+          Translate(context, index.DataTable);
+          _ = output.Append(" USING gin (");
+          break;
         case CreateIndexSection.ColumnsExit:
           // Add actual columns list
-          return string.Concat(GetFulltextVector(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
+          _ = output.Append(GetFulltextVector(context, (FullTextIndex) node.Index));
+          base.Translate(context, node, section);
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
     {
       if (section == NodeSection.Exit) {
-        return node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST";
+        _ = context.Output.Append(node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST");
       }
-      return string.Empty;
     }
 
     internal protected string GetFulltextVector(SqlCompilerContext context, FullTextIndex index)

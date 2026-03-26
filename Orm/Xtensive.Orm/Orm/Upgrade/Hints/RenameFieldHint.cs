@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public bool Equals(RenameFieldHint other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;

@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Compiler
       visitor.Visit(this);
     }
 
-
     // Constructors
 
     public CycleItemNode(int index)

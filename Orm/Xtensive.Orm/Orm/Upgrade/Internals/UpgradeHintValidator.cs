@@ -65,7 +65,8 @@ namespace Xtensive.Orm.Upgrade.Internals
         var targetType = currentModel.Types.SingleOrDefault(type => type.UnderlyingType == targetTypeName);
         if (targetType==null)
           throw TypeNotFound(targetTypeName);
-        var sourceType = reverseTypeMapping[targetType];
+        if (!reverseTypeMapping.TryGetValue(targetType, out var sourceType))
+          throw TypeNotFoundInStorageModel(targetTypeName, hint.OldFieldName);
         var sourceTypeName = sourceType.UnderlyingType;
         if (sourceType.GetField(hint.OldFieldName)==null)
           throw FieldNotFound(sourceTypeName, hint.OldFieldName);
@@ -145,20 +146,17 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
     }
 
-    private static InvalidOperationException TypeNotFound(string name)
-    {
-      return new InvalidOperationException(string.Format(Strings.ExTypeXIsNotFound, name));
-    }
+    private static InvalidOperationException TypeNotFound(string name) =>
+      new InvalidOperationException(string.Format(Strings.ExTypeXIsNotFound, name));
 
-    private static InvalidOperationException FieldNotFound(string typeName, string fieldName)
-    {
-      return new InvalidOperationException(string.Format(Strings.ExFieldXYIsNotFound, typeName, fieldName));
-    }
+    private static InvalidOperationException TypeNotFoundInStorageModel(string typeName, string oldFieldName) =>
+      new InvalidOperationException(string.Format(Strings.ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel, typeName, oldFieldName));
 
-    private static InvalidOperationException HintConflict(UpgradeHint hintOne, UpgradeHint hintTwo)
-    {
-      return new InvalidOperationException(string.Format(Strings.ExHintXIsConflictingWithHintY, hintOne, hintTwo));
-    }
+    private static InvalidOperationException FieldNotFound(string typeName, string fieldName) =>
+      new InvalidOperationException(string.Format(Strings.ExFieldXYIsNotFound, typeName, fieldName));
+
+    private static InvalidOperationException HintConflict(UpgradeHint hintOne, UpgradeHint hintTwo) =>
+      new InvalidOperationException(string.Format(Strings.ExHintXIsConflictingWithHintY, hintOne, hintTwo));
 
     public UpgradeHintValidator(StoredDomainModel currentModel, StoredDomainModel extractedModel, Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping, Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping)
     {

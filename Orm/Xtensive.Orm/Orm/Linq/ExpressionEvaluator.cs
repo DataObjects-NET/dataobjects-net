@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq
           return !WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type);
         }
 
-        if (ma.Expression.Type.IsNullable() && ma.Member.Name == "Value") {
+        if (ma.Expression.Type.IsNullable() && ma.Member.Name.Equals("Value", StringComparison.Ordinal)) {
           return false;
         }
 

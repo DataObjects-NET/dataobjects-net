@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (UncreatableEntity).Assembly, typeof (UncreatableEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (UncreatableEntity).Assembly, typeof (UncreatableEntity).Namespace);
       return configuration;
     }
 

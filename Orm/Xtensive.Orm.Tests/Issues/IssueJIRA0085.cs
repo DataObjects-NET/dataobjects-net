@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       DomainConfiguration config = base.BuildConfiguration();
       //config.ForeignKeyMode = ForeignKeyMode.None;
-      config.Types.Register(typeof (SecondChild).Assembly, typeof (SecondChild).Namespace);
+      config.Types.RegisterCaching(typeof (SecondChild).Assembly, typeof (SecondChild).Namespace);
       return config;
     }
 

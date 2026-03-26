@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.22
 
@@ -16,10 +16,7 @@ namespace Xtensive.Sql.Dml
     
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlVariant>(expression, "expression");
-
-      var replacingExpression = (SqlVariant) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlVariant>(expression);
       Main = replacingExpression.Main;
       Alternative = replacingExpression.Alternative;
       Id = replacingExpression.Id;

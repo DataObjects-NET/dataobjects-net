@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(translated.Query, Is.Not.Null);
         Assert.That(translated.ParameterBindings, Is.Not.Null);
 
-        var select = (SqlSelect) translated.Query;
+        var select = translated.Query;
         select.Columns.Clear();
         select.Columns.Add(SqlDml.Count());
         var compiled = builder.CompileQuery(translated.Query);

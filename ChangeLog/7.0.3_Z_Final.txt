@@ -1,0 +1,3 @@
+[main] NodeCollection supports different equality comparers for internal name index
+[sqlserver] Fixed TimeSpan.Ticks extraction problem
+[oracle] Fixed scheme extraction for case-sensitive schema names

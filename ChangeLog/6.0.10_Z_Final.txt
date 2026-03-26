@@ -1,0 +1,2 @@
+[main] Fixed certain cases of NRE happened on Domain build due to views in extracted schema
+[main] Fixed NotSupportedException appeared on x86 architecture when DateTimeOffset is used in entites

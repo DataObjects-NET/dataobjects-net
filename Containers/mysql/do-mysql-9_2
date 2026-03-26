@@ -1,0 +1,12 @@
+FROM mysql:9.2.0
+
+RUN echo "[mysqld]" >> /etc/mysql/conf.d/mysqld-options.cnf
+RUN echo "collation-server = utf8_general_ci" >> /etc/mysql/conf.d/mysqld-options.cnf
+RUN echo "character-set-server = utf8" >> /etc/mysql/conf.d/mysqld-options.cnf
+RUN echo "sql-mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'" >> /etc/mysql/conf.d/mysqld-options.cnf
+RUN echo "lower_case_table_names = 1" >> /etc/mysql/conf.d/mysqld-options.cnf
+
+COPY init-mysql-instance.sh /docker-entrypoint-initdb.d/
+COPY custom-openssl.cnf /etc/pki/tls/openssl.cnf
+
+RUN chmod +x /docker-entrypoint-initdb.d/init-mysql-instance.sh

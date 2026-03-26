@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void ValidateTest()
     {
       var initialConfiguration = DomainConfigurationFactory.Create();
-      initialConfiguration.Types.Register(typeof(RecycledEntity).Assembly, typeof(RecycledEntity).Namespace);
+      initialConfiguration.Types.RegisterCaching(typeof(RecycledEntity).Assembly, typeof(RecycledEntity).Namespace);
       BuildDomain(initialConfiguration).Dispose();
 
       Domain domain = null;
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Issues
     private DomainConfiguration BuildConfiguration(DomainUpgradeMode upgradeMode)
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(RecycledEntity).Assembly, typeof(RecycledEntity).Namespace);
+      config.Types.RegisterCaching(typeof(RecycledEntity).Assembly, typeof(RecycledEntity).Namespace);
       config.Types.Register(typeof(UpgradeCatcherHandler));
       config.UpgradeMode = upgradeMode;
       return config;

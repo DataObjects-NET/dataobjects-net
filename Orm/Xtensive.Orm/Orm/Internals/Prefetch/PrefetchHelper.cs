@@ -13,18 +13,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal static class PrefetchHelper
   {
-    public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
-    {
-      return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
-    }
-
-    public static IReadOnlyList<PrefetchFieldDescriptor> CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
-    {
-      return type.Fields
+    private static readonly Func<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> CreateDescriptorsForFieldsLoadedByDefault = type =>
+      type.Fields
         .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
         .Select(field => new PrefetchFieldDescriptor(field, false, false))
         .ToList()
         .AsReadOnly();
+
+    public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
+    {
+      return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
     }
 
     public static IReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain, TypeInfo type)

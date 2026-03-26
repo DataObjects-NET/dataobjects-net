@@ -126,8 +126,9 @@ namespace Xtensive.Orm.Tests.Storage
         outerScope.Complete();
         AssertEx.ThrowsInvalidOperationException(outerScope.Dispose);
       }
-      Assert.IsNull(Session.Current.Transaction);
-      Assert.IsNull(StorageTestHelper.GetNativeTransaction());
+      var currentSession = Session.Current;
+      Assert.IsNull(currentSession.Transaction);
+      Assert.IsNull(StorageTestHelper.GetNativeTransaction(currentSession));
     }
 
     [Test]

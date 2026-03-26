@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved_
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.09.24
 
@@ -13,24 +13,24 @@ namespace Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet
   [Index("Name")]
   public interface INamed : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string Name { get; set; }
   }
 
   [Index("Tag")]
   public interface ITagged : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string Tag { get; set; }
   }
 
   [Index("First")]
   public interface IComposite : IEntity
   {
-    [Field]
+    [Field(Length = 50)]
     string First { get; set; }
 
-    [Field]
+    [Field(Length = 50)]
     string Second { get; set; }
   }
 

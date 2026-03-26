@@ -236,9 +236,7 @@ namespace Xtensive.Caching
     public override void RemoveKey(TKey key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      WeakEntry entry;
-      if (items.TryGetValue(key, out entry)) {
-        items.Remove(key);
+      if (items.Remove(key, out var entry)) {
         entry.Dispose();
       }
     }

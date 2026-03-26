@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.08.16
 
@@ -34,6 +34,18 @@ namespace Xtensive.Orm.Configuration
     public IIgnoreRuleConstructionFlow IgnoreColumn(string columnName)
     {
       var rule = new IgnoreRule {Column = columnName};
+      Add(rule);
+      return new IgnoreRuleConstructionFlow(rule);
+    }
+
+    /// <summary>
+    /// Adds to collection <see cref="IgnoreRule"/> for targeted specified <paramref name="indexName"/>. 
+    /// </summary>
+    /// <param name="indexName">Index to ignore</param>
+    /// <returns><see cref="IgnoreRule"/> construction flow</returns>
+    public IIgnoreRuleConstructionFlow IgnoreIndex(string indexName)
+    {
+      var rule = new IgnoreRule { Index = indexName };
       Add(rule);
       return new IgnoreRuleConstructionFlow(rule);
     }

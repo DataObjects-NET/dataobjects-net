@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public bool Equals(FieldInfoRef other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       return 
         TypeRef==other.TypeRef

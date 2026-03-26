@@ -22,10 +22,10 @@ namespace Xtensive.Orm.Building.Builders
         var queue = new Queue<TypeInfo>();
         var clusteredIndexesMap = new Dictionary<TypeInfo, IndexInfo>();
         queue.Enqueue(hierarchy.Root);
-        while (queue.Count > 0) {
-          var type = queue.Dequeue();
-          foreach (var decendant in type.GetDescendants())
+        while (queue.TryDequeue(out var type)) {
+          foreach (var decendant in type.DirectDescendants) {
             queue.Enqueue(decendant);
+          }
           var clusteredIndexes = type.Indexes
             .Where(index => index.IsClustered && index.IsSecondary)
             .ToList();
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // We need to choose index that is clustered in parent type.
 
-      var parentClusteredIndex = clusteredIndexesMap[type.GetAncestor()];
+      var parentClusteredIndex = clusteredIndexesMap[type.Ancestor];
       if (parentClusteredIndex == null)
         throw Exceptions.InternalError("inheritedIndexes is not empty, but parentClusteredIndex is not specified", BuildLog.Instance);
 

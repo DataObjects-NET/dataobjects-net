@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -46,6 +46,10 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor SingleAccessor = new FloatFieldAccessor();
       private static readonly ValueFieldAccessor DoubleAccessor = new DoubleFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeAccessor = new DateTimeFieldAccessor();
+#if NET6_0_OR_GREATER
+      private static readonly ValueFieldAccessor DateOnlyAccessor = new DateOnlyFieldAccessor();
+      private static readonly ValueFieldAccessor TimeOnlyAccessor = new TimeOnlyFieldAccessor();
+#endif
       private static readonly ValueFieldAccessor TimeSpanAccessor = new TimeSpanFieldAccessor();
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
@@ -56,48 +60,75 @@ namespace Xtensive.Tuples.Packed
       public static ValueFieldAccessor GetValue(Type probeType)
       {
         return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
-          ? ResolveByNullableType(probeType)
-          : ResolveByType(probeType);
+          ? (ResolveByNullableType(probeType) ?? TryResolveNullableEnum(probeType))
+          : (ResolveByType(probeType) ?? TryResolveEnum(probeType));
+      }
 
-        ValueFieldAccessor ResolveByType(Type type)
-        {
-          return ReferenceEquals(type, WellKnownTypes.Bool) ? BoolAccessor :
-            ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt16) ? UInt16Accessor :
-            ReferenceEquals(type, WellKnownTypes.Int32) ? Int32Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt32) ? UInt32Accessor :
-            ReferenceEquals(type, WellKnownTypes.Int64) ? Int64Accessor :
-            ReferenceEquals(type, WellKnownTypes.UInt64) ? UInt64Accessor :
-            ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
-            ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
-            ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
-            ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
-            ReferenceEquals(type, WellKnownTypes.Decimal) ? DecimalAccessor :
-            ReferenceEquals(type, WellKnownTypes.Guid) ? GuidAccessor :
-            ReferenceEquals(type, WellKnownTypes.DateTimeOffset) ? DateTimeOffsetAccessor : null;
-        }
+      private static ValueFieldAccessor ResolveByType(Type type)
+      {
+        return ReferenceEquals(type, WellKnownTypes.Int64) ? Int64Accessor :
+          ReferenceEquals(type, WellKnownTypes.Guid) ? GuidAccessor :
+          ReferenceEquals(type, WellKnownTypes.Int32) ? Int32Accessor :
+          ReferenceEquals(type, WellKnownTypes.Bool) ? BoolAccessor :
+          ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
+          ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
+          ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
+          ReferenceEquals(type, WellKnownTypes.Decimal) ? DecimalAccessor :
+          ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
+          ReferenceEquals(type, WellKnownTypes.DateTimeOffset) ? DateTimeOffsetAccessor :
+#if NET6_0_OR_GREATER
+          ReferenceEquals(type, WellKnownTypes.DateOnly) ? DateOnlyAccessor :
+          ReferenceEquals(type, WellKnownTypes.TimeOnly) ? TimeOnlyAccessor :
+#endif
+          ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
+          ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.UInt16) ? UInt16Accessor :
+          ReferenceEquals(type, WellKnownTypes.UInt32) ? UInt32Accessor :
+          ReferenceEquals(type, WellKnownTypes.UInt64) ? UInt64Accessor : null;
+      }
 
-        ValueFieldAccessor ResolveByNullableType(Type type)
-        {
-          return ReferenceEquals(type, WellKnownTypes.NullableBool) ? BoolAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableSByte) ? SByteAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt16) ? UInt16Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableInt32) ? Int32Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt32) ? UInt32Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableInt64) ? Int64Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableUInt64) ? UInt64Accessor :
-            ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDecimal) ? DecimalAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor :
-            ReferenceEquals(type, WellKnownTypes.NullableDateTimeOffset) ? DateTimeOffsetAccessor : null;
+      private static ValueFieldAccessor ResolveByNullableType(Type type)
+      {
+        return ReferenceEquals(type, WellKnownTypes.NullableBool) ? BoolAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt32) ? Int32Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDecimal) ? DecimalAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt64) ? Int64Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDateTimeOffset) ? DateTimeOffsetAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
+#if NET6_0_OR_GREATER
+          ReferenceEquals(type, WellKnownTypes.NullableDateOnly) ? DateOnlyAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableTimeOnly) ? TimeOnlyAccessor :
+#endif
+          ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableSByte) ? SByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt16) ? UInt16Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt32) ? UInt32Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt64) ? UInt64Accessor : null;
+      }
+
+      private static ValueFieldAccessor TryResolveEnum(Type type)
+      {
+        if (!type.IsEnum) {
+          return null;
         }
+        type = Enum.GetUnderlyingType(type);
+        return ResolveByType(type);
+      }
+
+      private static ValueFieldAccessor TryResolveNullableEnum(Type type)
+      {
+        var generic = type.GetGenericArguments()[0];
+        if (!generic.IsEnum) {
+          return null;
+        }
+        type = Enum.GetUnderlyingType(generic);
+        return ResolveByType(type);
       }
     }
 
@@ -111,24 +142,24 @@ namespace Xtensive.Tuples.Packed
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.Accessor = (PackedFieldAccessor) ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor;
+      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor).Index;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ConfigureLen1(Type[] fieldTypes, ref PackedFieldDescriptor descriptor, out int valuesLength,
+    public static void ConfigureLen1(ref Type fieldType, ref PackedFieldDescriptor descriptor, out int valuesLength,
       out int objectsLength)
     {
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[0]);
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
         descriptor.DataPosition = Val064BitCount;
 
         valuesLength = (valueAccessor.ValueBitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
         objectsLength = 0;
-        fieldTypes[0] = valueAccessor.FieldType;
+        fieldType = valueAccessor.FieldType;
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       valuesLength = 1;
       objectsLength = 1;
     }
@@ -148,19 +179,19 @@ namespace Xtensive.Tuples.Packed
         case 1: {
           if (descriptor1.IsObjectField()) {
             descriptor2.DataPosition = Val064BitCount;
-            val1BitCount = descriptor2.Accessor.ValueBitCount;
+            val1BitCount = descriptor2.GetAccessor().ValueBitCount;
           }
           else {
             descriptor1.DataPosition = Val064BitCount;
-            val1BitCount = descriptor1.Accessor.ValueBitCount;
+            val1BitCount = descriptor1.GetAccessor().ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
         }
       }
       // Both descriptors are value descriptors
-      val1BitCount = descriptor1.Accessor.ValueBitCount;
-      val2BitCount = descriptor2.Accessor.ValueBitCount;
+      val1BitCount = descriptor1.GetAccessor().ValueBitCount;
+      val2BitCount = descriptor2.GetAccessor().ValueBitCount;
       if (val2BitCount > val1BitCount) {
         descriptor2.DataPosition = Val064BitCount;
         descriptor1.DataPosition = Val064BitCount + val2BitCount;
@@ -216,7 +247,7 @@ namespace Xtensive.Tuples.Packed
           continue;
         }
 
-        PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
+        PositionUpdaterByRank[descriptor.GetAccessor().Rank].Invoke(ref descriptor, ref counters);
       }
 
       valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
@@ -227,26 +258,27 @@ namespace Xtensive.Tuples.Packed
     private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter)
     {
       descriptor.DataPosition = bitCounter;
-      bitCounter += descriptor.Accessor.ValueBitCount;
+      bitCounter += descriptor.GetAccessor().ValueBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref Counters counters,
       Type[] fieldTypes, int fieldIndex)
     {
-      descriptor.StatePosition = fieldIndex << 1;
+      descriptor.StatePosition = checked((ushort)(fieldIndex << 1));
 
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
+      ref var fieldType = ref fieldTypes[fieldIndex];
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
 
         IncrementerByRank[valueAccessor.Rank].Invoke(ref counters);
 
-        fieldTypes[fieldIndex] = valueAccessor.FieldType;
+        fieldType = valueAccessor.FieldType;
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       descriptor.DataPosition = counters.ObjectCounter++;
     }
 

@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Info
     public ColumnFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

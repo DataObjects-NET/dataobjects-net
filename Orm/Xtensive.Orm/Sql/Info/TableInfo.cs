@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Info
     public PartitionMethods PartitionMethods {
       get { return partitionMethods; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         partitionMethods = value;
       }
     }
@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Info
     public int MaxNumberOfColumns {
       get { return maxNumberOfColumns; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxNumberOfColumns = value;
       }
     }

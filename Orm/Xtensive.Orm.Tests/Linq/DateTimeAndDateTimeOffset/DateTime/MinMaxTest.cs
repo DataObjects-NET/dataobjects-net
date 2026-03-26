@@ -1,3 +1,7 @@
+// Copyright (C) 2016-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,29 +15,29 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void DateTimeMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<DateTimeEntity, DateTime>(c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<DateTimeEntity, DateTime>(s, c => c.DateTime));
     }
 
     [Test]
     public void MillisecondDateTimeMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<MillisecondDateTimeEntity, DateTime>(c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<MillisecondDateTimeEntity, DateTime>(s, c => c.DateTime));
     }
 
     [Test]
     public void NullableDateTimeMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<NullableDateTimeEntity, DateTime?>(c => c.DateTime));
+      ExecuteInsideSession((s) => MinMaxPrivate<NullableDateTimeEntity, DateTime?>(s, c => c.DateTime));
     }
 
-    private void MinMaxPrivate<T, TK>(Expression<Func<T, TK>> selectExpression)
+    private static void MinMaxPrivate<T, TK>(Session session, Expression<Func<T, TK>> selectExpression)
       where T : Entity
     {
       var compiledSelectExpression = selectExpression.Compile();
-      var minLocal = Query.All<T>().ToArray().Min(compiledSelectExpression);
-      var maxLocal = Query.All<T>().ToArray().Max(compiledSelectExpression);
-      var minServer = Query.All<T>().Min(selectExpression);
-      var maxServer = Query.All<T>().Max(selectExpression);
+      var minLocal = session.Query.All<T>().ToArray().Min(compiledSelectExpression);
+      var maxLocal = session.Query.All<T>().ToArray().Max(compiledSelectExpression);
+      var minServer = session.Query.All<T>().Min(selectExpression);
+      var maxServer = session.Query.All<T>().Max(selectExpression);
 
       Assert.AreEqual(minLocal, minServer);
       Assert.AreEqual(maxLocal, maxServer);

@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Dml
 
     public bool Equals(SqlCustomFunctionType other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Dml
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

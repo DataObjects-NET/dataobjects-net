@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CachedQueryTest()
     {
-      Assert.Throws<QueryTranslationException>(() => {
+      _ = Assert.Throws<QueryTranslationException>(() => {
         for (char c = 'A'; c <= 'Z'; c++) {
           string firstChar = c.ToString();
           var builtQuery = GetQuery(Session.Query, firstChar);
@@ -172,6 +172,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupByWithSelectorSelectManyTest()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var result = Session.Query.All<InvoiceLine>()
         .GroupBy(c => c.Track.Name,
           (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))

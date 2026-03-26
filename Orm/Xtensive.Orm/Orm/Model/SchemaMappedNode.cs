@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Model
       get { return mappingDatabase; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingDatabase = value;
       }
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Model
       get { return mappingSchema; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingSchema = value;
       }
     }

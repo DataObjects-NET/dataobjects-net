@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Services
     /// An object implementing <see cref="IDisposable"/> which
     /// disposal will restore previous state of
     /// <see cref="Session.Transaction"/> property;
-    /// <see langword="null" />, if <see cref="Session.Transaction"/> 
+    /// <see langword="null" />, if <see cref="Session.Transaction"/>
     /// is already <see langword="null" />.
     /// </returns>
     public IDisposable NullifySessionTransaction()
@@ -76,7 +77,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     /// <param name="persistenceState">Type of entity change.</param>
     /// <returns><see cref="EntityState"/>s with the specified <paramref name="persistenceState"/>.</returns>
-    public IEnumerable<EntityState> GetChangedEntities(PersistenceState persistenceState)
+    public RegistryItems<EntityState> GetChangedEntities(PersistenceState persistenceState)
     {
       return Session.EntityChangeRegistry.GetItems(persistenceState);
     }

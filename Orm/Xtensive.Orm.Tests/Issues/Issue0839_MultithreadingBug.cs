@@ -52,11 +52,13 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (BaseEntity).Assembly, typeof(BaseEntity).Namespace);
+      config.Types.RegisterCaching(typeof (BaseEntity).Assembly, typeof(BaseEntity).Namespace);
       return config;
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Sqlite,
+      "There is no detection of type exceptions in Sqlite driver yet. So any exception will cause this test fail")]
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {

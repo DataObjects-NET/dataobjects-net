@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Dml
     public SqlExpression Where {
       get { return where; }
       set {
-        if (!value.IsNullReference() && value.GetType()!=typeof(SqlCursor))
+        if (value is not null && value.GetType()!=typeof(SqlCursor))
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -74,20 +74,20 @@ namespace Xtensive.Sql.Dml
       }
 
       var clone = new SqlUpdate();
-      if (update!=null)
-        clone.Update = (SqlTableRef)Update.Clone(context);
-      if (from!=null)
-        clone.From = (SqlQueryRef)from.Clone(context);
+      if (update != null)
+        clone.Update = (SqlTableRef) Update.Clone(context);
+      if (from != null)
+        clone.From = (SqlQueryRef) from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
         clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
-      if (!where.IsNullReference())
-        clone.Where = (SqlExpression)where.Clone(context);
-      if (!limit.IsNullReference())
-        clone.Limit = (SqlExpression)where.Clone(context);
-      if (Hints.Count>0)
+          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
+      if (where is not null)
+        clone.Where = (SqlExpression) where.Clone(context);
+      if (limit is not null)
+        clone.Limit = (SqlExpression) where.Clone(context);
+      if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
+          clone.Hints.Add((SqlHint) hint.Clone(context));
 
       context.NodeMapping[this] = clone;
       return clone;

@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -20,7 +21,8 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
-    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
+    private readonly StateLifetimeToken sessionLifetimeToken;
+    private readonly List<StateLifetimeToken> promotedLifetimeTokens;
     private int nextSavepoint;
 
     /// <summary>
@@ -242,7 +244,7 @@ namespace Xtensive.Orm
     internal async ValueTask CommitTransaction(Transaction transaction, bool isAsync)
     {
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXCommittingTransaction, this);
+        OrmLog.Debug(nameof(Strings.LogSessionXCommittingTransaction), this);
       }
 
       SystemEvents.NotifyTransactionPrecommitting(transaction);
@@ -283,7 +285,7 @@ namespace Xtensive.Orm
     {
       try {
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXRollingBackTransaction, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXRollingBackTransaction), this);
         }
 
         SystemEvents.NotifyTransactionRollbacking(transaction);
@@ -366,7 +368,7 @@ namespace Xtensive.Orm
       switch (transaction.State) {
       case TransactionState.Committed:
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXCommittedTransaction, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
         }
 
         SystemEvents.NotifyTransactionCommitted(transaction);
@@ -374,7 +376,7 @@ namespace Xtensive.Orm
         break;
       case TransactionState.RolledBack:
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXRolledBackTransaction, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
         }
 
         SystemEvents.NotifyTransactionRollbacked(transaction);
@@ -453,7 +455,7 @@ namespace Xtensive.Orm
       Transaction transaction, bool isAsync, CancellationToken token = default)
     {
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXOpeningTransaction, this);
+        OrmLog.Debug(nameof(Strings.LogSessionXOpeningTransaction), this);
       }
 
       SystemEvents.NotifyTransactionOpening(transaction);
@@ -469,7 +471,7 @@ namespace Xtensive.Orm
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled) {
-        logIndentScope = OrmLog.DebugRegion(Strings.LogSessionXTransaction, this);
+        logIndentScope = OrmLog.DebugRegion(nameof(Strings.LogSessionXTransaction), this);
       }
 
       SystemEvents.NotifyTransactionOpened(transaction);
@@ -491,6 +493,15 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+    }
+
+    internal bool TryPromoteTokens(IEnumerable<StateLifetimeToken> tokens)
+    {
+      if (promotedLifetimeTokens is null) {
+        return false;
+      }
+      promotedLifetimeTokens.AddRange(tokens);
+      return true;
     }
   }
 }

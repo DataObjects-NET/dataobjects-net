@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -41,10 +42,28 @@ namespace Xtensive.Orm.Providers
       ParameterContext parameterContext)
     {
       Prepare();
-      foreach (var tuple in tuples)
+      foreach (var tuple in tuples) {
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext(parameterContext))
+      }
+
+      using (var context = new CommandProcessorContext(parameterContext)) {
         commandProcessor.ExecuteTasks(context);
+      }
+    }
+
+    /// <inheritdoc/>
+    async Task IProviderExecutor.StoreAsync(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples,
+      ParameterContext parameterContext, CancellationToken token)
+    {
+      await PrepareAsync(token).ConfigureAwait(false);
+
+      foreach (var tuple in tuples) {
+        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+      }
+
+      using (var context = new CommandProcessorContext(parameterContext)) {
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+      }
     }
 
     /// <inheritdoc/>

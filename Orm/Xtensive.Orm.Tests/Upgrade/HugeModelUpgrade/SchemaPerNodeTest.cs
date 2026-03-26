@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     {
       var configuration = base.BuildConfiguration();
       configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
-      configuration.Types.Register(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
       return configuration;
     }
 

@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade
         }
 
         if (!found) {
-          UpgradeLog.Info(Strings.LogDomainModelIsNotFoundInStorage);
+          UpgradeLog.Info(nameof(Strings.LogDomainModelIsNotFoundInStorage));
           return;
         }
 

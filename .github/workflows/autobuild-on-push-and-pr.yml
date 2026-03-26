@@ -1,0 +1,71 @@
+name: ⚙🏗 Automated build
+run-name: Auto-build run on '${{ github.event_name }}'. Build ${{ github.run_number }}
+
+on:
+  push:
+    branches:
+      - '7.1'
+      - '7.1-*'
+    paths-ignore:
+      - '.github/**'
+      - 'ChangeLog/**'
+      - 'Containers/**'
+      - 'Documentation/**'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.mailmap'
+      - 'License.txt'
+      - 'ReadMe.md'
+      - 'User.Directory.Build.props.example'
+      - 'Version.props'
+
+  pull_request:
+    branches:
+      - '7.1'
+    paths-ignore:
+      - '.github/**'
+      - 'ChangeLog/**'
+      - 'Containers/**'
+      - 'Documentation/**'
+      - '.editorconfig'
+      - '.gitattributes'
+      - '.mailmap'
+      - 'License.txt'
+      - 'ReadMe.md'
+      - 'User.Directory.Build.props.example'
+      - 'Version.props'
+
+env:
+  BUILD_CONFIG: Release
+  TEST_VERBOSITY: minimal
+
+concurrency:
+  # Groups will not be the same for push and pull_request events!
+  # If not skip jobs on condition two identical runs will happen wasting compute resources
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    #We have this filter to avoid double runs on PRs and pushes when branch fits internal branching rules
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' &&
+        (github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name  ||
+         (github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && !startsWith(github.head_ref, '7.1-'))))
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Orm
+        if: ${{ success() }}
+        run: dotnet build Orm.sln --configuration $BUILD_CONFIG
+

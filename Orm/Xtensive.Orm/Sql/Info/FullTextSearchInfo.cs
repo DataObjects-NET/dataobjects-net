@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Info
     public FullTextSearchFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

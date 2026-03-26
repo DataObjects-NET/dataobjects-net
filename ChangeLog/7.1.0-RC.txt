@@ -1,0 +1,4 @@
+[main] Add support for new .NET 6 DateOnly and TimeOnly types
+[main] Updated BitFaster.Caching package reference to v2.0.0
+[main] Fixed ColumnInfoCollection leakage on building indexes
+[sqlserver] Updated Microsoft.Data.SqlClient package references to v5.0.0 and v6.0.1

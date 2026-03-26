@@ -34,6 +34,28 @@ namespace Xtensive.Orm
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
+    #region Nested types
+    private class SeekKeyTupleBuilder
+    {
+      private readonly TupleDescriptor keyDescriptor;
+      private readonly IReadOnlyList<int> itemColumnOffsets;
+
+      public Tuple Build(Tuple ownerKeyTuple, Tuple itemTuple)
+      {
+        var result = Tuple.Create(keyDescriptor);
+        ownerKeyTuple.CopyTo(result);
+        itemTuple.CopyTo(result, itemColumnOffsets);
+        return result;
+      }
+
+      public SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<int> itemColumnOffsets)
+      {
+        this.keyDescriptor = keyDescriptor;
+        this.itemColumnOffsets = itemColumnOffsets;
+      }
+    }
+    #endregion
+
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
 #if DEBUG
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
@@ -156,7 +178,7 @@ namespace Xtensive.Orm
     protected void EnsureOwnerIsNotRemoved()
     {
       if (Owner.IsRemoved) {
-        throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+        throw new InvalidOperationException(string.Format(Strings.ExEntityOfTypeXIsRemoved, Owner.TypeInfo.Name));
       }
     }
 
@@ -971,26 +993,6 @@ namespace Xtensive.Orm
 
       var seekKeyTupleBuilder = new SeekKeyTupleBuilder(keyDescriptor, itemColumnOffsets);
       return new EntitySetTypeState(seek, seekKeyTupleBuilder.Build, itemCtor, entitySet.GetItemCountQueryDelegate(field));
-    }
-
-    private class SeekKeyTupleBuilder
-    {
-      private readonly TupleDescriptor keyDescriptor;
-      private readonly IReadOnlyList<int> itemColumnOffsets;
-
-      public Tuple Build(Tuple ownerKeyTuple, Tuple itemTuple)
-      {
-        var result = Tuple.Create(keyDescriptor);
-        ownerKeyTuple.CopyTo(result);
-        itemTuple.CopyTo(result, itemColumnOffsets);
-        return result;
-      }
-
-      public SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<int> itemColumnOffsets)
-      {
-        this.keyDescriptor = keyDescriptor;
-        this.itemColumnOffsets = itemColumnOffsets;
-      }
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)

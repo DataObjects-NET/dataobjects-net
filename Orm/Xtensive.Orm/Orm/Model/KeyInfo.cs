@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Model
     {
       get { return hierarchy; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         hierarchy = value;
       }
     }
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Model
       get { return generatorName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorName = value;
       }
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Model
       get { return generatorBaseName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorBaseName = value;
       }
     }
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Model
       get { return generatorKind; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         generatorKind = value;
       }
     }
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Model
     public SequenceInfo Sequence {
       get { return sequence; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         sequence = value;
       }
     }
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Model
     {
       get { return isFirstAmongSimilarKeys; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isFirstAmongSimilarKeys = value;
       }
     }
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Model
     {
       get { return equalityIdentifier; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         equalityIdentifier = value;
       }
     }

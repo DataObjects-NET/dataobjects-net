@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public SystemColumn SystemColumn { get; }
 
-    // Constructors
-
     private static RecordSetHeader CreateHeaderAndColumn(CompilableProvider source, string columnName, out SystemColumn systemColumn)
     {
       var sourceHeader = source.Header;
       systemColumn = new SystemColumn(columnName, sourceHeader.Length, WellKnownTypes.Int64);
       return sourceHeader.Add(systemColumn);
     }
+
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.

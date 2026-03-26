@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Model
       get { return dataType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         dataType = value;
       }
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Model
       get { return boundaryType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         boundaryType = value;
       }
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Model
       get { return boundaryValues; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         boundaryValues = value;
       }
     }

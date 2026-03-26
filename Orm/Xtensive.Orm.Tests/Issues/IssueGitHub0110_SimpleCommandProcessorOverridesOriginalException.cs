@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(InventoryBalance).Assembly, typeof(InventoryBalance).Namespace);
+      configuration.Types.RegisterCaching(typeof(InventoryBalance).Assembly, typeof(InventoryBalance).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var defaultSessionConfig = configuration.Sessions.Default;
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       _ = theStarter.Set();
 
-      while (!task1State.Ended && !task1State.Ended) {
+      while (!task1State.Ended || !task2State.Ended) {
         Thread.Sleep(100);
       }
 

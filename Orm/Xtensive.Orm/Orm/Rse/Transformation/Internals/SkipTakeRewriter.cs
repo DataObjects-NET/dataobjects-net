@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -52,10 +53,12 @@ namespace Xtensive.Orm.Rse.Transformation
           visitedProvider = new SkipProvider(visitedProvider, State.Skip);
 
         // add select removing RowNumber column
-        if (requiresRowNumber)
+        if (requiresRowNumber) {
+          var headerCount = visitedProvider.Header.Length - 1;
           visitedProvider = new SelectProvider(
             visitedProvider,
-            Enumerable.Range(0, visitedProvider.Header.Length - 1).ToArray());
+            CollectionUtils.RangeToArray(0, headerCount));
+        }
 
         return visitedProvider;
       }

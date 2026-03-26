@@ -30,6 +30,7 @@ namespace Xtensive.Linq
     Count,
     DefaultIfEmpty,
     Distinct,
+    DistinctBy,
     ElementAt,
     ElementAtOrDefault,
     Except,

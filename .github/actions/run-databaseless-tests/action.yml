@@ -1,0 +1,52 @@
+name: Run set of storage-independant tests
+description: Groups runs of several test projects that don't require a database
+
+inputs:
+  build_config:
+    description: 'Build configuration'
+    required: true
+    default: 'Release'
+    type: string
+  test_output_verbosity:
+    description: 'Verbosity for dotnet test command'
+    required: true
+    default: 'minimal'
+    type: string
+  test_results_folder:
+    description: 'Folder where trx-files will be located for later parsing'
+    required: true
+    type: string
+  run_core:
+    description: 'Run Xtensive.Orm.Tests.Core tests'
+    required: true
+    default: true
+    type: boolean
+  run_log4net:
+    description: 'Run Xtensive.Orm.Logging.log4net tests'
+    required: true
+    default: true
+    type: boolean
+  run_nlog:
+    description: 'Run Xtensive.Orm.Logging.NLog tests'
+    required: true
+    default: true
+    type: boolean
+
+runs:
+  using: "composite"
+  steps:
+    # core tests does not require any storage and take not so much time
+    - name: Run Core tests
+      if: ${{ !cancelled() && fromJSON(inputs.run_core) }}
+      shell: bash
+      run: dotnet test Orm/Xtensive.Orm.Tests.Core/Xtensive.Orm.Tests.Core.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Tests.Core.trx"  --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}
+
+    - name: Run log4net tests
+      if: ${{ !cancelled() && fromJSON(inputs.run_log4net) }}
+      shell: bash
+      run: dotnet test Extensions/Xtensive.Orm.Logging.log4net.Tests/Xtensive.Orm.Logging.log4net.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Logging.log4net.Tests.trx" --results-directory ${{ inputs.test_results_folder }}  -v ${{ inputs.test_output_verbosity }}
+
+    - name: Run NLog tests
+      if: ${{ !cancelled() && fromJSON(inputs.run_nlog) }}
+      shell: bash
+      run: dotnet test Extensions/Xtensive.Orm.Logging.NLog.Tests/Xtensive.Orm.Logging.NLog.Tests.csproj -c ${{ inputs.build_config }} --no-build --logger "trx;LogFileName=Xtensive.Orm.Logging.NLog.Tests.trx" --results-directory ${{ inputs.test_results_folder }} -v ${{ inputs.test_output_verbosity }}

@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Info
     public TemporaryTableFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }
@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Info
     public int MaxNumberOfColumns {
       get { return maxNumberOfColumns; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxNumberOfColumns = value;
       }
     }

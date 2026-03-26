@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Upgrade
       get { return configuration; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         configuration = value;
       }
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Upgrade
       get { return handlerFactory; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         handlerFactory = value;
       }
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Upgrade
       get { return storageDriver; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         storageDriver = value;
       }
     }
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Upgrade
       get { return nameBuilder; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         nameBuilder = value;
       }
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Upgrade
       get { return mappingResolver; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingResolver = value;
       }
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Upgrade
       get { return indexFilterCompiler; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         indexFilterCompiler = value;
       }
     }
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Upgrade
       get { return modules; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         modules = value;
       }
     }
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Upgrade
       get { return orderedUpgradeHandlers; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         orderedUpgradeHandlers = value;
       }
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Upgrade
       get { return upgradeHandlers; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeHandlers = value;
       }
     }
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Upgrade
       get { return catalogNameBuilder; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         catalogNameBuilder = value;
       }
     }
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Upgrade
       get { return connection; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connection = value;
       }
     }

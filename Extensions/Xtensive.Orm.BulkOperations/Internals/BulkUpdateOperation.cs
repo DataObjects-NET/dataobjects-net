@@ -54,11 +54,11 @@ namespace Xtensive.Orm.BulkOperations
       }
     }
 
-    private QueryCommand CreateCommand(QueryTranslationResult request)
+    private QueryCommand CreateCommand(in QueryTranslationResult request)
     {
       var update = SqlDml.Update(SqlDml.TableRef(PrimaryIndexes[0].Table));
       setOperation.Statement = SetStatement.Create(update);
-      Join(update, (SqlSelect) request.Query);
+      Join(update, request.Query);
       setOperation.AddValues();
       return ToCommand(update);
     }

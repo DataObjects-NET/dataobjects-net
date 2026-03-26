@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.02.24
 
@@ -9,15 +9,15 @@ using System;
 namespace Xtensive.Orm.Building.DependencyGraph
 {
   [Serializable]
-  internal sealed class Edge<TValue>
+  internal readonly struct Edge<TValue> : IEquatable<Edge<TValue>>
   {
-    public Node<TValue> Tail { get; private set; }
+    public Node<TValue> Tail { get; }
 
-    public Node<TValue> Head { get; private set; }
+    public Node<TValue> Head { get; }
 
-    public EdgeKind Kind { get; private set; }
+    public EdgeKind Kind { get; }
 
-    public EdgeWeight Weight { get; private set; }
+    public EdgeWeight Weight { get; }
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -28,31 +28,18 @@ namespace Xtensive.Orm.Building.DependencyGraph
     }
 
     /// <inheritdoc/>
-    public bool Equals(Edge<TValue> obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj.Tail, Tail) && Equals(obj.Head, Head) && obj.Kind == Kind && obj.Weight == Weight;
-    }
+    public bool Equals(Edge<TValue> obj) =>
+      Equals(obj.Tail, Tail) && Equals(obj.Head, Head) && obj.Kind == Kind && obj.Weight == Weight;
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      ReferenceEquals(this, obj)
-      || obj is Edge<TValue> other && Equals(other);
+      obj is Edge<TValue> other && Equals(other);
 
     /// <inheritdoc/>
-    public static bool operator ==(Edge<TValue> left, Edge<TValue> right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(Edge<TValue> left, Edge<TValue> right) => left.Equals(right);
 
     /// <inheritdoc/>
-    public static bool operator !=(Edge<TValue> left, Edge<TValue> right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(Edge<TValue> left, Edge<TValue> right) => !left.Equals(right);
 
     /// <inheritdoc/>
     public override string ToString()

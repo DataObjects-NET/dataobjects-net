@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     public bool Equals(PartialIndexFilterInfo other)
     {
-      if (ReferenceEquals(null, other))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

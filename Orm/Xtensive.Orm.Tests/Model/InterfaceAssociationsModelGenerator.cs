@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm;
@@ -1284,7 +1284,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest01()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model1.Item).Assembly, typeof(Model1.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model1.Item).Assembly, typeof(Model1.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1351,7 +1351,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest02()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model2.Item).Assembly, typeof(Model2.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model2.Item).Assembly, typeof(Model2.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1418,7 +1418,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest03()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model3.Item).Assembly, typeof(Model3.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model3.Item).Assembly, typeof(Model3.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1485,7 +1485,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest04()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model4.Item).Assembly, typeof(Model4.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model4.Item).Assembly, typeof(Model4.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1552,7 +1552,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest05()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model5.Item).Assembly, typeof(Model5.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model5.Item).Assembly, typeof(Model5.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1619,7 +1619,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest06()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model6.Item).Assembly, typeof(Model6.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model6.Item).Assembly, typeof(Model6.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1686,21 +1686,21 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest07()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model7.Item).Assembly, typeof(Model7.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model7.Item).Assembly, typeof(Model7.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest08()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model8.Item).Assembly, typeof(Model8.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model8.Item).Assembly, typeof(Model8.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest09()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model9.Item).Assembly, typeof(Model9.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model9.Item).Assembly, typeof(Model9.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1767,7 +1767,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest10()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model10.Item).Assembly, typeof(Model10.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model10.Item).Assembly, typeof(Model10.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1834,21 +1834,21 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest11()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model11.Item).Assembly, typeof(Model11.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model11.Item).Assembly, typeof(Model11.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest12()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model12.Item).Assembly, typeof(Model12.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model12.Item).Assembly, typeof(Model12.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest13()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model13.Item).Assembly, typeof(Model13.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model13.Item).Assembly, typeof(Model13.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1915,14 +1915,14 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest14()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model14.Item).Assembly, typeof(Model14.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model14.Item).Assembly, typeof(Model14.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest15()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model15.Item).Assembly, typeof(Model15.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model15.Item).Assembly, typeof(Model15.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -1989,7 +1989,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest16()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model16.Item).Assembly, typeof(Model16.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model16.Item).Assembly, typeof(Model16.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2056,7 +2056,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest17()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model17.Item).Assembly, typeof(Model17.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model17.Item).Assembly, typeof(Model17.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2123,28 +2123,28 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest18()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model18.Item).Assembly, typeof(Model18.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model18.Item).Assembly, typeof(Model18.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest19()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model19.Item).Assembly, typeof(Model19.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model19.Item).Assembly, typeof(Model19.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest20()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model20.Item).Assembly, typeof(Model20.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model20.Item).Assembly, typeof(Model20.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest21()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model21.Item).Assembly, typeof(Model21.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model21.Item).Assembly, typeof(Model21.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2211,7 +2211,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest22()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model22.Item).Assembly, typeof(Model22.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model22.Item).Assembly, typeof(Model22.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2278,21 +2278,21 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest23()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model23.Item).Assembly, typeof(Model23.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model23.Item).Assembly, typeof(Model23.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest24()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model24.Item).Assembly, typeof(Model24.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model24.Item).Assembly, typeof(Model24.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest25()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model25.Item).Assembly, typeof(Model25.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model25.Item).Assembly, typeof(Model25.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2359,14 +2359,14 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest26()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model26.Item).Assembly, typeof(Model26.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model26.Item).Assembly, typeof(Model26.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest27()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model27.Item).Assembly, typeof(Model27.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model27.Item).Assembly, typeof(Model27.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2433,7 +2433,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest28()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model28.Item).Assembly, typeof(Model28.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model28.Item).Assembly, typeof(Model28.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2500,7 +2500,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest29()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model29.Item).Assembly, typeof(Model29.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model29.Item).Assembly, typeof(Model29.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2567,14 +2567,14 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest30()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model30.Item).Assembly, typeof(Model30.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model30.Item).Assembly, typeof(Model30.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest31()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model31.Item).Assembly, typeof(Model31.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model31.Item).Assembly, typeof(Model31.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2641,14 +2641,14 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest32()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model32.Item).Assembly, typeof(Model32.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model32.Item).Assembly, typeof(Model32.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
     [Test]
     public void CombinedTest33()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model33.Item).Assembly, typeof(Model33.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model33.Item).Assembly, typeof(Model33.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2715,7 +2715,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest34()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model34.Item).Assembly, typeof(Model34.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model34.Item).Assembly, typeof(Model34.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2782,7 +2782,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest35()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model35.Item).Assembly, typeof(Model35.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model35.Item).Assembly, typeof(Model35.Item).Namespace);
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -2849,7 +2849,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
     public void CombinedTest36()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Model36.Item).Assembly, typeof(Model36.Item).Namespace);
+      config.Types.RegisterCaching(typeof(Model36.Item).Assembly, typeof(Model36.Item).Namespace);
       Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
   }

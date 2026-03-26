@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -332,7 +332,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (PaymentTransfer).Assembly, typeof (PaymentTransfer).Namespace);
+      config.Types.RegisterCaching(typeof (PaymentTransfer).Assembly, typeof (PaymentTransfer).Namespace);
       var systemSession = new SessionConfiguration(WellKnown.Sessions.System);
       systemSession.DefaultCommandTimeout = 100;
       config.Sessions.Add(systemSession);

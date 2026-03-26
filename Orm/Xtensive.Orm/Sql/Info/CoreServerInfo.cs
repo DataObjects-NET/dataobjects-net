@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Info
         return serverVersion;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         serverVersion = value;
       }
     }
@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Info
         return connectionString;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionString = value;
       }
     }
@@ -54,7 +54,7 @@ namespace Xtensive.Sql.Info
         return databaseName;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         databaseName = value;
       }
     }
@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Info
         return defaultSchemaName;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultSchemaName = value;
       }
     }
@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Info
         return multipleActiveResultSets;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         multipleActiveResultSets = value;
       }
     }

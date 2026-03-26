@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       config.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      config.Types.Register(typeof (Class1).Assembly, typeof (Class1).Namespace);
+      config.Types.RegisterCaching(typeof (Class1).Assembly, typeof (Class1).Namespace);
       config.Sessions.Default.DefaultIsolationLevel = IsolationLevel.Serializable;
 
       return config;

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.11.26
 
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Model
       get { return field; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (field != null)
           throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
         field = value;
@@ -68,16 +68,18 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    public int Count => map.Count;
+
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       map.Add(typeDiscriminatorValue, type);
       reversedMap.Add(type, typeDiscriminatorValue);
     }
 
     public void RegisterDefaultType(TypeInfo type)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (@default != null)
         throw new InvalidOperationException(Strings.ExDefaultTypeIsAlreadyRegistered);
 

@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Model
       get { return dataType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         dataType = value;
       }
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Model
       get { return defaultValue; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultValue = value;
       }
     }
@@ -70,7 +70,7 @@ namespace Xtensive.Sql.Model
       get { return collation; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         collation = value;
       }
     }

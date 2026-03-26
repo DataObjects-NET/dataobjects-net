@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -245,36 +245,29 @@ namespace Xtensive.Orm
 
     internal void NotifyDbCommandExecuting(DbCommand command)
     {
-      if (DbCommandExecuting!=null)
-        DbCommandExecuting(this, new DbCommandEventArgs(command));
+      DbCommandExecuting?.Invoke(this, new DbCommandEventArgs(command));
     }
 
     internal void NotifyDbCommandExecuted(DbCommand command, Exception exception = null)
     {
-      if(DbCommandExecuted!=null)
-        DbCommandExecuted(this, new DbCommandEventArgs(command, exception));
-
+      DbCommandExecuted?.Invoke(this, new DbCommandEventArgs(command, exception));
     }
 
     internal Expression NotifyQueryExecuting(Expression expression)
     {
       var args = new QueryEventArgs(expression);
-      if (QueryExecuting!=null) {
-        QueryExecuting(this, args);
-      }
+      QueryExecuting?.Invoke(this, args);
       return args.Expression;
     }
 
     internal void NotifyQueryExecuted(Expression expression, Exception exception = null)
     {
-      if (QueryExecuted!=null)
-        QueryExecuted(this, new QueryEventArgs(expression, exception));
+      QueryExecuted?.Invoke(this, new QueryEventArgs(expression, exception));
     }
 
     internal void NotifyDisposing()
     {
-      if (Disposing!=null)
-        Disposing(this, EventArgs.Empty);
+      Disposing?.Invoke(this, EventArgs.Empty);
     }
 
     internal void NotifyPersisting()

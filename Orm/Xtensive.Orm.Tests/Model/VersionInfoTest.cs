@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), @namespace);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), @namespace);
       return Domain.Build(configuration);
     }
 

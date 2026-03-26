@@ -24,52 +24,42 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
   // cases when cross-namespace movements appear.
   public class UpgradeTest
   {
-    private Domain domain;
-
     [OneTimeSetUp]
-    public void TestSetUp()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.FullText);
-    }
+    public void TestSetUp() => Require.AllFeaturesSupported(ProviderFeatures.FullText);
 
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (var session = domain.OpenSession()) {
-        using (var tx = session.OpenTransaction()) {
-          var acticle = new Article();
-          tx.Complete();
-        }
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var acticle = new Article();
+        tx.Complete();
       }
     }
     
     [Test]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Validate);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<Model.Version2.Article>().Count());
-        }
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Validate))
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        Assert.AreEqual(1, session.Query.All<Model.Version2.Article>().Count());
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
-      string ns = typeof(Article).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(Article).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
   }

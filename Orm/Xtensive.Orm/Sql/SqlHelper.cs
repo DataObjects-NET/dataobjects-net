@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -88,7 +88,7 @@ namespace Xtensive.Sql
     public static string QuoteIdentifierWithBackTick(string[] names) 
       => Quote(EscapeSetup.WithBackTick, names);
 
-    private static unsafe string Quote(in EscapeSetup setup, string[] names)
+    public static unsafe string Quote(in EscapeSetup setup, string[] names)
     {
       // That's one of frequently called methods, so it's optimized for speed. 
 
@@ -169,6 +169,31 @@ namespace Xtensive.Sql
       var nanoseconds = SqlDml.Extract(SqlIntervalPart.Nanosecond, interval);
 
       return IntervalToMilliseconds(interval) * 1000000L + nanoseconds;
+    }
+
+    /// <summary>
+    /// Checks if <paramref name="expressionToCheck"/> is indeed a representation of TimeSpan.Ticks
+    /// created by <see cref="Xtensive.Orm.Providers.TimeSpanCompilers.TimeSpanTicks"/>
+    /// </summary>
+    /// <param name="expressionToCheck">Expression to check</param>
+    /// <param name="sourceInterval">Source interval expression</param>
+    /// <returns></returns>
+    public static bool IsTimeSpanTicks(SqlExpression expressionToCheck, out SqlExpression sourceInterval)
+    {
+      sourceInterval = null;
+
+      if (expressionToCheck is SqlCast sqlCast
+        && (sqlCast.Type.Type == SqlType.Int64 || sqlCast.Type.Type == SqlType.Decimal)) {
+        var operand = sqlCast.Operand;
+        if (operand is SqlBinary sqlBinary && sqlBinary.NodeType == SqlNodeType.Divide) {
+          var left = sqlBinary.Left;
+          if (left is SqlFunctionCall functionCall && functionCall.FunctionType == SqlFunctionType.IntervalToNanoseconds) {
+            sourceInterval = functionCall.Arguments[0];
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     /// <summary>

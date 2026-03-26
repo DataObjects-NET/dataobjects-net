@@ -1,0 +1,72 @@
+{
+  "Xtensive.Orm.Reprocessing.Json.Empty": {
+
+  },
+
+  "Xtensive.Orm.Reprocessing.Json.AllEmpty": {
+    "DefaultTransactionOpenMode": "",
+    "DefaultExecuteStrategy": ""
+  },
+
+
+  "Xtensive.Orm.Reprocessing.Json.OnlyTM.Empty": {
+    "DefaultTransactionOpenMode": ""
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyTM.Auto": {
+    "DefaultTransactionOpenMode": "Auto"
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyTM.New": {
+    "DefaultTransactionOpenMode": "New"
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyTM.Default": {
+    "DefaultTransactionOpenMode": "Default"
+  },
+
+  "Xtensive.Orm.Reprocessing.Json.OnlyStrategy.Empty": {
+    "DefaultExecuteStrategy": ""
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyStrategy.HandleReprocessible": {
+    "DefaultExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleReprocessableExceptionStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyStrategy.HandleUnique": {
+    "DefaultExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.OnlyStrategy.NonExistent": {
+    "DefaultExecuteStrategy": "Xtensive.Orm.Reprocessing.DummyStrategy, Xtensive.Orm.Reprocessing"
+  },
+
+
+  "Xtensive.Orm.Reprocessing.Json.Naming.LC": {
+    "defaulttransactionopenmode": "Auto",
+    "defaultexecutestrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Naming.UC": {
+    "DEFAULTTRANSACTIONOPENMODE": "Auto",
+    "DEFAULTEXECUTESTRATEGY": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Naming.CC": {
+    "defaultTransactionOpenMode": "Auto",
+    "defaultExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Naming.PC": {
+    "DefaultTransactionOpenMode": "Auto",
+    "DefaultExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+
+  "Xtensive.Orm.Reprocessing.Json.Mistype.LC": {
+    "defaultttransactionopenmode": "Auto",
+    "defaulttexecutestrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Mistype.UC": {
+    "DEFAULTTTRANSACTIONOPENMODE": "Auto",
+    "DEFAULTTEXECUTESTRATEGY": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Mistype.CC": {
+    "defaultTtransactionOpenMode": "Auto",
+    "defaulttExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  },
+  "Xtensive.Orm.Reprocessing.Json.Mistype.PC": {
+    "DefaultTtransactionOpenMode": "Auto",
+    "DefaulttExecuteStrategy": "Xtensive.Orm.Reprocessing.HandleUniqueConstraintViolationStrategy, Xtensive.Orm.Reprocessing"
+  }
+}

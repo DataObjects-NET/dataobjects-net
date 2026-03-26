@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.01.27
 
@@ -19,15 +19,14 @@ namespace Xtensive.Orm.Building
   internal sealed class PrefetchActionContainer
   {
     private readonly TypeInfo type;
-    private List<AssociationInfo> associations;
     private IReadOnlyList<PrefetchFieldDescriptor> fields;
 
-    public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction()
+    // Returns null if associations is empty
+    public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction(IEnumerable<AssociationInfo> associations)
     {
-      fields = associations
-          .SelectToList(association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
-          .AsReadOnly();
-      return Prefetch;
+      fields = associations.Select(static association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
+        .ToList();
+      return fields.Count > 0 ? Prefetch : null;
     }
 
     private void Prefetch(SessionHandler sh, IEnumerable<Key> keys)
@@ -36,10 +35,9 @@ namespace Xtensive.Orm.Building
         sh.Prefetch(key, type, fields);
     }
 
-    public PrefetchActionContainer(TypeInfo type, List<AssociationInfo> associations)
+    public PrefetchActionContainer(TypeInfo type)
     {
       this.type = type;
-      this.associations = associations;
       fields = Array.Empty<PrefetchFieldDescriptor>();
     }
   }

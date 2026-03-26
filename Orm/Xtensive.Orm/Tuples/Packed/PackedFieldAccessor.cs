@@ -1,15 +1,18 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.01.22
 
 using System;
+using System.Numerics;
 
 namespace Xtensive.Tuples.Packed
 {
   internal abstract class PackedFieldAccessor
   {
+    public static readonly PackedFieldAccessor[] All = new PackedFieldAccessor[20];
+
     /// <summary>
     /// Getter delegate.
     /// </summary>
@@ -33,11 +36,11 @@ namespace Xtensive.Tuples.Packed
     public readonly int Rank;
     public readonly int ValueBitCount;
     protected readonly long ValueBitMask;
+    public readonly byte Index;
 
     public void SetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
-      var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
-      if (setter != null) {
+      if ((isNullable ? NullableSetter : Setter) is SetValueDelegate<T> setter) {
         setter.Invoke(tuple, descriptor, value);
       }
       else {
@@ -75,9 +78,14 @@ namespace Xtensive.Tuples.Packed
 
     public abstract int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor);
 
-    protected PackedFieldAccessor(int rank)
+    protected PackedFieldAccessor(int rank, byte index)
     {
       Rank = rank;
+      Index = index;
+      if (All[Index] != null) {
+        throw new IndexOutOfRangeException($"Duplicated Index {Index} of PackedFieldAccessor instance");
+      }
+      All[Index] = this;
       ValueBitCount = 1 << Rank;
 
       // What we want here is to shift 1L by ValueBitCount to left and then subtract 1
@@ -107,12 +115,7 @@ namespace Xtensive.Tuples.Packed
     public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
     {
       tuple.Objects[descriptor.GetObjectIndex()] = value;
-      if (value != null) {
-        tuple.SetFieldState(descriptor, TupleFieldState.Available);
-      }
-      else {
-        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
-      }
+      tuple.SetFieldState(descriptor, value != null ? TupleFieldState.Available : (TupleFieldState.Available | TupleFieldState.Null));
     }
 
     public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
@@ -133,7 +136,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ObjectFieldAccessor()
-      : base(-1)
+      : base(-1, 1)
     { }
   }
 
@@ -141,18 +144,11 @@ namespace Xtensive.Tuples.Packed
   {
     public Type FieldType { get; protected set; }
 
-    private static int GetRank(int bitSize)
-    {
-      var rank = 0;
-      while ((bitSize >>= 1) > 0) {
-        rank++;
-      }
+    private static int GetRank(int bitSize) =>
+      BitOperations.Log2((uint)bitSize);
 
-      return rank;
-    }
-
-    protected ValueFieldAccessor(int bitCount)
-      : base(GetRank(bitCount))
+    protected ValueFieldAccessor(int bitCount, byte index)
+      : base(GetRank(bitCount), index)
     { }
   }
 
@@ -194,10 +190,8 @@ namespace Xtensive.Tuples.Packed
     }
 
     public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
-      PackedTuple right, in PackedFieldDescriptor rightDescriptor)
-    {
-      return Load(left, leftDescriptor).Equals(Load(right, rightDescriptor));
-    }
+        PackedTuple right, in PackedFieldDescriptor rightDescriptor) =>
+      Load(left, leftDescriptor).Equals(Load(right, rightDescriptor));
 
     public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)
     {
@@ -242,24 +236,25 @@ namespace Xtensive.Tuples.Packed
       }
 
       var encoded = Encode(value);
-      var block = tuple.Values[valueIndex];
+      ref var block = ref tuple.Values[valueIndex];
       var valueBitOffset = d.GetValueBitOffset();
       var mask = ValueBitMask << valueBitOffset;
-      tuple.Values[valueIndex] = (block & ~mask) | ((encoded << valueBitOffset) & mask);
+      block = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
     private T Load(PackedTuple tuple, in PackedFieldDescriptor d)
     {
+      var valueIndex = d.GetValueIndex();
       if (Rank > 6) {
-        return Decode(tuple.Values, d.GetValueIndex());
+        return Decode(tuple.Values, valueIndex);
       }
 
-      var encoded = (tuple.Values[d.GetValueIndex()] >> d.GetValueBitOffset()) & ValueBitMask;
+      var encoded = (tuple.Values[valueIndex] >> d.GetValueBitOffset()) & ValueBitMask;
       return Decode(encoded);
     }
 
-    protected ValueFieldAccessor(int bits)
-      : base(bits)
+    protected ValueFieldAccessor(int bits, byte index)
+      : base(bits, index)
     {
       FieldType = typeof(T);
       Getter = (GetValueDelegate<T>) GetValue;
@@ -283,7 +278,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public BooleanFieldAccessor()
-      : base(1)
+      : base(1, 2)
     {
     }
   }
@@ -306,7 +301,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public FloatFieldAccessor()
-      : base(sizeof(float) * 8)
+      : base(sizeof(float) * 8, 3)
     {
     }
   }
@@ -324,7 +319,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public DoubleFieldAccessor()
-      : base(sizeof(double) * 8)
+      : base(sizeof(double) * 8, 4)
     {
     }
   }
@@ -342,7 +337,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public TimeSpanFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 5)
     {
     }
   }
@@ -360,7 +355,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public DateTimeFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 6)
     {
     }
   }
@@ -378,7 +373,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ByteFieldAccessor()
-      : base(sizeof(byte) * 8)
+      : base(sizeof(byte) * 8, 7)
     {
     }
   }
@@ -396,7 +391,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public SByteFieldAccessor()
-      : base(sizeof(sbyte) * 8)
+      : base(sizeof(sbyte) * 8, 8)
     {
     }
   }
@@ -414,7 +409,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ShortFieldAccessor()
-      : base(sizeof(short) * 8)
+      : base(sizeof(short) * 8, 9)
     {
     }
   }
@@ -432,7 +427,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public UShortFieldAccessor()
-      : base(sizeof(ushort) * 8)
+      : base(sizeof(ushort) * 8, 10)
     {
     }
   }
@@ -450,7 +445,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public IntFieldAccessor()
-      : base(sizeof(int) * 8)
+      : base(sizeof(int) * 8, 11)
     {
     }
   }
@@ -468,7 +463,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public UIntFieldAccessor()
-      : base(sizeof(uint) * 8)
+      : base(sizeof(uint) * 8, 12)
     {
     }
   }
@@ -486,7 +481,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public LongFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 13)
     {
     }
   }
@@ -504,7 +499,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ULongFieldAccessor()
-      : base(sizeof(ulong) * 8)
+      : base(sizeof(ulong) * 8, 14)
     {
     }
   }
@@ -533,7 +528,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public GuidFieldAccessor()
-      : base(GetSize() * 8)
+      : base(GetSize() * 8, 15)
     {
     }
   }
@@ -556,7 +551,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
     public DecimalFieldAccessor()
-      : base(sizeof(decimal) * 8)
+      : base(sizeof(decimal) * 8, 16)
     {
     }
   }
@@ -581,11 +576,43 @@ namespace Xtensive.Tuples.Packed
 
     private static unsafe int GetSize()
     {
-      return sizeof(DateTimeOffset);
+      // Depending on architecture, x86 or x64, the size of DateTimeOffset is either 12 or 16 respectively.
+      // Due to the fact that Rank calculation algorithm expects sizes to be equal to one of the power of two
+      // it returns wrong rank value for size 12 (bitsize = 96) which causes wrong choice of Encode/Decode methods.
+      // Setting it to 16 helps to solve Rank problem.
+      return sizeof(long) * 2;
     }
 
     public DateTimeOffsetFieldAccessor()
-       : base(GetSize() * 8)
+       : base(GetSize() * 8, 17)
     { }
   }
+#if NET6_0_OR_GREATER
+
+  internal sealed class DateOnlyFieldAccessor : ValueFieldAccessor<DateOnly>
+  {
+    protected override DateOnly Decode(long value) =>
+      DateOnly.FromDayNumber((int)value);
+
+    protected override long Encode(DateOnly value) =>
+      value.DayNumber;
+
+    public DateOnlyFieldAccessor()
+       : base(sizeof(int) * 8, 18)
+    { }
+  }
+
+  internal sealed class TimeOnlyFieldAccessor : ValueFieldAccessor<TimeOnly>
+  {
+    protected override TimeOnly Decode(long value) =>
+      new TimeOnly(value);
+
+    protected override long Encode(TimeOnly value) =>
+      value.Ticks;
+
+    public TimeOnlyFieldAccessor()
+       : base(sizeof(long) * 8, 19)
+    { }
+  }
+#endif
 }

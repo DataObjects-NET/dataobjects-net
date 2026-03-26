@@ -29,6 +29,10 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
+#if NET6_0_OR_GREATER
+        WellKnownTypes.DateOnly,
+        WellKnownTypes.TimeOnly,
+#endif
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
@@ -117,6 +121,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Unique:
         case SqlNodeType.Variable:
         case SqlNodeType.Placeholder:
+        case SqlNodeType.Metadata:
         case SqlNodeType.DynamicFilter:
           return true;
         case SqlNodeType.Cast:
@@ -168,12 +173,17 @@ namespace Xtensive.Sql
         case SqlNodeType.Extract:
         case SqlNodeType.Round:
         case SqlNodeType.Placeholder:
+        case SqlNodeType.Metadata:
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+#if NET6_0_OR_GREATER
+        case SqlNodeType.TimePlusInterval:
+        case SqlNodeType.TimeMinusTime:
+#endif
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;
@@ -206,6 +216,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Trim:
         case SqlNodeType.Variable:
         case SqlNodeType.Placeholder:
+        case SqlNodeType.Metadata:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant)node;

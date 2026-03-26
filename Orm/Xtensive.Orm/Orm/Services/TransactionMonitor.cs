@@ -30,8 +30,7 @@ namespace Xtensive.Orm.Services
 
     private void EndTransaction(object sender, TransactionEventArgs e)
     {
-      if (registry.TryGetValue(Session.Transaction, out var set)) {
-        registry.Remove(Session.Transaction);
+      if (registry.Remove(Session.Transaction, out var set)) {
         foreach (var disposable in set) {
           disposable.DisposeSafely();
         }

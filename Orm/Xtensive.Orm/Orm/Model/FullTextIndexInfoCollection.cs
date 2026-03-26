@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Model
     /// <param name="fullTextIndexInfo">The full text index info.</param>
     public void Add(TypeInfo typeInfo, FullTextIndexInfo fullTextIndexInfo)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (!container.Contains(fullTextIndexInfo))
         container.Add(fullTextIndexInfo);
       indexMap.Add(typeInfo, fullTextIndexInfo);

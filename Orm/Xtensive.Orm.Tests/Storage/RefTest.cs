@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Author).Assembly, typeof (Author).Namespace);
+      config.Types.RegisterCaching(typeof (Author).Assembly, typeof (Author).Namespace);
       return config;
     }
 

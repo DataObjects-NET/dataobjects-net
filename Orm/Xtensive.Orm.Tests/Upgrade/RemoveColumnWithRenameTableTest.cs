@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
-using V1=Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version1;
-using V2=Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version2;
+using V1 = Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version1;
+using V2 = Xtensive.Orm.Tests.Upgrade.RemoveColumnWithRenameTableTestModel.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
     }
 
@@ -78,17 +78,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.Types.RegisterCaching(sampleType.Assembly, sampleType.Namespace);
       return Domain.BuildAsync(configuration);
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void MainTest()
     {
       using (var domain = BuildDomain(typeof(V1.Upgrader), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
+        _ = new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
         tx.Complete();
       }
 
@@ -102,12 +103,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public async Task MainAsyncTest()
     {
       using (var domain = BuildDomain(typeof(V1.Upgrader), DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
+        _ = new V1.EntityWithFieldToRemove { Ref = new V1.EntityToRemove() };
         tx.Complete();
       }
 

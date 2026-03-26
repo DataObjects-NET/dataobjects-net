@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Security
     /// <inheritdoc/>
     public bool Equals(Permission other)
     {
-      if (ReferenceEquals(null, other)) return false;
+      if (other is null) return false;
       if (ReferenceEquals(this, other)) return true;
       return Equals(other.Type, Type) && other.CanRead.Equals(CanRead) && other.CanWrite.Equals(CanWrite) && Equals(other.Query, Query);
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Security
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj)) return false;
+      if (obj is null) return false;
       if (ReferenceEquals(this, obj)) return true;
       if (obj.GetType() != typeof (Permission)) return false;
       return Equals((Permission) obj);

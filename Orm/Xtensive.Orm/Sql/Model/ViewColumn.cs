@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Model
       get { return (View) DataTable; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         DataTable = value;
       }
     }

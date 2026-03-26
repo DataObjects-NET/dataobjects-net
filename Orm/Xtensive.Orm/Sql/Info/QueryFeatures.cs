@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 
@@ -146,6 +146,16 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports limiting operator (LIMIT or TOP or ROWS) in DELETE statement.
     /// </summary>
     DeleteLimit = 1 << 25,
+
+    /// <summary>
+    /// Indicates that RDBMS supports CROSS APPLY and OUTER APPLY operators but only for subqueries.
+    /// </summary>
+    CrossApplyForSubqueriesOnly = CrossApply | (1 << 26),
+
+    /// <summary>
+    /// Indicates that RDBMS supports SQL parameter in selected columns of SELECT statement.
+    /// </summary>
+    ParameterAsColumn = 1 << 27,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).

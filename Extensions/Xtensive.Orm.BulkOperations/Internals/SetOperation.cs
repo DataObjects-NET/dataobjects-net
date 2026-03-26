@@ -103,8 +103,11 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect)request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
+      if (ex is SqlCast sqlCast) {
+        ex = sqlCast.Operand;
+      }
       var placeholder = ex as SqlPlaceholder;
       if (placeholder == null)
       {
@@ -133,10 +136,10 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect) request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
       parent.Bindings.AddRange(request.ParameterBindings);
-      
+
       if(parent.JoinedTableRef!=null)
         ex.AcceptVisitor(new ComputedExpressionSqlVisitor(sqlSelect.From, parent.JoinedTableRef));
 
@@ -146,10 +149,11 @@ namespace Xtensive.Orm.BulkOperations
     private void AddConstantValue(AddValueContext addContext)
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
+      var constant = addContext.EvalLambdaBody();
       SqlExpression value;
-      object constant = FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
-      if (constant==null)
+      if (constant == null) {
         value = SqlDml.Null;
+      }
       else {
         QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), context => constant);
         parent.Bindings.Add(binding);
@@ -217,13 +221,14 @@ namespace Xtensive.Orm.BulkOperations
             QueryTranslationResult request = parent.GetRequest(field.ValueType, q);
             parent.Bindings.AddRange(request.ParameterBindings);
             SqlTableColumn c = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Columns[i].Name);
-            addContext.Statement.AddValue(c, SqlDml.SubQuery((ISqlQueryExpression) request.Query));
+            addContext.Statement.AddValue(c, SqlDml.SubQuery(request.Query));
           }
           return;
         }
       }
       i = -1;
-      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
+      var entity = (IEntity)addContext.EvalLambdaBody();
+
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;

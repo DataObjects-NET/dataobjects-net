@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
@@ -270,8 +270,8 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
-      configuration.Types.Register(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
+      configuration.Types.RegisterCaching(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
+      configuration.Types.RegisterCaching(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
       configuration.Sessions.Default.Options = SessionOptions.ServerProfile;
       return configuration;
     }

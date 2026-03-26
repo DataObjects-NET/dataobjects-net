@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Services
   /// <summary>
   /// Binding of a query parameter.
   /// </summary>
-  public sealed class QueryParameterBinding
+  public readonly struct QueryParameterBinding
   {
     /// <summary>
     /// Gets type of the parameter.
@@ -22,14 +22,7 @@ namespace Xtensive.Orm.Services
     /// Any user-created <see cref="QueryParameterBinding"/>
     /// always has this property set to non <see langword="null"/> value.
     /// </summary>
-    public Type ValueType
-    {
-      get
-      {
-        var mapping = RealBinding.TypeMapping;
-        return mapping!=null ? mapping.Type : null;
-      }
-    }
+    public Type ValueType => RealBinding.TypeMapping?.Type;
 
     /// <summary>
     /// Gets accessor of the parameter.
@@ -37,21 +30,15 @@ namespace Xtensive.Orm.Services
     /// to <see cref="ValueType"/>
     /// unless <see cref="ValueType"/> is null.
     /// </summary>
-    public Func<ParameterContext, object> ValueAccessor
-    {
-      get { return RealBinding.ValueAccessor; }
-    }
+    public Func<ParameterContext, object> ValueAccessor => RealBinding.ValueAccessor;
 
     /// <summary>
     /// Gets <see cref="SqlExpression"/> that allows
     /// to access parameter in SQL DOM query.
     /// </summary>
-    public SqlExpression ParameterReference
-    {
-      get { return RealBinding.ParameterReference; }
-    }
+    public SqlExpression ParameterReference => RealBinding.ParameterReference;
 
-    internal Providers.QueryParameterBinding RealBinding { get; private set; }
+    internal Providers.QueryParameterBinding RealBinding { get; }
 
     // Constructors
 

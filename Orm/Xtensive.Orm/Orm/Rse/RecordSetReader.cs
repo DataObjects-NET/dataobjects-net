@@ -130,15 +130,22 @@ namespace Xtensive.Orm.Rse
       enumerationScope = context.BeginEnumeration();
       enumerated = context.GetValue<bool>(provider, enumerationMarker);
       if (!enumerated) {
-        provider.OnBeforeEnumerate(context);
+        if (executeAsync) {
+          await provider.OnBeforeEnumerateAsync(context, token);
+        }
+        else {
+          provider.OnBeforeEnumerate(context);
+        }
         context.SetValue(provider, enumerationMarker, true);
       }
 
+      bool isOnEnumerateSuccessful = false;
       try {
         dataReader = executeAsync
           ? await provider.OnEnumerateAsync(context, token).ConfigureAwait(false)
           : provider.OnEnumerate(context);
 
+        isOnEnumerateSuccessful = true;
         if (isGreedy && !dataReader.IsInMemory) {
           var tuples = new List<Tuple>();
           if (executeAsync) {
@@ -159,16 +166,30 @@ namespace Xtensive.Orm.Rse
         }
       }
       catch {
-        FinishEnumeration(true);
+        FinishEnumeration(true, !isOnEnumerateSuccessful);
         throw;
       }
       state = State.Prepared;
     }
 
-    private void FinishEnumeration(bool isError)
+    private void FinishEnumeration(bool isError, bool isErrorOnServerSide = false)
     {
-      if (!enumerated) {
-        provider?.OnAfterEnumerate(context);
+      if (isErrorOnServerSide) {
+        // Possible connection closing because of server-side error, like operation timeout,
+        // which makes finish of some providers imposible, like ones that work with temporary tables and require clean-up.
+        // Exception may happen but we must prevent overlaping original exception with new one.
+        if (!enumerated) {
+          try {
+            provider?.OnAfterEnumerate(context);
+          }
+          catch {
+          }
+        }
+      }
+      else {
+        if (!enumerated) {
+          provider?.OnAfterEnumerate(context);
+        }
       }
 
       if (!isError) {

@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Playlist).Assembly, typeof (Playlist).Namespace);
+      config.Types.RegisterCaching(typeof (Playlist).Assembly, typeof (Playlist).Namespace);
       return config;
     }
 

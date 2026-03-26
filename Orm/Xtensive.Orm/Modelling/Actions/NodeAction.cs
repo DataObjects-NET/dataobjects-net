@@ -30,7 +30,7 @@ namespace Xtensive.Modelling.Actions
     public string Path {
       get { return path; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         path = value;
       }
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Modelling.Actions
     public Difference Difference {
       get { return difference; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         difference = value;
       }
     }

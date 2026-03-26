@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Providers
 
       var stringPattern = patternExpression as SqlLiteral<string>;
       var charPattern = patternExpression as SqlLiteral<char>;
-      if (ReferenceEquals(stringPattern, null) && ReferenceEquals(charPattern, null)) {
+      if (stringPattern is null && charPattern is null) {
         var result = (SqlExpression) SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
         result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
         result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
         result = SqlDml.Like(_this, result, escape);
         return result;
       }
-      var originalPattern = !ReferenceEquals(stringPattern, null)
+      var originalPattern = stringPattern is not null
         ? stringPattern.Value
         : charPattern.Value.ToString();
       var escapedPattern = new StringBuilder(originalPattern)

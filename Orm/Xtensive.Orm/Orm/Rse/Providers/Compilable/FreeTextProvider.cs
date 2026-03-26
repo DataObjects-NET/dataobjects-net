@@ -28,9 +28,6 @@ namespace Xtensive.Orm.Rse.Providers
 
     public bool FullFeatured { get; }
 
-
-    // Constructors
-
     private static RecordSetHeader BuildHeader(FullTextIndexInfo index, string rankColumnName, bool fullFeatured)
     {
       if (fullFeatured) {
@@ -43,16 +40,19 @@ namespace Xtensive.Orm.Rse.Providers
         if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = primaryIndexKeyColumns
-          .Select(columnInfo => columnInfo.Key.ValueType)
+          .Select(static columnInfo => columnInfo.Key.ValueType)
           .Append(WellKnownTypes.Double)
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
-          .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
-          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double));
+          .Select(static (c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
+          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
+          .ToArray(primaryIndexKeyColumns.Count + 1);
         return new RecordSetHeader(tupleDescriptor, columns);
       }
     }
+
+    // Constructors
 
     public FreeTextProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, null, fullFeatured)

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -18,7 +18,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.Sqlite
 {
-  public class MiscTests : Chinook
+  public class MiscTests : ChinookTestBase
   {
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
@@ -82,15 +82,15 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     #region Setup and TearDown
 
     [OneTimeSetUp]
-    public override void SetUp()
+    public override void OneTimeSetUp()
     {
-      base.SetUp();
-      sqlDriver = TestSqlDriver.Create(Url);
-      sqlConnection = sqlDriver.CreateConnection();
+      base.OneTimeSetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
     }
+
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);
 
     #endregion
 
@@ -99,10 +99,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
       bool passed = false;
-      if (!l.IsNullReference())
+      if (l is not null)
         passed = true;
       Assert.IsTrue(passed);
-      if (l.IsNullReference())
+      if (l is null)
         passed = false;
       Assert.IsTrue(passed);
     }

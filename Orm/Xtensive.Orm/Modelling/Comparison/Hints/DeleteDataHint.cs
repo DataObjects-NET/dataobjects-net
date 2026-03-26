@@ -33,15 +33,6 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// these records are still necessary during upgrade to be copied, but must be removed on its
     /// completion.
     /// </summary>
-    [Obsolete("Use IsPostCopyCleanup instead")]
-    public bool PostCopy => IsPostCopyCleanup;
-
-    /// <summary>
-    /// Gets a value indicating whether deletion must be performed after completion of copy data hint processing.
-    /// Normally this flag is used to remove records related to types moved to other hierarchies -
-    /// these records are still necessary during upgrade to be copied, but must be removed on its
-    /// completion.
-    /// </summary>
     public bool IsPostCopyCleanup => (state & DeleteDataHintState.PostCopy) > 0;
 
     /// <summary>

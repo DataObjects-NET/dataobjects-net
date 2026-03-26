@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -27,9 +27,7 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression, "expression");
-      SqlSubQuery replacingExpression = expression as SqlSubQuery;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
       query = replacingExpression.Query;
     }
 
@@ -43,9 +41,9 @@ namespace Xtensive.Sql.Dml
       SqlSelect select = query as SqlSelect;
       SqlQueryExpression expression = query as SqlQueryExpression;
       if (select != null)
-        clone = new SqlSubQuery((SqlSelect)select.Clone(context));
-      else 
-        clone = new SqlSubQuery((SqlQueryExpression)expression.Clone(context));
+        clone = new SqlSubQuery((SqlSelect) select.Clone(context));
+      else
+        clone = new SqlSubQuery((SqlQueryExpression) expression.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }

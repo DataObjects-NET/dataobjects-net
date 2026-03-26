@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -71,10 +71,9 @@ namespace Xtensive.Orm
     private const string FullNameFormat = "{0}, #{1}";
 
     private static readonly Type
-      typeofSession = typeof(Session),
-      typeofSessionConfiguration = typeof(SessionConfiguration),
-      typeofSessionHandler = typeof(SessionHandler),
-      typeofServiceContainer = typeof(ServiceContainer);
+      SessionConfigurationType = typeof(SessionConfiguration),
+      SessionHandlerType = typeof(SessionHandler),
+      ServiceContainerType = typeof(ServiceContainer);
 
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
@@ -82,6 +81,7 @@ namespace Xtensive.Orm
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private StorageNode storageNode;
+    private List<string> tags;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -240,6 +240,8 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
+    internal IReadOnlyList<string> Tags => tags;
+
     internal void EnsureNotDisposed()
     {
       if (isDisposed)
@@ -305,9 +307,9 @@ namespace Xtensive.Orm
     private IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeofSession, this),
-        new ServiceRegistration(typeofSessionConfiguration, Configuration),
-        new ServiceRegistration(typeofSessionHandler, Handler),
+        new ServiceRegistration(WellKnownOrmTypes.Session, this),
+        new ServiceRegistration(SessionConfigurationType, Configuration),
+        new ServiceRegistration(SessionHandlerType, Handler),
       };
       Handler.AddSystemServices(registrations);
       return new ServiceContainer(registrations, Domain.Services);
@@ -315,7 +317,7 @@ namespace Xtensive.Orm
 
     private IServiceContainer CreateServices()
     {
-      var userContainerType = Configuration.ServiceContainerType ?? typeofServiceContainer;
+      var userContainerType = Configuration.ServiceContainerType ?? ServiceContainerType;
       var registrations = Domain.Configuration.Types.ServiceRegistrations;
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
@@ -472,18 +474,6 @@ namespace Xtensive.Orm
     #endregion
 
     /// <summary>
-    /// Selects storage node identifier by <paramref name="nodeId"/>.
-    /// </summary>
-    /// <param name="nodeId">Node identifier.</param>
-    [Obsolete("Use StorageNode instances to open a session to them instead")]
-    public void SelectStorageNode([NotNull] string nodeId)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      var node = Handlers.StorageNodeRegistry.Get(nodeId);
-      SetStorageNode(node);
-    }
-
-    /// <summary>
     /// Temporary overrides <see cref="CommandTimeout"/>.
     /// </summary>
     /// <param name="newTimeout">New <see cref="CommandTimeout"/> value.</param>
@@ -596,6 +586,10 @@ namespace Xtensive.Orm
       remapper = new KeyRemapper(this);
 
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
+      if (configuration.Supports(SessionOptions.NonTransactionalReads)) {
+        promotedLifetimeTokens = new List<StateLifetimeToken>();
+        sessionLifetimeToken = new StateLifetimeToken();
+      }
 
       // Perform activation
       if (activate) {
@@ -605,6 +599,8 @@ namespace Xtensive.Orm
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
+
+    public TagScope Tag(string tag) => new TagScope(tags ??= new List<string>(), tag);
 
     // IDisposable implementation
 
@@ -624,11 +620,16 @@ namespace Xtensive.Orm
         return;
       }
 
-      sessionLifetimeToken.Expire();
-
       try {
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXDisposing, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXDisposing), this);
+        }
+
+        sessionLifetimeToken?.Expire();
+        if (promotedLifetimeTokens?.Count > 0) {
+          foreach (var token in promotedLifetimeTokens) {
+            token.Expire();
+          }
         }
 
         SystemEvents.NotifyDisposing();

@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Model
       get { return auxiliaryType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         auxiliaryType = value;
       }
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Model
       get { return isMaster; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isMaster = value;
       }
     }
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Model
       get { return multiplicity; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         multiplicity = value;
       }
     }
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Model
       get { return reversed; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         reversed = value;
       }
     }
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Model
       get { return onTargetRemove; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         onTargetRemove = value;
       }
     }
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Model
       get { return onOwnerRemove; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         onOwnerRemove = value;
       }
     }

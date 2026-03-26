@@ -1,180 +1,127 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
-using System;
-using System.Data.Common;
-using NUnit.Framework;
+using System.Text;
 using Xtensive.Sql;
-using Xtensive.Sql.Model;
-    
+
 namespace Xtensive.Orm.Tests.Sql.MySQL
 {
-    [TestFixture]
-    public class ExtractorTest : SqlTest
+  public class ExtractorTest : ExtractorTestBase
+  {
+    protected override bool CheckContstraintExtracted => false;
+
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.MySql);
+
+    #region Base test class members
+    protected override string GetTypesExtractionPrepareScript(string tableName)
     {
-        #region Test DDL
+      var dataTypes = Driver.ServerInfo.DataTypes;
+      var sb = new StringBuilder();
+      _ = sb.Append($"CREATE TABLE {tableName} (");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Boolean]} boolean NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Int8]} tinyint NULL,");
 
-        const string DropBadSetTableQuery = @"drop table if exists dataTypesBadSetTable";
-        private const string CreateBadSetTableQuery =
-            @"CREATE TABLE dataTypesBadSetTable (
-                    set_162 SET('a', 'b', 'c', 'd')
-            )";
+      sb.AppendLine($"{TypeToColumnName[SqlType.Int16]}   smallint NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Int32]}   int NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Int64]}   bigint NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Decimal]} decimal({DecimalPrecision}, {DecimalScale}) NULL,");
 
-        const string DropBadEnumTableQuery = @"drop table if exists dataTypesBadEnumTable";
-        private const string CreateBadEnumTableQuery =
-            @"CREATE TABLE dataTypesBadEnumTable (
-                            num_231 ENUM('small', 'medium', 'large')
-                        )";
+      sb.AppendLine($"{TypeToColumnName[SqlType.Float]}  float NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Double]} double precision NULL,");
 
-        const string DropBadBitTableQuery = @"drop table if exists dataTypesBadBitTable";
-        private const string CreateBadBitTableQuery =
-            @"CREATE TABLE dataTypesBadBitTable (
-                            bit_l1 bit NULL
-            )";
+      sb.AppendLine($"{TypeToColumnName[SqlType.DateTime]} datetime NULL,");
+#if NET6_0_OR_GREATER
+      sb.AppendLine($"{TypeToColumnName[SqlType.Date]} date NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.Time]} time NULL,");
+#endif
 
-        const string DropGoodTableQuery = @"drop table if exists dataTypesGoodTable";
-        const string CreateGoodTableQuery =
-            @"CREATE TABLE dataTypesGoodTable (
-                    int_l4 int NULL ,
-                    binary_l50 binary (50) NULL ,
-                    char_10 char (10) COLLATE utf8_unicode_ci NULL ,
-                    datetime_l8 datetime NULL ,
-                    decimal_p18_s0 decimal(18, 0) NULL ,
-                    decimal_p12_s11_l9 decimal(12, 11) NULL ,
-                    float_p53 float NULL ,
-                    image_16 blob NULL ,
-                    image_17 tinyblob NULL ,
-                    image_18 mediumblob NULL ,
-                    image_19 longblob NULL ,
-                    money_p19_s4_l8 decimal(18,2) NULL ,
-                    nchar_l100 nchar (100) COLLATE utf8_unicode_ci NULL ,
-                    tiny_text_01  tinytext COLLATE utf8_unicode_ci NULL ,
-                    long_text_01  longtext COLLATE utf8_unicode_ci NULL ,
-                    medium_text_01  mediumtext COLLATE utf8_unicode_ci NULL ,
-                    numeric_p5_s5 numeric(5, 5) NULL ,
-                    nvarchar_l50 nvarchar (50) COLLATE utf8_unicode_ci NULL ,
-                    real_p24_s0_l4 real NULL ,
-                    smalldatetime_l4 datetime NULL ,
-                    tinyint_l2 tinyint NULL ,
-                    smallint_l2 smallint NULL ,
-                    int_l2 int NULL ,
-                    mediumint_148 mediumint null,
-                    big_int_120 bigint null,
-                    small_money_p10_s4_l4  decimal(18,2) NULL ,
-                    text_16   varchar (50) COLLATE utf8_unicode_ci NULL ,
-                    timestamp_l8 timestamp NULL ,
-                    tinyint_1_p3_s0_l1 tinyint NULL ,
-                    varbinary_l150 varbinary (150) NULL ,
-                    varchar_l50 varchar (50) COLLATE utf8_unicode_ci NULL
-               )";
+      sb.AppendLine($"{TypeToColumnName[SqlType.Char]} char({CharLength}) NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.VarChar]} varchar({VarCharLength}) NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.VarCharMax]} longtext NULL,");
 
-        #endregion
+      sb.AppendLine($"{TypeToColumnName[SqlType.Binary]} binary({BinaryLength}) NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.VarBinary]} varbinary({VarBinaryLength}) NULL,");
+      sb.AppendLine($"{TypeToColumnName[SqlType.VarBinaryMax]} longblob NULL");
 
-        protected override void CheckRequirements()
-        {
-            Require.ProviderIs(StorageProvider.MySql);
-        }
-        
-        private void DropBadTables()
-        {
-            this.ExecuteNonQuery(DropBadSetTableQuery);
-            this.ExecuteNonQuery(DropBadEnumTableQuery);
-            this.ExecuteNonQuery(DropBadBitTableQuery);
-        }
+      sb.AppendLine(");");
 
-        [Test]
-        public void DefaultSchemaIsAvailable()
-        {
-            this.DropBadTables();
-
-            var schema = this.ExtractDefaultSchema();
-            Assert.IsNotNull(schema);
-        }
-
-        [Test]
-        public void TestCatalogExtraction()
-        {
-            var catalog = ExtractCatalog();
-            Assert.GreaterOrEqual(catalog.Schemas.Count, 1);
-        }
-
-        [Test]
-        public void ExtractObjectsFromDefaultSchema()
-        {
-            this.DropBadTables();
-
-            var schema = this.ExtractDefaultSchema();
-            var catalog = this.ExtractSchema(schema.Name);
-            Assert.IsNotNull(catalog);
-        }
-
-        [Test]
-        public void TestForSupportedDataTypes()
-        {
-            this.DropBadTables();
-
-            ExecuteNonQuery(DropGoodTableQuery);
-            ExecuteNonQuery(CreateGoodTableQuery);
-
-            var schema = ExtractDefaultSchema();
-            var catalog = schema.Catalog;
-
-            Table table = catalog.DefaultSchema.Tables["dataTypesGoodTable"];
-            Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type == SqlType.Int32);
-        }
-
-        [Test]
-        //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore("")]
-        public void TestForUnsupportedSETDatatypes()
-        {
-            this.DropBadTables();
-
-            ExecuteNonQuery(DropBadSetTableQuery);
-            ExecuteNonQuery(CreateBadSetTableQuery);
-
-            var schema = ExtractDefaultSchema();
-            var catalog = schema.Catalog;
-
-            Table table = catalog.DefaultSchema.Tables["dataTypesBadSetTable"];
-            Assert.IsNotNull(table);
-        }
-
-        [Test]
-        //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore("")]
-        public void TestForUnsupportedENUMDatatypes()
-        {
-            this.DropBadTables();
-
-            ExecuteNonQuery(DropBadEnumTableQuery);
-            ExecuteNonQuery(CreateBadEnumTableQuery);
-
-            var schema = ExtractDefaultSchema();
-            var catalog = schema.Catalog;
-
-            Table table = catalog.DefaultSchema.Tables["dataTypesBadEnumTable"];
-            Assert.IsNotNull(table);
-        }
-
-        [Test]
-        //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore("")]
-        public void TestForUnsupportedBITDatatypes()
-        {
-            this.DropBadTables();
-
-            ExecuteNonQuery(DropBadBitTableQuery);
-            ExecuteNonQuery(CreateBadBitTableQuery);
-
-            var schema = ExtractDefaultSchema();
-            var catalog = schema.Catalog;
-
-            Table table = catalog.DefaultSchema.Tables["dataTypesBadBitTable"];
-            Assert.IsNotNull(table);
-        }
+      return sb.ToString();
     }
+    protected override string GetTypesExtractionCleanUpScript(string tableName) => $"drop table {tableName};";
+
+    protected override string GetForeignKeyExtractionPrepareScript()
+    {
+      return "CREATE TABLE B1 (b_id int primary key);" +
+        "\n CREATE TABLE A1 (b_id int, CONSTRAINT A1_FK FOREIGN KEY (b_id) REFERENCES B1 (b_id));" +
+        "\n CREATE TABLE B2 (b_id_1 int, b_id_2 int, CONSTRAINT B2_PK PRIMARY KEY (b_id_1, b_id_2)); " +
+        "\n CREATE TABLE A2 (b_id_1 int, b_id_2 int," +
+        "  CONSTRAINT A2_FK FOREIGN KEY (b_id_1, b_id_2)" +
+        "  REFERENCES B2 (b_id_1, b_id_2) ON DELETE CASCADE ON UPDATE NO ACTION); " +
+        "\n CREATE TABLE B3 (b_id_1 int, b_id_2 int, b_id_3 int," +
+        "  CONSTRAINT B3_PK PRIMARY KEY (b_id_1, b_id_2, b_id_3)); " +
+        "\n CREATE TABLE A3 (A_col1 int, b_id_3 int, b_id_1 int, b_id_2 int," +
+        "  CONSTRAINT A3_FK FOREIGN KEY (b_id_1, b_id_2, b_id_3)" +
+        "  REFERENCES B3 (b_id_1, b_id_2, b_id_3) ON DELETE NO ACTION ON UPDATE CASCADE); ";
+    }
+    protected override string GetForeignKeyExtractionCleanUpScript() =>
+      "drop table if exists A1;" +
+      "\n drop table if exists A2;" +
+      "\n drop table if exists A3;" +
+      "\n drop table if exists B1;" +
+      "\n drop table if exists B2;" +
+      "\n drop table if exists B3;";
+
+    protected override string GetIndexExtractionPrepareScript(string tableName)
+    {
+      return
+        $"CREATE TABLE {tableName} (column1 int,  column2 int);" +
+        $"\n CREATE INDEX {tableName}_index1_desc_asc on {tableName} (column1 desc, column2 asc);" +
+        $"\n CREATE UNIQUE INDEX {tableName}_index1_u_asc_desc on {tableName} (column1 asc, column2 desc);";
+    }
+    protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table if exists {tableName};";
+
+    protected override string GetPartialIndexExtractionPrepareScript(string tableName)
+    {
+      return
+        $"CREATE TABLE {tableName} (column1 int,  column2 int);" +
+        $"\n CREATE INDEX {tableName}_index1_filtered on {tableName} (column1, column2) WHERE column1 > 10;";
+    }
+    protected override string GetPartialIndexExtractionCleanUpScript(string tableName) => $"drop table if exists {tableName};";
+
+    protected override string GetFulltextIndexExtractionPrepareScript(string tableName)
+    {
+      return $"CREATE TABLE {tableName} (Id int NOT NULL," +
+        "\n  Name nvarchar(100) NULL," +
+        "\n  Comments nvarchar(1000) NULL," +
+        $"\n  CONSTRAINT [PK_{tableName}] PRIMARY KEY CLUSTERED (Id)  ON [PRIMARY]);" +
+        $"\n CREATE FULLTEXT INDEX ON {tableName}(Name LANGUAGE 1033, Comments LANGUAGE 1033)" +
+        $"\n   KEY INDEX PK_{tableName} WITH CHANGE_TRACKING AUTO;";
+    }
+    protected override string GetFulltextIndexExtractionCleanUpScript(string tableName) => $"drop table if exists {tableName};";
+
+    protected override string GetUniqueConstraintExtractionPrepareScript(string tableName)
+    {
+      return $"CREATE TABLE {tableName} (" +
+         "\n  col_11 int, col_12 int, col_13 int," +
+         "\n  col_21 int, col_22 int, col_23 int," +
+         "\n  CONSTRAINT A_UNIQUE_1 UNIQUE(col_11,col_12,col_13), " +
+         "\n  CONSTRAINT A_UNIQUE_2 UNIQUE(col_21,col_22,col_23));";
+    }
+    protected override string GetUniqueConstraintExtractionCleanUpScript(string tableName) => $"drop table if exists {tableName}";
+
+    // not supported yet
+    //protected override string GetCheckConstraintExtractionPrepareScript(string tableName)
+    //{
+    //  return $"CREATE TABLE {tableName} (" +
+    //     "\n  col_11 int, col_12 int, col_13 int," +
+    //     "\n  col_21 int, col_22 int, col_23 int," +
+    //     "\n  CONSTRAINT A_CHECK_1 CHECK(col_11 > 0 OR col_12 > 10 OR col_13 > 20), " +
+    //     "\n  CONSTRAINT A_CHECK_2 CHECK(col_21 <0 AND col_22 < 10 AND col_23 < 20));";
+    //}
+    //protected override string GetCheckConstraintExtractionCleanUpScript(string tableName) => $"drop table {tableName}";
+    #endregion
+  }
 }

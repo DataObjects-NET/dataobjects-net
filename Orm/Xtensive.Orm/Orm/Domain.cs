@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -93,7 +93,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo { get { return Handlers.ProviderInfo; } }
+    public ProviderInfo StorageProviderInfo => Handlers.ProviderInfo;
 
     /// <summary>
     /// Gets the domain-level service container.
@@ -104,6 +104,13 @@ namespace Xtensive.Orm
     /// Gets storage node manager.
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
+
+    /// <summary>
+    /// Indicated whether query tagging is enabled by domain configuration
+    /// by <see cref="DomainConfiguration.TagsLocation"/> proprety set to something
+    /// other than <see cref="TagsLocation.Nowhere"/>.
+    /// </summary>
+    public bool TagsEnabled { get; }
 
     #region Private / internal members
 
@@ -119,11 +126,13 @@ namespace Xtensive.Orm
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
-    
+    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; }
+
     internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
+
+    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; private set; }
 
     internal object UpgradeContextCookie { get; private set; }
 
@@ -180,11 +189,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Session OpenSession()
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSession(configuration);
-    }
+    public Session OpenSession() =>
+      OpenSession(Configuration.Sessions.Default);
 
     /// <summary>
     /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/>.
@@ -198,21 +204,8 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public Session OpenSession(SessionType type)
-    {
-      switch (type) {
-        case SessionType.User:
-          return OpenSession(Configuration.Sessions.Default);
-        case SessionType.System:
-          return OpenSession(Configuration.Sessions.System);
-        case SessionType.KeyGenerator:
-          return OpenSession(Configuration.Sessions.KeyGenerator);
-        case SessionType.Service:
-          return OpenSession(Configuration.Sessions.Service);
-        default:
-          throw new ArgumentOutOfRangeException("type");
-      }
-    }
+    public Session OpenSession(SessionType type) =>
+      OpenSession(GetSessionConfiguration(type));
 
     /// <summary>
     /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
@@ -227,14 +220,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-
-      return OpenSessionInternal(configuration,
-        null,
-        configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      OpenSessionInternal(configuration, null, configuration.Supports(SessionOptions.AutoActivation));
 
     internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
@@ -242,7 +229,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -276,11 +263,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default)
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSessionAsync(configuration, cancellationToken);
-    }
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
 
     /// <summary>
     /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
@@ -297,18 +281,7 @@ namespace Xtensive.Orm
     public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      switch (type) {
-        case SessionType.User:
-          return OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
-        case SessionType.System:
-          return OpenSessionAsync(Configuration.Sessions.System, cancellationToken);
-        case SessionType.KeyGenerator:
-          return OpenSessionAsync(Configuration.Sessions.KeyGenerator, cancellationToken);
-        case SessionType.Service:
-          return OpenSessionAsync(Configuration.Sessions.Service, cancellationToken);
-        default:
-          throw new ArgumentOutOfRangeException("type");
-      }
+      return OpenSessionAsync(GetSessionConfiguration(type), cancellationToken);
     }
 
     /// <summary>
@@ -341,13 +314,21 @@ namespace Xtensive.Orm
       }
     }
 
+    internal SessionConfiguration GetSessionConfiguration(SessionType type) =>
+      type switch {
+        SessionType.User => Configuration.Sessions.Default,
+        SessionType.System => Configuration.Sessions.System,
+        SessionType.KeyGenerator => Configuration.Sessions.KeyGenerator,
+        SessionType.Service => Configuration.Sessions.Service,
+        _ => throw new ArgumentOutOfRangeException(nameof(type))
+      };
+
     internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -423,11 +404,13 @@ namespace Xtensive.Orm
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      RootCallExpressionsCache = new ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression>();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
+      TagsEnabled = configuration.TagsLocation != TagsLocation.Nowhere;
       isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 
@@ -447,7 +430,7 @@ namespace Xtensive.Orm
       }
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        OrmLog.Debug(nameof(Strings.LogDomainIsDisposing));
       }
 
       NotifyDisposing();

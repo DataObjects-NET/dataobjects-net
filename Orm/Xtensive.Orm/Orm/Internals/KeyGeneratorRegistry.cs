@@ -42,13 +42,13 @@ namespace Xtensive.Orm.Internals
 
     public void Register(KeyInfo key, KeyGenerator generator)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       generators.Add(key, generator);
     }
 
     public void RegisterTemporary(KeyInfo key, TemporaryKeyGenerator temporaryGenerator)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       temporaryGenerators.Add(key, temporaryGenerator);
     }
   }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
+// Copyright (C) 2018 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestStructure).Assembly, typeof (TestStructure).Namespace);
+      configuration.Types.RegisterCaching(typeof (TestStructure).Assembly, typeof (TestStructure).Namespace);
       ApplyVersioningPolicy(configuration);
       return configuration;
     }

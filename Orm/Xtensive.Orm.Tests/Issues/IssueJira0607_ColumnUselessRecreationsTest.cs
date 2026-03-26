@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = DomainConfigurationFactory.Create();
       foreach (var type in types) {
-        configuration.Types.Register(type.Assembly, type.Namespace);
+        configuration.Types.RegisterCaching(type.Assembly, type.Namespace);
       }
       configuration.UpgradeMode = (isInitial) ? DomainUpgradeMode.Recreate : DomainUpgradeMode.PerformSafely;
       return configuration;

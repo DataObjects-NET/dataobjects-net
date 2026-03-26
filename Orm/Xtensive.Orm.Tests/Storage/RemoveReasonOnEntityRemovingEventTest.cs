@@ -363,7 +363,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(ReferencingEntity1).Assembly, typeof(ReferencingEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(ReferencingEntity1).Assembly, typeof(ReferencingEntity1).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

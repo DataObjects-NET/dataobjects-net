@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model
       : base(token)
     {
       if (!signalled) {
-        //  Подпорка
+        //  ГЏГ®Г¤ГЇГ®Г°ГЄГ 
         //LockObject = new Lock(token, requestorId, this);
       }
     }
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Lock).Assembly, typeof (Lock).Namespace);
+      config.Types.RegisterCaching(typeof (Lock).Assembly, typeof (Lock).Namespace);
       return config;
     }
 

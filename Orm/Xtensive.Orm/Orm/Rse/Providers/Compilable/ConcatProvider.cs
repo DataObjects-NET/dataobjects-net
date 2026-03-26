@@ -18,9 +18,6 @@ namespace Xtensive.Orm.Rse.Providers
   public sealed class ConcatProvider : BinaryProvider
   {
 
-
-    // Constructors
-
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
       var leftHeader = left.Header;
@@ -59,9 +56,11 @@ namespace Xtensive.Orm.Rse.Providers
       var left = leftHeader.TupleDescriptor;
       var right = rightHeader.TupleDescriptor;
       if (!left.Equals(right)) {
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+        throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Concatenation"));
       }
     }
+
+    // Constructors
 
     /// <summary>
     ///  Initializes a new instance of this class.

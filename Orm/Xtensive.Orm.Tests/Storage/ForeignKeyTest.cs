@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
+      configuration.Types.RegisterCaching(typeof (User).Assembly, typeof (User).Namespace);
       configuration.ForeignKeyMode = ForeignKeyMode.All;
       return configuration;
     }

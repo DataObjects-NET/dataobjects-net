@@ -1,6 +1,8 @@
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Localization.Tests.Model;
+using English = Xtensive.Orm.Localization.Tests.WellKnownCultures.English;
+using Spanish = Xtensive.Orm.Localization.Tests.WellKnownCultures.Spanish;
 
 namespace Xtensive.Orm.Localization.Tests
 {
@@ -15,15 +17,15 @@ namespace Xtensive.Orm.Localization.Tests
         var welcomePage = new Page(session);
 
         // Editing localizable properties through localization scope
-        using (new LocalizationScope(EnglishCulture)) {
-          welcomePage.Title = EnglishTitle;
-          welcomePage.Content = EnglishContent;
+        using (new LocalizationScope(English.Culture)) {
+          welcomePage.Title = English.Title;
+          welcomePage.Content = English.Content;
         }
 
         // The same entity, the same properties, but another culture
-        using (new LocalizationScope(SpanishCulture)) {
-          welcomePage.Title = SpanishTitle;
-          welcomePage.Content = SpanishContent;
+        using (new LocalizationScope(Spanish.Culture)) {
+          welcomePage.Title = Spanish.Title;
+          welcomePage.Content = Spanish.Content;
         }
 
         ts.Complete();
@@ -37,14 +39,14 @@ namespace Xtensive.Orm.Localization.Tests
         Assert.AreEqual(2, session.Query.All<PageLocalization>().Count());
 
         var page = session.Query.All<Page>().First();
-        using (new LocalizationScope(EnglishCulture)) {
-          Assert.AreEqual(EnglishTitle, page.Title);
-          Assert.AreEqual(EnglishContent, page.Content);
+        using (new LocalizationScope(English.Culture)) {
+          Assert.AreEqual(English.Title, page.Title);
+          Assert.AreEqual(English.Content, page.Content);
         }
 
-        using (new LocalizationScope(SpanishCulture)) {
-          Assert.AreEqual(SpanishTitle, page.Title);
-          Assert.AreEqual(SpanishContent, page.Content);
+        using (new LocalizationScope(Spanish.Culture)) {
+          Assert.AreEqual(Spanish.Title, page.Title);
+          Assert.AreEqual(Spanish.Content, page.Content);
         }
 
         ts.Complete();

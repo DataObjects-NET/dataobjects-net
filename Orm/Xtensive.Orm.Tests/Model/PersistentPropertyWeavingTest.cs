@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Base).Assembly, typeof (Base).Namespace);
+      configuration.Types.RegisterCaching(typeof (Base).Assembly, typeof (Base).Namespace);
       configuration.Types.Register(typeof (GenericOverrideField<string>));
       configuration.Types.Register(typeof (GenericImplementField<string>));
       configuration.Types.Register(typeof (NonPersistentGenericImplementField<string>));

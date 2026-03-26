@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Malisa Ncube
@@ -42,10 +42,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
       bool passed = false;
-      if (!l.IsNullReference())
+      if (l is not null)
         passed = true;
       Assert.IsTrue(passed);
-      if (l.IsNullReference())
+      if (l is null)
         passed = false;
       Assert.IsTrue(passed);
     }

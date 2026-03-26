@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -46,12 +46,12 @@ namespace Xtensive.Sql
     public virtual void BindChar(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }
       var _char = (char) value;
-      parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
+      parameter.Value = _char == default(char) ? string.Empty : _char.ToString();
     }
 
     public virtual void BindString(DbParameter parameter, object value)
@@ -131,6 +131,20 @@ namespace Xtensive.Sql
       parameter.DbType = DbType.DateTime;
       parameter.Value = value ?? DBNull.Value;
     }
+#if NET6_0_OR_GREATER
+
+    public virtual void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? ((DateOnly) value).ToDateTime(TimeOnly.MinValue) : DBNull.Value;
+    }
+
+    public virtual void BindTimeOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Time;
+      parameter.Value = value != null ? ((TimeOnly) value).ToTimeSpan() : DBNull.Value;
+    }
+#endif
 
     public virtual void BindDateTimeOffset(DbParameter parameter, object value)
     {
@@ -141,7 +155,7 @@ namespace Xtensive.Sql
     public virtual void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value!=null) {
+      if (value != null) {
         var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, Int64TimeSpanRange);
         parameter.Value = timeSpan.Ticks * 100;
       }
@@ -165,85 +179,61 @@ namespace Xtensive.Sql
 
     #region ReadXxx methods
 
-    public virtual object ReadBoolean(DbDataReader reader, int index)
-    {
-      return reader.GetBoolean(index);
-    }
+    public virtual object ReadBoolean(DbDataReader reader, int index) =>
+      reader.GetBoolean(index);
 
-    public virtual object ReadChar(DbDataReader reader, int index)
-    {
-      return reader.GetString(index).SingleOrDefault();
-    }
+    public virtual object ReadChar(DbDataReader reader, int index) =>
+      reader.GetString(index).SingleOrDefault();
 
-    public virtual object ReadString(DbDataReader reader, int index)
-    {
-      return reader.GetString(index);
-    }
+    public virtual object ReadString(DbDataReader reader, int index) =>
+      reader.GetString(index);
 
-    public virtual object ReadByte(DbDataReader reader, int index)
-    {
-      return reader.GetByte(index);
-    }
+    public virtual object ReadByte(DbDataReader reader, int index) =>
+      reader.GetByte(index);
 
-    public virtual object ReadSByte(DbDataReader reader, int index)
-    {
-      return Convert.ToSByte(reader[index]);
-    }
+    public virtual object ReadSByte(DbDataReader reader, int index) =>
+      Convert.ToSByte(reader[index]);
 
-    public virtual object ReadShort(DbDataReader reader, int index)
-    {
-      return reader.GetInt16(index);
-    }
+    public virtual object ReadShort(DbDataReader reader, int index) =>
+      reader.GetInt16(index);
 
-    public virtual object ReadUShort(DbDataReader reader, int index)
-    {
-      return Convert.ToUInt16(reader[index]);
-    }
+    public virtual object ReadUShort(DbDataReader reader, int index) =>
+      Convert.ToUInt16(reader[index]);
 
-    public virtual object ReadInt(DbDataReader reader, int index)
-    {
-      return reader.GetInt32(index);
-    }
+    public virtual object ReadInt(DbDataReader reader, int index) =>
+      reader.GetInt32(index);
 
-    public virtual object ReadUInt(DbDataReader reader, int index)
-    {
-      return Convert.ToUInt32(reader[index]);
-    }
+    public virtual object ReadUInt(DbDataReader reader, int index) =>
+      Convert.ToUInt32(reader[index]);
 
-    public virtual object ReadLong(DbDataReader reader, int index)
-    {
-      return reader.GetInt64(index);
-    }
+    public virtual object ReadLong(DbDataReader reader, int index) =>
+      reader.GetInt64(index);
 
-    public virtual object ReadULong(DbDataReader reader, int index)
-    {
-      return Convert.ToUInt64(reader[index]);
-    }
+    public virtual object ReadULong(DbDataReader reader, int index) =>
+      Convert.ToUInt64(reader[index]);
 
-    public virtual object ReadFloat(DbDataReader reader, int index)
-    {
-      return reader.GetFloat(index);
-    }
+    public virtual object ReadFloat(DbDataReader reader, int index) =>
+      reader.GetFloat(index);
 
-    public virtual object ReadDouble(DbDataReader reader, int index)
-    {
-      return reader.GetDouble(index);
-    }
+    public virtual object ReadDouble(DbDataReader reader, int index) =>
+      reader.GetDouble(index);
 
-    public virtual object ReadDecimal(DbDataReader reader, int index)
-    {
-      return reader.GetDecimal(index);
-    }
+    public virtual object ReadDecimal(DbDataReader reader, int index) =>
+      reader.GetDecimal(index);
 
-    public virtual object ReadDateTime(DbDataReader reader, int index)
-    {
-      return reader.GetDateTime(index);
-    }
+    public virtual object ReadDateTime(DbDataReader reader, int index) =>
+      reader.GetDateTime(index);
+#if NET6_0_OR_GREATER
 
-    public virtual object ReadDateTimeOffset(DbDataReader reader, int index)
-    {
-      return (DateTimeOffset) reader.GetValue(index);
-    }
+    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
+        DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+
+    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
+      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+#endif
+
+    public virtual object ReadDateTimeOffset(DbDataReader reader, int index) =>
+      (DateTimeOffset) reader.GetValue(index);
 
     public virtual object ReadTimeSpan(DbDataReader reader, int index)
     {
@@ -257,10 +247,8 @@ namespace Xtensive.Sql
       return TimeSpan.FromTicks(value / 100);
     }
 
-    public virtual object ReadGuid(DbDataReader reader, int index)
-    {
-      return reader.GetGuid(index);
-    }
+    public virtual object ReadGuid(DbDataReader reader, int index) =>
+      reader.GetGuid(index);
 
     public virtual object ReadByteArray(DbDataReader reader, int index)
     {
@@ -282,76 +270,50 @@ namespace Xtensive.Sql
 
     #region MapXxx methods
 
-    public virtual SqlValueType MapBoolean(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Boolean);
-    }
+    public virtual SqlValueType MapBoolean(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Boolean);
 
-    public virtual SqlValueType MapChar(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.VarChar, 1);
-    }
+    public virtual SqlValueType MapChar(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.VarChar, 1);
 
-    public virtual SqlValueType MapString(int? length, int? precision, int? scale)
-    {
-      return ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
-    }
+    public virtual SqlValueType MapString(int? length, int? precision, int? scale) =>
+      ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
 
-    public virtual SqlValueType MapByte(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.UInt8);
-    }
+    public virtual SqlValueType MapByte(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.UInt8);
 
-    public virtual SqlValueType MapSByte(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int8);
-    }
+    public virtual SqlValueType MapSByte(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Int8);
 
-    public virtual SqlValueType MapShort(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int16);
-    }
+    public virtual SqlValueType MapShort(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Int16);
 
-    public virtual SqlValueType MapUShort(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.UInt16);
-    }
+    public virtual SqlValueType MapUShort(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.UInt16);
 
-    public virtual SqlValueType MapInt(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int32);
-    }
+    public virtual SqlValueType MapInt(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Int32);
 
-    public virtual SqlValueType MapUInt(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.UInt32);
-    }
+    public virtual SqlValueType MapUInt(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.UInt32);
 
-    public virtual SqlValueType MapLong(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
+    public virtual SqlValueType MapLong(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Int64);
 
-    public virtual SqlValueType MapULong(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.UInt64);
-    }
+    public virtual SqlValueType MapULong(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.UInt64);
 
-    public virtual SqlValueType MapFloat(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Float);
-    }
+    public virtual SqlValueType MapFloat(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Float);
 
-    public virtual SqlValueType MapDouble(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Double);
-    }
+    public virtual SqlValueType MapDouble(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Double);
 
     public virtual SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
-      if (MaxDecimalPrecision==null)
+      if (MaxDecimalPrecision == null)
         return new SqlValueType(SqlType.Decimal);
-      if (precision==null) {
+      if (precision == null) {
         var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
         var resultScale = resultPrecision / 2;
         return new SqlValueType(SqlType.Decimal, resultPrecision, resultScale);
@@ -363,38 +325,36 @@ namespace Xtensive.Sql
       return new SqlValueType(SqlType.Decimal, null, null, precision, scale);
     }
 
-    public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.DateTime);
-    }
+    public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.DateTime);
+#if NET6_0_OR_GREATER
 
-    public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.DateTimeOffset);
-    }
+    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Date);
 
-    public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
+    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Time);
+#endif
 
-    public virtual SqlValueType MapGuid(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Guid);
-    }
+    public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.DateTimeOffset);
 
-    public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale)
-    {
-      return ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
-    }
+    public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Int64);
+
+    public virtual SqlValueType MapGuid(int? length, int? precision, int? scale) =>
+      new SqlValueType(SqlType.Guid);
+
+    public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale) =>
+      ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
 
     #endregion
 
     protected static SqlValueType ChooseStreamType(SqlType varType, SqlType varMaxType, int? length, int? varTypeMaxLength)
     {
-      if (varTypeMaxLength==null)
+      if (varTypeMaxLength == null)
         return new SqlValueType(varMaxType);
-      if (length==null)
+      if (length == null)
         return new SqlValueType(varType, varTypeMaxLength.Value);
       if (length.Value > varTypeMaxLength.Value)
         return new SqlValueType(varMaxType);
@@ -407,13 +367,13 @@ namespace Xtensive.Sql
     public virtual void Initialize()
     {
       var varchar = Driver.ServerInfo.DataTypes.VarChar;
-      if (varchar!=null)
+      if (varchar != null)
         VarCharMaxLength = varchar.MaxLength;
       var varbinary = Driver.ServerInfo.DataTypes.VarBinary;
-      if (varbinary!=null)
+      if (varbinary != null)
         VarBinaryMaxLength = varbinary.MaxLength;
       var _decimal = Driver.ServerInfo.DataTypes.Decimal;
-      if (_decimal!=null)
+      if (_decimal != null)
         MaxDecimalPrecision = _decimal.MaxPrecision;
     }
 

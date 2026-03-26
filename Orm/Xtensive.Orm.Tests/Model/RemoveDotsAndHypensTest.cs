@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.RemoveDotsAndHypensTestModel;
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (DotObject).Assembly, typeof (DotObject).Namespace);
+      configuration.Types.RegisterCaching(typeof (DotObject).Assembly, typeof (DotObject).Namespace);
       configuration.NamingConvention.NamingRules = NamingRules.RemoveHyphens | NamingRules.RemoveDots;
       return configuration;
     }

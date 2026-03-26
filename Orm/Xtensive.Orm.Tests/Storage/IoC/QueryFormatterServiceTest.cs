@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
+      config.Types.RegisterCaching(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
       return config;
     }
 

@@ -1,10 +1,11 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.05.06;
 
 using Xtensive.Core;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -16,6 +17,15 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class PostgresqlSqlDml
   {
+    /// <summary>
+    /// Creates an expression for native "trim_scale" function call. The function is supported starting from PostgreSQL 13
+    /// </summary>
+    public static SqlExpression DecimalTrimScale(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, nameof(operand));
+      return SqlDml.FunctionCall("TRIM_SCALE", operand);
+    }
+
     #region Spatial types
 
     /// <summary>

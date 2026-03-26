@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Ray).Namespace);
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(Ray).Namespace);
       return config;
     }
 

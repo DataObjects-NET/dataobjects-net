@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Model
     {
       get { return index; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (index == value)
           return;
         if (index!=null)
@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Model
       get { return column; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         column = value;
       }
     }
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Model
       get { return typeColumn; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         typeColumn = value;
       }
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Sql.Model
       get { return ascending; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ascending = value;
       }
     }
@@ -90,7 +90,7 @@ namespace Xtensive.Sql.Model
     /// <value></value>
     public override string Name
     {
-      get { return !expression.IsNullReference() ? string.Empty : column.Name; }
+      get { return base.Name; }
       set { throw new NotSupportedException(); }
     }
 
@@ -102,7 +102,7 @@ namespace Xtensive.Sql.Model
       get { return expression; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         expression = value;
       }
     }
@@ -133,7 +133,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<Index>.UpdatePairedProperty(string property, Index value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       index = value;
     }
 
@@ -142,6 +142,7 @@ namespace Xtensive.Sql.Model
     #region Constructors
 
     internal IndexColumn(Index index, DataTableColumn column, bool ascending)
+      : base(column.Name)
     {
       Column = column;
       Index = index;
@@ -149,6 +150,7 @@ namespace Xtensive.Sql.Model
     }
 
     internal IndexColumn(Index index, SqlExpression expression, bool ascending)
+      : base(string.Empty)
     {
       this.expression = expression;
       Index = index;

@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Upgrade
         HasUnsafeActions.ToString().ToLower(),
         HasColumnTypeChanges.ToString().ToLower(),
         IsCompatibleInLegacyMode.HasValue ? IsCompatibleInLegacyMode.Value.ToString() : Strings.Unknown,
-        UnsafeActions.Any() ? UnsafeActions.ToDelimitedString("\r\n").Indent(2) : string.Empty,
+        UnsafeActions.Any() ? UnsafeActions.ToDelimitedString(Environment.NewLine).Indent(2) : string.Empty,
         Hints!=null ? Hints.ToString().Indent(2) : string.Empty,
         Difference!=null ? Difference.ToString().Indent(2) : string.Empty);
     }

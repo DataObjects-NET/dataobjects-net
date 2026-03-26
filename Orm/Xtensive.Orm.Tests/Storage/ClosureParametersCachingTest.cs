@@ -439,7 +439,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Invoice).Assembly, typeof (Invoice).Namespace);
+      configuration.Types.RegisterCaching(typeof (Invoice).Assembly, typeof (Invoice).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

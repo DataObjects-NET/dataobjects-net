@@ -18,6 +18,10 @@ namespace Xtensive.Orm.Configuration
   public class NamingConvention : LockableBase,
     ICloneable
   {
+    public const LetterCasePolicy DefaultLetterCasePolicy = LetterCasePolicy.Default;
+    public const NamespacePolicy DefaultNamespacePolicy = NamespacePolicy.Default;
+    public const NamingRules DefaultNamingRules = NamingRules.Default;
+
     private LetterCasePolicy letterCasePolicy;
     private NamespacePolicy namespacePolicy;
     private NamingRules namingRules;
@@ -31,7 +35,7 @@ namespace Xtensive.Orm.Configuration
       get { return letterCasePolicy; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         letterCasePolicy = value;
       }
     }
@@ -44,7 +48,7 @@ namespace Xtensive.Orm.Configuration
       get { return namespacePolicy; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         namespacePolicy = value;
       }
     }
@@ -57,7 +61,7 @@ namespace Xtensive.Orm.Configuration
       get { return namingRules; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Validate(value, NamingRules.UnderscoreDots, NamingRules.RemoveDots);
         Validate(value, NamingRules.UnderscoreHyphens, NamingRules.RemoveHyphens);
         namingRules = value;
@@ -94,7 +98,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public object Clone()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var result = new NamingConvention();
       result.letterCasePolicy = letterCasePolicy;
       result.namespacePolicy = namespacePolicy;

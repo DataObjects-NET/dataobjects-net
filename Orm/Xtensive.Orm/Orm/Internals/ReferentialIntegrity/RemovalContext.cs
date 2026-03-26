@@ -40,8 +40,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     public List<Entity> GatherEntitiesForProcessing()
     {
-      while (types.Count > 0) {
-        var type = types.Dequeue();
+      while (types.TryDequeue(out var type)) {
         var list = queue[type];
         if (list.Count == 0) {
           continue;

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -46,9 +46,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlBetween>(expression, "expression");
-      SqlBetween replacingExpression = expression as SqlBetween;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlBetween>(expression);
       NodeType = replacingExpression.NodeType;
       left = replacingExpression.Left;
       right = replacingExpression.Right;
@@ -58,7 +56,11 @@ namespace Xtensive.Sql.Dml
     internal override object Clone(SqlNodeCloneContext context) =>
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
-        : context.NodeMapping[this] = new SqlBetween(NodeType, (SqlExpression)expression.Clone(context), (SqlExpression)left.Clone(context), (SqlExpression)right.Clone(context));
+        : context.NodeMapping[this] = new SqlBetween(
+            NodeType,
+            (SqlExpression) expression.Clone(context),
+            (SqlExpression) left.Clone(context),
+            (SqlExpression) right.Clone(context));
 
     internal SqlBetween(SqlNodeType nodeType, SqlExpression expression, SqlExpression left, SqlExpression right)
       : base(nodeType)

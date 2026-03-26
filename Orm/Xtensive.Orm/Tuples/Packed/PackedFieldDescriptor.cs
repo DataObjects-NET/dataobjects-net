@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2003-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -11,10 +11,10 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal struct PackedFieldDescriptor
   {
-    public int DataPosition;
-    public int StatePosition;
+    internal int DataPosition;
+    internal ushort StatePosition;
 
     [NonSerialized]
-    public PackedFieldAccessor Accessor;
+    internal byte AccessorIndex;
   }
 }

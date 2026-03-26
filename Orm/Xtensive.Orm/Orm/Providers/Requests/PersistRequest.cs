@@ -28,8 +28,6 @@ namespace Xtensive.Orm.Providers
 
     public IEnumerable<PersistParameterBinding> ParameterBindings { get; private set; }
 
-    internal NodeConfiguration NodeConfiguration { get; private set; }
-
     public SqlCompilationResult GetCompiledStatement()
     {
       if (compiledStatement==null)
@@ -41,9 +39,7 @@ namespace Xtensive.Orm.Providers
     {
       if (compiledStatement!=null)
         return;
-      compiledStatement =(NodeConfiguration!=null)
-        ? driver.Compile(CompileUnit, NodeConfiguration)
-        : driver.Compile(CompileUnit);
+      compiledStatement = driver.Compile(CompileUnit);
       CompileUnit = null;
       Statement = null;
     }
@@ -52,10 +48,21 @@ namespace Xtensive.Orm.Providers
 
     public PersistRequest(
       StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings)
-      : this(driver, statement, parameterBindings, null)
     {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+
+      var compileUnit = statement as ISqlCompileUnit;
+      if (compileUnit == null)
+        throw new ArgumentException("Statement is not ISqlCompileUnit");
+
+      this.driver = driver;
+      Statement = statement;
+      CompileUnit = compileUnit;
+      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
     }
 
+    [Obsolete]
     public PersistRequest(
       StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings, NodeConfiguration nodeConfiguration)
     {
@@ -70,7 +77,6 @@ namespace Xtensive.Orm.Providers
       Statement = statement;
       CompileUnit = compileUnit;
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
-      NodeConfiguration = nodeConfiguration;
     }
   }
 }

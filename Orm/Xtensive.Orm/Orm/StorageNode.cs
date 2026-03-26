@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2021 Xtensive LLC.
+// Copyright (C) 2014-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -72,47 +72,27 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; }
     internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; }
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>> PersistRequestCache { get; private set; }
 
     /// <inheritdoc/>
-    public Session OpenSession()
-    {
-      return OpenSession(domain.Configuration.Sessions.Default);
-    }
+    public Session OpenSession() =>
+      OpenSession(domain.Configuration.Sessions.Default);
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionType type)
-    {
-      return type switch {
-        SessionType.User => OpenSession(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSession(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSession(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSession(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Session OpenSession(SessionType type) =>
+      OpenSession(domain.GetSessionConfiguration(type));
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      return domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
       OpenSessionAsync(domain.Configuration.Sessions.Default, cancellationToken);
 
     /// <inheritdoc/>
-    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
-    {
-      return type switch {
-        SessionType.User => OpenSessionAsync(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSessionAsync(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSessionAsync(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSessionAsync(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(domain.GetSessionConfiguration(type), cancellationToken);
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
@@ -147,7 +127,7 @@ namespace Xtensive.Orm
       EntitySetTypeStateCache = new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
       RefsToEntityQueryCache = new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>>();
 
       this.domain = domain;
       Configuration = configuration;

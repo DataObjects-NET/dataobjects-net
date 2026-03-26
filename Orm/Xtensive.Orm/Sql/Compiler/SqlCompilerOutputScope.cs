@@ -9,13 +9,15 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// SQL compiler output scope.
   /// </summary>
-  public class SqlCompilerOutputScope : IDisposable
+  public readonly struct SqlCompilerOutputScope : IDisposable
   {
     private readonly SqlCompilerContext context;
 
-    internal ContextType Type { get; private set; }
+    internal ContextType Type { get; }
 
-    internal ContainerNode ParentContainer { get; private set; }
+    internal ContainerNode ParentContainer { get; }
+    
+    internal bool StartOfCollection { get; }
 
     /// <inheritdoc/>
     public void Dispose()
@@ -23,11 +25,12 @@ namespace Xtensive.Sql.Compiler
       context.CloseScope(this);
     }
 
-    internal SqlCompilerOutputScope(SqlCompilerContext context, ContainerNode parentContainer, ContextType type)
+    internal SqlCompilerOutputScope(SqlCompilerContext context, ContextType type)
     {
       this.context = context;
       Type = type;
-      ParentContainer = parentContainer;
+      ParentContainer = context.Output;
+      StartOfCollection = ParentContainer.StartOfCollection;
     }
   }
 }

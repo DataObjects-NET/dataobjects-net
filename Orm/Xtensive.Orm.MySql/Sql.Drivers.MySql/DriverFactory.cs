@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -122,7 +122,10 @@ namespace Xtensive.Sql.Drivers.MySql
         5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
         5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
         5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
-        _ => new v5_6.Driver(coreServerInfo)
+        5 when version.Minor == 7 => new v5_7.Driver(coreServerInfo),
+        6 or 7 => throw new NotSupportedException(string.Format(Strings.ExVersionXOfMySQLIsNotSupported, version)),
+        8 => new v8_0.Driver(coreServerInfo),
+        _ => new v8_0.Driver(coreServerInfo)
       };
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public bool Equals(EntityGroupTask other)
     {
-      if (ReferenceEquals(null, other)) {
+      if (other is null) {
         return false;
       }
 
@@ -144,6 +144,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
       Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
+      if (session.Domain.TagsEnabled && session.Tags != null) {
+        foreach (var tag in session.Tags) {
+          Provider = new TagProvider(Provider, tag);
+        }
+      }
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }

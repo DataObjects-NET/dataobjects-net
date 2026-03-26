@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void OldTypeDoesNotDefinedInAttributeTest()
     {
       var domainConfiguration = DomainConfigurationFactory.Create();
-      domainConfiguration.Types.Register(typeof (model1.Recycled).Assembly, typeof (model1.Recycled).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof (model1.Recycled).Assembly, typeof (model1.Recycled).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(domainConfiguration)) { }
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void OldTypeDefinedInAttributeTest()
     {
       var domainConfiguration = DomainConfigurationFactory.Create();
-      domainConfiguration.Types.Register(typeof (model2.Recycled).Assembly, typeof (model2.Recycled).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof (model2.Recycled).Assembly, typeof (model2.Recycled).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(domainConfiguration)) { }

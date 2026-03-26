@@ -17,22 +17,23 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ExistenceProvider : UnaryProvider
   {
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] { WellKnownTypes.Bool });
+
     /// <summary>
     /// Gets the name of the existence column.
     /// </summary>
     public string ExistenceColumnName { get; }
 
-    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
-
-
-    // Constructors
 
     private static RecordSetHeader BuildHeader(string existenceColumnName)
     {
       return new RecordSetHeader(
         BoolTupleDescriptor, new[] { new SystemColumn(existenceColumnName, 0, WellKnownTypes.Bool) });
     }
- 
+
+
+    // Constructors
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>

@@ -32,6 +32,11 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public SqlTable PermanentReference => permanentReference ??= SqlDml.QueryRef(Request.Statement);
 
+    /// <summary>
+    /// Gets the domain handler this provider is bound to.
+    /// </summary>
+    protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
+
     /// <inheritdoc/>
     protected internal override DataReader OnEnumerate(Rse.Providers.EnumerationContext context)
     {

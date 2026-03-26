@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.07.02
 
@@ -23,10 +23,8 @@ namespace Xtensive.Orm.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type)
     {
-      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
-      candidates.UnionWith(type.GetInterfaces(true));
-      candidates.Add(type);
-      return this.Where(a => (candidates.Contains(a.TargetType) || candidates.Contains(a.OwnerType)));
+      var candidates = type.TypeWithAncestorsAndInterfaces;
+      return this.Where(a => candidates.Contains(a.TargetType) || candidates.Contains(a.OwnerType));
     }
 
     /// <summary>
@@ -37,14 +35,13 @@ namespace Xtensive.Orm.Model
     /// <returns></returns>
     public IEnumerable<AssociationInfo> Find(TypeInfo type, bool target)
     {
-      var candidates = new HashSet<TypeInfo>(type.GetAncestors());
-      candidates.UnionWith(type.GetInterfaces(true));
-      candidates.Add(type);
+      var candidates = type.TypeWithAncestorsAndInterfaces;
 
-      var filter = target ? (Func<AssociationInfo, TypeInfo>) (a => a.TargetType) : (a => a.OwnerType);
-      return this.Where(a => candidates.Contains(filter(a)));
+      Func<AssociationInfo, bool> filter = target
+        ? a => candidates.Contains(a.TargetType)
+        : a => candidates.Contains(a.OwnerType);
+      return this.Where(filter);
     }
-
 
     // Constructors
 

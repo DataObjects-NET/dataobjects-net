@@ -1,0 +1,2 @@
+[main] Improved memory efficency of cached queries.
+[main] One of PersistRequest's constructors marked obsolete since it is no loger in use

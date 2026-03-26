@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Test()
     {
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.Types.Register(typeof (BaseEntity).Assembly, typeof (BaseEntity).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof (BaseEntity).Assembly, typeof (BaseEntity).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       using (var domain = Domain.Build(domainConfiguration))
       using (var session = domain.OpenSession()) {

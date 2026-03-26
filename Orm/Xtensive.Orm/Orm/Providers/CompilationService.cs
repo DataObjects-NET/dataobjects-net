@@ -20,10 +20,13 @@ namespace Xtensive.Orm.Providers
     private readonly Func<CompilerConfiguration, IPreCompiler> preCompilerProvider;
     private readonly Func<CompilerConfiguration, ICompiler, IPostCompiler> postCompilerProvider;
 
-    public CompilerConfiguration CreateConfiguration(Session session)
-    {
-      return new CompilerConfiguration {StorageNode = session.StorageNode};
-    }
+    public CompilerConfiguration CreateConfiguration(Session session) =>
+      new() {
+        StorageNode = session.StorageNode,
+        Tags = session.Tags,
+        // prefer constants during upgrade process
+        PreferTypeIdAsParameter = !session.Name.Equals(WellKnown.Sessions.System) && session.Domain.Configuration.PreferTypeIdsAsQueryParameters
+      };
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {

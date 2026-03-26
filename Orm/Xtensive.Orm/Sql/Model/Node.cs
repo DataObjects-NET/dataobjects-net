@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Model
       get { return name; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Model
       get { return string.IsNullOrEmpty(dbName) ? name : dbName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         dbName = value;
       }
     }

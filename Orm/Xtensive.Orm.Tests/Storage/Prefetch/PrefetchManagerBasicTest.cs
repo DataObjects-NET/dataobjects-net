@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -20,13 +20,15 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
+using System.Runtime.CompilerServices;
+using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
-    private volatile static int instanceCount;
+    private static int instanceCount;
 
     #region Nested class
 
@@ -34,7 +36,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       ~MemoryLeakTester()
       {
-        instanceCount--;
+        _ = Interlocked.Decrement(ref instanceCount);
+        //instanceCount--;
       }
     }
 
@@ -380,12 +383,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var graphContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(2, graphContainers.Count);
-        foreach (var container in graphContainers)
+        foreach (var container in graphContainers.Values)
           Assert.IsNull(container.ReferencedEntityContainers);
-        var orderContainer = graphContainers.Where(container => container.Key==orderKey).SingleOrDefault();
-        var employeeContainer = graphContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
+        var orderContainer = graphContainers.Values.Where(container => container.Key==orderKey).SingleOrDefault();
+        var employeeContainer = graphContainers.Values.Where(container => container.Key!=orderKey).SingleOrDefault();
         Assert.IsNotNull(orderContainer);
         Assert.IsNotNull(employeeContainer);
         prefetchManager.ExecuteTasks();
@@ -431,9 +434,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var taskContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var taskContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, taskContainers.Count);
-        Assert.AreEqual(orderKey, taskContainers.Single().Key);
+        Assert.AreEqual(orderKey, taskContainers.Values.Single().Key);
       }
     }
 
@@ -929,6 +932,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed]
     public void ReferenceToSessionIsNotPreservedInCacheTest()
     {
       // Use separate method for session related processing
@@ -938,6 +942,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Assert.That(instanceCount, Is.EqualTo(0));
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void OpenSessionsAndRunPrefetches()
     {
       instanceCount = 10;

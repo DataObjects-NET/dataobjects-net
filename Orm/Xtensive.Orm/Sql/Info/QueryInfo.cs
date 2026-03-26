@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Info
     {
       get => maxLength;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxLength = value;
       }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Info
     {
       get => maxComparisonOperations;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxComparisonOperations = value;
       }
     }
@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Info
     {
       get => maxNestedQueriesAmount;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxNestedQueriesAmount = value;
       }
     }
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Info
     {
       get => parameterPrefix;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         parameterPrefix = value;
       }
     }
@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Info
     {
       get => features;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }
@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Info
     {
       get => maxQueryParameterCount;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxQueryParameterCount = value;
       }
     }

@@ -57,60 +57,47 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Container).Assembly, typeof (Container).Namespace);
+      config.Types.RegisterCaching(typeof (Container).Assembly, typeof (Container).Namespace);
       return config;
     }
 
     [Test]
     public void SetTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
-          var container = new Container();
-          try {
-            container.Value = new Triple();
-            Assert.Fail();
-          } catch (InvalidOperationException) {
-            
-          }
-          
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+
+        var container = new Container();
+        _ = Assert.Throws<InvalidOperationException>(() => { container.Value = new Triple(); });
+
+        // Rollback
       }
     }
 
     [Test]
     public void CastTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
-          var container = new Container();
-          try {
-            container.Value = (Pair)new Triple();
-            Assert.Fail();
-          } catch (InvalidOperationException) {
-            
-          }
-          
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+
+        var container = new Container();
+        _ = Assert.Throws<InvalidOperationException>(() => { container.Value = (Pair) new Triple(); });
+
+        // Rollback
       }
     }
 
     [Test]
     public void ValidTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
-          var container = new Container();
-          var triple = new Triple();
-          container.Value = new Pair(triple.One, triple.Two);
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          // Rollback
-        }
+        var container = new Container();
+        var triple = new Triple();
+        container.Value = new Pair(triple.One, triple.Two);
+
+        // Rollback
       }
     }
   }

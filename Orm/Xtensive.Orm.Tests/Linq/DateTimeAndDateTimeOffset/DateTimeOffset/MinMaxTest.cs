@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
 // Created:    2016.07.29
 
@@ -14,32 +14,38 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 {
   public class MinMaxTest : DateTimeOffsetBaseTest
   {
-    [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
+    [Test]
     public void DateTimeOffsetMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<DateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
+      Require.AllFeaturesNotSupported(Providers.ProviderFeatures.DateTimeOffsetEmulation);
+
+      ExecuteInsideSession((s) => MinMaxPrivate<DateTimeOffsetEntity, DateTimeOffset>(s, c => c.DateTimeOffset));
     }
 
-    [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
+    [Test]
     public void MillisecondDateTimeOffsetMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
+      Require.AllFeaturesNotSupported(Providers.ProviderFeatures.DateTimeOffsetEmulation);
+
+      ExecuteInsideSession((s) => MinMaxPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset>(s, c => c.DateTimeOffset));
     }
 
-    [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
+    [Test]
     public void NullableDateTimeOffsetMinMaxTest()
     {
-      ExecuteInsideSession(() => MinMaxPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?>(c => c.DateTimeOffset));
+      Require.AllFeaturesNotSupported(Providers.ProviderFeatures.DateTimeOffsetEmulation);
+
+      ExecuteInsideSession((s) => MinMaxPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?>(s, c => c.DateTimeOffset));
     }
 
-    private void MinMaxPrivate<T, TK>(Expression<Func<T, TK>> selectExpression)
+    private void MinMaxPrivate<T, TK>(Session session, Expression<Func<T, TK>> selectExpression)
       where T : Entity
     {
       var compiledSelectExpression = selectExpression.Compile();
-      var minLocal = Query.All<T>().ToArray().Min(compiledSelectExpression);
-      var maxLocal = Query.All<T>().ToArray().Max(compiledSelectExpression);
-      var minServer = Query.All<T>().Min(selectExpression);
-      var maxServer = Query.All<T>().Max(selectExpression);
+      var minLocal = session.Query.All<T>().AsEnumerable().Min(compiledSelectExpression);
+      var maxLocal = session.Query.All<T>().AsEnumerable().Max(compiledSelectExpression);
+      var minServer = session.Query.All<T>().Min(selectExpression);
+      var maxServer = session.Query.All<T>().Max(selectExpression);
 
       Assert.AreEqual(minLocal, minServer);
       Assert.AreEqual(maxLocal, maxServer);

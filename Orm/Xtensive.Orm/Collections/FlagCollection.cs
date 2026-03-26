@@ -72,7 +72,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void Add(TKey key, TFlag flag)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (keys.Contains(key))
         throw new ArgumentException("key", Strings.ExCollectionAlreadyContainsSpecifiedItem);
       if (keys.Count >= MaxItemCount)
@@ -91,7 +91,7 @@ namespace Xtensive.Collections
     public bool Remove(TKey key)
     {
       ArgumentValidator.EnsureArgumentIsNotDefault(key, "key");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int index = keys.IndexOf(key);
       if (index < 0)
         return false;
@@ -130,7 +130,7 @@ namespace Xtensive.Collections
       set
       {
         ArgumentValidator.EnsureArgumentIsNotDefault(key, "key");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         int index = keys.IndexOf(key);
         if (index < 0)
           Add(key, value);
@@ -191,7 +191,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       keys.Clear();
       flags = new BitVector32(0);
     }

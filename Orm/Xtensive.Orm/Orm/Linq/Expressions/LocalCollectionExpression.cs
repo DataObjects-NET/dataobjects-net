@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.09.09
 
@@ -18,32 +18,28 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class LocalCollectionExpression : ParameterizedExpression,
     IMappedExpression
   {
-    public Expression SourceExpression { get;private set; }
+    // just to have good error
+    private readonly string expressionAsString;
+
     public IDictionary<MemberInfo, IMappedExpression> Fields { get; set; }
-    public Expression MaterializationExpression { get; private set; }
+
     public MemberInfo MemberInfo { get; private set; }
 
-    public IEnumerable<ColumnExpression> Columns
-    {
-      get
-      {
-        return Fields
-          .SelectMany(field => field.Value is ColumnExpression
-            ? EnumerableUtils.One(field.Value)
-            : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
-          .Cast<ColumnExpression>();
-      }
-    }
+    public IEnumerable<ColumnExpression> Columns =>
+      Fields
+        .SelectMany(field => field.Value is ColumnExpression
+          ? EnumerableUtils.One(field.Value)
+          : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
+        .Cast<ColumnExpression>();
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
+      var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(offset, processedExpressions));
       return result;
@@ -53,11 +49,10 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       if (!CanRemap)
         return this;
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
+      var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.Remap(map, processedExpressions));
       return result;
@@ -65,11 +60,10 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
+      var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.BindParameter(parameter, processedExpressions));
       return result;
@@ -77,23 +71,32 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value))
         return value;
 
-      var result = new LocalCollectionExpression(Type, MemberInfo, SourceExpression);
+      var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
       processedExpressions.Add(this, result);
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.RemoveOuterParameter(processedExpressions));
       return result;
     }
+
+    public override string ToString() => expressionAsString;
 
     public LocalCollectionExpression(Type type, MemberInfo memberInfo, Expression sourceExpression)
       : base(ExtendedExpressionType.LocalCollection, type, null, true)
     {
       Fields = new Dictionary<MemberInfo, IMappedExpression>();
       MemberInfo = memberInfo;
-      SourceExpression = sourceExpression;
+      expressionAsString = sourceExpression.ToString();
+      ;
     }
 
+    private LocalCollectionExpression(Type type, MemberInfo memberInfo, in string stringRepresentation)
+      : base(ExtendedExpressionType.LocalCollection, type, null, true)
+    {
+      Fields = new Dictionary<MemberInfo, IMappedExpression>();
+      MemberInfo = memberInfo;
+      expressionAsString = stringRepresentation;
+    }
   }
 }

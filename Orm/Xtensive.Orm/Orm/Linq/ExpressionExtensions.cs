@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -45,9 +45,12 @@ namespace Xtensive.Orm.Linq
 
     public static bool IsNewExpressionSupportedByStorage(this Expression expression) =>
       expression.NodeType == ExpressionType.New
-      && (expression.Type == WellKnownTypes.TimeSpan
-        || expression.Type == WellKnownTypes.DateTime
-        || expression.Type == WellKnownTypes.DateTimeOffset);
+      && expression.Type switch { var t =>
+        t == WellKnownTypes.TimeSpan || t == WellKnownTypes.DateTime || t == WellKnownTypes.DateTimeOffset
+#if NET6_0_OR_GREATER
+          || t == WellKnownTypes.DateOnly || t == WellKnownTypes.TimeOnly
+#endif
+      };
 
     public static bool IsQuery(this Expression expression) =>
       expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT);
@@ -80,6 +83,11 @@ namespace Xtensive.Orm.Linq
       }
 
       return false;
+    }
+
+    public static bool IsExtendedExpression(this Expression expression)
+    {
+      return (ExtendedExpressionType) expression.StripMarkers().NodeType >= ExtendedExpressionType.Projection;
     }
 
     public static bool IsItemProjector(this Expression expression)
@@ -137,8 +145,7 @@ namespace Xtensive.Orm.Linq
     public static Expression StripMarkers(this Expression e)
     {
       if (e is ExtendedExpression ee && ee.ExtendedType == ExtendedExpressionType.Marker) {
-        var marker = (MarkerExpression) ee;
-        return marker.Target;
+        return ((MarkerExpression) e).Target;
       }
 
       return e;

@@ -20,15 +20,7 @@ namespace Xtensive.Sql.Dml
     /// Gets the collection of join hints.
     /// </summary>
     /// <value>The collection of join hints.</value>
-    public IList<SqlHint> Hints
-    {
-      get {
-        if (hints==null)
-          hints = new Collection<SqlHint>();
-        return hints;
-      }
-    }
-
+    public IList<SqlHint> Hints => hints ??= new Collection<SqlHint>();
 
     // Constructors
 

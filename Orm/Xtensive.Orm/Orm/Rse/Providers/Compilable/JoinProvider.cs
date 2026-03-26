@@ -44,8 +44,6 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
 
-    // Constructors
-
     private static Pair<Column>[] BuildEqualColumns(ColumnCollection leftHeaderColumns, ColumnCollection rightHeaderColumns, Pair<int>[] equalIndexes)
     {
       var equalColumns = new Pair<Column>[equalIndexes.Length];
@@ -57,6 +55,8 @@ namespace Xtensive.Orm.Rse.Providers
       }
       return equalColumns;
     }
+
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.

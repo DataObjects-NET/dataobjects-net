@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2017 Xtensive LLC.
+// Copyright (C) 2003-2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      config.Types.RegisterCaching(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       return config;
     }
   }

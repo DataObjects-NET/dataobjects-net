@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -47,6 +47,17 @@ namespace Xtensive.Orm.Providers
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
     void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, ParameterContext parameterContext);
+
+    /// <summary>
+    /// Asynchronously stores the specified tuples in specified table.
+    /// </summary>
+    /// <param name="descriptor">Persist descriptor.</param>
+    /// <param name="tuples">The tuples to store.</param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing the operation.</returns>
+    Task StoreAsync(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, ParameterContext parameterContext, CancellationToken token);
 
     /// <summary>
     /// Clears the specified table.

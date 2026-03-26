@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="substitution">Substitution</param>
     public void Register(MemberInfo member, LambdaExpression substitution)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var registration = new LinqExtensionRegistration(member, substitution);
       registrations.Add(member, registration);
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="compiler">Compiler.</param>
     public void Register(MemberInfo member, Func<MemberInfo, Expression, Expression[], Expression> compiler)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var registration = new LinqExtensionRegistration(member, compiler);
       registrations.Add(member, registration);
     }

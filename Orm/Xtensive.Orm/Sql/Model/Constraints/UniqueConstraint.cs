@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Model
     public bool IsClustered {
       get { return isClustered; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isClustered = value;
       }
     }

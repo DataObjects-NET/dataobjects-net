@@ -202,7 +202,7 @@ namespace Xtensive.IoC
     }
 
     private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
-      containerType.GetSingleConstructor(argumentTypes);
+      containerType.GetSingleConstructorOrDefault(argumentTypes);
 
     #endregion
 

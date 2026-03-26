@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -32,6 +32,20 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Cuts the specified <paramref name="suffix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original value.</param>
+    /// <param name="suffix">The suffix to cut.</param>
+    /// <returns>Span without <paramref name="suffix"/> if it was found;
+    /// otherwise, original <paramref name="value"/>.</returns>
+    public static ReadOnlySpan<char>TryCutSuffix(this in ReadOnlySpan<char> value, in ReadOnlySpan<char> suffix)
+    {
+      if (!value.EndsWith(suffix, StringComparison.Ordinal))
+        return value;
+      return value.Slice(0, value.Length - suffix.Length);
+    }
+
+    /// <summary>
     /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
     /// </summary>
     /// <param name="value">The original string value.</param>
@@ -43,6 +57,20 @@ namespace Xtensive.Core
       if (!value.StartsWith(prefix, StringComparison.Ordinal))
         return value;
       return value.Substring(prefix.Length);
+    }
+
+    /// <summary>
+    /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The original value.</param>
+    /// <param name="prefix">The suffix to cut.</param>
+    /// <returns>Span without <paramref name="prefix"/> if it was found;
+    /// otherwise, original <paramref name="value"/>.</returns>
+    public static ReadOnlySpan<char> TryCutPrefix(this in ReadOnlySpan<char> value, in ReadOnlySpan<char> prefix)
+    {
+      if (!value.StartsWith(prefix, StringComparison.Ordinal))
+        return value;
+      return value.Slice(prefix.Length);
     }
 
     /// <summary>

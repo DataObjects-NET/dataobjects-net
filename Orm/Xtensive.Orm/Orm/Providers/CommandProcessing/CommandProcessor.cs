@@ -124,6 +124,13 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    protected void ValidateCommandPartParameters(CommandPart commandPart)
+    {
+      if (commandPart.Parameters.Count > MaxQueryParameterCount) {
+        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
+      }
+    }
+
     protected ExecutionBehavior GetCommandExecutionBehavior(ICollection<CommandPart> commandParts, int currentParametersCount)
     {
       if (MaxQueryParameterCount == int.MaxValue) {

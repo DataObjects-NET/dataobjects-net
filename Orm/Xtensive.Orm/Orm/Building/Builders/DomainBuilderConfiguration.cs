@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return domainConfiguration; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         domainConfiguration = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return stage; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         stage = value;
       }
     }
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return modelFilter; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         modelFilter = value;
       }
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return services; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         services = value;
       }
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return upgradeContextCookie; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeContextCookie = value;
       }
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return recycledDefinitions; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         recycledDefinitions = value;
       }
     }
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Building.Builders
       get { return defaultSchemaInfo; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultSchemaInfo = value;
       }
     }

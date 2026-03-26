@@ -9,7 +9,8 @@ namespace Xtensive.Tuples.Packed
     private const int OffsetBitCount = 6;
     private const int OffsetMask = (1 << OffsetBitCount) - 1;
 
-    public static bool IsObjectField(in this PackedFieldDescriptor descriptor) => descriptor.Accessor.Rank < 0;
+    public static PackedFieldAccessor GetAccessor(in this PackedFieldDescriptor descriptor) => PackedFieldAccessor.All[descriptor.AccessorIndex];
+    public static bool IsObjectField(in this PackedFieldDescriptor descriptor) => descriptor.GetAccessor().Rank < 0;
     public static int GetObjectIndex(in this PackedFieldDescriptor descriptor) => descriptor.DataPosition;
     public static int GetValueIndex(in this PackedFieldDescriptor descriptor) => descriptor.DataPosition >> OffsetBitCount;
     public static int GetValueBitOffset(in this PackedFieldDescriptor descriptor) => descriptor.DataPosition & OffsetMask;

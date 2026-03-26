@@ -325,11 +325,11 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
         .Distinct()
-        .OrderBy(c => c.LastName)
+        .OrderBy(c => c.Phone)
         .Skip(5);
       var expected = Customers
         .Distinct()
-        .OrderBy(c => c.LastName)
+        .OrderBy(c => c.Phone)
         .Skip(5);
 
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -398,6 +398,27 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(10);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
+    }
+
+    [Test]
+    public void DistinctByBoolExpression()
+    {
+      var result = Session.Query.All<Invoice>().Select(c => c.Status == (InvoiceStatus) 1)
+        .Distinct()
+        .ToArray();
+
+      CollectionAssert.AreEquivalent(new[] {false, true}, result);
+    }
+
+    [Test]
+    public void DistinctByBoolExpressionComplex()
+    {
+      var result = Session.Query.All<Invoice>()
+        .Select(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
+        .Distinct()
+        .ToArray();
+
+      CollectionAssert.AreEquivalent(new[] {false, true}, result);
     }
   }
 }

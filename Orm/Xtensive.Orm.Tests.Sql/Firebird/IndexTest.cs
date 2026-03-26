@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       Assert.IsNotNull(i2);
       Assert.AreEqual(1, i2.Columns.Count);
 
-      Assert.IsTrue(!i2.Columns[0].Expression.IsNullReference());
+      Assert.IsTrue(i2.Columns[0].Expression is not null);
     }
 
     [Test, Ignore("Test is not implemented")]

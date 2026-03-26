@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Apple).Assembly, typeof (Apple).Namespace);
+      configuration.Types.RegisterCaching(typeof (Apple).Assembly, typeof (Apple).Namespace);
       return configuration;
     }
 
@@ -36,18 +36,6 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         testAppleKey = apple.Key;
         testFruitRefKey = refObject.Key;
         tx.Complete();
-      }
-    }
-
-    [Test]
-    public void DoubleSelectNodeTest()
-    {
-      //Delete this test when obolete method will be removed
-      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
-      using (var session = selectedNode.OpenSession()) {
-#pragma warning disable CS0618 // Type or member is obsolete
-        AssertEx.Throws<InvalidOperationException>(() => session.SelectStorageNode(TestNodeId3));
-#pragma warning restore CS0618 // Type or member is obsolete
       }
     }
 

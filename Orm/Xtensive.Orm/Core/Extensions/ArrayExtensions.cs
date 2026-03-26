@@ -20,62 +20,21 @@ namespace Xtensive.Core
   public static class ArrayExtensions
   {
     /// <summary>
-    /// Clones the array.
+    /// Clones <paramref name="source"/> array with type case.
     /// </summary>
-    /// <typeparam name="TItem">The type of array items.</typeparam>
-    /// <param name="source">Array to clone.</param>
+    /// <typeparam name="TItem">The type of source array items.</typeparam>
+    /// <typeparam name="TNewItem">The type of result array items.</typeparam>
+    /// <param name="source">Collection to convert.</param>
     /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
-    [Obsolete]
-    public static TItem[] Copy<TItem>(this TItem[] source)
+    public static TNewItem[] Cast<TItem, TNewItem>(this TItem[] source)
+      where TNewItem: TItem
     {
-      var items = new TItem[source.Length];
-      source.CopyTo(items, 0);
+      var items = new TNewItem[source.Length];
+      int i = 0;
+      foreach (TItem item in source)
+        items[i++] = (TNewItem)item;
       return items;
     }
-
-    /// <summary>
-    /// Copies the items from <paramref name="source"/> array
-    /// to <paramref name="target"/> starting from specified
-    /// <paramref name="targetIndex"/>.
-    /// </summary>
-    /// <typeparam name="TItem">The type of item.</typeparam>
-    /// <param name="source">Source array to copy from.</param>
-    /// <param name="target">Target array to copy to.</param>
-    /// <param name="targetIndex">Index in <paramref name="target"/> array to start from.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetIndex"/> is out of range.</exception>
-    /// <exception cref="ArgumentException"><paramref name="target"/> array is too small.</exception>
-    [Obsolete]
-    public static void Copy<TItem>(this TItem[] source, TItem[] target, int targetIndex)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      if (targetIndex < 0 || targetIndex > target.Length)
-        throw new ArgumentOutOfRangeException("targetIndex");
-      if ((target.Length - targetIndex) < source.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "target");
-
-      source.CopyTo(target, targetIndex);
-//      int length = source.Length;
-//      for (int i = 0; i < length; i++)
-//        target[targetIndex++] = source[i];
-    }
-
-    // /// <summary>
-    // /// Clones <paramref name="source"/> array with type case.
-    // /// </summary>
-    // /// <typeparam name="TItem">The type of source array items.</typeparam>
-    // /// <typeparam name="TNewItem">The type of result array items.</typeparam>
-    // /// <param name="source">Collection to convert.</param>
-    // /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
-    // public static TNewItem[] Cast<TItem, TNewItem>(this TItem[] source)
-    //   where TNewItem: TItem
-    // {
-    //   var items = new TNewItem[source.Length];
-    //   int i = 0;
-    //   foreach (TItem item in source)
-    //     items[i++] = (TNewItem)item;
-    //   return items;
-    // }
 
     /// <summary>
     /// Clones <paramref name="source"/> array with element conversion.

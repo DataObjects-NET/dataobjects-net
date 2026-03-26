@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Root1).Assembly, typeof (Root1).Namespace);
+      config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
       config.Types.Register(typeof (DualIntKeyGenerator));
       return config;
     }

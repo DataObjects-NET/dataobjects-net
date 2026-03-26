@@ -30,18 +30,24 @@ namespace Xtensive.Sql.Model
     /// <returns><see langword="True"/> if this instance is read-only; otherwise, <see langword="false"/>.</returns>
     public override bool IsReadOnly { get { return IsLocked || base.IsReadOnly; } }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Adds item to collection.
+    /// </summary>
+    /// <param name="item">Item to add</param>
+    /// <exception cref="ArgumentException">The item with same name already exists in the collection</exception>
     public override void Add(TNode item)
     {
       base.Add(item);
-      if (!string.IsNullOrEmpty(item.GetNameInternal()))
-        nameIndex.Add(item.GetNameInternal(), item);
+      var name = item.GetNameInternal();
+      if (!string.IsNullOrEmpty(name) && !nameIndex.TryAdd(name, item)) {
+        throw new ArgumentException(string.Format(Strings.ExItemWithNameXAlreadyExists, name));
+      }
     }
 
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TNode> nodes)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (var node in nodes) {
         Add(node);
       }
@@ -95,6 +101,17 @@ namespace Xtensive.Sql.Model
       : base(capacity)
     {
       nameIndex = new Dictionary<string, TNode>(capacity, Comparer);
+    }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="comparer">Comparer for inner name index.</param>
+    public NodeCollection(int capacity, IEqualityComparer<string> comparer)
+      : base(capacity)
+    {
+      nameIndex = new Dictionary<string, TNode>(capacity, comparer);
     }
   }
 }

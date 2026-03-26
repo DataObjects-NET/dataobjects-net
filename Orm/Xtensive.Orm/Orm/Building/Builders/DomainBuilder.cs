@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Building.Builders
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, nameof(builderConfiguration));
 
       var context = new BuildingContext(builderConfiguration);
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, typeof(Domain).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).GetShortName())) {
         new DomainBuilder(context).Run();
       }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateDomain()
     {
-      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof(Domain).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(Domain).GetShortName())) {
         var services = context.BuilderConfiguration.Services;
         var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Building.Builders
       var handlers = context.Domain.Handlers;
       var services = context.BuilderConfiguration.Services;
 
-      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof(DomainHandler).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(DomainHandler).GetShortName())) {
         // HandlerFactory
         handlers.Factory = services.HandlerFactory;
 
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateServices()
     {
-      using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof(IServiceContainer).GetShortName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogCreatingX), typeof(IServiceContainer).GetShortName())) {
         var domain = context.Domain;
         var configuration = domain.Configuration;
         var userContainerType = configuration.ServiceContainerType ?? typeof(ServiceContainer);
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildModel()
     {
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Model)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Model)) {
         ModelBuilder.Run(context);
         var model = context.Model;
         model.Lock(true);
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var domain = context.Domain;
 
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.KeyGenerators)) {
         var generators = domain.KeyGenerators;
         var keysToProcess = domain.Model.Hierarchies
           .Select(h => h.Key)
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Building.Builders
         generators.Lock();
       }
 
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Validators)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), Strings.Validators)) {
         foreach (var type in domain.Model.Types) {
           foreach (var validator in type.Validators) {
             validator.Configure(domain, type);

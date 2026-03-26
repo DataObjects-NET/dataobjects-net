@@ -33,6 +33,11 @@ namespace Xtensive.Orm
     public const string DefaultConfigurationSection = "Xtensive.Orm";
 
     /// <summary>
+    /// Default name of domain.
+    /// </summary>
+    public const string DefaultDomainConfigurationName = "Default";
+
+    /// <summary>
     /// Name of the <see cref="Entity.Key"/> field.
     /// </summary>
     public const string KeyFieldName = "Key";

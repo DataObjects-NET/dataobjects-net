@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2020 Xtensive LLC.
+// Copyright (C) 2018-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
@@ -21,6 +21,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0746_MethodLikeDifferentBehaviorInS
 
     [Field]
     public string Name { get; set; }
+
+    public SimpleEntity(Session session)
+       : base(session)
+    {
+    }
   }
 }
 
@@ -84,39 +89,31 @@ namespace Xtensive.Orm.Tests.Issues
 
     #endregion
 
-    public override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      CreateSessionAndTransaction();
-    }
+    protected override bool InitGlobalSession => true;
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(SimpleEntity).Assembly, typeof(SimpleEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
 
     protected override void PopulateData()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        foreach (var testCase in TestCases) {
-          _ = new SimpleEntity { Name = testCase };
-        }
-
-        transaction.Complete();
+      foreach (var testCase in TestCases) {
+        _ = new SimpleEntity(GlobalSession) { Name = testCase };
       }
+
+      GlobalSession.SaveChanges();
     }
 
     [Test]
     [TestCaseSource(nameof(HitSearchStrings))]
     public void HitTest(string searchPattern)
     {
-      var session = Session.Current;
-      var local = session.Query.All<SimpleEntity>().ToArray().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
-      var server = session.Query.All<SimpleEntity>().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
+      var local = GlobalSession.Query.All<SimpleEntity>().AsEnumerable().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
+      var server = GlobalSession.Query.All<SimpleEntity>().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
 
       Assert.That(server.Length, Is.Not.EqualTo(0));
       Assert.That(local.Length, Is.EqualTo(server.Length));
@@ -128,9 +125,8 @@ namespace Xtensive.Orm.Tests.Issues
     [TestCaseSource(nameof(MissSearchStrings))]
     public void MissTest(string searchPattern)
     {
-      var session = Session.Current;
-      var local = session.Query.All<SimpleEntity>().ToArray().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
-      var server = session.Query.All<SimpleEntity>().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
+      var local = GlobalSession.Query.All<SimpleEntity>().AsEnumerable().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
+      var server = GlobalSession.Query.All<SimpleEntity>().Where(z => z.Name.Like(searchPattern, '&')).OrderBy(e => e.Id).ToArray();
 
       Assert.That(server.Length, Is.EqualTo(0));
       Assert.That(local.Length, Is.EqualTo(server.Length));

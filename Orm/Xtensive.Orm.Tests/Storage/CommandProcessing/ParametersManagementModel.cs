@@ -107,6 +107,15 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     // fields are added dynamically
   }
 
+  [HierarchyRoot]
+  public class OneHundredFieldsEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    // fields are added dynamically
+  }
+
 
   [HierarchyRoot(InheritanceSchema.ClassTable)]
   public class SeveralPersistActionsEntityValidA : Entity
@@ -174,6 +183,10 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         _ = t.DefineField(fieldName, typeof(int));
       }
 
+      t = model.Types[typeof(OneHundredFieldsEntity)];
+      foreach (var fieldName in GetFieldNames(98)) {
+        _ = t.DefineField(fieldName, typeof(int));
+      }
 
       // each entitity field count is valid
       // overall entity field count is valid

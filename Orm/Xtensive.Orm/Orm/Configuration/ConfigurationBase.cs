@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public virtual object Clone()
     {
-      ConfigurationBase clone = CreateClone();
+      var clone = CreateClone();
       clone.CopyFrom(this);
       return clone;
     }

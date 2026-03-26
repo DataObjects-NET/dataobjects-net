@@ -27,9 +27,9 @@ namespace Xtensive.Sql.Dml
 
     public static SqlExpression operator &(SqlExpression left, SqlExpression right)
     {
-      if (left.IsNullReference())
+      if (left is null)
         return right;
-      if (right.IsNullReference())
+      if (right is null)
         return left;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.And(left, right);
@@ -38,9 +38,9 @@ namespace Xtensive.Sql.Dml
 
     public static SqlExpression operator |(SqlExpression left, SqlExpression right)
     {
-      if (left.IsNullReference())
+      if (left is null)
         return right;
-      if (right.IsNullReference())
+      if (right is null)
         return left;
       if (SqlValidator.IsBooleanExpression(left))
         return SqlDml.Or(left, right);
@@ -204,6 +204,18 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<DateTime>(value);
     }
+#if NET6_0_OR_GREATER
+
+    public static implicit operator SqlExpression(DateOnly value)
+    {
+      return new SqlLiteral<DateOnly>(value);
+    }
+
+    public static implicit operator SqlExpression(TimeOnly value)
+    {
+      return new SqlLiteral<TimeOnly>(value);
+    }
+#endif
 
     public static implicit operator SqlExpression(DateTimeOffset value)
     {

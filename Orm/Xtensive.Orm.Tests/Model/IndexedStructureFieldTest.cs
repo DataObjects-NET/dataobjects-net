@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = base.BuildConfiguration();
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
-      configuration.Types.Register(typeof(Hierarchy).Assembly, typeof(Hierarchy).Namespace);
+      configuration.Types.RegisterCaching(typeof(Hierarchy).Assembly, typeof(Hierarchy).Namespace);
       return configuration;
     }
 

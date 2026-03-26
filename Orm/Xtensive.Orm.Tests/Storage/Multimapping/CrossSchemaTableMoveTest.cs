@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
     private void BuildInitialDomain()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (V1.UpgradeHandler).Assembly, typeof (V1.UpgradeHandler).Namespace);
+      config.Types.RegisterCaching(typeof (V1.UpgradeHandler).Assembly, typeof (V1.UpgradeHandler).Namespace);
       var r = config.MappingRules;
       r.Map(typeof (V1.Namespace1.Renamed1).Namespace).ToSchema(Schema1Name);
       r.Map(typeof (V1.Namespace2.Renamed2).Namespace).ToSchema(Schema2Name);
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
     private void BuildUpgradedDomain()
     {
       var config = BuildConfiguration();
-      config.Types.Register(typeof (V2.UpgradeHandler).Assembly, typeof (V2.UpgradeHandler).Namespace);
+      config.Types.RegisterCaching(typeof (V2.UpgradeHandler).Assembly, typeof (V2.UpgradeHandler).Namespace);
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var r = config.MappingRules;
       r.Map(typeof (V2.Namespace1.Renamed2).Namespace).ToSchema(Schema1Name);

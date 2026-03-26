@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
+// Copyright (C) 2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Issues
     private DomainConfiguration BuildConfiguration(Type t)
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(t.Assembly, t.Namespace);
+      config.Types.RegisterCaching(t.Assembly, t.Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }

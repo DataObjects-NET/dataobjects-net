@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.09.08
 
@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dml
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
         : context.NodeMapping[this] = new SqlColumnStub(
-            SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null, 
+            SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null,
             Column);
 
     public override void AcceptVisitor(ISqlVisitor visitor)

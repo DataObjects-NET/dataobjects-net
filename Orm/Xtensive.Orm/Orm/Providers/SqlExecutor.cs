@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -12,8 +12,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Providers
 {
@@ -194,7 +196,7 @@ namespace Xtensive.Orm.Providers
     {
       var groups = SplitOnEmptyEntries(statements);
       foreach (var group in groups) {
-        var batch = driver.BuildBatch(group.ToArray());
+        var batch = driver.BuildBatch(group);
         if (string.IsNullOrEmpty(batch)) {
           return;
         }
@@ -208,7 +210,7 @@ namespace Xtensive.Orm.Providers
     {
       var groups = SplitOnEmptyEntries(statements);
       foreach (var group in groups) {
-        var batch = driver.BuildBatch(group.ToArray());
+        var batch = driver.BuildBatch(group);
         if (string.IsNullOrEmpty(batch)) {
           return;
         }
@@ -220,7 +222,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static IEnumerable<IEnumerable<string>> SplitOnEmptyEntries(IEnumerable<string> items)
+    private static IEnumerable<IReadOnlyList<string>> SplitOnEmptyEntries(IEnumerable<string> items)
     {
       var group = new List<string>();
       foreach (var item in items) {
@@ -248,11 +250,11 @@ namespace Xtensive.Orm.Providers
       }
 
       var upgradeContext = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie);
-      if (upgradeContext!=null) {
-        return driver.Compile(statement, upgradeContext.NodeConfiguration).GetCommandText();
-      }
+      var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : session.StorageNode.Configuration;
 
-      return driver.Compile(statement, session.StorageNode.Configuration).GetCommandText();
+      return driver.Compile(statement)
+        .GetCommandText(
+          new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping()));
     }
 
     private CommandWithDataReader ExecuteReader(DbCommand command, CommandBehavior commandBehavior)

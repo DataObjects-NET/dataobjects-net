@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Configuration
       get { return database; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         database = value;
       }
     }
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Configuration
       get { return seed; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         seed = value;
       }
     }
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         cacheSize = value;
       }
     }

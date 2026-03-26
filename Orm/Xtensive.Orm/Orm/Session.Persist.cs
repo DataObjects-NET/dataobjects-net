@@ -142,7 +142,7 @@ namespace Xtensive.Orm
         using (OpenSystemLogicOnlyRegion()) {
           DemandTransaction();
           if (IsDebugEventLoggingEnabled) {
-            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+            OrmLog.Debug(nameof(Strings.LogSessionXPersistingReasonY), this, reason);
           }
 
           EntityChangeRegistry itemsToPersist;
@@ -204,7 +204,7 @@ namespace Xtensive.Orm
             }
 
             if (IsDebugEventLoggingEnabled) {
-              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
+              OrmLog.Debug(nameof(Strings.LogSessionXPersistCompleted), this);
             }
           }
         }

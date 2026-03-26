@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Gamzov
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0754_CopyFieldHint_MoveFieldHint
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), type.Namespace);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), type.Namespace);
       configuration.Types.Register(typeof (Upgrader));
 
       domain = Domain.Build(configuration);

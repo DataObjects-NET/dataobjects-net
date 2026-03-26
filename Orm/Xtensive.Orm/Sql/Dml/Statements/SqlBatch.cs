@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dml
     IList<SqlStatement>,
     ISqlCompileUnit
   {
-    private IList<SqlStatement> statements = new Collection<SqlStatement>();
+    private readonly IList<SqlStatement> statements = new Collection<SqlStatement>();
 
     #region IList<SqlStatement> Members
 
@@ -55,16 +55,10 @@ namespace Xtensive.Sql.Dml
     }
 
     /// <inheritdoc/>
-    public int Count
-    {
-      get { return statements.Count; }
-    }
+    public int Count => statements.Count;
 
     /// <inheritdoc/>
-    public bool IsReadOnly
-    {
-      get { return false; }
-    }
+    public bool IsReadOnly => false;
 
     /// <inheritdoc/>
     public int IndexOf(SqlStatement item)
@@ -87,8 +81,8 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public SqlStatement this[int index]
     {
-      get { return statements[index]; }
-      set { statements[index] = value; }
+      get => statements[index];
+      set => statements[index] = value;
     }
 
     /// <inheritdoc/>

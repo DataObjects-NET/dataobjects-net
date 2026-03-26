@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Model
       get { return dataType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         dataType = value;
       }
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Model
       get { return domain; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         domain = value;
       }
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Model
       get { return defaultValue; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultValue = value;
       }
     }
@@ -90,7 +90,7 @@ namespace Xtensive.Sql.Model
       get { return expression; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         expression = value;
       }
     }
@@ -107,7 +107,7 @@ namespace Xtensive.Sql.Model
       get { return isPersisted; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isPersisted = value;
       }
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Sql.Model
       get { return collation; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         collation = value;
       }
     }
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.Model
       get { return isNullable; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isNullable = value;
       }
     }
@@ -151,7 +151,7 @@ namespace Xtensive.Sql.Model
       get { return (Table)DataTable; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         DataTable = value;
       }
     }
