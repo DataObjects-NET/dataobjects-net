@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Rse.Providers
     private static RecordSetHeader BuildHeaderAndFilteredTupleDescriptor(
       CompilableProvider source, IReadOnlyList<int> filteredColumns, string resultColumnName, out TupleDescriptor filteredTupleDescriptor)
     {
-      var header = source.Header.Add(new SystemColumn(resultColumnName, 0, WellKnownTypes.Bool));
+      var header = source.Header.Add(new SystemColumn(resultColumnName, source.Header.Length, WellKnownTypes.Bool));
       var columnCount = filteredColumns.Count;
       var fieldTypes = new Type[columnCount];
       for (var index = 0; index < columnCount; index++) {
