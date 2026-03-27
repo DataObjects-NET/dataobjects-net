@@ -949,7 +949,7 @@ namespace Xtensive.Orm
 
     private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field, EntitySetBase entitySet)
     {
-      var association = field.Associations.Last();
+      var association = field.Associations[^1];
       var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
       var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
@@ -1060,7 +1060,7 @@ namespace Xtensive.Orm
       this.owner = owner;
       Field = field;
       State = new EntitySetState(this);
-      var association = Field.Associations.Last();
+      var association = Field.Associations[^1];
       if (association.AuxiliaryType != null && association.IsMaster) {
         var domain = Session.Domain;
         var itemType = domain.Model.Types[Field.ItemType];

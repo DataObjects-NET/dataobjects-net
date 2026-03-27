@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private Tuple ExtractForeignKeyTuple(EntityState ownerState)
     {
-      var association = ReferencingField.Associations.Last();
+      var association = ReferencingField.Associations[^1];
       var result = association.ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var tupleState = result.GetFieldStateMap(TupleFieldState.Null);
       for (int i = 0; i < result.Count; i++) {
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
       bool isOwnerTypeKnown, PrefetchManager manager)
-      : base(null, referencingFieldDescriptor.Field.Associations.Last().TargetType, true, manager)
+      : base(null, referencingFieldDescriptor.Field.Associations[^1].TargetType, true, manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
