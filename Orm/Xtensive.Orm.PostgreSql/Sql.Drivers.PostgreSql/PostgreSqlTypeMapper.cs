@@ -37,6 +37,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     public override SqlValueType MapType(int? length, int? precision, int? scale) => new SqlValueType(sqlType);
 
+    internal protected ArgumentException ValueNotOfTypeError(string typeName)
+    {
+      return new ArgumentException($"Value is not of '{typeName}' type.");
+    }
+
     // Constructors
 
     protected PostgreSqlTypeMapper(string frameworkType, NpgsqlDbType npgsqlDbType, SqlType sqlType)

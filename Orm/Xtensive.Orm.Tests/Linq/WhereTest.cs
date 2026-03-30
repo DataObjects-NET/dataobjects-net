@@ -1321,9 +1321,10 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     public void ApplyTest()
     {
       var actual = Session.Query.All<Customer>()
-        .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m));
+        .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m)).ToList().OrderBy(c => c.CustomerId);
+
       var expected = Customers
-        .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m));
+        .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m)).ToList().OrderBy(c => c.CustomerId);
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 

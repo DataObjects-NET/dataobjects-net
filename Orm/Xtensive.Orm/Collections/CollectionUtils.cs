@@ -24,6 +24,7 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
+    [Obsolete("Enumerable.Range().ToArray() is several times faster")]
     public static int[] RangeToArray(int start, int count)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
@@ -41,6 +42,7 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
+    [Obsolete("Enumerable.Range().ToList() is several times faster")]
     public static List<int> RangeToList(int start, int count)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");

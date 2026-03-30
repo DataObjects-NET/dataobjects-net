@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -71,6 +71,7 @@ namespace Xtensive.Orm.Providers
     DeleteLimit = 1L << 53,
     DateTimeEmulation = 1L << 54,
     DateTimeOffsetEmulation = 1L << 55,
+    TruncateTable = 1L << 56,
 
     // Feature groups
     Paging = Take | Skip,

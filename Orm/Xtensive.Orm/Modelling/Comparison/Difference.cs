@@ -43,8 +43,10 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     public override string ToString()
     {
+      var diffType = GetType();
       return string.Format(Strings.DifferenceFormat,
-        GetType().GetShortName(), Source, Target, ParametersToString());
+        diffType.IsGenericType ? diffType.GetShortName() : diffType.Name,
+        Source, Target, ParametersToString());
     }
 
     /// <summary>

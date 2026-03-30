@@ -43,6 +43,35 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public DateTimeOffset? NullableDateTimeOffset { get; set; }
+
+    public SingleDateTimeOffsetEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateTimeOffsetEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateTimeOffset MinValue { get; set; }
+
+    [Field]
+    public DateTimeOffset MaxValue { get; set; }
+
+    [Field]
+    public DateTimeOffset? NullableMinValue { get; set; }
+
+    [Field]
+    public DateTimeOffset? NullableMaxValue { get; set; }
+
+    public MinMaxDateTimeOffsetEntity(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -90,6 +119,30 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     public DateTime? DateTime { get; set; }
 
     public NullableDateTimeEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateTimeEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateTime MinValue { get; set; }
+
+    [Field]
+    public DateTime MaxValue { get; set; }
+
+    [Field]
+    public DateTime? NullableMinValue { get; set; }
+
+    [Field]
+    public DateTime? NullableMaxValue { get; set; }
+
+    public MinMaxDateTimeEntity(Session session)
       : base(session)
     {
     }
@@ -193,11 +246,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public long DateTimeTicks { get; set; }
-#if NET6_0_OR_GREATER
 
     [Field]
     public long TimeOnlyTicks { get; set; }
-#endif
 
     [Field]
     [Validation.RangeConstraint(Min = -23, Max = 23)]
@@ -224,10 +275,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         OffsetHour = 0,
         OffsetMinute = 0,
         DateTimeTicks = dateTime.Ticks,
-#if NET6_0_OR_GREATER
         TimeOnlyTicks = TimeOnly.FromDateTime(dateTime).Ticks,
         TimeSpan = TimeOnly.FromDateTime(dateTime).ToTimeSpan(),
-#endif
       };
     }
 
@@ -245,10 +294,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
         OffsetHour = dateTimeOffset.Offset.Hours,
         OffsetMinute = dateTimeOffset.Offset.Minutes,
         DateTimeTicks = dateTimeOffset.Ticks,
-#if NET6_0_OR_GREATER
         TimeOnlyTicks = TimeOnly.FromDateTime(dateTimeOffset.DateTime).Ticks,
         TimeSpan = TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToTimeSpan(),
-#endif
       };
     }
 
@@ -257,7 +304,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
-#if NET6_0_OR_GREATER
 
   [HierarchyRoot]
   public class DateOnlyEntity : Entity
@@ -283,6 +329,30 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
       : base(session)
     {
 
+    }
+  }
+
+  [HierarchyRoot]
+  public class MinMaxDateOnlyEntity : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public DateOnly MinValue { get; set; }
+
+    [Field]
+    public DateOnly MaxValue { get; set; }
+
+    [Field]
+    public DateOnly? NullableMinValue { get; set; }
+
+    [Field]
+    public DateOnly? NullableMaxValue { get; set; }
+
+    public MinMaxDateOnlyEntity(Session session)
+      : base(session)
+    {
     }
   }
 
@@ -314,5 +384,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
     {
     }
   }
-#endif
 }

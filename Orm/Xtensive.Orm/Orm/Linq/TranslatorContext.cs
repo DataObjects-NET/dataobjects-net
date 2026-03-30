@@ -67,7 +67,8 @@ namespace Xtensive.Orm.Linq
     public ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
       if (!applyParameters.TryGetValue(provider, out var parameter)) {
-        parameter = new ApplyParameter(provider.GetType().GetShortName());
+        var providerType = provider.GetType();
+        parameter = new ApplyParameter(providerType.IsGenericType ? providerType.GetShortName() : providerType.Name);
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
         // May lead TO entity.ToString() calls, while ToString can be overriden.
@@ -139,9 +140,9 @@ namespace Xtensive.Orm.Linq
     public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
       CompiledQueryProcessingScope compiledQueryScope)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, nameof(rseCompilerConfiguration));
-      ArgumentValidator.EnsureArgumentNotNull(query, nameof(query));
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(rseCompilerConfiguration);
+      ArgumentNullException.ThrowIfNull(query);
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;

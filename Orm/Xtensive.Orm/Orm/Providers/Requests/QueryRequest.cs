@@ -67,12 +67,10 @@ namespace Xtensive.Orm.Providers
       StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+      ArgumentValidator.EnsureArgumentIsNotDefault(tupleDescriptor, "tupleDescriptor");
 
-      this.driver = driver;
-      Statement = statement;
+      this.driver = driver ?? throw new ArgumentNullException(nameof(driver));
+      Statement = statement ?? throw new ArgumentNullException(nameof(statement));
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
       TupleDescriptor = tupleDescriptor;
       Options = options;
@@ -82,12 +80,10 @@ namespace Xtensive.Orm.Providers
       StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options, NodeConfiguration nodeConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+      ArgumentValidator.EnsureArgumentIsNotDefault(tupleDescriptor, "tupleDescriptor");
 
-      this.driver = driver;
-      Statement = statement;
+      this.driver = driver ?? throw new ArgumentNullException(nameof(driver));
+      Statement = statement ?? throw new ArgumentNullException(nameof(statement));
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
       TupleDescriptor = tupleDescriptor;
       Options = options;

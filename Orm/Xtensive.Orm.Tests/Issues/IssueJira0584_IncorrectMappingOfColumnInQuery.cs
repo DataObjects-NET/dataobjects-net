@@ -526,8 +526,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
-          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting() {
             Id = item.Id,
@@ -609,8 +609,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
-          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -692,8 +692,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
-          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -776,8 +776,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
-          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -859,8 +859,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
-          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          .LeftJoinEx(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoinEx(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting {
             Id = item.Id,
@@ -1029,7 +1029,7 @@ namespace Xtensive.Orm.Tests.Issues
         var result =
           from r in
             preResult.Join(tp.Distinct(), a => a.MasterAccount, a => a.Account, (a, pm) => new {pp = a, pm})
-              .LeftJoin(Query.All<TablePartBase.FinToolKind>(), a => a.pm.FinToolKind, a => a.Id, (a, b) => new {pp = a.pp, pm = a.pm, fk = b})
+              .LeftJoinEx(Query.All<TablePartBase.FinToolKind>(), a => a.pm.FinToolKind, a => a.Id, (a, b) => new {pp = a.pp, pm = a.pm, fk = b})
           let q = r.pp
           select
             new {

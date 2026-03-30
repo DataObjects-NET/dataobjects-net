@@ -53,10 +53,7 @@ namespace Xtensive.Sql.Dml
       get { return targets; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      throw new NotImplementedException();
-    }
+    internal override SqlFetch Clone(SqlNodeCloneContext context) => throw new NotImplementedException();
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Dml
         return condition;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         SqlValidator.EnsureIsBooleanExpression(value);
         condition = value;
       }
@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Dml
         return trueStatement;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         trueStatement = value;
       }
     }
@@ -56,12 +56,11 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlIf((SqlExpression) condition.Clone(context),
-            (SqlStatement) trueStatement.Clone(context),
-            falseStatement == null ? null : (SqlStatement) falseStatement.Clone(context));
+    internal override SqlIf Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlIf(t.condition.Clone(c),
+            (SqlStatement) t.trueStatement.Clone(c),
+            t.falseStatement == null ? null : (SqlStatement) t.falseStatement.Clone(c)));
 
     internal SqlIf(SqlExpression condition, SqlStatement trueStatement, SqlStatement falseStatement)
       : base(SqlNodeType.Conditional)

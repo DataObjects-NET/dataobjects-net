@@ -46,10 +46,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor SingleAccessor = new FloatFieldAccessor();
       private static readonly ValueFieldAccessor DoubleAccessor = new DoubleFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeAccessor = new DateTimeFieldAccessor();
-#if NET6_0_OR_GREATER
       private static readonly ValueFieldAccessor DateOnlyAccessor = new DateOnlyFieldAccessor();
       private static readonly ValueFieldAccessor TimeOnlyAccessor = new TimeOnlyFieldAccessor();
-#endif
       private static readonly ValueFieldAccessor TimeSpanAccessor = new TimeSpanFieldAccessor();
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
@@ -76,10 +74,8 @@ namespace Xtensive.Tuples.Packed
           ReferenceEquals(type, WellKnownTypes.Decimal) ? DecimalAccessor :
           ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
           ReferenceEquals(type, WellKnownTypes.DateTimeOffset) ? DateTimeOffsetAccessor :
-#if NET6_0_OR_GREATER
           ReferenceEquals(type, WellKnownTypes.DateOnly) ? DateOnlyAccessor :
           ReferenceEquals(type, WellKnownTypes.TimeOnly) ? TimeOnlyAccessor :
-#endif
           ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
           ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
           ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
@@ -99,10 +95,8 @@ namespace Xtensive.Tuples.Packed
           ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
           ReferenceEquals(type, WellKnownTypes.NullableDateTimeOffset) ? DateTimeOffsetAccessor :
           ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
-#if NET6_0_OR_GREATER
           ReferenceEquals(type, WellKnownTypes.NullableDateOnly) ? DateOnlyAccessor :
           ReferenceEquals(type, WellKnownTypes.NullableTimeOnly) ? TimeOnlyAccessor :
-#endif
           ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor :
           ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
           ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :

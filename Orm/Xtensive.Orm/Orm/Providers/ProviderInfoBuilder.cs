@@ -136,6 +136,10 @@ namespace Xtensive.Orm.Providers
       if ((table.AllowedDdlStatements & DdlStatements.Rename)==DdlStatements.Rename)
         f |= ProviderFeatures.TableRename;
 
+      if (table.AllowedDdlStatements.HasFlag(DdlStatements.Truncate)) {
+        f |= ProviderFeatures.TruncateTable;
+      }
+
       var dataTypes = serverInfo.DataTypes;
       if (dataTypes.DateTimeOffset!=null)
         f |= ProviderFeatures.DateTimeOffset;

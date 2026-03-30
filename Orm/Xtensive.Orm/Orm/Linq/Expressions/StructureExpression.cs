@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Linq.Expressions
       get => fields;
       private set {
         fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
+        foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
           fieldExpression.Owner = this;
         }
       }

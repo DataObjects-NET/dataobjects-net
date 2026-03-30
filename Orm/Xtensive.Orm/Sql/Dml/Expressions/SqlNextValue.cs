@@ -42,10 +42,9 @@ namespace Xtensive.Sql.Dml
       increment = replacingExpression.Increment;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlNextValue(sequence, increment);
+    internal override SqlNextValue Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlNextValue(t.sequence, t.increment));
 
     internal SqlNextValue(Sequence sequence) : base(SqlNodeType.NextValue)
     {

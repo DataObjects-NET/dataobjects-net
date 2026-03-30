@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
@@ -24,17 +24,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
 
       var npgsqlParameter = (NpgsqlParameter) parameter;
-      npgsqlParameter.Value = value;
       npgsqlParameter.NpgsqlDbType = NpgsqlDbType.Polygon;
 
-      // The method Equals(Object, Object), wrapped in a block 'try',
-      // is required in order to determine that the value NpgsqlPolygon has been initialized with no parameters.
-      try {
-        value.Equals(value);
+      if (value is NpgsqlPolygon poligon) {
+        // we should fix poligons with no points
+        npgsqlParameter.Value = (poligon.Count > 0)
+          ? value
+          : new NpgsqlPolygon(new[] { new NpgsqlPoint() });
       }
-      catch (Exception) {
-        // If the value NpgsqlPolygon has been initialized with no parameters, then must set the initial value.
-        npgsqlParameter.Value = new NpgsqlPolygon(new[] {new NpgsqlPoint()});
+      else {
+        throw ValueNotOfTypeError(nameof(NpgsqlPolygon));
       }
     }
 

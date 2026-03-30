@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
@@ -271,26 +272,26 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid<T>(arrayIndex);
 
       if (arrayIndex + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(array));
       InnerCopyTo(array, arrayIndex);
     }
 
     /// <inheritdoc/>
     public void CopyTo(Array array, int index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid(index);
 
       if (array.Rank!=1)
-        throw new ArgumentException(Strings.ExArrayIsMultidimensional, "array");
+        throw new ArgumentException(Strings.ExArrayIsMultidimensional, nameof(array));
       if (array.GetLowerBound(0)!=0)
-        throw new ArgumentException(Strings.ExArrayDoesNotHaveZeroBasedIndexing, "array");
+        throw new ArgumentException(Strings.ExArrayDoesNotHaveZeroBasedIndexing, nameof(array));
       if (index + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(array));
       InnerCopyTo(array, index);
     }
 
@@ -388,9 +389,6 @@ namespace Xtensive.Collections
     {
       ArgumentValidator.EnsureArgumentIsInRange(index, 0, this.count-1, "index");
       ArgumentValidator.EnsureArgumentIsInRange(count, 0, this.count-index, "count");
-
-      if (count < 0 || (count > this.count - index))
-        throw new ArgumentOutOfRangeException("count");
 
       int bufferIndex = ConvertToBufferIndex(index);
       if (this.count > 0) {
@@ -610,7 +608,7 @@ namespace Xtensive.Collections
     /// <param name="source">The initial contents of the <see cref="Deque{T}"/>.</param>
     public Deque(IEnumerable<T> source)
     {
-      items = new List<T>(source).ToArray();
+      items = source.ToArray();
       headPos = -1;
       tailPos = items.Length;
       count = items.Length;

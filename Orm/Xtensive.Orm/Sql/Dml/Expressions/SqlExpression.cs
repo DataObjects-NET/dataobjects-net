@@ -196,7 +196,7 @@ namespace Xtensive.Sql.Dml
 
     public static implicit operator SqlExpression(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
       return new SqlLiteral<string>(value);
     }
 
@@ -204,7 +204,6 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<DateTime>(value);
     }
-#if NET6_0_OR_GREATER
 
     public static implicit operator SqlExpression(DateOnly value)
     {
@@ -215,7 +214,6 @@ namespace Xtensive.Sql.Dml
     {
       return new SqlLiteral<TimeOnly>(value);
     }
-#endif
 
     public static implicit operator SqlExpression(DateTimeOffset value)
     {
@@ -242,6 +240,10 @@ namespace Xtensive.Sql.Dml
     public sealed override int GetHashCode() => base.GetHashCode();
 
     public sealed override bool Equals(object obj) => ReferenceEquals(this, obj);
+
+    public override SqlExpression Clone() => Clone(new SqlNodeCloneContext());
+
+    internal override abstract SqlExpression Clone(SqlNodeCloneContext context);
 
     // Constructor
 

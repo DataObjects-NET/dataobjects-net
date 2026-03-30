@@ -43,12 +43,14 @@ namespace Xtensive.Orm.Configuration
 
     public override void Lock(bool recursive)
     {
-      if (logs is List<LogConfiguration>nativeList) {
-        logs = nativeList.AsReadOnly();
-      }
-      else {
-        logs = logs.ToList().AsReadOnly();
-      }
+#if NET8_0_OR_GREATER
+      logs = logs.AsReadOnly();
+#else
+      logs = logs switch {
+        List<LogConfiguration> nativeList1 => nativeList1.AsReadOnly(),
+        _ => logs.ToList().AsReadOnly()
+      };
+#endif
       base.Lock(recursive);
 
       foreach (var log in logs) {
@@ -114,7 +116,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
 
       var section = (ConfigurationSection) configuration.GetSection(sectionName);

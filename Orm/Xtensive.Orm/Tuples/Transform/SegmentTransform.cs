@@ -60,10 +60,8 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"{segment}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
-      return string.Format(Strings.TupleTransformFormat, 
-        GetType().GetShortName(), 
-        description);
+      var description = $"{segment}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      return string.Format(Strings.TupleTransformFormat, nameof(SegmentTransform), description);
     }
 
 
@@ -77,12 +75,13 @@ namespace Xtensive.Tuples.Transform
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceDescriptor, nameof(sourceDescriptor));
+      ArgumentValidator.EnsureArgumentIsNotDefault(sourceDescriptor, nameof(sourceDescriptor));
 
       IsReadOnly = isReadOnly;
 
-      var fields = new ArraySegment<Type>(sourceDescriptor.FieldTypes, segment.Offset, segment.Length);
-      Descriptor = TupleDescriptor.Create(fields.ToArray());
+      var fields = new Type[segment.Length];
+      Array.Copy(sourceDescriptor.FieldTypes, segment.Offset, fields, 0, segment.Length);
+      Descriptor = TupleDescriptor.Create(fields);
       this.segment = segment;
     }
   }

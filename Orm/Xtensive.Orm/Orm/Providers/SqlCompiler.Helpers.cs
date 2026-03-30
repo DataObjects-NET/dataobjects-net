@@ -16,6 +16,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers
 {
@@ -307,14 +308,12 @@ namespace Xtensive.Orm.Providers
         if (columnType == WellKnownTypes.DateTime) {
           return SqlDml.Cast(expression, SqlType.DateTime);
         }
-#if NET6_0_OR_GREATER
         if (columnType == WellKnownTypes.DateOnly) {
           return SqlDml.Cast(expression, SqlType.Date);
         }
         if (columnType == WellKnownTypes.TimeOnly) {
           return SqlDml.Cast(expression, SqlType.Time);
         }
-#endif
       }
 
       if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
@@ -355,14 +354,12 @@ namespace Xtensive.Orm.Providers
         if (type == WellKnownTypes.DateTime) {
           sqlType = SqlType.DateTime;
         }
-#if NET6_0_OR_GREATER
         else if (type == WellKnownTypes.DateOnly) {
           sqlType = SqlType.Date;
         }
         else if(type == WellKnownTypes.TimeOnly) {
           sqlType = SqlType.Time;
         }
-#endif
         if (sqlType == null) {
           return expression;
         }

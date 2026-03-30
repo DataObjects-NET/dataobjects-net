@@ -72,13 +72,11 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public abstract string DateTimeFormatString { get; }
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Gets the <see cref="DateOnly"/> format string.
     /// See <see cref="DateOnly.ToString(string)"/> for details
     /// </summary>
     public virtual string DateOnlyFormatString => throw new NotImplementedException();
-#endif
 
     /// <summary>
     /// Gets the time span format string.
@@ -86,12 +84,10 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Gets the <see cref="TimeOnly"/> format string.
     /// </summary>
     public virtual string TimeOnlyFormatString => throw new NotImplementedException();
-#endif
 
     /// <summary>
     /// Gets the parameter prefix.
@@ -1229,6 +1225,12 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
+    {
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
+    }
+
     /// <summary>
     /// Translates <see cref="SqlDropTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
@@ -1408,19 +1410,22 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
           _ = output.Append("FROM");
           break;
-        case InsertSection.ValuesEntry:
+        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
           _ = output.AppendOpeningPunctuation("VALUES (");
           break;
-        case InsertSection.ValuesExit:
+        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
+          _ = output.AppendOpeningPunctuation("VALUES ");
+          break;
+        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
           _ = output.Append(")");
           break;
         case InsertSection.DefaultValues:
@@ -1533,14 +1538,12 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-#if NET6_0_OR_GREATER
         case DateOnly dateOnly:
           output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;
         case TimeOnly timeOnly:
           output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
           break;
-#endif
         default:
           _ = output.Append(literalValue.ToString());
           break;
@@ -1978,7 +1981,7 @@ namespace Xtensive.Sql.Compiler
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
 
-      
+
       if (node.Schema.IsNamesReadingDenied) {
         // if schema is shared we use placeholders to translate
         // schema node in PostCompiler
@@ -2278,7 +2281,6 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
     /// </summary>
@@ -2312,7 +2314,6 @@ namespace Xtensive.Sql.Compiler
         _ => throw new ArgumentOutOfRangeException(nameof(timePart))
       });
     }
-#endif
 
     /// <summary>
     /// Translates <see cref="SqlDateTimeOffsetPart"/> and writes result to the <paramref name="output"/>.

@@ -202,7 +202,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           Visit(DateAddYear(arguments[0], arguments[1]));
           return;
@@ -218,14 +217,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.TimeAddMinutes:
           Visit(DateAddMinute(arguments[0], arguments[1]));
           return;
-#endif
         case SqlFunctionType.DateTimeTruncate:
           DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
           ConstructDateTime(arguments).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateConstruct:
           ConstructDate(arguments).AcceptVisitor(this);
           return;
@@ -253,7 +250,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlFunctionType.TimeToDateTime:
           TimeToDateTime(arguments[0]).AcceptVisitor(this);
           return;
-#endif
         case SqlFunctionType.DateTimeToStringIso:
           Visit(DateTimeToStringIso(arguments[0]));
           return;
@@ -283,12 +279,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
-#if NET6_0_OR_GREATER
       if (node.DatePart == SqlDatePart.DayOfWeek) {
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
-#endif
 
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:
@@ -326,14 +320,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case SqlNodeType.DateTimeMinusInterval:
           DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
         case SqlNodeType.TimeMinusTime:
           TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
           return;
-#endif
         default:
           base.Visit(node);
           return;
@@ -492,8 +484,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         arguments[2] - 1);
     }
 
-#if NET6_0_OR_GREATER
-
     /// <summary>
     /// Creates expression that represents construction of date value
     /// from arguments (year, month, day).
@@ -583,7 +573,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateDiffMillisecond(time2, time1), 18,0) * NanosecondsPerMillisecond,
         NanosecondsPerDay);
-#endif
 
     private SqlExpression GenericPad(SqlFunctionCall node)
     {
@@ -669,7 +658,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds) =>
       SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
-#if NET6_0_OR_GREATER
 
     protected static SqlUserFunctionCall TimeToString(SqlExpression time) =>
       SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(16)"), time, SqlDml.Native("114"));
@@ -688,7 +676,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected static SqlExpression TimeToDateTime(SqlExpression time) =>
       SqlDml.Cast(time, SqlType.DateTime);
-#endif
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>
       SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));

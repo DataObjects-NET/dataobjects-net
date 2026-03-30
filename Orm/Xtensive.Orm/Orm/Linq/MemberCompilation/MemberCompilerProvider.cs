@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
+      ArgumentNullException.ThrowIfNull(target);
 
       return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
+      ArgumentNullException.ThrowIfNull(compilerContainer);
       EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
+      ArgumentNullException.ThrowIfNull(compilerDefinitions);
       EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       bool isGenericMethod = attribute.NumberOfGenericArguments > 0;
       bool isGenericType = targetType.IsGenericType;
       bool isGeneric = isGenericType || isGenericMethod;
-      
+
       string memberName = attribute.TargetMember;
 
       if (memberName.IsNullOrEmpty())
@@ -191,18 +191,21 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       if (isCtor)
         bindingFlags |= BindingFlags.Instance;
-      else
+      else {
         if (!isStatic) {
-          if (parameterTypes.Length==0)
+          if (parameterTypes.Length == 0)
             throw new InvalidOperationException(string.Format(
               Strings.ExCompilerXShouldHaveThisParameter,
               compiler.GetFullName(true)));
 
-          parameterTypes = parameterTypes.Skip(1).ToArray();
+          var noInstanceParameter = new Type[parameterTypes.Length - 1];
+          Array.Copy(parameterTypes, 1, noInstanceParameter, 0, noInstanceParameter.Length);
+          parameterTypes = noInstanceParameter;
           bindingFlags |= BindingFlags.Instance;
         }
         else
           bindingFlags |= BindingFlags.Static;
+      }
 
       if (isPropertyGetter) {
         bindingFlags |= BindingFlags.GetProperty;
@@ -313,16 +316,15 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       var targetType = canonicalMember.ReflectedType;
       if (targetType.IsGenericType) {
-        targetType = targetType.GetGenericTypeDefinition();
-        if (canonicalMember is FieldInfo)
-          canonicalMember = targetType.GetField(canonicalMember.Name);
-        else if (canonicalMember is MethodInfo methodInfo) {
-          canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods());
+        if (!targetType.IsGenericTypeDefinition) {
+          targetType = targetType.GetGenericTypeDefinition();
         }
-        else if (canonicalMember is ConstructorInfo constructorInfo)
-          canonicalMember = GetCanonicalMethod(constructorInfo, targetType.GetConstructors());
-        else
-          canonicalMember = null;
+        canonicalMember = canonicalMember switch {
+          FieldInfo _ => targetType.GetField(canonicalMember.Name),
+          MethodInfo methodInfo => GetCanonicalMethod(methodInfo, targetType.GetMethods()),
+          ConstructorInfo constructorInfo => GetCanonicalMethod(constructorInfo, targetType.GetConstructors()),
+          _ => null
+        };
       }
 
       if (canonicalMember == null) {
@@ -330,11 +332,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
 
       if (targetType.IsEnum) {
-        var declaringType = canonicalMember.DeclaringType;
-        if (targetType != declaringType)
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, declaringType.GetMethods());
-        else
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
+        canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, canonicalMember.DeclaringType.GetMethods());
       }
 
       return new CompilerKey(canonicalMember);

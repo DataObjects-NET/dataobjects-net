@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
+using System;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
@@ -15,7 +16,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A descriptor of temporary table.
   /// </summary>
-  public sealed class TemporaryTableDescriptor : IPersistDescriptor
+  public sealed class TemporaryTableDescriptor : IMultiRecordPersistDescriptor
   {
     /// <summary>
     /// Gets the unique name of this temporary table.
@@ -40,7 +41,22 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public PersistRequest StoreRequest { get; set; }
+    public Lazy<PersistRequest> StoreSingleRecordRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> StoreSmallBatchRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> StoreBigBatchRequest { get; set; }
+
+    /// <summary>
+    /// Gets the persist request used to store data in temporary table.
+    /// </summary>
+    PersistRequest IPersistDescriptor.StoreRequest => StoreSingleRecordRequest.Value;
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.

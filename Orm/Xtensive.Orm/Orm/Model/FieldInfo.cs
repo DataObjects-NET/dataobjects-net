@@ -475,7 +475,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
+        ArgumentNullException.ThrowIfNull(value, "Parent");
         parent = value;
         parent.Fields.Add(this);
         reflectedType = value.ReflectedType;
@@ -672,6 +672,7 @@ namespace Xtensive.Orm.Model
         column.Lock(true);
       if (associations.Count > 1) {
         var sorted = associations.Reorder();
+        associations.Clear();
         associations = new NodeCollection<AssociationInfo>(associations.Owner, associations.Name);
         associations.AddRange(sorted);
       }

@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.09.01
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
@@ -20,7 +21,7 @@ namespace Xtensive.Sql.Dml
       get { return expressions[index]; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         expressions[index] = value;
       }
     }
@@ -40,7 +41,7 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public void Add(SqlExpression item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       expressions.Add(item);
     }
 

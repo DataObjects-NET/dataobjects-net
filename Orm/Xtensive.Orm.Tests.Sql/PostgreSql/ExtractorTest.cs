@@ -46,10 +46,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Interval]}\" interval NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTime]}\" timestamp NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.DateTimeOffset]}\" timestamptz NULL,");
-#if NET6_0_OR_GREATER
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Date]}\" date NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Time]}\" time NULL,");
-#endif
 
       sb.AppendLine($"\"{TypeToColumnName[SqlType.Char]}\" char ({CharLength}) NULL,");
       sb.AppendLine($"\"{TypeToColumnName[SqlType.VarChar]}\" varchar({VarCharLength}) NULL,");
@@ -94,10 +92,23 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected override string GetIndexExtractionPrepareScript(string tableName)
     {
-      return
-        $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
-        $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
-        $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);";
+      // CREATE TABLE table1 (column1 int,  column2 int);
+      // CREATE INDEX table1_index1_desc_asc on table1 (column1 desc, column2 asc);
+      // CREATE UNIQUE INDEX table1_index1_u_asc_desc on table1 (column1 asc, column2 desc);
+      // CREATE UNIQUE INDEX table1_index_with_included_columns on table1 (column1 asc) include (column2);
+      if (NonKeyColumnsSupported) {
+        return
+          $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
+          $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
+          $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);" +
+          $"\n CREATE UNIQUE INDEX \"{tableName}_index_with_included_columns\" on \"{tableName}\" (\"column1\" asc) include (\"column2\");";
+      }
+      else {
+        return
+          $"CREATE TABLE \"{tableName}\" (\"column1\" int, \"column2\" int);" +
+          $"\n CREATE INDEX \"{tableName}_index1_desc_asc\" on \"{tableName}\" (\"column1\" desc, \"column2\" asc);" +
+          $"\n CREATE UNIQUE INDEX \"{tableName}_index1_u_asc_desc\" on \"{tableName}\" (\"column1\" asc, \"column2\" desc);";
+      }
     }
     protected override string GetIndexExtractionCleanUpScript(string tableName) => $"drop table \"{tableName}\";";
 

@@ -29,10 +29,8 @@ namespace Xtensive.Sql
         WellKnownTypes.Double,
         WellKnownTypes.Decimal,
         WellKnownTypes.DateTime,
-#if NET6_0_OR_GREATER
         WellKnownTypes.DateOnly,
         WellKnownTypes.TimeOnly,
-#endif
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
@@ -41,9 +39,9 @@ namespace Xtensive.Sql
 
     public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodes, "expressions");
+      ArgumentNullException.ThrowIfNull(nodes);
       foreach (SqlExpression expression in nodes)
-        ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+        ArgumentNullException.ThrowIfNull(expression);
     }
 
     public static void EnsureIsBooleanExpression(SqlExpression node)
@@ -60,7 +58,7 @@ namespace Xtensive.Sql
 
     public static void EnsureIsRowValueConstructor(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "expression");
+      ArgumentNullException.ThrowIfNull(node);
       if (!(IsArithmeticExpression(node) || node is SqlRow || node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
@@ -73,14 +71,14 @@ namespace Xtensive.Sql
 
     public static void EnsureIsSubSelect(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "expression");
+      ArgumentNullException.ThrowIfNull(node);
       if (!(node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
     public static void EnsureIsLimitOffsetArgument(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       if (!IsLimitOffsetArgument(node))
         throw new InvalidOperationException(Strings.ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset);
     }
@@ -180,10 +178,8 @@ namespace Xtensive.Sql
         case SqlNodeType.DateTimeOffsetMinusInterval:
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
         case SqlNodeType.TimeMinusTime:
-#endif
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

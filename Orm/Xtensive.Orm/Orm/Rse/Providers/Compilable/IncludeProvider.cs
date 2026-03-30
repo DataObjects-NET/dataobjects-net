@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       Algorithm = algorithm;
       IsInlined = isInlined;
-      FilterDataSource = filterDataSource;
+      FilterDataSource = filterDataSource ?? throw new ArgumentNullException(nameof(filterDataSource));
       ResultColumnName = resultColumnName;
 
       FilteredColumns = filteredColumns;

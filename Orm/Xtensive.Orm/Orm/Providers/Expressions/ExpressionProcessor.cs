@@ -242,7 +242,6 @@ namespace Xtensive.Orm.Providers
           left = SqlDml.Cast(left, SqlType.DateTime);
           right = SqlDml.Cast(right, SqlType.DateTime);
         }
-#if NET6_0_OR_GREATER
         else if (IsDateOnlyExpression(expression.Left) || IsDateOnlyExpression(expression.Right)) {
           left = SqlDml.Cast(left, SqlType.Date);
           right = SqlDml.Cast(right, SqlType.Date);
@@ -251,7 +250,6 @@ namespace Xtensive.Orm.Providers
           left = SqlDml.Cast(left, SqlType.Time);
           right = SqlDml.Cast(right, SqlType.Time);
         }
-#endif
       }
 
       //handle SQLite DateTimeOffset comparsion
@@ -414,6 +412,10 @@ namespace Xtensive.Orm.Providers
       if (mc.AsTupleAccess(activeParameters) != null)
         return VisitTupleAccess(mc);
 
+      if (mc.Method.Name.Equals(nameof(Enumerable.Contains), StringComparison.Ordinal)) {
+        // there might be "innovative" implicit cast to ReadOnlySpan inside, which is not supported by expression tree but yet existing
+        mc = mc.TryTransformToOldFashionContains();
+      }
       var arguments = mc.Arguments.SelectToArray(a => Visit(a));
       var mi = mc.Method;
 
@@ -463,7 +465,7 @@ namespace Xtensive.Orm.Providers
       return CompileMember(n.Constructor, null, n.Arguments.SelectToArray(a => Visit(a)));
     }
 
-    protected override SqlExpression VisitNewArray(NewArrayExpression expression)
+    protected override SqlContainer VisitNewArray(NewArrayExpression expression)
     {
       if (expression.NodeType!=ExpressionType.NewArrayInit)
         throw new NotSupportedException();
@@ -503,9 +505,9 @@ namespace Xtensive.Orm.Providers
       in bool preferCaseOverVariant,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
+      ArgumentNullException.ThrowIfNull(lambda);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(sourceColumns);
 
       if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);

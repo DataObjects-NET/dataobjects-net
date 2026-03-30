@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.10
 
@@ -95,6 +95,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       }
     }
 
+    public static void FillDataBase(Domain domain, out Dictionary<TypeInfo, List<Key>> generatedKeys)
+    {
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        FillDataBase(session, out generatedKeys);
+        transactionScope.Complete();
+      }
+    }
+
     internal static void InvokePrefetch(this PrefetchManager prefetchManager, Key key, TypeInfo type,
       params PrefetchFieldDescriptor[] descriptors)
     {
@@ -130,6 +139,49 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       var order3 = new Order {Number = 3, Customer = customer1, Employee = employee1};
       var order3Detail1 = new OrderDetail {Order = order3, Product = product1, Count = 50};
       var order3Detail2 = new OrderDetail {Order = order3, Product = product4, Count = 200};
+    }
+
+    public static void FillDataBase(Session session, out Dictionary<TypeInfo, List<Key>> generatedKeys)
+    {
+      generatedKeys = new Dictionary<TypeInfo, List<Key>>();
+
+      var customer1 = new Customer { Name = "Customer1", Age = 25, City = "A" };
+      var customer2 = new Customer { Name = "Customer2", Age = 30, City = "B" };
+      generatedKeys[customer1.TypeInfo] = new List<Key> { customer1.Key, customer2.Key };
+
+      var supplier1 = new Supplier { Name = "Supplier1", Age = 27 };
+      var supplier2 = new Supplier { Name = "Supplier2", Age = 35 };
+      generatedKeys[supplier1.TypeInfo] = new List<Key> { supplier1.Key, supplier2.Key };
+
+      var employee1 = new Employee { Name = "Employee1" };
+      var employee2 = new Employee { Name = "Employee2" };
+      generatedKeys[employee1.TypeInfo] = new List<Key> { employee1.Key, employee2.Key };
+
+      var product1 = new Product { Name = "Product1", Supplier = supplier1 };
+      var product2 = new Product { Name = "Product2", Supplier = supplier1 };
+      var product3 = new Product { Name = "Product3", Supplier = supplier2 };
+      var product4 = new Product { Name = "Product4", Supplier = supplier2 };
+      generatedKeys[product1.TypeInfo] = new List<Key> { product1.Key, product2.Key, product3.Key, product4.Key };
+
+      var order1 = new Order { Number = 1, Customer = customer1, Employee = employee1 };
+      var order1Detail1 = new OrderDetail { Order = order1, Product = product1, Count = 100 };
+      var order1Detail2 = new OrderDetail { Order = order1, Product = product2, Count = 200 };
+      var order1Detail3 = new OrderDetail { Order = order1, Product = product3, Count = 300 };
+      var order1Detail4 = new OrderDetail { Order = order1, Product = product4, Count = 400 };
+      var order2 = new Order { Number = 2, Customer = customer2, Employee = employee2 };
+      var order2Detail1 = new OrderDetail { Order = order2, Product = product3, Count = 300 };
+      var order2Detail2 = new OrderDetail { Order = order2, Product = product4, Count = 400 };
+      var order3 = new Order { Number = 3, Customer = customer1, Employee = employee1 };
+      var order3Detail1 = new OrderDetail { Order = order3, Product = product1, Count = 50 };
+      var order3Detail2 = new OrderDetail { Order = order3, Product = product4, Count = 200 };
+
+      generatedKeys[order1.TypeInfo] = new List<Key> { order1.Key, order2.Key, order3.Key };
+      generatedKeys[order1Detail1.TypeInfo] = new List<Key> {
+        order1Detail1.Key, order1Detail2.Key, order1Detail3.Key, order1Detail4.Key,
+        order2Detail1.Key, order2Detail2.Key,
+        order3Detail1.Key, order3Detail2.Key,
+      };
+
     }
 
     public static void CreateOfferContainer(Domain domain, out Key contaierKey, out Key book0Key,

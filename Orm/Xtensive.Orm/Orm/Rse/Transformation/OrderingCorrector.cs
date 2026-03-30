@@ -60,8 +60,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <see cref="ProviderOrderingDescriptor"/>.</param>
     public OrderingCorrector(Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
-      ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
-      this.orderingDescriptorResolver = orderingDescriptorResolver;
+      this.orderingDescriptorResolver = orderingDescriptorResolver ?? throw new ArgumentNullException(nameof(orderingDescriptorResolver));
     }
 
     /// <summary>

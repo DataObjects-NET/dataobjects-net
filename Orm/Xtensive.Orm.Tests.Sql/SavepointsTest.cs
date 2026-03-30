@@ -96,9 +96,10 @@ namespace Xtensive.Orm.Tests.Sql
     private void DoInsert()
     {
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumn], nextId++);
-      using (var command = Connection.CreateCommand(insert))
-        command.ExecuteNonQuery();
+      insert.AddValueRow((tableRef[IdColumn], nextId++));
+      using (var command = Connection.CreateCommand(insert)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
   }
 }

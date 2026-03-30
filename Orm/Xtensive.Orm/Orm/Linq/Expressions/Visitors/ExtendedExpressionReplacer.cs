@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2024 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Orm.Rse.Providers;
@@ -30,7 +31,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return result ?? base.Visit(e);
     }
 
-    protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
+    protected override ProjectionExpression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
       var item = Visit(projectionExpression.ItemProjector.Item);
       var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource);
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return projectionExpression;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       var keyExpression = Visit(expression.KeyExpression);
       if (keyExpression!=expression.KeyExpression)
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitFullTextExpression(FullTextExpression expression)
+    protected override FullTextExpression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankExpression = (ColumnExpression) Visit(expression.RankExpression);
       var entityExpression = (EntityExpression) Visit(expression.EntityExpression);
@@ -67,55 +68,55 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
     {
       return expression;
     }
 
-    private Expression TranslateExpression(Provider provider, Expression original)
+    private Expression TranslateExpression(CompilableProvider provider, Expression original)
     {
       var result = Visit(original);
       return result ?? original;
     }
 
-    protected override Expression VisitFieldExpression(FieldExpression expression)
+    protected override FieldExpression VisitFieldExpression(FieldExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
+    protected override StructureFieldExpression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression expression)
+    protected override KeyExpression VisitKeyExpression(KeyExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitEntityExpression(EntityExpression expression)
+    protected override EntityExpression VisitEntityExpression(EntityExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    protected override EntityFieldExpression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression expression)
+    protected override ColumnExpression VisitColumnExpression(ColumnExpression expression)
     {
       return expression;
     }
 
-    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var arguments = new List<Expression>();
+      IList<Expression> arguments = new List<Expression>();
       var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
       var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
       bool recreate = false;
@@ -144,10 +145,10 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         bindings,
         nativeBindings,
         expression.Constructor,
-        arguments);
+        arguments.Count > 0 ? arguments : Array.Empty<Expression>());
     }
 
-    protected override Expression VisitMarker(MarkerExpression expression)
+    protected override MarkerExpression VisitMarker(MarkerExpression expression)
     {
       var target = Visit(expression.Target);
       return target == expression.Target 

@@ -49,10 +49,9 @@ namespace Xtensive.Sql.Dml
       trimType = replacingExpression.TrimType;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlTrim((SqlExpression) expression.Clone(context), trimCharacters, trimType);
+    internal override SqlTrim Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlTrim(t.expression.Clone(c), t.trimCharacters, t.trimType));
 
     internal SqlTrim(SqlExpression expression, string trimCharacters, SqlTrimType trimType) : base (SqlNodeType.Trim)
     {

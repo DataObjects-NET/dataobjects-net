@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Orm.Model;
+using System;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -188,14 +189,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
-
-      Key = key;
-      Type = type;
-
-      Manager = manager;
+      Key = key ?? throw new ArgumentNullException(nameof(key));
+      Type = type ?? throw new ArgumentNullException(nameof(type));
+      Manager = manager ?? throw new ArgumentNullException(nameof(manager));
       this.exactType = exactType;
     }
   }

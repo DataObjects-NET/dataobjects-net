@@ -28,10 +28,7 @@ namespace Xtensive.Orm.Services
     /// disposal will restore previous state of
     /// <see cref="Session.IsSystemLogicOnly"/> property.
     /// </returns>
-    public IDisposable OpenSystemLogicOnlyRegion()
-    {
-      return Session.OpenSystemLogicOnlyRegion();
-    }
+    public Session.SystemLogicOnlyRegionScope OpenSystemLogicOnlyRegion() => Session.OpenSystemLogicOnlyRegion();
 
     /// <summary>
     /// Changes the value of <see cref="Session.Handler"/>.

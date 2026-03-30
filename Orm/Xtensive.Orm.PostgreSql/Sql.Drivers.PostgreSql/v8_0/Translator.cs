@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2023 Xtensive LLC.
+// Copyright (C) 2012-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -53,14 +53,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"\'yyyyMMdd\''::date'";
 
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"\'HH:mm:ss.ffffff\''::time'";
-#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval";
@@ -205,14 +203,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.Modulo: _ = output.Append("%"); break;
         case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
         case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval: _ = output.Append("+"); break;
-#endif
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-"); break;
         default: base.Translate(output, type); break;
       };
@@ -300,10 +294,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           if (index.IsSpatial) {
             _ = output.Append(" USING GIST");
           }
+          break;
+        case CreateIndexSection.ColumnsEnter:
           _ = output.Append("(");
           break;
-        case CreateIndexSection.StorageOptions:
+        case CreateIndexSection.ColumnsExit:
           _ = output.Append(")");
+          break;
+        case CreateIndexSection.NonkeyColumnsEnter:
+          break;
+        case CreateIndexSection.NonkeyColumnsExit:
+          break;
+        case CreateIndexSection.StorageOptions:
           AppendIndexStorageParameters(output, index);
           if (!string.IsNullOrEmpty(index.Filegroup)) {
             _ = output.Append(" TABLESPACE ");
@@ -311,10 +313,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           }
 
           break;
-        case CreateIndexSection.Exit:
-          break;
         case CreateIndexSection.Where:
           _ = output.Append(" WHERE ");
+          break;
+        case CreateIndexSection.Exit:
           break;
         default:
           break;
@@ -858,7 +860,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         default: base.Translate(output, part); break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart part)
@@ -880,7 +881,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         base.Translate(output, part);
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

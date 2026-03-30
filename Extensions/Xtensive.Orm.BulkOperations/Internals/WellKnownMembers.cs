@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -16,7 +16,9 @@ namespace Xtensive.Orm.BulkOperations
     public static readonly Type FuncOfTArgTResultType = typeof(Func<,>);
 
     public static readonly Type IncludeAlgorithmType = typeof(IncludeAlgorithm);
+    public static readonly Type QueryableType = typeof(Queryable);
     public static readonly Type QueryableExtensionsType = typeof(QueryableExtensions);
+
     public const string InMethodName = nameof(QueryableExtensions.In);
 
     public static readonly MethodInfo TranslateQueryMethod =

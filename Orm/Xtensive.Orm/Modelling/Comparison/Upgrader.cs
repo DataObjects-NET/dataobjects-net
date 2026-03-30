@@ -119,8 +119,6 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
     public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
-      ArgumentValidator.EnsureArgumentNotNull(comparer, nameof(comparer));
       if (difference == null) {
         return Array.Empty<NodeAction>();
       }
@@ -129,7 +127,7 @@ namespace Xtensive.Modelling.Comparison
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
-      Comparer = comparer;
+      Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
       if (Hints.SourceModel != SourceModel) {
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       }
@@ -160,18 +158,20 @@ namespace Xtensive.Modelling.Comparison
             .ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff != null) {
-            using (CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation))) {
-              CoreLog.Info(nameof(Strings.LogValidationFailed));
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
-              CoreLog.Info(diff.ToString());
-              CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
-                new ActionSequence() { actions });
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
-              TargetModel.Dump();
-              CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
-              CurrentModel.Dump();
-              throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
+            if (CoreLog.IsLogged(Orm.Logging.LogLevel.Info)) {
+              using (CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation))) {
+                CoreLog.Info(nameof(Strings.LogValidationFailed));
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
+                CoreLog.Info(diff.ToString());
+                CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
+                  new ActionSequence() { actions });
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
+                TargetModel.Dump();
+                CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
+                CurrentModel.Dump();
+              }
             }
+            throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
 
           return new ReadOnlyCollection<NodeAction>(actions.Actions.ToArray());

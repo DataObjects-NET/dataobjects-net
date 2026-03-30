@@ -19,19 +19,11 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb.CrazyColumns2008TestModel
     [Field, Key]
     public Guid Id { get; private set; }
 
-#if NET6_0_OR_GREATER
     [Field]
     public TimeOnly Time { get; set; }
 
     [Field]
     public DateOnly Date { get; set; }
-#else
-    [Field]
-    public DateTime Time { get; set; }
-
-    [Field]
-    public DateTime Date { get; set; }
-#endif
   }
 }
 
@@ -54,7 +46,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
       return config;
     }
 
-#if NET6_0_OR_GREATER
     [Test]
     [Ignore("Fix later")]
     public void CombinedTest()
@@ -78,31 +69,6 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
         Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time == TimeOnly.FromDateTime(time)).Count());
       }
     }
-#else
-    [Test]
-    [Ignore("Fix later")]
-    public void CombinedTest()
-    {
-      var date = new DateTime(2000, 01, 01);
-      var time = new DateTime(1,1,1,12, 00,00);
-      using (var session = Domain.OpenSession())
-      using (var ts = session.OpenTransaction()) {
-        var crazy1 = new Crazy {Date = date, Time = DateTime.Now};
-        var crazy2 = new Crazy {Date = DateTime.Now, Time = time};
-        ts.Complete();
-      }
-
-      using (var session = Domain.OpenSession())
-      using (session.OpenTransaction()) {
-        foreach (var item in session.Query.All<Crazy>()) {
-          Console.WriteLine(item.Date);
-          Console.WriteLine(item.Time);
-        }
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Date==date).Count());
-        Assert.AreEqual(1, session.Query.All<Crazy>().Where(o => o.Time==time).Count());
-      }
-    }
-#endif
 
     protected override string GetCreateDbScript(DomainConfiguration config)
     {

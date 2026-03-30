@@ -130,8 +130,7 @@ namespace Xtensive.Orm
     private VersionCapturer(Session session, VersionSet versions)
       : base(session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(versions, "versions");
-      Versions = versions;
+      Versions = versions ?? throw new ArgumentNullException(nameof(versions));
       AttachEventHandlers();
     }
 

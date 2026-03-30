@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Collections;
-
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Providers

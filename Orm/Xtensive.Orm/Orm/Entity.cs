@@ -89,9 +89,9 @@ namespace Xtensive.Orm
         return state;
       }
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         if (state!=null)
-          throw Exceptions.AlreadyInitialized("State");
+          throw Exceptions.AlreadyInitialized(nameof(State));
         state = value;
         state.Entity = this;
       }
@@ -138,8 +138,7 @@ namespace Xtensive.Orm
         List<PrefetchFieldDescriptor> columnsToPrefetch = null;
         foreach (var columnInfo in versionColumns) {
           if (!tuple.GetFieldState(columnInfo.Field.MappingInfo.Offset).IsAvailable()) {
-            if (columnsToPrefetch==null)
-              columnsToPrefetch = new List<PrefetchFieldDescriptor>();
+            columnsToPrefetch ??= new List<PrefetchFieldDescriptor>(1);
             columnsToPrefetch.Add(new PrefetchFieldDescriptor(columnInfo.Field));
           }
         }
@@ -398,12 +397,12 @@ namespace Xtensive.Orm
 
     internal void RemoveLaterInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.EnqueueForRemoval(Enumerable.Repeat(this, 1), reason);
     }
 
     internal void RemoveInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.Remove(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.Remove(Enumerable.Repeat(this, 1), reason);
     }
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
@@ -859,7 +858,7 @@ namespace Xtensive.Orm
       : base(session)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
+        ArgumentNullException.ThrowIfNull(keyTuple);
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
@@ -892,7 +891,7 @@ namespace Xtensive.Orm
     protected Entity(params object[] values)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        ArgumentNullException.ThrowIfNull(values);
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
@@ -944,7 +943,7 @@ namespace Xtensive.Orm
       : base(session)
     {
       try {
-        ArgumentValidator.EnsureArgumentNotNull(values, "values");
+        ArgumentNullException.ThrowIfNull(values);
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();

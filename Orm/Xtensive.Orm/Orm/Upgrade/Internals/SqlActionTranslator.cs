@@ -957,7 +957,6 @@ namespace Xtensive.Orm.Upgrade
       if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
         return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
       }
-#if NET6_0_OR_GREATER
       if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
         return SqlDml.DateTimeToDate(sqlTableColumn);
       }
@@ -985,12 +984,10 @@ namespace Xtensive.Orm.Upgrade
       //Date -> Time = invalid in most cases.
       //Time -> Date = invalid in most cases.
       //let storage throw exception on attempt
-#endif
 
       return SqlDml.Cast(sqlTableColumn, newType);
     }
 
-#if NET6_0_OR_GREATER
     private static bool IsDateTimeType(in SqlType type)
     {
       return type == SqlType.DateTime
@@ -998,13 +995,6 @@ namespace Xtensive.Orm.Upgrade
         || type == SqlType.Date
         || type == SqlType.Time;
     }
-#else
-    private static bool IsDateTimeType(in SqlType type)
-    {
-      return type == SqlType.DateTime
-        || type == SqlType.DateTimeOffset;
-    }
-#endif
 
     private Table CreateTable(TableInfo tableInfo)
     {
@@ -1303,7 +1293,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = table.TableColumns[WellKnown.GeneratorFakeColumnName];
-        insert.Values[tableRef[fakeColumn.Name]] = SqlDml.Null;
+        insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef[fakeColumn.Name], SqlDml.Null } });
       }
 
       var result = SqlDml.Batch();
@@ -1335,27 +1325,20 @@ namespace Xtensive.Orm.Upgrade
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
-      this.resolver = resolver;
-      this.sqlModel = sqlModel;
-      this.actions = actions;
-      this.sourceModel = sourceModel;
-      this.targetModel = targetModel;
-      this.enforceChangedColumns = enforceChangedColumns;
-      this.sqlExecutor = sqlExecutor;
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+      this.sqlModel = sqlModel ?? throw new ArgumentNullException(nameof(sqlModel));
+      this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
+      this.sourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      this.targetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
+      this.enforceChangedColumns = enforceChangedColumns ?? throw new ArgumentNullException(nameof(enforceChangedColumns));
+      this.sqlExecutor = sqlExecutor ?? throw new ArgumentNullException(nameof(sqlExecutor));
       this.allowCreateConstraints = allowCreateConstraints;
 
       if (providerInfo.Supports(ProviderFeatures.Collations)) {

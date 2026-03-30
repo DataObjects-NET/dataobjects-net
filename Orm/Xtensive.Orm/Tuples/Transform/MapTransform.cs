@@ -7,9 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Reflection;
-
-
 using Xtensive.Tuples.Transform.Internals;
 
 namespace Xtensive.Tuples.Transform
@@ -18,9 +15,9 @@ namespace Xtensive.Tuples.Transform
   /// Maps fields of a destination tuple to the specified fields of of the source tuple.
   /// </summary>
   [Serializable]
-  public class MapTransform
+  public sealed class MapTransform
   {
-    private IReadOnlyList<int> map;
+    private readonly IReadOnlyList<int> map;
 
     /// <summary>
     /// Gets <see cref="TupleDescriptor"/> describing the tuples
@@ -67,9 +64,9 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"[{map.ToCommaDelimitedString()}], {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      var description = $"[{map.ToCommaDelimitedString()}], {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
-        GetType().GetShortName(),
+        nameof(MapTransform),
         description);
     }
 
@@ -84,13 +81,12 @@ namespace Xtensive.Tuples.Transform
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
-      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
-      
+      ArgumentValidator.EnsureArgumentIsNotDefault(descriptor, nameof(descriptor));
+
       IsReadOnly = isReadOnly;
       Descriptor = descriptor;
 
-      this.map = map;
+      this.map = map ?? throw new ArgumentNullException(nameof(map));
     }
   }
 }

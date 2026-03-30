@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -28,17 +29,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
+    private const int Iterations = 10;
     private static int instanceCount;
 
     #region Nested class
 
     public class MemoryLeakTester
     {
-      ~MemoryLeakTester()
-      {
-        _ = Interlocked.Decrement(ref instanceCount);
-        //instanceCount--;
-      }
+      ~MemoryLeakTester() => Interlocked.Decrement(ref instanceCount);
     }
 
     #endregion
@@ -935,7 +933,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [IgnoreOnGithubActionsIfFailed]
     public void ReferenceToSessionIsNotPreservedInCacheTest()
     {
-      // Use separate method for session related processing
+      // Use separate method with [MethodImpl(MethodImplOptions.NoInlining)] attribute for session related processing
       // to make sure we don't hold session reference somewhere on stack
       OpenSessionsAndRunPrefetches();
       TestHelper.CollectGarbage(true);
@@ -945,17 +943,17 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void OpenSessionsAndRunPrefetches()
     {
-      instanceCount = 10;
-      for (int i = 0; i < instanceCount; i++) {
+      instanceCount = Iterations;
+      for (int i = 0; i < Iterations; i++) {
         using (var session = Domain.OpenSession())
         using (var t = session.OpenTransaction()) {
           session.Extensions.Set(new MemoryLeakTester());
           var newOrder = new Order();
           var orderDetail = new OrderDetail {Product = new Product()};
           session.SaveChanges();
-          var order = EnumerableUtils.One(newOrder).Prefetch(o => o.Details).First();
+          var order = Enumerable.Repeat(newOrder, 1).Prefetch(o => o.Details).First();
           Assert.That(order, Is.Not.Null);
-          var product = EnumerableUtils.One(orderDetail).Prefetch(d => d.Product).First();
+          var product = Enumerable.Repeat(orderDetail, 1).Prefetch(d => d.Product).First();
           Assert.That(product, Is.Not.Null);
           //Query.All<Order>().Prefetch(o => o.Details).First();
           t.Complete();

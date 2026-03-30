@@ -5,6 +5,7 @@
 // Created:    2008.09.05
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Source provider.
     /// </summary>
-    public Provider Source { get; }
+    public CompilableProvider Source { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -39,18 +40,20 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(Provider source, string name)
+    public StoreProvider(CompilableProvider source, string name)
       : base(ProviderType.Store, source.Header, source)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
+
       Name = name;
-      Source = source;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
     }
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public StoreProvider(Provider source)
+    public StoreProvider(CompilableProvider source)
       : this(source, Guid.NewGuid().ToString())
     {
     }

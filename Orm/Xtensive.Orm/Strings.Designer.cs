@@ -2859,6 +2859,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included)..
+        /// </summary>
+        internal static string ExMaxNumberOfConditionsShouldBeBetweenXAndY {
+            get {
+                return ResourceManager.GetString("ExMaxNumberOfConditionsShouldBeBetweenXAndY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Measurement is already completed..
         /// </summary>
         internal static string ExMeasurementIsAlreadyCompleted {
@@ -3450,6 +3459,15 @@ namespace Xtensive {
         internal static string ExpectedTargetModel {
             get {
                 return ResourceManager.GetString("ExpectedTargetModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database..
+        /// </summary>
+        internal static string ExPersistentChangesAreNotAllowed {
+            get {
+                return ResourceManager.GetString("ExPersistentChangesAreNotAllowed", resourceCulture);
             }
         }
         

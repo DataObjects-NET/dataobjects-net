@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Building.Builders
       = new Dictionary<MappingRequest,MappingResult>();
 
     private readonly bool verbose;
-    private readonly List<MappingRule> mappingRules;
+    private readonly MappingRule[] mappingRules;
     private readonly string defaultDatabase;
     private readonly string defaultSchema;
 
@@ -92,17 +92,18 @@ namespace Xtensive.Orm.Building.Builders
 
       foreach (var type in typesToProcess) {
         var underlyingType = type.UnderlyingType;
-        if (verbose)
+        if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
           BuildLog.Info(nameof(Strings.LogProcessingX), underlyingType.GetShortName());
+        }
         var request = new MappingRequest(underlyingType.Assembly, underlyingType.Namespace);
-        MappingResult result;
-        if (!mappingCache.TryGetValue(request, out result)) {
+        if (!mappingCache.TryGetValue(request, out var result)) {
           result = Process(underlyingType);
           mappingCache.Add(request, result);
         }
         else {
-          if (verbose)
+          if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
             BuildLog.Info(nameof(Strings.LogReusingCachedMappingInformationForX), underlyingType.GetShortName());
+          }
         }
         type.MappingDatabase = result.MappingDatabase;
         type.MappingSchema = result.MappingSchema;
@@ -116,8 +117,9 @@ namespace Xtensive.Orm.Building.Builders
       var resultDatabase = !string.IsNullOrEmpty(rule.Database) ? rule.Database : defaultDatabase;
       var resultSchema = !string.IsNullOrEmpty(rule.Schema) ? rule.Schema : defaultSchema;
 
-      if (verbose)
+      if (verbose && BuildLog.IsLogged(LogLevel.Info)) {
         BuildLog.Info(nameof(Strings.ApplyingRuleXToY), rule, type.GetShortName());
+      }
 
       return new MappingResult(resultDatabase, resultSchema);
     }
@@ -136,12 +138,16 @@ namespace Xtensive.Orm.Building.Builders
     private StorageMappingBuilder(BuildingContext context)
     {
       this.context = context;
+      var configuration = context.Configuration;
 
       // Adding a special catch-all rule that maps all types to default schema/database.
-
-      mappingRules = context.Configuration.MappingRules
-        .Concat(Enumerable.Repeat(new MappingRule(null, null, null, null), 1))
-        .ToList();
+      if (configuration.MappingRules.Count == 0)
+        mappingRules = new[] { new MappingRule(null, null, null, null) };
+      else {
+        mappingRules = new MappingRule[context.Configuration.MappingRules.Count + 1];
+        configuration.MappingRules.CopyTo(mappingRules, 0);
+        mappingRules[^1] = new MappingRule(null, null, null, null);
+      }
 
       defaultDatabase = context.Configuration.DefaultDatabase ?? string.Empty;
       defaultSchema = context.Configuration.DefaultSchema ?? string.Empty;

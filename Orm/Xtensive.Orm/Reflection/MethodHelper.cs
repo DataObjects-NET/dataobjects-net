@@ -44,7 +44,7 @@ namespace Xtensive.Reflection
     [CanBeNull]
     public static MethodInfo GetMethodEx(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       if (genericArgumentNames == null) {
@@ -94,23 +94,6 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets generic method by names \ types of its arguments.
-    /// </summary>
-    /// <param name="type">Type to search the method in.</param>
-    /// <param name="name">Method name.</param>
-    /// <param name="bindingFlags">Binding attributes.</param>
-    /// <param name="genericArgumentNames">Generic arguments of the method.</param>
-    /// <param name="parameterTypes">Either strings or <see cref="Type"/>s of parameters (mixing is allowed).</param>
-    /// <returns>Found method, if match was found;
-    /// otherwise, <see langword="null"/>.</returns>
-    [DebuggerStepThrough]
-    [Obsolete("Use MethodHelper.GetMethodEx() instead")]
-    [CanBeNull]
-    public static MethodInfo GetMethod(this Type type,
-        string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes) =>
-      GetMethodEx(type, name, bindingFlags, genericArgumentNames, parameterTypes);
-
-    /// <summary>
     /// Gets constructor by names \ types of its parameters.
     /// </summary>
     /// <param name="type">Type to search constructor in.</param>
@@ -122,14 +105,14 @@ namespace Xtensive.Reflection
     [CanBeNull]
     public static ConstructorInfo GetConstructorEx(this Type type, BindingFlags bindingFlags, object[] parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
 
       if (parameterTypes == null) {
         parameterTypes = Array.Empty<object>();
       }
       else if (parameterTypes.All(o => o is Type)) {
         return type.GetConstructor(bindingFlags, null,
-          parameterTypes.Select(o => (Type) o).ToArray(parameterTypes.Length), null);
+          parameterTypes.SelectToArray(o => (Type) o), null);
       }
 
       ConstructorInfo lastMatch = null;
@@ -146,11 +129,6 @@ namespace Xtensive.Reflection
 
       return lastMatch;
     }
-
-    [Obsolete("Use MethodHelper.GetConstructorEx() instead")]
-    [CanBeNull]
-    public static ConstructorInfo GetConstructor(this Type type, BindingFlags bindingFlags, object[] parameterTypes) =>
-      GetConstructorEx(type, bindingFlags, parameterTypes);
 
     /// <summary>
     /// Gets the types of method parameters.

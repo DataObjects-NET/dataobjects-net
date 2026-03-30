@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -87,8 +87,7 @@ namespace Xtensive.Orm.Providers
         where db==database
         select string.IsNullOrEmpty(rule.Schema) ? configuration.DefaultSchema : rule.Schema;
 
-      return userSchemas
-        .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
+      return userSchemas.Append(configuration.DefaultSchema)
         .Distinct();
     }
 
@@ -97,7 +96,7 @@ namespace Xtensive.Orm.Providers
       return configuration.MappingRules
         .Select(r => r.Database)
         .Where(db => !string.IsNullOrEmpty(db))
-        .Concat(Enumerable.Repeat(configuration.DefaultDatabase, 1))
+        .Append(configuration.DefaultDatabase)
         .Distinct();
     }
 

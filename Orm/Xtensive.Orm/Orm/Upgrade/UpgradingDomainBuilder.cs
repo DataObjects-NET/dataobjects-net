@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Upgrade
 
     public static Domain Build(DomainConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration.ConnectionInfo==null) {
         throw new ArgumentException(Strings.ExConnectionInfoIsMissing, nameof(configuration));
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Upgrade
 
     public static async Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration.ConnectionInfo==null) {
         throw new ArgumentException(Strings.ExConnectionInfoIsMissing, nameof(configuration));
@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Upgrade
 
     public static StorageNode BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, nameof(nodeConfiguration));
+      ArgumentNullException.ThrowIfNull(parentDomain);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       nodeConfiguration.Validate(parentDomain.Configuration);
       if (!nodeConfiguration.IsLocked) {
@@ -112,8 +112,8 @@ namespace Xtensive.Orm.Upgrade
     public static async Task<StorageNode> BuildNodeAsync(
       Domain parentDomain, NodeConfiguration nodeConfiguration, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, nameof(nodeConfiguration));
+      ArgumentNullException.ThrowIfNull(parentDomain);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       nodeConfiguration.Validate(parentDomain.Configuration);
       if (!nodeConfiguration.IsLocked) {
@@ -172,7 +172,13 @@ namespace Xtensive.Orm.Upgrade
         driver.CommitTransaction(null, connection);
       }
       catch {
-        driver.RollbackTransaction(null, connection);
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          driver.RollbackTransaction(null, connection);
+        }
         throw;
       }
     }
@@ -190,7 +196,13 @@ namespace Xtensive.Orm.Upgrade
         await driver.CommitTransactionAsync(null, connection, token);
       }
       catch {
-        await driver.RollbackTransactionAsync(null, connection, token);
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          await driver.RollbackTransactionAsync(null, connection, token);
+        }
         throw;
       }
     }
@@ -352,7 +364,11 @@ namespace Xtensive.Orm.Upgrade
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
+#if NET8_0_OR_GREATER
+      serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToArray().AsReadOnly();
+#else
       serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToList().AsReadOnly();
+#endif
     }
 
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -370,7 +386,7 @@ namespace Xtensive.Orm.Upgrade
         var candidates = group.ToList();
         if (candidates.Count > 1) {
           throw new DomainBuilderException(
-            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof (IUpgradeHandler).GetShortName(), @group.Key));
+            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof(IUpgradeHandler).Name, @group.Key));
         }
         handlers.Add(group.Key, candidates[0]);
       }
@@ -398,7 +414,12 @@ namespace Xtensive.Orm.Upgrade
 
       // Storing the result
       serviceAccessor.UpgradeHandlers = new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
-      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList().AsReadOnly();
+#if NET8_0_OR_GREATER
+      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToArray(handlers.Count).AsReadOnly();
+#else
+      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList(handlers.Count).AsReadOnly();
+#endif
+
     }
 
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -406,12 +427,12 @@ namespace Xtensive.Orm.Upgrade
       //Getting user resolvers
       var candidates = from r in serviceContainer.GetAll<IFullTextCatalogNameBuilder>()
         let assembly = r.GetType().Assembly
-        where r.IsEnabled && assembly!=typeof (IFullTextCatalogNameBuilder).Assembly
+        where r.IsEnabled && assembly!=typeof(IFullTextCatalogNameBuilder).Assembly
         select r;
 
       var userResolversCount = candidates.Count();
       if (userResolversCount > 1)
-        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogNameBuilder).GetShortName()));
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof(IFullTextCatalogNameBuilder).Name));
 
       var resolver = (userResolversCount==0)
         ? new FullTextCatalogNameBuilder()

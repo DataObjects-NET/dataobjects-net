@@ -54,9 +54,9 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"{sources.first} + {sources.second}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      var description = $"{sources.first} + {sources.second}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
-        GetType().GetShortName(),
+        nameof(ConcatTransform),
         description);
     }
 
@@ -71,8 +71,8 @@ namespace Xtensive.Tuples.Transform
     /// <param name="second">The <see cref="TupleDescriptor"/> of the second source <see cref="Tuple"/>.</param>
     public ConcatTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
     {
-      ArgumentValidator.EnsureArgumentNotNull(first, nameof(first));
-      ArgumentValidator.EnsureArgumentNotNull(second, nameof(second));
+      ArgumentValidator.EnsureArgumentIsNotDefault(first, nameof(first));
+      ArgumentValidator.EnsureArgumentIsNotDefault(second, nameof(second));
 
       var (firstCount, secondCount) = (first.Count, second.Count);
       var types = new Type[firstCount + secondCount];

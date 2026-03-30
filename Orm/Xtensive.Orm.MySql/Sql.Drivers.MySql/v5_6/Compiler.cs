@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
 {
   internal class Compiler : v5_5.Compiler
   {
-#if NET6_0_OR_GREATER
     public override void Visit(SqlBinary node)
     {
       if (node.NodeType == SqlNodeType.TimePlusInterval) {
@@ -61,7 +60,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
       SqlDml.Modulo(
         NanosecondsPerDay + CastToDecimal(DateTimeDiffMicrosecond(time2, time1), 18, 0) * NanosecondsPerMicrosecond,
         NanosecondsPerDay);
-#endif
 
     // Constructors
 

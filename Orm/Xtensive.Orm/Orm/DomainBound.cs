@@ -56,8 +56,7 @@ namespace Xtensive.Orm
     /// <exception cref="ArgumentNullException"><paramref name="domain"/> is <see langword="null" />.</exception>
     protected DomainBound(Domain domain)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      this.domain = domain;
+      this.domain = domain ?? throw new ArgumentNullException(nameof(domain));
     }
   }
 }

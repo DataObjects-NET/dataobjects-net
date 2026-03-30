@@ -17,27 +17,22 @@ namespace Xtensive.Sql.Dml
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = (SqlColumn) expression;
-      ArgumentValidator.EnsureArgumentNotNull(replacingExpression.SqlTable, "SqlTable");
-      ArgumentValidator.EnsureArgumentNotNull(replacingExpression.Name, "Name");
+      ArgumentNullException.ThrowIfNull(replacingExpression.SqlTable, "SqlTable");
+      ArgumentNullException.ThrowIfNull(replacingExpression.Name, "Name");
       base.ReplaceWith(expression);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-
-      var table = SqlTable;
-      SqlNode clonedTable;
-      if (context.NodeMapping.TryGetValue(SqlTable, out clonedTable)) {
-        table = (SqlTable) clonedTable;
-      }
-
-      var clone = new SqlTableColumn(table, Name);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override SqlTableColumn Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var table = t.SqlTable;
+        SqlNode clonedTable;
+        if (c.NodeMapping.TryGetValue(t.SqlTable, out clonedTable)) {
+          table = (SqlTable) clonedTable;
+        }
+      
+        var clone = new SqlTableColumn(table, t.Name);
+        return clone;
+      });
 
     // Constructors
 

@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly DateTime FirstMillisecondDateTime = FirstDateTime.AddMilliseconds(321);
     protected static readonly DateTime SecondMillisecondDateTime = SecondDateTime.AddMilliseconds(987);
     protected static readonly DateTime WrongMillisecondDateTime = WrongDateTime.AddMilliseconds(654);
-#if NET6_0_OR_GREATER
 
     protected static readonly DateOnly FirstDateOnly = DateOnly.FromDateTime(FirstDateTime);
     protected static readonly DateOnly SecondDateOnly = DateOnly.FromDateTime(SecondDateTime);
@@ -39,7 +38,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly TimeOnly FirstMillisecondTimeOnly = TimeOnly.FromDateTime(FirstDateTime.AddMilliseconds(321));
     protected static readonly TimeOnly SecondMillisecondTimeOnly = TimeOnly.FromDateTime(SecondDateTime.AddMilliseconds(987));
     protected static readonly TimeOnly WrongMillisecondTimeOnly = TimeOnly.FromDateTime(WrongDateTime.AddMilliseconds(654));
-#endif
 
     protected override void RegisterTypes(DomainConfiguration configuration)
     {
@@ -47,13 +45,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       configuration.Types.Register(typeof(DateTimeEntity));
       configuration.Types.Register(typeof(MillisecondDateTimeEntity));
       configuration.Types.Register(typeof(NullableDateTimeEntity));
+      
       configuration.Types.Register(typeof(AllPossiblePartsEntity));
-#if NET6_0_OR_GREATER
       configuration.Types.Register(typeof(DateOnlyEntity));
       configuration.Types.Register(typeof(SingleDateOnlyEntity));
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        configuration.Types.Register(typeof(MinMaxDateOnlyEntity));
+        configuration.Types.Register(typeof(MinMaxDateTimeEntity));
+      }
       configuration.Types.Register(typeof(TimeOnlyEntity));
       configuration.Types.Register(typeof(SingleTimeOnlyEntity));
-#endif
     }
 
     protected override void PopulateEntities(Session session)
@@ -63,7 +64,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         MillisecondDateTime = FirstMillisecondDateTime,
         NullableDateTime = NullableDateTime
       };
-#if NET6_0_OR_GREATER
 
       _ = new SingleDateOnlyEntity(session) {
         DateOnly = FirstDateOnly,
@@ -149,7 +149,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         MillisecondTimeOnly = FirstMillisecondTimeOnly.Add(new TimeSpan(0, 0,-5)),
         NullableTimeOnly = NullableTimeOnly.Add(new TimeSpan(0, 0,-5)),
       };
-#endif
 
       _ = new DateTimeEntity(session, FirstDateTime);
       _ = new DateTimeEntity(session, FirstDateTime);
@@ -204,6 +203,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       _ = new NullableDateTimeEntity(session) { DateTime = null };
 
       _ = AllPossiblePartsEntity.FromDateTime(session, FirstMillisecondDateTime, 321);
+
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)) {
+        // values are out of range
+        _ = new MinMaxDateOnlyEntity(session) { MinValue = DateOnly.MinValue, MaxValue = DateOnly.MaxValue };
+        _ = new MinMaxDateTimeEntity(session) { MinValue = DateTime.MinValue, MaxValue = DateTime.MaxValue };
+      }
     }
   }
 }

@@ -11,11 +11,10 @@ namespace Xtensive.Sql.Ddl
   public class SqlDropConstraint : SqlCascadableAction
   {
     public Constraint Constraint { get; private set; }
-
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlDropConstraint(Constraint, Cascade);
+    
+    internal override SqlDropConstraint Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlDropConstraint(t.Constraint, t.Cascade));
 
     // Constructors
 

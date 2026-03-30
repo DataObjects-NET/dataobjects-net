@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<ParameterContext, int> topNByRank, bool fullFeatured)
       : base(ProviderType.ContainsTable, BuildHeader(index, rankColumnName, fullFeatured))
     {
-      SearchCriteria = searchCriteria;
+      SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
       TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))

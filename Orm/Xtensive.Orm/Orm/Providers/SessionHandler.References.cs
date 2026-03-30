@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Providers
 
     private static (CompilableProvider, Parameter<Tuple>) BuildReferencingQuery(AssociationInfo association)
     {
-      var provider = (CompilableProvider)null;
+      CompilableProvider provider = null;
       var parameter = new Parameter<Tuple>("pTuple");
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
               parameter))
             .Alias("a")
             .Join(
-              index.GetQuery(), 
+              index.GetQuery(),
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
                 .Select((l,r) => new Pair<int>(l,r))

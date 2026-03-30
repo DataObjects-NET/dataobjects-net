@@ -23,8 +23,7 @@ namespace Xtensive.Comparison
     private Func<T, int>     currentBaseGetHashCode;
 
 
-    protected override IAdvancedComparer<T?> CreateNew(ComparisonRules rules)
-      => new NullableComparer<T>(Provider, ComparisonRules.Combine(rules));
+    protected override NullableComparer<T> CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T? x, T? y)
     {

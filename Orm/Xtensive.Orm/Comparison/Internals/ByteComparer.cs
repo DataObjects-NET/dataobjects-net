@@ -12,8 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class ByteComparer : ValueTypeComparer<byte>
   {
-    protected override IAdvancedComparer<byte> CreateNew(ComparisonRules rules)
-      => new ByteComparer(Provider, ComparisonRules.Combine(rules));
+    protected override ByteComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

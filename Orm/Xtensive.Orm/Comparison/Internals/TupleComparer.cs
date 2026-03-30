@@ -17,8 +17,7 @@ namespace Xtensive.Comparison
     [NonSerialized]
     private int nullHashCode;
 
-    protected override IAdvancedComparer<Tuple> CreateNew(ComparisonRules rules)
-      => new TupleComparer(Provider, ComparisonRules.Combine(rules));
+    protected override TupleComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Tuple x, Tuple y)
       => throw new NotSupportedException();

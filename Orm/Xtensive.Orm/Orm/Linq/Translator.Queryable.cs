@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Linq
         currentIndex++;
       }
 
-      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
+      CompilableProvider recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -356,7 +356,9 @@ namespace Xtensive.Orm.Linq
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
-      var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
+      var map = new int[recordSet.Header.Columns.Count];
+      Array.Fill(map, -1);
+
       var targetFieldIndex = 0;
       var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
       foreach (var targetField in targetFields) {
@@ -403,7 +405,8 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (source.IsLocalCollection(context)) {
+      var isLocalCollection = source.IsLocalCollection(context);
+      if (isLocalCollection) {
         match = Visit(match);
       }
 
@@ -416,7 +419,7 @@ namespace Xtensive.Orm.Linq
         }
         else {
           // Collection<Child>.Contains(parent)
-          if (!isRoot && !source.IsLocalCollection(context)) {
+          if (!isRoot && !isLocalCollection) {
             QueryHelper.TryAddConvarianceCast(ref source, match.Type);
           }
         }
@@ -1529,15 +1532,16 @@ namespace Xtensive.Orm.Linq
       var algorithm = IncludeAlgorithm.Auto;
       Expression source = null;
       Expression match = null;
-      switch (mc.Arguments.Count) {
+      var arguments = mc.Arguments;
+      switch (arguments.Count) {
         case 2:
           source = mc.Arguments[1];
           match = mc.Arguments[0];
           break;
         case 3:
-          source = mc.Arguments[2];
-          match = mc.Arguments[0];
-          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
+          source = arguments[2];
+          match = arguments[0];
+          algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(arguments[1]).Value;
           break;
         default:
           Exceptions.InternalError(string.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
@@ -1569,22 +1573,12 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var outerColumns = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToArray();
+      var innerColumns = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToArray();
 
-      int[] outerColumns, innerColumns;
-      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
-        var outerColumnListCopy = outerColumnList.ToArray();
-        Array.Sort(outerColumnListCopy);
-        outerColumns = outerColumnListCopy;
-
-        var innerColumnListCopy = innerColumnList.ToArray();
-        Array.Sort(innerColumnListCopy);
-        innerColumns = innerColumnListCopy;
-      }
-      else {
-        outerColumns = outerColumnList.ToArray();
-        innerColumns = innerColumnList.ToArray();
+      if (!outerColumns.Except(innerColumns).Any() && outerColumns.Length == innerColumns.Length) {
+        Array.Sort(outerColumns);
+        Array.Sort(innerColumns);
       }
 
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumns)

@@ -1,9 +1,10 @@
-// Copyright (C) 2014-2022 Xtensive LLC.
+// Copyright (C) 2014-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.04.07
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -13,9 +14,9 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Registrates information about changed reference fields.
   /// </summary>
-  internal sealed class ReferenceFieldsChangesRegistry : SessionBound
+  internal sealed class ReferenceFieldsChangesRegistry : SessionBoundRegistry
   {
-    private readonly HashSet<ReferenceFieldChangeInfo> changes = new ();
+    private readonly HashSet<ReferenceFieldChangeInfo> changes = new();
 
     /// <summary>
     /// Registrates information about field which value was set.
@@ -25,9 +26,9 @@ namespace Xtensive.Orm.Internals
     /// <param name="field">Field which value was set./</param>
     public void Register(Key fieldOwner, Key fieldValue, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, field));
     }
 
@@ -40,10 +41,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="field">Field which value was set.</param>
     public void Register(Key fieldOwner, Key fieldValue, Key auxiliaryEntity, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(auxiliaryEntity, "auxiliaryEntity");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(auxiliaryEntity);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, auxiliaryEntity, field));
     }
 
@@ -57,8 +58,13 @@ namespace Xtensive.Orm.Internals
     /// Removes all registered items.
     /// </summary>
     public void Clear() => changes.Clear();
-    
-    private void Register(ReferenceFieldChangeInfo fieldChangeInfo) => changes.Add(fieldChangeInfo);
+
+    private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
+    {
+      EnsureRegistrationsAllowed();
+      _ = changes.Add(fieldChangeInfo);
+    }
+
 
     public ReferenceFieldsChangesRegistry(Session session)
       : base(session)

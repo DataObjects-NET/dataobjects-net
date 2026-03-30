@@ -272,7 +272,7 @@ namespace Xtensive.Orm.Configuration
     /// Clones this configuration.
     /// </summary>
     /// <returns>The clone of this configuration.</returns>
-    public new SessionConfiguration Clone()
+    public override SessionConfiguration Clone()
     {
       return (SessionConfiguration) base.Clone();
     }

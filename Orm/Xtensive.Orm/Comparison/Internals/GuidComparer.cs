@@ -12,8 +12,7 @@ namespace Xtensive.Comparison
   [Serializable]
   internal sealed class GuidComparer: ValueTypeComparer<Guid>
   {
-    protected override IAdvancedComparer<Guid> CreateNew(ComparisonRules rules)
-      => new GuidComparer(Provider, ComparisonRules.Combine(rules));
+    protected override GuidComparer CreateNew(ComparisonRules rules) => new(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors

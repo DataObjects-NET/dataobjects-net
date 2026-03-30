@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Issues
         var loadWithCargo = new CargoLoad(session, cargo);
 
         var query = session.Query.All<CargoLoad>()
-          .LeftJoin(session.Query.All<Cargo>(),
+          .LeftJoinEx(session.Query.All<Cargo>(),
             cl => cl.Cargo,
             c => c,
             (cl, c) => new { CargoLoad = cl, Cargo = c })
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Issues
         var loadWithCargo = new CargoLoad(session, cargo);
 
         var query = session.Query.All<CargoLoad>()
-          .LeftJoin(session.Query.All<Cargo>(),
+          .LeftJoinEx(session.Query.All<Cargo>(),
             cl => cl.Cargo,
             c => c,
             (cl, c) => new { CargoLoad = cl, Cargo = c })

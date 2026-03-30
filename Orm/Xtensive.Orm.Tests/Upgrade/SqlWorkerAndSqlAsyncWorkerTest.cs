@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2020 Xtensive LLC.
+// Copyright (C) 2017-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Julian Mamokin
@@ -493,8 +493,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[mapping.AssemblyName], "name");
-      insert.Values.Add(tableRef[mapping.AssemblyVersion], "version");
+      insert.AddValueRow((tableRef[mapping.AssemblyName], "name"), (tableRef[mapping.AssemblyVersion], "version"));
       Execute(insert);
     }
 
@@ -510,8 +509,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[mapping.TypeId], 1);
-      insert.Values.Add(tableRef[mapping.TypeName], "name");
+      insert.AddValueRow((tableRef[mapping.TypeId], 1),(tableRef[mapping.TypeName], "name"));
       Execute(insert);
     }
 
@@ -527,8 +525,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[mapping.ExtensionName], "name");
-      insert.Values.Add(tableRef[mapping.ExtensionText], "text");
+      insert.AddValueRow((tableRef[mapping.ExtensionName], "name"), (tableRef[mapping.ExtensionText], "text"));
       Execute(insert);
     }
 

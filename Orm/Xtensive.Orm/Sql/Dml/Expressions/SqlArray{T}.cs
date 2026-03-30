@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
 
     public override object[] GetValues()
     {
-      return Values.Cast<object>().ToArray();
+      return Values.Cast<object>().ToArray(Values.Length);
     }
     
     public static implicit operator SqlArray<T>(T[] value)
@@ -41,10 +41,9 @@ namespace Xtensive.Sql.Dml
       Values = replacingExpression.Values;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlArray<T>((T[]) Values.Clone());
+    internal override SqlArray Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlArray<T>((T[]) t.Values.Clone()));
 
 
     // Constructors
@@ -57,7 +56,7 @@ namespace Xtensive.Sql.Dml
     // do not remove, they used by reflection
     internal SqlArray(List<object> values)
     {
-      Values = values.Cast<T>().ToArray();
+      Values = values.Cast<T>().ToArray(values.Count);
     }
 
     internal SqlArray(object[] values)

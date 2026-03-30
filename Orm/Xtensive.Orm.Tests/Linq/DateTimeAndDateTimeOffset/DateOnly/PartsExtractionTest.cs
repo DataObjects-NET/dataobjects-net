@@ -1,8 +1,6 @@
-// Copyright (C) 2023 Xtensive LLC.
+// Copyright (C) 2023-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-
-#if NET6_0_OR_GREATER
 
 using System;
 using NUnit.Framework;
@@ -21,6 +19,20 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.DateOnly.Year == WrongDateOnly.Year);
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.NullableDateOnly.Value.Year == WrongDateOnly.Year);
+      });
+    }
+
+
+    [Test]
+    public void MinMaxExtractYearTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Year == DateTime.MinValue.Year);
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Year == DateTime.MaxValue.Year);
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Year == WrongDateOnly.Year);
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Year == WrongDateOnly.Year);
       });
     }
 
@@ -44,6 +56,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     }
 
     [Test]
+    public void MinMaxExtractMonthTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Month == DateTime.MinValue.Month);
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Month == DateTime.MaxValue.Month);
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Month == WrongDateOnly.Month);
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Month == WrongDateOnly.Month);
+      });
+    }
+
+    [Test]
     public void ExtractDayTest()
     {
       ExecuteInsideSession((s) => {
@@ -52,6 +77,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
 
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.DateOnly.Day == WrongDateOnly.Day);
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.NullableDateOnly.Value.Day == WrongDateOnly.Day);
+      });
+    }
+
+    [Test]
+    public void MinMaxExtractDayTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Day == DateTime.MinValue.Day);
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Day == DateTime.MaxValue.Day);
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.Day == WrongDateOnly.Day);
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.Day == WrongDateOnly.Day);
       });
     }
 
@@ -68,8 +106,22 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
     }
 
     [Test]
+    public void MinMaxExtractDayOfYearTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.DayOfYear == DateTime.MinValue.DayOfYear);
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.DayOfYear == DateTime.MaxValue.DayOfYear);
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.DayOfYear == WrongDateOnly.DayOfYear);
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.DayOfYear == WrongDateOnly.DayOfYear);
+      });
+    }
+
+    [Test]
     public void ExtractDayOfWeekTest()
     {
+
       ExecuteInsideSession((s) => {
         RunTest<SingleDateOnlyEntity>(s, c => c.DateOnly.DayOfWeek == FirstDateOnly.DayOfWeek);
         RunTest<SingleDateOnlyEntity>(s, c => c.NullableDateOnly.Value.DayOfWeek == NullableDateOnly.DayOfWeek);
@@ -78,6 +130,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
         RunWrongTest<SingleDateOnlyEntity>(s, c => c.NullableDateOnly.Value.DayOfWeek == WrongDateOnly.DayOfWeek);
       });
     }
+
+    [Test]
+    public void MinMaxExtractDayOfWeekTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.DayOfWeek == DateTime.MinValue.DayOfWeek);
+        RunTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.DayOfWeek == DateTime.MaxValue.DayOfWeek);
+
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MinValue.DayOfWeek == DateTime.MinValue.AddDays(1).DayOfWeek);
+        RunWrongTest<MinMaxDateOnlyEntity>(s, c => c.MaxValue.DayOfWeek == DateTime.MaxValue.AddDays(-1).DayOfWeek);
+      });
+    }
   }
 }
-#endif

@@ -42,7 +42,9 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
     {
-      var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();
+      var mapping = new MappingEntry[columnCount];
+      System.Array.Fill(mapping, null);
+
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
       if (mapping.Contains(null)) {
@@ -51,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return mapping;
     }
 
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override BinaryExpression VisitBinary(BinaryExpression b)
     {
       var result = (BinaryExpression) base.VisitBinary(b);
       var expressions = new[] {result.Left, result.Right};

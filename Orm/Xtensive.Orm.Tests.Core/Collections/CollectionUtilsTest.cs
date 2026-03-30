@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
   public class CollectionUtilsTest
   {
     [Test]
+    [Obsolete]
     public void RangeToArrayTest()
     {
       Assert.That(CollectionUtils.RangeToArray(1, 10).SequenceEqual(Enumerable.Range(1, 10)));
@@ -24,6 +25,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
+    [Obsolete]
     public void RangeToListTest()
     {
       Assert.That(CollectionUtils.RangeToList(1, 10).SequenceEqual(Enumerable.Range(1, 10)));

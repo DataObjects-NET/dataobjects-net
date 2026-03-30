@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -101,11 +101,13 @@ namespace Xtensive.Orm.Upgrade
 
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
+      var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
       for (int i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
-        insert.Values[tableRef.Columns[i]] = binding.ParameterReference;
+        row.Add(tableRef.Columns[i], binding.ParameterReference);
         bindings[i] = binding;
       }
+      insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
       if (deleteTransform!=null)
@@ -129,15 +131,10 @@ namespace Xtensive.Orm.Upgrade
 
     public MetadataWriter(StorageDriver driver, MetadataMapping mapping, SqlExtractionTask task, IProviderExecutor executor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
-      ArgumentValidator.EnsureArgumentNotNull(task, "task");
-      ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
-
-      this.driver = driver;
-      this.mapping = mapping;
-      this.task = task;
-      this.executor = executor;
+      this.driver = driver ?? throw new ArgumentNullException(nameof(driver));
+      this.mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+      this.task = task ?? throw new ArgumentNullException(nameof(task));
+      this.executor = executor ?? throw new ArgumentNullException(nameof(executor));
     }
   }
 }

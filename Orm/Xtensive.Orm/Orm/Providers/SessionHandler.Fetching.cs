@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="key">The key.</param>
     /// <param name="type">The type of the <see cref="Entity"/>.</param>
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
-    /// <param name="token">The token to cancel this operation</param>
+    /// <param name="token">The token to cancel this operation.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public abstract Task<StrongReferenceContainer> PrefetchAsync(
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
     /// another method in this session.</remarks>
     /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
-    /// <param name="token">The token to cancel this operation</param>
+    /// <param name="token">The token to cancel this operation.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public abstract Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(
@@ -79,6 +79,7 @@ namespace Xtensive.Orm.Providers
     /// <remarks>Multiple active operations in the same session instance are not supported. Use
     /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
     /// another method in this session.</remarks>
+    /// <param name="token">The token to cancel this operation.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(CancellationToken token = default)
@@ -90,8 +91,20 @@ namespace Xtensive.Orm.Providers
     /// Fetches an <see cref="EntityState"/>.
     /// </summary>
     /// <param name="key">The key.</param>
-    /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
+    /// <returns>Fetched <see cref="EntityState"/> for given <paramref name="key"/>.</returns>
     public abstract EntityState FetchEntityState(Key key);
+
+    /// <summary>
+    /// Fetches an <see cref="EntityState"/>.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>Fetched <see cref="EntityState"/> for given <paramref name="key"/>.</returns>
+    public virtual Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken token = default)
+    {
+      var result = FetchEntityState(key);
+      return Task.FromResult(result);
+    }
 
     /// <summary>
     /// Fetches the field of an <see cref="Entity"/>.

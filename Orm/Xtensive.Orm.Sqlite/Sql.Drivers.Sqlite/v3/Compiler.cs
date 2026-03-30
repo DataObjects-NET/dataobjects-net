@@ -24,11 +24,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const long MillisecondsPerSecond = 1000;
 
     private const string DateWithZeroTimeFormat = "%Y-%m-%d 00:00:00.000";
-#if NET6_0_OR_GREATER
     private const string DateFormat = "%Y-%m-%d";
     private const string TimeFormat = "%H:%M:%f0000";
     private const string TimeToStringFormat = "%H:%M:%f0000";
-#endif
     private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
     private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
     private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
@@ -81,14 +79,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             DateTimeOffsetExtractOffsetAsString(node.Left))
             .AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
           TimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
           return;
         case SqlNodeType.TimeMinusTime:
           TimeSubtractTime(node.Left, node.Right).AcceptVisitor(this);
           return;
-#endif
         default:
           base.Visit(node);
           return;
@@ -138,12 +134,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitDateTimeOffset(node);
         return;
       }
-#if NET6_0_OR_GREATER
       if (node.IsTimePart) {
         VisitTime(node);
         return;
       }
-#endif
 
       base.Visit(node);
     }
@@ -157,10 +151,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var arguments = node.Arguments;
       switch (node.FunctionType) {
         case SqlFunctionType.CharLength:
-          (SqlDml.FunctionCall("LENGTH", arguments) / 2).AcceptVisitor(this);
+          SqlDml.FunctionCall("LENGTH", arguments).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
+          Visit(EmulateLpadRpad(arguments, node.FunctionType is SqlFunctionType.PadLeft));
           return;
         case SqlFunctionType.Concat:
           var nod = arguments[0];
@@ -199,7 +194,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             arguments[1] - 1),
             arguments[2] - 1).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
           DateAddYear(arguments[0], arguments[1]).AcceptVisitor(this);
           return;
@@ -230,7 +224,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.TimeToString:
           TimeToString(arguments[0]).AcceptVisitor(this);
           return;
-#endif
         case SqlFunctionType.DateTimeToStringIso:
           DateTimeToStringIso(arguments[0]).AcceptVisitor(this);
           return;
@@ -267,7 +260,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.DateTimeOffsetToDateTime:
           DateTimeOffsetToDateTime(arguments[0]).AcceptVisitor(this);
           return;
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateTimeToDate:
           DateTimeToDate(arguments[0]).AcceptVisitor(this);
           return;
@@ -292,7 +284,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.DateToDateTimeOffset:
           DateToDateTimeOffset(arguments[0]).AcceptVisitor(this);
           return;
-#endif
       }
       base.Visit(node);
     }
@@ -412,7 +403,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       base.Visit(node);
     }
-#if NET6_0_OR_GREATER //DO_DATEONLY
 
     private void VisitTime(SqlExtract node)
     {
@@ -422,7 +412,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       base.Visit(node);
     }
-#endif
 
     private void VisitDateTimeOffset(SqlExtract node)
     {
@@ -527,7 +516,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeAddSeconds(SqlExpression date, SqlExpression seconds) =>
       SqlDml.FunctionCall(STRFTIMEFunctionName, DateTimeFormat, date, SqlDml.Concat(seconds, " ", "SECONDS"));
-#if NET6_0_OR_GREATER
 
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall(STRFTIMEFunctionName, DateFormat, date, SqlDml.Concat(years, " ", "YEARS"));
@@ -607,7 +595,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateToDateTimeOffset(SqlExpression date) =>
       SqlDml.Concat(SqlDml.FunctionCall(STRFTIMEFunctionName, DateTimeFormat, SqlDml.Concat(date, " 00:00:00")), ServerOffsetAsString());
-#endif
 
     private static SqlExpression DateOrTimeGetMilliseconds(SqlExpression date) =>
       CastToLong(SqlDml.FunctionCall(STRFTIMEFunctionName, "%f", date) * MillisecondsPerSecond) -
@@ -644,6 +631,42 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         _ => throw SqlHelper.NotSupported($"Converting {dateTimeOffsetPart} to SqlDateTimePart"),
       };
     }
+
+    private static SqlCase EmulateLpadRpad(IReadOnlyList<SqlExpression> arguments, bool isLpad)
+    {
+      var operand = arguments[0];
+      var charcount = arguments[1];
+      if (charcount is not SqlLiteral<int> intWidth) {
+        // Since we emulate function with  contatination, we need to know total width
+        // to calculate prefix
+        throw SqlHelper.NotSupported("PadLeft/PadRight with expressions as total width.");
+      }
+      var totalWidth = intWidth.Value;
+
+      var padChar = arguments switch {
+        _ when arguments.Count == 3 && arguments[2] is SqlLiteral<char> charLiteral => charLiteral.Value,
+        _ when arguments.Count == 2 => ' ',
+        _ => throw new NotSupportedException()
+      };
+
+      var paddingString = SqlDml.Literal(new string(Enumerable.Repeat(padChar, intWidth.Value).ToArray()));
+
+      var padExpression = isLpad
+        ? SqlDml.Substring(
+            SqlDml.Concat(paddingString, operand),
+            SqlDml.Literal(-totalWidth - 1),// handles '+1' operation in translation of substring function call
+            SqlDml.Literal(totalWidth))
+        : SqlDml.Substring(
+            SqlDml.Concat(operand, paddingString),
+            SqlDml.Literal(0), // handles '+1' operation in translation of substring function call
+            SqlDml.Literal(totalWidth));
+
+      var @case = SqlDml.Case();
+      _ = @case.Add(SqlDml.CharLength(operand) >= charcount, operand);
+      @case.Else = padExpression;
+      return @case;
+    }
+
 
     // Constructors
 

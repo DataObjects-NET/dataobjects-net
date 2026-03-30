@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.10.09
 
@@ -18,8 +18,6 @@ namespace Xtensive.Orm.Upgrade
   public class RemoveTypeHint : UpgradeHint,
     IEquatable<RemoveTypeHint>
   {
-    private const string ToStringFormat = "Remove type: {0}";
-
     /// <summary>
     /// Gets the source type.
     /// </summary>
@@ -42,10 +40,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    public override bool Equals(UpgradeHint other)
-    {
-      return Equals(other as RemoveTypeHint);
-    }
+    public override bool Equals(UpgradeHint other) => Equals(other as RemoveTypeHint);
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -58,10 +53,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, Type);
-    }
+    public override string ToString() => $"Remove type: {Type}";
 
 
     // Constructors
@@ -69,11 +61,11 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="type">Value for <see cref="Type"/>.</param>
-    public RemoveTypeHint(string type)
+    /// <param name="typeName">Full name of type.</param>
+    public RemoveTypeHint(string typeName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "sourceType");
-      Type = type;
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      Type = typeName;
       AffectedTables = Array.Empty<string>();
     }
   }

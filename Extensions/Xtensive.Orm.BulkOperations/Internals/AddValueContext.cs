@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Linq;
 using Xtensive.Orm.Model;
@@ -14,9 +15,9 @@ namespace Xtensive.Orm.BulkOperations
     public LambdaExpression Lambda { get; set; }
     public SetStatement Statement { get; set; }
 
-    public FieldInfo Field { get; set; }
+    public FieldInfo Field => Descriptor.Field;
 
-    public bool SubqueryExists { get; set; }
+    public Dictionary<SqlColumn, SqlExpression> Values { get; set; }
 
     public object EvalLambdaBody() =>
       Lambda.Body is ConstantExpression ce

@@ -28,11 +28,11 @@ namespace Xtensive.Orm.Rse.Transformation
       return VisitCompilable(origin);
     }
 
-    protected override Provider Visit(CompilableProvider cp)
+    protected override CompilableProvider Visit(CompilableProvider cp)
     {
       var isPagingProvider = cp.Type is ProviderType.Take or ProviderType.Skip or ProviderType.Paging;
       if (isPagingProvider && !State.IsSkipTakeChain) {
-        var visitedProvider = (CompilableProvider) base.Visit(cp);
+        var visitedProvider = base.Visit(cp);
 
         var requiresRowNumber = (State.Take!=null && !takeSupported) || (State.Skip!=null && !skipSupported);
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var headerCount = visitedProvider.Header.Length - 1;
           visitedProvider = new SelectProvider(
             visitedProvider,
-            CollectionUtils.RangeToArray(0, headerCount));
+            Enumerable.Range(0, headerCount).ToArray());
         }
 
         return visitedProvider;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return base.Visit(cp);
     }
 
-    protected override Provider VisitSkip(SkipProvider provider)
+    protected override CompilableProvider VisitSkip(SkipProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visitedSource;
     }
 
-    protected override Provider VisitTake(TakeProvider provider)
+    protected override CompilableProvider VisitTake(TakeProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visitedSource;
     }
 
-    protected override Provider VisitPaging(PagingProvider provider)
+    protected override CompilableProvider VisitPaging(PagingProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);

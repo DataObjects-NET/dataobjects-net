@@ -655,7 +655,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       if (typeName.StartsWith("DATETIME", StringComparison.Ordinal)) {
         return new SqlValueType(SqlType.DateTime);
       }
-#if NET6_0_OR_GREATER
       if (typeName.Equals("TIME", StringComparison.Ordinal) || typeName.StartsWith("TIME(")) {
         return new SqlValueType(SqlType.Time);
       }
@@ -663,12 +662,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         // "timestamp precision" is saved as "scale", ignoring too
         return new SqlValueType(SqlType.DateTime);
       }
-#else
       if (typeName.StartsWith("TIME", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too
         return new SqlValueType(SqlType.DateTime);
       }
-#endif
       if (typeName.StartsWith("YEAR", StringComparison.Ordinal)) {
         // "timestamp precision" is saved as "scale", ignoring too
         return new SqlValueType(SqlType.Decimal, 4, 0);

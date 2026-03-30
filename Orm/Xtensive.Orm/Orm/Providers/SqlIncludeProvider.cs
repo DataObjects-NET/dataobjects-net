@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -53,24 +53,24 @@ namespace Xtensive.Orm.Providers
       base.OnBeforeEnumerate(context);
       var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
-      case IncludeAlgorithm.Auto:
-        var filterData = filterDataSource.Invoke(parameterContext).ToList();
-        if (filterData.Count > WellKnown.MaxNumberOfConditions) {
-          LockAndStore(context, filterData);
-        }
-        else {
-          parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);
-        }
+        case IncludeAlgorithm.Auto:
+          var filterData = filterDataSource.Invoke(parameterContext).ToList();
+          if (filterData.Count > DomainHandler.Domain.Configuration.MaxNumberOfConditions) {
+            LockAndStore(context, filterData);
+          }
+          else {
+            parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);
+          }
 
-        break;
-      case IncludeAlgorithm.ComplexCondition:
-        // nothing
-        break;
-      case IncludeAlgorithm.TemporaryTable:
-        LockAndStore(context, filterDataSource.Invoke(parameterContext));
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("Origin.Algorithm");
+          break;
+        case IncludeAlgorithm.ComplexCondition:
+          // nothing
+          break;
+        case IncludeAlgorithm.TemporaryTable:
+          LockAndStore(context, filterDataSource.Invoke(parameterContext));
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("Origin.Algorithm");
       }
     }
 
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Providers
       switch (Origin.Algorithm) {
         case IncludeAlgorithm.Auto:
           var filterData = filterDataSource.Invoke(parameterContext).ToList();
-          if (filterData.Count > WellKnown.MaxNumberOfConditions)
+          if (filterData.Count > DomainHandler.Domain.Configuration.MaxNumberOfConditions)
             await LockAndStoreAsync(context, filterData, token).ConfigureAwait(false);
           else
             parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);

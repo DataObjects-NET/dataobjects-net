@@ -94,7 +94,7 @@ namespace Xtensive.Orm
     [NotNull]
     public TypeInfo ResolveTypeInfo([NotNull, InstantHandle] Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session);
 
       if (TypeReference.Accuracy==TypeReferenceAccuracy.ExactType)
         return TypeReference.Type;
@@ -280,7 +280,7 @@ namespace Xtensive.Orm
       if (source==null)
         return null;
 
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain);
 
       var parts = source.RevertibleSplit(KeyFormatEscape, KeyFormatDelimiter).ToList();
       if (parts.Count!=2 && parts.Count!=3 || parts.Contains(null))
@@ -305,15 +305,16 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
+      var underlyingType = TypeInfo?.UnderlyingType ?? TypeReference.Type.UnderlyingType;
       if (TypeInfo!=null)
         return string.Format(
           Strings.KeyFormat,
-          TypeInfo.UnderlyingType.GetShortName(),
+          underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
           Value.ToRegular());
 
       return string.Format(
         Strings.KeyFormatUnknownKeyType,
-        TypeReference.Type.UnderlyingType.GetShortName(),
+        underlyingType.IsGenericType || underlyingType.IsNested ? underlyingType.GetShortName() : underlyingType.Name,
         Value.ToRegular());
     }
 
@@ -349,8 +350,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static Key Generate([NotNull] Session session, [NotNull] Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(type);
 
       return Generate(session, session.Domain.Model.Types[type]);
     }
@@ -423,9 +424,9 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] Tuple value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(value);
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, value);
     }
@@ -496,10 +497,10 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] params object[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(nodeId);
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(values);
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, values);
     }

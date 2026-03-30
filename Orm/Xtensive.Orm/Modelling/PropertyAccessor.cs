@@ -174,9 +174,11 @@ namespace Xtensive.Modelling
         dependencyRootType = pa.DependencyRootType;
         compareCaseInsensitive = tProperty == WellKnownTypes.String && pa.CaseInsensitiveComparison;
       }
-      InnerInitializeMethodDefinition
-        .CachedMakeGenericMethod(tType, tProperty)
-        .Invoke(this, null);
+#if NET8_0_OR_GREATER
+      InnerInitializeMethodDefinition.CachedMakeGenericMethodInvoker(tType, tProperty).Invoke(this);
+#else
+      InnerInitializeMethodDefinition.CachedMakeGenericMethod(tType, tProperty).Invoke(this, null);
+#endif
     }
 
     private void InnerInitialize<TType, TProperty>()

@@ -21,14 +21,12 @@ namespace Xtensive.Orm.Tests.Sql
       StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)
         ? new DateTime(2000, 12, 11, 10, 9, 8)
         : new DateTime(2000, 12, 11, 10, 9, 8, 765);
-#if NET6_0_OR_GREATER
 
     protected static readonly DateOnly DefaultDateOnly = new DateOnly(2001, 2, 3);
     protected static readonly DateOnly SecondDateOnly = new DateOnly(2000, 12, 11);
 
     protected static readonly TimeOnly DefaultTimeOnly = new TimeOnly(4, 5, 6, 334);
     protected static readonly TimeOnly SecondTimeOnly = new TimeOnly(10, 9, 8, 765);
-#endif
 
     protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 652);
     protected static readonly int AddYearsConst = 5;
@@ -162,7 +160,6 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.Extract(SqlDateTimePart.DayOfYear, PrepareDateTimeLiteral(DefaultDateTime)),
         DefaultDateTime.DayOfYear);
     }
-#if NET6_0_OR_GREATER
 
     [Test]
     public virtual void DateOnlyAddYearsTest()
@@ -296,7 +293,6 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.TimeMinusTime(PrepareTimeLiteral(DefaultTimeOnly), PrepareTimeLiteral(SecondTimeOnly)),
         DefaultTimeOnly - SecondTimeOnly);
     }
-#endif
 
     [Test]
     public virtual void IntervalConstructTest()
@@ -381,7 +377,6 @@ namespace Xtensive.Orm.Tests.Sql
       }
       return SqlDml.Literal(value);
     }
-#if NET6_0_OR_GREATER
 
     private SqlExpression PrepareDateLiteral(DateOnly value)
     {
@@ -398,6 +393,5 @@ namespace Xtensive.Orm.Tests.Sql
       }
       return SqlDml.Literal(value);
     }
-#endif
   }
 }

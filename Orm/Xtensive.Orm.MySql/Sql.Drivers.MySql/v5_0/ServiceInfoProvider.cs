@@ -261,7 +261,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       types.Double = DataTypeInfo.Range(SqlType.Double, common | index,
         ValueRange.Double, "double precision");
 
-#if NET6_0_OR_GREATER
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
         "datetime");
@@ -269,11 +268,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         new ValueRange<DateOnly>(new DateOnly(1000, 1, 1), new DateOnly(9999, 12, 31)),
         "date");
       types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, ValueRange.TimeOnly, "time");
-#else
-     types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
-        new ValueRange<DateTime>(new DateTime(1000, 1, 1), new DateTime(9999, 12, 31)),
-        "datetime", "time");
-#endif
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 255, "char");
       types.VarChar = DataTypeInfo.Stream(SqlType.VarChar, common | index, 4000, "varchar");

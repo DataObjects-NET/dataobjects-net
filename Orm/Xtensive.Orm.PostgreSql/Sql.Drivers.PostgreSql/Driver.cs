@@ -13,6 +13,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {
+    /// <summary>
+    /// PosgreSQL-specific information about server.
+    /// </summary>
+    internal PostgreServerInfo PostgreServerInfo { get; }
+
     [SecuritySafeCritical]
     protected override SqlConnection DoCreateConnection()
     {
@@ -77,6 +82,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           return SqlExceptionType.Deadlock;
         case "40001": // serialization_failure
           return SqlExceptionType.SerializationFailure;
+        case "57014": {
+          // operation timeout due to statement_timeout setting of postgres (global or per session)
+          if (serverSideException.Message.Contains("statement timeout", StringComparison.OrdinalIgnoreCase))
+            return SqlExceptionType.OperationTimeout;
+          return SqlExceptionType.Unknown;
+        }
       }
 
       return SqlExceptionType.Unknown;
@@ -95,14 +106,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           }
         }
       }
+      if (innerException is TimeoutException timeoutException) {
+        return SqlExceptionType.OperationTimeout;
+      }
       return SqlExceptionType.Unknown;
     }
 
     // Constructors
 
-    protected Driver(CoreServerInfo coreServerInfo)
+    protected Driver(CoreServerInfo coreServerInfo, PostgreServerInfo pgServerInfo)
       : base(coreServerInfo)
     {
+      PostgreServerInfo = pgServerInfo;
     }
   }
 }

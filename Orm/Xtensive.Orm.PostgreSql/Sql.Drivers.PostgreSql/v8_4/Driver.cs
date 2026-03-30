@@ -23,8 +23,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
 
     // Constructors
 
-    public Driver(CoreServerInfo coreServerInfo)
-      : base(coreServerInfo)
+    public Driver(CoreServerInfo coreServerInfo, PostgreServerInfo pgServerInfo)
+      : base(coreServerInfo, pgServerInfo)
     {
     }
   }

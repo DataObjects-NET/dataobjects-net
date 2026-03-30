@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Building.Builders
             var filteredIndex = BuildFilterIndex(type, ancestorIndex, filterByTypes);
             baseIndexes.Push(filteredIndex);
           }
-          var virtualPrimaryIndex = baseIndexes.Count == 1 
+          var virtualPrimaryIndex = baseIndexes.Count == 1
             ? baseIndexes.Pop()
             : BuildJoinIndex(type, baseIndexes);
           type.Indexes.Add(virtualPrimaryIndex);

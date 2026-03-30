@@ -4,7 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.22
 
-using Xtensive.Core;
+using System;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected UnaryProvider(ProviderType type, RecordSetHeader header, CompilableProvider source)
       : base(type, header, source)
     {
-      Source = source;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
     }
   }
 }

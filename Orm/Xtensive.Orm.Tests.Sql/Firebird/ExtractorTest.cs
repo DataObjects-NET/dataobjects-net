@@ -31,10 +31,8 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       sb.AppendLine($"{TypeToColumnName[SqlType.Double]} double precision,");
 
       sb.AppendLine($"{TypeToColumnName[SqlType.DateTime]} timestamp,");
-#if NET6_0_OR_GREATER
       sb.AppendLine($"{TypeToColumnName[SqlType.Date]} date,");
       sb.AppendLine($"{TypeToColumnName[SqlType.Time]} time,");
-#endif
 
       sb.AppendLine($"{TypeToColumnName[SqlType.Char]} char({CharLength}),");
       sb.AppendLine($"{TypeToColumnName[SqlType.VarChar]} varchar({VarCharLength}),");

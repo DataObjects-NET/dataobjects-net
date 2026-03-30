@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Rse.Providers
       FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, Func<ParameterContext, int> topN, bool fullFeatured)
       : base(ProviderType.FreeText, BuildHeader(index, rankColumnName, fullFeatured))
     {
-      SearchCriteria = searchCriteria;
+      SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
       FullFeatured = fullFeatured;
       TopN = topN;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);

@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlExpression TopNByRank { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlFreeTextTable Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
     }

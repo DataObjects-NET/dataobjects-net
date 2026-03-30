@@ -1,3 +1,4 @@
+using System;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
 
@@ -28,18 +29,13 @@ namespace Xtensive.Sql
 
     public SqlExtractionTask(string catalog)
     {
-      ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
-
-      Catalog = catalog;
+      Catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
     }
 
     public SqlExtractionTask(string catalog, string schema)
     {
-      ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
-      ArgumentValidator.EnsureArgumentNotNull(schema, "schema");
-
-      Catalog = catalog;
-      Schema = schema;
+      Catalog = catalog ?? throw new ArgumentNullException(nameof(catalog));
+      Schema = schema ?? throw new ArgumentNullException(nameof(schema));
     }
   }
 }

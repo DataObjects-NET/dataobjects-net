@@ -6,6 +6,7 @@
 
 using System;
 using System.Text;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -14,22 +15,6 @@ namespace Xtensive.Sql.Dml
   /// </summary>
   public static class Extensions
   {
-    /// <summary>
-    /// Determines whether the specified expression is a null reference.
-    /// Use this method instead of comparison with null,
-    /// because equality operator is overloaded for <see cref="SqlExpression"/>
-    /// to yield equality comparison expression.
-    /// </summary>
-    /// <param name="expression">The expression to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if argument is a null reference; otherwise, <see langword="false"/>.
-    /// </returns>
-    [Obsolete(@"Use 'is null' operator")]
-    public static bool IsNullReference(this SqlExpression expression)
-    {
-      return ReferenceEquals(expression, null);
-    }
-
     /// <summary>
     /// Checks whether <paramref name="available"/> contains all flags of given <paramref name="required"/>.
     /// </summary>
@@ -64,7 +49,7 @@ namespace Xtensive.Sql.Dml
         return lockType.ToString();
       if (lockType==SqlLockType.Empty)
         return "No Lock";
-      var result = new StringBuilder();
+      var result = new ValueStringBuilder(stackalloc char[128]);
       if (lockType.Supports(SqlLockType.Shared))
         result.Append("Shared");
       if (lockType.Supports(SqlLockType.Update))
@@ -79,17 +64,13 @@ namespace Xtensive.Sql.Dml
     }
 
     // See the description in the Parts file. Be careful.
-#if NET6_0_OR_GREATER
     internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlDatePart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
     internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlTimePart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
-#endif
     internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlDateTimePart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
     internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlIntervalPart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
 
-#if NET6_0_OR_GREATER
     internal static SqlDatePart ToDatePartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlDatePart)(int) dtoPart;
     internal static SqlTimePart ToTimePartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlTimePart)(int) dtoPart;
-#endif
     internal static SqlDateTimePart ToDateTimePartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlDateTimePart) (int) dtoPart;
     internal static SqlIntervalPart ToIntervalPartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlIntervalPart)(int) dtoPart;
   }

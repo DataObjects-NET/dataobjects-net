@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Orm.Building.Builders;
@@ -59,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
     {
       if (targetModel==null) {
         targetModel = new StorageModel();
-        Visit(sourceModel);
+        _ = Visit(sourceModel);
       }
 
       return targetModel;
@@ -69,10 +68,10 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode Visit(Orm.Model.Node node)
     {
       var indexInfo = node as IndexInfo;
-      if (indexInfo!=null && indexInfo.IsPrimary) {
+      if (indexInfo is not null && indexInfo.IsPrimary) {
         foreach (var table in CreateTables(indexInfo)) {
           currentTable = table;
-          var result = VisitPrimaryIndexInfo(indexInfo);
+          _ = VisitPrimaryIndexInfo(indexInfo);
           currentTable = null;
         }
         return null;
@@ -82,27 +81,28 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitDomainModel(DomainModel domainModel)
+    protected override StorageModel VisitDomainModel(DomainModel domainModel)
     {
       // Build tables, columns and primary indexes
-      foreach (var primaryIndex in domainModel.RealIndexes.Where(i => i.IsPrimary))
-        Visit(primaryIndex);
+      foreach (var primaryIndex in domainModel.RealIndexes.Where(static i => i.IsPrimary))
+        _ = Visit(primaryIndex);
 
       // Build full-text indexes
       foreach (var fullTextIndex in domainModel.FullTextIndexes)
-        Visit(fullTextIndex);
+        _ = Visit(fullTextIndex);
 
       // Build foreign keys
       var buildForeignKeys = BuildForeignKeys
         && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints);
 
-      if (buildForeignKeys)
+      if (buildForeignKeys) {
         foreach (var group in domainModel.Associations.Where(a => a.Ancestors.Count==0))
-          Visit(group);
+          _ = Visit(group);
+      }
 
       // Build keys and sequences
       foreach (KeyInfo keyInfo in domainModel.Hierarchies.Select(h => h.Key))
-        Visit(keyInfo);
+        _ = Visit(keyInfo);
 
       var buildHierarchyForeignKeys = BuildHierarchyForeignKeys
         && providerInfo.Supports(ProviderFeatures.ForeignKeyConstraints);
@@ -113,17 +113,17 @@ namespace Xtensive.Orm.Upgrade
       // Build hierarchy foreign keys
       var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
       foreach (var type in domainModel.Types.Entities) {
-        if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
+        if (type.Hierarchy is null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          Dictionary<TypeInfo, int> typeOrder = type.Ancestors
+          var typeOrder = type.Ancestors
             .Append(type)
-            .Select((t, i) => (Type: t, Index: i))
-            .ToDictionary(a => a.Type, a => a.Index);
-          List<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
+            .Select(static (t, i) => (Type: t, Index: i))
+            .ToDictionary(static a => a.Type, static a => a.Index, capacity: type.Ancestors.Count);
+          var realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
             .OrderBy(index => typeOrder[index.ReflectedType])
-            .ToList();
-          for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
+            .ToArray(type.Indexes.RealPrimaryIndexes.Count);
+          for (int i = 0, edge = realPrimaryIndexes.Length - 1; i < edge; i++) {
             if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
               var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
               indexPairs[pair] = null;
@@ -137,9 +137,9 @@ namespace Xtensive.Orm.Upgrade
         var referencingTable = targetModel.Tables[resolver.GetNodeName(referencingIndex.ReflectedType)];
         var referencedTable = targetModel.Tables[resolver.GetNodeName(referencedIndex.ReflectedType)];
         var storageReferencingIndex = FindIndex(
-          referencingTable, referencingIndex.KeyColumns.Select(ci => ci.Key.Name).ToList());
+          referencingTable, referencingIndex.KeyColumns.Select(static ci => ci.Key.Name).ToArray());
 
-        string foreignKeyName = nameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
+        var foreignKeyName = nameBuilder.BuildHierarchyForeignKeyName(referencingIndex.ReflectedType, referencedIndex.ReflectedType);
         CreateHierarchyForeignKey(referencingTable, referencedTable, storageReferencingIndex, foreignKeyName);
       }
 
@@ -154,9 +154,9 @@ namespace Xtensive.Orm.Upgrade
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
-        string columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
-        StorageColumnInfo column = table.Columns[columName];
-        new KeyColumnRef(secondaryIndex, column,
+        var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
+        var column = table.Columns[columName];
+        _ = new KeyColumnRef(secondaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -167,16 +167,16 @@ namespace Xtensive.Orm.Upgrade
       // and simply ignore included columns for clustered indexes.
       if (providerInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
-          string columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
-          StorageColumnInfo column = table.Columns[columName];
-          new IncludedColumnRef(secondaryIndex, column);
+          var columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
+          var column = table.Columns[columName];
+          _ = new IncludedColumnRef(secondaryIndex, column);
         }
       }
       secondaryIndex.PopulatePrimaryKeyColumns();
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitColumnInfo(ColumnInfo column)
+    protected override StorageColumnInfo VisitColumnInfo(ColumnInfo column)
     {
       var nonNullableType = column.ValueType;
       var nullableType    = ToNullable(nonNullableType, column.IsNullable);
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Upgrade
       if (association.OnTargetRemove==OnRemoveAction.None)
         return null;
 
-      if (association.AuxiliaryType==null && !association.OwnerField.IsEntitySet) {
+      if (association.AuxiliaryType is null && !association.OwnerField.IsEntitySet) {
         if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
         if (association.OwnerType.IsInterface) {
@@ -229,16 +229,16 @@ namespace Xtensive.Orm.Upgrade
           }
         }
       }
-      else if (association.AuxiliaryType!=null && association.IsMaster) {
+      else if (association.AuxiliaryType is not null && association.IsMaster) {
         ProcessIndirectAssociation(association.AuxiliaryType);
       }
       return null;
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitKeyInfo(KeyInfo keyInfo)
+    protected override StorageSequenceInfo VisitKeyInfo(KeyInfo keyInfo)
     {
-      if (keyInfo.Sequence==null || !keyInfo.IsFirstAmongSimilarKeys)
+      if (keyInfo.Sequence is null || !keyInfo.IsFirstAmongSimilarKeys)
         return null;
       var sequenceInfo = keyInfo.Sequence;
       long increment = 1;
@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
+    protected override StorageFullTextIndexInfo VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       if (!providerInfo.Supports(ProviderFeatures.FullText)) {
         UpgradeLog.Warning(nameof(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX), fullTextIndex.Name);
@@ -274,12 +274,12 @@ namespace Xtensive.Orm.Upgrade
         var column = table.Columns[fullTextColumn.Name];
         string typeColumn = null;
         if(providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification)) {
-          if (fullTextColumn.TypeColumn!=null)
+          if (fullTextColumn.TypeColumn is not null)
             typeColumn = table.Columns[fullTextColumn.TypeColumn.Name].Name;
         }
         else
           UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
-        new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        _ = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       
       ftIndex.FullTextCatalog = 
@@ -293,21 +293,21 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>Visit result.</returns>
-    private IPathNode VisitPrimaryIndexInfo(IndexInfo index)
+    private PrimaryIndexInfo VisitPrimaryIndexInfo(IndexInfo index)
     {
       foreach (var column in index.Columns)
-        Visit(column);
+        _ = Visit(column);
 
       // Support for mysql as primary indexes there always have name 'PRIMARY'
-      string name = providerInfo.ConstantPrimaryIndexName;
+      var name = providerInfo.ConstantPrimaryIndexName;
       if (string.IsNullOrEmpty(name))
         name = index.MappingName;
 
       var primaryIndex = new PrimaryIndexInfo(currentTable, name);
-      foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
-        string columName = GetPrimaryIndexColumnName(index, pair.Key, index);
+      foreach (var pair in index.KeyColumns) {
+        var columName = GetPrimaryIndexColumnName(index, pair.Key, index);
         var column = currentTable.Columns[columName];
-        new KeyColumnRef(primaryIndex, column,
+        _ = new KeyColumnRef(primaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
             ? pair.Value
             : Direction.Positive);
@@ -315,24 +315,24 @@ namespace Xtensive.Orm.Upgrade
       primaryIndex.PopulateValueColumns();
       primaryIndex.IsClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
 
-      foreach (var secondaryIndex in index.ReflectedType.Indexes.Where(i => i.IsSecondary && !i.IsVirtual))
+      foreach (var secondaryIndex in index.ReflectedType.Indexes.Where(static i => i.IsSecondary && !i.IsVirtual))
         VisitIndexInfo(index, secondaryIndex);
       return primaryIndex;
     }
 
-    private IEnumerable<TableInfo> CreateTables(IndexInfo index)
+    private IReadOnlyList<TableInfo> CreateTables(IndexInfo index)
     {
-      var result = new List<TableInfo>();
       var type = index.ReflectedType;
-      if (configuration.IsMultidatabase && type.UnderlyingType.Namespace==MetadataNamespace) {
+      if (configuration.IsMultidatabase && type.UnderlyingType.Namespace == MetadataNamespace) {
+        var parts = new List<TableInfo>(sourceModel.Databases.Count);
         foreach (var db in sourceModel.Databases) {
           var name = resolver.GetNodeName(db.Name, type.MappingSchema, type.MappingName);
-          result.Add(new TableInfo(targetModel, name));
+          parts.Add(new TableInfo(targetModel, name));
         }
+        return parts;
       }
       else
-        result.Add(new TableInfo(targetModel, resolver.GetNodeName(type)));
-      return result;
+        return new[] { new TableInfo(targetModel, resolver.GetNodeName(type)) };
     }
 
     #region Not supported
@@ -378,7 +378,7 @@ namespace Xtensive.Orm.Upgrade
 
     private object GetColumnDefaultValue(ColumnInfo column, StorageTypeInfo typeInfo)
     {
-      if (column.DefaultValue!=null)
+      if (column.DefaultValue is not null)
         return column.DefaultValue;
 
       if (column.IsNullable)
@@ -401,22 +401,29 @@ namespace Xtensive.Orm.Upgrade
 
     private static StorageIndexInfo FindIndex(TableInfo table, ICollection<string> keyColumns)
     {
-      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name).ToList();
+      var primaryIndex = table.PrimaryIndex;
+      var primaryKeyColumns = primaryIndex.KeyColumns.Select(ColumnNameSelector).ToList(primaryIndex.KeyColumns.Count);
 
       if (!primaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(primaryKeyColumns)).Any())
         return table.PrimaryIndex;
 
       foreach (SecondaryIndexInfo index in table.SecondaryIndexes) {
-        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value.Name).ToList();
+        var secondaryKeyColumns = index.KeyColumns.Select(ColumnNameSelector).ToList(index.KeyColumns.Count);
         if (!secondaryKeyColumns.Except(keyColumns).Union(keyColumns.Except(secondaryKeyColumns)).Any())
           return index;
       }
       return null;
+
+
+      static string ColumnNameSelector(KeyColumnRef cr)
+      {
+        return cr.Value.Name;
+      }
     }
 
     private TableInfo GetTable(TypeInfo type)
     {
-      if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable) {
+      if (type.Hierarchy is null || type.Hierarchy.InheritanceSchema!=InheritanceSchema.SingleTable) {
         var name = resolver.GetNodeName(type);
         return targetModel.Tables.FirstOrDefault(t => t.Name==name);
       }
@@ -440,20 +447,19 @@ namespace Xtensive.Orm.Upgrade
 
     private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
-      var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToList();
+      var foreignColumns = referencingField.Columns.SelectToArray(column => referencingTable.Columns[column.Name]);
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
       };
       foreach (var foreignColumn in foreignColumns)
-        new ForeignKeyColumnRef(foreignKey, foreignColumn);
+        _ = new ForeignKeyColumnRef(foreignKey, foreignColumn);
     }
 
     private static void CreateHierarchyForeignKey(TableInfo referencingTable, TableInfo referencedTable, StorageIndexInfo referencingIndex, string foreignKeyName)
     {
-      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName)
-      {
+      var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,
         OnUpdateAction = ReferentialAction.None
@@ -472,7 +478,7 @@ namespace Xtensive.Orm.Upgrade
         return;
       var referencingTable = GetTable(ownerType);
       var referencedTable = GetTable(targetType);
-      if (referencedTable==null || referencingTable==null)
+      if (referencedTable is null || referencingTable is null)
         return;
       var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(ownerType, ownerField, targetType);
       CreateReferenceForeignKey(referencingTable, referencedTable, ownerField, foreignKeyName);
@@ -481,14 +487,14 @@ namespace Xtensive.Orm.Upgrade
     private void ProcessIndirectAssociation(TypeInfo auxiliaryType)
     {
       var referencingTable = GetTable(auxiliaryType);
-      if (referencingTable==null)
+      if (referencingTable is null)
         return;
-      foreach (var field in auxiliaryType.Fields.Where(fieldInfo => fieldInfo.IsEntity)) {
+      foreach (var field in auxiliaryType.Fields.Where(static fieldInfo => fieldInfo.IsEntity)) {
         var referencedType = sourceModel.Types[field.ValueType];
         if (!IsValidForeignKeyTarget(referencedType) || !AreMappedToSameDatabase(auxiliaryType, referencedType))
           continue;
         var referencedTable = GetTable(referencedType);
-        if (referencedTable==null)
+        if (referencedTable is null)
           continue;
         var foreignKeyName = nameBuilder.BuildReferenceForeignKeyName(auxiliaryType, field, referencedType);
         CreateReferenceForeignKey(referencingTable, referencedTable, field, foreignKeyName);
@@ -502,17 +508,17 @@ namespace Xtensive.Orm.Upgrade
 
     private IEnumerable<TypeInfo> GetForeignKeyOwners(TypeInfo type)
     {
-      if (type.Hierarchy == null)
+      if (type.Hierarchy is null)
         yield break;
       yield return type;
       if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
-        foreach (var descendant in type.AllDescendants.Where(static descendant => descendant.Indexes.PrimaryIndex != null))
+        foreach (var descendant in type.AllDescendants.Where(static descendant => descendant.Indexes.PrimaryIndex is not null))
           yield return descendant;
     }
 
     private static bool IsValidForeignKeyTarget(TypeInfo targetType)
     {
-      return targetType.Hierarchy != null && (targetType.Hierarchy.InheritanceSchema != InheritanceSchema.ConcreteTable || targetType.IsLeaf);
+      return targetType.Hierarchy is not null && (targetType.Hierarchy.InheritanceSchema != InheritanceSchema.ConcreteTable || targetType.IsLeaf);
     }
 
     #endregion
@@ -529,7 +535,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var index = new SecondaryIndexInfo(owningTable, indexName);
 
-      if (originalModelIndex.Filter!=null) {
+      if (originalModelIndex.Filter is not null) {
         if (providerInfo.Supports(ProviderFeatures.PartialIndexes))
           index.Filter = new PartialIndexFilterInfo(compiler.Compile(handlers, originalModelIndex));
         else
@@ -568,7 +574,7 @@ namespace Xtensive.Orm.Upgrade
       var currentType = CurrentModelTypes.GetValueOrDefault(typeName);
       if(currentType==null)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, typeName));
-      var currentField = currentType.Fields.Flatten(f=>f.Fields, info => { }, true).FirstOrDefault(el => el.MappingName==column.Field.MappingName);
+      var currentField = currentType.Fields.Flatten(static f => f.Fields, info => { }, true).FirstOrDefault(el => el.MappingName==column.Field.MappingName);
       if (currentField==null)
         throw new InvalidOperationException(string.Format(Strings.UnableToFindColumnXInTypeYOfCurrentModel, column.Field.MappingName, typeName));
 
@@ -580,7 +586,7 @@ namespace Xtensive.Orm.Upgrade
     {
       if (!isUpgradingStage)
         return typeInfo;
-      if (extractedConnectedColumn==null)
+      if (extractedConnectedColumn is null)
         return typeInfo;
       var extractedTypeInfo = extractedConnectedColumn.Type;
       if (IsOnlyNullableChanged(typeInfo, extractedTypeInfo)) {
@@ -614,15 +620,10 @@ namespace Xtensive.Orm.Upgrade
       IFullTextCatalogNameBuilder fulltextCatalogNameBuilder,
       bool isUpgradingStage)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
-      ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-
-      this.handlers = handlers;
-      this.compiler = compiler;
-      this.typeIdProvider = typeIdProvider;
-      this.resolver = resolver;
+      this.handlers = handlers ?? throw new ArgumentNullException(nameof(handlers));
+      this.compiler = compiler ?? throw new ArgumentNullException(nameof(compiler));
+      this.typeIdProvider = typeIdProvider ?? throw new ArgumentNullException(nameof(typeIdProvider));
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
       this.isUpgradingStage = isUpgradingStage;
       this.fulltextCatalogNameBuilder = fulltextCatalogNameBuilder;
 

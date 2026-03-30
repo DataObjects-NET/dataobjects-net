@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     protected const string MicrosecondPart = "MCS";
     protected const long NanosecondsPerMicrosecond = 1000;
 
-#if NET6_0_OR_GREATER //DO_DATEONLY
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
@@ -56,42 +55,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           base.Visit(node); break;
       }
     }
-#else
-    /// <inheritdoc/>
-    public override void Visit(SqlFunctionCall node)
-    {
-      switch (node.FunctionType) {
-        case SqlFunctionType.DateTimeOffsetTimeOfDay:
-          DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
-          break;
-        case SqlFunctionType.IntervalToMilliseconds: {
-          if (node.Arguments[0] is SqlBinary binary 
-              && (binary.NodeType == SqlNodeType.DateTimeMinusDateTime || binary.NodeType == SqlNodeType.DateTimeOffsetMinusDateTimeOffset)) {
-            Visit(DateDiffBigMicrosecond(binary.Right, binary.Left) / CastToLong(1000));
-          }
-          else {
-            base.Visit(node);
-          }
-          break;
-        }
-        case SqlFunctionType.IntervalToNanoseconds: {
-          if (node.Arguments[0] is SqlBinary binary
-              && (binary.NodeType == SqlNodeType.DateTimeMinusDateTime || binary.NodeType == SqlNodeType.DateTimeOffsetMinusDateTimeOffset)) {
-            // we have to use time consuming algorithm here because
-            // DATEDIFF_BIG can throw arithmetic overflow on nanoseconds
-            // so we should handle it by this big formula
-            Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Left, binary.Right)));
-          }
-          else {
-            base.Visit(node);
-          }
-          break;
-        }
-        default:
-          base.Visit(node); break;
-      }
-    }
-#endif
 
     protected override SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -134,13 +134,15 @@ namespace Xtensive.Orm
 
       var ts = await InnerOpenTransaction(
         TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
+
       try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
+
         using (OpenSystemLogicOnlyRegion()) {
-          DemandTransaction();
+          _ = DemandTransaction();
           if (IsDebugEventLoggingEnabled) {
             OrmLog.Debug(nameof(Strings.LogSessionXPersistingReasonY), this, reason);
           }
@@ -210,7 +212,9 @@ namespace Xtensive.Orm
         }
 
         SystemEvents.NotifyPersisted();
-        Events.NotifyPersisted();
+        using (PreventRegistryChanges()) {
+          Events.NotifyPersisted();
+        }
       }
       finally {
         IsPersisting = false;
@@ -224,7 +228,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Temporarily disables all save changes operations (both explicit ant automatic) 
+    /// Temporarily disables all save changes operations (both explicit ant automatic)
     /// for specified <paramref name="target"/>.
     /// Such entity is prevented from being persisted to the database,
     /// when <see cref="SaveChanges"/> is called or query is executed.
@@ -234,16 +238,20 @@ namespace Xtensive.Orm
     /// all entities that reference <paramref name="target"/> are also pinned automatically.
     /// </summary>
     /// <param name="target">The entity to disable persisting.</param>
-    /// <returns>A special object that controls lifetime of such behavior if <paramref name="target"/> was not previously processed by the method,
-    /// otherwise <see langword="null"/>.</returns>
+    /// <returns>
+    /// A special object that controls lifetime of such behavior if <paramref name="target"/> was not previously processed by the method
+    /// and automatic saving of changes is enabled (<see cref="SessionOptions.AutoSaveChanges"/>),
+    /// otherwise <see langword="null"/>.
+    /// </returns>
     public IDisposable DisableSaveChanges(IEntity target)
     {
       EnsureNotDisposed();
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(target);
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
+        return null; // No need to pin in this case
+
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
-        return new Disposable(b => {return;}); // No need to pin in this case
       return pinner.RegisterRoot(targetEntity.State);
     }
 
@@ -252,15 +260,15 @@ namespace Xtensive.Orm
     /// Explicit call of <see cref="SaveChanges"/> will lead to flush changes anyway.
     /// If save changes is to be performed due to starting a nested transaction or committing a transaction,
     /// active disabling save changes scope will lead to failure.
-    /// <returns>A special object that controls lifetime of such behavior if there is no active scope,
+    /// <returns>A special object that controls lifetime of such behavior if there is no active scope
+    /// and automatic saving of changes is enabled (<see cref="SessionOptions.AutoSaveChanges"/>),
     /// otherwise <see langword="null"/>.</returns>
     /// </summary>
     public IDisposable DisableSaveChanges()
     {
-      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
-        return new Disposable(b => { return; }); // No need to pin in this case
-      if (disableAutoSaveChanges)
-        return null;
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges) || disableAutoSaveChanges) {
+        return null; // No need to pin in these cases
+      }
 
       disableAutoSaveChanges = true;
       return new Disposable(_ => {
@@ -317,7 +325,7 @@ namespace Xtensive.Orm
         newEntity.Update(null);
         newEntity.PersistenceState = PersistenceState.Removed;
       }
-      
+
       foreach (var modifiedEntity in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
         modifiedEntity.RollbackDifference();
         modifiedEntity.PersistenceState = PersistenceState.Synchronized;
@@ -360,6 +368,14 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
+    }
+
+    private JoiningDisposable PreventRegistryChanges()
+    {
+      return EntityChangeRegistry.DisableRegistrations()
+        & EntitySetChangeRegistry.DisableRegistrations()
+        & NonPairedReferencesRegistry.DisableRegistrations()
+        & ReferenceFieldsChangesRegistry.DisableRegistrations();
     }
   }
 }

@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.15
 
+using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -19,11 +20,10 @@ namespace Xtensive.Orm.Rse.Transformation
     public LambdaExpression Replace(LambdaExpression sourceExpression, ParameterExpression oldParameter,
       ParameterExpression newParameter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceExpression, "sourceExpression");
-      ArgumentValidator.EnsureArgumentNotNull(oldParameter, "oldParameter");
-      ArgumentValidator.EnsureArgumentNotNull(newParameter, "newParameter");
-      this.oldParameter = oldParameter;
-      this.newParameter = newParameter;
+      ArgumentNullException.ThrowIfNull(sourceExpression);
+
+      this.oldParameter = oldParameter ?? throw new ArgumentNullException(nameof(oldParameter));
+      this.newParameter = newParameter ?? throw new ArgumentNullException(nameof(newParameter));
       return (LambdaExpression)Visit(sourceExpression);
     }
 

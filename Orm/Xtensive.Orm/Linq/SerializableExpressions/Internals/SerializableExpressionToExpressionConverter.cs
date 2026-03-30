@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 
 namespace Xtensive.Linq.SerializableExpressions.Internals
 {
@@ -57,6 +58,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
           result = VisitUnary((SerializableUnaryExpression)e);
           break;
         case ExpressionType.Add:
@@ -82,16 +88,24 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
           result = VisitBinary((SerializableBinaryExpression)e);
           break;
         case ExpressionType.TypeIs:
           result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
           result = VisitConditional((SerializableConditionalExpression)e);
           break;
         case ExpressionType.Constant:
           result = VisitConstant((SerializableConstantExpression)e);
+          break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression)e);
           break;
         case ExpressionType.Parameter:
           result = VisitParameter((SerializableParameterExpression)e);
@@ -144,9 +158,19 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
     }
 
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), tb.TypeOperand);
+    }
+
     private Expression VisitConstant(SerializableConstantExpression c)
     {
       return Expression.Constant(c.Value, c.Type);
+    }
+
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
     }
 
     private Expression VisitConditional(SerializableConditionalExpression c)
@@ -177,7 +201,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToList();
+      var parameters = l.Parameters.SelectToArray(p => (ParameterExpression) Visit(p));
       using (CreateParameterScope(parameters)) {
         return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
       }

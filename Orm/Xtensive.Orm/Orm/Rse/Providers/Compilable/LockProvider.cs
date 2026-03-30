@@ -48,8 +48,8 @@ namespace Xtensive.Orm.Rse.Providers
     public LockProvider(CompilableProvider source, Func<LockMode> lockMode, Func<LockBehavior> lockBehavior)
       : base(ProviderType.Lock, source)
     {
-      LockMode = lockMode;
-      LockBehavior = lockBehavior;
+      LockMode = lockMode ?? throw new ArgumentNullException(nameof(lockMode));
+      LockBehavior = lockBehavior ?? throw new ArgumentNullException(nameof(lockBehavior));
     }
   }
 }

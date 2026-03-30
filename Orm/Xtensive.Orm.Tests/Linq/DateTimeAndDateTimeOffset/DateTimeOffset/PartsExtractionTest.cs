@@ -25,7 +25,35 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Year==WrongDateTimeOffset.Year);
       });
     }
-    
+
+    [Test]
+    public void ExtractYearMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Year == DateTimeOffset.MinValue.Year);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Year == DateTimeOffset.MinValue.AddYears(1).Year);
+      });
+    }
+
+    [Test]
+    public void ExtractYearMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.Year);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Year == DateTimeOffset.MaxValue.AddYears(-1).Year);
+        }
+      });
+    }
+
     [Test]
     public void ExtractMonthTest()
     {
@@ -37,6 +65,34 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Month==WrongMillisecondDateTimeOffset.Month);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Month==WrongDateTimeOffset.Month);
+      });
+    }
+
+    [Test]
+    public void ExtractMonthMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Month == DateTimeOffset.MinValue.Month);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Month == DateTimeOffset.MinValue.AddMonths(1).Month);
+      });
+    }
+
+    [Test]
+    public void ExtractMonthMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == 12);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Month == DateTimeOffset.MaxValue.AddMonths(-1).Month);
+        }
       });
     }
 
@@ -63,6 +119,35 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    public void ExtractDayMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Day == DateTimeOffset.MinValue.Day);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Day == DateTimeOffset.MinValue.AddDays(1).Day);
+      });
+    }
+
+    [Test]
+    public void ExtractDayMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
+        else {
+          // year overflow happens on server side because of timezone
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == 31);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Day == DateTimeOffset.MaxValue.AddDays(-1).Day);
+        }
+      });
+    }
+
+    [Test]
     public void ExtractHourTest()
     {
       ExecuteInsideSession((s) => {
@@ -81,6 +166,38 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Hour==wrongDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Hour==wrongMillisecondDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Hour==wrongDateTimeOffset.Hour);
+      });
+    }
+
+    [Test]
+    public void ExtractHourMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : localTimezone.Hours; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == serverSideHours);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Hour == DateTimeOffset.MinValue.AddHours(1).Hour);
+      });
+    }
+
+    [Test]
+    public void ExtractHourMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+
+      ExecuteInsideSession((s) => {
+        var serverSideHours = (localTimezone > TimeSpan.Zero)
+          ? localTimezone.Hours - 1  // positive zone
+          : (localTimezone < TimeSpan.Zero)
+            ? 23 + localTimezone.Hours // negative zone
+            : 23; // UTC
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == serverSideHours);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Hour == DateTimeOffset.MaxValue.AddHours(-1).Hour);
       });
     }
 
@@ -107,6 +224,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    public void ExtractMinuteMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Minute == DateTimeOffset.MinValue.Minute);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Minute == DateTimeOffset.MinValue.AddMinutes(1).Minute);
+      });
+    }
+
+    [Test]
+    public void ExtractMinuteMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Minute == DateTimeOffset.MaxValue.Minute);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Minute == DateTimeOffset.MaxValue.AddMinutes(-1).Minute);
+      });
+    }
+
+    [Test]
     public void ExtractSecondTest()
     {
       ExecuteInsideSession((s) => {
@@ -125,6 +262,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==wrongDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==wrongDateTimeOffset.Second);
+      });
+    }
+
+    [Test]
+    public void ExtractSecondMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Second == DateTimeOffset.MinValue.Second);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Second == DateTimeOffset.MinValue.AddSeconds(10).Second);
+      });
+    }
+
+    [Test]
+    public void ExtractSecondMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Second == DateTimeOffset.MaxValue.Second);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Second == DateTimeOffset.MaxValue.AddSeconds(-10).Second);
       });
     }
 
@@ -163,6 +320,36 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    public void ExtractDateMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Date == DateTimeOffset.MinValue.Date);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.Date == DateTimeOffset.MinValue.AddDays(1).Date);
+      });
+    }
+
+    [Test]
+    public void ExtractDateMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
+          // can't validate
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-1).Date);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.Date == DateTimeOffset.MaxValue.AddDays(-2).Date);
+        }
+      });
+    }
+
+    [Test]
     [TestCase("2018-10-30 12:15:32.123 +05:10")]
     [TestCase("2018-10-30 12:15:32.1234 +05:10")]
     [TestCase("2018-10-30 12:15:32.12345 +05:10")]
@@ -173,7 +360,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       Require.ProviderIs(StorageProvider.SqlServer);
       ExecuteInsideSession((s) => {
         var testDateTimeOffset =  DateTimeOffset.Parse(testValueString);
-        _ = new SingleDateTimeOffsetEntity() { MillisecondDateTimeOffset = testDateTimeOffset };
+        _ = new SingleDateTimeOffsetEntity(s) { MillisecondDateTimeOffset = testDateTimeOffset };
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date == testDateTimeOffset.Date);
       });
     }
@@ -187,6 +374,29 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay==wrongDateTimeOffset.TimeOfDay);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var minValueAdjusted = TryMoveToLocalTimeZone(DateTimeOffset.MinValue);
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.TimeOfDay == minValueAdjusted.TimeOfDay);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.TimeOfDay == DateTimeOffset.MinValue.AddMinutes(10).TimeOfDay);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        // year overflow on server side
+        var adjustedMaxValue = TryMoveToLocalTimeZone(DateTimeOffset.MaxValue.AddYears(-1).AddTicks(-9));
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.TimeOfDay == adjustedMaxValue.TimeOfDay);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.TimeOfDay == DateTimeOffset.MaxValue.AddMinutes(-10).TimeOfDay);
       });
     }
 
@@ -207,12 +417,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
 
-      ExecuteInsideSession(() => {
+      ExecuteInsideSession((s) => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
-        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
-        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == wrongDateTimeOffset.TimeOfDay.Ticks);
+        RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.TimeOfDay.Ticks == wrongDateTimeOffset.TimeOfDay.Ticks);
       });
     }
 
@@ -248,6 +458,33 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    public void ExtractDayOfYearMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfYear == DateTimeOffset.MinValue.DayOfYear);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfYear == DateTimeOffset.MinValue.AddDays(1).DayOfYear);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfYearMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.DayOfYear);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfYear == DateTimeOffset.MaxValue.AddDays(-1).DayOfYear);
+        }
+      });
+    }
+
+    [Test]
     public void ExtractDayOfWeekTest()
     {
       ExecuteInsideSession((s) => {
@@ -267,6 +504,33 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    public void ExtractDayOfWeekMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfWeek == DateTimeOffset.MinValue.DayOfWeek);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DayOfWeek == DateTimeOffset.MinValue.AddDays(1).DayOfWeek);
+      });
+    }
+
+    [Test]
+    public void ExtractDayOfWeekMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek + 1);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.DayOfWeek);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DayOfWeek == DateTimeOffset.MaxValue.AddDays(-1).DayOfWeek);
+        }
+      });
+    }
+
+    [Test]
     public void ExtractDateTimeTest()
     {
       ExecuteInsideSession((s) => {
@@ -282,6 +546,37 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.DateTime==wrongDateTimeOffset.DateTime);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.DateTime==wrongMillisecondDateTimeOffset.DateTime);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.DateTime==wrongDateTimeOffset.DateTime);
+      });
+    }
+
+    [Test]
+    public void ExtractDateTimeMinValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        var minValueAdjusted = TryMoveToLocalTimeZone(DateTimeOffset.MinValue);
+        RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DateTime == minValueAdjusted.DateTime);
+        RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MinValue.DateTime == DateTimeOffset.MinValue.AddDays(1).DateTime);
+      });
+    }
+
+    [Test]
+    public void ExtractDateTimeMaxValueTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        // overflow of year from 9999-12-31 to 10000-01-01 because of how postgre works with timezones
+        // can't validate
+        var overflowHappens = localTimezone > TimeSpan.Zero;
+        if (overflowHappens) {
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+        else {
+          RunTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.DateTime);
+          RunWrongTest<MinMaxDateTimeOffsetEntity>(s, c => c.MaxValue.DateTime == DateTimeOffset.MaxValue.AddDays(-1).DateTime);
+        }
+
       });
     }
 

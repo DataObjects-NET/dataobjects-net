@@ -30,7 +30,7 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override Expression Visit(Expression exp)
     {
-      if (exp is T && visitor!=null)
+      if (exp is T && visitor != null)
         exp = visitor((T) exp);
 
       return base.Visit(exp);
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.BulkOperations
 
     protected virtual Expression Visit(Expression exp)
     {
-      if (exp==null)
+      if (exp == null)
         return null;
       switch (exp.NodeType) {
         case ExpressionType.Negate:
@@ -127,8 +127,8 @@ namespace Xtensive.Orm.BulkOperations
       Expression left = Visit(b.Left);
       Expression right = Visit(b.Right);
       Expression conversion = Visit(b.Conversion);
-      if (left!=b.Left || right!=b.Right || conversion!=b.Conversion) {
-        if (b.NodeType==ExpressionType.Coalesce)
+      if (left != b.Left || right != b.Right || conversion != b.Conversion) {
+        if (b.NodeType == ExpressionType.Coalesce)
           return Expression.Coalesce(left, right, conversion as LambdaExpression);
         return Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
       }
@@ -154,16 +154,16 @@ namespace Xtensive.Orm.BulkOperations
       List<MemberBinding> list = null;
       for (int i = 0, n = original.Count; i < n; i++) {
         MemberBinding b = VisitBinding(original[i]);
-        if (list!=null)
+        if (list != null)
           list.Add(b);
-        else if (b!=original[i]) {
+        else if (b != original[i]) {
           list = new List<MemberBinding>(n);
           for (int j = 0; j < i; j++)
             list.Add(original[j]);
           list.Add(b);
         }
       }
-      if (list!=null)
+      if (list != null)
         return list;
       return original;
     }
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.BulkOperations
       Expression test = Visit(c.Test);
       Expression ifTrue = Visit(c.IfTrue);
       Expression ifFalse = Visit(c.IfFalse);
-      if (test!=c.Test || ifTrue!=c.IfTrue || ifFalse!=c.IfFalse)
+      if (test != c.Test || ifTrue != c.IfTrue || ifFalse != c.IfFalse)
         return Expression.Condition(test, ifTrue, ifFalse);
       return c;
     }
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.BulkOperations
     private ElementInit VisitElementInitializer(ElementInit initializer)
     {
       IEnumerable<Expression> arguments = VisitExpressionList(initializer.Arguments);
-      if (arguments!=initializer.Arguments)
+      if (arguments != initializer.Arguments)
         return Expression.ElementInit(initializer.AddMethod, arguments);
       return initializer;
     }
@@ -201,16 +201,16 @@ namespace Xtensive.Orm.BulkOperations
       List<ElementInit> list = null;
       for (int i = 0, n = original.Count; i < n; i++) {
         ElementInit init = VisitElementInitializer(original[i]);
-        if (list!=null)
+        if (list != null)
           list.Add(init);
-        else if (init!=original[i]) {
+        else if (init != original[i]) {
           list = new List<ElementInit>(n);
           for (int j = 0; j < i; j++)
             list.Add(original[j]);
           list.Add(init);
         }
       }
-      if (list!=null)
+      if (list != null)
         return list;
       return original;
     }
@@ -220,16 +220,16 @@ namespace Xtensive.Orm.BulkOperations
       List<Expression> list = null;
       for (int i = 0, n = original.Count; i < n; i++) {
         var p = Visit(original[i]);
-        if (list!=null)
+        if (list != null)
           list.Add(p);
-        else if (p!=original[i]) {
+        else if (p != original[i]) {
           list = new List<Expression>(n);
           for (int j = 0; j < i; j++)
             list.Add(original[j]);
           list.Add(p);
         }
       }
-      if (list!=null)
+      if (list != null)
         return list.AsReadOnly();
       return original;
     }
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       IEnumerable<Expression> args = VisitExpressionList(iv.Arguments);
       Expression expr = Visit(iv.Expression);
-      if (args!=iv.Arguments || expr!=iv.Expression)
+      if (args != iv.Arguments || expr != iv.Expression)
         return Expression.Invoke(expr, args);
       return iv;
     }
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.BulkOperations
     private Expression VisitLambda(LambdaExpression lambda)
     {
       Expression body = Visit(lambda.Body);
-      if (body!=lambda.Body)
+      if (body != lambda.Body)
         return FastExpression.Lambda(lambda.Type, body, lambda.Parameters);
       return lambda;
     }
@@ -255,15 +255,16 @@ namespace Xtensive.Orm.BulkOperations
     {
       NewExpression n = VisitNew(init.NewExpression);
       IEnumerable<ElementInit> initializers = VisitElementInitializerList(init.Initializers);
-      if (n!=init.NewExpression || initializers!=init.Initializers)
+      if (n != init.NewExpression || initializers != init.Initializers)
         return Expression.ListInit(n, initializers);
       return init;
     }
 
     private Expression VisitMemberAccess(MemberExpression m)
     {
-      Expression exp = Visit(m.Expression);
-      if (exp!=m.Expression)
+      var originalExpression = m.Expression;
+      Expression exp = Visit(originalExpression);
+      if (exp != originalExpression)
         return Expression.MakeMemberAccess(exp, m.Member);
       return m;
     }
@@ -271,7 +272,7 @@ namespace Xtensive.Orm.BulkOperations
     private MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
     {
       Expression e = Visit(assignment.Expression);
-      if (e!=assignment.Expression)
+      if (e != assignment.Expression)
         return Expression.Bind(assignment.Member, e);
       return assignment;
     }
@@ -280,7 +281,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       NewExpression n = VisitNew(init.NewExpression);
       IEnumerable<MemberBinding> bindings = VisitBindingList(init.Bindings);
-      if (n!=init.NewExpression || bindings!=init.Bindings)
+      if (n != init.NewExpression || bindings != init.Bindings)
         return Expression.MemberInit(n, bindings);
       return init;
     }
@@ -288,7 +289,7 @@ namespace Xtensive.Orm.BulkOperations
     private MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
       IEnumerable<ElementInit> initializers = VisitElementInitializerList(binding.Initializers);
-      if (initializers!=binding.Initializers)
+      if (initializers != binding.Initializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;
     }
@@ -296,7 +297,7 @@ namespace Xtensive.Orm.BulkOperations
     private MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       IEnumerable<MemberBinding> bindings = VisitBindingList(binding.Bindings);
-      if (bindings!=binding.Bindings)
+      if (bindings != binding.Bindings)
         return Expression.MemberBind(binding.Member, bindings);
       return binding;
     }
@@ -305,7 +306,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       Expression obj = Visit(m.Object);
       IEnumerable<Expression> args = VisitExpressionList(m.Arguments);
-      if (obj!=m.Object || args!=m.Arguments)
+      if (obj != m.Object || args != m.Arguments)
         return Expression.Call(obj, m.Method, args);
       return m;
     }
@@ -313,7 +314,7 @@ namespace Xtensive.Orm.BulkOperations
     private NewExpression VisitNew(NewExpression nex)
     {
       IEnumerable<Expression> args = VisitExpressionList(nex.Arguments);
-      if (args!=nex.Arguments)
+      if (args != nex.Arguments)
         return Expression.New(nex.Constructor, args, nex.Members);
       return nex;
     }
@@ -321,8 +322,8 @@ namespace Xtensive.Orm.BulkOperations
     private Expression VisitNewArray(NewArrayExpression na)
     {
       IEnumerable<Expression> exprs = VisitExpressionList(na.Expressions);
-      if (exprs!=na.Expressions) {
-        if (na.NodeType==ExpressionType.NewArrayInit)
+      if (exprs != na.Expressions) {
+        if (na.NodeType == ExpressionType.NewArrayInit)
           return Expression.NewArrayInit(na.Type.GetElementType(), exprs);
         return Expression.NewArrayBounds(na.Type.GetElementType(), exprs);
       }
@@ -337,7 +338,7 @@ namespace Xtensive.Orm.BulkOperations
     private Expression VisitTypeIs(TypeBinaryExpression b)
     {
       Expression expr = Visit(b.Expression);
-      if (expr!=b.Expression)
+      if (expr != b.Expression)
         return Expression.TypeIs(expr, b.TypeOperand);
       return b;
     }
@@ -345,7 +346,7 @@ namespace Xtensive.Orm.BulkOperations
     private Expression VisitUnary(UnaryExpression u)
     {
       Expression operand = Visit(u.Operand);
-      if (operand!=u.Operand)
+      if (operand != u.Operand)
         return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
       return u;
     }

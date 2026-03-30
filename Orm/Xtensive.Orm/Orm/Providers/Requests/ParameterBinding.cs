@@ -18,22 +18,14 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class ParameterBinding
   {
-    public TypeMapping TypeMapping { get; private set; }
+    public TypeMapping TypeMapping { get; }
 
-    public ParameterTransmissionType TransmissionType { get; private set; }
+    public ParameterTransmissionType TransmissionType { get; }
 
-    public SqlExpression ParameterReference { get; private set; }
+    public SqlExpression ParameterReference { get; }
 
-    public static IEnumerable<T> NormalizeBindings<T>(IEnumerable<T> bindings)
-      where T : ParameterBinding
-    {
-      if (bindings is null)
-        return Array.Empty<T>();
-      var normalized = bindings.ToArray();
-      if (normalized.Length == 0)
-        return Array.Empty<T>();
-      return normalized;
-    }
+    public static IReadOnlyCollection<T> NormalizeBindings<T>(IEnumerable<T> bindings) where T : ParameterBinding =>
+      bindings != null ? new HashSet<T>(bindings) : Array.Empty<T>();
 
 
     // Constructors

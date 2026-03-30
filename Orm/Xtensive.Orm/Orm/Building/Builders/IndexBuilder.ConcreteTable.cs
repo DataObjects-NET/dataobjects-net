@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Building.Builders
           continue;
         }
 
-        var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract); 
+        var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract);
         type.Indexes.Add(declaredIndex);
         if (!declaredIndex.IsAbstract) {
           context.Model.RealIndexes.Add(declaredIndex);
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Building.Builders
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.IsAbstract);
-       
+
         // Registering built primary index
         type.Indexes.Add(inheritedIndex);
         if (!inheritedIndex.IsAbstract) {
@@ -63,6 +63,7 @@ namespace Xtensive.Orm.Building.Builders
 
           var index = BuildInheritedIndex(type, parentIndex, type.IsAbstract);
           if ((parent != null && parent.Indexes.Contains(index.Name)) || type.Indexes.Contains(index.Name)) {
+            index.Dispose();
             continue;
           }
 
@@ -92,11 +93,9 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build primary virtual union index
       if (descendants.Count > 0) {
-        var indexesToUnion = new List<IndexInfo>(descendants.Count + 1) { type.Indexes.PrimaryIndex };
-        foreach (var index in descendants.Select(static t => t.Indexes.PrimaryIndex)) {
-          var indexView = BuildViewIndex(type, index);
-          indexesToUnion.Add(indexView);
-        }
+        var indexesToUnion = descendants.Select(t => BuildViewIndex(type, t.Indexes.PrimaryIndex))
+          .Prepend(type.Indexes.PrimaryIndex);
+
         var virtualPrimaryIndex = BuildUnionIndex(type, indexesToUnion);
         type.Indexes.Add(virtualPrimaryIndex);
 

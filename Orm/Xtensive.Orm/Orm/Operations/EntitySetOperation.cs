@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Operations
           throw new ArgumentOutOfRangeException(
             Strings.ExTypeOfXMustBeADescendantOfYType,
               fieldName,
-              WellKnownOrmTypes.EntitySetBase.GetShortName());
+              WellKnownOrmTypes.EntitySetBase.Name);
     }
 
     /// <inheritdoc/>

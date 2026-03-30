@@ -126,11 +126,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       try {
         if (!IsTransactionZombied()) {
-          ActiveTransaction.Rollback();
+          activeTransaction.Rollback();
         }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -143,11 +143,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       try {
         if (!IsTransactionZombied()) {
-          await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+          await activeTransaction.RollbackAsync(token).ConfigureAwait(false);
         }
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await activeTransaction.DisposeAsync().ConfigureAwait(false);
         ClearActiveTransaction();
       }
     }
@@ -353,7 +353,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private bool IsTransactionZombied()
     {
-      return ActiveTransaction != null && ActiveTransaction.Connection == null;
+      return activeTransaction.Connection == null;
     }
 
     // Constructors

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <inheritdoc/>
     public override bool Contains(HierarchyDef item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       return TryGetValue(item.Root) != null;
     }
 
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns><see cref="HierarchyDef"/> instance or <see langword="null"/> if hierarchy is not found.</returns>
     public HierarchyDef Find(TypeDef item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var itemUnderlyingType = item.UnderlyingType;
 
       HierarchyDef hierarchyDef;

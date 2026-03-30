@@ -39,7 +39,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public virtual void Remove(TItem item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       RemoveKey(KeyExtractor(item));
     }
 

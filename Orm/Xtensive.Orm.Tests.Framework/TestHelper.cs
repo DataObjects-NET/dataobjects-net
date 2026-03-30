@@ -5,8 +5,11 @@
 // Created:    2008.02.09
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
+using Xtensive.Sql.Dml;
+
 
 namespace Xtensive.Orm.Tests
 {
@@ -49,6 +52,14 @@ namespace Xtensive.Orm.Tests
     public static System.Configuration.Configuration GetConfigurationForAssembly(this object instanceOfTypeFromAssembly)
     {
       return instanceOfTypeFromAssembly.GetType().Assembly.GetAssemblyConfiguration();
+    }
+
+    public static DateTimeOffset AdjustDateTimeOffsetForCurrentProvider(this DateTimeOffset origin)
+    {
+      var baseDateTime = origin.DateTime;
+      var offset = origin.Offset;
+
+      return new DateTimeOffset(baseDateTime.AdjustDateTimeForCurrentProvider(), offset);
     }
 
     /// <summary>
@@ -123,7 +134,6 @@ namespace Xtensive.Orm.Tests
       return new DateTime(newTicks);
     }
 
-#if NET6_0_OR_GREATER
     /// <summary>
     /// Cuts down resolution of <see cref="TimeOnly"/> value if needed, according to current <see cref="StorageProviderInfo.Instance"/>.
     /// </summary>
@@ -167,7 +177,17 @@ namespace Xtensive.Orm.Tests
       var newTicks = ticks - (ticks % divider.Value);
       return new TimeOnly(newTicks);
     }
-#endif
+
+    public static void AddValueRow(this SqlInsert insert, in (SqlColumn column, SqlExpression value) first, params (SqlColumn column, SqlExpression value)[] additional)
+    {
+      var additional1 = additional ?? Array.Empty<(SqlColumn,SqlExpression)>();
+      var row = new Dictionary<SqlColumn, SqlExpression>(1 + additional1.Length);
+      row.Add(first.column, first.value);
+      foreach (var keyValue in additional1) {
+        row.Add(keyValue.column, keyValue.value);
+      }
+      insert.ValueRows.Add(row);
+    }
 
     /// <summary>
     /// Optimized Domain types registration of types from certain namespace.

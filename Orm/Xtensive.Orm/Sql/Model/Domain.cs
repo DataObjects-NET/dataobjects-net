@@ -79,10 +79,7 @@ namespace Xtensive.Sql.Model
     /// Gets the constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    public PairedNodeCollection<Domain, DomainConstraint> DomainConstraints
-    {
-      get { return constraints; }
-    }
+    public PairedNodeCollection<Domain, DomainConstraint> DomainConstraints => constraints;
 
     #region IConstrainable members
 
@@ -90,13 +87,7 @@ namespace Xtensive.Sql.Model
     /// Gets the constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    IList<Constraint> IConstrainable.Constraints
-    {
-      get
-      {
-        return constraints.ToArray().Convert(i => (Constraint)i);
-      }
-    }
+    IList<Constraint> IConstrainable.Constraints => constraints.SelectToArray(i => (Constraint) i);
 
     #endregion
 

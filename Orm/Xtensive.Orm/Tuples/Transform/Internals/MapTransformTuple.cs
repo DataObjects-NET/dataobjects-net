@@ -97,7 +97,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public MapTransformTuple(MapTransform transform, Tuple source)
     {
       this.transform = transform;
-      this.source = source;
+      this.source = source ?? throw new ArgumentNullException(nameof(source));
     }
   }
 }

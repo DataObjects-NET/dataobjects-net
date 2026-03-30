@@ -96,7 +96,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(catalogName, nameof(catalogName));
-      ArgumentValidator.EnsureArgumentNotNull(schemaNames, nameof(schemaNames));
+      ArgumentNullException.ThrowIfNull(schemaNames);
 
       var targetSchema = schemaNames.Length > 0 ? schemaNames[0] : null;
       var catalog = new Catalog(catalogName);
@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(catalogName, nameof(catalogName));
-      ArgumentValidator.EnsureArgumentNotNull(schemaNames, nameof(schemaNames));
+      ArgumentNullException.ThrowIfNull(schemaNames);
 
       var targetSchema = schemaNames.Length > 0 ? schemaNames[0] : null;
       var catalog = new Catalog(catalogName);

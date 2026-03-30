@@ -88,16 +88,6 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-    [Obsolete]
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-    {
-      var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase,
-        CommentLocation = configuration.TagsLocation.ToCommentLocation()
-      };
-      return underlyingDriver.Compile(statement, options);
-    }
-
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
@@ -105,7 +95,7 @@ namespace Xtensive.Orm.Providers
 
     public StorageDriver CreateNew(Domain domain)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain);
       return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), connectionAccessorFactories);
     }
 
@@ -200,7 +190,11 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
+#if NET8_0_OR_GREATER
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethodInvoker(type).Invoke(null);
+#else
         var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
+#endif
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }
@@ -219,8 +213,8 @@ namespace Xtensive.Orm.Providers
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(driverFactory);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
       var driverConfiguration = new SqlDriverConfiguration(accessors) {
@@ -238,8 +232,8 @@ namespace Xtensive.Orm.Providers
     public static async Task<StorageDriver> CreateAsync(
       SqlDriverFactory driverFactory, DomainConfiguration configuration, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(driverFactory);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
       var driverConfiguration = new SqlDriverConfiguration(accessors) {

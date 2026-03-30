@@ -21,10 +21,7 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      throw new NotImplementedException();
-    }
+    internal override SqlOpenCursor Clone(SqlNodeCloneContext context) => throw new NotImplementedException();
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

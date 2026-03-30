@@ -4,6 +4,7 @@
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
+using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
@@ -24,6 +25,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.AddYears(1) == FirstDateTime.AddYears(2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddYears(-1) == FirstMillisecondDateTime.AddYears(-2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddYears(33) == NullableDateTime.AddYears(44));
+      });
+    }
+
+    [Test]
+    public void MinMaxValueAddYearsTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddYears(5) == DateTime.MinValue.AddYears(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddYears(-5) == DateTime.MaxValue.AddYears(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddYears(5) == DateTime.MinValue.AddYears(2));
       });
     }
 
@@ -71,6 +84,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MinMaxValueAddMonthsTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMonths(5) == DateTime.MinValue.AddMonths(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMonths(-5) == DateTime.MaxValue.AddMonths(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMonths(5) == DateTime.MinValue.AddMonths(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMonths(-5) == DateTime.MaxValue.AddMonths(-2));
+      });
+    }
+
+    [Test]
     public void AddMonthsFirebirdTest()
     {
       Require.ProviderIs(StorageProvider.Firebird);
@@ -112,6 +138,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MinMaxValueAddDaysTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddDays(5) == DateTime.MinValue.AddDays(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddDays(-5) == DateTime.MaxValue.AddDays(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddDays(5) == DateTime.MinValue.AddDays(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddDays(-5) == DateTime.MaxValue.AddDays(-2));
+      });
+    }
+
+    [Test]
     public void AddHoursTest()
     {
       ExecuteInsideSession((s) => {
@@ -122,6 +161,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.AddHours(1) == FirstDateTime.AddHours(2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddHours(-1) == FirstMillisecondDateTime.AddHours(-2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.AddHours(33) == NullableDateTime.AddHours(44));
+      });
+    }
+
+    [Test]
+    public void MinMaxValueAddHoursTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddHours(5) == DateTime.MinValue.AddHours(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddHours(-5) == DateTime.MaxValue.AddHours(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddHours(5) == DateTime.MinValue.AddHours(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddHours(-5) == DateTime.MaxValue.AddHours(-2));
       });
     }
 
@@ -140,6 +192,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MinMaxValueAddMinutesTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMinutes(5) == DateTime.MinValue.AddMinutes(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMinutes(-5) == DateTime.MaxValue.AddMinutes(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMinutes(5) == DateTime.MinValue.AddMinutes(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMinutes(-5) == DateTime.MaxValue.AddMinutes(-2));
+      });
+    }
+
+    [Test]
     public void AddSecondsTest()
     {
       ExecuteInsideSession((s) => {
@@ -154,12 +219,38 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MinMaxValueAddSecondsTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddSeconds(5) == DateTime.MinValue.AddSeconds(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddSeconds(-5) == DateTime.MaxValue.AddSeconds(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddSeconds(5) == DateTime.MinValue.AddSeconds(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddSeconds(-5) == DateTime.MaxValue.AddSeconds(-2));
+      });
+    }
+
+    [Test]
     public void AddMillisecondsTest()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
       ExecuteInsideSession((s) => {
         RunTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddMilliseconds(-2) == FirstMillisecondDateTime.AddMilliseconds(-2));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.AddMilliseconds(-1) == FirstMillisecondDateTime.AddMilliseconds(-2));
+      });
+    }
+
+    [Test]
+    public void MinMaxValueAddMillisecondsTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMilliseconds(5) == DateTime.MinValue.AddMilliseconds(5));
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMilliseconds(-5) == DateTime.MaxValue.AddMilliseconds(-5));
+
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.AddMilliseconds(5) == DateTime.MinValue.AddMilliseconds(2));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.AddMilliseconds(-5) == DateTime.MaxValue.AddMilliseconds(-2));
       });
     }
 
@@ -178,6 +269,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MinValueAddTimeSpanTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Add(FirstOffset) == DateTime.MinValue.Add(FirstOffset));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue.Add(FirstOffset) == DateTime.MinValue.Add(WrongOffset));
+      });
+    }
+
+    [Test]
     public void SubtractTimeSpanTest()
     {
       ExecuteInsideSession((s) => {
@@ -188,6 +289,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime.Subtract(FirstOffset) == FirstDateTime.Subtract(WrongOffset));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime.Subtract(SecondOffset) == FirstMillisecondDateTime.Subtract(WrongOffset));
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime.Value.Subtract(FirstOffset) == NullableDateTime.Subtract(WrongOffset));
+      });
+    }
+
+    [Test]
+    public void MaxValueSubtractTimeSpanTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Subtract(FirstOffset) == DateTime.MaxValue.Subtract(FirstOffset));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Subtract(FirstOffset) == DateTime.MaxValue.Subtract(WrongOffset));
       });
     }
 
@@ -207,6 +318,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MaxValueSubtractDateTimeTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Subtract(SecondDateTime) == DateTime.MaxValue.Subtract(SecondDateTime));
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue.Subtract(SecondDateTime) == DateTime.MaxValue.Subtract(WrongDateTime));
+      });
+    }
+
+    [Test]
     public void PlusTimeSpanTest()
     {
       ExecuteInsideSession((s) => {
@@ -217,6 +338,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime + FirstOffset == FirstDateTime + WrongOffset);
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime + SecondOffset == FirstMillisecondDateTime + WrongOffset);
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime + FirstOffset == NullableDateTime + WrongOffset);
+      });
+    }
+
+    [Test]
+    public void MinValuePlusTimeSpanTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MinValue + FirstOffset == DateTime.MinValue + FirstOffset);
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MinValue + FirstOffset == DateTime.MinValue + WrongOffset);
       });
     }
 
@@ -235,6 +366,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     }
 
     [Test]
+    public void MaxValueMinusTimeSpanTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue - FirstOffset == DateTime.MaxValue - FirstOffset);
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue - FirstOffset == DateTime.MaxValue - WrongOffset);
+      });
+    }
+
+    [Test]
     public void MinusDateTimeTest()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
@@ -246,6 +387,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(s, c => c.DateTime - SecondDateTime == FirstDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(s, c => c.MillisecondDateTime - SecondDateTime == FirstMillisecondDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(s, c => c.NullableDateTime - SecondDateTime == NullableDateTime - WrongDateTime);
+      });
+    }
+
+    [Test]
+    public void MaxValueMinusDateTimeTest()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      ExecuteInsideSession((s) => {
+        RunTest<MinMaxDateTimeEntity>(s, c => c.MaxValue - SecondDateTime == DateTime.MaxValue - SecondDateTime);
+        RunWrongTest<MinMaxDateTimeEntity>(s, c => c.MaxValue - SecondDateTime == DateTime.MaxValue - WrongDateTime);
       });
     }
 

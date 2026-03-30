@@ -58,7 +58,7 @@ namespace Xtensive.Orm
     /// <returns>Combined version info.</returns>
     internal VersionInfo Concat(Key key, VersionInfo versionInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
 
       Tuple resultVersion = Value;
       if (resultVersion==null)

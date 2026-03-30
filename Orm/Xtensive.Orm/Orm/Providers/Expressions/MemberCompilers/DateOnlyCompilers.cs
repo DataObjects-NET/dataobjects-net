@@ -10,8 +10,6 @@ using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers
 {
-#if NET6_0_OR_GREATER
-
   [CompilerContainer(typeof(SqlExpression))]
   internal static class DateOnlyCompilers
   {
@@ -144,5 +142,4 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateToString(_this);
     }
   }
-#endif
 }

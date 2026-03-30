@@ -45,8 +45,8 @@ jobs:
     if: ${{ inputs.firebird30 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: firebird30
       build_config: Release
@@ -65,8 +65,8 @@ jobs:
     if: ${{ inputs.firebird40 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: firebird40
       build_config: Release
@@ -85,8 +85,8 @@ jobs:
     if: ${{ inputs.firebird50 }}
     strategy:
       matrix:
-        net: [ 'net5.0', 'net6.0' ]
-    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.1
+        net: [ 'net6.0', 'net7.0', 'net8.0' ]
+    uses: DataObjects-NET/dataobjects-net/.github/workflows/reusable-storage-dependant-tests.yml@7.2
     with:
       storage: firebird50
       build_config: Release

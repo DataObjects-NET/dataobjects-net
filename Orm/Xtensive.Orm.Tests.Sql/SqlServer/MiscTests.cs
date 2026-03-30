@@ -71,12 +71,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      MemoryStream ms = new MemoryStream();
-      BinaryFormatter bf = new BinaryFormatter();
-      bf.Serialize(ms, select);
+      using (var mStream = new MemoryStream()) {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(mStream, select);
 
-      ms.Seek(0, SeekOrigin.Begin);
-      select = (SqlSelect)bf.Deserialize(ms);
+        _ = mStream.Seek(0, SeekOrigin.Begin);
+        select = (SqlSelect) formatter.Deserialize(mStream);
+      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
@@ -359,7 +360,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     {
       SqlSelect select = SqlDml.Select();
       var table = Catalog.Schemas["Person"].Tables["Address"];
-      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", EnumerableUtils.One(table.Columns[0].Name).ToList(), EnumerableUtils.One(table.Columns[0].Name).ToList()));
+      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", new[] { table.Columns[0].Name }, new[] { table.Columns[0].Name }));
       select.Columns.Add(select.From.Asterisk);
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
@@ -371,7 +372,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var table = Catalog.Schemas["Person"].Tables["Address"];
       select.From = SqlDml.QueryRef( SqlDml.FreeTextTable(table,
         "How can I make my own beers",
-        EnumerableUtils.One(table.Columns[0].Name).ToList(),
+        new[] { table.Columns[0].Name },
         (SqlLiteral)5));
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return VisitCompilable(rootProvider);
     }
 
-    protected override Provider VisitAggregate(AggregateProvider provider)
+    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source.Aggregate(provider.GroupColumnIndexes, newDescriptors);
     }
 
-    protected override Provider VisitCalculate(CalculateProvider provider)
+    protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
       var visitedProvider = base.VisitCalculate(provider);
       calculateProviders.Add((CalculateProvider) visitedProvider);

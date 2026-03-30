@@ -587,7 +587,6 @@ namespace Xtensive.Tuples.Packed
        : base(GetSize() * 8, 17)
     { }
   }
-#if NET6_0_OR_GREATER
 
   internal sealed class DateOnlyFieldAccessor : ValueFieldAccessor<DateOnly>
   {
@@ -614,5 +613,4 @@ namespace Xtensive.Tuples.Packed
        : base(sizeof(long) * 8, 19)
     { }
   }
-#endif
 }

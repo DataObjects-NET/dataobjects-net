@@ -102,8 +102,7 @@ namespace Xtensive.Collections
     /// <param name="type">The type to register.</param>
     public TypeRegistration(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      this.type = type;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
     }
 
     /// <summary>
@@ -112,8 +111,7 @@ namespace Xtensive.Collections
     /// <param name="assembly">The assembly to register.</param>
     public TypeRegistration(Assembly assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      this.assembly = assembly;
+      this.assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
     }
 
     /// <summary>
@@ -124,8 +122,7 @@ namespace Xtensive.Collections
     public TypeRegistration(Assembly assembly, string @namespace)
       : this(assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
-      this.@namespace = @namespace;
+      this.@namespace = @namespace ?? throw new ArgumentNullException(nameof(@namespace));
     }
   }
 }
