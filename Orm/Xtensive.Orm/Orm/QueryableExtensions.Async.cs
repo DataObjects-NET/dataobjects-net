@@ -19,7 +19,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
-  public static partial class QueryableExtensions
+  public static partial class QueryableExtensionsEx
   {
     /// <summary>
     /// A wrapper to transform non-<see cref="IAsyncEnumerable{T}"/>, yet based on <see cref="QueryProvider"/>,

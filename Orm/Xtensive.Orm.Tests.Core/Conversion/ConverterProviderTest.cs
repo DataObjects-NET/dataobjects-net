@@ -17,13 +17,13 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     {
       IAdvancedConverterProvider provider = AdvancedConverterProvider.Default;
       AdvancedConverter<int, string> intStringAdvancedConverter = provider.GetConverter<int, string>();
-      Assert.AreEqual("Int32AdvancedConverter", intStringAdvancedConverter.Implementation.GetType().Name);
-      Assert.IsTrue(!(intStringAdvancedConverter.IsRough));
-      Assert.IsFalse(intStringAdvancedConverter.IsRough);
+      Assert.That(intStringAdvancedConverter.Implementation.GetType().Name, Is.EqualTo("Int32AdvancedConverter"));
+      Assert.That(!(intStringAdvancedConverter.IsRough), Is.True);
+      Assert.That(intStringAdvancedConverter.IsRough, Is.False);
       int intValue = 1234;
       string intToStringValue = intStringAdvancedConverter.Convert(intValue);
-      TestLog.Info("IntToString: {0} {1}", intValue, intToStringValue);
-      Assert.AreEqual(intValue.ToString(), intToStringValue);
+      TestLog.Info($"IntToString: {intValue} {intToStringValue}");
+      Assert.That(intToStringValue, Is.EqualTo(intValue.ToString()));
     }
 
     [Test]
@@ -32,8 +32,8 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       IAdvancedConverterProvider provider = new TestConverterProvider();
       AdvancedConverter<string, int> customStringToIntAdvancedConverter = provider.GetConverter<string, int>();
       AdvancedConverter<int, string> customIntToStringAdvancedConverter = provider.GetConverter<int, string>();
-      Assert.AreEqual(typeof(StringAdvancedConverter), customStringToIntAdvancedConverter.Implementation.GetType());
-      Assert.AreEqual(typeof(StringAdvancedConverter), customIntToStringAdvancedConverter.Implementation.GetType());
+      Assert.That(customStringToIntAdvancedConverter.Implementation.GetType(), Is.EqualTo(typeof(StringAdvancedConverter)));
+      Assert.That(customIntToStringAdvancedConverter.Implementation.GetType(), Is.EqualTo(typeof(StringAdvancedConverter)));
     }
   }
 }

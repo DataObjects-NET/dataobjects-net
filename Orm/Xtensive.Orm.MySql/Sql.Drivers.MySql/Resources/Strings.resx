@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -129,8 +129,8 @@
   <data name="ExInvalidBooleanStringX" xml:space="preserve">
     <value>Invalid Boolean String</value>
   </data>
-  <data name="ExMySqlBelow50IsNotSupported" xml:space="preserve">
-    <value>MySQL version below 5.0 is not supported.</value>
+  <data name="ExMySqlBelow57IsNotSupported" xml:space="preserve">
+    <value>MySQL version below 5.7 is not supported.</value>
   </data>
   <data name="ExUserNameRequired" xml:space="preserve">
     <value>MySQL Username is required.</value>

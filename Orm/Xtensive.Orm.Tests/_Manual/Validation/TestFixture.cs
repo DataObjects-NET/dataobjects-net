@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests._Manual.Validation
           Console.WriteLine("Following validation errors were found:");
           foreach (var errorInfo in exception.ValidationErrors)
             foreach (var error in errorInfo.Errors)
-              Console.WriteLine("{0}: {1}", errorInfo.Target, error.ErrorMessage);
+              Console.WriteLine($"{errorInfo.Target}: {error.ErrorMessage}");
         }
       }
     }

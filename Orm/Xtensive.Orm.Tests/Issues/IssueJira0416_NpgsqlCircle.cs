@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlCircle>()
             .Where(e => e.Circle.Center!=otherCircle.Center);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlCircle>()
             .Where(e => e.Circle.Radius==circle.Radius);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlCircle>()
             .Where(e => e.Circle==e.Circle);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = session.Query.All<EntityWithNpgsqlCircle>()
             .Where(e => e.Circle!=e.OtherCircle);
 
-          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+          Assert.That(query.ToList().FirstOrDefault()!=null, Is.True);
 
           t.Complete();
         }

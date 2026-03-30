@@ -49,46 +49,46 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
           orderby p.Name
           select p
           ).ToList();
-        Assert.AreEqual(3, persons.Count);
+        Assert.That(persons.Count, Is.EqualTo(3));
 
         var none = persons[1];
         var person1 = persons[2];
         var person2 = persons[0];
         var person3 = new Person() { Friend = person1 };
 
-        Assert.IsNull(person3.Name);
+        Assert.That(person3.Name, Is.Null);
         person3.Name = string.Empty;
 
         persons.Add(person3);
         Session.Demand().SaveChanges();
 
-        Assert.AreEqual("Person", person1.Name);
-        Assert.AreEqual(30, person1.Age);
-        Assert.AreEqual(person2, person1.Friend);
+        Assert.That(person1.Name, Is.EqualTo("Person"));
+        Assert.That(person1.Age, Is.EqualTo(30));
+        Assert.That(person1.Friend, Is.EqualTo(person2));
         AssertEx.HasSameElements(new byte[] { 1, 2, 3 }, person1.Bytes);
 
-        Assert.AreEqual(string.Empty, person2.Name);
-        Assert.AreEqual(-1, person2.Age);
-        Assert.AreEqual(person1, person2.Friend);
+        Assert.That(person2.Name, Is.EqualTo(string.Empty));
+        Assert.That(person2.Age, Is.EqualTo(-1));
+        Assert.That(person2.Friend, Is.EqualTo(person1));
 
-        Assert.AreEqual(string.Empty, person3.Name);
-        Assert.AreEqual(-1, person3.Age);
-        Assert.AreEqual(person1, person3.Friend);
+        Assert.That(person3.Name, Is.EqualTo(string.Empty));
+        Assert.That(person3.Age, Is.EqualTo(-1));
+        Assert.That(person3.Friend, Is.EqualTo(person1));
 
-        Assert.AreEqual("None", none.Name);
-        Assert.AreEqual(-1, none.Age);
-        Assert.AreEqual(none, none.Friend);
+        Assert.That(none.Name, Is.EqualTo("None"));
+        Assert.That(none.Age, Is.EqualTo(-1));
+        Assert.That(none.Friend, Is.EqualTo(none));
 
         foreach (var person in persons) {
-          Assert.AreEqual("A", person.DefaultTest1);
-          Assert.AreEqual(1, person.DefaultTest2);
-          Assert.AreEqual(new DateTime(1900, 01, 01), person.DefaultTest3);
+          Assert.That(person.DefaultTest1, Is.EqualTo("A"));
+          Assert.That(person.DefaultTest2, Is.EqualTo(1));
+          Assert.That(person.DefaultTest3, Is.EqualTo(new DateTime(1900, 01, 01)));
           if (person.Bytes.Length != 3)
             AssertEx.HasSameElements(new byte[] { 0 }, person.Bytes);
           // Structure defaults test
-          Assert.AreEqual("A", person.DefaultTest4.DefaultTest1);
-          Assert.AreEqual(1, person.DefaultTest4.DefaultTest2);
-          Assert.AreEqual(new DateTime(1900, 01, 01), person.DefaultTest4.DefaultTest3);
+          Assert.That(person.DefaultTest4.DefaultTest1, Is.EqualTo("A"));
+          Assert.That(person.DefaultTest4.DefaultTest2, Is.EqualTo(1));
+          Assert.That(person.DefaultTest4.DefaultTest3, Is.EqualTo(new DateTime(1900, 01, 01)));
         }
       }
     }

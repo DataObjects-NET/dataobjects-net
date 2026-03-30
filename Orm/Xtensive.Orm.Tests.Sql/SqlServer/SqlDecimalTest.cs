@@ -121,12 +121,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         list.Add(counter.ElapsedMilliseconds);
       }
 
-      Console.WriteLine(
-        "Val:{0}  Scale:{1}  Min:{2}  Avg:{3}",
-        sqlDecimal,
-        sqlDecimal.Scale,
-        list.Min(),
-        list.Average());
+      Console.WriteLine($"Val:{sqlDecimal}  Scale:{sqlDecimal.Scale}  Min:{list.Min()}  Avg:{list.Average()}");
     }
 
     [Test]
@@ -267,11 +262,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         ? (ordered[length / 2] + ordered[(length / 2) - 1]) / 2
         : ordered[length / 2];
 
-      Console.WriteLine("Runs   : {0}", length);
-      Console.WriteLine("Min    : {0}", ordered[0]);
-      Console.WriteLine("Max    : {0}", ordered[length - 1]);
-      Console.WriteLine("Average: {0}", rawData.Average());
-      Console.WriteLine("Median : {0}", median);
+      Console.WriteLine($"Runs   : {length}");
+      Console.WriteLine($"Min    : {ordered[0]}");
+      Console.WriteLine($"Max    : {ordered[length - 1]}");
+      Console.WriteLine($"Average: {rawData.Average()}");
+      Console.WriteLine($"Median : {median}");
 
 
       Console.WriteLine();
@@ -280,7 +275,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine("-------------------------");
 
       for (var i = 0; i < rawData.Length; i++) {
-        Console.WriteLine("#{0} : {1}", (i + 1).ToString("0000"), rawData[i]);
+        Console.WriteLine($"#{(i + 1).ToString("0000")} : {rawData[i]}");
       }
     }
   }

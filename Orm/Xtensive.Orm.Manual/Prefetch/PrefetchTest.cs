@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
-          Assert.IsTrue(DirectStateAccessor.Get(person.Employees).IsFullyLoaded);
+          Assert.That(DirectStateAccessor.Get(person.Employees).IsFullyLoaded, Is.True);
           foreach (var employee in person.Employees) {
             Assert.That(DirectStateAccessor.Get(employee).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           var accessor = DirectStateAccessor.Get(person);
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
-          Assert.IsTrue(DirectStateAccessor.Get(person.Employees).IsFullyLoaded);
+          Assert.That(DirectStateAccessor.Get(person.Employees).IsFullyLoaded, Is.True);
           foreach (var employee in person.Employees) {
             Assert.That(DirectStateAccessor.Get(employee).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
@@ -323,7 +323,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...
@@ -367,7 +367,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...
@@ -411,7 +411,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...
@@ -455,7 +455,7 @@ namespace Xtensive.Orm.Manual.Prefetch
           Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
           if (person.ManagerKey != null) {
-            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(session)[person.ManagerKey], Is.Not.Null);
             Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
           }
           // some code here...

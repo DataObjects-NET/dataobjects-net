@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var t = session.OpenTransaction()) {
         for (byte i = 0; i < 10; i++) {
           _ = new User {
-            Name = string.Format("name_{0}", i),
+            Name = $"name_{i}",
             Photo = new byte[] { i, i, i }
           };
         }
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
         var usersQuery = session.Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
         var key = new byte[] { 1, 1, 1 };
         var result = session.Query.All<User>().Where(user => user.Photo == key).ToList();
-        Assert.Greater(result.Count, 0);
+        Assert.That(result.Count, Is.GreaterThan(0));
       }
     }
   }

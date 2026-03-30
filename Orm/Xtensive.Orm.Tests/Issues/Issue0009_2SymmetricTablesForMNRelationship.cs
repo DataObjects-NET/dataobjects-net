@@ -56,10 +56,10 @@ namespace Xtensive.Orm.Tests.Issues
           var author = new Author();
           book.Authors.Add(author);
 
-          Assert.AreEqual(1, book.Authors.Count);
-          Assert.AreEqual(1, author.Books.Count);
-          Assert.IsTrue(book.Authors.Contains(author));
-          Assert.IsTrue(author.Books.Contains(book));
+          Assert.That(book.Authors.Count, Is.EqualTo(1));
+          Assert.That(author.Books.Count, Is.EqualTo(1));
+          Assert.That(book.Authors.Contains(author), Is.True);
+          Assert.That(author.Books.Contains(book), Is.True);
           t.Complete();
         }
       }

@@ -87,8 +87,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
         tx.Complete();
       }
 
-      Console.WriteLine("{0}, LockingMode={1}, IsolationLevel = {2}", LockingTestName, lockingMode, isolationLevel);
-      Console.WriteLine("{0}", remark);
+      Console.WriteLine($"{LockingTestName}, LockingMode={lockingMode}, IsolationLevel = {isolationLevel}");
+      Console.WriteLine($"{remark}");
       ThreadPool.QueueUserWorkItem(TestThread, 500);
       ThreadPool.QueueUserWorkItem(TestThread, 333);
       WaitForCompletion();
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
       using (var session = GetDomain().OpenSession())
       using (var tx = session.OpenTransaction()) {
         var counter = session.Query.Single<Counter>(counterKey);
-        Console.WriteLine("Final counter.Value = {0}", counter.Value);
+        Console.WriteLine($"Final counter.Value = {counter.Value}");
         tx.Complete();
       }
 
@@ -113,39 +113,38 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
         using (var session = GetDomain().OpenSession()) {
           while ((DateTime.UtcNow - startTime).TotalMilliseconds < TestTime) {
             try {
-              Console.WriteLine("{0}: beginning of transaction", threadName);
+              Console.WriteLine($"{threadName}: beginning of transaction");
               using (var tx = session.OpenTransaction(isolationLevel)) {
                 Counter counter;
                 if (lockingMode!=LockingMode.QueryLock) {
-                  Console.WriteLine("{0}:   reading shared counter", threadName);
+                  Console.WriteLine($"{threadName}:   reading shared counter");
                   counter = session.Query.Single<Counter>(counterKey);
                   if (lockingMode==LockingMode.EntityLock) {
-                    Console.WriteLine("{0}:   locking counter", threadName);
+                    Console.WriteLine($"{threadName}:   locking counter");
                     counter.Lock(LockMode.Exclusive, LockBehavior.Wait);
-                    Console.WriteLine("{0}:   counter is locked", threadName);
+                    Console.WriteLine($"{threadName}:   counter is locked");
                   }
                 }
                 else {
-                  Console.WriteLine("{0}:   reading & locking shared counter", threadName);
+                  Console.WriteLine($"{threadName}:   reading & locking shared counter");
                   counter = session.Query.All<Counter>()
                     .Where(c => c.Key==counterKey)
                     .Lock(LockMode.Exclusive, LockBehavior.Wait)
                     .Single();
                 }
-                Console.WriteLine("{0}:   delay ({1}ms)", threadName, delay);
+                Console.WriteLine($"{threadName}:   delay ({delay}ms)");
                 Thread.Sleep(delay);
-                Console.WriteLine("{0}:   incrementing counter", threadName);
+                Console.WriteLine($"{threadName}:   incrementing counter");
                 counter.Value++;
-                Console.WriteLine("{0}:   counter.Value = {1}", threadName, counter.Value);
-                Console.WriteLine("{0}:   committing transaction", threadName);
+                Console.WriteLine($"{threadName}:   counter.Value = {counter.Value}");
+                Console.WriteLine($"{threadName}:   committing transaction");
                 tx.Complete();
               }
-              Console.WriteLine("{0}: transaction is committed", threadName);
+              Console.WriteLine($"{threadName}: transaction is committed");
             }
             catch (Exception e) {
-              Console.WriteLine("{0}:   error: {1}", 
-                threadName, e.GetType().GetShortName());
-              Console.WriteLine("{0}: transaction is rolled back", threadName);
+              Console.WriteLine($"{threadName}:   error: {e.GetType().GetShortName()}");
+              Console.WriteLine($"{threadName}: transaction is rolled back");
             }
           }
         }

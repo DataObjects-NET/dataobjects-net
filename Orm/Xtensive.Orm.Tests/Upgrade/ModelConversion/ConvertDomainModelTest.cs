@@ -44,15 +44,22 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof (Handler));
 
       Domain.DisposeSafely();
-      Domain = Domain.Build(configuration);
-      return Domain;
+      return Domain.Build(configuration);
     }
 
     [SetUp]
     public virtual void SetUp()
     {
-      BuildDomain();
+      Domain = BuildDomain();
       Schema = Handler.TargetStorageModel;
+    }
+
+    [TearDown]
+    public virtual void TearDown()
+    {
+      if (Domain != null) {
+        Domain.Dispose();
+      }
     }
 
     [Test]
@@ -60,36 +67,34 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       int typeIdCount = IncludeTypeIdModifier.IsEnabled ? 1 : 0;
 
-      Assert.IsNotNull(Schema);
-      Assert.IsNotNull(Schema.Tables["A"]);
-      Assert.IsNotNull(Schema.Tables["A"].PrimaryIndex);
-      Assert.AreEqual(1 + typeIdCount, Schema.Tables["A"].PrimaryIndex.KeyColumns.Count);
-      Assert.AreEqual(3, Schema.Tables["A"].PrimaryIndex.ValueColumns.Count);
-      Assert.AreEqual(1, Schema.Tables["A"].SecondaryIndexes.Count);
-      Assert.AreEqual(2, Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count);
-      Assert.IsTrue(Schema.Tables["A"].SecondaryIndexes[0].IsUnique);
+      Assert.That(Schema, Is.Not.Null);
+      Assert.That(Schema.Tables["A"], Is.Not.Null);
+      Assert.That(Schema.Tables["A"].PrimaryIndex, Is.Not.Null);
+      Assert.That(Schema.Tables["A"].PrimaryIndex.KeyColumns.Count, Is.EqualTo(1 + typeIdCount));
+      Assert.That(Schema.Tables["A"].PrimaryIndex.ValueColumns.Count, Is.EqualTo(3));
+      Assert.That(Schema.Tables["A"].SecondaryIndexes.Count, Is.EqualTo(1));
+      Assert.That(Schema.Tables["A"].SecondaryIndexes[0].KeyColumns.Count, Is.EqualTo(2));
+      Assert.That(Schema.Tables["A"].SecondaryIndexes[0].IsUnique, Is.True);
 
       // SQLite does not use lenght constraints for varchar types
       if (Domain.StorageProviderInfo.ProviderName!=WellKnown.Provider.Sqlite)
-        Assert.AreEqual(new StorageTypeInfo(typeof (string), null, 125), Schema.Tables["A"].Columns["Col3"].Type);
+        Assert.That(Schema.Tables["A"].Columns["Col3"].Type, Is.EqualTo(new StorageTypeInfo(typeof (string), null, 125)));
 
-      Assert.IsNotNull(Schema.Tables["B"]);
-      Assert.IsNotNull(Schema.Tables["B"].PrimaryIndex);
-      Assert.AreEqual(1 + typeIdCount, Schema.Tables["B"].PrimaryIndex.KeyColumns.Count);
-      Assert.AreEqual(2, Schema.Tables["B"].PrimaryIndex.ValueColumns.Count);
-      Assert.AreEqual(1, Schema.Tables["B"].SecondaryIndexes.Count);
-      Assert.IsFalse(Schema.Tables["B"].SecondaryIndexes[0].IsUnique);
+      Assert.That(Schema.Tables["B"], Is.Not.Null);
+      Assert.That(Schema.Tables["B"].PrimaryIndex, Is.Not.Null);
+      Assert.That(Schema.Tables["B"].PrimaryIndex.KeyColumns.Count, Is.EqualTo(1 + typeIdCount));
+      Assert.That(Schema.Tables["B"].PrimaryIndex.ValueColumns.Count, Is.EqualTo(2));
+      Assert.That(Schema.Tables["B"].SecondaryIndexes.Count, Is.EqualTo(1));
+      Assert.That(Schema.Tables["B"].SecondaryIndexes[0].IsUnique, Is.False);
     }
 
     [Test]
     public virtual void IncludedColumnsTest()
     {
       if (Domain.StorageProviderInfo.Supports(ProviderFeatures.IncludedColumns))
-        Assert.AreEqual(1,
-          Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
+        Assert.That(Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count, Is.EqualTo(1));
       else
-        Assert.AreEqual(0,
-          Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count);
+        Assert.That(Schema.Tables["A"].SecondaryIndexes[0].IncludedColumns.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -99,18 +104,17 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var isConcreteTable = Domain.Model.Types["B"].Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable;
       if (!isConcreteTable) {
-        Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);
-        Assert.AreEqual(Schema.Tables["A"].PrimaryIndex,
-          Schema.Tables["B"].ForeignKeys[0].PrimaryKey);
+        Assert.That(Schema.Tables["B"].ForeignKeys.Count, Is.EqualTo(1));
+        Assert.That(Schema.Tables["B"].ForeignKeys[0].PrimaryKey, Is.EqualTo(Schema.Tables["A"].PrimaryIndex));
       }
       else
-        Assert.AreEqual(1, Schema.Tables["B"].ForeignKeys.Count);
+        Assert.That(Schema.Tables["B"].ForeignKeys.Count, Is.EqualTo(1));
     }
 
     [Test]
     public void GeneratorsTest()
     {
-      Assert.AreEqual(1, Schema.Sequences.Count);
+      Assert.That(Schema.Sequences.Count, Is.EqualTo(1));
     }
   }
 }

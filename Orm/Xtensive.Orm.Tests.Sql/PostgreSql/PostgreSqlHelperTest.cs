@@ -176,18 +176,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     private static bool TryFindSystemTimeZoneById(string id, out TimeZoneInfo timeZoneInfo)
     {
-#if NET8_0_OR_GREATER
       return TimeZoneInfo.TryFindSystemTimeZoneById(id, out timeZoneInfo);
-#else
-      try {
-        timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(id);
-        return true;
-      }
-      catch {
-        timeZoneInfo = null;
-        return false;
-      }
-#endif
     }
   }
 }

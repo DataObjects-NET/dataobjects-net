@@ -295,7 +295,7 @@ namespace Xtensive.Caching
       finally {
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
-          CoreLog.Debug("WeakestCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
+          CoreLog.Debug($"WeakestCache.CollectGarbage: removed: {removedCount} from {count}");
           if (error!=null)
             CoreLog.Debug(error, "Caught at WeakestCache.CollectGarbage");
         }

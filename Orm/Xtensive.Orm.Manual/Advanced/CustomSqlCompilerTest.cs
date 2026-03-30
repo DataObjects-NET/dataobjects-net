@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
             .Select(p => p.Name.GetThirdChar())
             .OrderBy(thirdChar => thirdChar)
             .ToList();
-          Assert.IsTrue(thirdChars.SequenceEqual(new[] {'a','r'}));
+          Assert.That(thirdChars.SequenceEqual(new[] {'a','r'}), Is.True);
         }
       }
     }
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
             .Select(p => CustomSqlCompilerStringExtensions.BuildAddressString(
               p.Address.Country, p.Address.City, p.Address.Building))
             .OrderBy(a=>a);
-          Assert.IsTrue(addresses.SequenceEqual(expectedAddresses));
+          Assert.That(addresses.SequenceEqual(expectedAddresses), Is.True);
         }
       }
     }

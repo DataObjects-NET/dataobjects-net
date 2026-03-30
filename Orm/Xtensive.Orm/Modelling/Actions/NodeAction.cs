@@ -90,7 +90,7 @@ namespace Xtensive.Modelling.Actions
       var parameters = new List<Pair<string>>();
       GetParameters(parameters);
       foreach (var kvp in parameters)
-        sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
+        sb.AppendFormat($", {kvp.First}={kvp.Second}");
       if (this is GroupingNodeAction)
         sb.Append("]");
       var nestedActions = GetNestedActions();

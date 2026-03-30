@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -33,42 +33,42 @@ namespace Xtensive.Orm.Tests.Core.Logging
       var logger = manager.GetLog("LogName");
 
       logger.Debug("Test message", null);
-      logger.Debug("Test message with parameter {0}", new object[] { 1 });
+      logger.Debug($"Test message with parameter {new object[] { 1 }}");
       logger.Debug("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Debug("Test message", new object[] { 1 });
-      logger.Debug("Test message {0}", null);
+      logger.Debug($"Test message {(object[]) null}");
       logger.Debug(null, null, new Exception("exception"));
       logger.Debug(null, new object[] { 1 });
 
       logger.Info("Test message", null);
-      logger.Info("Test message with parameter {0}", new object[] { 1 });
+      logger.Info($"Test message with parameter {new object[] { 1 }}");
       logger.Info("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Info("Test message", new object[] { 1 });
-      logger.Info("Test message {0}", null);
+      logger.Info($"Test message {(object[]) null}");
       logger.Info(null, null, new Exception("exception"));
       logger.Info(null, new object[] { 1 });
 
       logger.Warning("Test message", null);
-      logger.Warning("Test message with parameter {0}", new object[] { 1 });
+      logger.Warning($"Test message with parameter {new object[] { 1 }}");
       logger.Warning("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Warning("Test message", new object[] { 1 });
-      logger.Warning("Test message {0}", null);
+      logger.Warning($"Test message {(object[]) null}");
       logger.Warning(null, null, new Exception("exception"));
       logger.Warning(null, new object[] { 1 });
 
       logger.Error("Test message", null);
-      logger.Error("Test message with parameter {0}", new object[] { 1 });
+      logger.Error($"Test message with parameter {new object[] { 1 }}");
       logger.Error("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Error("Test message", new object[] { 1 });
-      logger.Error("Test message {0}", null);
+      logger.Error($"Test message {(object[]) null}");
       logger.Error(null, null, new Exception("exception"));
       logger.Error(null, new object[] { 1 });
 
       logger.FatalError("Test message", null);
-      logger.FatalError("Test message with parameter {0}", new object[] { 1 });
+      logger.FatalError($"Test message with parameter {new object[] { 1 }}");
       logger.FatalError("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.FatalError("Test message", new object[] { 1 });
-      logger.FatalError("Test message {0}", null);
+      logger.FatalError($"Test message {(object[]) null}");
       logger.FatalError(null, null, new Exception("exception"));
       logger.FatalError(null, new object[] { 1 });
     }
@@ -83,42 +83,42 @@ namespace Xtensive.Orm.Tests.Core.Logging
       var logger = manager.GetLog("SomeLogName");
 
       logger.Debug("Test message", null);
-      logger.Debug("Test message with parameter {0}", new object[] { 1 });
+      logger.Debug($"Test message with parameter {new object[] { 1 }}");
       logger.Debug("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Debug("Test message", new object[] { 1 });
-      logger.Debug("Test message {0}", null);
+      logger.Debug($"Test message {(object[]) null}");
       logger.Debug(null, null, new Exception("exception"));
       logger.Debug(null, new object[] { 1 });
 
       logger.Info("Test message", null);
-      logger.Info("Test message with parameter {0}", new object[] { 1 });
+      logger.Info($"Test message with parameter {new object[] { 1 }}");
       logger.Info("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Info("Test message", new object[] { 1 });
-      logger.Info("Test message {0}", null);
+      logger.Info($"Test message {(object[]) null}");
       logger.Info(null, null, new Exception("exception"));
       logger.Info(null, new object[] { 1 });
 
       logger.Warning("Test message", null);
-      logger.Warning("Test message with parameter {0}", new object[] { 1 });
+      logger.Warning($"Test message with parameter {new object[] { 1 }}");
       logger.Warning("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Warning("Test message", new object[] { 1 });
-      logger.Warning("Test message {0}", null);
+      logger.Warning($"Test message {(object[]) null}");
       logger.Warning(null, null, new Exception("exception"));
       logger.Warning(null, new object[] { 1 });
 
       logger.Error("Test message", null);
-      logger.Error("Test message with parameter {0}", new object[] { 1 });
+      logger.Error($"Test message with parameter {new object[] { 1 }}");
       logger.Error("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Error("Test message", new object[] { 1 });
-      logger.Error("Test message {0}", null);
+      logger.Error($"Test message {(object[]) null}");
       logger.Error(null, null, new Exception("exception"));
       logger.Error(null, new object[] { 1 });
 
       logger.FatalError("Test message", null);
-      logger.FatalError("Test message with parameter {0}", new object[] { 1 });
+      logger.FatalError($"Test message with parameter {new object[] { 1 }}");
       logger.FatalError("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.FatalError("Test message", new object[] { 1 });
-      logger.FatalError("Test message {0}", null);
+      logger.FatalError($"Test message {(object[]) null}");
       logger.FatalError(null, null, new Exception("exception"));
       logger.FatalError(null, new object[] { 1 });
     }
@@ -137,47 +137,47 @@ namespace Xtensive.Orm.Tests.Core.Logging
       var logger = manager.GetLog("FileLog");
 
       logger.Debug("Test message", null);
-      logger.Debug("Test message with parameter {0}", new object[] { 1 });
+      logger.Debug($"Test message with parameter {new object[] { 1 }}");
       logger.Debug("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Debug("Test message", new object[] { 1 });
-      logger.Debug("Test message {0}", null);
+      logger.Debug($"Test message {(object[]) null}");
       logger.Debug(null, null, new Exception("exception"));
       logger.Debug(null, new object[] { 1 });
 
       logger.Info("Test message", null);
-      logger.Info("Test message with parameter {0}", new object[] { 1 });
+      logger.Info($"Test message with parameter {new object[] { 1 }}");
       logger.Info("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Info("Test message", new object[] { 1 });
-      logger.Info("Test message {0}", null);
+      logger.Info($"Test message {(object[]) null}");
       logger.Info(null, null, new Exception("exception"));
       logger.Info(null, new object[] { 1 });
 
       logger.Warning("Test message", null);
-      logger.Warning("Test message with parameter {0}", new object[] { 1 });
+      logger.Warning($"Test message with parameter {new object[] { 1 }}");
       logger.Warning("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Warning("Test message", new object[] { 1 });
-      logger.Warning("Test message {0}", null);
+      logger.Warning($"Test message {(object[]) null}");
       logger.Warning(null, null, new Exception("exception"));
       logger.Warning(null, new object[] { 1 });
 
       logger.Error("Test message", null);
-      logger.Error("Test message with parameter {0}", new object[] { 1 });
+      logger.Error($"Test message with parameter {new object[] { 1 }}");
       logger.Error("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Error("Test message", new object[] { 1 });
-      logger.Error("Test message {0}", null);
+      logger.Error($"Test message {(object[]) null}");
       logger.Error(null, null, new Exception("exception"));
       logger.Error(null, new object[] { 1 });
 
       logger.FatalError("Test message", null);
-      logger.FatalError("Test message with parameter {0}", new object[] { 1 });
+      logger.FatalError($"Test message with parameter {new object[] { 1 }}");
       logger.FatalError("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.FatalError("Test message", new object[] { 1 });
-      logger.FatalError("Test message {0}", null);
+      logger.FatalError($"Test message {(object[]) null}");
       logger.FatalError(null, null, new Exception("exception"));
       logger.FatalError(null, new object[] { 1 });
 
-      Assert.IsTrue(File.Exists(filePath));
-      Assert.AreEqual(File.ReadAllLines(filePath).Count(), 35);
+      Assert.That(File.Exists(filePath), Is.True);
+      Assert.That(File.ReadAllLines(filePath).Count(), Is.EqualTo(35));
     }
 
     [Test]
@@ -191,47 +191,47 @@ namespace Xtensive.Orm.Tests.Core.Logging
       var logger = manager.GetLog("FileLog");
 
       logger.Debug("Test message", null);
-      logger.Debug("Test message with parameter {0}", new object[] { 1 });
+      logger.Debug($"Test message with parameter {new object[] { 1 }}");
       logger.Debug("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Debug("Test message", new object[] { 1 });
-      logger.Debug("Test message {0}", null);
+      logger.Debug($"Test message {(object[]) null}");
       logger.Debug(null, null, new Exception("exception"));
       logger.Debug(null, new object[] { 1 });
 
       logger.Info("Test message", null);
-      logger.Info("Test message with parameter {0}", new object[] { 1 });
+      logger.Info($"Test message with parameter {new object[] { 1 }}");
       logger.Info("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Info("Test message", new object[] { 1 });
-      logger.Info("Test message {0}", null);
+      logger.Info($"Test message {(object[]) null}");
       logger.Info(null, null, new Exception("exception"));
       logger.Info(null, new object[] { 1 });
 
       logger.Warning("Test message", null);
-      logger.Warning("Test message with parameter {0}", new object[] { 1 });
+      logger.Warning($"Test message with parameter {new object[] { 1 }}");
       logger.Warning("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Warning("Test message", new object[] { 1 });
-      logger.Warning("Test message {0}", null);
+      logger.Warning($"Test message {(object[]) null}");
       logger.Warning(null, null, new Exception("exception"));
       logger.Warning(null, new object[] { 1 });
 
       logger.Error("Test message", null);
-      logger.Error("Test message with parameter {0}", new object[] { 1 });
+      logger.Error($"Test message with parameter {new object[] { 1 }}");
       logger.Error("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.Error("Test message", new object[] { 1 });
-      logger.Error("Test message {0}", null);
+      logger.Error($"Test message {(object[]) null}");
       logger.Error(null, null, new Exception("exception"));
       logger.Error(null, new object[] { 1 });
 
       logger.FatalError("Test message", null);
-      logger.FatalError("Test message with parameter {0}", new object[] { 1 });
+      logger.FatalError($"Test message with parameter {new object[] { 1 }}");
       logger.FatalError("Test message with parameter {0}", new object[] { 1 }, new Exception("exception"));
       logger.FatalError("Test message", new object[] { 1 });
-      logger.FatalError("Test message {0}", null);
+      logger.FatalError($"Test message {(object[]) null}");
       logger.FatalError(null, null, new Exception("exception"));
       logger.FatalError(null, new object[] { 1 });
 
-      Assert.IsTrue(File.Exists(filePath));
-      Assert.AreEqual(File.ReadAllLines(filePath).Count(), 35);
+      Assert.That(File.Exists(filePath), Is.True);
+      Assert.That(File.ReadAllLines(filePath).Count(), Is.EqualTo(35));
     }
   }
 }

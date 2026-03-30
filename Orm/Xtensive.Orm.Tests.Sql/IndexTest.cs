@@ -45,14 +45,17 @@ namespace Xtensive.Orm.Tests.Sql
         Connection.Close();
         Connection.Dispose();
         throw;
-
       }
     }
 
     protected override void TestFixtureTearDown()
     {
-      if (Connection.State != System.Data.ConnectionState.Open)
-        base.TestFixtureSetUp();
+      if (Connection is null)
+        return;
+      if (Connection.State != System.Data.ConnectionState.Open) {
+        base.TestFixtureTearDown();
+        return;
+      }
       if (schema != null) {
         Table t = schema.Tables[TableName];
         if (t != null) {
@@ -92,9 +95,9 @@ namespace Xtensive.Orm.Tests.Sql
       var s2 = c2.DefaultSchema;
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[FilteredIndexName];
-      Assert.IsNotNull(i2);
-      Assert.AreEqual(2, i2.Columns.Count);
-      Assert.IsTrue(i2.Where is not null);
+      Assert.That(i2, Is.Not.Null);
+      Assert.That(i2.Columns.Count, Is.EqualTo(2));
+      Assert.That(i2.Where is not null, Is.True);
     }
   }
 }

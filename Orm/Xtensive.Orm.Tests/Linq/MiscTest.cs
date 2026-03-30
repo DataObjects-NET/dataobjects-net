@@ -74,10 +74,10 @@ namespace Xtensive.Orm.Tests.Linq
 
       Assert.That(result1, Is.Not.Empty);
       Assert.That(result2, Is.Not.Empty);
-      Assert.AreEqual(expected.Count, result1.Count);
-      Assert.AreEqual(expected.Count, result2.Count);
-      Assert.AreEqual(0, expected.Except(result1).Count());
-      Assert.AreEqual(0, expected.Except(result2).Count());
+      Assert.That(result1.Count, Is.EqualTo(expected.Count));
+      Assert.That(result2.Count, Is.EqualTo(expected.Count));
+      Assert.That(expected.Except(result1).Count(), Is.EqualTo(0));
+      Assert.That(expected.Except(result2).Count(), Is.EqualTo(0));
     }
 
     public IQueryable SelectPropertySwitchingToGeneric(IQueryable queryable, string propertyName)

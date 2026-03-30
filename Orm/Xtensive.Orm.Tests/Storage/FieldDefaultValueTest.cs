@@ -340,82 +340,73 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var t = session.OpenTransaction()) {
           var x = session.Query.SingleOrDefault<X>(keyX);
-          Assert.AreEqual(true, x.FBool);
-          Assert.AreEqual(byte.MaxValue, x.FByte);
-          Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
+          Assert.That(x.FBool, Is.EqualTo(true));
+          Assert.That(x.FByte, Is.EqualTo(byte.MaxValue));
+          Assert.That(x.FDateTime, Is.EqualTo(DateTime.Parse("2012.12.12")));
 
-          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FDateOnly);
-          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
-          }
-          else {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
-          }
+          Assert.That(x.FDateOnly, Is.EqualTo(DateOnly.Parse("2012.12.12")));
+          Assert.That(x.FTimeOnly, Is.EqualTo(TimeOnly.Parse("00:35:53.35")));
 
-          Assert.AreEqual(12.12M, x.FDecimal);
-          Assert.AreEqual(float.MaxValue, x.FDouble);
-          Assert.AreEqual(EByte.Max, x.FEByte);
-          Assert.AreEqual(EInt.Max, x.FEInt);
-          Assert.AreEqual(ELong.Max, x.FELong);
-          Assert.AreEqual(ESByte.Max, x.FESByte);
-          Assert.AreEqual(EShort.Max, x.FEShort);
-          Assert.AreEqual(EUInt.Max, x.FEUInt);
-          Assert.AreEqual(EULong.Max, x.FEULong);
-          Assert.AreEqual(EUShort.Max, x.FEUShort);
-          Assert.AreEqual(float.Epsilon, x.FFloat);
-          Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
-          Assert.AreEqual(int.MaxValue, x.FInt);
-          Assert.AreEqual(long.MaxValue, x.FLong);
+          Assert.That(x.FDecimal, Is.EqualTo(12.12M));
+          Assert.That(x.FDouble, Is.EqualTo(float.MaxValue));
+          Assert.That(x.FEByte, Is.EqualTo(EByte.Max));
+          Assert.That(x.FEInt, Is.EqualTo(EInt.Max));
+          Assert.That(x.FELong, Is.EqualTo(ELong.Max));
+          Assert.That(x.FESByte, Is.EqualTo(ESByte.Max));
+          Assert.That(x.FEShort, Is.EqualTo(EShort.Max));
+          Assert.That(x.FEUInt, Is.EqualTo(EUInt.Max));
+          Assert.That(x.FEULong, Is.EqualTo(EULong.Max));
+          Assert.That(x.FEUShort, Is.EqualTo(EUShort.Max));
+          Assert.That(x.FFloat, Is.EqualTo(float.Epsilon));
+          Assert.That(x.FGuid, Is.EqualTo(new Guid(CodeRegistry.GuidDefaultValue)));
+          Assert.That(x.FInt, Is.EqualTo(int.MaxValue));
+          Assert.That(x.FLong, Is.EqualTo(long.MaxValue));
 
-          Assert.AreEqual(sbyte.MaxValue, x.FSByte);
-          Assert.AreEqual(short.MaxValue, x.FShort);
-          Assert.AreEqual("default value", x.FString);
-          Assert.AreEqual(TimeSpan.FromTicks(1000), x.FTimeSpan);
-          Assert.AreEqual(uint.MaxValue, x.FUInt);
-          Assert.AreEqual(long.MaxValue, x.FULong);
-          Assert.AreEqual(ushort.MaxValue, x.FUShort);
+          Assert.That(x.FSByte, Is.EqualTo(sbyte.MaxValue));
+          Assert.That(x.FShort, Is.EqualTo(short.MaxValue));
+          Assert.That(x.FString, Is.EqualTo("default value"));
+          Assert.That(x.FTimeSpan, Is.EqualTo(TimeSpan.FromTicks(1000)));
+          Assert.That(x.FUInt, Is.EqualTo(uint.MaxValue));
+          Assert.That(x.FULong, Is.EqualTo(long.MaxValue));
+          Assert.That(x.FUShort, Is.EqualTo(ushort.MaxValue));
 
-          Assert.AreEqual(true, x.FNBool);
-          Assert.AreEqual(byte.MaxValue, x.FNByte);
-          Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FNDateTime);
-          Assert.AreEqual(DateOnly.Parse("2012.12.12"), x.FNDateOnly);
-          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql) && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53"), x.FTimeOnly); // no milliseconds
-          }
-          else {
-            Assert.AreEqual(TimeOnly.Parse("00:35:53.35"), x.FTimeOnly);
-          }
-          Assert.AreEqual(12.12M, x.FNDecimal);
-          Assert.AreEqual(float.MaxValue, x.FNDouble);
-          Assert.AreEqual(EByte.Max, x.FNEByte);
-          Assert.AreEqual(EInt.Max, x.FNEInt);
-          Assert.AreEqual(ELong.Max, x.FNELong);
-          Assert.AreEqual(ESByte.Max, x.FNESByte);
-          Assert.AreEqual(EShort.Max, x.FNEShort);
-          Assert.AreEqual(EUInt.Max, x.FNEUInt);
-          Assert.AreEqual(EULong.Max, x.FNEULong);
-          Assert.AreEqual(EUShort.Max, x.FNEUShort);
-          Assert.AreEqual(float.Epsilon, x.FNFloat);
-          Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FNGuid);
-          Assert.AreEqual(int.MaxValue, x.FNInt);
-          Assert.AreEqual(long.MaxValue, x.FNLong);
-          Assert.AreEqual(sbyte.MaxValue, x.FNSByte);
-          Assert.AreEqual(short.MaxValue, x.FNShort);
-          Assert.AreEqual(TimeSpan.FromTicks(1000), x.FNTimeSpan);
-          Assert.AreEqual(uint.MaxValue, x.FNUInt);
-          Assert.AreEqual(long.MaxValue, x.FNULong);
-          Assert.AreEqual(ushort.MaxValue, x.FNUShort);
-          Assert.IsNotNull(x.Ref);
-          Assert.IsNotNull(x.EnumKeyEntityRef);
+          Assert.That(x.FNBool, Is.EqualTo(true));
+          Assert.That(x.FNByte, Is.EqualTo(byte.MaxValue));
+          Assert.That(x.FNDateTime, Is.EqualTo(DateTime.Parse("2012.12.12")));
+          Assert.That(x.FNDateOnly, Is.EqualTo(DateOnly.Parse("2012.12.12")));
+          Assert.That(x.FTimeOnly, Is.EqualTo(TimeOnly.Parse("00:35:53.35")));
+
+          Assert.That(x.FNDecimal, Is.EqualTo(12.12M));
+          Assert.That(x.FNDouble, Is.EqualTo(float.MaxValue));
+          Assert.That(x.FNEByte, Is.EqualTo(EByte.Max));
+          Assert.That(x.FNEInt, Is.EqualTo(EInt.Max));
+          Assert.That(x.FNELong, Is.EqualTo(ELong.Max));
+          Assert.That(x.FNESByte, Is.EqualTo(ESByte.Max));
+          Assert.That(x.FNEShort, Is.EqualTo(EShort.Max));
+          Assert.That(x.FNEUInt, Is.EqualTo(EUInt.Max));
+          Assert.That(x.FNEULong, Is.EqualTo(EULong.Max));
+          Assert.That(x.FNEUShort, Is.EqualTo(EUShort.Max));
+          Assert.That(x.FNFloat, Is.EqualTo(float.Epsilon));
+          Assert.That(x.FNGuid, Is.EqualTo(new Guid(CodeRegistry.GuidDefaultValue)));
+          Assert.That(x.FNInt, Is.EqualTo(int.MaxValue));
+          Assert.That(x.FNLong, Is.EqualTo(long.MaxValue));
+          Assert.That(x.FNSByte, Is.EqualTo(sbyte.MaxValue));
+          Assert.That(x.FNShort, Is.EqualTo(short.MaxValue));
+          Assert.That(x.FNTimeSpan, Is.EqualTo(TimeSpan.FromTicks(1000)));
+          Assert.That(x.FNUInt, Is.EqualTo(uint.MaxValue));
+          Assert.That(x.FNULong, Is.EqualTo(long.MaxValue));
+          Assert.That(x.FNUShort, Is.EqualTo(ushort.MaxValue));
+          Assert.That(x.Ref, Is.Not.Null);
+          Assert.That(x.EnumKeyEntityRef, Is.Not.Null);
 
           if (SupportsDefaultForLongString()) {
             var y = session.Query.SingleOrDefault<Y>(keyY);
-            Assert.AreEqual("default value", y.FLongString);
+            Assert.That(y.FLongString, Is.EqualTo("default value"));
           }
           if (SupportsDefaultForArrays()) {
             var z = session.Query.SingleOrDefault<Z>(keyZ);
-            Assert.AreEqual(new byte[] { 10, 10, 10, 10 }, z.FByteArray);
-            Assert.AreEqual(new byte[] { 10, 10, 10, 10 }, z.FLongByteArray);
+            Assert.That(z.FByteArray, Is.EqualTo(new byte[] { 10, 10, 10, 10 }));
+            Assert.That(z.FLongByteArray, Is.EqualTo(new byte[] { 10, 10, 10, 10 }));
           }
 
           t.Complete();

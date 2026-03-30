@@ -3,7 +3,8 @@ We discovered a serious issue connected to entity saving to storage for provider
 
 Minimal versions in which the issue is addressed: [6.0.12](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/6.0.12),
 [7.0.4](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.0.4),
-[7.1.1](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.1.1)
+[7.1.1](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.1.1),
+[7.2.0](https://github.com/DataObjects-NET/dataobjects-net/releases/tag/7.2.0)
 
 The ```master``` branch also has the fix merged (commit ```f642a25```).
 
@@ -14,15 +15,13 @@ If you forked the repository then make sure that this fix will propagate to your
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 
 Supported databases:
-- MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019, 2022
+- MS SQL Server 2016, 2017, 2019, 2022, 2025
 - MS Azure SQL Database
 - Oracle 10g, 11g
-- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11, 12, 13, 14, 15, 16, 17, 18
-- MySQL 5.6, 5.7, 8.x, 9.x
-- Firebird 2.5, 4.0
+- PostgreSQL  11, 12, 13, 14, 15, 16, 17, 18
+- MySQL 5.7, 8.x, 9.x
+- Firebird 3.0, 4.0, 5.0
 - Sqlite 3
-
-NOTE that MS SQL Server 2008 R2, PostgreSQL v8.3, v8.4, and MySQL v5.5 were removed from supported versions list because they're too old and reached End-Of-Live status. Drivers for these versions still exist within libraries and we will try to keep them working but no guarantee given.
 
 ### Installation
 

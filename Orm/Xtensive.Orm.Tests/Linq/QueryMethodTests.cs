@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single(key));
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers.Where(c => c.Key == key);
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Linq
           (customer, localCustomer) => new {customer, localCustomer});
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Linq
           (customer, localCustomer) => new { customer, localCustomer });
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Linq
           (customer, localCustomer) => new {customer, localCustomer});
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Tests.Linq
           (customer, localCustomer) => new { customer, localCustomer });
 
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
     }
 
     private IEnumerable<Customer> GetExpectedCustomerAsSequence()

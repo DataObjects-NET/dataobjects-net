@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Storage
         connection.Open();
         var command = connection.CreateCommand();
         var translator = driver.Translator;
-        command.CommandText = string.Format("INSERT INTO {0}({1}) values(1)", translator.QuoteIdentifier("TestEntity"), translator.QuoteIdentifier("Id"));
+        command.CommandText = $"INSERT INTO {translator.QuoteIdentifier("TestEntity")}({translator.QuoteIdentifier("Id")}) values(1)";
         _ = command.ExecuteNonQuery();
         connection.Close();
       }
@@ -115,20 +115,20 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<TestEntity>().First();
-        Assert.AreEqual(1, entity.Id);
-        Assert.AreEqual(64, entity.FByte);
-        Assert.AreEqual(65, entity.FSByte);
-        Assert.AreEqual(66, entity.FShort);
-        Assert.AreEqual(67, entity.FUShort);
-        Assert.AreEqual(68, entity.FInt);
-        Assert.AreEqual(69, entity.FUInt);
-        Assert.AreEqual(70L, entity.FLong);
-        Assert.AreEqual(71L, entity.FULong);
-        Assert.AreEqual(72.0, entity.FFloat);
-        Assert.AreEqual(73.0, entity.FDouble);
-        Assert.AreEqual(12.12M, entity.FDecimal);
-        Assert.AreEqual(DateTime.Parse("2013.12.13"), entity.FDateTime);
-        Assert.AreEqual("sql value", entity.FString);
+        Assert.That(entity.Id, Is.EqualTo(1));
+        Assert.That(entity.FByte, Is.EqualTo(64));
+        Assert.That(entity.FSByte, Is.EqualTo(65));
+        Assert.That(entity.FShort, Is.EqualTo(66));
+        Assert.That(entity.FUShort, Is.EqualTo(67));
+        Assert.That(entity.FInt, Is.EqualTo(68));
+        Assert.That(entity.FUInt, Is.EqualTo(69));
+        Assert.That(entity.FLong, Is.EqualTo(70L));
+        Assert.That(entity.FULong, Is.EqualTo(71L));
+        Assert.That(entity.FFloat, Is.EqualTo(72.0));
+        Assert.That(entity.FDouble, Is.EqualTo(73.0));
+        Assert.That(entity.FDecimal, Is.EqualTo(12.12M));
+        Assert.That(entity.FDateTime, Is.EqualTo(DateTime.Parse("2013.12.13")));
+        Assert.That(entity.FString, Is.EqualTo("sql value"));
         transaction.Complete();
       }
     }
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Storage
         connection.Open();
         var command = connection.CreateCommand();
         var translator = driver.Translator;
-        command.CommandText = string.Format("INSERT INTO {0} DEFAULT VALUES;", translator.QuoteIdentifier("TestEntity1"));
+        command.CommandText = $"INSERT INTO {translator.QuoteIdentifier("TestEntity1")} DEFAULT VALUES;";
         _ = command.ExecuteNonQuery();
         connection.Close();
       }
@@ -155,8 +155,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<TestEntity1>().FirstOrDefault();
-        Assert.IsNotNull(entity);
-        Assert.IsNotNull(entity.Id);
+        Assert.That(entity, Is.Not.Null);
+        Assert.That(entity.Id, Is.Not.Null);
       }
     }
   }

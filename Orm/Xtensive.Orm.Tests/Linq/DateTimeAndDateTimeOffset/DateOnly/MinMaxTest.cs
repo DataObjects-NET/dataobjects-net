@@ -33,10 +33,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
       var minServer = session.Query.All<T>().Min(selectExpression);
       var maxServer = session.Query.All<T>().Max(selectExpression);
 
-      Assert.AreEqual(minLocal, minServer);
-      Assert.AreEqual(maxLocal, maxServer);
-      Assert.AreNotEqual(minLocal, maxServer);
-      Assert.AreNotEqual(maxLocal, minServer);
+      Assert.That(minServer, Is.EqualTo(minLocal));
+      Assert.That(maxServer, Is.EqualTo(maxLocal));
+      Assert.That(maxServer, Is.Not.EqualTo(minLocal));
+      Assert.That(minServer, Is.Not.EqualTo(maxLocal));
     }
   }
 }

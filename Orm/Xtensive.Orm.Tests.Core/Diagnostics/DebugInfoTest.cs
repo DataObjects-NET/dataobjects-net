@@ -15,16 +15,16 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
     [Test]
     public void CompoundTest()
     {
-      TestLog.Info("Is running on build server:   {0}", DebugInfo.IsRunningOnBuildServer);
-      TestLog.Info("Is unit test session running: {0}", DebugInfo.IsUnitTestSessionRunning);
-      Assert.IsTrue(DebugInfo.IsUnitTestSessionRunning);
+      TestLog.Info($"Is running on build server:   {DebugInfo.IsRunningOnBuildServer}");
+      TestLog.Info($"Is unit test session running: {DebugInfo.IsUnitTestSessionRunning}");
+      Assert.That(DebugInfo.IsUnitTestSessionRunning, Is.True);
       int count = 1000000;
       bool b = true;
       using (new Measurement("DebugInfo.IsUnitTestSessionRunning", count)) {
         for (int i = 0; i<count; i++)
           b &= DebugInfo.IsUnitTestSessionRunning;
       }
-      Assert.IsTrue(b);
+      Assert.That(b, Is.True);
     }
   }
 }

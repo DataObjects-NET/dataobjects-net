@@ -286,7 +286,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     }
 
     public override void Visit(SqlFastFirstRowsHint node) => 
-      context.Output.Append(string.Format("FIRST_ROWS({0})", node.Amount));
+      context.Output.Append($"FIRST_ROWS({node.Amount})");
 
     public override void Visit(SqlNativeHint node) => context.Output.Append(node.HintText);
     

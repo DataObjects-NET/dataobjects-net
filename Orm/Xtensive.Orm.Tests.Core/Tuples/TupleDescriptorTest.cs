@@ -121,14 +121,14 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     {
       var d1 = TupleDescriptor.Create(types);
       var d2 = TupleDescriptor.Create(types);
-      Assert.IsNotNull(d1);
-      Assert.IsNotNull(d2);
-      Assert.AreEqual(d1, d2);
+      Assert.That(d1, Is.Not.EqualTo(default(TupleDescriptor)));
+      Assert.That(d2, Is.Not.EqualTo(default(TupleDescriptor)));
+      Assert.That(d2, Is.EqualTo(d1));
       if (theSame!=null)
-        Assert.AreEqual(theSame, d2);
-      Assert.AreEqual(d1, d2);
+        Assert.That(d2, Is.EqualTo(theSame));
+      Assert.That(d2, Is.EqualTo(d1));
       if (theSame!=null)
-        Assert.AreEqual(theSame, d2);
+        Assert.That(d2, Is.EqualTo(theSame));
       return d1;
     }
   }

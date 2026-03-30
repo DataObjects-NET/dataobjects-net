@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         var d = new DiscriminatedByValue();
         var items = session.Query.All<DiscriminatedByValue>().ToList();
-        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Code);
+        Assert.That(d.Code, Is.EqualTo(new Guid(CodeRegistry.DefaultCode)));
       }
     }
 
@@ -97,8 +97,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         var items = Query.All<DiscriminatedByRef>().ToList();
         var d = items[0];
-        Assert.IsNotNull(d.Ref);
-        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Ref.Id);
+        Assert.That(d.Ref, Is.Not.Null);
+        Assert.That(d.Ref.Id, Is.EqualTo(new Guid(CodeRegistry.DefaultCode)));
       }
     }
   }

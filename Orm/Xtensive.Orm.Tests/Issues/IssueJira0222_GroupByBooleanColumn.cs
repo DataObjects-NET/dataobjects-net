@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Tests.Issues
           var trueResult = result.Single(item => item.IsRecieved).Count;
           var falseResult = result.Single(item => !item.IsRecieved).Count;
 
-          Assert.AreEqual(2, trueResult);
-          Assert.AreEqual(1, falseResult);
+          Assert.That(trueResult, Is.EqualTo(2));
+          Assert.That(falseResult, Is.EqualTo(1));
 
           // Rollback
         }

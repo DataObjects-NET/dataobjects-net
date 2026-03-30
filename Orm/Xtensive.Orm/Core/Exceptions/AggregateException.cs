@@ -58,10 +58,10 @@ namespace Xtensive.Core
       StringBuilder sb = new StringBuilder(64);
       _ = sb.Append(base.ToString())
         .AppendLine()
-        .AppendFormat("{0}:", Strings.OriginalExceptions);
+        .AppendFormat($"{Strings.OriginalExceptions}:");
       int i = 1;
       foreach (Exception exception in exceptions)
-        sb.AppendLine().AppendFormat("{0}: {1}", i++, exception);
+        _ = sb.AppendLine().AppendFormat($"{i++}: {exception}");
       return sb.ToString();
     }
 

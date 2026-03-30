@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Localization.Tests
           var query = from p in session.Query.All<Page>()
           where p.Title == title
           select p;
-          Assert.AreEqual(1, query.Count());
+          Assert.That(query.Count(), Is.EqualTo(1));
 
           ts.Complete();
         }
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Localization.Tests
                         on p equals pl.Target
                       where pl.CultureName == LocalizationContext.Current.CultureName && pl.Title == Spanish.Title
                       select p;
-          Assert.AreEqual(1, query.Count());
+          Assert.That(query.Count(), Is.EqualTo(1));
         }
 
         ts.Complete();
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Localization.Tests
         var pairs = from pair in session.Query.All<Page, PageLocalization>()
                     where pair.Localization.Title == English.Title
                     select pair.Target;
-        Assert.AreEqual(1, pairs.Count());
+        Assert.That(pairs.Count(), Is.EqualTo(1));
 
         ts.Complete();
       }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Localization.Tests
         var query = from p in session.Query.All<Page>()
                     select p.Title;
         Console.Write(query.First());
-        Assert.AreEqual(1, query.Count());
+        Assert.That(query.Count(), Is.EqualTo(1));
 
         ts.Complete();
       }

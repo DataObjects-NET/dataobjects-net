@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          Assert.IsNotNull(session.Query.All<PersonInfo>().First());
+          Assert.That(session.Query.All<PersonInfo>().First(), Is.Not.Null);
         }
       }
     }

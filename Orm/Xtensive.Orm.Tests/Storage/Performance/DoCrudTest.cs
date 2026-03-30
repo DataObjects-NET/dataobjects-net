@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           }
         }
         if (count <= instanceCount)
-          Assert.AreEqual(0, sum);
+          Assert.That(sum, Is.EqualTo(0));
       }
     }
 
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
             ts.Complete();
           }
         }
-        Assert.AreEqual(count, i);
+        Assert.That(i, Is.EqualTo(count));
         //if (count<=instanceCount)
         //Assert.AreEqual(0, sum);
       }
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
             ts.Complete();
           }
         }
-        Assert.AreEqual((long) count*(count - 1)/2, sum);
+        Assert.That(sum, Is.EqualTo((long) count*(count - 1)/2));
       }
     }
 
@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          var message = string.Format("Access to non-paired EntitySet[{0} items]", EntitySetItemCount);
+          var message = $"Access to non-paired EntitySet[{EntitySetItemCount} items]";
           using (warmup ? null : new Measurement(message, count)) {
             NonPairedSimplestContainerItem t = null;
             while (i < count)
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
                 if (++i >= count)
                   break;
               }
-            Assert.Greater(t.Id, -1);
+            Assert.That(t.Id, Is.GreaterThan(-1));
             ts.Complete();
           }
         }
@@ -304,7 +304,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
-          var message = string.Format("Access to paired EntitySet[{0} items]", EntitySetItemCount);
+          var message = $"Access to paired EntitySet[{EntitySetItemCount} items]";
           using (warmup ? null : new Measurement(message, count)) {
             PairedSimplestContainerItem t = null;
             while (i < count)
@@ -313,7 +313,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
                 if (++i >= count)
                   break;
               }
-            Assert.Greater(t.Id, -1);
+            Assert.That(t.Id, Is.GreaterThan(-1));
             ts.Complete();
           }
         }

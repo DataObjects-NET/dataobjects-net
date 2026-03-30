@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Indexing
     public void StorageLogTest()
     {
       TestLog.Info("Actions:");
-      TestLog.Info("{0}", storage.Actions);
+      TestLog.Info($"{storage.Actions}");
     }
 
     [Test]

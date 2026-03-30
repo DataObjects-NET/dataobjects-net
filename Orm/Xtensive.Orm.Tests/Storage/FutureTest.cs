@@ -37,10 +37,10 @@ namespace Xtensive.Orm.Tests.Storage
           qe => qe.All<Track>().Where(p => p.Name.Contains("c")));
         var futureAvgComission = session.Query.CreateDelayedQuery(
           qe => qe.All<Invoice>().Average(i => i.Commission));
-        Assert.Greater(futureHighComission.Count(), 0); // Count() here is IEnumerable.Count()
-        Assert.Greater(futurePaid.Value, 0);
-        Assert.Greater(futureSequenceTrack.Count(), 0); // Count() here is IEnumerable.Count()
-        Assert.Greater(futureAvgComission.Value, 0);
+        Assert.That(futureHighComission.Count(), Is.GreaterThan(0)); // Count() here is IEnumerable.Count()
+        Assert.That(futurePaid.Value, Is.GreaterThan(0));
+        Assert.That(futureSequenceTrack.Count(), Is.GreaterThan(0)); // Count() here is IEnumerable.Count()
+        Assert.That(futureAvgComission.Value, Is.GreaterThan(0));
         ts.Complete();
       }
     }
@@ -67,14 +67,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var futureSequenceOrder = session.Query.CreateDelayedQuery(futureQueryDelegate);
-        Assert.Greater(futureSequenceOrder.Count(), 0);
+        Assert.That(futureSequenceOrder.Count(), Is.GreaterThan(0));
         ts.Complete();
       }
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var futureSequenceOrder = session.Query.CreateDelayedQuery(futureQueryDelegate.Method, GetFutureSequenceQueryFake);
-        Assert.Greater(futureSequenceOrder.Count(), 0);
+        Assert.That(futureSequenceOrder.Count(), Is.GreaterThan(0));
         ts.Complete();
       }
     }
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var ts = session.OpenTransaction()) {
         var futurePaid = session.Query.CreateDelayedQuery(cacheKey,
           qe => qe.All<Invoice>().Where(i => i.Status==invoiceStatus).Count());
-        Assert.Greater(futurePaid.Value, 0);
+        Assert.That(futurePaid.Value, Is.GreaterThan(0));
         ts.Complete();
       }
 
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var futureScalar = session.Query.CreateDelayedQuery(cacheKey, qe => t);
-        Assert.Greater(futureScalar.Value, 0);
+        Assert.That(futureScalar.Value, Is.GreaterThan(0));
         ts.Complete();
       }
     }

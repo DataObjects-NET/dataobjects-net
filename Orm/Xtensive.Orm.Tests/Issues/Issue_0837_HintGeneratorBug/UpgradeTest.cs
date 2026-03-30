@@ -36,13 +36,13 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
         var a = session.Query.All<M2.Base>().SingleOrDefault();
-        Assert.IsNotNull(a);
-        Assert.AreEqual("a.Base", a.BaseTitle);
+        Assert.That(a, Is.Not.Null);
+        Assert.That(a.BaseTitle, Is.EqualTo("a.Base"));
 
         var b = session.Query.All<M2.Derived>().SingleOrDefault();
-        Assert.IsNotNull(b);
-        Assert.AreEqual("b.Base", b.BaseTitle);
-        Assert.AreEqual("b.Derived", b.DerivedTitle);
+        Assert.That(b, Is.Not.Null);
+        Assert.That(b.BaseTitle, Is.EqualTo("b.Base"));
+        Assert.That(b.DerivedTitle, Is.EqualTo("b.Derived"));
       }
     }
 

@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Storage
       session.Validate();
       for (int i = 0; i < originalValidationCounts.Length; i++) {
         var originalValidationCount = originalValidationCounts[i];
-        Assert.AreNotEqual(originalValidationCounts[i], checkList[i].ValidationCount);
+        Assert.That(checkList[i].ValidationCount, Is.Not.EqualTo(originalValidationCounts[i]));
       }
     }
   }

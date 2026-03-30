@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests.Issues
         var membership = new Membership() {Type = new MembershipType(), Status = MembershipStatus.Active};
         var countAfterInsertionUsingDelayedQuery = session.Query.CreateDelayedQuery(endpoint => endpoint.All<Membership>().Count());
         GetAllMembershipWithTypes(GetMembershipTypes(jobKey));
-        Assert.Greater(countAfterInsertionUsingDelayedQuery.Value, countBeforeInsertion);
-        Assert.AreEqual(1, countAfterInsertionUsingDelayedQuery.Value - countBeforeInsertion);
+        Assert.That(countAfterInsertionUsingDelayedQuery.Value, Is.GreaterThan(countBeforeInsertion));
+        Assert.That(countAfterInsertionUsingDelayedQuery.Value - countBeforeInsertion, Is.EqualTo(1));
       }
     }
 
@@ -123,11 +123,11 @@ namespace Xtensive.Orm.Tests.Issues
         var countOfActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint =>
           queryEndpoint.All<Membership>().Count(el => el.Status == MembershipStatus.Active));
         var userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
-        Assert.AreEqual(4, userDefinedQueryTasks.Count);
+        Assert.That(userDefinedQueryTasks.Count, Is.EqualTo(4));
         //must be fetching without execution of user defined queries
         var customerMembership = firstCustomer.Memberships.ToList();
         userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
-        Assert.AreEqual(4, userDefinedQueryTasks.Count);
+        Assert.That(userDefinedQueryTasks.Count, Is.EqualTo(4));
       }
     }
 

@@ -22,6 +22,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    private const int SqlServer2016MajorVersion = 13;
+    private const int SqlServer2017MajorVersion = 14;
+    private const int SqlServer2019MajorVersion = 15;
+    private const int SqlServer2022MajorVersion = 16;
+    private const int SqlServer2025MajorVersion = 17;
+
     private const string CheckConnectionQuery = "SELECT TOP(0) 0;";
     private const string PoolingOffCommand = "pooling = false";
 
@@ -113,12 +119,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
       builder.Encrypt = url.Secure;
 
       // host, port, database
-      if (url.Port==0) {
-        builder.DataSource = url.Host;
-      }
-      else {
-        builder.DataSource = url.Host + "," + url.Port;
-      }
+      builder.DataSource = url.Port==0
+        ? url.Host
+        : url.Host + "," + url.Port;
 
       builder.InitialCatalog = url.Resource ?? string.Empty;
 
@@ -183,7 +186,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           : await CreateMessageParserAsync(connection, token).ConfigureAwait(false);
 
         var versionString = isForcedVersion
-          ? isForcedAzure ? "10.0.0.0" : forcedServerVersion
+          ? isForcedAzure ? ForcedAzureVersion : forcedServerVersion
           : connection.ServerVersion ?? string.Empty;
         var version = new Version(versionString);
         var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
@@ -207,15 +210,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return new Azure.Driver(coreServerInfo, parser, isEnsureAlive);
       }
 
-      if (version.Major < 9) {
-        throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
+      if (version.Major < SqlServer2016MajorVersion) {
+        throw new NotSupportedException(Strings.ExSqlServerBelow2016IsNotSupported);
       }
       return version.Major switch {
-        9 => new v09.Driver(coreServerInfo, parser, isEnsureAlive),
-        10 => new v10.Driver(coreServerInfo, parser, isEnsureAlive),
-        11 => new v11.Driver(coreServerInfo, parser, isEnsureAlive),
-        12 => new v12.Driver(coreServerInfo, parser, isEnsureAlive),
-        13 => new v13.Driver(coreServerInfo, parser, isEnsureAlive),
+        SqlServer2016MajorVersion => new v13.Driver(coreServerInfo, parser, isEnsureAlive),
         _ => new v13.Driver(coreServerInfo, parser, isEnsureAlive)
       };
     }

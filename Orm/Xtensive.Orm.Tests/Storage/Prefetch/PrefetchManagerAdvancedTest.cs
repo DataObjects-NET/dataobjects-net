@@ -44,12 +44,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var graphContainer = GetSingleGraphContainer(prefetchManager);
         prefetchManager.ExecuteTasks(true);
         var referencedEntityContainer = graphContainer.ReferencedEntityContainers.Single();
-        Assert.IsNotNull(graphContainer.RootEntityContainer.Task);
-        Assert.IsNull(referencedEntityContainer.Task);
+        Assert.That(graphContainer.RootEntityContainer.Task, Is.Not.Null);
+        Assert.That(referencedEntityContainer.Task, Is.Null);
         var state = session.EntityStateCache[orderKey, true];
-        Assert.IsNotNull(state);
-        Assert.AreEqual(PersistenceState.Synchronized, state.PersistenceState);
-        Assert.IsNull(state.Tuple);
+        Assert.That(state, Is.Not.Null);
+        Assert.That(state.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
+        Assert.That(state.Tuple, Is.Null);
       }
     }
 
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           new PrefetchFieldDescriptor(CityField));
         var graphContainer = GetSingleGraphContainer(prefetchManager);
         graphContainer.RootEntityContainer.GetTask();
-        Assert.IsNull(graphContainer.RootEntityContainer.Task);
+        Assert.That(graphContainer.RootEntityContainer.Task, Is.Null);
       }
     }
 
@@ -105,15 +105,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(order0Key, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         prefetchManager.InvokePrefetch(order1Key, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
-        Assert.AreEqual(2, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(2));
         Func<Key, ReferencedEntityContainer> taskSelector = containerKey => graphContainers.Values
           .Where(container => container.Key==containerKey)
           .SelectMany(container => container.ReferencedEntityContainers).Single();
         var entityContainer0 = taskSelector.Invoke(order0Key);
         var entityContainer1 = taskSelector.Invoke(order1Key);
         prefetchManager.ExecuteTasks(true);
-        Assert.IsNull(entityContainer0.Task);
-        Assert.IsNotNull(entityContainer1.Task);
+        Assert.That(entityContainer0.Task, Is.Null);
+        Assert.That(entityContainer1.Task, Is.Not.Null);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employee0Key, employee0Key.TypeInfo, session,
           PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employee1Key, employee1Key.TypeInfo, session,
@@ -182,12 +182,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null));
         var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
-        Assert.AreEqual(1, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(1));
         prefetchManager.ExecuteTasks(true);
         EntitySetState actualState;
         session.Handler.LookupState(orderKey, DetailsField, out actualState);
-        Assert.AreEqual(0, actualState.TotalItemCount);
-        Assert.IsTrue(actualState.IsFullyLoaded);
+        Assert.That(actualState.TotalItemCount, Is.EqualTo(0));
+        Assert.That(actualState.IsFullyLoaded, Is.True);
       }
     }
 
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Where(container => container.ReferencedEntityContainers!=null).Single()
           .ReferencedEntityContainers.Single();
         prefetchManager.ExecuteTasks(true);
-        Assert.IsNull(referencedEntityContainer.Task);
+        Assert.That(referencedEntityContainer.Task, Is.Null);
       }
     }
 
@@ -223,17 +223,17 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (var tx = session.OpenTransaction()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
           graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
-          Assert.AreEqual(1, graphContainers.Count);
+          Assert.That(graphContainers.Count, Is.EqualTo(1));
           tx.Complete();
         }
-        Assert.AreEqual(0, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(0));
 
         using (var tx = session.OpenTransaction()) {
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField));
-          Assert.AreEqual(1, graphContainers.Count);
+          Assert.That(graphContainers.Count, Is.EqualTo(1));
           // tx.Complete();
         }
-        Assert.AreEqual(0, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(0));
       }
     }
 
@@ -256,10 +256,10 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var idField = BookType.Fields["Id"];
         for (var i = 1; i < keys.Count; i++) {
           prefetchManager.InvokePrefetch(keys[i - 1], null, new PrefetchFieldDescriptor(idField));
-          Assert.AreEqual(i % entityCount, graphContainers.Count);
+          Assert.That(graphContainers.Count, Is.EqualTo(i % entityCount));
         }
         prefetchManager.InvokePrefetch(keys[entityCount - 1], null, new PrefetchFieldDescriptor(idField));
-        Assert.AreEqual(0, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(0));
         for (var i = 0; i < entityCount; i++)
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(keys[i], BookType, session,
             IsFieldKeyOrSystem);
@@ -309,8 +309,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchManager.ExecuteTasks(true);
         EntitySetState entitySetState;
-        Assert.IsTrue(session.Handler.LookupState(orderKey, DetailsField, out entitySetState));
-        Assert.IsTrue(entitySetState.IsFullyLoaded);
+        Assert.That(session.Handler.LookupState(orderKey, DetailsField, out entitySetState), Is.True);
+        Assert.That(entitySetState.IsFullyLoaded, Is.True);
       }
 
       using (var session = Domain.OpenSession())
@@ -320,9 +320,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, 1));
         prefetchManager.ExecuteTasks(true);
         EntitySetState entitySetState;
-        Assert.IsTrue(session.Handler.LookupState(orderKey, DetailsField, out entitySetState));
-        Assert.AreEqual(2, entitySetState.Count());
-        Assert.IsFalse(entitySetState.IsFullyLoaded);
+        Assert.That(session.Handler.LookupState(orderKey, DetailsField, out entitySetState), Is.True);
+        Assert.That(entitySetState.Count(), Is.EqualTo(2));
+        Assert.That(entitySetState.IsFullyLoaded, Is.False);
       }
     }
 
@@ -434,8 +434,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         Action<Key> validator = key => {
           var state = session.EntityStateCache[key, true];
-          Assert.IsNull(state.Tuple);
-          Assert.AreEqual(PersistenceState.Synchronized, state.PersistenceState);
+          Assert.That(state.Tuple, Is.Null);
+          Assert.That(state.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
         };
         validator.Invoke(orderKey0);
         validator.Invoke(orderKey1);
@@ -498,19 +498,19 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (var nestedSession = Domain.OpenSession()) {
           using (session.OpenTransaction()) {
             var count = 0;
-            Assert.AreSame(nestedSession, Session.Current);
+            Assert.That(Session.Current, Is.SameAs(nestedSession));
             using (Session.Deactivate()) { // Prevents Session switching check error
-              Assert.AreSame(null, Session.Current);
+              Assert.That(Session.Current, Is.SameAs(null));
               foreach (var orderDetail in order.Details) {
-                Assert.AreSame(order.Details.Session, session);
-                Assert.AreSame(session, orderDetail.Session);
-                Assert.AreSame(session, orderDetail.Order.Session);
-                Assert.AreSame(order, orderDetail.Order);
+                Assert.That(session, Is.SameAs(order.Details.Session));
+                Assert.That(orderDetail.Session, Is.SameAs(session));
+                Assert.That(orderDetail.Order.Session, Is.SameAs(session));
+                Assert.That(orderDetail.Order, Is.SameAs(order));
                 count++;
               }
-              Assert.AreSame(session, order.Details.Session);
-              Assert.AreSame(session, order.Session);
-              Assert.AreEqual(4, count);
+              Assert.That(order.Details.Session, Is.SameAs(session));
+              Assert.That(order.Session, Is.SameAs(session));
+              Assert.That(count, Is.EqualTo(4));
             }
           }
         }
@@ -629,10 +629,10 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           prefetchManager.InvokePrefetch(key, personType, new PrefetchFieldDescriptor(PersonIdField));
           prefetchManager.ExecuteTasks(true);
           previousState = session.EntityStateCache[key, true];
-          Assert.AreSame(key, previousState.Key);
-          Assert.IsFalse(previousState.Key.HasExactType);
-          Assert.IsTrue(previousState.IsTupleLoaded);
-          Assert.IsNull(previousState.Tuple);
+          Assert.That(previousState.Key, Is.SameAs(key));
+          Assert.That(previousState.Key.HasExactType, Is.False);
+          Assert.That(previousState.IsTupleLoaded, Is.True);
+          Assert.That(previousState.Tuple, Is.Null);
         }
         using (var nestedSession = Domain.OpenSession())
         using (var tx = nestedSession.OpenTransaction()) {
@@ -643,11 +643,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           prefetchManager.InvokePrefetch(key, personType, new PrefetchFieldDescriptor(PersonIdField));
           prefetchManager.ExecuteTasks(true);
           var state = session.EntityStateCache[key, true];
-          Assert.AreNotSame(previousState, state);
-          Assert.AreNotSame(key, state.Key);
-          Assert.IsTrue(state.Key.HasExactType);
-          Assert.IsTrue(state.IsTupleLoaded);
-          Assert.IsNotNull(state.Tuple);
+          Assert.That(previousState, Is.Not.SameAs(state));
+          Assert.That(key, Is.Not.SameAs(state.Key));
+          Assert.That(state.Key.HasExactType, Is.True);
+          Assert.That(state.IsTupleLoaded, Is.True);
+          Assert.That(state.Tuple, Is.Not.Null);
         }
       }
     }
@@ -665,7 +665,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         var tuple = session.EntityStateCache[orderKey, true].Tuple;
         foreach (var field in CustomerField.Fields)
-          Assert.IsTrue(tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable());
+          Assert.That(tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable(), Is.True);
       }
     }
 
@@ -682,7 +682,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.IsNotNull(session.Query.Single<LazyClass>(key));
+        Assert.That(session.Query.Single<LazyClass>(key), Is.Not.Null);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session, IsFieldKeyOrSystem);
       }
     }
@@ -700,7 +700,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.IsNotNull(session.Query.Single<IdOnly>(key));
+        Assert.That(session.Query.Single<IdOnly>(key), Is.Not.Null);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session, IsFieldKeyOrSystem);
       }
     }

@@ -28,31 +28,31 @@ namespace Xtensive.Orm.Tests.Sql
         Connection.BeginTransaction();
 
         DoInsert();
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
         Connection.MakeSavepoint("sp1");
         DoInsert();
-        Assert.AreEqual(2, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(2));
         Connection.RollbackToSavepoint("sp1");
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
         // we need to recreate savepoint after we rolled back to it
         Connection.MakeSavepoint("sp1"); 
 
         DoInsert();
         DoInsert();
-        Assert.AreEqual(3, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(3));
         Connection.MakeSavepoint("sp2");
         DoInsert();
-        Assert.AreEqual(4, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(4));
         Connection.MakeSavepoint("sp3");
         DoInsert();
-        Assert.AreEqual(5, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(5));
         Connection.RollbackToSavepoint("sp2");
-        Assert.AreEqual(3, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(3));
         Connection.RollbackToSavepoint("sp1");
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
 
         Connection.Rollback();
-        Assert.AreEqual(0, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(0));
       }
       finally {
         if (Connection.ActiveTransaction!=null)

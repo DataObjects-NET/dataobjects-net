@@ -546,7 +546,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Test
       TestHelper.CollectGarbage();
       int j = size;
-      using (warmup ? EmptyDisposable() : TestLog.InfoRegion(string.Format("int array, {0,6}K", (size+10) / KSize))) {
+      using (warmup ? EmptyDisposable() : TestLog.InfoRegion($"int array, {(size + 10) / KSize,6}K")) {
         using (warmup ? (IDisposable)new Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
@@ -609,7 +609,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Test
       TestHelper.CollectGarbage();
       int j = size;
-      using (warmup ? EmptyDisposable() : TestLog.InfoRegion(string.Format("int list, {0,6}K", (size+10) / KSize))) {
+      using (warmup ? EmptyDisposable() : TestLog.InfoRegion($"int list, {(size + 10) / KSize,6}K")) {
         using (warmup ? (IDisposable)new Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {
           for (int i = 0; i < size; ) {
@@ -670,7 +670,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Test
       TestHelper.CollectGarbage();
       int j = size;
-      using (warmup ? EmptyDisposable() : TestLog.InfoRegion(string.Format("int dictionary, {0,6}K", (size+10) / KSize))) {
+      using (warmup ? EmptyDisposable() : TestLog.InfoRegion($"int dictionary, {(size + 10) / KSize,6}K")) {
         ints.Clear();
         using (warmup ? (IDisposable)new Disposable(delegate { }) : 
           new Measurement("Filling (x10)", MeasurementOptions.Log, size)) {

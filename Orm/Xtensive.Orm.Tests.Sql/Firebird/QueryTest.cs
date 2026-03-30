@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
     {
       var schema = ExtractDefaultSchema();
       var table = schema.CreateTable("Some");
-      table.CreateColumn("ID", new SqlValueType(SqlType.UInt64));
-      table.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
+      _ = table.CreateColumn("ID", new SqlValueType(SqlType.UInt64));
+      _ = table.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
 
       var tableRef = SqlDml.TableRef(table);
       var select = SqlDml.Select(tableRef);
@@ -39,8 +39,6 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       using (var command = Connection.CreateCommand()) {
         command.CommandText = result.GetCommandText();
         Console.Out.WriteLine(command.CommandText);
-//        int count = Convert.ToInt32(command.ExecuteScalar());
-//        Assert.AreEqual(2, count);
       }
     }
   }

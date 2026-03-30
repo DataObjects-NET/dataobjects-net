@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private static string GetUseDatabaseScript(string database)
     {
-      return string.Format("use [{0}]", database);
+      return $"use [{database}]";
     }
   }
 }

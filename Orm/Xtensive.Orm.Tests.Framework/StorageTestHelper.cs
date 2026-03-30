@@ -105,8 +105,8 @@ namespace Xtensive.Orm.Tests
       foreach (var schema in schemasToCreate) {
         var userName = translator.QuoteIdentifier(schema);
         var password = schema;
-        ExecuteQuery(connection, string.Format("create user {0} identified by {1}", userName, password));
-        ExecuteQuery(connection, string.Format("alter user {0} quota unlimited on system", userName));
+        ExecuteQuery(connection, $"create user {userName} identified by {password}");
+        ExecuteQuery(connection, $"alter user {userName} quota unlimited on system");
       }
     }
 

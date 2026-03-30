@@ -41,7 +41,13 @@
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
-      Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+      Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+  </PropertyGroup>
+
+  <!-- Debug-NET10, Release-NET10 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET10')) == 'true'">
+    <!-- hard binding to net10, no property and env variable allowed-->
+    <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
@@ -49,26 +55,15 @@
     <!-- hard binding to net8, no property and env variable allowed-->
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
-  
-  <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
-    <!-- hard binding to net7, no property and env variable allowed-->
-    <TargetFrameworks>net7.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
-    <!-- hard binding to net6, no property and env variable allowed -->
-    <TargetFrameworks>net6.0</TargetFrameworks>
-  </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
   <PropertyGroup Label="Defaults"
-      Condition="$(Configuration.Contains('NET8')) == 'false' AND $(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
+      Condition="$(Configuration.Contains('NET10')) == 'false' AND $(Configuration.Contains('NET8')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0;net7.0;net6.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0;net10.0</TargetFrameworks> <!-- fallback to default -->
+    <LangVersion>12.0</LangVersion> <!-- default language for net8.0 -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -81,10 +76,12 @@
    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <LangVersion>14.0</LangVersion> <!-- default language for net10.0 -->
+  </PropertyGroup>
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <LangVersion>10.0</LangVersion> <!-- version assigned to net6.0 -->
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -100,7 +97,7 @@
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
-	<NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <!-- Populate standard properties. -->

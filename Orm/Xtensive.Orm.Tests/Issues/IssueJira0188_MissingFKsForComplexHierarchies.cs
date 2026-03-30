@@ -116,16 +116,16 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AnimalsTest()
     {
-      Assert.AreEqual(1, GetForeignKeysCount(typeof (Dog)));
-      Assert.AreEqual(1, GetForeignKeysCount(typeof (Cat)));
-      Assert.AreEqual(1, GetForeignKeysCount(typeof (Tiger)));
+      Assert.That(GetForeignKeysCount(typeof (Dog)), Is.EqualTo(1));
+      Assert.That(GetForeignKeysCount(typeof (Cat)), Is.EqualTo(1));
+      Assert.That(GetForeignKeysCount(typeof (Tiger)), Is.EqualTo(1));
     }
 
     [Test]
     public void DocumentsTest()
     {
-      Assert.AreEqual(1, GetForeignKeysCount(typeof (Picture)));
-      Assert.AreEqual(1, GetForeignKeysCount(typeof (Paragraph)));
+      Assert.That(GetForeignKeysCount(typeof (Picture)), Is.EqualTo(1));
+      Assert.That(GetForeignKeysCount(typeof (Paragraph)), Is.EqualTo(1));
     }
 
     private int GetForeignKeysCount(TypeInfo typeInfo)

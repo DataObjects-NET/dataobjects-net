@@ -698,7 +698,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         //          length += stream.Length;
         //          stream.SetLength(0);
         //        }
-        Console.Out.WriteLine("Stream size: {0} Kb", length / 1024);
+        Console.Out.WriteLine($"Stream size: {length / 1024} Kb");
       }
     }
 

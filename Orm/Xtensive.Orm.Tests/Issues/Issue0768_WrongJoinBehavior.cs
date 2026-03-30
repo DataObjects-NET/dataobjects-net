@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var list = session.Query.All<Issue0768_WrongJoinBehavior_Model.Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
-        Assert.AreEqual(3, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(3));
 
         // Current wrong way
         /*Join (Inner, #a.Ref.Id == #b.Id)

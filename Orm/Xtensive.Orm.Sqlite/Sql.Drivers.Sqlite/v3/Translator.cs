@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"\'HH\:mm\:ss.fffffff\'";
 
-    public virtual string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
+    public override string DateTimeOffsetFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'";
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => @"{0}{1}";

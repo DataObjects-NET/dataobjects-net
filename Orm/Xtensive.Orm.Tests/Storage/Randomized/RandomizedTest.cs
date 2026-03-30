@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     public void SetUp()
     {
       var seed = GetSeed(useConst:true);
-      Console.WriteLine("Seed: {0}", seed);
+      Console.WriteLine($"Seed: {seed}");
       randomProvider = new Random(seed);
       actions = new List<Action<Session>> {AddNode, RemoveNode, TransferNode, AddTree, /*RemoveTree*/};
       nodesData = new List<Pair<Key, int>>();
@@ -85,25 +85,25 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
           totalCount += ValidateNodes(tree.Root) + 1;
         }
 
-        Assert.AreEqual(nodesData.Count, totalCount);
+        Assert.That(totalCount, Is.EqualTo(nodesData.Count));
       }
     }
 
     private long ValidateNodes(TreeNode current)
     {
       if (current.Parent == null) {
-        Assert.IsNotNull(current.Tree);
+        Assert.That(current.Tree, Is.Not.Null);
       }
       else {
-        Assert.IsNull(current.Tree);
+        Assert.That(current.Tree, Is.Null);
       }
 
       var nodePair = nodesData.Where(pair => pair.First == current.Key).First();
-      Assert.AreEqual(current.Children.Count, nodePair.Second);
+      Assert.That(nodePair.Second, Is.EqualTo(current.Children.Count));
 
       var result = current.Children.Count;
       if (current.Parent != null) {
-        Assert.IsTrue(current.Parent.Children.Contains(current));
+        Assert.That(current.Parent.Children.Contains(current), Is.True);
       }
       foreach (var node in current.Children) {
         result += ValidateNodes(node);

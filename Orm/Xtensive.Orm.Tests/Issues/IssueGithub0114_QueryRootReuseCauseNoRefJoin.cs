@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Xtensive LLC.
+// Copyright (C) 2023-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -2380,6 +2380,50 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void LeftJoinQueryReuse()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<Promotion>()
+          .Select(promo => new {
+            promo,
+            notifications = session.Query.All<Notification>()
+              .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u })
+          })
+          .Select(anon => new {
+            contacted = anon.notifications.Select(c => c.n.Recipient.User.Id)
+              .Concat(anon.notifications.Select(c => c.n.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        var expected = session.Query.All<Promotion>()
+          .Select(promo => new { promo })
+          .Select(anon => new {
+            contacted = session.Query.All<Notification>()
+                .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)
+              .Concat(session.Query.All<Notification>()
+                .LeftJoin(session.Query.All<User>(), n => n.TriggeredBy.Id, u => u.Id, (n, u) => new { n, u }).Select(c => c.n.Recipient.User.Id)),
+            promo = anon.promo
+          }).ToArray();
+
+        Assert.That(query.Length, Is.EqualTo(expected.Length));
+
+        for (var i = 0; i < expected.Length; i++) {
+          var a1 = expected[0];
+          var a2 = query[0];
+
+          var a1Contacted = a1.contacted.ToArray();
+          var a2Contacted = a2.contacted.ToArray();
+
+          Assert.That(a1.promo.Id, Is.EqualTo(a2.promo.Id));
+          Assert.That(a1Contacted.SequenceEqual(a2Contacted));
+          Assert.That(a1Contacted.Length, Is.Not.Zero);
+        }
+      }
+    }
+#else
     [Test]
     public void LeftJoinQueryReuse()
     {
@@ -2422,6 +2466,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
+#endif
 
     [Test]
     public void OfTypeQueryReuse()

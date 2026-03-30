@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
     [Test]
     public void TestExtractCatalog()
     {
-      Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
+      Assert.That(Catalog.Schemas.Count, Is.GreaterThanOrEqualTo(1));
     }
 
     [Test]
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = employees["FirstName"] == SqlDml.ParameterRef(p.ParameterName);
       select.OrderBy.Add(employees["LastName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Columns.AddRange(employees["FirstName"]);
       select.Where = employees["Title"] == SqlDml.ParameterRef(p.ParameterName);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select(region);
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.OrderBy.Add(customer["FirstName"]);
       select.OrderBy.Add(3, false);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       sqlCommand.Prepare();
 
       var r = GetExecuteDataReaderResult(sqlCommand);
-      Assert.AreEqual(14, r.RowCount);
+      Assert.That(r.RowCount, Is.EqualTo(14));
     }
 
     [Test]
@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Columns.Add(invoiceLine["UnitPrice"]);
       select.Columns.Add(invoiceLine["Quantity"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Columns.Add(SqlDml.Round(invoice["Commission"] * 12, 1), "Rounded");
       select.Where = invoice["invoiceId"]==412;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       select.OrderBy.Add(customer["CustomerId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -369,7 +369,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Columns.Add(SqlDml.Sum(invoiceLine["UnitPrice"]), "TotalUnits");
       select.GroupBy.AddRange(invoiceLine["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -391,7 +391,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.IsNotNull(invoice["BillingState"]);
       select.OrderBy.Add(invoice["InvoiceId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -424,7 +424,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeAddMonths(SqlDml.Native("CURRENT_TIMESTAMP"), -15), "Days");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -435,7 +435,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeAddMonths(SqlDml.Native("CURRENT_TIMESTAMP"), SqlDml.Add(1, 1)), "Days");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, SqlDml.Native("SYSTIMESTAMP")), "DayOfMonth");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -457,7 +457,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, SqlDml.Native("SYSTIMESTAMP")), "Month");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -468,7 +468,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, SqlDml.Native("SYSTIMESTAMP")), "Year");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -479,7 +479,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, SqlDml.Native("SYSTIMESTAMP")), "Hour");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -490,7 +490,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, SqlDml.Native("SYSTIMESTAMP")), "Minutes");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -501,7 +501,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, SqlDml.Native("SYSTIMESTAMP")), "Seconds");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, SqlDml.Native("SYSTIMESTAMP")), "Milliseconds");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -523,7 +523,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeConstruct(2011, 11, 16), "BirthDay");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -545,7 +545,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select(invoices);
       select.Columns.Add(SqlDml.Sum(invoices["Commission"]), "sum");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -569,7 +569,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerId"]);
       select.Columns.Add(SqlDml.Concat(SqlDml.Concat(customer["FirstName"], SqlDml.Literal(", ")), customer["LastName"]), "FullName");
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -600,7 +600,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       select.Having = SqlDml.Sum(invoice["Commission"]) > 140;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -634,7 +634,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.GroupBy.Add(customer["CompanyName"]);
       select.GroupBy.Add(customer["LastName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -655,7 +655,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.Between(track["Milliseconds"], 50, 40000);
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -676,7 +676,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.In(track["AlbumId"], SqlDml.Row(2, 8));
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -697,7 +697,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.Like(track["Name"], "R%");
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -718,7 +718,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = (track["AlbumId"] == 3 || track["AlbumId"] == 8) && track["UnitPrice"] < 1;
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -739,7 +739,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, invoice["PaymentDate"]));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -764,7 +764,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
 
       select.Where = SqlDml.Equals(invoice1["Commission"], innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -792,7 +792,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Columns.Add(customer["CompanyName"]);
       select.Where = SqlDml.Exists(innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -822,7 +822,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       update.Values[invoice["Total"]] = invoice["Total"] * 1;
       update.Where = invoice["InvoiceId"] == 10;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -959,7 +959,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       var select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+      Assert.That(CompareExecuteNonQuery(nativeSql, select), Is.True);
     }
   }
 }

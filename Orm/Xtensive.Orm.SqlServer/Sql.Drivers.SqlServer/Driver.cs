@@ -16,39 +16,60 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private readonly ErrorMessageParser errorMessageParser;
     private readonly bool checkConnectionIsAlive;
 
+    /// <inheritdoc />
     protected override SqlConnection DoCreateConnection()
     {
       return new Connection(this, checkConnectionIsAlive);
     }
 
+    /// <inheritdoc />
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
       return GetExceptionInfo(exception).Type;
     }
 
+    /// <inheritdoc />
     public override SqlExceptionInfo GetExceptionInfo(Exception exception)
     {
-      var nativeException = exception as SqlException;
-      if (nativeException==null)
+      if (exception is not SqlException nativeException)
         return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
       int errorCode = nativeException.Number;
-      string errorMessage = nativeException.Message;
-      if (errorCode==-2)
-        return SqlExceptionInfo.Create(SqlExceptionType.OperationTimeout);
-      if (errorCode==1205)
-        return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
+      switch (errorCode) {
+        case -2:
+          return SqlExceptionInfo.Create(SqlExceptionType.OperationTimeout);
+        case 1205:
+          return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
+        case 229:
+        case 230:
+          return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
+      }
+
       if ((errorCode >= 3950 && errorCode <= 3961) || errorCode==3966 || errorCode==3971)
         return SqlExceptionInfo.Create(SqlExceptionType.SerializationFailure);
-      if (errorCode==229 || errorCode==230)
-        return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
       if (errorCode >= 100 && errorCode <= 499)
         return SqlExceptionInfo.Create(SqlExceptionType.SyntaxError);
+
       var info = new SqlExceptionInfo();
-      if (TryProvideErrorContext(errorCode, errorMessage, info)) {
+      if (TryProvideErrorContext(errorCode, nativeException.Message, info)) {
         info.Lock();
         return info;
       }
       return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.Add(typeof(DateTimeOffset),
+        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.BindDateTimeOffset,
+        builder.Mapper.MapDateTimeOffset);
+    }
+
+    /// <inheritdoc />
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(SqlType.DateTimeOffset, typeof(DateTimeOffset));
     }
 
     protected virtual bool TryProvideErrorContext(int errorCode, string errorMessage, SqlExceptionInfo info)

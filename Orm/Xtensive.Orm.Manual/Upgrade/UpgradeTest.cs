@@ -70,9 +70,9 @@ namespace Xtensive.Orm.Manual.Upgrade
 
           var cheeseOrder = session.Query.All<Model_2.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
-          Assert.IsNotNull(cheeseOrder);
-          Assert.AreEqual(10, cheeseOrder.Quantity);
-          Assert.IsNull(cheeseOrder.Customer);
+          Assert.That(cheeseOrder, Is.Not.Null);
+          Assert.That(cheeseOrder.Quantity, Is.EqualTo(10));
+          Assert.That(cheeseOrder.Customer, Is.Null);
           cheeseOrder.Customer = new Model_2.Customer(session) {Name = "Michael"};
           
           var customer = new Model_2.Customer(session) {Name = "Tony"};
@@ -97,9 +97,9 @@ namespace Xtensive.Orm.Manual.Upgrade
 
           var cheeseOrder = session.Query.All<Model_3.Order>().FirstOrDefault(o => o.ProductName == "Cheese");
 
-          Assert.IsNotNull(cheeseOrder);
-          Assert.AreEqual(10, cheeseOrder.Quantity);
-          Assert.AreEqual("Michael", cheeseOrder.Customer.FullName);
+          Assert.That(cheeseOrder, Is.Not.Null);
+          Assert.That(cheeseOrder.Quantity, Is.EqualTo(10));
+          Assert.That(cheeseOrder.Customer.FullName, Is.EqualTo("Michael"));
 
           transactionScope.Complete();
         }
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Manual.Upgrade
         using (var transactionScope = session.OpenTransaction()) {
 
           int productCount = session.Query.All<Model_4.Product>().Count();
-          Assert.AreEqual(2, productCount);
+          Assert.That(productCount, Is.EqualTo(2));
 
           var order = session.Query.All<Model_4.Order>().First();
 

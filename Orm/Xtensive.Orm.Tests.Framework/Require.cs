@@ -34,49 +34,49 @@ namespace Xtensive.Orm.Tests
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckProviderVersionIsAtLeast(minimalVersion))
-        IgnoreMe("This test requires at least '{0}' version", minimalVersion);
+        IgnoreMe($"This test requires at least '{minimalVersion}' version");
     }
 
     public static void ProviderVersionAtMost(Version maximalVersion)
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckProviderVersionIsAtMost(maximalVersion))
-        IgnoreMe("This test requires at most '{0}' version", maximalVersion);
+        IgnoreMe($"This test requires at most '{maximalVersion}' version");
     }
     
     public static void AllFeaturesSupported(ProviderFeatures requiredFeatures)
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckAllFeaturesSupported(requiredFeatures))
-        IgnoreMe("This test requires storage that supports '{0}'", requiredFeatures);
+        IgnoreMe($"This test requires storage that supports '{requiredFeatures}'");
     }
 
     public static void AllFeaturesNotSupported(ProviderFeatures disallowedFeatures)
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckAllFeaturesNotSupported(disallowedFeatures))
-        IgnoreMe("This test requires storage that does not support '{0}'", disallowedFeatures);
+        IgnoreMe($"This test requires storage that does not support '{disallowedFeatures}'");
     }
 
     public static void AnyFeatureSupported(ProviderFeatures requiredFeatures)
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckAnyFeatureSupported(requiredFeatures))
-        IgnoreMe("This test requires storage that supports at least one of the '{0}' features", requiredFeatures);
+        IgnoreMe($"This test requires storage that supports at least one of the '{requiredFeatures}' features");
     }
 
     public static void AnyFeatureNotSupported(ProviderFeatures disallowedFeatures)
     {
       var info = StorageProviderInfo.Instance;
       if (!info.CheckAnyFeatureNotSupported(disallowedFeatures))
-        IgnoreMe("This test requires storage that does not support at least one of the '{0}' features", disallowedFeatures);
+        IgnoreMe($"This test requires storage that does not support at least one of the '{disallowedFeatures}' features");
     }
 
-    private static void IgnoreMe(string format, object argument, string reason = null)
+    private static void IgnoreMe(string format, object argument = null, string reason = null)
     {
-      var message = string.Format(format, argument);
+      var message = (argument is null) ? format : string.Format(format, argument);
       if (!string.IsNullOrEmpty(reason))
-        message = string.Format("{0}. Reason: {1}", message, reason);
+        message = $"{message}. Reason: {reason}";
       throw new IgnoreException(message);
     }
   }

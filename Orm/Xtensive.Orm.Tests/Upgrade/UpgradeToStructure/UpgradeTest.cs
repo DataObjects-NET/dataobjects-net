@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var person = session.Query.All<M2.Person>().SingleOrDefault();
-        Assert.NotNull(person);
-        Assert.AreEqual("Alex", person.Info.Title);
+        Assert.That(person, Is.Not.Null);
+        Assert.That(person.Info.Title, Is.EqualTo("Alex"));
       }
     }
 

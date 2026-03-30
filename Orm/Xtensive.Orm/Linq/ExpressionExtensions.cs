@@ -92,18 +92,18 @@ namespace Xtensive.Linq
 
           Type elementType;
           Expression[] newArguments;
-
+          
           if (arguments[0] is MethodCallExpression mcInner && mcInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
             var wrappedArray = mcInner.Arguments[0];
             elementType = wrappedArray.Type.GetElementType();
-            newArguments = new[] { wrappedArray, arguments[1] };
+            newArguments = [wrappedArray, arguments[1]];
           }
           else if (arguments[0] is UnaryExpression uInner
             && uInner.Method is not null
             && uInner.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal)) {
 
             elementType = uInner.Operand.Type.GetElementType();
-            newArguments = new[] { uInner.Operand, arguments[1] };
+            newArguments = [uInner.Operand, arguments[1]];
           }
           else {
             return mc;
@@ -117,6 +117,7 @@ namespace Xtensive.Linq
       }
       return mc;
     }
+
 
     // Type initializer
 
@@ -138,7 +139,7 @@ namespace Xtensive.Linq
         var parameters = method.GetParameters();
         var genericDef = parameters[0].ParameterType.GetGenericTypeDefinition();
         if (genericDef == genericReadOnlySpan) {
-          if (parameters.Length == 2 || parameters.Length == 3)
+          if (parameters.Length is 2 or 3)
             candiates.Add(method.MetadataToken);
         }
         else if (genericDef == genericSpan && parameters.Length == 2) {
@@ -146,7 +147,7 @@ namespace Xtensive.Linq
         }
       }
       MemoryExtensionsContainsMethodTokens = candiates.ToArray();
-      EnumerableContains = typeof(System.Linq.Enumerable).GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
+      EnumerableContains = WellKnownTypes.Enumerable.GetMethodEx(nameof(System.Linq.Enumerable.Contains), BindingFlags.Public | BindingFlags.Static, new string[1], new object[2]);
     }
   }
 }

@@ -11,6 +11,12 @@ runs:
   using: "composite"
 
   steps:
+    - name: Setup .NET 10 (if needed)
+      if: ${{ contains(inputs.target_framework, '10.0') }}
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
     - name: Setup .NET 9 (if needed)
       if: ${{ contains(inputs.target_framework, '9.0') }}
       uses: actions/setup-dotnet@v4

@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(exception.ComparisonResult.HasUnsafeActions, Is.True);
       Assert.That(exception.ComparisonResult.UnsafeActions.Count, Is.EqualTo(4));
       foreach (var unsafeAction in exception.ComparisonResult.UnsafeActions) {
-        Assert.IsInstanceOf(typeof(PropertyChangeAction), unsafeAction);
+        Assert.That(unsafeAction, Is.InstanceOf(typeof(PropertyChangeAction)));
         var propertyChangeAction = unsafeAction as PropertyChangeAction;
         Assert.That(propertyChangeAction.Properties.ContainsKey("Type"), Is.True);
         var targetColumnInfo = unsafeAction.Difference.Target as StorageTypeInfo;

@@ -1297,12 +1297,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model1.Item() { Document = document };
         new Model1.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1310,22 +1310,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model1.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1333,16 +1333,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model1.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model1.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1364,12 +1364,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model2.Item() { Document = document };
         new Model2.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1377,22 +1377,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model2.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1400,16 +1400,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model2.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model2.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1431,12 +1431,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model3.Item() { Document = document };
         new Model3.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1444,22 +1444,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model3.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1467,16 +1467,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model3.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model3.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1498,12 +1498,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model4.Item() { Document = document };
         new Model4.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1511,22 +1511,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model4.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1534,16 +1534,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model4.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model4.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1565,12 +1565,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model5.Item() { Document = document };
         new Model5.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1578,22 +1578,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model5.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1601,16 +1601,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model5.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model5.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1632,12 +1632,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model6.Item() { Document = document };
         new Model6.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1645,22 +1645,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model6.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1668,16 +1668,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model6.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model6.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1713,12 +1713,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model9.Item() { Document = document };
         new Model9.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1726,22 +1726,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model9.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1749,16 +1749,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model9.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model9.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1780,12 +1780,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model10.Item() { Document = document };
         new Model10.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1793,22 +1793,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model10.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1816,16 +1816,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model10.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model10.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1861,12 +1861,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model13.Item() { Document = document };
         new Model13.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1874,22 +1874,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model13.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1897,16 +1897,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model13.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model13.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -1935,12 +1935,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model15.Item() { Document = document };
         new Model15.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -1948,22 +1948,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model15.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -1971,16 +1971,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model15.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model15.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2002,12 +2002,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model16.Item() { Document = document };
         new Model16.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2015,22 +2015,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model16.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2038,16 +2038,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model16.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model16.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2069,12 +2069,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model17.Item() { Document = document };
         new Model17.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2082,22 +2082,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model17.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2105,16 +2105,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model17.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model17.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2157,12 +2157,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model21.Item() { Document = document };
         new Model21.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2170,22 +2170,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model21.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2193,16 +2193,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model21.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model21.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2224,12 +2224,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model22.Item() { Document = document };
         new Model22.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2237,22 +2237,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model22.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2260,16 +2260,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model22.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model22.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2305,12 +2305,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model25.Item() { Document = document };
         new Model25.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2318,22 +2318,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model25.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2341,16 +2341,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model25.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model25.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2379,12 +2379,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model27.Item() { Document = document };
         new Model27.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2392,22 +2392,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model27.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2415,16 +2415,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model27.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model27.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2446,12 +2446,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model28.Item() { Document = document };
         new Model28.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2459,22 +2459,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model28.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2482,16 +2482,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model28.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model28.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2513,12 +2513,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model29.Item() { Document = document };
         new Model29.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2526,22 +2526,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model29.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2549,16 +2549,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model29.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model29.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2587,12 +2587,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model31.Item() { Document = document };
         new Model31.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2600,22 +2600,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model31.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2623,16 +2623,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model31.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model31.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2661,12 +2661,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model33.Item() { Document = document };
         new Model33.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2674,22 +2674,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model33.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2697,16 +2697,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model33.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model33.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2728,12 +2728,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model34.Item() { Document = document };
         new Model34.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2741,22 +2741,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model34.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2764,16 +2764,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model34.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model34.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }
@@ -2795,12 +2795,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         new Model35.Item() { Document = document };
         new Model35.Item() { Document = document };
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
         t.Complete();
       }
 
@@ -2808,22 +2808,22 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model35.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(5, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(5));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(5, itemCount);
+        Assert.That(itemCount, Is.EqualTo(5));
 
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
         t.Complete();
       }
 
@@ -2831,16 +2831,16 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model35.Document>(key);
         var itemCount = 0;
-        Assert.AreEqual(4, document.Items.Count);
+        Assert.That(document.Items.Count, Is.EqualTo(4));
         foreach (var item in document.Items) {
-          Assert.IsNotNull(item);
+          Assert.That(item, Is.Not.Null);
           itemCount++;
         }
-        Assert.AreEqual(4, itemCount);
+        Assert.That(itemCount, Is.EqualTo(4));
 
         document.Remove();
         var items = session.Query.All<Model35.Item>().ToList();
-        Assert.AreEqual(1, items.Count);
+        Assert.That(items.Count, Is.EqualTo(1));
         
         t.Complete();
       }

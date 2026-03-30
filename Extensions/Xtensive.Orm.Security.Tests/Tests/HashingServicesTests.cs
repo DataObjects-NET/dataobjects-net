@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Security.Tests
       var service = new Cryptography.PlainHashingService();
 
       foreach (string value in values)
-        Assert.AreEqual(value, service.ComputeHash(value));
+        Assert.That(service.ComputeHash(value), Is.EqualTo(value));
     }
 
     [Test]
@@ -55,9 +55,9 @@ namespace Xtensive.Orm.Security.Tests
     {
       foreach (string value in values) {
         var hash = service1.ComputeHash(value);
-        Assert.IsNotEmpty(hash);
-        Assert.IsTrue(service2.VerifyHash(value, hash));
-        Assert.IsFalse(service2.VerifyHash(value, Convert.ToBase64String(new byte[] {33, 32,23,23,23,23,23,23,23,23,2,32,3,23,23,23})));
+        Assert.That(hash, Is.Not.Empty);
+        Assert.That(service2.VerifyHash(value, hash), Is.True);
+        Assert.That(service2.VerifyHash(value, Convert.ToBase64String(new byte[] {33, 32,23,23,23,23,23,23,23,23,2,32,3,23,23,23})), Is.False);
       }
     }
 
@@ -65,28 +65,28 @@ namespace Xtensive.Orm.Security.Tests
     public void InitializationTest()
     {
       var s = Domain.Services.Get<IHashingService>("md5");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<MD5HashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<MD5HashingService>());
 
       s = Domain.Services.Get<IHashingService>("sha1");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<SHA1HashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<SHA1HashingService>());
 
       s = Domain.Services.Get<IHashingService>("sha256");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<SHA256HashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<SHA256HashingService>());
 
       s = Domain.Services.Get<IHashingService>("sha384");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<SHA384HashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<SHA384HashingService>());
 
       s = Domain.Services.Get<IHashingService>("sha512");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<SHA512HashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<SHA512HashingService>());
 
       s = Domain.Services.Get<IHashingService>("plain");
-      Assert.IsNotNull(s);
-      Assert.IsInstanceOf<PlainHashingService>(s);
+      Assert.That(s, Is.Not.Null);
+      Assert.That(s, Is.InstanceOf<PlainHashingService>());
     }
 
     public HashingServicesTests()

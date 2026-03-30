@@ -295,8 +295,7 @@ namespace Xtensive.Caching
       finally {
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
-          CoreLog.Debug("MfLruCache.CollectGarbage: removed: {0} from {1}, efficiency: {2}, time shift: {3}",
-            removedCount, count, effeciency, timeShift);
+          CoreLog.Debug($"MfLruCache.CollectGarbage: removed: {removedCount} from {count}, efficiency: {effeciency}, time shift: {timeShift}");
           if (error!=null)
             CoreLog.Debug(error, "Caught at MfLruCache.CollectGarbage");
         }

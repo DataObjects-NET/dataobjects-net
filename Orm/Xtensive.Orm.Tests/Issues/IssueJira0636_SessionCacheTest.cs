@@ -512,83 +512,83 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var id = 5001L;
         var entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         new IssueModel.BaseEntity(session, id);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity.Remove();
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
 
         ++id;
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         new IssueModel.FirstSuccessor(session, id);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity.Remove();
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
 
         ++id;
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         new IssueModel.SecondSuccessor(session, id);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity.Remove();
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
 
         ++id;
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         new IssueModel.BaseEntity(session, id);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.Single<IssueModel.BaseEntity>(id);
         entity.Remove();
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
 
         ++id;
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         new IssueModel.BaseEntity(session, id);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.Single<IssueModel.BaseEntity>(id);
         entity.Remove();
         entity = Query.SingleOrDefault<IssueModel.FirstSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.SecondSuccessor>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
         entity = Query.SingleOrDefault<IssueModel.BaseEntity>(id);
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
       }
     }
 
@@ -843,25 +843,25 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         var entity = getEntity(idsStruct.BaseEntityId, false);
-        Assert.AreEqual(entity.Field0, BaseEntityField0);
+        Assert.That(entity.Field0, Is.EqualTo(BaseEntityField0));
 
         entity = getEntity(idsStruct.FirstSuccessorId, false);
-        Assert.AreEqual(entity.Field0, FirstSuccessorField0);
+        Assert.That(entity.Field0, Is.EqualTo(FirstSuccessorField0));
 
         entity = getEntity(idsStruct.SecondSuccessorId, false);
-        Assert.AreEqual(entity.Field0, SecondSuccessorField0);
+        Assert.That(entity.Field0, Is.EqualTo(SecondSuccessorField0));
 
         entity = getEntity(idsStruct.SecondSuccessorLeafId, false);
-        Assert.AreEqual(entity.Field0, SecondSuccessorLeafField0);
+        Assert.That(entity.Field0, Is.EqualTo(SecondSuccessorLeafField0));
 
         entity = getEntity(idsStruct.ThirdSuccessorId, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorField0);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorField0));
 
         entity = getEntity(idsStruct.ThirdSuccessorLeaf1Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf1Field0);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf1Field0));
 
         entity = getEntity(idsStruct.ThirdSuccessorLeaf2Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf2Field0);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf2Field0));
       }
     }
 
@@ -886,8 +886,8 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.BaseEntityId, true);
 
         var entity = getEntity(idsStruct.FirstSuccessorId, false);
-        Assert.AreEqual(entity.Field0, FirstSuccessorField0);
-        Assert.AreEqual(entity.Field1, FirstSuccessorField1);
+        Assert.That(entity.Field0, Is.EqualTo(FirstSuccessorField0));
+        Assert.That(entity.Field1, Is.EqualTo(FirstSuccessorField1));
 
         getEntity(idsStruct.SecondSuccessorId, true);
         getEntity(idsStruct.SecondSuccessorLeafId, true);
@@ -919,12 +919,12 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.FirstSuccessorId, true);
 
         var entity = getEntity(idsStruct.SecondSuccessorId, false);
-        Assert.AreEqual(entity.Field0, SecondSuccessorField0);
-        Assert.AreEqual(entity.Field2, SecondSuccessorField2);
+        Assert.That(entity.Field0, Is.EqualTo(SecondSuccessorField0));
+        Assert.That(entity.Field2, Is.EqualTo(SecondSuccessorField2));
 
         entity = getEntity(idsStruct.SecondSuccessorLeafId, false);
-        Assert.AreEqual(entity.Field0, SecondSuccessorLeafField0);
-        Assert.AreEqual(entity.Field2, SecondSuccessorLeafField2);
+        Assert.That(entity.Field0, Is.EqualTo(SecondSuccessorLeafField0));
+        Assert.That(entity.Field2, Is.EqualTo(SecondSuccessorLeafField2));
 
         getEntity(idsStruct.ThirdSuccessorId, true);
         getEntity(idsStruct.ThirdSuccessorLeaf1Id, true);
@@ -955,9 +955,9 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.SecondSuccessorId, true);
 
         var entity = getEntity(idsStruct.SecondSuccessorLeafId, false);
-        Assert.AreEqual(entity.Field0, SecondSuccessorLeafField0);
-        Assert.AreEqual(entity.Field2, SecondSuccessorLeafField2);
-        Assert.AreEqual(entity.LeafCode, SecondSuccessorLeafCode);
+        Assert.That(entity.Field0, Is.EqualTo(SecondSuccessorLeafField0));
+        Assert.That(entity.Field2, Is.EqualTo(SecondSuccessorLeafField2));
+        Assert.That(entity.LeafCode, Is.EqualTo(SecondSuccessorLeafCode));
 
         getEntity(idsStruct.ThirdSuccessorId, true);
         getEntity(idsStruct.ThirdSuccessorLeaf1Id, true);
@@ -989,16 +989,16 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.SecondSuccessorLeafId, true);
 
         var entity = getEntity(idsStruct.ThirdSuccessorId, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorField0);
-        Assert.AreEqual(entity.Field3, ThirdSuccessorField3);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorField0));
+        Assert.That(entity.Field3, Is.EqualTo(ThirdSuccessorField3));
 
         entity = getEntity(idsStruct.ThirdSuccessorLeaf1Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf1Field0);
-        Assert.AreEqual(entity.Field3, ThirdSuccessorLeaf1Field3);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf1Field0));
+        Assert.That(entity.Field3, Is.EqualTo(ThirdSuccessorLeaf1Field3));
 
         entity = getEntity(idsStruct.ThirdSuccessorLeaf2Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf2Field0);
-        Assert.AreEqual(entity.Field3, ThirdSuccessorLeaf2Field3);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf2Field0));
+        Assert.That(entity.Field3, Is.EqualTo(ThirdSuccessorLeaf2Field3));
       }
     }
 
@@ -1027,9 +1027,9 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.ThirdSuccessorId, true);
 
         var entity = getEntity(idsStruct.ThirdSuccessorLeaf1Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf1Field0);
-        Assert.AreEqual(entity.Field3, ThirdSuccessorLeaf1Field3);
-        Assert.AreEqual(entity.Leaf1Code, ThirdSuccessorLeaf1Code);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf1Field0));
+        Assert.That(entity.Field3, Is.EqualTo(ThirdSuccessorLeaf1Field3));
+        Assert.That(entity.Leaf1Code, Is.EqualTo(ThirdSuccessorLeaf1Code));
 
         getEntity(idsStruct.ThirdSuccessorLeaf2Id, true);
       }
@@ -1060,9 +1060,9 @@ namespace Xtensive.Orm.Tests.Issues
         getEntity(idsStruct.ThirdSuccessorLeaf1Id, true);
 
         var entity = getEntity(idsStruct.ThirdSuccessorLeaf2Id, false);
-        Assert.AreEqual(entity.Field0, ThirdSuccessorLeaf2Field0);
-        Assert.AreEqual(entity.Field3, ThirdSuccessorLeaf2Field3);
-        Assert.AreEqual(entity.Leaf2Code, ThirdSuccessorLeaf2Code);
+        Assert.That(entity.Field0, Is.EqualTo(ThirdSuccessorLeaf2Field0));
+        Assert.That(entity.Field3, Is.EqualTo(ThirdSuccessorLeaf2Field3));
+        Assert.That(entity.Leaf2Code, Is.EqualTo(ThirdSuccessorLeaf2Code));
       }
     }
 
@@ -1089,9 +1089,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var entity = Query.SingleOrDefault<T>(keyValue);
       if (expectedNull)
-        Assert.IsNull(entity);
+        Assert.That(entity, Is.Null);
       else
-        Assert.IsNotNull(entity);
+        Assert.That(entity, Is.Not.Null);
       return entity;
     }
 

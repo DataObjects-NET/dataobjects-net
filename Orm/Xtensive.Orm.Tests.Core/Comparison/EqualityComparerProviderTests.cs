@@ -26,12 +26,12 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       long a1 = hash1(o2);
 
       AdvancedComparer<int> comparer = AdvancedComparer<int>.Default;
-      Assert.IsNotNull(comparer);
+      Assert.That(comparer, Is.Not.Null);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "Int32Comparer*");
-      Assert.IsFalse(comparer.Equals(o2,o1));
-      Assert.IsFalse(comparer.GetHashCode(o1)==comparer.GetHashCode(o2));
-      Assert.IsTrue(comparer.Equals(1,o1));
-      Assert.IsTrue(comparer.Equals(2,o2));
+      Assert.That(comparer.Equals(o2,o1), Is.False);
+      Assert.That(comparer.GetHashCode(o1)==comparer.GetHashCode(o2), Is.False);
+      Assert.That(comparer.Equals(1,o1), Is.True);
+      Assert.That(comparer.Equals(2,o2), Is.True);
     }
 
     [Test]
@@ -40,12 +40,12 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       string o1 = "1";
       string o2 = "2";
       AdvancedComparer<string> comparer = AdvancedComparer<string>.Default;
-      Assert.IsNotNull(comparer);
+      Assert.That(comparer, Is.Not.Null);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "StringComparer*");
-      Assert.IsFalse(comparer.Equals(o2,o1));
-      Assert.IsFalse(comparer.GetHashCode(o1)==comparer.GetHashCode(o2));
-      Assert.IsTrue(comparer.Equals("1",o1));
-      Assert.IsTrue(comparer.Equals("2",o2));
+      Assert.That(comparer.Equals(o2,o1), Is.False);
+      Assert.That(comparer.GetHashCode(o1)==comparer.GetHashCode(o2), Is.False);
+      Assert.That(comparer.Equals("1",o1), Is.True);
+      Assert.That(comparer.Equals("2",o2), Is.True);
     }
 
     [Test]
@@ -54,10 +54,10 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       Wrapper2a<int, int> o1 = new Wrapper2a<int, int>(0,1);
       Wrapper2a<int, int> o2 = new Wrapper2a<int, int>(0,2);
       AdvancedComparer<Wrapper2a<int, int>> comparer = AdvancedComparer<Wrapper2a<int, int>>.Default;
-      Assert.IsNotNull(comparer);
+      Assert.That(comparer, Is.Not.Null);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "BaseComparerWrapper*");
-      Assert.IsTrue(comparer.Equals(o2,o1));
-      Assert.IsTrue(comparer.GetHashCode(o1)==comparer.GetHashCode(o2));
+      Assert.That(comparer.Equals(o2,o1), Is.True);
+      Assert.That(comparer.GetHashCode(o1)==comparer.GetHashCode(o2), Is.True);
     }
 
     [Test]
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     {
       int i = 5;
       object o = i;
-      Assert.AreEqual(GetHashCodeInvocationOnStruct(i), GetHashCodeInvocationOnObject(o));
+      Assert.That(GetHashCodeInvocationOnObject(o), Is.EqualTo(GetHashCodeInvocationOnStruct(i)));
     }
 
 

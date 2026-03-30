@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Take(count / 2).ToArray();
           var union =session.Query.All<EntityB>().Union(localItems);
           var expected =session.Query.All<EntityB>().AsEnumerable().Union(localItems);
-          Assert.AreEqual(0, expected.Except(union).Count());
+          Assert.That(expected.Except(union).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Select(b => b.AdditionalInfo).Take(count / 2).ToArray();
           var union =session.Query.All<EntityB>().Select(b => b.AdditionalInfo).Union(localItems);
           var expected =session.Query.All<EntityB>().AsEnumerable().Select(b => b.AdditionalInfo).Union(localItems);
-          Assert.AreEqual(0, expected.Except(union).Count());
+          Assert.That(expected.Except(union).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Select(b => b.Name).Take(count / 2).ToArray();
           var union =session.Query.All<EntityB>().Select(b => b.Name).Union(localItems);
           var expected =session.Query.All<EntityB>().AsEnumerable().Select(b => b.Name).Union(localItems);
-          Assert.AreEqual(0, expected.Except(union).Count());
+          Assert.That(expected.Except(union).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Take(count / 2).ToArray();
           var join =session.Query.All<EntityB>().Join(localItems, b => b, l => l, (b, l) => new {b, l});
           var expected =session.Query.All<EntityB>().AsEnumerable().Join(localItems, b => b, l => l, (b, l) => new {b, l});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          Assert.That(expected.Except(join).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Take(count / 2).ToArray();
           var join =session.Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
           var expected =session.Query.All<EntityB>().AsEnumerable().Join(localItems, b => b.AdditionalInfo.A, l => l.AdditionalInfo.A, (b, l) => new {b, l});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          Assert.That(expected.Except(join).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -240,7 +240,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Take(count / 2).ToArray();
           var join =session.Query.All<EntityA>().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
           var expected =session.Query.All<EntityA>().AsEnumerable().Join(localItems, a => a, l => l.AdditionalInfo.A, (a, l) => new {a, l});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          Assert.That(expected.Except(join).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -261,7 +261,7 @@ namespace Xtensive.Orm.Tests.Linq
           var except = expected.Except(join);
           var joinArray = join.ToArray();
           var expectedArray = expected.ToArray();
-          Assert.AreEqual(0, except.Count());
+          Assert.That(except.Count(), Is.EqualTo(0));
         }
       }
     }
@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Tests.Linq
           var localItems =session.Query.All<EntityB>().Take(count / 2).ToArray();
           var join =session.Query.All<EntityB>().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
           var expected =session.Query.All<EntityB>().AsEnumerable().Join(localItems, b => b.AdditionalInfo, l => l.AdditionalInfo, (b, l) => new {b, l});
-          Assert.AreEqual(0, expected.Except(join).Count());
+          Assert.That(expected.Except(join).Count(), Is.EqualTo(0));
         }
       }
     }
@@ -293,10 +293,10 @@ namespace Xtensive.Orm.Tests.Linq
           Poco2[] localItems = GetPocoCollection();
           var join = session.Query.All<EntityB>().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A}).ToList();
           var count = join.Count();
-          Assert.IsTrue(count>0);
+          Assert.That(count>0, Is.True);
           var expected = session.Query.All<EntityB>().ToList().Join(localItems, b=>b, p=>p.B, (b,p) => new{b, p.A}).ToList();
           var except = expected.Except(join).ToArray();
-          Assert.AreEqual(0, except.Length);
+          Assert.That(except.Length, Is.EqualTo(0));
         }
       }
     }

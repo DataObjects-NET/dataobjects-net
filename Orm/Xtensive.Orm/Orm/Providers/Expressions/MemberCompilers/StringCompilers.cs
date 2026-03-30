@@ -358,8 +358,8 @@ namespace Xtensive.Orm.Providers
       [Type(typeof(string))] SqlExpression strB)
     {
       var result = SqlDml.Case();
-      result.Add(strA > strB, SqlDml.Literal(1));
-      result.Add(strA < strB, SqlDml.Literal(-1));
+      _ = result.Add(strA > strB, SqlDml.Literal(1));
+      _ = result.Add(strA < strB, SqlDml.Literal(-1));
       result.Else = SqlDml.Literal(0);
       return result;
     }
@@ -521,14 +521,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.In(value, SqlDml.Row(expressions));
     }
 
-    [Compiler(typeof (QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof (QueryableExtensionsEx), nameof(QueryableExtensionsEx.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInEnumerable(
       MemberInfo member, SqlExpression value, [Type(typeof(IEnumerable<>))] SqlExpression sequence)
     {
       return EnumerableContains(member, sequence, value);
     }
 
-    [Compiler(typeof(QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof(QueryableExtensionsEx), nameof(QueryableExtensionsEx.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInArray(
       MemberInfo member, SqlExpression value, [Type(typeof(MethodHelper.AnyArrayPlaceholder))] SqlExpression sequence)
     {

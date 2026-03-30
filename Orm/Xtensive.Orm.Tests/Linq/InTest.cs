@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
@@ -38,10 +37,10 @@ namespace Xtensive.Orm.Tests.Linq
                       select c.Invoices;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
-      Assert.AreEqual(0, expected1.Except(query1).Count());
-      Assert.AreEqual(0, expected2.Except(query1).Count());
-      Assert.AreEqual(0, expected1.Except(query2).Count());
-      Assert.AreEqual(0, expected2.Except(query2).Count());
+      Assert.That(expected1.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected2.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected1.Except(query2).Count(), Is.EqualTo(0));
+      Assert.That(expected2.Except(query2).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query1);
       QueryDumper.Dump(query2);
     }
@@ -64,14 +63,25 @@ namespace Xtensive.Orm.Tests.Linq
                       select c.Invoices;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
-      Assert.AreEqual(0, expected1.Except(query1).Count());
-      Assert.AreEqual(0, expected2.Except(query1).Count());
-      Assert.AreEqual(0, expected1.Except(query2).Count());
-      Assert.AreEqual(0, expected2.Except(query2).Count());
+      Assert.That(expected1.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected2.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected1.Except(query2).Count(), Is.EqualTo(0));
+      Assert.That(expected2.Except(query2).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query1);
       QueryDumper.Dump(query2);
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void MartinTest()
+    {
+      _ = Session.Query.All<Customer>()
+        .LeftJoin(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new { Customer = c, Invoice = i })
+        .GroupBy(i => new { i.Customer.FirstName, i.Customer.LastName })
+        .Select(g => new { Key = g.Key, Count = g.Count(j => j.Invoice != null) })
+        .ToList();
+    }
+#else
     [Test]
     public void MartinTest()
     {
@@ -82,6 +92,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
     }
 
+#endif
     [Test]
     public void LongSequenceIntTest()
     {
@@ -101,8 +112,8 @@ namespace Xtensive.Orm.Tests.Linq
                      select invoice;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query1).Count());
-      Assert.AreEqual(0, expected.Except(query2).Count());
+      Assert.That(expected.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected.Except(query2).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -124,8 +135,8 @@ namespace Xtensive.Orm.Tests.Linq
                      select invoice;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query1).Count());
-      Assert.AreEqual(0, expected.Except(query2).Count());
+      Assert.That(expected.Except(query1).Count(), Is.EqualTo(0));
+      Assert.That(expected.Except(query2).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -140,7 +151,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !((int) invoice.Commission).In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -156,7 +167,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !((int) invoice.Commission).In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -171,7 +182,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(list)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -186,7 +197,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(list)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -198,7 +209,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var tracksExist = false;
       foreach (var track in tracks) {
-        Assert.IsTrue(track.Milliseconds.In(list));
+        Assert.That(track.Milliseconds.In(list), Is.True);
         tracksExist = true;
       }
       Assert.That(tracksExist, Is.True);
@@ -207,7 +218,7 @@ namespace Xtensive.Orm.Tests.Linq
       tracks = GetTracks(list);
       tracksExist = false;
       foreach (var invoice in tracks) {
-        Assert.IsTrue(invoice.Milliseconds.In(list));
+        Assert.That(invoice.Milliseconds.In(list), Is.True);
         tracksExist = true;
       }
       Assert.That(tracksExist, Is.True);
@@ -225,7 +236,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !((decimal) invoice.InvoiceId).In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -241,7 +252,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !((decimal) invoice.InvoiceId).In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -256,7 +267,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -271,7 +282,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -286,7 +297,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.Address.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -301,7 +312,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.Address.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -328,7 +339,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -342,7 +353,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -353,7 +364,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = Session.Query.All<Customer>().Where(c => new {Id1 = c.FirstName, Id2 = c.FirstName}.In(list)).Select(c => c.Invoices);
       var expected = Customers.Where(c => new {Id1 = c.FirstName, Id2 = c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -367,7 +378,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { Id1 = c.FirstName, Id2 = c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -385,7 +396,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !invoice.Commission.In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -403,7 +414,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !invoice.Commission.In(list)
                      select invoice;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -418,7 +429,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -433,7 +444,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -450,7 +461,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.Address.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -467,7 +478,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where !c.Address.In(list)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -478,7 +489,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -492,7 +503,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -516,7 +527,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(includeAlgorithm, list)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -532,7 +543,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(includeAlgorithm, list)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -547,7 +558,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -562,7 +573,7 @@ namespace Xtensive.Orm.Tests.Linq
                      where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
                      select track;
       Assert.That(query, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.That(expected.Except(query).Count(), Is.EqualTo(0));
       QueryDumper.Dump(query);
     }
 
@@ -572,15 +583,15 @@ namespace Xtensive.Orm.Tests.Linq
       var result1 = GetCustomers("Michelle", "Jack")
         .Select(customer => customer.FirstName)
         .ToList();
-      Assert.AreEqual(2, result1.Count);
-      Assert.IsTrue(result1.Contains("Michelle"));
-      Assert.IsTrue(result1.Contains("Jack"));
+      Assert.That(result1.Count, Is.EqualTo(2));
+      Assert.That(result1.Contains("Michelle"), Is.True);
+      Assert.That(result1.Contains("Jack"), Is.True);
 
       var result2 = GetCustomers("Leonie")
         .Select(customer => customer.FirstName)
         .ToList();
-      Assert.AreEqual(1, result2.Count);
-      Assert.AreEqual("Leonie", result2[0]);
+      Assert.That(result2.Count, Is.EqualTo(1));
+      Assert.That(result2[0], Is.EqualTo("Leonie"));
     }
 
     private IEnumerable<Customer> GetCustomers(params string[] customerNames)

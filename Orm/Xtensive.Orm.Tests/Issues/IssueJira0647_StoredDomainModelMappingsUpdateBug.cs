@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new ChangeFieldTypeHint(typeof (Order), "Number"));
+          _ = hints.Add(new ChangeFieldTypeHint(typeof (Order), "Number"));
         }
       }
     }
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new CopyFieldHint(typeof (BaseVersion.Order), "Text", typeof (Order), "Description"));
+          _ = hints.Add(new CopyFieldHint(typeof(BaseVersion.Order), "Text", typeof(Order), "Description"));
         }
       }
     }
@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new MoveFieldHint(typeof (BaseVersion.Order), "Text", typeof (Customer), "Description"));
+          _ = hints.Add(new MoveFieldHint(typeof(BaseVersion.Order), "Text", typeof(Customer), "Description"));
         }
       }
     }
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new RecycledTypeHint(typeof (Order)));
+          _ = hints.Add(new RecycledTypeHint(typeof(Order)));
         }
       }
     }
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new RemoveFieldHint(typeof (BaseVersion.Order), "Number"));
+          _ = hints.Add(new RemoveFieldHint(typeof(BaseVersion.Order), "Number"));
         }
       }
     }
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdateBugModel.HintTest.BaseVersion.Order"));
+          _ = hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdateBugModel.HintTest.BaseVersion.Order"));
         }
       }
     }
@@ -321,7 +321,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameFieldHint(typeof (Customer), "Name", "LastName"));
+          _ = hints.Add(new RenameFieldHint(typeof(Customer), "Name", "LastName"));
         }
       }
     }
@@ -359,7 +359,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
       {
         protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdateBugModel.HintTest.BaseVersion.Customer", typeof (Person)));
+          _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdateBugModel.HintTest.BaseVersion.Customer", typeof(Person)));
         }
       }
     }
@@ -491,7 +491,7 @@ namespace Xtensive.Orm.Tests.Issues
     private void CheckNode(Domain domain, string nodeName, bool spoiledExpected)
     {
       var node = domain.StorageNodeManager.GetNode(nodeName);
-      Assert.IsNotNull(node);
+      Assert.That(node, Is.Not.Null);
 
       var expectedSchema = node.Configuration.SchemaMapping.Apply(domain.Configuration.DefaultSchema);
 
@@ -503,15 +503,15 @@ namespace Xtensive.Orm.Tests.Issues
       currentModel.UpdateMappings(node.Configuration); //this operation suppose to be performed by DataObjects internally
 
       foreach (var typeInfo in currentModel.Types.Where(t => !t.IsSystem)) {
-        Assert.AreEqual(typeInfo.MappingSchema, expectedSchema);
+        Assert.That(typeInfo.MappingSchema, Is.EqualTo(expectedSchema));
       }
 
-      var func = spoiledExpected
-        ? new Action<string, string>(Assert.AreNotEqual)
-        : new Action<string, string>(Assert.AreEqual);
+      Action<string, string> func = spoiledExpected
+        ? (expected, actual) => Assert.That(actual, Is.Not.EqualTo(expected))
+        : (expected, actual) => Assert.That(actual, Is.EqualTo(expected));
 
       foreach (var typeInfo in spoiledModel.Types.Where(t => !t.IsSystem)) {
-        func(typeInfo.MappingSchema, expectedSchema);
+        func(expectedSchema, typeInfo.MappingSchema);
       }
     }
 

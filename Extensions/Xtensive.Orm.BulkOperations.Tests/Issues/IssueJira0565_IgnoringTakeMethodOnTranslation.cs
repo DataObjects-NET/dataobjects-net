@@ -161,9 +161,9 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var updated = session.Query.All<Bar>().Take(100).Delete();
-        Assert.AreEqual(100, updated);
+        Assert.That(updated, Is.EqualTo(100));
         var updatedList = session.Query.All<Bar>().ToList();
-        Assert.AreEqual(150, updatedList.Count);
+        Assert.That(updatedList.Count, Is.EqualTo(150));
       }
     }
 
@@ -239,15 +239,15 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var list = session.Query.All<Bar>().Take(200).ToList();
-        Assert.AreEqual(200, list.Count);
+        Assert.That(list.Count, Is.EqualTo(200));
         var updated = session.Query.All<Bar>().Take(200).Set(el => el.Description, "Updated").Update();
-        Assert.AreEqual(200, updated);
+        Assert.That(updated, Is.EqualTo(200));
         var updatedList = session.Query.All<Bar>().Where(el => el.Description == "Updated").ToList();
-        Assert.AreEqual(200, updatedList.Count);
+        Assert.That(updatedList.Count, Is.EqualTo(200));
         updated = session.Query.All<Bar>().Set(el => el.Description, "UpdatedAgain").Update();
-        Assert.AreEqual(250, updated);
+        Assert.That(updated, Is.EqualTo(250));
         updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
-        Assert.AreEqual(250, updatedList.Count);
+        Assert.That(updatedList.Count, Is.EqualTo(250));
       }
     }
 

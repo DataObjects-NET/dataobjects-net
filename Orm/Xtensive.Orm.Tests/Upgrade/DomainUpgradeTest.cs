@@ -191,8 +191,8 @@ namespace Xtensive.Orm.Tests.Upgrade
           };
         }
 
-        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 4);
-        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 3);
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(4));
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(3));
         t.Complete();
       }
 
@@ -205,8 +205,8 @@ namespace Xtensive.Orm.Tests.Upgrade
           };
         }
 
-        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 8);
-        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 6);
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(8));
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(6));
         t.Complete();
       }
 
@@ -219,12 +219,12 @@ namespace Xtensive.Orm.Tests.Upgrade
         _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
 
         if (isFirebird) {
-          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 10);
-          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 9);
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(10));
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(9));
         }
         else {
-          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 13);
-          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 12);
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(13));
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(12));
         }
         t.Complete();
       }
@@ -246,8 +246,8 @@ namespace Xtensive.Orm.Tests.Upgrade
             Address = new M1.Address { City = "City", Country = "Country" }
           };
         }
-        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 4);
-        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 3);
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(4));
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(3));
         t.Complete();
       }
 
@@ -260,8 +260,8 @@ namespace Xtensive.Orm.Tests.Upgrade
           };
         }
 
-        Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 8);
-        Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 6);
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(8));
+        Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(6));
         t.Complete();
       }
 
@@ -274,12 +274,12 @@ namespace Xtensive.Orm.Tests.Upgrade
         _ = new M1.Person { Address = new M1.Address { City = "City", Country = "Country" } };
 
         if (isFirebird) {
-          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 10);
-          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 9);
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(10));
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(9));
         }
         else {
-          Assert.LessOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 13);
-          Assert.GreaterOrEqual(session.Query.All<M1.Person>().Max(p => p.Id), 12);
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.LessThanOrEqualTo(13));
+          Assert.That(session.Query.All<M1.Person>().Max(p => p.Id), Is.GreaterThanOrEqualTo(12));
         }
         t.Complete();
       }
@@ -307,8 +307,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         var newPersonTypeId = session.Query.All<Metadata.Type>()
           .First(type => type.Name == $"{NamespaceForVersion[1]}.Person").Id;
 
-        Assert.AreEqual(personTypeId, newPersonTypeId);
-        Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
+        Assert.That(newPersonTypeId, Is.EqualTo(personTypeId));
+        Assert.That(businessContactTypeId, Is.EqualTo(maxTypeId + 1));
       }
     }
 
@@ -334,8 +334,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         var newPersonTypeId = session.Query.All<Metadata.Type>()
           .First(type => type.Name == $"{NamespaceForVersion[1]}.Person").Id;
 
-        Assert.AreEqual(personTypeId, newPersonTypeId);
-        Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
+        Assert.That(newPersonTypeId, Is.EqualTo(personTypeId));
+        Assert.That(businessContactTypeId, Is.EqualTo(maxTypeId + 1));
       }
     }
 
@@ -365,8 +365,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         var newPersonTypeId = session.Query.All<Metadata.Type>()
           .First(type => type.Name == $"{NamespaceForVersion[2]}.Person").Id;
 
-        Assert.AreEqual(personTypeId, newBusinessContactTypeId);
-        Assert.AreEqual(businessContactTypeId, newPersonTypeId);
+        Assert.That(newBusinessContactTypeId, Is.EqualTo(personTypeId));
+        Assert.That(newPersonTypeId, Is.EqualTo(businessContactTypeId));
       }
     }
 
@@ -396,8 +396,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         var newPersonTypeId = session.Query.All<Metadata.Type>()
           .First(type => type.Name == $"{NamespaceForVersion[2]}.Person").Id;
 
-        Assert.AreEqual(personTypeId, newBusinessContactTypeId);
-        Assert.AreEqual(businessContactTypeId, newPersonTypeId);
+        Assert.That(newBusinessContactTypeId, Is.EqualTo(personTypeId));
+        Assert.That(newPersonTypeId, Is.EqualTo(businessContactTypeId));
       }
     }
 
@@ -651,40 +651,40 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private static void TestOrdersPart(Session session)
     {
-      Assert.AreEqual(2, session.Query.All<M2.Person>().Count());
-      Assert.AreEqual("Island Trading", session.Query.All<M2.Person>()
-        .First(person => person.ContactName == "Helen Bennett").CompanyName);
-      Assert.AreEqual(5, session.Query.All<M2.BusinessContact>().Count());
-      Assert.AreEqual("Suyama", session.Query.All<M2.BusinessContact>()
-        .First(contact => contact.FirstName == "Michael").LastName);
-      Assert.AreEqual("Fuller", session.Query.All<M2.Employee>()
-        .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
-      Assert.AreEqual(123, session.Query.All<M2.Person>()
-        .First(person => person.ContactName == "Helen Bennett").PassportNumber);
-      Assert.AreEqual(1, session.Query.All<M2.Order>()
-        .First(order => order.ProductName == "Maxilaku").Number);
+      Assert.That(session.Query.All<M2.Person>().Count(), Is.EqualTo(2));
+      Assert.That(session.Query.All<M2.Person>()
+        .First(person => person.ContactName == "Helen Bennett").CompanyName, Is.EqualTo("Island Trading"));
+      Assert.That(session.Query.All<M2.BusinessContact>().Count(), Is.EqualTo(5));
+      Assert.That(session.Query.All<M2.BusinessContact>()
+        .First(contact => contact.FirstName == "Michael").LastName, Is.EqualTo("Suyama"));
+      Assert.That(session.Query.All<M2.Employee>()
+        .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName, Is.EqualTo("Fuller"));
+      Assert.That(session.Query.All<M2.Person>()
+        .First(person => person.ContactName == "Helen Bennett").PassportNumber, Is.EqualTo(123));
+      Assert.That(session.Query.All<M2.Order>()
+        .First(order => order.ProductName == "Maxilaku").Number, Is.EqualTo(1));
     }
 
     private static void TestProductPart(Session session)
     {
       _ = session.Query.All<M2.Product>().Single(product => product.Title == "DataObjects.NET");
       _ = session.Query.All<M2.Product>().Single(product => product.Title == "HelpServer");
-      Assert.AreEqual(2, session.Query.All<M2.Product>().Count());
+      Assert.That(session.Query.All<M2.Product>().Count(), Is.EqualTo(2));
       var webApps = session.Query.All<M2.ProductGroup>().Single(group => group.Name == "Web applications");
       var frameworks = session.Query.All<M2.ProductGroup>().Single(group => group.Name == "Frameworks");
-      Assert.AreEqual(1, webApps.Products.Count);
-      Assert.AreEqual(1, frameworks.Products.Count);
+      Assert.That(webApps.Products.Count, Is.EqualTo(1));
+      Assert.That(frameworks.Products.Count, Is.EqualTo(1));
     }
 
     private static void TestBoyGirlPart(Session session)
     {
       var allBoys = session.Query.All<M2.Boy>().ToArray();
       var allGirls = session.Query.All<M2.Girl>().ToArray();
-      Assert.AreEqual(2, allBoys.Length);
-      Assert.AreEqual(2, allGirls.Length);
+      Assert.That(allBoys.Length, Is.EqualTo(2));
+      Assert.That(allGirls.Length, Is.EqualTo(2));
       var alex = allBoys.Single(boy => boy.Name == "Alex");
       foreach (var girl in allGirls) {
-        Assert.IsTrue(alex.MeetWith.Contains(girl));
+        Assert.That(alex.MeetWith.Contains(girl), Is.True);
       }
     }
 
@@ -699,28 +699,28 @@ namespace Xtensive.Orm.Tests.Upgrade
       var se3 = session.Query.All<M2.StructureContainer3>().Single();
       var se4 = session.Query.All<M2.StructureContainer4>().Single();
 
-      Assert.AreEqual(1, e1.Code);
-      Assert.AreEqual(2, e2.Code);
-      Assert.AreEqual(3, e3.Code);
-      Assert.AreEqual(4, e4.Code);
+      Assert.That(e1.Code, Is.EqualTo(1));
+      Assert.That(e2.Code, Is.EqualTo(2));
+      Assert.That(e3.Code, Is.EqualTo(3));
+      Assert.That(e4.Code, Is.EqualTo(4));
 
-      Assert.AreEqual(e1, e2.E1);
-      Assert.AreEqual(e2, e3.E2);
-      Assert.AreEqual(e3, e4.E3);
+      Assert.That(e2.E1, Is.EqualTo(e1));
+      Assert.That(e3.E2, Is.EqualTo(e2));
+      Assert.That(e4.E3, Is.EqualTo(e3));
 
-      Assert.AreEqual(se1.S1.MyE1, e1);
+      Assert.That(e1, Is.EqualTo(se1.S1.MyE1));
 
-      Assert.AreEqual(se2.S2.MyE2, e2);
-      Assert.AreEqual(se2.S2.S1.MyE1, e1);
+      Assert.That(e2, Is.EqualTo(se2.S2.MyE2));
+      Assert.That(e1, Is.EqualTo(se2.S2.S1.MyE1));
 
-      Assert.AreEqual(se3.S3.MyE3, e3);
-      Assert.AreEqual(se3.S3.S2.MyE2, e2);
-      Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
+      Assert.That(e3, Is.EqualTo(se3.S3.MyE3));
+      Assert.That(e2, Is.EqualTo(se3.S3.S2.MyE2));
+      Assert.That(e1, Is.EqualTo(se3.S3.S2.S1.MyE1));
 
-      Assert.AreEqual(se4.S4.MyE4, e4);
-      Assert.AreEqual(se4.S4.S3.MyE3, e3);
-      Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
-      Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
+      Assert.That(e4, Is.EqualTo(se4.S4.MyE4));
+      Assert.That(e3, Is.EqualTo(se4.S4.S3.MyE3));
+      Assert.That(e2, Is.EqualTo(se4.S4.S3.S2.MyE2));
+      Assert.That(e1, Is.EqualTo(se4.S4.S3.S2.S1.MyE1));
     }
 
     private static void TestComplexFieldCopy(Session session)
@@ -730,15 +730,15 @@ namespace Xtensive.Orm.Tests.Upgrade
       var re1 = session.Query.All<M2.ReferencedEntity>().Single(e => e.A == 1 && e.B == 2);
       var re2 = session.Query.All<M2.ReferencedEntity>().Single(e => e.A == 2 && e.B == 3);
       if (!IncludeTypeIdModifier.IsEnabled) {
-        Assert.AreEqual(so1.Reference, re1);
-        Assert.AreEqual(so2.Reference, re2);
+        Assert.That(re1, Is.EqualTo(so1.Reference));
+        Assert.That(re2, Is.EqualTo(so2.Reference));
       }
     }
 
     private static void TestGenericsPart(Session session)
     {
-      Assert.AreEqual(2, session.Query.All<M2.NewSync<M2.BusinessContact>>().Count());
-      Assert.AreEqual("Alex", session.Query.All<M2.NewSync<M2.Boy>>().First().NewRoot.Name);
+      Assert.That(session.Query.All<M2.NewSync<M2.BusinessContact>>().Count(), Is.EqualTo(2));
+      Assert.That(session.Query.All<M2.NewSync<M2.Boy>>().First().NewRoot.Name, Is.EqualTo("Alex"));
     }
 
     private Domain BuildDomain(int version, DomainUpgradeMode upgradeMode)

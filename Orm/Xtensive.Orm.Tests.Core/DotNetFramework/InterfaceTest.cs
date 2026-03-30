@@ -63,16 +63,16 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       b.Second = "B.Second";
       var i = (IComposite) b;
       i.First = "B.First";
-      Assert.AreEqual("B.First", i.First);
+      Assert.That(i.First, Is.EqualTo("B.First"));
       var e = new E();
       e.First = "First";
       e.Second = "Second";
 
       var c = (C) e;
-      Assert.AreEqual("First", c.First);
+      Assert.That(c.First, Is.EqualTo("First"));
 
       var ii = (IComposite) e;
-      Assert.IsNull(ii.First);
+      Assert.That(ii.First, Is.Null);
 
       var guid1 = Guid.NewGuid();
       var guid2 = Guid.NewGuid();

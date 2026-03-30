@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2021 Xtensive LLC.
+// Copyright (C) 2010-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -10,11 +10,7 @@ namespace Xtensive.Orm.Tests
 {
   public static class StorageProviderVersion
   {
-    public static Version SqlServer2005 = new Version(9, 0);
-    public static Version SqlServer2008 = new Version(10, 0);
-    public static Version SqlServer2008R2 = new Version(10, 50);
-    public static Version SqlServer2012 = new Version(11, 0);
-    public static Version SqlServer2014 = new Version(12, 0);
+    public static Version SqlServer2014 = new Version(12, 0); // not supported but might be need for '>' operation
     public static Version SqlServer2016 = new Version(13, 0);
     public static Version SqlServer2017 = new Version(14, 0);
     public static Version SqlServer2019 = new Version(15, 0);
@@ -23,16 +19,7 @@ namespace Xtensive.Orm.Tests
     public static Version Oracle10 = new Version(10, 0);
     public static Version Oracle11 = new Version(11, 0);
 
-    public static Version PostgreSql80 = new Version(8, 0);
-    public static Version PostgreSql81 = new Version(8, 1);
-    public static Version PostgreSql82 = new Version(8, 2);
-    public static Version PostgreSql83 = new Version(8, 3);
-    public static Version PostgreSql84 = new Version(8, 4);
-    public static Version PostgreSql90 = new Version(9, 0);
-    public static Version PostgreSql91 = new Version(9, 1);
-    public static Version PostgreSql92 = new Version(9, 2);
-    public static Version PostgreSql96 = new Version(9, 6);
-    public static Version PostgreSql100 = new Version(10, 0);
+    public static Version PostgreSql100 = new Version(10, 0); // not supported but might be need for '>' operation
     public static Version PostgreSql110 = new Version(11, 0);
     public static Version PostgreSql120 = new Version(12, 0);
     public static Version PostgreSql130 = new Version(13, 0);
@@ -41,8 +28,7 @@ namespace Xtensive.Orm.Tests
     public static Version PostgreSql160 = new Version(16, 0);
     public static Version PostgreSql170 = new Version(17, 0);
 
-    public static Version MySql55 = new Version(5, 5);
-    public static Version MySql56 = new Version(5, 6);
+    public static Version MySql56 = new Version(5, 6); // not supported but might be need for '>' operation
     public static Version MySql57 = new Version(5, 7);
     public static Version MySql80 = new Version(8, 0);
     public static Version MySql81 = new Version(8, 1);
@@ -54,7 +40,6 @@ namespace Xtensive.Orm.Tests
     public static Version MySql92 = new Version(9, 2);
     public static Version MySql93 = new Version(9, 3);
 
-    public static Version Firebird25 = new Version(2, 5);
     public static Version Firebird30 = new Version(3, 0);
     public static Version Firebird40 = new Version(4, 0);
     public static Version Firebird50 = new Version(5, 0);

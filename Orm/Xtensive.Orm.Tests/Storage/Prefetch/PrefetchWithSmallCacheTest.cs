@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Order>().Select(p => p.Key).ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value))
           .ToList();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(Domain, p.Key.Value))
           .ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -116,9 +116,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
           session.Handler.LookupState(order.Key, detailsField, out state);
-          Assert.IsTrue(state.IsFullyLoaded);
+          Assert.That(state.IsFullyLoaded, Is.True);
           foreach (var detailKey in state) {
-            Assert.IsTrue(detailKey.HasExactType);
+            Assert.That(detailKey.HasExactType, Is.True);
             var detailState = session.EntityStateCache[detailKey, false];
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }

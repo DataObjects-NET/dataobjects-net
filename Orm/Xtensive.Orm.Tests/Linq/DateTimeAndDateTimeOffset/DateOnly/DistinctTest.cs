@@ -26,10 +26,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateOnlys
       var compiledSelectExpression = selectExpression.Compile();
       var distinctLocal = session.Query.All<T>().ToArray().Select(compiledSelectExpression).Distinct().OrderBy(c => c);
       var distinctByServer = session.Query.All<T>().Select(selectExpression).Distinct().OrderBy(c => c);
-      Assert.IsTrue(distinctLocal.SequenceEqual(distinctByServer));
+      Assert.That(distinctLocal.SequenceEqual(distinctByServer), Is.True);
 
       distinctByServer = session.Query.All<T>().Select(selectExpression).Distinct().OrderByDescending(c => c);
-      Assert.IsFalse(distinctLocal.SequenceEqual(distinctByServer));
+      Assert.That(distinctLocal.SequenceEqual(distinctByServer), Is.False);
     }
   }
 }

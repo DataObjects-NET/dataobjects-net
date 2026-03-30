@@ -649,7 +649,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Maximam number of filtering values in IN clause which are
     /// to be placed inside a resulted SQL command (as boolean predicate).
-    /// Affects only <see cref="QueryableExtensions.In{T}(T, T[])"/> group of methods with 
+    /// Affects only <see cref="QueryableExtensionsEx.In{T}(T, T[])"/> group of methods with 
     /// <see cref="IncludeAlgorithm.Auto"/>. If collection of parameters has more items
     /// than this parameter allows then temporary table will be used to store values.
     /// Default value is <see cref="WellKnown.DefaultMaxNumberOfConditions"/>
@@ -848,7 +848,7 @@ namespace Xtensive.Orm.Configuration
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(string sectionName, string name)
     {
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection)System.Configuration.ConfigurationManager.GetSection(sectionName);
       if (section == null) {
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));

@@ -111,19 +111,19 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     private void ValidateEntities(int expectedCount)
     {
-      Assert.AreEqual(expectedCount, Session.Demand().Query.All<X>().Count());
+      Assert.That(Session.Demand().Query.All<X>().Count(), Is.EqualTo(expectedCount));
       foreach (var item in Session.Demand().Query.All<X>()) {
-        Assert.AreEqual(item.FString, "Hello Batcher");
-        Assert.AreEqual(item.FInt, BatchSize);
+        Assert.That("Hello Batcher", Is.EqualTo(item.FString));
+        Assert.That(BatchSize, Is.EqualTo(item.FInt));
       }
     }
 
     private void ValidateQueries(long expectedResult)
     {
       foreach (var task in tasks) {
-        Assert.IsNotNull(task.Result);
-        Assert.AreEqual(1, task.Result.Count);
-        Assert.AreEqual(expectedResult, task.Result[0].GetValueOrDefault<long>(0));
+        Assert.That(task.Result, Is.Not.Null);
+        Assert.That(task.Result.Count, Is.EqualTo(1));
+        Assert.That(task.Result[0].GetValueOrDefault<long>(0), Is.EqualTo(expectedResult));
       }
     }
   }

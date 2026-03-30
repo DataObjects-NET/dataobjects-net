@@ -142,8 +142,8 @@ namespace Xtensive.Orm.Tests.Issues
         var d2 = new Detail();
         d1.Master = m;
         d2.Master = m;
-        Assert.IsTrue(m.Details.Contains(d2));
-        Assert.IsTrue(m.Details.Contains(d1));
+        Assert.That(m.Details.Contains(d2), Is.True);
+        Assert.That(m.Details.Contains(d1), Is.True);
       }
     }
 
@@ -189,8 +189,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (association == null)
           return;
         CheckDirection(association, e.Entity, (Entity)e.NewValue, direction, 
-          string.Format("{0}, Field = {1}, Entity = {2}, Value = {3}", description,
-            e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.NewValue));
+          $"{description}, Field = {e.Field.UnderlyingProperty.GetShortName(true)}, Entity = {e.Entity}, Value = {e.NewValue}");
       };
     }
 
@@ -201,8 +200,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (association==null)
           return;
         CheckDirection(association, e.Entity, (Entity)e.Value, direction, 
-          string.Format("{0}, Field = {1}, Entity = {2}, Value = {3}", description,
-            e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Value));
+          $"{description}, Field = {e.Field.UnderlyingProperty.GetShortName(true)}, Entity = {e.Entity}, Value = {e.Value}");
       };
     }
 
@@ -212,8 +210,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (e.Field.Associations.LastOrDefault() == null)
           return;
         CheckDirection(e.EntitySet.Field.GetAssociation(e.Item.TypeInfo), e.Entity, e.Item, direction,
-          string.Format("{0}, Field = {1}, Owner = {2}, Item = {3}", description, 
-            e.EntitySet.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Item));
+          $"{description}, Field = {e.EntitySet.Field.UnderlyingProperty.GetShortName(true)}, Owner = {e.Entity}, Item = {e.Item}");
       };
     }
 
@@ -231,7 +228,7 @@ namespace Xtensive.Orm.Tests.Issues
       int depth;
       if (entry.CheckDirection(direction, out depth))
         stack.Pop();
-      TestLog.Info("{0}", message.Indent(depth * 2));
+      TestLog.Info($"{message.Indent(depth * 2)}");
     }
   }
 }

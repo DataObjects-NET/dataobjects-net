@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     private void TestTypes(Type[] types)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(types);
-      TestLog.Info("Testing sequence {0}:", descriptor);
+      TestLog.Info($"Testing sequence {descriptor}:");
       using (IndentManager.IncreaseIndent()) {
         // Logic test
         LogicTest(types, this, GetType(), "SequenceAStep");
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
         using (new Measurement("Executing delegates", count))
           for (int i = 0; i<count; i++)
             DelegateHelper.ExecuteDelegates(delegates, ref data, Direction.Positive);
-        Assert.AreEqual(count*types.Length, data.CallCount);
+        Assert.That(data.CallCount, Is.EqualTo(count *types.Length));
       }
     }
 
@@ -112,22 +112,22 @@ namespace Xtensive.Orm.Tests.Core.Reflection
         DelegateHelper.CreateDelegates<ExecutionSequenceHandler<ExecutionData>>(
           callTarget, type, methodName, types);
 
-      Assert.AreEqual(types.Length, delegates.Length);
+      Assert.That(delegates.Length, Is.EqualTo(types.Length));
       for (int i = 0; i<types.Length; i++) {
         ExecutionSequenceHandler<ExecutionData> d =
           DelegateHelper.CreateDelegate<ExecutionSequenceHandler<ExecutionData>>(
             callTarget, type, methodName, types[i]);
-        Assert.AreSame(d.Target, delegates[i].Target);
-        Assert.AreSame(d.Method, delegates[i].Method);
+        Assert.That(delegates[i].Target, Is.SameAs(d.Target));
+        Assert.That(delegates[i].Method, Is.SameAs(d.Method));
       }
 
       ExecutionData data = ExecutionData.Create();
       DelegateHelper.ExecuteDelegates(delegates, ref data, Direction.Positive);
-      Assert.IsTrue(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, data.CalledForTypes));
+      Assert.That(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, data.CalledForTypes), Is.True);
 
       data = ExecutionData.Create();
       DelegateHelper.ExecuteDelegates(delegates, ref data, Direction.Negative);
-      Assert.IsTrue(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, Reverse(data.CalledForTypes)));
+      Assert.That(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, Reverse(data.CalledForTypes)), Is.True);
     }
 
     public static IEnumerable<TItem> Reverse<TItem>(IList<TItem> list)

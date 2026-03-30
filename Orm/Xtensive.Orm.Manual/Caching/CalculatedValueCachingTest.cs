@@ -170,13 +170,12 @@ namespace Xtensive.Orm.Manual.Caching
       var totalPrice = order.TotalPrice;
 
       // Checking cached value
-      Assert.AreEqual(totalPrice, order.TotalPriceCached);
+      Assert.That(order.TotalPriceCached, Is.EqualTo(totalPrice));
       // Checking the value in LINQ query
-      Assert.AreEqual(totalPrice,
-        order.Session.Query.All<Order>()
+      Assert.That(order.Session.Query.All<Order>()
         .Where(o => o==order)
         .Select(o => o.TotalPrice)
-        .Single());
+        .Single(), Is.EqualTo(totalPrice));
     }
   }
 }

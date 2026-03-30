@@ -70,11 +70,11 @@ namespace Xtensive.Orm.Model.Stored
         else {
           var queue = new Queue<StoredFieldInfo>();
           queue.Enqueue(this);
-          while (queue.TryDequeue(out var field)) {
-            if (field.IsPrimitive)
-              result.Add(field);
+          while (queue.TryDequeue(out var @field)) {
+            if (@field.IsPrimitive)
+              result.Add(@field);
             else
-              foreach (var child in field.Fields)
+              foreach (var child in @field.Fields)
                 queue.Enqueue(child);
           }
         }

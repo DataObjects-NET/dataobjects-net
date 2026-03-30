@@ -36,16 +36,16 @@ namespace Xtensive.Orm.Tests.Indexing
       var indexBefore = table.PrimaryIndex;
       AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(null, "i2"));
       AssertEx.Throws<ArgumentException>(() => new PrimaryIndexInfo(table, ""));
-      Assert.AreEqual(indexBefore, table.PrimaryIndex);
+      Assert.That(table.PrimaryIndex, Is.EqualTo(indexBefore));
     }
 
     [Test]
     public void AddRemoveColumnsTest()
     {
       var column = new StorageColumnInfo(table, "c");
-      Assert.AreEqual(1, table.Columns.Count);
+      Assert.That(table.Columns.Count, Is.EqualTo(1));
       column.Remove();
-      Assert.AreEqual(0, table.Columns.Count);
+      Assert.That(table.Columns.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -60,9 +60,9 @@ namespace Xtensive.Orm.Tests.Indexing
     {
       var column = new StorageColumnInfo(table, "col1");
       var colRef = new KeyColumnRef(index, column, Direction.Positive);
-      Assert.AreEqual(1, index.KeyColumns.Count);
+      Assert.That(index.KeyColumns.Count, Is.EqualTo(1));
       colRef.Remove();
-      Assert.AreEqual(0, index.KeyColumns.Count);
+      Assert.That(index.KeyColumns.Count, Is.EqualTo(0));
       column.Remove();
     }
 
@@ -71,9 +71,9 @@ namespace Xtensive.Orm.Tests.Indexing
     {
       var column = new StorageColumnInfo(table, "col1");
       var colRef = new ValueColumnRef(index, column);
-      Assert.AreEqual(1, index.ValueColumns.Count);
+      Assert.That(index.ValueColumns.Count, Is.EqualTo(1));
       colRef.Remove();
-      Assert.AreEqual(0, index.ValueColumns.Count);
+      Assert.That(index.ValueColumns.Count, Is.EqualTo(0));
     }
 
     [Test]

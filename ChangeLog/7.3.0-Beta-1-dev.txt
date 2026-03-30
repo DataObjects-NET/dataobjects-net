@@ -1,0 +1,25 @@
+[main] Switch to .NET8/.NET10-only support, nuget packages actualized
+[main] Removed obsolete member Values of SqlInsert type
+[main] Removed obsolete methods GetSingleConstructor/GetSingleConstructorOrDefault of TypeHelper type
+[main] Removed obsolete constant WellKnown.MaxNumberOfConditions, use DefaultMaxNumberOfConditions instead
+[firebird] Switch to .NET8/.NET10-only support, nuget packages actualized
+[firebird] Support for Firebird 2.5 ended due to end-of-life state
+[mysql] Switch to .NET8/.NET10-only support, nuget packages actualized
+[mysql] Support for MySQL older than 5.7 ended due to end-of-life state
+[oracle] Switch to .NET8/.NET10-only support
+[postgresql] Switch to .NET8/.NET10-only support, nuget packages actualized
+[postgresql] Support for PostgreSQL older than v11 ended due to end-of-life state
+[sqlserver] Switch to .NET8/.NET10-only support, nuget packages actualized
+[sqlserver] Support for MS SQL Server older than 2016 ended due to end-of-life state
+[bulkoperations] Switch to .NET8/.NET10-only support
+[localization] Switch to .NET8/.NET10-only support, nuget packages actualized
+[localization] Removed obsolete member of ConfigurationSection type
+[logging.log4net] Switch to .NET8/.NET10-only support, nuget packages actualize
+[logging.NLog] Switch to .NET8/.NET10-only support, nuget packages actualized
+[reprocessing] Switch to .NET8/.NET10-only support, nuget packages actualized
+[reprocessing] Removed obsolete member of ConfigurationSection type
+[security] Switch to .NET8/.NET10-only support, nuget packages actualized
+[security] Removed obsolete member of ConfigurationSection type
+[tracking] Switch to .NET8/.NET10-only support, nuget packages actualized
+[web] Switch to .NET8/.NET10-only support, nuget packages actualized
+[web] Project references actual shared libraries of the framework instead of stand-alone outdated packages

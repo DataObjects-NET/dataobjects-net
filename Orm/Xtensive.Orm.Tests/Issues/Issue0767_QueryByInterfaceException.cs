@@ -85,13 +85,13 @@ namespace Xtensive.Orm.Tests.Issues
         new Bar() {Name = "bar", Some = Guid.NewGuid(), Tag = "bar tag"};
 
         var all = session.Query.All<IBusinessEntity>().ToList();
-        Assert.AreEqual(2, all.Count);
+        Assert.That(all.Count, Is.EqualTo(2));
         var hasNames = session.Query.All<IHasName>().ToList();
-        Assert.AreEqual(2, hasNames.Count);
+        Assert.That(hasNames.Count, Is.EqualTo(2));
         var foos = session.Query.All<IHasName>().Where(i => i.Name == "foo").ToList();
-        Assert.AreEqual(1, foos.Count);
+        Assert.That(foos.Count, Is.EqualTo(1));
         var bars = session.Query.All<IHasName>().Where(i => i.Name == "bar").ToList();
-        Assert.AreEqual(1, bars.Count);
+        Assert.That(bars.Count, Is.EqualTo(1));
 
         t.Complete();
       }

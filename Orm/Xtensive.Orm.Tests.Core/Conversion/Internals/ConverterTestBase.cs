@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
       }
       catch (InvalidOperationException e) {
         if (UseLog)
-        TestLog.Info("{0}", e.Message);
+        TestLog.Info($"{e.Message}");
       }
 
       for (int i = 0; i < count; i++) {
@@ -35,60 +35,48 @@ namespace Xtensive.Orm.Tests.Core.Conversion
           try {
             TTo convertedValue = advancedConverterTo.Convert(value);
             if (innerLogFlag)
-              TestLog.Info("Converting {0} of {1} type. Result: {2} of {3} type", value,
-                typeof(TFrom).GetShortName(),
-                convertedValue, typeof(TTo).GetShortName());
+              TestLog.Info($"Converting {value} of {typeof(TFrom).GetShortName()} type. Result: {convertedValue} of {typeof(TTo).GetShortName()} type");
             if (advancedConverterFrom != null) {
               try {
                 TFrom reconvertedValue = advancedConverterFrom.Convert(convertedValue);
                 if (innerLogFlag)
-                  TestLog.Info("Reconverting {0} of {1} type. Result: {2} of {3} type.", convertedValue,
-                    typeof(TTo).GetShortName(),
-                    reconvertedValue, typeof(TFrom).GetShortName());
+                  TestLog.Info($"Reconverting {convertedValue} of {typeof(TTo).GetShortName()} type. Result: {reconvertedValue} of {typeof(TFrom).GetShortName()} type.");
                 if ((advancedConverterTo.IsRough)) {
                   if (innerLogFlag)
-                    TestLog.Info("Conversion from {0} to {1} is rough.",
-                      typeof(TFrom).GetShortName(), typeof(TTo).GetShortName());
+                    TestLog.Info($"Conversion from {typeof(TFrom).GetShortName()} to {typeof(TTo).GetShortName()} is rough.");
                 }
                 else
-                  Assert.AreEqual(value, reconvertedValue, "reconvertedValue");
+                  Assert.That(reconvertedValue, Is.EqualTo(value), "reconvertedValue");
               }
               catch (OverflowException e) {
                 if (innerLogFlag)
-                  TestLog.Info(e, "Reconversion of {0} of {1} type to type {2} failed.", convertedValue,
-                    typeof(TTo).GetShortName(), typeof(TFrom).GetShortName());
+                  TestLog.Info($"Reconversion of {convertedValue} of {typeof(TTo).GetShortName()} type to type {typeof(TFrom).GetShortName()} failed.");
               }
               catch (ArgumentOutOfRangeException e) {
                 if (innerLogFlag)
-                  TestLog.Info(e, "Reconversion of {0} of {1} type to type {2} failed.", convertedValue,
-                    typeof(TTo).GetShortName(), typeof(TFrom).GetShortName());
+                  TestLog.Info($"Reconversion of {convertedValue} of {typeof(TTo).GetShortName()} type to type {typeof(TFrom).GetShortName()} failed.");
               }
               catch (FormatException e) {
                 if (innerLogFlag)
-                  TestLog.Info(e, "Reconversion of {0} of {1} type to type {2} failed.", convertedValue,
-                    typeof(TTo).GetShortName(), typeof(TFrom).GetShortName());
+                  TestLog.Info($"Reconversion of {convertedValue} of {typeof(TTo).GetShortName()} type to type {typeof(TFrom).GetShortName()} failed.");
               }
             }
           }
           catch (OverflowException e) {
             if (innerLogFlag)
-              TestLog.Info(e, "Conversion of {0} of {1} type to type {2} failed.", value,
-                typeof(TFrom).GetShortName(), typeof(TTo).GetShortName());
+              TestLog.Info($"Conversion of {value} of {typeof(TFrom).GetShortName()} type to type {typeof(TTo).GetShortName()} failed.");
           }
           catch (ArgumentOutOfRangeException e) {
             if (innerLogFlag)
-              TestLog.Info(e, "Conversion of {0} of {1} type to type {2} failed.", value,
-                typeof (TFrom).GetShortName(), typeof (TTo).GetShortName());
+              TestLog.Info($"Conversion of {value} of {typeof(TFrom).GetShortName()} type to type {typeof(TTo).GetShortName()} failed.");
           }
           catch (FormatException e) {
             if (innerLogFlag)
-              TestLog.Info(e, "Conversion of {0} of {1} type to type {2} failed.", value,
-                typeof(TFrom).GetShortName(), typeof(TTo).GetShortName());
+              TestLog.Info($"Conversion of {value} of {typeof(TFrom).GetShortName()} type to type {typeof(TTo).GetShortName()} failed.");
           }
         }
         else if (innerLogFlag)
-          TestLog.Info("Conversion from {0} to {1} is not supported.", typeof (TFrom).GetShortName(),
-            typeof (TTo).GetShortName());
+          TestLog.Info($"Conversion from {typeof(TFrom).GetShortName()} to {typeof(TTo).GetShortName()} is not supported.");
       }
     }
   }

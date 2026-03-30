@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     public ModelMapping GetMappingForStage(UpgradeStage stage)
     {
       return !mappings.TryGetValue(stage, out var mapping)
-        ? throw new Exception(string.Format("There is no model mappings for the {0} stage ", stage))
+        ? throw new Exception($"There is no model mappings for the {stage} stage ")
         : mapping;
     }
 

@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var defaultSchema = GetSchema();
 
-      var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
+      var table = defaultSchema.CreateTable($"Crt1_{TableName}");
       var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
       _ = table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
       _ = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Sql
       var defaultSchema = GetSchema();
       defaultSchema.Catalog.MakeNamesUnreadable();
 
-      var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
+      var table = defaultSchema.CreateTable($"Crt1_{TableName}");
       var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
       _ = table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
       _ = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));

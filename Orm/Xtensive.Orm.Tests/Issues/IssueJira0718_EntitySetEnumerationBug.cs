@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount + 1));
       }
     }
 
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount + 1));
       }
     }
 
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount - 1));
       }
     }
 
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount - 1));
       }
     }
 
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Count(), DefaultCustomerOrderItemsCount);
+          Assert.That(session.Query.All<SomeOtherEntity>().Count(), Is.EqualTo(DefaultCustomerOrderItemsCount));
       }
     }
 
@@ -249,7 +249,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Single().Items.Count(), DefaultCustomerOrderItemsCount);
+          Assert.That(session.Query.All<SomeOtherEntity>().Single().Items.Count(), Is.EqualTo(DefaultCustomerOrderItemsCount));
       }
     }
 
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Any());
+          Assert.That(session.Query.All<SomeOtherEntity>().Any(), Is.False);
       }
     }
 
@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Single().Items.Any());
+          Assert.That(session.Query.All<SomeOtherEntity>().Single().Items.Any(), Is.False);
       }
     }
 
@@ -457,7 +457,7 @@ namespace Xtensive.Orm.Tests.Issues
 
           using (var transaction = session.OpenTransaction()) {
             var customerOrder = session.Query.All<CustomerOrder>().Single();
-            Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+            Assert.That(customerOrder.Items.All(i => i.Product==expectedProductName), Is.True);
           }
         }
       }
@@ -488,7 +488,7 @@ namespace Xtensive.Orm.Tests.Issues
 
           using (var transaction = session.OpenTransaction()) {
             var customerOrder = session.Query.All<CustomerOrder>().Single();
-            Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+            Assert.That(customerOrder.Items.All(i => i.Product==expectedProductName), Is.True);
           }
         }
       }
@@ -625,7 +625,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount + 1));
       }
     }
 
@@ -650,7 +650,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount + 1));
       }
     }
 
@@ -676,7 +676,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount - 1));
       }
     }
 
@@ -702,7 +702,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+          Assert.That(session.Query.All<CustomerOrder>().First().Items.Count, Is.EqualTo(DefaultCustomerOrderItemsCount - 1));
       }
     }
 
@@ -726,7 +726,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Count(), DefaultCustomerOrderItemsCount);
+          Assert.That(session.Query.All<SomeOtherEntity>().Count(), Is.EqualTo(DefaultCustomerOrderItemsCount));
       }
     }
 
@@ -751,7 +751,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Single().Items.Count(), DefaultCustomerOrderItemsCount);
+          Assert.That(session.Query.All<SomeOtherEntity>().Single().Items.Count(), Is.EqualTo(DefaultCustomerOrderItemsCount));
       }
     }
 
@@ -781,7 +781,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Any());
+          Assert.That(session.Query.All<SomeOtherEntity>().Any(), Is.False);
       }
     }
 
@@ -810,7 +810,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var transaction = session.OpenTransaction())
-          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Single().Items.Any());
+          Assert.That(session.Query.All<SomeOtherEntity>().Single().Items.Any(), Is.False);
       }
     }
 
@@ -960,7 +960,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         using (var transaction = session.OpenTransaction()) {
           var customerOrder = session.Query.All<CustomerOrder>().Single();
-          Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+          Assert.That(customerOrder.Items.All(i => i.Product==expectedProductName), Is.True);
         }
       }
     }
@@ -989,7 +989,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         using (var transaction = session.OpenTransaction()) {
           var customerOrder = session.Query.All<CustomerOrder>().Single();
-          Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+          Assert.That(customerOrder.Items.All(i => i.Product==expectedProductName), Is.True);
         }
       }
     }

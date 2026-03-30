@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Rse
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
           EntityState state = Session.Current.EntityStateCache[key, true];
-          Assert.IsNull(state);
+          Assert.That(state, Is.Null);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
           var parameterContext = new ParameterContext();
@@ -48,36 +48,36 @@ namespace Xtensive.Orm.Tests.Rse
           CompilableProvider rsMain = ii.GetQuery();
           UpdateCache(session, rsMain.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
-          Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
-          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.Tuple.GetFieldState(2).IsAvailable(), Is.True);
+          Assert.That(state.Tuple.GetFieldState(3).IsAvailable(), Is.True);
           ResetState(state);
 
           // Select Id, TypeId, Title
           CompilableProvider rsTitle = rsMain.Select(new[] { 0, 1, 2 });
           UpdateCache(session, rsTitle.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
-          Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
-          Assert.IsFalse(state.Tuple.GetFieldState(3).IsAvailable());
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.Tuple.GetFieldState(2).IsAvailable(), Is.True);
+          Assert.That(state.Tuple.GetFieldState(3).IsAvailable(), Is.False);
           ResetState(state);
 
           // Select Id, TypeId, Text
           CompilableProvider rsText = rsMain.Select(new[] { 0, 1, 3 });
           UpdateCache(session, rsText.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
-          Assert.IsNotNull(state);
-          Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
-          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.Tuple.GetFieldState(2).IsAvailable(), Is.False);
+          Assert.That(state.Tuple.GetFieldState(3).IsAvailable(), Is.True);
           ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
           UpdateCache(session, rsJoin.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
-          Assert.IsNotNull(state);
-          Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
-          Assert.IsTrue(state.Tuple.GetFieldState(3).IsAvailable());
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.Tuple.GetFieldState(2).IsAvailable(), Is.True);
+          Assert.That(state.Tuple.GetFieldState(3).IsAvailable(), Is.True);
           ResetState(state);
         }
       }

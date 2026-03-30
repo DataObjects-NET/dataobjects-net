@@ -1,16 +1,15 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alexey Kulakov
-// Created:    2018.09.21
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+// Created by: Denis Krjuchkov
+// Created:    2009.07.07
 
-using System.Collections.Generic;
-using Xtensive.Sql.Drivers.SqlServer.v10;
+using System;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v13
 {
-  internal class Driver : v12.Driver
+  internal class Driver : SqlServer.Driver
   {
     protected override Sql.Compiler.SqlCompiler CreateCompiler()
     {
@@ -30,6 +29,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     protected override Model.Extractor CreateExtractor()
     {
       return new Extractor(this);
+    }
+
+    protected override Sql.TypeMapper CreateTypeMapper()
+    {
+      return new TypeMapper(this);
     }
 
     public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser, bool checkConnectionIsAlive)

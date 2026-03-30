@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Xtensive LLC.
+// Copyright (C) 2024-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -57,6 +57,64 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void LeftJoinOneVariableUsage()
+    {
+      Expression<Func<TestEntity, int>> key = it => it.Id;
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+
+        var leftJoinWithExpression = session.Query.All<TestEntity>()
+          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+            o => o.Id,
+            key,
+            (o, i) => o)
+          .Where(it => it.Text != null)
+          .Select(it => it.Id)
+          .Distinct()
+          .ToList();
+
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
+
+        leftJoinWithExpression = session.Query.All<TestEntity>()
+          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+            key,
+            i => i.Id,
+            (o, i) => o)
+          .Where(it => it.Text != null)
+          .Select(it => it.Id)
+          .Distinct()
+          .ToList();
+
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void LeftJoinTwoVariableUsage()
+    {
+      Expression<Func<TestEntity, int>> key = it => it.Id;
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+
+        var ex = Assert.Throws<QueryTranslationException>(() =>
+          _ = session.Query.All<TestEntity>()
+          .LeftJoin(session.Query.All<TestEntity>().Where(it => it.Description == null),
+            key,
+            key,
+            (o, i) => o)
+          .Where(it => it.Text != null)
+          .Select(it => it.Id)
+          .Distinct()
+          .ToList());
+
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+      }
+    }
+#else
     [Test]
     public void LeftJoinOneVariableUsage()
     {
@@ -75,7 +133,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(3, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
 
         leftJoinWithExpression = session.Query.All<TestEntity>()
           .LeftJoinEx(session.Query.All<TestEntity>().Where(it => it.Description == null),
@@ -87,7 +145,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(3, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(3));
       }
     }
 
@@ -113,6 +171,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
       }
     }
+#endif
 
     [Test]
     public void InnerJoinOneVariableUsage()
@@ -132,7 +191,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(1, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(1));
 
         leftJoinWithExpression = session.Query.All<TestEntity>()
           .Join(session.Query.All<TestEntity>().Where(it => it.Description == null),
@@ -144,7 +203,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Distinct()
           .ToList();
 
-        Assert.AreEqual(1, leftJoinWithExpression.Count);
+        Assert.That(leftJoinWithExpression.Count, Is.EqualTo(1));
       }
     }
 

@@ -100,11 +100,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Id={0}, Customer={1}, Employee={2}, ProductName={3}",
-        Id,
-        Customer!=null ? Customer.Name : "null",
-        Employee!=null ? Employee.Name : "null",
-        ProductName ?? "null");
+      return $"Id={Id}, Customer={(Customer != null ? Customer.Name : "null")}, Employee={(Employee != null ? Employee.Name : "null")}, ProductName={ProductName ?? "null"}";
     }
   }
 

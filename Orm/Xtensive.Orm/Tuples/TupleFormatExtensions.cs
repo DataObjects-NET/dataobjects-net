@@ -71,7 +71,7 @@ namespace Xtensive.Tuples
     /// can't be parsed to a <see cref="Tuple"/> with specified <paramref name="descriptor"/>.</exception>
     public static Tuple Parse(this TupleDescriptor descriptor, string source)
     {
-      ArgumentNullException.ThrowIfNull(descriptor);
+      ArgumentValidator.EnsureArgumentIsNotDefault(descriptor, nameof(descriptor));
       var target = Tuple.Create(descriptor);
       var count = target.Count;
       var sources = source.RevertibleSplit(Escape, Comma).ToArray();

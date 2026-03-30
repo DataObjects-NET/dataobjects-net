@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var ids = new[] { controlId, messageId };
         var itemsB = session.Query.All<Control>().Where(a => ids.ContainsAny(a.Messages.Select(b => b.Id))).ToList();
-        Assert.AreEqual(1, itemsB.Count);
-        Assert.AreSame(control, itemsB[0]);
+        Assert.That(itemsB.Count, Is.EqualTo(1));
+        Assert.That(itemsB[0], Is.SameAs(control));
         t.Complete();
       }
     }
@@ -113,8 +113,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var ids = new[] { controlId, messageId };
         var itemsA = session.Query.All<Control>().Where(a => ids.Any(id => a.Messages.Select(b => b.Id).Contains(id))).ToList();
-        Assert.AreEqual(1, itemsA.Count);
-        Assert.AreSame(control, itemsA[0]);
+        Assert.That(itemsA.Count, Is.EqualTo(1));
+        Assert.That(itemsA[0], Is.SameAs(control));
       }
     }
 
@@ -131,8 +131,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         var ids = new[] { controlId, messageId };
         var itemsX = session.Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();
-        Assert.AreEqual(1, itemsX.Count);
-        Assert.AreSame(control, itemsX[0]);
+        Assert.That(itemsX.Count, Is.EqualTo(1));
+        Assert.That(itemsX[0], Is.SameAs(control));
       }
     }
   }

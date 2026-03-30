@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -27,13 +27,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var transaction = session.OpenTransaction()) {
         Console.WriteLine(transaction.Transaction.Guid);
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
+        Assert.That(task, Is.InstanceOf<Task<QueryResult<Discepline>>>());
         var disceplinesOfLastYearCourse = await task;
         Console.WriteLine(transaction.Transaction.Guid);
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
+        Assert.That(disceplinesOfLastYearCourse, Is.InstanceOf<IEnumerable<Discepline>>());
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
         Console.WriteLine(transaction.Transaction.Guid);
-        Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
+        Assert.That(listOfLastYearCourseDisceplines.Count, Is.EqualTo(20));
       }
     }
 
@@ -43,11 +43,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
+        Assert.That(task, Is.InstanceOf<Task<QueryResult<Discepline>>>());
         var disceplinesOfLastYearCourse = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
+        Assert.That(disceplinesOfLastYearCourse, Is.InstanceOf<IEnumerable<Discepline>>());
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
-        Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
+        Assert.That(listOfLastYearCourseDisceplines.Count, Is.EqualTo(20));
       }
     }
 
@@ -57,10 +57,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<Task<Discepline>>(task);
+        Assert.That(task, Is.InstanceOf<Task<Discepline>>());
         var disceplineOfLastYearCourse = await task;
-        Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
-        Assert.NotNull(disceplineOfLastYearCourse);
+        Assert.That(disceplineOfLastYearCourse, Is.InstanceOf<Discepline>());
+        Assert.That(disceplineOfLastYearCourse, Is.Not.Null);
       }
     }
 
@@ -70,10 +70,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<Task<Discepline>>(task);
+        Assert.That(task, Is.InstanceOf<Task<Discepline>>());
         var disceplineOfLastYearCourse = await task;
-        Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
-        Assert.NotNull(disceplineOfLastYearCourse);
+        Assert.That(disceplineOfLastYearCourse, Is.InstanceOf<Discepline>());
+        Assert.That(disceplineOfLastYearCourse, Is.Not.Null);
       }
     }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         var qelayedQuery = session.Query.CreateDelayedQuery(endpoint => { return endpoint.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
-        Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);
+        Assert.That(((DelayedQuery<Discepline>)qelayedQuery).Task.Result, Is.Not.Null);
       }
     }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         var qelayedQuery = session.Query.CreateDelayedQuery(query => query.All<Discepline>());
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
-        Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);
+        Assert.That(((DelayedQuery<Discepline>)qelayedQuery).Task.Result, Is.Not.Null);
       }
     }
 
@@ -163,18 +163,18 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         using (var transaction = session.OpenTransaction()) {
           Console.WriteLine(transaction.Transaction.Guid);
           var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-          Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
+          Assert.That(task, Is.InstanceOf<Task<QueryResult<Discepline>>>());
           var disceplinesOfLastYearCourse = await task;
           Console.WriteLine(transaction.Transaction.Guid);
-          Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
+          Assert.That(disceplinesOfLastYearCourse, Is.InstanceOf<IEnumerable<Discepline>>());
           var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
           Console.WriteLine(transaction.Transaction.Guid);
-          Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
+          Assert.That(listOfLastYearCourseDisceplines.Count, Is.EqualTo(20));
         }
       }
-      Assert.AreEqual(1, sessionOpenedCount);
-      Assert.AreEqual(1, transactionOpeningCount);
-      Assert.AreEqual(1, transactionOpenedCount);
+      Assert.That(sessionOpenedCount, Is.EqualTo(1));
+      Assert.That(transactionOpeningCount, Is.EqualTo(1));
+      Assert.That(transactionOpenedCount, Is.EqualTo(1));
     }
 
     [Test]

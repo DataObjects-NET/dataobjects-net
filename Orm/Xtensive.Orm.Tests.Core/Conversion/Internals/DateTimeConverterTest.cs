@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -24,11 +24,11 @@ namespace Xtensive.Orm.Tests.Core.Conversion
     [Test]
     public void Test()
     {
-      TestLog.Info("{0}", DateTime.Now.ToString("yyyy/MM/dd hh:mm:ss.fff %K", CultureInfo.InvariantCulture));
+      TestLog.Info($"{DateTime.Now.ToString("yyyy/MM/dd hh:mm:ss.fff %K", CultureInfo.InvariantCulture)}");
       IInstanceGenerator<DateTime> generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<DateTime>();
       Random random = RandomManager.CreateRandom(1, SeedVariatorType.CallingMethod);
       for (int i = 0; i < iterationCount * 1; i++)
-        TestLog.Info("{0}", generator.GetInstance(random).ToString("yyyy/MM/dd hh:mm:ss.fff %K", CultureInfo.InvariantCulture));
+        TestLog.Info($"{generator.GetInstance(random).ToString("yyyy/MM/dd hh:mm:ss.fff %K", CultureInfo.InvariantCulture)}");
     }
 
     [Test]

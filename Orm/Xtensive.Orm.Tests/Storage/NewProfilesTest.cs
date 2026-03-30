@@ -126,9 +126,9 @@ namespace Xtensive.Orm.Tests.Storage
     public void SessionAndTransactionIsDisconnected()
     {
       using (var session = Domain.OpenSession(clientProfile)) {
-        Assert.IsTrue(session.IsDisconnected);
+        Assert.That(session.IsDisconnected, Is.True);
         using (var transaction = session.OpenTransaction()) {
-          Assert.IsTrue(transaction.Transaction.IsDisconnected);
+          Assert.That(transaction.Transaction.IsDisconnected, Is.True);
         }
       }
     }
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Storage
           key = order.Key;
           Assert.DoesNotThrow(() => session.Query.Single(key));
           var orderFromDB = session.Query.All<Author>().FirstOrDefault();
-          Assert.IsNotNull(orderFromDB);
+          Assert.That(orderFromDB, Is.Not.Null);
           nestedScope.Complete();
         }
         Assert.DoesNotThrow(() => session.Query.Single(key));
@@ -167,36 +167,36 @@ namespace Xtensive.Orm.Tests.Storage
           secondBook.Title = "2nd Book";
           session.SaveChanges();
 
-          Assert.AreEqual("Author", author.Name);
-          Assert.AreEqual("1st Book", firstBook.Title);
-          Assert.AreEqual("2nd Book", secondBook.Title);
-          Assert.AreEqual(1, author.Books.Count(book => book.Title == "1st Book"));
-          Assert.AreEqual(1, author.Books.Count(book => book.Title == "2nd Book"));
+          Assert.That(author.Name, Is.EqualTo("Author"));
+          Assert.That(firstBook.Title, Is.EqualTo("1st Book"));
+          Assert.That(secondBook.Title, Is.EqualTo("2nd Book"));
+          Assert.That(author.Books.Count(book => book.Title == "1st Book"), Is.EqualTo(1));
+          Assert.That(author.Books.Count(book => book.Title == "2nd Book"), Is.EqualTo(1));
         }
-        Assert.AreEqual("Some author", author.Name);
-        Assert.AreEqual("first book", firstBook.Title);
-        Assert.AreEqual("second book", secondBook.Title);
+        Assert.That(author.Name, Is.EqualTo("Some author"));
+        Assert.That(firstBook.Title, Is.EqualTo("first book"));
+        Assert.That(secondBook.Title, Is.EqualTo("second book"));
 
-        Assert.IsNull(author.Books.FirstOrDefault(book => book.Title == "1st Book"));
-        Assert.IsNull(author.Books.FirstOrDefault(book => book.Title == "2nd Book"));
+        Assert.That(author.Books.FirstOrDefault(book => book.Title == "1st Book"), Is.Null);
+        Assert.That(author.Books.FirstOrDefault(book => book.Title == "2nd Book"), Is.Null);
         using (var transaction = session.OpenTransaction()) {
           author.Name = "Another author";
           firstBook.Title = "1st Book";
           secondBook.Title = "2nd Book";
           session.SaveChanges();
 
-          Assert.AreEqual("Another author", author.Name);
-          Assert.AreEqual("1st Book", firstBook.Title);
-          Assert.AreEqual("2nd Book", secondBook.Title);
-          Assert.AreEqual(1, author.Books.Count(book => book.Title == "1st Book"));
-          Assert.AreEqual(1, author.Books.Count(book => book.Title == "2nd Book"));
+          Assert.That(author.Name, Is.EqualTo("Another author"));
+          Assert.That(firstBook.Title, Is.EqualTo("1st Book"));
+          Assert.That(secondBook.Title, Is.EqualTo("2nd Book"));
+          Assert.That(author.Books.Count(book => book.Title == "1st Book"), Is.EqualTo(1));
+          Assert.That(author.Books.Count(book => book.Title == "2nd Book"), Is.EqualTo(1));
           transaction.Complete();
         }
-        Assert.AreEqual("Another author", author.Name);
-        Assert.AreEqual("1st Book", firstBook.Title);
-        Assert.AreEqual("2nd Book", secondBook.Title);
-        Assert.IsNotNull(author.Books.FirstOrDefault(book => book.Title == "1st Book"));
-        Assert.IsNotNull(author.Books.FirstOrDefault(book => book.Title == "2nd Book"));
+        Assert.That(author.Name, Is.EqualTo("Another author"));
+        Assert.That(firstBook.Title, Is.EqualTo("1st Book"));
+        Assert.That(secondBook.Title, Is.EqualTo("2nd Book"));
+        Assert.That(author.Books.FirstOrDefault(book => book.Title == "1st Book"), Is.Not.Null);
+        Assert.That(author.Books.FirstOrDefault(book => book.Title == "2nd Book"), Is.Not.Null);
       }
     }
 
@@ -209,16 +209,16 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           author.Name = "Author";
           session.CancelChanges();
-          Assert.AreEqual("Some author", author.Name);
+          Assert.That(author.Name, Is.EqualTo("Some author"));
         }
-        Assert.AreEqual("Some author", author.Name);
+        Assert.That(author.Name, Is.EqualTo("Some author"));
         using (var transaction = session.OpenTransaction()) {
           author.Name = "Another author";
           session.CancelChanges();
-          Assert.AreEqual("Some author", author.Name);
+          Assert.That(author.Name, Is.EqualTo("Some author"));
           transaction.Complete();
         }
-        Assert.AreEqual("Some author", author.Name);
+        Assert.That(author.Name, Is.EqualTo("Some author"));
       }
     }
 
@@ -228,38 +228,38 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(clientProfile)) {
         var author = new Author { Name = "Some author" };
         session.SaveChanges();
-        Assert.AreEqual("Some author", author.Name);
+        Assert.That(author.Name, Is.EqualTo("Some author"));
         using (var firstLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
           using (var secondLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
             using (var thirdLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
               author.Name = "Author";
-              Assert.AreEqual("Author", author.Name);
+              Assert.That(author.Name, Is.EqualTo("Author"));
             }
-            Assert.AreEqual("Some author", author.Name);
+            Assert.That(author.Name, Is.EqualTo("Some author"));
             using (var thirdLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
               author.Name = "Author";
-              Assert.AreEqual("Author", author.Name);
+              Assert.That(author.Name, Is.EqualTo("Author"));
               thirdLevelTransaction.Complete();
             }
-            Assert.AreEqual("Author", author.Name);
+            Assert.That(author.Name, Is.EqualTo("Author"));
           }
-          Assert.AreEqual("Some author", author.Name);
+          Assert.That(author.Name, Is.EqualTo("Some author"));
 
           using (var secondLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
             using (var thirdLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
               author.Name = "Author";
-              Assert.AreEqual("Author", author.Name);
+              Assert.That(author.Name, Is.EqualTo("Author"));
             }
-            Assert.AreEqual("Some author", author.Name);
+            Assert.That(author.Name, Is.EqualTo("Some author"));
             using (var thirdLevelTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
               author.Name = "Author";
-              Assert.AreEqual("Author", author.Name);
+              Assert.That(author.Name, Is.EqualTo("Author"));
               thirdLevelTransaction.Complete();
             }
-            Assert.AreEqual("Author", author.Name);
+            Assert.That(author.Name, Is.EqualTo("Author"));
             secondLevelTransaction.Complete();
           }
-          Assert.AreEqual("Author", author.Name);
+          Assert.That(author.Name, Is.EqualTo("Author"));
         }
       }
     }
@@ -272,12 +272,12 @@ namespace Xtensive.Orm.Tests.Storage
         _ = new Book();
 
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(0, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(0));
 
         session.SaveChanges();
 
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
       }
     }
 
@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(clientProfile)) {
         _ = new Author();
         session.SaveChanges();
-        Assert.IsNull(session.Transaction);
+        Assert.That(session.Transaction, Is.Null);
       }
     }
 
@@ -303,37 +303,37 @@ namespace Xtensive.Orm.Tests.Storage
         session.SaveChanges();
 
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(author.Books.Count, Is.EqualTo(2));
 
         _ = author.Books.Add(new Book());
         session.CancelChanges();
 
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(author.Books.Count, Is.EqualTo(2));
 
         bookToEditLater.Title = "not null title";
         session.CancelChanges();
 
-        Assert.AreNotEqual(bookToEditLater.Title, "not null title");
-        Assert.AreEqual(bookToEditLater.PersistenceState, PersistenceState.Synchronized);
+        Assert.That("not null title", Is.Not.EqualTo(bookToEditLater.Title));
+        Assert.That(PersistenceState.Synchronized, Is.EqualTo(bookToEditLater.PersistenceState));
         var editedBook = session.Query.Single<Book>(bookToEditLater.Key);
-        Assert.AreNotEqual(editedBook.Title, "not null title");
+        Assert.That("not null title", Is.Not.EqualTo(editedBook.Title));
 
         _ = author.Books.Remove(bookToRemoveLater);
         bookToRemoveLater.Remove();
         session.CancelChanges();
-        Assert.IsFalse(bookToRemoveLater.IsRemoved);
-        Assert.AreEqual(bookToRemoveLater.PersistenceState, PersistenceState.Synchronized);
+        Assert.That(bookToRemoveLater.IsRemoved, Is.False);
+        Assert.That(PersistenceState.Synchronized, Is.EqualTo(bookToRemoveLater.PersistenceState));
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(author.Books.Count, Is.EqualTo(2));
       }
 
       using (var session = Domain.OpenSession(clientProfile)) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
       }
     }
 
@@ -345,31 +345,31 @@ namespace Xtensive.Orm.Tests.Storage
         var bookToRemoveLater = new Book();
         session.SaveChanges();
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
 
         _ = new Book();
         session.SaveChanges();
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(3, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(3));
 
         bookToEditLater.Title = "not null title";
         session.SaveChanges();
-        Assert.AreEqual(bookToEditLater.Title, "not null title");
-        Assert.AreEqual(bookToEditLater.PersistenceState, PersistenceState.Synchronized);
+        Assert.That("not null title", Is.EqualTo(bookToEditLater.Title));
+        Assert.That(PersistenceState.Synchronized, Is.EqualTo(bookToEditLater.PersistenceState));
         var editedBook = session.Query.Single<Book>(bookToEditLater.Key);
-        Assert.AreEqual(editedBook.Title, "not null title");
+        Assert.That("not null title", Is.EqualTo(editedBook.Title));
 
         bookToRemoveLater.Remove();
         session.SaveChanges();
-        Assert.IsTrue(bookToRemoveLater.IsRemoved);
-        Assert.AreEqual(bookToRemoveLater.PersistenceState, PersistenceState.Removed);
+        Assert.That(bookToRemoveLater.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(bookToRemoveLater.PersistenceState));
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
       }
 
       using (var session = Domain.OpenSession(clientProfile)) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
       }
     }
 
@@ -381,22 +381,22 @@ namespace Xtensive.Orm.Tests.Storage
         var bookToEditLater = new Book();
         var bookToRemoveLater = new Book();
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
 
         _ = new Book();
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(3, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(3));
 
         bookToEditLater.Title = "not null title";
-        Assert.AreEqual(bookToEditLater.Title, "not null title");
+        Assert.That("not null title", Is.EqualTo(bookToEditLater.Title));
         var editedBook = session.Query.Single<Book>(bookToEditLater.Key);
-        Assert.AreEqual(editedBook.Title, "not null title");
+        Assert.That("not null title", Is.EqualTo(editedBook.Title));
 
         bookToRemoveLater.Remove();
-        Assert.IsTrue(bookToRemoveLater.IsRemoved);
-        Assert.AreEqual(bookToRemoveLater.PersistenceState, PersistenceState.Removed);
+        Assert.That(bookToRemoveLater.IsRemoved, Is.True);
+        Assert.That(PersistenceState.Removed, Is.EqualTo(bookToRemoveLater.PersistenceState));
         countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
 
         transaction.Complete();
       }
@@ -420,9 +420,9 @@ namespace Xtensive.Orm.Tests.Storage
           var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
           var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
-          Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
-          Assert.IsTrue(string.IsNullOrEmpty(bookToRemoveLater.Title));
+          Assert.That(countOfBooks, Is.EqualTo(2));
+          Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
+          Assert.That(string.IsNullOrEmpty(bookToRemoveLater.Title), Is.True);
           transaction.Complete();
         }
       }
@@ -432,9 +432,9 @@ namespace Xtensive.Orm.Tests.Storage
         var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
         var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
-        Assert.IsTrue(string.IsNullOrEmpty(bookToRemoveLater.Title));
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
+        Assert.That(string.IsNullOrEmpty(bookToRemoveLater.Title), Is.True);
         transaction.Complete();
       }
 
@@ -445,7 +445,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
+          Assert.That(countOfBooks, Is.EqualTo(2));
           transaction.Complete();
         }
       }
@@ -453,7 +453,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
         transaction.Complete();
       }
 
@@ -461,15 +461,15 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           var newBook = new Book();
           session.CancelChanges();
-          Assert.AreEqual(null, newBook.Tuple);
-          Assert.AreEqual(PersistenceState.Removed, newBook.PersistenceState);
+          Assert.That(newBook.Tuple, Is.EqualTo(null));
+          Assert.That(newBook.PersistenceState, Is.EqualTo(PersistenceState.Removed));
           _ = Assert.Throws<InvalidOperationException>(() => newBook.Title = "not null title");
           transaction.Complete();
         }
 
         using (var transaction = session.OpenTransaction()) {
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
+          Assert.That(countOfBooks, Is.EqualTo(2));
           transaction.Complete();
         }
       }
@@ -477,7 +477,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
         transaction.Complete();
       }
 
@@ -488,9 +488,9 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var transaction = session.OpenTransaction()) {
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
+          Assert.That(countOfBooks, Is.EqualTo(2));
           var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
-          Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
+          Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
           transaction.Complete();
         }
       }
@@ -498,9 +498,9 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
         var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
-        Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
+        Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
         transaction.Complete();
       }
 
@@ -514,9 +514,9 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
+          Assert.That(countOfBooks, Is.EqualTo(2));
           var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
-          Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
+          Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
           transaction.Complete();
         }
       }
@@ -524,9 +524,9 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
+        Assert.That(countOfBooks, Is.EqualTo(2));
         var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
-        Assert.IsTrue(string.IsNullOrEmpty(bookToEditLater.Title));
+        Assert.That(string.IsNullOrEmpty(bookToEditLater.Title), Is.True);
         transaction.Complete();
       }
 
@@ -538,7 +538,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-          Assert.IsNotNull(bookToRemoveLater);
+          Assert.That(bookToRemoveLater, Is.Not.Null);
           transaction.Complete();
         }
       }
@@ -546,7 +546,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-        Assert.IsNotNull(bookToRemoveLater);
+        Assert.That(bookToRemoveLater, Is.Not.Null);
         transaction.Complete();
       }
 
@@ -560,7 +560,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-          Assert.IsNotNull(bookToRemoveLater);
+          Assert.That(bookToRemoveLater, Is.Not.Null);
           transaction.Complete();
         }
       }
@@ -568,7 +568,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-        Assert.IsNotNull(bookToRemoveLater);
+        Assert.That(bookToRemoveLater, Is.Not.Null);
         transaction.Complete();
       }
     }
@@ -593,16 +593,16 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           var author = session.Query.All<Author>().First();
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
-          Assert.AreEqual(2, author.Books.Count);
+          Assert.That(countOfBooks, Is.EqualTo(2));
+          Assert.That(author.Books.Count, Is.EqualTo(2));
           _ = author.Books.Add(new Book());
         }
 
         using (var transaction = session.OpenTransaction()) {
           var author = session.Query.All<Author>().First();
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
-          Assert.AreEqual(2, author.Books.Count);
+          Assert.That(countOfBooks, Is.EqualTo(2));
+          Assert.That(author.Books.Count, Is.EqualTo(2));
           var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
           bookToEditLater.Title = "not null title";
         }
@@ -610,10 +610,10 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           var bookToEditLater = session.Query.Single<Book>(bookToEditLaterKey);
           var bookToRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-          Assert.AreNotEqual(bookToEditLater.Title, "not null title");
-          Assert.AreEqual(bookToEditLater.PersistenceState, PersistenceState.Synchronized);
+          Assert.That("not null title", Is.Not.EqualTo(bookToEditLater.Title));
+          Assert.That(PersistenceState.Synchronized, Is.EqualTo(bookToEditLater.PersistenceState));
           var editedBook = session.Query.Single<Book>(bookToEditLater.Key);
-          Assert.AreNotEqual(editedBook.Title, "not null title");
+          Assert.That("not null title", Is.Not.EqualTo(editedBook.Title));
           var author = bookToRemoveLater.Authors.First();
           _ = author.Books.Remove(bookToRemoveLater);
           bookToRemoveLater.Remove();
@@ -624,12 +624,12 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var countOfBooks = session.Query.All<Book>().Count();
         var author = session.Query.All<Author>().First();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(author.Books.Count, Is.EqualTo(2));
         var bookForEditLater = session.Query.Single<Book>(bookToEditLaterKey);
         var bookForRemoveLater = session.Query.Single<Book>(bookToRemoveLaterKey);
-        Assert.NotNull(bookForRemoveLater);
-        Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+        Assert.That(bookForRemoveLater, Is.Not.Null);
+        Assert.That(string.IsNullOrEmpty(bookForEditLater.Title), Is.True);
       }
     }
 
@@ -654,10 +654,10 @@ namespace Xtensive.Orm.Tests.Storage
           var author = session.Query.All<Author>().FirstOrDefault();
           var countOfAuthors = session.Query.All<Author>().Count();
           var countOfBooks = session.Query.All<Book>().Count();
-          Assert.AreEqual(2, countOfBooks);
-          Assert.AreEqual(1, countOfAuthors);
-          Assert.IsNotNull(author);
-          Assert.AreEqual(0, author.Books.Count);
+          Assert.That(countOfBooks, Is.EqualTo(2));
+          Assert.That(countOfAuthors, Is.EqualTo(1));
+          Assert.That(author, Is.Not.Null);
+          Assert.That(author.Books.Count, Is.EqualTo(0));
           transaction.Complete();
         }
       }
@@ -669,10 +669,10 @@ namespace Xtensive.Orm.Tests.Storage
         var author = session.Query.All<Author>().FirstOrDefault();
         var countOfAuthors = session.Query.All<Author>().Count();
         var countOfBooks = session.Query.All<Book>().Count();
-        Assert.AreEqual(2, countOfBooks);
-        Assert.AreEqual(1, countOfAuthors);
-        Assert.IsNotNull(author);
-        Assert.AreEqual(0, author.Books.Count);
+        Assert.That(countOfBooks, Is.EqualTo(2));
+        Assert.That(countOfAuthors, Is.EqualTo(1));
+        Assert.That(author, Is.Not.Null);
+        Assert.That(author.Books.Count, Is.EqualTo(0));
         transaction.Complete();
       }
 
@@ -688,7 +688,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var autor = session.Query.All<Author>().FirstOrDefault();
-          Assert.AreEqual(0, autor.Books.Count);
+          Assert.That(autor.Books.Count, Is.EqualTo(0));
           transaction.Complete();
         }
       }
@@ -696,7 +696,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var author = session.Query.All<Author>().FirstOrDefault();
-        Assert.AreEqual(0, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(0));
         transaction.Complete();
       }
 
@@ -712,7 +712,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (var transaction = session.OpenTransaction()) {
           var autor = session.Query.All<Author>().FirstOrDefault();
-          Assert.AreEqual(1, autor.Books.Count);
+          Assert.That(autor.Books.Count, Is.EqualTo(1));
           transaction.Complete();
         }
       }
@@ -720,7 +720,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var author = session.Query.All<Author>().FirstOrDefault();
-        Assert.AreEqual(1, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(1));
         transaction.Complete();
       }
 
@@ -734,14 +734,14 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var transaction = session.OpenTransaction()) {
           var author = session.Query.All<Author>().FirstOrDefault();
-          Assert.AreEqual(2, author.Books.Count);
+          Assert.That(author.Books.Count, Is.EqualTo(2));
         }
       }
 
       using (var session = Domain.OpenSession(serverProfile))
       using (var transaction = session.OpenTransaction()) {
         var author = session.Query.All<Author>().FirstOrDefault();
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(2));
       }
 
       using (var session = Domain.OpenSession(serverProfile)) {
@@ -755,14 +755,14 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var transaction = session.OpenTransaction()) {
           var author = session.Query.All<Author>().FirstOrDefault();
-          Assert.AreEqual(2, author.Books.Count);
+          Assert.That(author.Books.Count, Is.EqualTo(2));
         }
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var author = session.Query.All<Author>().FirstOrDefault();
-        Assert.AreEqual(2, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(2));
       }
 
       using (var session = Domain.OpenSession(serverProfile)) {
@@ -777,14 +777,14 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var transaction = session.OpenTransaction()) {
           var author = session.Query.All<Author>().FirstOrDefault();
-          Assert.AreEqual(1, author.Books.Count);
+          Assert.That(author.Books.Count, Is.EqualTo(1));
         }
       }
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var author = session.Query.All<Author>().FirstOrDefault();
-        Assert.AreEqual(1, author.Books.Count);
+        Assert.That(author.Books.Count, Is.EqualTo(1));
       }
     }
 
@@ -820,7 +820,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(clientProfile)) {
         var authorWithUniqueName = new Author {Name = "Peter"};
         session.SaveChanges();
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"));
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"), Is.Not.Null);
         var authorWithSameName = new Author {Name = authorWithUniqueName.Name};
 
         Exception firstException = null;
@@ -831,7 +831,7 @@ namespace Xtensive.Orm.Tests.Storage
         catch (Exception exception) {
           firstException = exception;
         }
-        Assert.IsNotNull(firstException);
+        Assert.That(firstException, Is.Not.Null);
 
         try {
           session.SaveChanges();
@@ -839,14 +839,13 @@ namespace Xtensive.Orm.Tests.Storage
         catch (Exception exception) {
           secondException = exception;
         }
-        Assert.IsNotNull(secondException);
-        Assert.AreEqual(
-            firstException.Message.Substring(0, 20),
-            secondException.Message.Substring(0, 20));
+        Assert.That(secondException, Is.Not.Null);
+        Assert.That(
+            secondException.Message.Substring(0, 20), Is.EqualTo(firstException.Message.Substring(0, 20)));
         authorWithSameName.Name = "Mathew";
         session.SaveChanges();
 
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"));
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"), Is.Not.Null);
       }
     }
 
@@ -859,7 +858,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           var authorWithUniqueName = new Author {Name = "Peter"};
           session.SaveChanges();
-          Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"));
+          Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"), Is.Not.Null);
           var authorWithSameName = new Author {Name = authorWithUniqueName.Name};
 
           Exception firstException = null;
@@ -870,7 +869,7 @@ namespace Xtensive.Orm.Tests.Storage
           catch (Exception exception) {
             firstException = exception;
           }
-          Assert.IsNotNull(firstException);
+          Assert.That(firstException, Is.Not.Null);
 
           try {
             session.SaveChanges();
@@ -878,18 +877,17 @@ namespace Xtensive.Orm.Tests.Storage
           catch (Exception exception) {
             secondException = exception;
           }
-          Assert.IsNotNull(secondException);
-          Assert.AreEqual(
-            firstException.Message.Substring(0, 20),
-            secondException.Message.Substring(0, 20));
+          Assert.That(secondException, Is.Not.Null);
+          Assert.That(
+            secondException.Message.Substring(0, 20), Is.EqualTo(firstException.Message.Substring(0, 20)));
           authorWithSameName.Name = "Mathew";
           session.SaveChanges();
 
-          Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"));
+          Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"), Is.Not.Null);
           transaction.Complete();
         }
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"));
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"));
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"), Is.Not.Null);
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Peter"), Is.Not.Null);
       }
     }
 
@@ -904,13 +902,13 @@ namespace Xtensive.Orm.Tests.Storage
         _ = firstAuthor.Books.Add(secondBook);
         session.SaveChanges();
 
-        Assert.AreEqual(2, session.Query.All<Author>().First().Books.Count);
-        Assert.AreEqual(1, session.Query.All<Book>().First(book => book.Title == "First Book").Authors.Count);
-        Assert.AreEqual(1, session.Query.All<Book>().First(book => book.Title == "Second Book").Authors.Count);
+        Assert.That(session.Query.All<Author>().First().Books.Count, Is.EqualTo(2));
+        Assert.That(session.Query.All<Book>().First(book => book.Title == "First Book").Authors.Count, Is.EqualTo(1));
+        Assert.That(session.Query.All<Book>().First(book => book.Title == "Second Book").Authors.Count, Is.EqualTo(1));
 
         var secondAutor = new Author { Name = "Peter" };
         _ = session.LookupStateInCache(firstAuthor.Key, Domain.Model.Types["Author"].Fields["Books"], out var state);
-        Assert.IsNotNull(state);
+        Assert.That(state, Is.Not.Null);
         var booksOfFirstAuthor = new {
           CountOfAddedItems = state.AddedItemsCount,
           CountOfRemovedItems = state.RemovedItemsCount,
@@ -921,7 +919,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         state = null;
         _ = session.LookupStateInCache(firstBook.Key, Domain.Model.Types["Book"].Fields["Authors"], out state);
-        Assert.IsNotNull(state);
+        Assert.That(state, Is.Not.Null);
         var authorsOfFirstBook = new {
           CountOfAddedItems = state.AddedItemsCount,
           CountOfRemovedItems = state.RemovedItemsCount,
@@ -943,43 +941,43 @@ namespace Xtensive.Orm.Tests.Storage
           session.SaveChanges();
         }
         catch (Exception) {
-          Assert.AreEqual(2, session.Query.All<Author>().First().Books.Count);
-          Assert.AreEqual(1, session.Query.All<Book>().First(book => book.Title == "First Book").Authors.Count);
-          Assert.AreEqual(1, session.Query.All<Book>().First(book => book.Title == "Second Book").Authors.Count);
+          Assert.That(session.Query.All<Author>().First().Books.Count, Is.EqualTo(2));
+          Assert.That(session.Query.All<Book>().First(book => book.Title == "First Book").Authors.Count, Is.EqualTo(1));
+          Assert.That(session.Query.All<Book>().First(book => book.Title == "Second Book").Authors.Count, Is.EqualTo(1));
           state = null;
           _ = session.LookupStateInCache(firstAuthor.Key, Domain.Model.Types["Author"].Fields["Books"], out state);
-          Assert.IsNotNull(state);
-          Assert.AreEqual(booksOfFirstAuthor.CountOfAddedItems, state.AddedItemsCount);
-          Assert.AreEqual(booksOfFirstAuthor.CountOfRemovedItems, state.RemovedItemsCount);
-          Assert.AreEqual(booksOfFirstAuthor.CountOfFetchedItems, state.FetchedItemsCount);
-          Assert.AreEqual(booksOfFirstAuthor.IsLoaded, state.IsLoaded);
-          Assert.AreEqual(booksOfFirstAuthor.TotalItemsCount, state.TotalItemCount);
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.AddedItemsCount, Is.EqualTo(booksOfFirstAuthor.CountOfAddedItems));
+          Assert.That(state.RemovedItemsCount, Is.EqualTo(booksOfFirstAuthor.CountOfRemovedItems));
+          Assert.That(state.FetchedItemsCount, Is.EqualTo(booksOfFirstAuthor.CountOfFetchedItems));
+          Assert.That(state.IsLoaded, Is.EqualTo(booksOfFirstAuthor.IsLoaded));
+          Assert.That(state.TotalItemCount, Is.EqualTo(booksOfFirstAuthor.TotalItemsCount));
           state = null;
           _ = session.LookupStateInCache(firstBook.Key, Domain.Model.Types["Book"].Fields["Authors"], out state);
-          Assert.IsNotNull(state);
-          Assert.AreEqual(authorsOfFirstBook.CountOfAddedItems, state.AddedItemsCount);
-          Assert.AreEqual(authorsOfFirstBook.CountOfRemovedItems, state.RemovedItemsCount);
-          Assert.AreEqual(authorsOfFirstBook.CountOfFetchedItems, state.FetchedItemsCount);
-          Assert.AreEqual(authorsOfFirstBook.IsLoaded, state.IsLoaded);
-          Assert.AreEqual(authorsOfFirstBook.TotalItemsCount, state.TotalItemCount);
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.AddedItemsCount, Is.EqualTo(authorsOfFirstBook.CountOfAddedItems));
+          Assert.That(state.RemovedItemsCount, Is.EqualTo(authorsOfFirstBook.CountOfRemovedItems));
+          Assert.That(state.FetchedItemsCount, Is.EqualTo(authorsOfFirstBook.CountOfFetchedItems));
+          Assert.That(state.IsLoaded, Is.EqualTo(authorsOfFirstBook.IsLoaded));
+          Assert.That(state.TotalItemCount, Is.EqualTo(authorsOfFirstBook.TotalItemsCount));
           state = null;
           _ = session.LookupStateInCache(secondBook.Key, Domain.Model.Types["Book"].Fields["Authors"], out state);
-          Assert.IsNotNull(state);
-          Assert.AreEqual(authorsOfSecondBook.CountOfAddedItems, state.AddedItemsCount);
-          Assert.AreEqual(authorsOfSecondBook.CountOfRemovedItems, state.RemovedItemsCount);
-          Assert.AreEqual(authorsOfSecondBook.CountOfFetchedItems, state.FetchedItemsCount);
-          Assert.AreEqual(authorsOfSecondBook.IsLoaded, state.IsLoaded);
-          Assert.AreEqual(authorsOfSecondBook.TotalItemsCount, state.TotalItemCount);
+          Assert.That(state, Is.Not.Null);
+          Assert.That(state.AddedItemsCount, Is.EqualTo(authorsOfSecondBook.CountOfAddedItems));
+          Assert.That(state.RemovedItemsCount, Is.EqualTo(authorsOfSecondBook.CountOfRemovedItems));
+          Assert.That(state.FetchedItemsCount, Is.EqualTo(authorsOfSecondBook.CountOfFetchedItems));
+          Assert.That(state.IsLoaded, Is.EqualTo(authorsOfSecondBook.IsLoaded));
+          Assert.That(state.TotalItemCount, Is.EqualTo(authorsOfSecondBook.TotalItemsCount));
         }
 
         secondAutor.Name = "Mathew";
         session.SaveChanges();
-        Assert.AreEqual(2, session.Query.All<Author>().Count());
-        Assert.AreEqual(2, session.Query.All<Book>().Count());
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name == "Peter"));
-        Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name == "Mathew"));
-        Assert.AreEqual(2, session.Query.All<Author>().First(author => author.Name == "Peter").Books.Count);
-        Assert.AreEqual(0, session.Query.All<Author>().First(author => author.Name == "Mathew").Books.Count);
+        Assert.That(session.Query.All<Author>().Count(), Is.EqualTo(2));
+        Assert.That(session.Query.All<Book>().Count(), Is.EqualTo(2));
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name == "Peter"), Is.Not.Null);
+        Assert.That(session.Query.All<Author>().FirstOrDefault(author => author.Name == "Mathew"), Is.Not.Null);
+        Assert.That(session.Query.All<Author>().First(author => author.Name == "Peter").Books.Count, Is.EqualTo(2));
+        Assert.That(session.Query.All<Author>().First(author => author.Name == "Mathew").Books.Count, Is.EqualTo(0));
       }
     }
 

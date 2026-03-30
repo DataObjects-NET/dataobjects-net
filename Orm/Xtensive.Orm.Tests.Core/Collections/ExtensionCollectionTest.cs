@@ -19,12 +19,12 @@ namespace Xtensive.Orm.Tests.Core.Collections
     public void CombinedTest()
     {
       var c = new ExtensionCollection();
-      Assert.AreEqual(0, c.Count);
-      Assert.IsNull(c.Get<ExtensionCollectionTest>());
+      Assert.That(c.Count, Is.EqualTo(0));
+      Assert.That(c.Get<ExtensionCollectionTest>(), Is.Null);
       AssertEx.ThrowsArgumentException(() => c.Set(typeof(int), 1));
       c.Set(this);
-      Assert.AreEqual(1, c.Count);
-      Assert.AreSame(this, c.Get<ExtensionCollectionTest>());
+      Assert.That(c.Count, Is.EqualTo(1));
+      Assert.That(c.Get<ExtensionCollectionTest>(), Is.SameAs(this));
       
       c.Lock();
       AssertEx.Throws<InstanceIsLockedException>(() => c.Set(this));
@@ -34,9 +34,9 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
       var o = new object();
       cc.Set(o);
-      Assert.AreEqual(2, cc.Count);
-      Assert.AreSame(this, cc.Get<ExtensionCollectionTest>());
-      Assert.AreSame(o, cc.Get<object>());
+      Assert.That(cc.Count, Is.EqualTo(2));
+      Assert.That(cc.Get<ExtensionCollectionTest>(), Is.SameAs(this));
+      Assert.That(cc.Get<object>(), Is.SameAs(o));
     }
   }
 }

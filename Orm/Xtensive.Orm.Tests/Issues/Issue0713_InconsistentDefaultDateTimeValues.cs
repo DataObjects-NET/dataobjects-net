@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = domain2.OpenSession())
       using (var ts = session.OpenTransaction()) {
         var count = session.Query.All<InconsistentDefaultDateTimeValuesModel2.MyEntity>().Count();
-        Assert.AreEqual(1, count);
+        Assert.That(count, Is.EqualTo(1));
         session.Query.All<InconsistentDefaultDateTimeValuesModel2.MyEntity>().First(entity => entity.Value==DateTime.MinValue);
         ts.Complete();
       }

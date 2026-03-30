@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         }
         transaction.Commit();
       }
-      Assert.AreEqual((long)count * (count - 1) / 2, sum);
+      Assert.That(sum, Is.EqualTo((long)count * (count - 1) / 2));
       connection.Close();
     }
 
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         transaction.Commit();
       }
       if (count <= instanceCount)
-        Assert.AreEqual(0, sum);
+        Assert.That(sum, Is.EqualTo(0));
       connection.Close();
     }
 

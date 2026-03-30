@@ -42,14 +42,14 @@ namespace Xtensive.Orm.Tests.Core.Tuples
             tuple.SetValue(j, (object) data[j]);
           // Testing reads (untyped)
           for (int j = 0; j < count; j++)
-            Assert.AreEqual(data[j], tuple.GetValue(j));
+            Assert.That(tuple.GetValue(j), Is.EqualTo(data[j]));
           // Testing serialization 
           var tuple2 = Cloner.Clone(tuple);
-          Assert.AreEqual(tuple, tuple2);
-          Assert.AreEqual(tuple.Descriptor, tuple2.Descriptor);
+          Assert.That(tuple2, Is.EqualTo(tuple));
+          Assert.That(tuple2.Descriptor, Is.EqualTo(tuple.Descriptor));
           // Testing reads (untyped));
           for (int j = 0; j < count; j++)
-            Assert.AreEqual(data[j], tuple2.GetValue(j));
+            Assert.That(tuple2.GetValue(j), Is.EqualTo(data[j]));
         }
 
         {
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
             tuple.SetValue(j, data[j]);
           // Testing reads (typed)
           for (int j = 0; j < count; j++)
-            Assert.AreEqual(data[j], tuple.GetValue<int>(j));
+            Assert.That(tuple.GetValue<int>(j), Is.EqualTo(data[j]));
         }
       }
     }

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tracking.Tests
       var source = new TrackingStackFrame(false);
       target.MergeWith(source);
 
-      Assert.AreEqual(0, target.Count);
+      Assert.That(target.Count, Is.EqualTo(0));
     }
 
     [Test]
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tracking.Tests
 
       target.MergeWith(source);
 
-      Assert.AreEqual(source.Count, target.Count);
+      Assert.That(target.Count, Is.EqualTo(source.Count));
     }
 
     [Test]
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tracking.Tests
 
       target.MergeWith(source);
 
-      Assert.AreEqual(count, target.Count);
+      Assert.That(target.Count, Is.EqualTo(count));
     }
 
     [Test]
@@ -70,8 +70,8 @@ namespace Xtensive.Orm.Tracking.Tests
 
       target.MergeWith(source);
 
-      Assert.AreEqual(count, target.Count);
-      Assert.AreEqual(TrackingItemState.Created, target.Single().State);
+      Assert.That(target.Count, Is.EqualTo(count));
+      Assert.That(target.Single().State, Is.EqualTo(TrackingItemState.Created));
     }
 
     [Test]
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tracking.Tests
 
       target.MergeWith(source);
 
-      Assert.AreEqual(count, target.Count);
+      Assert.That(target.Count, Is.EqualTo(count));
     }
 
     private TrackingItem CreateTrackingItem(Key key, TrackingItemState state) => (TrackingItem) TestHelper.CreateTrackingItem(key, state);

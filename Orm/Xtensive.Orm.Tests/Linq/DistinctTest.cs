@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq
       if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite | StorageProvider.Oracle)) {
         var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
         var local = expected.Where(c => !c.StartsWith('S'));
-        Assert.IsTrue(local.SequenceEqual(storage));
+        Assert.That(local.SequenceEqual(storage), Is.True);
         var storageHashset = result.AsEnumerable().Where(c => c.StartsWith('S')).ToHashSet();
         local = expected.Where(c => c.StartsWith('S'));
         var count = 0;
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.That(storageHashset.Count, Is.EqualTo(count));
       }
       else {
-        Assert.IsTrue(expected.SequenceEqual(result));
+        Assert.That(expected.SequenceEqual(result), Is.True);
       }
       QueryDumper.Dump(result);
     }
@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().Distinct();
       var expected = Customers.Distinct();
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -75,8 +75,8 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Select(c => c.Address.City)
         .Distinct();
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -91,8 +91,8 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.CustomerId)
         .Select(c => c.Address.City)
         .Distinct();
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
 
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq
       if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite | StorageProvider.Oracle)) {
         var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
         var local = expected.Where(c => !c.StartsWith('S'));
-        Assert.IsTrue(local.SequenceEqual(storage));
+        Assert.That(local.SequenceEqual(storage), Is.True);
         var storageHashset = result.AsEnumerable().Where(c => c.StartsWith('S')).ToHashSet();
         local = expected.Where(c => c.StartsWith('S'));
         var count = 0;
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.That(storageHashset.Count, Is.EqualTo(count));
       }
       else {
-        Assert.IsTrue(expected.SequenceEqual(result));
+        Assert.That(expected.SequenceEqual(result), Is.True);
       }
       QueryDumper.Dump(result);
     }
@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Distinct()
         .Count();
-      Assert.AreEqual(expected, result);
+      Assert.That(result, Is.EqualTo(expected));
     }
 
     [Test]
@@ -150,8 +150,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct()
         .Count();
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -167,8 +167,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(a => a.City)
         .Distinct()
         .Count();
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -180,8 +180,8 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Distinct()
         .Count(c => c.FirstName=="Leonie");
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -193,8 +193,8 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Invoices
         .Distinct()
         .Sum(o => o.InvoiceId);
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -208,8 +208,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(o => o.InvoiceId)
         .Distinct()
         .Sum();
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -227,8 +227,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(5)
         .Distinct()
         .OrderBy(o => o.InvoiceId);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -243,8 +243,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(2)
         .Take(1);
       var list = result.ToList();
-      Assert.IsTrue(expected.SequenceEqual(list));
-      Assert.Greater(list.Count, 0);
+      Assert.That(expected.SequenceEqual(list), Is.True);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -252,7 +252,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().Select(c => c.Key).Distinct().Take(5);
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -267,8 +267,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .OrderBy(o => o.InvoiceId)
         .Take(5);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -282,8 +282,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .Take(5)
         .Count();
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -297,8 +297,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(5)
         .Distinct()
         .Count();
-      Assert.AreEqual(expected, result);
-      Assert.Greater(result, 0);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.GreaterThan(0));
     }
 
     [Test]
@@ -315,8 +315,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Skip(5)
         .Select(o => o.InvoiceDate)
         .Distinct().OrderBy(d => d);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -332,8 +332,8 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.Phone)
         .Skip(5);
 
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -354,8 +354,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(o => o.InvoiceDate)
         .Distinct()
         .OrderBy(d => d);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -376,8 +376,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(o => o.InvoiceDate)
         .Distinct()
         .OrderBy(d => d);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -396,8 +396,8 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c)
         .Skip(5)
         .Take(10);
-      Assert.IsTrue(expected.SequenceEqual(result));
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.SequenceEqual(result), Is.True);
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .ToArray();
 
-      CollectionAssert.AreEquivalent(new[] {false, true}, result);
+      Assert.That(result, Is.EquivalentTo(new[] {false, true}));
     }
 
     [Test]
@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .ToArray();
 
-      CollectionAssert.AreEquivalent(new[] {false, true}, result);
+      Assert.That(result, Is.EquivalentTo(new[] {false, true}));
     }
   }
 }

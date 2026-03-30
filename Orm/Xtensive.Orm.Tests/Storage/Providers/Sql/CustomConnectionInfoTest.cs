@@ -19,11 +19,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       var domainConfiguration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomConnectionInfo");
       var session = domainConfiguration.Sessions["constr"];
-      Assert.IsNotNull(session.ConnectionInfo);
-      Assert.IsNotNull(session.ConnectionInfo.ConnectionString);
+      Assert.That(session.ConnectionInfo, Is.Not.Null);
+      Assert.That(session.ConnectionInfo.ConnectionString, Is.Not.Null);
       session = domainConfiguration.Sessions["conurl"];
-      Assert.IsNotNull(session.ConnectionInfo);
-      Assert.IsNotNull(session.ConnectionInfo.ConnectionUrl);
+      Assert.That(session.ConnectionInfo, Is.Not.Null);
+      Assert.That(session.ConnectionInfo.ConnectionUrl, Is.Not.Null);
     }
   }
 }

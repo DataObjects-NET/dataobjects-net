@@ -1,6 +1,8 @@
-// Copyright (C) 2025 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
+// Created by: Csaba Beer
+// Created:    2011.01.13
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +20,7 @@ using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.Firebird.v3_0
 {
-  internal partial class Extractor : v2_5.Extractor
+  internal partial class Extractor : Model.Extractor
   {
     #region States
 
@@ -145,7 +147,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
 
     private void ExtractSchemas(Catalog catalog, string targetSchema)
     {
-      if (targetSchema == null) {
+      if (targetSchema is null) {
         var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
         var defaultSchema = catalog.CreateSchema(defaultSchemaName);
         catalog.DefaultSchema = defaultSchema;
@@ -469,7 +471,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
         }
       }
 
-      if (expression == null) {
+      if (expression is null) {
         var column = state.Table.TableColumns[reader.GetString(6).Trim()];
         var isDescending = ReadBool(reader, 4);
         _ = state.Index.CreateIndexColumn(column, !isDescending);
@@ -550,31 +552,33 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
       var minorType = row.GetValue(minorTypeIndex) == DBNull.Value ? (short?) null : row.GetInt16(minorTypeIndex);
       var typeName = GetTypeName(majorType, minorType).Trim();
 
-      if (typeName == "NUMERIC" || typeName == "DECIMAL") {
+      if (typeName.Equals("NUMERIC", StringComparison.OrdinalIgnoreCase)
+        || typeName.Equals("DECIMAL", StringComparison.OrdinalIgnoreCase)) {
         var precision = Convert.ToInt32(row[precisionIndex]);
         var scale = Convert.ToInt32(row[scaleIndex]);
         return new SqlValueType(SqlType.Decimal, precision, scale);
       }
-      if (typeName.StartsWith("TIMESTAMP")) {
+      if (typeName.StartsWith("TIMESTAMP", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.DateTime);
       }
 
-      if (typeName == "VARCHAR" || typeName == "CHAR") {
+      if (typeName.Equals("VARCHAR", StringComparison.OrdinalIgnoreCase)
+        || typeName.Equals("CHAR", StringComparison.OrdinalIgnoreCase)) {
         var length = Convert.ToInt32(row[charLengthIndex]);
         var sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
 
-      if (typeName == "BLOB SUB TYPE 0") {
+      if (typeName.Equals("BLOB SUB TYPE 0", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.VarCharMax);
       }
 
-      if (typeName == "BLOB SUB TYPE 1") {
+      if (typeName.Equals("BLOB SUB TYPE 1", StringComparison.OrdinalIgnoreCase)) {
         return new SqlValueType(SqlType.VarBinaryMax);
       }
 
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo != null
+      return typeInfo is not null
         ? new SqlValueType(typeInfo.Type)
         : new SqlValueType(typeName);
     }
@@ -613,8 +617,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
     private static void ReadConstraintProperties(Constraint constraint,
       IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
     {
-      constraint.IsDeferrable = ReadStringOrNull(row, isDeferrableIndex) == "YES";
-      constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex) == "YES";
+      constraint.IsDeferrable = ReadStringOrNull(row, isDeferrableIndex).Equals("YES", StringComparison.OrdinalIgnoreCase);
+      constraint.IsInitiallyDeferred = ReadStringOrNull(row, isInitiallyDeferredIndex).Equals("YES", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex, int updateRuleIndex)

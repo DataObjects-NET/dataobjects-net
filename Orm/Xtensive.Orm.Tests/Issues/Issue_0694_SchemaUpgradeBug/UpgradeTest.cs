@@ -47,12 +47,12 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
         var statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
         var newMediaCount = session.Query.All<M2.NewMedia>().Count();
 
-        Assert.IsNotNull(status);
-        Assert.IsNull(newMedia);
-        Assert.IsNull(newMediaTricky);
-        Assert.AreEqual(1, statusCount);
-        Assert.AreEqual(0, newMediaCount);
-        Assert.AreEqual(0, statusAssociationCount);
+        Assert.That(status, Is.Not.Null);
+        Assert.That(newMedia, Is.Null);
+        Assert.That(newMediaTricky, Is.Null);
+        Assert.That(statusCount, Is.EqualTo(1));
+        Assert.That(newMediaCount, Is.EqualTo(0));
+        Assert.That(statusAssociationCount, Is.EqualTo(0));
       }
     }
 
@@ -71,12 +71,12 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
         var statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
         var newMediaCount = session.Query.All<M3.NewMedia>().Count();
 
-        Assert.IsNull(status);
-        Assert.IsNull(newMedia);
-        Assert.IsNull(newMediaTricky);
-        Assert.AreEqual(0, statusCount);
-        Assert.AreEqual(0, newMediaCount);
-        Assert.AreEqual(0, statusAssociationCount);
+        Assert.That(status, Is.Null);
+        Assert.That(newMedia, Is.Null);
+        Assert.That(newMediaTricky, Is.Null);
+        Assert.That(statusCount, Is.EqualTo(0));
+        Assert.That(newMediaCount, Is.EqualTo(0));
+        Assert.That(statusAssociationCount, Is.EqualTo(0));
       }
     }
 

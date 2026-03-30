@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)));
+      Assert.That(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)), Is.False);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
       }

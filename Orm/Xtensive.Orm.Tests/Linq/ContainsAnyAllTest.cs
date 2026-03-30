@@ -29,8 +29,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Invoices
           .Where(o => o.Customer==c)
           .Any(o => o.Commission > 0));
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Invoices
           .Where(o => o.Customer==c)
           .Any());
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Linq
       var names = new[] {"ABCDE", "Luis"};
       var result = Session.Query.All<Customer>().Where(c => names.Any(id => c.FirstName==id));
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().Any();
       var expected = Customers.Any();
-      Assert.AreEqual(result, expected);
-      Assert.IsTrue(result);
+      Assert.That(expected, Is.EqualTo(result));
+      Assert.That(result, Is.True);
     }
 
     [Test]
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().Where(c=>c.Invoices.Any()).ToList();
       var expected = Invoices.Select(o => o.Customer).Distinct().ToList();
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -85,8 +85,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Invoices
           .Where(o => o.Customer==c)
           .All(o => o.Commission > 0));
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(result.ToList().Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Linq
       var patterns = new[] {"a", "e"};
       var result = Session.Query.All<Customer>().Where(c => patterns.All(p => c.FirstName.Contains(p)));
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -105,8 +105,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>().All(c => c.FirstName.StartsWith("a"));
       var expected = Customers.All(c => c.FirstName.StartsWith("a"));
-      Assert.AreEqual(expected, result);
-      Assert.IsFalse(result);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.False);
     }
 
     [Test]
@@ -121,8 +121,8 @@ namespace Xtensive.Orm.Tests.Linq
           .Select(o => o.Customer)
           .Contains(c));
       var list = result.ToList();
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.Greater(list.Count, 0);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customerIDs = new[] {"ALFKI", "Diego", "AROUT", "Luis"};
       var orders = Session.Query.All<Invoice>();
       var order = orders.Where(o => customerIDs.Contains(o.Customer.FirstName)).First();
-      Assert.IsNotNull(order);
+      Assert.That(order, Is.Not.Null);
     }
 
     [Test]
@@ -143,8 +143,8 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers
         .Select(c => c.FirstName)
         .Contains("Luis");
-      Assert.AreEqual(expected, result);
-      Assert.IsTrue(result);
+      Assert.That(result, Is.EqualTo(expected));
+      Assert.That(result, Is.True);
     }
 
     [Test]
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Invoices
           .Where(o => o.Customer==c)
           .All(o => o.BillingAddress.City==c.Address.City));
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Invoices
           .Where(o => o.Customer==c)
           .Any(o => o.BillingAddress.City==c.Address.City));
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       result.ToList();
     }
 
@@ -198,9 +198,9 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       var list = result.ToList();
-      Assert.AreEqual(14, list.Count);
+      Assert.That(list.Count, Is.EqualTo(14));
     }
 
     [Test]
@@ -224,9 +224,9 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       var list = result.ToList();
-      Assert.AreEqual(128, list.Count);
+      Assert.That(list.Count, Is.EqualTo(128));
     }
 
     [Test]
@@ -250,8 +250,8 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(111, result.ToList().Count);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.EqualTo(111));
     }
 
     [Test]
@@ -275,8 +275,8 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .Any(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(result.ToList().Count, 118);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(118, Is.EqualTo(result.ToList().Count));
     }
 
     [Test]
@@ -300,8 +300,8 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(result.ToList().Count, 4);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(4, Is.EqualTo(result.ToList().Count));
     }
 
     [Test]
@@ -325,8 +325,8 @@ namespace Xtensive.Orm.Tests.Linq
               .Where(e => e==o.DesignatedEmployee)
               .All(e => e.FirstName.EndsWith("t"))
         select o;
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(408, result.ToList().Count);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.EqualTo(408));
     }
 
     [Test]
@@ -348,8 +348,8 @@ namespace Xtensive.Orm.Tests.Linq
             .Where(o => o.Customer==c)
             .Any()
         }).ToList();
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(1, result.ToList().Count(i => !i.HasOrders));
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count(i => !i.HasOrders), Is.EqualTo(1));
     }
 
     [Test]
@@ -371,8 +371,8 @@ namespace Xtensive.Orm.Tests.Linq
             .Where(o => o.Customer==c)
             .All(o => o.DesignatedEmployee.FirstName=="Cool")
         };
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(1, result.ToList().Count(i => i.AllEmployeesAreCool));
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count(i => i.AllEmployeesAreCool), Is.EqualTo(1));
     }
 
     [Test]
@@ -396,8 +396,8 @@ namespace Xtensive.Orm.Tests.Linq
             .Select(o => o.Customer)
             .Contains(c)
         };
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(0, result.ToList().Count(i => i.HasNewOrders));
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count(i => i.HasNewOrders), Is.EqualTo(0));
     }
 
     [Test]
@@ -407,8 +407,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c.Invoices.Any(o => o.Commission > 1m));
       var expected = Customers
         .Where(c => c.Invoices.Any(o => o.Commission > 1m));
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(2, result.ToList().Count);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.EqualTo(2));
     }
 
     [Test]
@@ -419,8 +419,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c.Invoices.All(o => o.DesignatedEmployee.FirstName=="???"));
       var expected = Customers
         .Where(c => c.Invoices.All(o => o.DesignatedEmployee.FirstName=="???"));
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(1, result.ToList().Count);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -431,8 +431,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => Queryable.Contains(c.Invoices, bestOrder));
       var expected = Customers
         .Where(c => Queryable.Contains(c.Invoices, bestOrder));
-      Assert.AreEqual(0, expected.Except(result).Count());
-      Assert.AreEqual(bestOrder.Customer.CustomerId, result.ToList().Single().CustomerId);
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
+      Assert.That(result.ToList().Single().CustomerId, Is.EqualTo(bestOrder.Customer.CustomerId));
     }
 
     [Test]
@@ -442,7 +442,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c.Invoices.All(o => o.BillingAddress.City==c.Address.City));
       var expected = Customers
         .Where(c => c.Invoices.All(o => o.BillingAddress.City==c.Address.City));
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       result.ToList();
     }
 
@@ -454,7 +454,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c.Invoices.Any(o => o.BillingAddress.City==c.Address.City));
       var expected = Customers
         .Where(c => c.Invoices.Any(o => o.BillingAddress.City==c.Address.City));
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       result.ToList();
     }
   }

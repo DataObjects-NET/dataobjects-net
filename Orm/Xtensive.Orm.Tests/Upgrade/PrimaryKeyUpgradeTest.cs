@@ -84,12 +84,12 @@ namespace Xtensive.Orm.Tests.Upgrade
         var authorCount = session.Query.All<M2P.Author>().Count(a => a.Name == "Jack London");
         var bookCount = session.Query.All<M2P.Book>().Count();
         // Nothing is kept, since there is no upgrade handler
-        Assert.AreEqual(0, authorCount);
-        Assert.AreEqual(0, bookCount);
+        Assert.That(authorCount, Is.EqualTo(0));
+        Assert.That(bookCount, Is.EqualTo(0));
         var author = session.Query.All<M2P.Author>().FirstOrDefault(a => a.Name == "Jack London");
         var book = session.Query.All<M2P.Book>().FirstOrDefault();
-        Assert.IsNull(author);
-        Assert.IsNull(book);
+        Assert.That(author, Is.Null);
+        Assert.That(book, Is.Null);
         t.Complete();
       }
     }
@@ -104,13 +104,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var t = session.OpenTransaction()) {
         var authorCount = session.Query.All<M2PS.Author>().Count(a => a.Name == "Jack London");
         var bookCount = session.Query.All<M2PS.Book>().Count();
-        Assert.AreEqual(1, authorCount);
-        Assert.AreEqual(1, bookCount);
+        Assert.That(authorCount, Is.EqualTo(1));
+        Assert.That(bookCount, Is.EqualTo(1));
         var author = session.Query.All<M2PS.Author>().FirstOrDefault(a => a.Name == "Jack London");
         var book = session.Query.All<M2PS.Book>().FirstOrDefault();
-        Assert.IsNotNull(author);
-        Assert.IsNotNull(book);
-        Assert.AreSame(author, book.Author);
+        Assert.That(author, Is.Not.Null);
+        Assert.That(book, Is.Not.Null);
+        Assert.That(book.Author, Is.SameAs(author));
         t.Complete();
       }
     }
@@ -125,13 +125,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var t = session.OpenTransaction()) {
         var authorCount = session.Query.All<M2PS.Author>().Count(a => a.Name == "Jack London");
         var bookCount = session.Query.All<M2PS.Book>().Count();
-        Assert.AreEqual(1, authorCount);
-        Assert.AreEqual(1, bookCount);
+        Assert.That(authorCount, Is.EqualTo(1));
+        Assert.That(bookCount, Is.EqualTo(1));
         var author = session.Query.All<M2PS.Author>().FirstOrDefault(a => a.Name == "Jack London");
         var book = session.Query.All<M2PS.Book>().FirstOrDefault();
-        Assert.IsNotNull(author);
-        Assert.IsNotNull(book);
-        Assert.AreSame(author, book.Author);
+        Assert.That(author, Is.Not.Null);
+        Assert.That(book, Is.Not.Null);
+        Assert.That(book.Author, Is.SameAs(author));
         t.Complete();
       }
     }

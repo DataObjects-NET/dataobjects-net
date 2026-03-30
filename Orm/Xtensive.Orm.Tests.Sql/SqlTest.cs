@@ -173,8 +173,8 @@ namespace Xtensive.Orm.Tests.Sql
       var table = schema.Tables[tableName];
       if (table==null)
         return;
-      ExecuteNonQuery(SqlDdl.Drop(table));
-      schema.Tables.Remove(table);
+      _ = ExecuteNonQuery(SqlDdl.Drop(table));
+      _ = schema.Tables.Remove(table);
     }
   }
 }

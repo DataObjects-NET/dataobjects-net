@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Security.Configuration
     /// </returns>
     public static SecurityConfiguration Load(string sectionName)
     {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection) System.Configuration.ConfigurationManager.GetSection(sectionName);
       return GetConfigurationFromSection(section);
     }
 

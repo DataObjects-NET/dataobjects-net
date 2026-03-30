@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       public override string ToString()
       {
-        return string.Format("{0}, Owner: {1}, Linked: {2}", base.ToString(), Owner, Linked);
+        return $"{base.ToString()}, Owner: {Owner}, Linked: {Linked}";
       }
     }
 
@@ -241,12 +241,12 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        Assert.IsFalse(FunctionalPermission.CanRead("Control", new string[] { }));
-        Assert.IsTrue(FunctionalPermission.CanRead("Control", new[] { "1" }));
-        Assert.IsFalse(FunctionalPermission.CanControl("Control", new[] { "1" }));
-        Assert.IsFalse(FunctionalPermission.CanCreate("Control", new[] { "1", "2" }));
-        Assert.IsFalse(FunctionalPermission.CanRead("Control", new[] { "1", "2" }));
-        Assert.IsTrue(FunctionalPermission.CanDelete("Control", new[] { "1", "2" }));
+        Assert.That(FunctionalPermission.CanRead("Control", new string[] { }), Is.False);
+        Assert.That(FunctionalPermission.CanRead("Control", new[] { "1" }), Is.True);
+        Assert.That(FunctionalPermission.CanControl("Control", new[] { "1" }), Is.False);
+        Assert.That(FunctionalPermission.CanCreate("Control", new[] { "1", "2" }), Is.False);
+        Assert.That(FunctionalPermission.CanRead("Control", new[] { "1", "2" }), Is.False);
+        Assert.That(FunctionalPermission.CanDelete("Control", new[] { "1", "2" }), Is.True);
 
         var roles = new[] { "1", "2" };
         var q = from perm in session.Query.All<RowLevelPermission>()

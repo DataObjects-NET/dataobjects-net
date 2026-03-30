@@ -100,18 +100,18 @@ namespace Xtensive.Orm.Tests.Core.IoC
     {
       var defaultSectionContainer = ServiceContainer.Create(Configuration);
       var ps = defaultSectionContainer.Get<IPrintService>();
-      Assert.IsNotNull(ps);
+      Assert.That(ps, Is.Not.Null);
 
       var services = new List<IPrintService>(defaultSectionContainer.GetAll<IPrintService>());
-      Assert.AreEqual(1, services.Count);
+      Assert.That(services.Count, Is.EqualTo(1));
 
       var singleton1 = defaultSectionContainer.Get<IPrintService>("Console");
       var singleton2 = defaultSectionContainer.Get<IPrintService>("Console");
-      Assert.AreSame(singleton1, singleton2);
+      Assert.That(singleton2, Is.SameAs(singleton1));
 
       var instance1 = defaultSectionContainer.Get<IPrintService>("AutoDebug");
       var instance2 = defaultSectionContainer.Get<IPrintService>("AutoDebug");
-      Assert.AreNotSame(instance1, instance2);
+      Assert.That(instance2, Is.Not.SameAs(instance1));
     }
 
     [Test]
@@ -120,16 +120,16 @@ namespace Xtensive.Orm.Tests.Core.IoC
       var container = ServiceContainer.Create(Configuration, "second");
 
       var ps = container.Get<IPrintService>();
-      Assert.IsNotNull(ps);
+      Assert.That(ps, Is.Not.Null);
 
       var services = new List<IPrintService>(container.GetAll<IPrintService>());
-      Assert.AreEqual(1, services.Count);
+      Assert.That(services.Count, Is.EqualTo(1));
 
       var singleton1 = container.Get<IPrintService>("Debug");
       var singleton2 = container.Get<IPrintService>("Debug");
-      Assert.AreSame(singleton1, singleton2);
+      Assert.That(singleton2, Is.SameAs(singleton1));
 
-      Assert.IsNull(container.Get<IPrintService>("Console"));
+      Assert.That(container.Get<IPrintService>("Console"), Is.Null);
     }
 
     [Test]
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
       foreach (var t in threads) {
         t.Join();
       }
-      Assert.AreEqual(prevInvocations + 1, SlowConstructorService.ConstructorInvocations);
+      Assert.That(SlowConstructorService.ConstructorInvocations, Is.EqualTo(prevInvocations + 1));
     }
   }
 }

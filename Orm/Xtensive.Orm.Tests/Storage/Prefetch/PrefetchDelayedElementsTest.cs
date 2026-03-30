@@ -64,8 +64,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Person>().AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -75,12 +75,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var person in persons) {
           count++;
           Key cachedKey;
-          Assert.IsTrue(Domain.KeyCache.TryGetItem(person.Key, true, out cachedKey));
-          Assert.IsTrue(cachedKey.HasExactType);
+          Assert.That(Domain.KeyCache.TryGetItem(person.Key, true, out cachedKey), Is.True);
+          Assert.That(cachedKey.HasExactType, Is.True);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(person.Key, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
-        Assert.AreEqual(keys.Count, count);
+        Assert.That(count, Is.EqualTo(keys.Count));
       }
     }
 
@@ -94,8 +94,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         keys = session.Query.All<Customer>().Where(c => c.Name == "Customer1").AsEnumerable()
           .Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
         actualEmployeeCount = session.Query.All<Employee>().Where(e => e.Name == "Employee1").Count();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -115,12 +115,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
           session.Handler.LookupState(key, ordersField, out state);
-          Assert.IsTrue(state.IsFullyLoaded);
-          Assert.Greater(state.TotalItemCount, 0);
+          Assert.That(state.IsFullyLoaded, Is.True);
+          Assert.That(state.TotalItemCount, Is.GreaterThan(0));
           foreach (var orderKey in state) {
             expectedEmployeeCount++;
             var orderState = session.EntityStateCache[orderKey, true];
-            Assert.IsNotNull(orderState);
+            Assert.That(orderState, Is.Not.Null);
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderType, session,
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
             var employeeKey = Key.Create<Person>(Domain, employeeField.Associations.Last()
@@ -129,8 +129,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }
         }
-        Assert.AreEqual(keys.Count, customerCount);
-        Assert.AreEqual(expectedEmployeeCount / 2, actualEmployeeCount);
+        Assert.That(customerCount, Is.EqualTo(keys.Count));
+        Assert.That(actualEmployeeCount, Is.EqualTo(expectedEmployeeCount / 2));
       }
     }
 
@@ -141,8 +141,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Customer>().AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
-        Assert.AreEqual(prefetchCount + 2, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(prefetchCount + 2));
       }
     }
 
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
-        Assert.AreEqual(15, count);
+        Assert.That(count, Is.EqualTo(15));
         var prefetchCount = session.Handler.PrefetchTaskExecutionCount;
         session.Query.Many<AdvancedPerson>(keys).Run();
         count = 0;
@@ -200,8 +200,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(cachedKey, cachedKey.TypeInfo, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
-        Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(prefetchCount + 4, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(count, Is.EqualTo(keys.Count));
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(prefetchCount + 4));
       }
     }
 
@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var isOneItemPresentAtLeast = false;
         foreach (var key in keys)
           AssertEntitySetItemsAreFullyLoaded(key, bookType, translationTitlesField, session, ref isOneItemPresentAtLeast);
-        Assert.IsTrue(isOneItemPresentAtLeast);
+        Assert.That(isOneItemPresentAtLeast, Is.True);
       }
     }
 
@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var key in publisherKeys)
           AssertEntitySetItemsAreFullyLoaded(key, publisherType, distributorsField,
             session, ref isOneItemPresentAtLeast);
-        Assert.IsTrue(isOneItemPresentAtLeast);
+        Assert.That(isOneItemPresentAtLeast, Is.True);
       }
 
       using (var session = Domain.OpenSession())
@@ -319,7 +319,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var key in bookShopKeys)
           AssertEntitySetItemsAreFullyLoaded(key, bookShopType, suppliersField,
             session, ref isOneItemPresentAtLeast);
-        Assert.IsTrue(isOneItemPresentAtLeast);
+        Assert.That(isOneItemPresentAtLeast, Is.True);
       }
     }
 
@@ -355,9 +355,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     public static Key GetCachedKey(Key key, Session session)
     {
       EntityState state;
-      Assert.IsFalse(key.HasExactType);
-      Assert.IsTrue(session.EntityStateCache.TryGetItem(key, true, out state));
-      Assert.IsTrue(state.Key.HasExactType);
+      Assert.That(key.HasExactType, Is.False);
+      Assert.That(session.EntityStateCache.TryGetItem(key, true, out state), Is.True);
+      Assert.That(state.Key.HasExactType, Is.True);
       return state.Key;
     }
 
@@ -368,8 +368,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<T>().Take(count).AsEnumerable().Select(p => Key.Create<T>(Domain, p.Key.Value)).ToList();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
       return keys;
     }
@@ -405,7 +405,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         PrefetchTestHelper.IsFieldToBeLoadedByDefault);
       EntitySetState setState;
       session.Handler.LookupState(ownerKey, referencingField, out setState);
-      Assert.IsTrue(setState.IsFullyLoaded);
+      Assert.That(setState.IsFullyLoaded, Is.True);
       foreach (var itemKey in setState) {
         isOneItemPresentAtLeast = true;
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(itemKey, itemKey.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);

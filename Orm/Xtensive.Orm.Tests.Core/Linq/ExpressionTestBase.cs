@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           (Expression<Func<object, object>>) (p => p.ToString()),
 
           // Static method call
-          (Expression<Action<int, int>>) ((a, b) => Console.Write("{0} + {1} = {2}", a, b, a + b)),
+          (Expression<Action<int, int>>) ((a, b) => Console.Write($"{a} + {b} = {a + b}")),
 
           // Instance generic method call
           (Expression<Func<Helper, int>>) (h => h.InstanceGenericMethod<long>(0)),

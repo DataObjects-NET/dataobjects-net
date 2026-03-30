@@ -205,8 +205,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(config);
       var defaultTypeInfo = domain.Model.Types[typeof(Default)];
       var defaultInheritorTypeInfo = domain.Model.Types[typeof(DefaultInheritor)];
-      Assert.AreEqual(3, defaultTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(4, defaultInheritorTypeInfo.GetVersionColumns().Count());
+      Assert.That(defaultTypeInfo.GetVersionColumns().Count(), Is.EqualTo(3));
+      Assert.That(defaultInheritorTypeInfo.GetVersionColumns().Count(), Is.EqualTo(4));
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -275,10 +275,10 @@ namespace Xtensive.Orm.Tests.Storage
       var anotherManualTypeInfo = domain.Model.Types[typeof(AnotherManual)];
       var manualInheritorTypeInfo = domain.Model.Types[typeof(ManualInheritor)];
       var anotherManualInheritorTypeInfo = domain.Model.Types[typeof(AnotherManualInheritor)];
-      Assert.AreEqual(1, manualTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(2, anotherManualTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(1, manualInheritorTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(2, anotherManualInheritorTypeInfo.GetVersionColumns().Count());
+      Assert.That(manualTypeInfo.GetVersionColumns().Count(), Is.EqualTo(1));
+      Assert.That(anotherManualTypeInfo.GetVersionColumns().Count(), Is.EqualTo(2));
+      Assert.That(manualInheritorTypeInfo.GetVersionColumns().Count(), Is.EqualTo(1));
+      Assert.That(anotherManualInheritorTypeInfo.GetVersionColumns().Count(), Is.EqualTo(2));
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -343,8 +343,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(config);
       var autoTypeInfo = domain.Model.Types[typeof(DateTimeVersionAuto)];
       var autoInheritorTypeInfo = domain.Model.Types[typeof(DateTimeAutoInheritor)];
-      Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.That(autoTypeInfo.GetVersionColumns().Count, Is.EqualTo(1));
+      Assert.That(autoInheritorTypeInfo.GetVersionColumns().Count, Is.EqualTo(2));
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -419,8 +419,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(config);
       var autoTypeInfo = domain.Model.Types[typeof(LongVersionAuto)];
       var autoInheritorTypeInfo = domain.Model.Types[typeof(LongAutoInheritor)];
-      Assert.AreEqual(1, autoTypeInfo.GetVersionColumns().Count);
-      Assert.AreEqual(2, autoInheritorTypeInfo.GetVersionColumns().Count);
+      Assert.That(autoTypeInfo.GetVersionColumns().Count, Is.EqualTo(1));
+      Assert.That(autoInheritorTypeInfo.GetVersionColumns().Count, Is.EqualTo(2));
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
@@ -497,9 +497,9 @@ namespace Xtensive.Orm.Tests.Storage
       var skipTypeInfo = domain.Model.Types[typeof(Skip)];
       var hasVersionTypeInfo = domain.Model.Types[typeof(HasVersion)];
       var hasSkipVersionTypeInfo = domain.Model.Types[typeof(HasSkipVersion)];
-      Assert.AreEqual(2, skipTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(2, hasVersionTypeInfo.GetVersionColumns().Count());
-      Assert.AreEqual(2, hasSkipVersionTypeInfo.GetVersionColumns().Count());
+      Assert.That(skipTypeInfo.GetVersionColumns().Count(), Is.EqualTo(2));
+      Assert.That(hasVersionTypeInfo.GetVersionColumns().Count(), Is.EqualTo(2));
+      Assert.That(hasSkipVersionTypeInfo.GetVersionColumns().Count(), Is.EqualTo(2));
       using (var session = domain.OpenSession()) {
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2013 Xtensive LLC.
+// Copyright (C) 2003-2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Logging.NLog.Tests
       var logManager = LogManager.Default;
       logManager.Initialize(new LogProvider());
       var logger = LogManager.Default.GetLog("Xtensive.Orm");
-      Assert.IsInstanceOf<Log>(logger);
+      Assert.That(logger, Is.InstanceOf<Log>());
     }
   }
 }

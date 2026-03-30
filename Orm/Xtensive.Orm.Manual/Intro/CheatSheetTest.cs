@@ -120,9 +120,9 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           dmitriKeyString = dmitriKey.Format();
           dmitriId = dmitri.Id;
 
-          Console.WriteLine("Dmitri's Key (human readable): {0}", dmitriKey);
-          Console.WriteLine("Dmitri's Key (serializable): {0}", dmitriKeyString);
-          Console.WriteLine("Dmitri's Id: {0}", dmitriId);
+          Console.WriteLine($"Dmitri's Key (human readable): {dmitriKey}");
+          Console.WriteLine($"Dmitri's Key (serializable): {dmitriKeyString}");
+          Console.WriteLine($"Dmitri's Id: {dmitriId}");
 
           // Marking the transaction scope as completed to commit it 
           transactionScope.Complete();
@@ -133,30 +133,30 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           // Parses the serialized key
           var anotherDimtriKey = Key.Parse(session.Domain, dmitriKeyString);
           // Keys are equal
-          Assert.AreEqual(dmitriKey, anotherDimtriKey);
+          Assert.That(anotherDimtriKey, Is.EqualTo(dmitriKey));
 
           // Materialization on fetch
           var dmitri = session.Query.Single<User>(dmitriKey);
           // Alternative way to do the same
           var anotherDmitri = session.Query.SingleOrDefault<User>(dmitriKey);
-          Assert.AreSame(dmitri, anotherDmitri);
+          Assert.That(anotherDmitri, Is.SameAs(dmitri));
           // Fetching by key value(s)
           anotherDmitri = session.Query.Single<User>(dmitriId);
-          Assert.AreSame(dmitri, anotherDmitri);
+          Assert.That(anotherDmitri, Is.SameAs(dmitri));
 
           // Querying the storage using regular LINQ query
           var query =
             from user in session.Query.All<User>()
             where user.Name=="Dmitri"
             select user;
-          Assert.AreSame(dmitri, query.First());
+          Assert.That(query.First(), Is.SameAs(dmitri));
 
           // Querying the storage using compiled query
           anotherDmitri = session.Query.Execute(qe => // Default caching key is methodof( () => ... )
             from user in session.Query.All<User>()
             where user.Name=="Dmitri"
             select user).First();
-          Assert.AreSame(dmitri, anotherDmitri);
+          Assert.That(anotherDmitri, Is.SameAs(dmitri));
 
           // Querying the storage using compiled future scalar query
           var delayedDmitry1 = session.Query.CreateDelayedQuery(qe => (
@@ -169,8 +169,8 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
             where user.Id==dmitriId
             select user
             ).First());
-          Assert.AreSame(dmitri, delayedDmitry1.Value); // Both queries are executed at once here
-          Assert.AreSame(dmitri, delayedDmitry2.Value);
+          Assert.That(delayedDmitry1.Value, Is.SameAs(dmitri)); // Both queries are executed at once here
+          Assert.That(delayedDmitry2.Value, Is.SameAs(dmitri));
 
           // Modifying the entity
           dmitri.Name = "Dmitri Maximov";
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Removing the entity
             dmitri.Remove();
-            Assert.IsTrue(dmitri.IsRemoved);
+            Assert.That(dmitri.IsRemoved, Is.True);
             AssertEx.Throws<InvalidOperationException>(() => {
               var dmitryName = dmitri.Name;
             });
@@ -187,8 +187,8 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           }
 
           // Transparent Entity state update
-          Assert.IsFalse(dmitri.IsRemoved);
-          Assert.AreEqual("Dmitri Maximov", dmitri.Name);
+          Assert.That(dmitri.IsRemoved, Is.False);
+          Assert.That(dmitri.Name, Is.EqualTo("Dmitri Maximov"));
           
           // Creating few more objects
           var xtensiveWebPage = new WebPage (session) {
@@ -213,37 +213,37 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           dmitri.FavoritePages.Remove(subsonicPage);
 
           // Getting count of items in EntitySet
-          Console.WriteLine("Dmitri's favorite page count: {0}", dmitri.FavoritePages.Count);
-          Assert.AreEqual(2, dmitri.FavoritePages.Count);
-          Assert.AreEqual(2, dmitri.FavoritePages.Count()); // The same, but by LINQ query
+          Console.WriteLine($"Dmitri's favorite page count: {dmitri.FavoritePages.Count}");
+          Assert.That(dmitri.FavoritePages.Count, Is.EqualTo(2));
+          Assert.That(dmitri.FavoritePages.Count(), Is.EqualTo(2)); // The same, but by LINQ query
 
           // Enumerating EntitySet
           foreach (var page in dmitri.FavoritePages)
-            Console.WriteLine("Dmitri's favorite page: {0} ({1})", page.Title, page.Url);
+            Console.WriteLine($"Dmitri's favorite page: {page.Title} ({page.Url})");
 
           // Checking for the containment
-          Assert.IsTrue(dmitri.FavoritePages.Contains(xtensiveWebPage));
-          Assert.IsTrue(dmitri.FavoritePages.Contains(alexYakuninBlogPage));
-          Assert.IsFalse(dmitri.FavoritePages.Contains(subsonicPage));
+          Assert.That(dmitri.FavoritePages.Contains(xtensiveWebPage), Is.True);
+          Assert.That(dmitri.FavoritePages.Contains(alexYakuninBlogPage), Is.True);
+          Assert.That(dmitri.FavoritePages.Contains(subsonicPage), Is.False);
 
           // Opening new nested transaction
           using (var nestedScope = session.OpenTransaction(TransactionOpenMode.New)) {
             // Clearing the EntitySet
             dmitri.FavoritePages.Clear();
-            Assert.IsFalse(dmitri.FavoritePages.Contains(xtensiveWebPage));
-            Assert.IsFalse(dmitri.FavoritePages.Contains(alexYakuninBlogPage));
-            Assert.IsFalse(dmitri.FavoritePages.Contains(subsonicPage));
-            Assert.AreEqual(0, dmitri.FavoritePages.Count);
-            Assert.AreEqual(0, dmitri.FavoritePages.Count()); // By query
+            Assert.That(dmitri.FavoritePages.Contains(xtensiveWebPage), Is.False);
+            Assert.That(dmitri.FavoritePages.Contains(alexYakuninBlogPage), Is.False);
+            Assert.That(dmitri.FavoritePages.Contains(subsonicPage), Is.False);
+            Assert.That(dmitri.FavoritePages.Count, Is.EqualTo(0));
+            Assert.That(dmitri.FavoritePages.Count(), Is.EqualTo(0)); // By query
             // No nestedScope.Complete(), so nested transaction will be rolled back
           }
 
           // Transparent EntitySet state update
-          Assert.IsTrue(dmitri.FavoritePages.Contains(xtensiveWebPage));
-          Assert.IsTrue(dmitri.FavoritePages.Contains(alexYakuninBlogPage));
-          Assert.IsFalse(dmitri.FavoritePages.Contains(subsonicPage));
-          Assert.AreEqual(2, dmitri.FavoritePages.Count);
-          Assert.AreEqual(2, dmitri.FavoritePages.Count()); // The same, but by LINQ query
+          Assert.That(dmitri.FavoritePages.Contains(xtensiveWebPage), Is.True);
+          Assert.That(dmitri.FavoritePages.Contains(alexYakuninBlogPage), Is.True);
+          Assert.That(dmitri.FavoritePages.Contains(subsonicPage), Is.False);
+          Assert.That(dmitri.FavoritePages.Count, Is.EqualTo(2));
+          Assert.That(dmitri.FavoritePages.Count(), Is.EqualTo(2)); // The same, but by LINQ query
 
           // Finally, let's query the EntitySet:
           
@@ -257,13 +257,13 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           var dmitryFavoriteBlogList = dmitryFavoriteBlogs.ToList();
 
           // Printing the results
-          Console.WriteLine("Dmitri's favorite blog count: {0}", dmitryFavoriteBlogList.Count);
+          Console.WriteLine($"Dmitri's favorite blog count: {dmitryFavoriteBlogList.Count}");
           foreach (var page in dmitryFavoriteBlogList)
-            Console.WriteLine("Dmitri's favorite blog: {0} ({1})", page.Title, page.Url);
+            Console.WriteLine($"Dmitri's favorite blog: {page.Title} ({page.Url})");
 
-          Assert.IsTrue(dmitryFavoriteBlogList.Contains(alexYakuninBlogPage));
-          Assert.IsFalse(dmitryFavoriteBlogList.Contains(xtensiveWebPage));
-          Assert.AreEqual(1, dmitryFavoriteBlogList.Count);
+          Assert.That(dmitryFavoriteBlogList.Contains(alexYakuninBlogPage), Is.True);
+          Assert.That(dmitryFavoriteBlogList.Contains(xtensiveWebPage), Is.False);
+          Assert.That(dmitryFavoriteBlogList.Count, Is.EqualTo(1));
           
           // Marking the transaction scope as completed to commit it 
           transactionScope.Complete();

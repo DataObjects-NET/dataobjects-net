@@ -161,11 +161,9 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test4()
     {
-      if(StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
-        if (!(StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)
-          || StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.MySql80))) {
-          throw new IgnoreException("For some reason exact same queries work in 5.5, broken in 5.6/5.7, and work in 8.0 again");
-        }
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
+        //For some reason exact same queries work in 5.5, broken in 5.6/5.7, and work in 8.0 again
+        Require.ProviderVersionAtLeast(StorageProviderVersion.MySql80);
       }
 
       using (var session = Domain.OpenSession())

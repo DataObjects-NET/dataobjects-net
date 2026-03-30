@@ -35,17 +35,17 @@ namespace Xtensive.Orm.Localization.Tests
       using (var session = Domain.OpenSession()) {
         using (var ts = session.OpenTransaction()) {
 
-          Assert.AreEqual(1, session.Query.All<Page>().Count());
-          Assert.AreEqual(2, session.Query.All<PageLocalization>().Count());
+          Assert.That(session.Query.All<Page>().Count(), Is.EqualTo(1));
+          Assert.That(session.Query.All<PageLocalization>().Count(), Is.EqualTo(2));
 
           var page = session.Query.All<Page>().First();
           Thread.CurrentThread.CurrentCulture = English.Culture;
-          Assert.AreEqual(English.Title, page.Title);
-          Assert.AreEqual(English.Content, page.Content);
+          Assert.That(page.Title, Is.EqualTo(English.Title));
+          Assert.That(page.Content, Is.EqualTo(English.Content));
 
           Thread.CurrentThread.CurrentCulture = Spanish.Culture;
-          Assert.AreEqual(Spanish.Title, page.Title);
-          Assert.AreEqual(Spanish.Content, page.Content);
+          Assert.That(page.Title, Is.EqualTo(Spanish.Title));
+          Assert.That(page.Content, Is.EqualTo(Spanish.Content));
 
           ts.Complete();
         }

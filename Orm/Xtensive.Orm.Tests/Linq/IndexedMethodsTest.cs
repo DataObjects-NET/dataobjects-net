@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>().OrderBy(i => i.InvoiceId).Select((invoice, index) => new {invoice, index}).ToList();
       var expected = Invoices.OrderBy(i => i.InvoiceId).Select((invoice, index) => new {invoice, index}).ToList();
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select((c, i) => new {Customer = c, Index = i})
         .Where(a => a.Customer.FirstName=="Michelle")
         .ToList();
-      Assert.AreEqual(1, result.Count);
-      Assert.Greater(result[0].Index, 1);
+      Assert.That(result.Count, Is.EqualTo(1));
+      Assert.That(result[0].Index, Is.GreaterThan(1));
     }
 
     [Test]
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(customer=>customer.LastName)
         .SelectMany((customer, index) => customer.Invoices.OrderBy(i=>i.InvoiceId).Select(invoice=>new {index, invoice.Commission}));
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
 //    public static IQueryable<TResult> SelectMany<TSource, TCollection, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, int, IEnumerable<TCollection>>> collectionSelector, Expression<Func<TSource, TCollection, TResult>> resultSelector);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
           (customer, index) => customer.Invoices.OrderBy(i => i.InvoiceId).Select(invoice => new {index, invoice.Commission}),
           (customer, takenInvoices) => new {customer, takenInvoices });
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Session.Query.All<Invoice>().AsEnumerable().OrderBy(i => i.InvoiceId)
         .Where((invoice, index) => index > 10 || invoice.Commission > avgCommission);
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
 

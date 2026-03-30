@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
         private static void InternalPerformanceTest(int nodeCount, int averageEdgeCount, bool allowLoops)
         {
-            TestLog.Info("Building graph: {0} nodes, {1} edges/node in average.", nodeCount, averageEdgeCount);
+            TestLog.Info($"Building graph: {nodeCount} nodes, {averageEdgeCount} edges/node in average.");
             var rnd = new Random();
             var nodes = new List<Node<int>>();
             for (int i = 0; i < nodeCount; i++)
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
             GC.GetTotalMemory(true);
             using (new Measurement("Sorting", nodeCount + edgeCount)) {
                 var result = TopologicalSorter.Sort(graph, e => true);
-                Assert.IsFalse(result.HasLoops);
+        Assert.That(result.HasLoops, Is.False);
             }
             GC.GetTotalMemory(true);
         }
@@ -73,11 +73,11 @@ namespace Xtensive.Orm.Tests.Core.Collections
             var graph = new Graph<Node<int>, Edge<int>>(Enumerable.Repeat(node, 1));
 
             var result = TopologicalSorter.Sort(graph, e => e.Source==e.Target);
-            Assert.AreEqual(1, result.SortedNodes.Count);
-            Assert.AreSame(node, result.SortedNodes[0]);
-            Assert.AreEqual(1, result.BrokenEdges.Count);
-            Assert.AreSame(edge, result.BrokenEdges[0]);
-            Assert.AreEqual(0, node.Edges.Count());
+      Assert.That(result.SortedNodes.Count, Is.EqualTo(1));
+      Assert.That(result.SortedNodes[0], Is.SameAs(node));
+      Assert.That(result.BrokenEdges.Count, Is.EqualTo(1));
+      Assert.That(result.BrokenEdges[0], Is.SameAs(edge));
+      Assert.That(node.Edges.Count(), Is.EqualTo(0));
         }
 
         [Test]
@@ -91,8 +91,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
             var graph = new Graph<Node<int>, Edge<int>>(new[] {node2, node1});
 
             var result = TopologicalSorter.Sort(graph, e => e.Value==3);
-            Assert.AreEqual(2, result.SortedNodes.Count);
-            Assert.AreEqual(1, result.BrokenEdges.Count);
+      Assert.That(result.SortedNodes.Count, Is.EqualTo(2));
+      Assert.That(result.BrokenEdges.Count, Is.EqualTo(1));
         }
 
         [Test]
@@ -106,8 +106,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
             var graph = new Graph<Node<int>, Edge<int>>(new[] {node2, node1});
 
             var result = TopologicalSorter.Sort(graph, e => e.Value!=3);
-            Assert.AreEqual(2, result.SortedNodes.Count);
-            Assert.AreEqual(2, result.BrokenEdges.Count);
+      Assert.That(result.SortedNodes.Count, Is.EqualTo(2));
+      Assert.That(result.BrokenEdges.Count, Is.EqualTo(2));
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
 
             AssertEx.HasSameElements(expected, actual);
             AssertEx.HasSameElements(loops, actualLoops);
-            Assert.AreEqual(selfReferencingEdgeCount, result.BrokenEdges.Count);
+      Assert.That(result.BrokenEdges.Count, Is.EqualTo(selfReferencingEdgeCount));
 
             // With edge breaker (any edge can be broken)
             nodes = nodeValues.Select(v => new Node<T>(v)).ToList();
@@ -156,12 +156,12 @@ namespace Xtensive.Orm.Tests.Core.Collections
             actual = result.SortedNodes.Select(n => n.Value).ToArray();
             actualLoops = result.LoopNodes.Select(n => n.Value).ToArray();
 
-            Assert.AreEqual(nodeValues.Length, actual.Length);
-            Assert.AreEqual(0, actualLoops.Length);
-            if (loops.Length==0) 
-                Assert.AreEqual(selfReferencingEdgeCount, result.BrokenEdges.Count);
-            else 
-                Assert.AreNotEqual(selfReferencingEdgeCount, result.BrokenEdges.Count);
+      Assert.That(actual.Length, Is.EqualTo(nodeValues.Length));
+      Assert.That(actualLoops.Length, Is.EqualTo(0));
+            if (loops.Length==0)
+        Assert.That(result.BrokenEdges.Count, Is.EqualTo(selfReferencingEdgeCount));
+            else
+        Assert.That(result.BrokenEdges.Count, Is.Not.EqualTo(selfReferencingEdgeCount));
         }
     }
 }

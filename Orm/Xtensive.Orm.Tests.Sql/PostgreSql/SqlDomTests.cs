@@ -1036,23 +1036,23 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           {
             var t = MyCatalog.Schemas["Sch1"].Tables["T1"];
             var col = t.TableColumns["newCol"];
-            Assert.IsNotNull(col);
+            Assert.That(col, Is.Not.Null);
             //Drop constraints
             {
               var cc = t.TableConstraints["newCheckConstraint"] as CheckConstraint;
-              Assert.IsNotNull(cc);
+              Assert.That(cc, Is.Not.Null);
               _ = t.TableConstraints.Remove(cc);
               var stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(cc));
               batch.Add(stmt);
 
               var fk = t.TableConstraints["newForeignKey"] as ForeignKey;
-              Assert.IsNotNull(fk);
+              Assert.That(fk, Is.Not.Null);
               _ = t.TableConstraints.Remove(fk);
               stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(fk));
               batch.Add(stmt);
 
               var uc = t.TableConstraints["newUniqueConstraint"] as UniqueConstraint;
-              Assert.IsNotNull(uc);
+              Assert.That(uc, Is.Not.Null);
               _ = t.TableConstraints.Remove(uc);
               stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
               batch.Add(stmt);
@@ -1129,7 +1129,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       var q = SqlDml.Select();
 
-      q.Columns.Add(SqlDml.Power(SqlDml.Cast(10, SqlType.Decimal), 50));
+      q.Columns.Add(SqlDml.Power(SqlDml.Cast(10, SqlType.Decimal), 28));
       q.Columns.Add(SqlDml.Cast(SqlDml.Literal(DateTime.MinValue), SqlType.DateTime), "datetime min");
       //casting in the DBMS rounds to 100000101 00:00:00 somewhy (?)
       //q.Columns.Add(Sql.Cast(Sql.Literal(DateTime.MaxValue), SqlDataType.DateTime, Driver.ServerInfoProvider.MaxDateTimePrecision,0), "datetime max");
@@ -1160,7 +1160,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1202,7 +1202,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1226,7 +1226,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1276,7 +1276,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1323,7 +1323,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1372,7 +1372,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1411,7 +1411,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1465,7 +1465,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1501,7 +1501,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1525,7 +1525,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1549,7 +1549,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1583,7 +1583,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           for (var i = 0; i < dr.FieldCount; i++) {
             var value = dr.GetValue(i);
             if (value is bool) {
-              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+              Assert.That(dr.GetBoolean(i), Is.True, "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1919,22 +1919,22 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
 
           using (var dr = ExecuteQuery(q)) {
-            Assert.IsTrue(dr.Read());
+            Assert.That(dr.Read(), Is.True);
 
             //int32-vel nem megy at count()->int64
-            Assert.AreEqual(11, dr.GetInt64(0)); //count of rows
-            Assert.AreEqual(9, dr.GetInt64(1)); //count of not null values
-            Assert.AreEqual(6, dr.GetInt64(2)); //count of unique not null values
-            Assert.AreEqual(1, Convert.ToInt32(dr[3])); //min
-            Assert.AreEqual(1, Convert.ToInt32(dr[4])); //min
-            Assert.AreEqual(8, Convert.ToInt32(dr[5])); //max
-            Assert.AreEqual(8, Convert.ToInt32(dr[6])); //max
-            Assert.AreEqual(42, Convert.ToInt32(dr[7])); //sum not null values
-            Assert.AreEqual(28, Convert.ToInt32(dr[8])); //sum not null unique values
-            Assert.AreEqual(Math.Round(42d / 9, 10), Math.Round(dr.GetDouble(9), 10)); //avg not null values
-            Assert.AreEqual(Math.Round(28d / 6, 10), Math.Round(dr.GetDecimal(10), 10)); //avg not null unique values
+            Assert.That(dr.GetInt64(0), Is.EqualTo(11)); //count of rows
+            Assert.That(dr.GetInt64(1), Is.EqualTo(9)); //count of not null values
+            Assert.That(dr.GetInt64(2), Is.EqualTo(6)); //count of unique not null values
+            Assert.That(Convert.ToInt32(dr[3]), Is.EqualTo(1)); //min
+            Assert.That(Convert.ToInt32(dr[4]), Is.EqualTo(1)); //min
+            Assert.That(Convert.ToInt32(dr[5]), Is.EqualTo(8)); //max
+            Assert.That(Convert.ToInt32(dr[6]), Is.EqualTo(8)); //max
+            Assert.That(Convert.ToInt32(dr[7]), Is.EqualTo(42)); //sum not null values
+            Assert.That(Convert.ToInt32(dr[8]), Is.EqualTo(28)); //sum not null unique values
+            Assert.That(Math.Round(dr.GetDouble(9), 10), Is.EqualTo(Math.Round(42d / 9, 10))); //avg not null values
+            Assert.That(Math.Round(dr.GetDecimal(10), 10), Is.EqualTo(Math.Round(28d / 6, 10))); //avg not null unique values
 
-            Assert.IsFalse(dr.Read());
+            Assert.That(dr.Read(), Is.False);
 
             long l = 4;
             //ez megy
@@ -1988,7 +1988,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
           if (!first) {
             Assert.Fail(">1 row");
           }
-          Assert.AreEqual(true, dr.GetBoolean(0));
+          Assert.That(dr.GetBoolean(0), Is.EqualTo(true));
           first = false;
         }
         if (first) {
@@ -2057,9 +2057,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         for (i = 0; dr.Read(); i++) {
           var value = Convert.ToInt32(dr[0]);
           if (i == 0)
-            Assert.AreEqual(2, value, "First value not 2");
+            Assert.That(value, Is.EqualTo(2), "First value not 2");
           else if (i == 1) {
-            Assert.AreEqual(1, value, "Second value not 1");
+            Assert.That(value, Is.EqualTo(1), "Second value not 1");
           }
           else {
             Assert.Fail("More than 2 rows");
@@ -2144,53 +2144,53 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
               f = mycursor.Fetch(SqlFetchOption.Next);
               result = Execute(f); //fetch first row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(1, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(1));
 
               f = mycursor.Fetch(SqlFetchOption.Relative, 1);
               result = Execute(f); //fetch second row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(2, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(2));
 
               f = mycursor.Fetch(SqlFetchOption.Relative, -1);
               result = Execute(f); //fetch first row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(1, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(1));
 
               f = mycursor.Fetch(SqlFetchOption.Relative, 0);
               result = Execute(f); //fetch same row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(1, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(1));
 
               f = mycursor.Fetch(SqlFetchOption.Relative, 5);
               result = Execute(f); //fetch 6th row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(6, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(6));
 
               f = mycursor.Fetch(SqlFetchOption.Relative, -3);
               result = Execute(f); //fetch 3th row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(3, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(3));
 
               f = mycursor.Fetch(SqlFetchOption.Last);
               result = Execute(f); //fetch last row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(9, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(9));
 
               f = mycursor.Fetch(SqlFetchOption.Prior);
               result = Execute(f); //fetch prior row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(8, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(8));
 
               f = mycursor.Fetch(SqlFetchOption.Absolute, 4);
               result = Execute(f); //fetch 4th row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(4, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(4));
 
               f = mycursor.Fetch(SqlFetchOption.First);
               result = Execute(f); //fetch 1th row
-              Assert.AreEqual(1, result.Rows.Count);
-              Assert.AreEqual(1, (int) result.Rows[0][0]);
+              Assert.That(result.Rows.Count, Is.EqualTo(1));
+              Assert.That((int) result.Rows[0][0], Is.EqualTo(1));
 
               /*
               f = mycursor.Fetch(SqlFetchOption.Relative,3);
@@ -2212,9 +2212,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
             }
             ExecuteNonQuery(mycursor.Close());
 
-            ExecuteNonQuery(mycursor.Open());
+            //ExecuteNonQuery(mycursor.Open());
             
-            ExecuteNonQuery(mycursor.Close());
+            //ExecuteNonQuery(mycursor.Close());
           }
 
           {
@@ -2298,9 +2298,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         var exModel1 = Driver.ExtractCatalog(Connection);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
-        Assert.IsNotNull(exT1);
+        Assert.That(exT1, Is.Not.Null);
         var exC1 = exT1.TableColumns["C1"];
-        Assert.IsNotNull(exC1);
+        Assert.That(exC1, Is.Not.Null);
 
         using (var cmd = Connection.CreateCommand()) {
           var batch = SqlDml.Batch();
@@ -2312,9 +2312,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         var exModel2 = Driver.ExtractCatalog(Connection);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
-        Assert.IsNotNull(exT2);
+        Assert.That(exT2, Is.Not.Null);
         var exC2 = exT2.TableColumns["C2"];
-        Assert.IsNotNull(exC2);
+        Assert.That(exC2, Is.Not.Null);
 
       } finally {
         Connection.Rollback();

@@ -27,11 +27,11 @@ namespace Xtensive.Orm.Tests.Linq
         source = source.MakeGenericType(typeof (object));
 
       var mi = source.GetMethod(methodName);
-      Assert.IsNotNull(mi);
+      Assert.That(mi, Is.Not.Null);
       if (mi.IsGenericMethodDefinition)
         mi = mi.MakeGenericMethod(typeof(object));
       var result = provider.GetCompiler(mi);
-      Assert.IsNotNull(result);
+      Assert.That(result, Is.Not.Null);
       return result;
     }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       var ci = source.GetConstructors().First();
       var result = provider.GetCompiler(ci);
-      Assert.IsNotNull(result);
+      Assert.That(result, Is.Not.Null);
       return result;
     }
 
@@ -54,9 +54,9 @@ namespace Xtensive.Orm.Tests.Linq
         source = source.MakeGenericType(typeof(object));
 
       var fi = source.GetField(fieldName);
-      Assert.IsNotNull(fi);
+      Assert.That(fi, Is.Not.Null);
       var result = provider.GetCompiler(fi);
-      Assert.IsNotNull(result);
+      Assert.That(result, Is.Not.Null);
       return result;
     }
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
           foreach (string s2 in new[]{"Generic", "NonGeneric"}) {
             string method = s1 + s2 + "Method";
             var d = GetCompilerForMethod(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(null, dummy));
+            Assert.That(d(null, dummy), Is.EqualTo(t.Name + "." + method));
           }
     }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Linq
           foreach (string s2 in new[] { "InstanceProperty", "StaticProperty", "Item" }) {
             string method = s1 + s2;
             var d = GetCompilerForMethod(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(null, dummy));
+            Assert.That(d(null, dummy), Is.EqualTo(t.Name + "." + method));
           }
     }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
         foreach (string s in new[] {"InstanceField", "StaticField"}) {
           var d = GetCompilerForField(provider, t, s);
-          Assert.AreEqual(t.Name + "." + s, d(null, dummy));
+          Assert.That(d(null, dummy), Is.EqualTo(t.Name + "." + s));
         }
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(CtorCompiler));
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)}) {
         var d = GetCompilerForCtor(provider, t);
-        Assert.AreEqual(t.Name + Reflection.WellKnown.CtorName, d(null, dummy));
+        Assert.That(d(null, dummy), Is.EqualTo(t.Name + Reflection.WellKnown.CtorName));
       }
     }
 
@@ -128,8 +128,8 @@ namespace Xtensive.Orm.Tests.Linq
         .MakeGenericMethod(typeof(string));
 
       var d = provider.GetCompiler(mi);
-      Assert.IsNotNull(d);
-      Assert.AreEqual("OK", d(null, dummy));
+      Assert.That(d, Is.Not.Null);
+      Assert.That(d(null, dummy), Is.EqualTo("OK"));
     }
 
     [Test]
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Single(method => method.GetParameterTypes().Any(type => type.IsArray))
         .MakeGenericMethod(typeof (int));
       var eachArrayCompiler = provider.GetCompiler(eachArray);
-      Assert.AreEqual("EachInArray", eachArrayCompiler.Invoke(null, dummy));
+      Assert.That(eachArrayCompiler.Invoke(null, dummy), Is.EqualTo("EachInArray"));
 
       var eachEnumerable = typeof (EachExtensions)
         .GetMethods()
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Any(type => type.IsGenericType && type.GetGenericTypeDefinition()==typeof(IEnumerable<>)))
         .MakeGenericMethod(typeof (int));
       var eachEnumerableCompiler = provider.GetCompiler(eachEnumerable);
-      Assert.AreEqual("EachInEnumerable", eachEnumerableCompiler.Invoke(null, dummy));
+      Assert.That(eachEnumerableCompiler.Invoke(null, dummy), Is.EqualTo("EachInEnumerable"));
     }
 
     [Test]
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.KeepOld);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler1", d(null, dummy));
+      Assert.That(d(null, dummy), Is.EqualTo("Compiler1"));
     }
 
     [Test]
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.Overwrite);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler2", d(null, dummy));
+      Assert.That(d(null, dummy), Is.EqualTo("Compiler2"));
     }
 
     [Test]
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(ConflictCompiler1));
-      Assert.Throws<InvalidOperationException>(() => provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError));
+      _ = Assert.Throws<InvalidOperationException>(() => provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError));
     }
 
     [Test]
@@ -187,9 +187,9 @@ namespace Xtensive.Orm.Tests.Linq
       var provider = MemberCompilerProviderFactory.Create<string>();
       var property = typeof (NonGenericTarget)
         .GetProperty("InternalProperty", BindingFlags.Instance | BindingFlags.NonPublic);
-      Assert.IsNotNull(property);
+      Assert.That(property, Is.Not.Null);
       var result = provider.GetCompiler(property);
-      Assert.IsNull(result);
+      Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -198,9 +198,9 @@ namespace Xtensive.Orm.Tests.Linq
       var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof (MethodCompiler));
       var method = typeof (NonGenericTarget).GetMethod("MethodWithBuggyCompiler", BindingFlags.Instance | BindingFlags.Public);
-      Assert.IsNotNull(method);
+      Assert.That(method, Is.Not.Null);
       var compiler = provider.GetCompiler(method);
-      Assert.IsNotNull(compiler);
+      Assert.That(compiler, Is.Not.Null);
       AssertEx.Throws<TargetInvocationException>(() => compiler.Invoke(null, new string[0]));
     }
   }

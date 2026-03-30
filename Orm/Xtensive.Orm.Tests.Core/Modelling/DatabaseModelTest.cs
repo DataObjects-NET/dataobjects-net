@@ -47,23 +47,23 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       u2.Password = "u2";
       r1 = new Role(sec1, "r1");
       r2 = new Role(sec1, "r2");
-      new RoleRef(u1, r1);
-      new RoleRef(u1, r2);
-      new RoleRef(u2, r2);
+      _ = new RoleRef(u1, r1);
+      _ = new RoleRef(u1, r2);
+      _ = new RoleRef(u2, r2);
       // sec2 = new Security(srv, "sec2");
       db1 = new Database(srv, "db1") { Owner = u1 };
       db2 = new Database(srv, "db2") { Owner = u1 };
       s1 = new Schema(db1, "s1");
       t1 = new Table(s1, "t1");
-      new PrimaryIndex(t1, "PK_t1");
-      new SecondaryIndex(t1, "SI_t1a");
-      new SecondaryIndex(t1, "SI_t1b");
-      new SecondaryIndex(t1, "SI_t1ab");
+      _ = new PrimaryIndex(t1, "PK_t1");
+      _ = new SecondaryIndex(t1, "SI_t1a");
+      _ = new SecondaryIndex(t1, "SI_t1b");
+      _ = new SecondaryIndex(t1, "SI_t1ab");
       s2 = new Schema(db1, "s2");
       t2 = new Table(s2, "t2");
-      new PrimaryIndex(t2, "PK_t2");
-      new SecondaryIndex(t2, "SI_t2a");
-      new SecondaryIndex(t2, "SI_t2ab");
+      _ = new PrimaryIndex(t2, "PK_t2");
+      _ = new SecondaryIndex(t2, "SI_t2a");
+      _ = new SecondaryIndex(t2, "SI_t2ab");
     }
 
     [Test]
@@ -100,12 +100,12 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         new RenameHint("", "")
       };
       Difference diff = comparer.Compare(source, target, hints);
-      TestLog.Info("Difference: \r\n{0}", diff);
+      TestLog.Info($"Difference: \r\n{diff}");
 
       var actions = new ActionSequence {
         new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
-      TestLog.Info("Actions: \r\n{0}", actions);
+      TestLog.Info($"Actions: \r\n{actions}");
 
       TestLog.Info("Applying actions...");
       actions.Apply(source);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       TestLog.Info("Model:");
       srv.Dump();
       TestLog.Info("Actions:");
-      TestLog.Info("{0}", srv.Actions);
+      TestLog.Info($"{srv.Actions}");
 
       TestLog.Info("Creating new model...");
       var srvx = new Server("srv");
@@ -173,123 +173,123 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     {
       var rr0 = u1.Roles[0];
       var rr1 = u1.Roles[1];
-      Assert.AreEqual(rr0.Name, "0");
-      Assert.AreEqual(rr1.Name, "1");
+      Assert.That(rr0.Name, Is.EqualTo("0"));
+      Assert.That(rr1.Name, Is.EqualTo("1"));
 
       rr0.Index = 1;
-      Assert.AreEqual(rr0.Name, "1");
-      Assert.AreEqual(rr1.Name, "0");
-      Assert.AreEqual(rr0, u1.Roles[1]);
-      Assert.AreEqual(rr1, u1.Roles[0]);
+      Assert.That(rr0.Name, Is.EqualTo("1"));
+      Assert.That(rr1.Name, Is.EqualTo("0"));
+      Assert.That(rr0, Is.EqualTo(u1.Roles[1]));
+      Assert.That(rr1, Is.EqualTo(u1.Roles[0]));
       
       rr0.Index = 0;
-      Assert.AreEqual(rr0.Name, "0");
-      Assert.AreEqual(rr1.Name, "1");
-      Assert.AreEqual(rr0, u1.Roles[0]);
-      Assert.AreEqual(rr1, u1.Roles[1]);
+      Assert.That(rr0.Name, Is.EqualTo("0"));
+      Assert.That(rr1.Name, Is.EqualTo("1"));
+      Assert.That(rr0, Is.EqualTo(u1.Roles[0]));
+      Assert.That(rr1, Is.EqualTo(u1.Roles[1]));
     }
 
     [Test]
     public void IndexAndParentTest()
     {
       // srv
-      Assert.AreEqual(srv.Index, 0);
+      Assert.That(srv.Index, Is.EqualTo(0));
       srv.Index = 0;
-      Assert.AreEqual(srv.Index, 0);
+      Assert.That(srv.Index, Is.EqualTo(0));
       AssertEx.Throws<ArgumentOutOfRangeException>(
         () => srv.Index=1);
       AssertEx.Throws<ArgumentOutOfRangeException>(
         () => srv.Index=-1);
 
       // db1, db2
-      Assert.AreEqual(db1.Index, 0);
-      Assert.AreEqual(db2.Index, 1);
+      Assert.That(db1.Index, Is.EqualTo(0));
+      Assert.That(db2.Index, Is.EqualTo(1));
       AssertEx.Throws<ArgumentOutOfRangeException>(
         () => db1.Index=-1);
       AssertEx.Throws<ArgumentOutOfRangeException>(
         () => db1.Index=2);
       db1.Index = 0;
-      Assert.AreEqual(db1.Index, 0);
-      Assert.AreEqual(db2.Index, 1);
+      Assert.That(db1.Index, Is.EqualTo(0));
+      Assert.That(db2.Index, Is.EqualTo(1));
       db1.Index = 1;
-      Assert.AreEqual(db1.Index, 1);
-      Assert.AreEqual(db2.Index, 0);
+      Assert.That(db1.Index, Is.EqualTo(1));
+      Assert.That(db2.Index, Is.EqualTo(0));
       db2.Index = 1;
-      Assert.AreEqual(db1.Index, 0);
-      Assert.AreEqual(db2.Index, 1);
+      Assert.That(db1.Index, Is.EqualTo(0));
+      Assert.That(db2.Index, Is.EqualTo(1));
 
       // s1, s2 : index
-      Assert.AreEqual(s1.Parent, db1);
-      Assert.AreEqual(s2.Parent, db1);
+      Assert.That(s1.Parent, Is.EqualTo(db1));
+      Assert.That(s2.Parent, Is.EqualTo(db1));
       s1.Parent = db1;
-      Assert.AreEqual(s1.Parent, db1);
+      Assert.That(s1.Parent, Is.EqualTo(db1));
       s1.Parent = db2;
-      Assert.AreEqual(s1.Parent, db2);
-      Assert.AreEqual(s2.Parent, db1);
-      Assert.AreEqual(s1.Index, 0);
-      Assert.AreEqual(s2.Index, 0);
+      Assert.That(s1.Parent, Is.EqualTo(db2));
+      Assert.That(s2.Parent, Is.EqualTo(db1));
+      Assert.That(s1.Index, Is.EqualTo(0));
+      Assert.That(s2.Index, Is.EqualTo(0));
       s2.Parent = db2;
-      Assert.AreEqual(s1.Parent, db2);
-      Assert.AreEqual(s2.Parent, db2);
-      Assert.AreEqual(s1.Index, 0);
-      Assert.AreEqual(s2.Index, 1);
+      Assert.That(s1.Parent, Is.EqualTo(db2));
+      Assert.That(s2.Parent, Is.EqualTo(db2));
+      Assert.That(s1.Index, Is.EqualTo(0));
+      Assert.That(s2.Index, Is.EqualTo(1));
       s2.Parent = db1;
       s1.Parent = db1;
-      Assert.AreEqual(s1.Index, 1);
-      Assert.AreEqual(s2.Index, 0);
+      Assert.That(s1.Index, Is.EqualTo(1));
+      Assert.That(s2.Index, Is.EqualTo(0));
       s1.Index = 0;
-      Assert.AreEqual(s1.Index, 0);
-      Assert.AreEqual(s2.Index, 1);
-      Assert.AreEqual(s1.Parent, db1);
-      Assert.AreEqual(s2.Parent, db1);
+      Assert.That(s1.Index, Is.EqualTo(0));
+      Assert.That(s2.Index, Is.EqualTo(1));
+      Assert.That(s1.Parent, Is.EqualTo(db1));
+      Assert.That(s2.Parent, Is.EqualTo(db1));
     }
 
     [Test]
     public void ContainerPropertyTest()
     {
       srv.Security.Remove();
-      Assert.AreEqual(sec1.State, NodeState.Removed);
-      Assert.AreEqual(srv.Security, null);
+      Assert.That(sec1.State, Is.EqualTo(NodeState.Removed));
+      Assert.That(srv.Security, Is.EqualTo(null));
       
       sec2 = new DatabaseModel.Security(srv, "sec2");
-      Assert.AreEqual(srv.Security, sec2);
+      Assert.That(srv.Security, Is.EqualTo(sec2));
       AssertEx.Throws<InvalidOperationException>(
         () => sec1 = new DatabaseModel.Security(srv, "sec3"));
 
       sec2.Remove();
-      Assert.AreEqual(sec2.State, NodeState.Removed);
-      Assert.AreEqual(srv.Security, null);
+      Assert.That(sec2.State, Is.EqualTo(NodeState.Removed));
+      Assert.That(srv.Security, Is.EqualTo(null));
 
       sec1 = new DatabaseModel.Security(srv, "sec1");
-      Assert.AreEqual(srv.Security, sec1);
+      Assert.That(srv.Security, Is.EqualTo(sec1));
     }
 
     [Test]
     public void PathTest()
     {
-      Assert.AreEqual(srv.Path, string.Empty);
-      Assert.AreEqual(srv, srv.Resolve(string.Empty));
+      Assert.That(srv.Path, Is.EqualTo(string.Empty));
+      Assert.That(srv.Resolve(string.Empty), Is.EqualTo(srv));
 
-      Assert.AreEqual(srv.Databases.Path, "Databases");
-      Assert.AreEqual(srv.Databases, srv.Resolve("Databases"));
+      Assert.That("Databases", Is.EqualTo(srv.Databases.Path));
+      Assert.That(srv.Databases, Is.EqualTo(srv.Resolve("Databases")));
 
-      Assert.AreEqual(srv.Security.Path, "Security");
-      Assert.AreEqual(srv.Security, srv.Resolve("Security"));
+      Assert.That("Security", Is.EqualTo(srv.Security.Path));
+      Assert.That(srv.Security, Is.EqualTo(srv.Resolve("Security")));
 
-      Assert.AreEqual(srv.Security.Users.Path, "Security/Users");
-      Assert.AreEqual(srv.Security.Users, srv.Resolve("Security/Users"));
+      Assert.That("Security/Users", Is.EqualTo(srv.Security.Users.Path));
+      Assert.That(srv.Resolve("Security/Users"), Is.EqualTo(srv.Security.Users));
 
-      Assert.AreEqual(db2.Path, "Databases/db2");
-      Assert.AreEqual(db2, srv.Resolve("Databases/db2"));
+      Assert.That(db2.Path, Is.EqualTo("Databases/db2"));
+      Assert.That(srv.Resolve("Databases/db2"), Is.EqualTo(db2));
 
-      Assert.AreEqual(db2.Schemas.Path, "Databases/db2/Schemas");
-      Assert.AreEqual(db2.Schemas, srv.Resolve("Databases/db2/Schemas"));
-      
-      Assert.AreEqual(s1.Path, "Databases/db1/Schemas/s1");
-      Assert.AreEqual(s1, srv.Resolve("Databases/db1/Schemas/s1"));
+      Assert.That(db2.Schemas.Path, Is.EqualTo("Databases/db2/Schemas"));
+      Assert.That(srv.Resolve("Databases/db2/Schemas"), Is.EqualTo(db2.Schemas));
 
-      Assert.AreEqual(s2.Path, "Databases/db1/Schemas/s2");
-      Assert.AreEqual(s2, srv.Resolve("Databases/db1/Schemas/s2"));
+      Assert.That(s1.Path, Is.EqualTo("Databases/db1/Schemas/s1"));
+      Assert.That(srv.Resolve("Databases/db1/Schemas/s1"), Is.EqualTo(s1));
+
+      Assert.That(s2.Path, Is.EqualTo("Databases/db1/Schemas/s2"));
+      Assert.That(srv.Resolve("Databases/db1/Schemas/s2"), Is.EqualTo(s2));
     }
 
     [Test]
@@ -304,7 +304,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       TestLog.Info("Model:");
       srv.Dump();
       TestLog.Info("Actions:");
-      TestLog.Info("{0}", srv.Actions);
+      TestLog.Info($"{srv.Actions}");
 
       TestLog.Info("Creating new model...");
       var srvx = new Server("srv");
@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       update.Invoke(s1, s2, hints);
       if (!useHints)
         hints = new HintSet(s1, s2);
-      TestLog.Info("Update test ({0} hints)", useHints ? "with" : "without");
+      TestLog.Info($"Update test ({(useHints ? "with" : "without")} hints)");
 //      s1.Dump();
 //      s2.Dump();
       s1.Validate();
@@ -350,11 +350,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
       TestLog.Info("Comparing models:");
       var comparer = new Comparer();
       var diff = comparer.Compare(s1, s2, hints);
-      TestLog.Info("\r\nDifference:\r\n{0}", diff);
+      TestLog.Info($"\r\nDifference:\r\n{diff}");
       var actions = new ActionSequence() {
         new Upgrader().GetUpgradeSequence(diff, hints, comparer)
       };
-      TestLog.Info("\r\nActions:\r\n{0}", actions);
+      TestLog.Info($"\r\nActions:\r\n{actions}");
     }
 
     private Server Clone(Server server)

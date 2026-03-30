@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Upgrade
       var isClustered = index.IsClustered && providerInfo.Supports(ProviderFeatures.ClusteredIndexes);
       secondaryIndex.IsClustered = isClustered;
       foreach (KeyValuePair<ColumnInfo, Direction> pair in index.KeyColumns) {
-        var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key, index);
+        var columName = GetPrimaryIndexColumnName(primaryIndex, pair.Key);
         var column = table.Columns[columName];
         _ = new KeyColumnRef(secondaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Upgrade
       // and simply ignore included columns for clustered indexes.
       if (providerInfo.Supports(ProviderFeatures.IncludedColumns) && !isClustered) {
         foreach (var includedColumn in index.IncludedColumns) {
-          var columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn, index);
+          var columName = GetPrimaryIndexColumnName(primaryIndex, includedColumn);
           var column = table.Columns[columName];
           _ = new IncludedColumnRef(secondaryIndex, column);
         }
@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Upgrade
 
       var primaryIndex = new PrimaryIndexInfo(currentTable, name);
       foreach (var pair in index.KeyColumns) {
-        var columName = GetPrimaryIndexColumnName(index, pair.Key, index);
+        var columName = GetPrimaryIndexColumnName(index, pair.Key);
         var column = currentTable.Columns[columName];
         _ = new KeyColumnRef(primaryIndex, column,
           providerInfo.Supports(ProviderFeatures.KeyColumnSortOrder)
@@ -341,7 +341,7 @@ namespace Xtensive.Orm.Upgrade
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitKeyField(KeyField keyField)
     {
-      throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
+      throw new NotSupportedException(string.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
     }
 
     /// <inheritdoc/>
@@ -434,7 +434,7 @@ namespace Xtensive.Orm.Upgrade
       return null;
     }
 
-    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn, IndexInfo secondaryIndex)
+    private static string GetPrimaryIndexColumnName(IndexInfo primaryIndex, ColumnInfo secondaryIndexColumn)
     {
       string primaryIndexColumnName = null;
       foreach (var primaryColumn in primaryIndex.Columns)

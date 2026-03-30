@@ -20,10 +20,10 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       var stringBuilder = new StringBuilder();
 
       foreach (var counter in this) {
-        using (MakeMeasuresRegion(counter.Key.IsNullOrEmpty() ? "Default" : string.Format("-{0}-", counter.Key), stringBuilder)) {
+        using (MakeMeasuresRegion(counter.Key.IsNullOrEmpty() ? "Default" : $"-{counter.Key}-", stringBuilder)) {
           foreach (var point in counter.Value) {
             var value = AdaptToReadableFrom(point.Value, out var measure);
-            _ = stringBuilder.AppendLine(string.Format("{0}:{1} {2}", point.Key, value.ToString(DoubleValueFormatTemplate), measure));
+            _ = stringBuilder.AppendLine($"{point.Key}:{value.ToString(DoubleValueFormatTemplate)} {measure}");
           }
         }
       }
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
     private IDisposable MakeMeasuresRegion(string nodeName, StringBuilder output)
     {
-      _ = output.AppendLine(string.Format("----------------------{0}-------------------------", nodeName));
+      _ = output.AppendLine($"----------------------{nodeName}-------------------------");
       var disposable = new Disposable(
         (state) => output.AppendLine("------------------------end---------------------------"));
       return disposable;

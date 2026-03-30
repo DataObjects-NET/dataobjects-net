@@ -46,12 +46,11 @@ namespace Xtensive.Orm.Tests.Core.Performance
 
     private void TupleTest(Xtensive.Tuples.Tuple t, int count)
     {
-      using (TestLog.InfoRegion("Testing {0}", t.GetType().GetShortName())) {
+      using (TestLog.InfoRegion($"Testing {t.GetType().GetShortName()}")) {
         using (warmup ? null : new Measurement("GetAllValues", count * t.Count))
           GetAllValuesTest(t, count);
         for (int i = 0; i<t.Count; i++)
-        using (warmup ? null : new Measurement(string.Format(
-          "GetValue({0}) ({1})", i, t.Descriptor[i].GetShortName()), 
+        using (warmup ? null : new Measurement($"GetValue({i}) ({t.Descriptor[i].GetShortName()})", 
           count * t.Count))
           GetValueTest(t, count, i);
         using (warmup ? null : new Measurement("ToFastReadOnly", count))

@@ -22,26 +22,26 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(query, Is.Not.Empty);
       var nonGenericQuery = (IQueryable) query;
       foreach (var item in nonGenericQuery) {
-        Assert.IsNotNull(item);
+        Assert.That(item, Is.Not.Null);
         var invoice = item as Invoice;
-        Assert.IsNotNull(invoice);
+        Assert.That(invoice, Is.Not.Null);
       }
 
       query = Session.Query.All<Invoice>();
       nonGenericQuery = query;
       foreach (var item in nonGenericQuery) {
-        Assert.IsNotNull(item);
+        Assert.That(item, Is.Not.Null);
         var invoice = item as Invoice;
-        Assert.IsNotNull(invoice);
+        Assert.That(invoice, Is.Not.Null);
       }
 
       var provider = query.Provider;
       var result = provider.Execute(nonGenericQuery.Expression);
       var enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
-        Assert.IsNotNull(item);
+        Assert.That(item, Is.Not.Null);
         var invoice = item as Invoice;
-        Assert.IsNotNull(invoice);
+        Assert.That(invoice, Is.Not.Null);
       }
 
       query = Session.Query.All<Invoice>().Where(i => i.Commission > 0.3m);
@@ -50,9 +50,9 @@ namespace Xtensive.Orm.Tests.Linq
       result = provider.Execute(nonGenericQuery.Expression);
       enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
-        Assert.IsNotNull(item);
+        Assert.That(item, Is.Not.Null);
         var invoice = item as Invoice;
-        Assert.IsNotNull(invoice);
+        Assert.That(invoice, Is.Not.Null);
       }
     }
   }

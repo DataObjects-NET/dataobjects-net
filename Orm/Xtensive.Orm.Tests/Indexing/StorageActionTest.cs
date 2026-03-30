@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Indexing
     public void ApplyActionsTest()
     {
       var newStorage = new StorageModel("STORAGE") { Actions = new ActionSequence() };
-      TestLog.Info("Actions: \n{0}", storage.Actions);
+      TestLog.Info($"Actions: \n{storage.Actions}");
       storage.Actions.Apply(newStorage);
       newStorage.Dump();
       storage.Actions = new ActionSequence();

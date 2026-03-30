@@ -90,13 +90,13 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         var key = entity.Key;
 
         string formattedKey = key.Format();
-        TestLog.Info("Key.ToString() result: {0}", key.ToString());
-        TestLog.Info("Key.Format()   result: {0}", formattedKey);
-        Assert.True(formattedKey.Contains("Child"));
-        Assert.False(formattedKey.Contains("Base"));
+        TestLog.Info($"Key.ToString() result: {key.ToString()}");
+        TestLog.Info($"Key.Format()   result: {formattedKey}");
+        Assert.That(formattedKey.Contains("Child"));
+        Assert.That(formattedKey.Contains("Base"), Is.False);
         
         var parsedKey = Key.Parse(Domain, formattedKey);
-        Assert.AreEqual(key, parsedKey);
+        Assert.That(parsedKey, Is.EqualTo(key));
       }
     }
   }

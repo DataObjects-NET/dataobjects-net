@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     public void MainTest()
     {
       var ns = Domain.Services.Get<NameBuilder>();
-      Assert.IsNotNull(ns);
+      Assert.That(ns, Is.Not.Null);
     }
   }
 }

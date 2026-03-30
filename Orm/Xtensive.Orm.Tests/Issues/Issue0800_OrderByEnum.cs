@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = from person in session.Query.All<Person>()
                       select new {Status = person.IntField == null ? Status.Married : Status.Single};
           var result = query.ToList();
-          Assert.AreEqual(3, result.Count);
+          Assert.That(result.Count, Is.EqualTo(3));
           // Rollback
         }
       }

@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Invoice>().Select(i => i.Key).ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -241,7 +241,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Invoice>().Select(i => i.Key).ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       await using (var session = await Domain.OpenSessionAsync())
@@ -278,8 +278,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(o => o.InvoiceLines);
         var invoiceLineField = Domain.Model.Types[typeof(Invoice)].Fields[nameof(Invoice.InvoiceLines)];
         foreach (var invoice in prefetcher) {
-          Assert.IsTrue(session.Handler.LookupState(invoice.Key, invoiceLineField, out var entitySetState));
-          Assert.IsTrue(entitySetState.IsFullyLoaded);
+          Assert.That(session.Handler.LookupState(invoice.Key, invoiceLineField, out var entitySetState), Is.True);
+          Assert.That(entitySetState.IsFullyLoaded, Is.True);
         }
       }
     }
@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(o => o.InvoiceLines);
         var invoiceLineField = Domain.Model.Types[typeof(Invoice)].Fields[nameof(Invoice.InvoiceLines)];
         foreach (var invoice in await prefetcher.ExecuteAsync()) {
-          Assert.IsTrue(session.Handler.LookupState(invoice.Key, invoiceLineField, out var entitySetState));
-          Assert.IsTrue(entitySetState.IsFullyLoaded);
+          Assert.That(session.Handler.LookupState(invoice.Key, invoiceLineField, out var entitySetState), Is.True);
+          Assert.That(entitySetState.IsFullyLoaded, Is.True);
         }
       }
     }
@@ -307,8 +307,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var expected = session.Query.All<Invoice>().ToList();
         var actual = expected.Prefetch(i => i.ProcessingTime).Prefetch(i => i.InvoiceLines).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -320,8 +320,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var expected = session.Query.All<Invoice>().ToList();
         var actual = (await expected.Prefetch(i => i.ProcessingTime)
           .Prefetch(i => i.InvoiceLines).ExecuteAsync()).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -347,7 +347,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         Console.WriteLine(count1);
         Console.WriteLine(count2);
-        Assert.AreEqual(2, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(2));
       }
     }
 
@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         Console.WriteLine(count1);
         Console.WriteLine(count2);
-        Assert.AreEqual(2, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(2));
       }
     }
 
@@ -400,7 +400,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         Console.WriteLine(count1);
         Console.WriteLine(count2);
-        Assert.AreEqual(11, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(11));
       }
     }
 
@@ -427,7 +427,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         }
         Console.WriteLine(count1);
         Console.WriteLine(count2);
-        Assert.AreEqual(11, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(11));
       }
     }
 
@@ -451,7 +451,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(o => o.DesignatedEmployee.Invoices);
         var count = 0;
         foreach (var invoice in invoices) {
-          Assert.AreEqual(keys[count], invoice.Key);
+          Assert.That(invoice.Key, Is.EqualTo(keys[count]));
           count++;
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(invoice.Key, invoiceType, session,
             field => PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
@@ -461,8 +461,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             employeeType, session, field =>
               PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(invoicesField));
         }
-        Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(12, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(count, Is.EqualTo(keys.Count));
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(12));
       }
     }
 
@@ -486,7 +486,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(o => o.DesignatedEmployee.Invoices).AsAsyncEnumerable();
         var count = 0;
         await foreach (var invoice in invoices) {
-          Assert.AreEqual(keys[count], invoice.Key);
+          Assert.That(invoice.Key, Is.EqualTo(keys[count]));
           count++;
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(invoice.Key, invoiceType, session,
             field => PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(employeeField) || (field.Parent != null && field.Parent.Equals(employeeField)));
@@ -496,8 +496,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             employeeType, session, field =>
               PrefetchHelper.IsFieldToBeLoadedByDefault(field) || field.Equals(invoicesField));
         }
-        Assert.AreEqual(keys.Count, count);
-        Assert.AreEqual(12, session.Handler.PrefetchTaskExecutionCount);
+        Assert.That(count, Is.EqualTo(keys.Count));
+        Assert.That(session.Handler.PrefetchTaskExecutionCount, Is.EqualTo(12));
       }
     }
 
@@ -511,8 +511,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var actual = expected
           .Prefetch(c => c.Invoices.Prefetch(e => e.InvoiceLines))
           .ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -526,8 +526,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var actual = (await expected
           .Prefetch(c => c.Invoices.Prefetch(e => e.InvoiceLines)).ExecuteAsync())
           .ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -540,8 +540,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var actual = expected
           .Prefetch(i => i.InvoiceLines.Prefetch(il => il.Track))
           .ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -554,8 +554,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var actual = (await expected
           .Prefetch(i => i.InvoiceLines.Prefetch(il => il.Track)).ExecuteAsync())
           .ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -566,8 +566,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var expected = session.Query.All<Invoice>().Take(53).ToList();
         var actual = expected.Prefetch(i => i.DesignatedEmployee.Invoices).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -578,8 +578,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var tx = session.OpenTransaction()) {
         var expected = session.Query.All<Invoice>().Take(53).ToList();
         var actual = (await expected.Prefetch(i => i.DesignatedEmployee.Invoices).ExecuteAsync()).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -590,8 +590,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var expected = session.Query.All<Invoice>().ToList();
         var actual = expected.Prefetch(i => i.DesignatedEmployee.Invoices).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -602,8 +602,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var tx = session.OpenTransaction()) {
         var expected = session.Query.All<Invoice>().ToList();
         var actual = (await expected.Prefetch(i => i.DesignatedEmployee.Invoices).ExecuteAsync()).ToList();
-        Assert.AreEqual(expected.Count, actual.Count);
-        Assert.IsTrue(expected.SequenceEqual(actual));
+        Assert.That(actual.Count, Is.EqualTo(expected.Count));
+        Assert.That(expected.SequenceEqual(actual), Is.True);
       }
     }
 
@@ -658,12 +658,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           _ = enumerator0.MoveNext();
           _ = enumerator0.MoveNext();
           _ = enumerator0.MoveNext();
-          Assert.IsTrue(source.SequenceEqual(prefetcher));
+          Assert.That(source.SequenceEqual(prefetcher), Is.True);
           var index = 3;
           while (enumerator0.MoveNext()) {
-            Assert.AreSame(source[index++], enumerator0.Current);
+            Assert.That(enumerator0.Current, Is.SameAs(source[index++]));
           }
-          Assert.AreEqual(source.Count, index);
+          Assert.That(index, Is.EqualTo(source.Count));
         }
       }
     }
@@ -679,13 +679,13 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           _ = await enumerator0.MoveNextAsync();
           _ = await enumerator0.MoveNextAsync();
           _ = await enumerator0.MoveNextAsync();
-          Assert.IsTrue(source.SequenceEqual(await prefetchQuery.ToListAsync()));
+          Assert.That(source.SequenceEqual(await prefetchQuery.ToListAsync()), Is.True);
           var index = 3;
           while (await enumerator0.MoveNextAsync()) {
-            Assert.AreSame(source[index++], enumerator0.Current);
+            Assert.That(enumerator0.Current, Is.SameAs(source[index++]));
           }
 
-          Assert.AreEqual(source.Count, index);
+          Assert.That(index, Is.EqualTo(source.Count));
         }
       }
     }
@@ -712,7 +712,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
             }
           }
-          Assert.AreEqual(2, count);
+          Assert.That(count, Is.EqualTo(2));
         }
       }
     }
@@ -740,7 +740,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
             }
           }
-          Assert.AreEqual(2, count);
+          Assert.That(count, Is.EqualTo(2));
         }
       }
     }
@@ -820,7 +820,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               }
             }
           }
-          Assert.AreEqual(2, count);
+          Assert.That(count, Is.EqualTo(2));
         }
       }
     }
@@ -850,7 +850,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
               }
             }
           }
-          Assert.AreEqual(2, count);
+          Assert.That(count, Is.EqualTo(2));
         }
       }
     }
@@ -939,8 +939,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     private static EntitySetState GetFullyLoadedEntitySet(Session session, Key key,
       FieldInfo employeesField)
     {
-      Assert.IsTrue(session.Handler.LookupState(key, employeesField, out var entitySetState));
-      Assert.IsTrue(entitySetState.IsFullyLoaded);
+      Assert.That(session.Handler.LookupState(key, employeesField, out var entitySetState), Is.True);
+      Assert.That(entitySetState.IsFullyLoaded, Is.True);
       return entitySetState;
     }
   }

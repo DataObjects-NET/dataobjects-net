@@ -74,10 +74,8 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Container));
-      if (StorageProviderInfo.Instance.CheckProviderVersionIsAtLeast(StorageProviderVersion.PostgreSql90)) {
-        config.Types.Register(typeof(IndexedPointContainer));
-      }
+      config.Types.Register(typeof(Container));
+      config.Types.Register(typeof(IndexedPointContainer));
       return config;
     }
 
@@ -118,23 +116,23 @@ namespace Xtensive.Orm.Tests.Storage
           Console.WriteLine("The record without the initial parameters:");
           OutputRecord(record);
 
-          Assert.IsTrue(record.Point.Equals(new NpgsqlPoint()));
-          Assert.IsTrue(record.LSeg.Equals(new NpgsqlLSeg()));
-          Assert.IsTrue(record.Box.Equals(new NpgsqlBox()));
-          Assert.IsTrue(record.Path.Equals(new NpgsqlPath(new[] {new NpgsqlPoint()})));
-          Assert.IsTrue(record.Polygon.Equals(new NpgsqlPolygon(new[] {new NpgsqlPoint()})));
-          Assert.IsTrue(record.Circle.Equals(new NpgsqlCircle()));
+          Assert.That(record.Point.Equals(new NpgsqlPoint()), Is.True);
+          Assert.That(record.LSeg.Equals(new NpgsqlLSeg()), Is.True);
+          Assert.That(record.Box.Equals(new NpgsqlBox()), Is.True);
+          Assert.That(record.Path.Equals(new NpgsqlPath(new[] {new NpgsqlPoint()})), Is.True);
+          Assert.That(record.Polygon.Equals(new NpgsqlPolygon(new[] {new NpgsqlPoint()})), Is.True);
+          Assert.That(record.Circle.Equals(new NpgsqlCircle()), Is.True);
 
           record = session.Query.All<Container>().First(c => c.Id == customValueContainerId);
 
           Console.WriteLine("The record with the initial parameters:");
           OutputRecord(record);
-          Assert.IsTrue(record.Point.Equals(point));
-          Assert.IsTrue(record.LSeg.Equals(lSeg));
-          Assert.IsTrue(record.Box.Equals(box));
-          Assert.IsTrue(record.Path.Equals(path));
-          Assert.IsTrue(record.Polygon.Equals(polygon));
-          Assert.IsTrue(record.Circle.Equals(circle));
+          Assert.That(record.Point.Equals(point), Is.True);
+          Assert.That(record.LSeg.Equals(lSeg), Is.True);
+          Assert.That(record.Box.Equals(box), Is.True);
+          Assert.That(record.Path.Equals(path), Is.True);
+          Assert.That(record.Polygon.Equals(polygon), Is.True);
+          Assert.That(record.Circle.Equals(circle), Is.True);
 
           tx.Complete();
         }
@@ -142,10 +140,8 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void AddtionalTest()
+    public void IndexedPointTest()
     {
-      Require.ProviderVersionAtLeast(StorageProviderVersion.PostgreSql90);
-
       using (var session = Domain.OpenSession()) {
 
         var defaultValueContainerId = 0;
@@ -162,13 +158,13 @@ namespace Xtensive.Orm.Tests.Storage
           Console.WriteLine("The record without the initial parameters:");
           OutputRecord(record);
 
-          Assert.IsTrue(record.Point.Equals(new NpgsqlPoint()));
+          Assert.That(record.Point.Equals(new NpgsqlPoint()), Is.True);
 
           record = session.Query.All<IndexedPointContainer>().First(c => c.Id == customValueContainerId);
 
           Console.WriteLine("The record with the initial parameters:");
           OutputRecord(record);
-          Assert.IsTrue(record.Point.Equals(point));
+          Assert.That(record.Point.Equals(point), Is.True);
           
           tx.Complete();
         }
@@ -177,26 +173,26 @@ namespace Xtensive.Orm.Tests.Storage
 
     public void OutputRecord(Container record)
     {
-      Console.WriteLine("Point   - ({0},{1})", record.Point.X, record.Point.Y);
-      Console.WriteLine("LSeg    - [({0},{1}),({2},{3})]", record.LSeg.Start.X, record.LSeg.Start.Y, record.LSeg.End.X, record.LSeg.End.Y);
-      Console.WriteLine("Box     - ({0},{1}),({2},{3})", record.Box.UpperRight.X, record.Box.UpperRight.Y, record.Box.LowerLeft.X, record.Box.LowerLeft.Y);
+      Console.WriteLine($"Point   - ({record.Point.X},{record.Point.Y})");
+      Console.WriteLine($"LSeg    - [({record.LSeg.Start.X},{record.LSeg.Start.Y}),({record.LSeg.End.X},{record.LSeg.End.Y})]");
+      Console.WriteLine($"Box     - ({record.Box.UpperRight.X},{record.Box.UpperRight.Y}),({record.Box.LowerLeft.X},{record.Box.LowerLeft.Y})");
 
       Console.Write("Path    - (");
       foreach (var points in record.Path)
-        Console.Write("({0},{1})", points.X, points.Y);
+        Console.Write($"({points.X},{points.Y})");
       Console.WriteLine(")");
 
       Console.Write("Polygon - (");
       foreach (var points in record.Polygon)
-        Console.Write("({0},{1})", points.X, points.Y);
+        Console.Write($"({points.X},{points.Y})");
       Console.WriteLine(")");
 
-      Console.WriteLine("Circle  - <({0},{1}),{2}>", record.Circle.Center.X, record.Circle.Center.Y, record.Circle.Radius);
+      Console.WriteLine($"Circle  - <({record.Circle.Center.X},{record.Circle.Center.Y}),{record.Circle.Radius}>");
     }
 
     public void OutputRecord(IndexedPointContainer record)
     {
-      Console.WriteLine("Point   - ({0},{1})", record.Point.X, record.Point.Y);
+      Console.WriteLine($"Point   - ({record.Point.X},{record.Point.Y})");
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -8,9 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Comparison;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -45,7 +42,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(t => t.TrackId==id ? null : t)
         .Select(t => t==null ? null : t.MediaType).ToList();
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(result.Count, expected.Count);
+      Assert.That(expected.Count, Is.EqualTo(result.Count));
     }
 
     [Test]
@@ -62,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(p=>p==null ? null : p.MediaType)
         .ToList();
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(result.Count, expected.Count);
+      Assert.That(expected.Count, Is.EqualTo(result.Count));
     }
 
 
@@ -82,7 +79,7 @@ namespace Xtensive.Orm.Tests.Linq
           emps = Session.Query.All<Employee>().Where(e => c.Address.City==e.Address.City).Count()
         }).ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(expected.Except(list).Count()==0);
+      Assert.That(expected.Except(list).Count()==0, Is.True);
     }
 
     [Test]
@@ -119,7 +116,7 @@ namespace Xtensive.Orm.Tests.Linq
           }).OrderBy(t => t.emps).ThenBy(t => t.invoices).ThenBy(t => t.sum).ToList();
 
       Assert.That(list, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.That(expected.SequenceEqual(list), Is.True);
 
       QueryDumper.Dump(expected, true);
       QueryDumper.Dump(list, true);
@@ -135,9 +132,63 @@ namespace Xtensive.Orm.Tests.Linq
         select new {track.Name, mediaTypeName=mediaType.Name, mediaType.MediaTypeId};
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(trackCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(trackCount));
     }
 
+#if NET10_0_OR_GREATER
+    [Test]
+    public void SimpleLeftTest()
+    {
+      var traclCount = Session.Query.All<Track>().Count();
+      var result = Session.Query.All<Track>()
+        .LeftJoin(Session.Query.All<Album>(),
+          track => track.Album.AlbumId,
+          album => album.AlbumId,
+          (track, album) => new { track.Name, album.Title, album.AlbumId });
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
+      Assert.That(list.Count, Is.EqualTo(traclCount));
+    }
+
+    [Test]
+    public void LeftJoin1Test()
+    {
+      Session.Query.All<Track>().First().Album = null;
+      Session.Current.SaveChanges();
+      var tracks = Session.Query.All<Track>();
+      var albums = Session.Query.All<Album>();
+      var result = tracks.LeftJoin(
+        albums,
+        track => track.Album,
+        album => album,
+        (track, album) => new {
+          track.Name,
+          Title = album == null ? null : album.Title
+        });
+      Assert.That(result, Is.Not.Empty);
+      foreach (var item in result)
+        Console.WriteLine($"{item.Name} {item.Title}");
+      QueryDumper.Dump(result);
+    }
+
+    [Test]
+    public void LeftJoin2Test()
+    {
+      Session.Query.All<Track>().First().Album = null;
+      Session.Current.SaveChanges();
+      var tracks = Session.Query.All<Track>();
+      var albums = Session.Query.All<Album>();
+      var result = tracks.LeftJoin(
+        albums,
+        track => track.Album.AlbumId,
+        album => album.AlbumId,
+        (track, album) => new { track.Name, album.Title });
+      Assert.That(result, Is.Not.Empty);
+      foreach (var item in result)
+        Console.WriteLine($"{item.Name} {item.Title}");
+      QueryDumper.Dump(result);
+    }
+#else
     [Test]
     public void SimpleLeftTest()
     {
@@ -149,7 +200,7 @@ namespace Xtensive.Orm.Tests.Linq
           (track, album) => new {track.Name, album.Title, album.AlbumId});
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(traclCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(traclCount));
     }
 
     [Test]
@@ -169,10 +220,11 @@ namespace Xtensive.Orm.Tests.Linq
         });
       Assert.That(result, Is.Not.Empty);
       foreach (var item in result)
-        Console.WriteLine("{0} {1}", item.Name, item.Title);
+        Console.WriteLine($"{item.Name} {item.Title}");
       QueryDumper.Dump(result);
     }
 
+    [Test]
     public void LeftJoin2Test()
     {
       Session.Query.All<Track>().First().Album = null;
@@ -186,9 +238,10 @@ namespace Xtensive.Orm.Tests.Linq
         (track, album) => new {track.Name, album.Title});
       Assert.That(result, Is.Not.Empty);
       foreach (var item in result)
-        Console.WriteLine("{0} {1}", item.Name, item.Title);
+        Console.WriteLine($"{item.Name} {item.Title}");
       QueryDumper.Dump(result);
     }
+#endif
 
     [Test]
     public void SeveralTest()
@@ -203,7 +256,7 @@ namespace Xtensive.Orm.Tests.Linq
       select new {t, a, m.Name};
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(tracksCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(tracksCount));
     }
 
     [Test]
@@ -217,7 +270,7 @@ namespace Xtensive.Orm.Tests.Linq
       select new {il.Quantity, i.Total};
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(invoiceLinesCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(invoiceLinesCount));
     }
 
     [Test]
@@ -260,7 +313,7 @@ namespace Xtensive.Orm.Tests.Linq
         select new {l = c1.FirstName, r = c2.FirstName};
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(expected.Count(), list.Count());
+      Assert.That(list.Count(), Is.EqualTo(expected.Count()));
     }
 
     [Test]
@@ -282,7 +335,7 @@ namespace Xtensive.Orm.Tests.Linq
         select groups;
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(mediaTypeCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(mediaTypeCount));
       QueryDumper.Dump(result, true);
     }
 
@@ -315,7 +368,7 @@ namespace Xtensive.Orm.Tests.Linq
           });
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(mediaTypesCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(mediaTypesCount));
       QueryDumper.Dump(result, true);
     }
 
@@ -352,7 +405,7 @@ namespace Xtensive.Orm.Tests.Linq
         (c, tGroup) => tGroup.DefaultIfEmpty());
       Assert.Throws<QueryTranslationException>(() => {
         var list = result.ToList();
-        Assert.AreEqual(mediaTypeCount, list.Count);
+        Assert.That(list.Count, Is.EqualTo(mediaTypeCount));
         QueryDumper.Dump(result, true);
       });
 
@@ -372,7 +425,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(g => g.tGroup.DefaultIfEmpty(), (g, t) => new {Name = t==null ? "Nothing!" : t.Name, MediaType = g.m.Name});
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(tracksCount, list.Count);
+      Assert.That(list.Count, Is.EqualTo(tracksCount));
       QueryDumper.Dump(result, true);
     }
 

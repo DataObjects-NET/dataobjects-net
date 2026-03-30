@@ -207,20 +207,20 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var eventInfo = new EventInfo(session)) {
         using (var transactionScope = session.OpenTransaction()) {
-          Assert.IsNotNull(eventInfo.TransactionOpenArgs);
-          Assert.AreSame(Transaction.Current, eventInfo.TransactionOpenArgs?.Transaction);
+          Assert.That(eventInfo.TransactionOpenArgs, Is.Not.Null);
+          Assert.That(eventInfo.TransactionOpenArgs?.Transaction, Is.SameAs(Transaction.Current));
 
           var megaEntity = new MegaEntity { Value = 1 };
           transactionScope.Complete();
         }
 
-        Assert.IsNull(eventInfo.TransactionRollbackingArgs);
-        Assert.IsNull(eventInfo.TransactionRollbackedArgs);
-        Assert.IsNotNull(eventInfo.PersistingArgs);
-        Assert.IsNotNull(eventInfo.PersistedArgs);
-        Assert.IsNotNull(eventInfo.TransactionPrecommitingArgs);
-        Assert.IsNotNull(eventInfo.TransactionCommitingArgs);
-        Assert.IsNotNull(eventInfo.TransactionCommitedArgs);
+        Assert.That(eventInfo.TransactionRollbackingArgs, Is.Null);
+        Assert.That(eventInfo.TransactionRollbackedArgs, Is.Null);
+        Assert.That(eventInfo.PersistingArgs, Is.Not.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionPrecommitingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionCommitingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionCommitedArgs, Is.Not.Null);
       }
     }
 
@@ -230,18 +230,18 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var eventInfo = new EventInfo(session)) {
         using (var transactionScope = session.OpenTransaction()) {
-          Assert.IsNotNull(eventInfo.TransactionOpenArgs);
-          Assert.AreSame(Transaction.Current, eventInfo.TransactionOpenArgs?.Transaction);
+          Assert.That(eventInfo.TransactionOpenArgs, Is.Not.Null);
+          Assert.That(eventInfo.TransactionOpenArgs?.Transaction, Is.SameAs(Transaction.Current));
 
           var megaEntity = new MegaEntity { Value = 1 };
         }
-        Assert.IsNotNull(eventInfo.TransactionRollbackingArgs);
-        Assert.IsNotNull(eventInfo.TransactionRollbackedArgs);
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.TransactionPrecommitingArgs);
-        Assert.IsNull(eventInfo.TransactionCommitingArgs);
-        Assert.IsNull(eventInfo.TransactionCommitedArgs);
+        Assert.That(eventInfo.TransactionRollbackingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionRollbackedArgs, Is.Not.Null);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
+        Assert.That(eventInfo.TransactionPrecommitingArgs, Is.Null);
+        Assert.That(eventInfo.TransactionCommitingArgs, Is.Null);
+        Assert.That(eventInfo.TransactionCommitedArgs, Is.Null);
       }
     }
 
@@ -251,21 +251,21 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var eventInfo = new EventInfo(session, true)) {
         var transactionScope = session.OpenTransaction();
-        Assert.IsNotNull(eventInfo.TransactionOpenArgs);
-        Assert.AreSame(Transaction.Current, eventInfo.TransactionOpenArgs?.Transaction);
+        Assert.That(eventInfo.TransactionOpenArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionOpenArgs?.Transaction, Is.SameAs(Transaction.Current));
 
         var megaEntity = new MegaEntity { Value = 1 };
 
         transactionScope.Complete();
         AssertEx.Throws<TestException>(transactionScope.Dispose);
 
-        Assert.IsNotNull(eventInfo.TransactionRollbackingArgs);
-        Assert.IsNotNull(eventInfo.TransactionRollbackedArgs);
-        Assert.IsNotNull(eventInfo.TransactionPrecommitingArgs);
-        Assert.IsNotNull(eventInfo.TransactionCommitingArgs);
-        Assert.IsNotNull(eventInfo.PersistingArgs);
-        Assert.IsNotNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.TransactionCommitedArgs);
+        Assert.That(eventInfo.TransactionRollbackingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionRollbackedArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionPrecommitingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionCommitingArgs, Is.Not.Null);
+        Assert.That(eventInfo.PersistingArgs, Is.Not.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionCommitedArgs, Is.Null);
       }
     }
 
@@ -279,16 +279,16 @@ namespace Xtensive.Orm.Tests.Storage
         using (var eventInfo = new EventInfo(session)) {
           session.SaveChanges();
 
-          Assert.IsNotNull(eventInfo.PersistingArgs);
-          Assert.IsNotNull(eventInfo.PersistedArgs);
-          Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-          Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+          Assert.That(eventInfo.PersistingArgs, Is.Not.Null);
+          Assert.That(eventInfo.PersistedArgs, Is.Not.Null);
+          Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+          Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-          Assert.IsNull(eventInfo.TransactionRollbackingArgs);
-          Assert.IsNull(eventInfo.TransactionRollbackedArgs);
-          Assert.IsNull(eventInfo.TransactionPrecommitingArgs);
-          Assert.IsNull(eventInfo.TransactionCommitingArgs);
-          Assert.IsNull(eventInfo.TransactionCommitedArgs);
+          Assert.That(eventInfo.TransactionRollbackingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionRollbackedArgs, Is.Null);
+          Assert.That(eventInfo.TransactionPrecommitingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionCommitingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionCommitedArgs, Is.Null);
         }
       }
     }
@@ -303,16 +303,16 @@ namespace Xtensive.Orm.Tests.Storage
         using (var eventInfo = new EventInfo(session)) {
           await session.SaveChangesAsync();
 
-          Assert.IsNotNull(eventInfo.PersistingArgs);
-          Assert.IsNotNull(eventInfo.PersistedArgs);
-          Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-          Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+          Assert.That(eventInfo.PersistingArgs, Is.Not.Null);
+          Assert.That(eventInfo.PersistedArgs, Is.Not.Null);
+          Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+          Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-          Assert.IsNull(eventInfo.TransactionRollbackingArgs);
-          Assert.IsNull(eventInfo.TransactionRollbackedArgs);
-          Assert.IsNull(eventInfo.TransactionPrecommitingArgs);
-          Assert.IsNull(eventInfo.TransactionCommitingArgs);
-          Assert.IsNull(eventInfo.TransactionCommitedArgs);
+          Assert.That(eventInfo.TransactionRollbackingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionRollbackedArgs, Is.Null);
+          Assert.That(eventInfo.TransactionPrecommitingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionCommitingArgs, Is.Null);
+          Assert.That(eventInfo.TransactionCommitedArgs, Is.Null);
         }
       }
     }
@@ -325,42 +325,42 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transactionScope = session.OpenTransaction()) {
 
           var entity = new MegaEntity();
-          Assert.IsNotNull(eventInfo.EntityCreatedArgs);
-          Assert.AreEqual(entity, eventInfo.EntityCreatedArgs.Entity);
+          Assert.That(eventInfo.EntityCreatedArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityCreatedArgs.Entity, Is.EqualTo(entity));
 
           eventInfo.ResetEventArgs();
 
           entity.Value = 2;
 
-          Assert.IsNotNull(eventInfo.EntityFieldValueSettingArgs);
-          Assert.AreEqual(entity, eventInfo.EntityFieldValueSettingArgs.Entity);
-          Assert.AreEqual(2, eventInfo.EntityFieldValueSettingArgs.Value);
+          Assert.That(eventInfo.EntityFieldValueSettingArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityFieldValueSettingArgs.Entity, Is.EqualTo(entity));
+          Assert.That(eventInfo.EntityFieldValueSettingArgs.Value, Is.EqualTo(2));
 
-          Assert.IsNotNull(eventInfo.EntityFieldValueSetArgs);
-          Assert.AreEqual(entity, eventInfo.EntityFieldValueSetArgs.Entity);
-          Assert.AreEqual(0, eventInfo.EntityFieldValueSetArgs.OldValue);
-          Assert.AreEqual(2, eventInfo.EntityFieldValueSetArgs.NewValue);
+          Assert.That(eventInfo.EntityFieldValueSetArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityFieldValueSetArgs.Entity, Is.EqualTo(entity));
+          Assert.That(eventInfo.EntityFieldValueSetArgs.OldValue, Is.EqualTo(0));
+          Assert.That(eventInfo.EntityFieldValueSetArgs.NewValue, Is.EqualTo(2));
 
           eventInfo.ResetEventArgs();
 
           int value = entity.Value;
 
-          Assert.IsNull(eventInfo.EntityFieldValueSettingArgs);
-          Assert.IsNull(eventInfo.EntityFieldValueSetArgs);
+          Assert.That(eventInfo.EntityFieldValueSettingArgs, Is.Null);
+          Assert.That(eventInfo.EntityFieldValueSetArgs, Is.Null);
 
-          Assert.IsNotNull(eventInfo.EntityFieldGettingArgs);
-          Assert.AreEqual(entity, eventInfo.EntityFieldGettingArgs.Entity);
-          Assert.IsNotNull(eventInfo.EntityFieldValueGetArgs);
-          Assert.AreEqual(entity, eventInfo.EntityFieldValueGetArgs.Entity);
-          Assert.AreEqual(2, eventInfo.EntityFieldValueGetArgs.Value);
+          Assert.That(eventInfo.EntityFieldGettingArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityFieldGettingArgs.Entity, Is.EqualTo(entity));
+          Assert.That(eventInfo.EntityFieldValueGetArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityFieldValueGetArgs.Entity, Is.EqualTo(entity));
+          Assert.That(eventInfo.EntityFieldValueGetArgs.Value, Is.EqualTo(2));
 
           eventInfo.ResetEventArgs();
 
           entity.Remove();
-          Assert.IsNotNull(eventInfo.EntityRemovingArgs);
-          Assert.AreEqual(entity, eventInfo.EntityRemovingArgs.Entity);
-          Assert.IsNotNull(eventInfo.EntityRemoveArgs);
-          Assert.AreEqual(entity, eventInfo.EntityRemoveArgs.Entity);
+          Assert.That(eventInfo.EntityRemovingArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityRemovingArgs.Entity, Is.EqualTo(entity));
+          Assert.That(eventInfo.EntityRemoveArgs, Is.Not.Null);
+          Assert.That(eventInfo.EntityRemoveArgs.Entity, Is.EqualTo(entity));
         }
       }
     }
@@ -375,22 +375,22 @@ namespace Xtensive.Orm.Tests.Storage
         var expression = query.Expression;
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
+        Assert.That(eventInfo.QueryExecutedArgs?.Exception, Is.Null);
 
-        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
+        Assert.That(expression, Is.EqualTo(eventInfo.QueryExecutingArgs?.Expression));
+        Assert.That(eventInfo.QueryExecutingArgs?.Expression, Is.EqualTo(eventInfo.QueryExecutedArgs?.Expression));
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -404,22 +404,22 @@ namespace Xtensive.Orm.Tests.Storage
         var expression = query.Expression;
         _ = await query.ExecuteAsync();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
+        Assert.That(eventInfo.QueryExecutedArgs?.Exception, Is.Null);
 
-        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
+        Assert.That(expression, Is.EqualTo(eventInfo.QueryExecutingArgs?.Expression));
+        Assert.That(eventInfo.QueryExecutingArgs?.Expression, Is.EqualTo(eventInfo.QueryExecutedArgs?.Expression));
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
@@ -427,22 +427,22 @@ namespace Xtensive.Orm.Tests.Storage
         expression = query.Expression;
         _ = (await query.ExecuteAsync()).ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNotNull(eventInfo.QueryExecutedArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutedArgs?.Exception);
+        Assert.That(eventInfo.QueryExecutedArgs?.Exception, Is.Null);
 
-        Assert.AreEqual(eventInfo.QueryExecutingArgs?.Expression, expression);
-        Assert.AreEqual(eventInfo.QueryExecutedArgs?.Expression, eventInfo.QueryExecutingArgs?.Expression);
+        Assert.That(expression, Is.EqualTo(eventInfo.QueryExecutingArgs?.Expression));
+        Assert.That(eventInfo.QueryExecutingArgs?.Expression, Is.EqualTo(eventInfo.QueryExecutedArgs?.Expression));
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -454,163 +454,163 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.Execute(q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(new object(), q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(new object(), q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.Execute(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -622,165 +622,165 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var query = await session.Query.ExecuteAsync(q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(new object(), q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(new object(), q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = await session.Query.ExecuteAsync(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -792,137 +792,137 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>().OrderBy(e=>e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>());
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = query.ToList();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -934,137 +934,137 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>());
         _ = await query.ExecuteAsync();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = await query.ExecuteAsync();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>());
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>());
         _ = await query.ExecuteAsync();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Null);
 
         eventInfo.ResetEventArgs();
 
         query = session.Query.CreateDelayedQuery(new object(), q => q.All<MegaEntity>().OrderBy(e => e.Id));
         _ = await query.ExecuteAsync();
 
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
 
-        Assert.IsNull(eventInfo.QueryExecutingArgs);
-        Assert.IsNull(eventInfo.QueryExecutedArgs);
+        Assert.That(eventInfo.QueryExecutingArgs, Is.Null);
+        Assert.That(eventInfo.QueryExecutedArgs, Is.Null);
 
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs);
+        Assert.That(eventInfo.DbCommandExecutingArgs, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs, Is.Not.Null);
 
-        Assert.IsNull(eventInfo.DbCommandExecutingArgs?.Exception);
-        Assert.IsNull(eventInfo.DbCommandExecutedArgs?.Exception);
-        Assert.IsNotNull(eventInfo.DbCommandExecutingArgs?.Command);
-        Assert.IsNotNull(eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Exception, Is.Null);
+        Assert.That(eventInfo.DbCommandExecutingArgs?.Command, Is.Not.Null);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.Not.Null);
 
-        Assert.AreEqual(eventInfo.DbCommandExecutingArgs?.Command, eventInfo.DbCommandExecutedArgs?.Command);
+        Assert.That(eventInfo.DbCommandExecutedArgs?.Command, Is.EqualTo(eventInfo.DbCommandExecutingArgs?.Command));
       }
     }
 
@@ -1081,14 +1081,14 @@ namespace Xtensive.Orm.Tests.Storage
           session.CancelChanges();
         }
 
-        Assert.IsNotNull(eventInfo.TransactionRollbackingArgs);
-        Assert.IsNotNull(eventInfo.TransactionRollbackedArgs);
-        Assert.IsNotNull(eventInfo.ChangesCancelingArgs);
-        Assert.IsNotNull(eventInfo.ChangesCanceledArgs);
-        Assert.IsNull(eventInfo.PersistingArgs);
-        Assert.IsNull(eventInfo.PersistedArgs);
-        Assert.IsNull(eventInfo.TransactionCommitingArgs);
-        Assert.IsNull(eventInfo.TransactionCommitedArgs);
+        Assert.That(eventInfo.TransactionRollbackingArgs, Is.Not.Null);
+        Assert.That(eventInfo.TransactionRollbackedArgs, Is.Not.Null);
+        Assert.That(eventInfo.ChangesCancelingArgs, Is.Not.Null);
+        Assert.That(eventInfo.ChangesCanceledArgs, Is.Not.Null);
+        Assert.That(eventInfo.PersistingArgs, Is.Null);
+        Assert.That(eventInfo.PersistedArgs, Is.Null);
+        Assert.That(eventInfo.TransactionCommitingArgs, Is.Null);
+        Assert.That(eventInfo.TransactionCommitedArgs, Is.Null);
       }
     }
   }

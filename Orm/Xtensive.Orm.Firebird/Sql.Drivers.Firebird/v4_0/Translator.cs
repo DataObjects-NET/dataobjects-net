@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
       var output = context.Output;
       switch (section) {
         case JoinSection.Specification:
-          if (node.Expression == null) {
+          if (node.Expression is null) {
             switch (node.JoinType) {
               case SqlJoinType.CrossApply:
                 _ = output.Append("CROSS JOIN LATERAL");

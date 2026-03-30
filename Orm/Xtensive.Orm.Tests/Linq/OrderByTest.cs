@@ -25,8 +25,8 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
       var expected = Invoices.OrderBy(i => i.Status).ThenBy(i => i.InvoiceId);
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(Invoices.Count(), list.Count);
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.That(list.Count, Is.EqualTo(Invoices.Count()));
+      Assert.That(expected.SequenceEqual(list), Is.True);
     }
 
     [Test]
@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
       var expected = Invoices.OrderBy(i => i.InvoiceId).Take(10);
       Assert.That(list, Is.Not.Empty);
-      Assert.AreEqual(10, list.Count);
-      Assert.IsTrue(expected.SequenceEqual(list));
+      Assert.That(list.Count, Is.EqualTo(10));
+      Assert.That(expected.SequenceEqual(list), Is.True);
     }
 
     [Test]
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(x => new { x, x.Invoice.Customer });
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ThenBy(i => i.Commission)
         .Select(i => new { i.InvoiceDate, i.Commission });
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(x => x.EmployeeId)
         .ThenBy(x => x.c.CustomerId);
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address.City)
         .Where(c => c[0] != 'S');
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = customers.OrderBy(c => c);
       var expected = customers.ToList().OrderBy(c => c.CustomerId);
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
       var local = Customers.OrderBy(c => c.LastName.ToUpper()).Select(c => c.LastName);
       Assert.That(serverSide, Is.Not.Empty);
-      Assert.IsTrue(local.SequenceEqual(serverSide));
+      Assert.That(local.SequenceEqual(serverSide), Is.True);
     }
 
     [Test]
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c.Address.Country.In("United States", "Canda", "France", "United Kingdom"))
         .OrderBy(c => c.LastName.ToUpper()).Select(c => new { c.LastName, c.Address.Country }).ToList();
       Assert.That(serverSide, Is.Not.Empty);
-      Assert.IsTrue(local.SequenceEqual(serverSide));
+      Assert.That(local.SequenceEqual(serverSide), Is.True);
     }
 
     [Test]
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Tests.Linq
         join i in Invoices.OrderBy(i => i.InvoiceDate) on c equals i.Customer
         select new { c.LastName, i.InvoiceDate };
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Linq
             .Take(1000), c => c.CustomerId, x => x.CustomerID, (c, i) => new { c.LastName, i.InvoiceDate });
       var list = result.ToList();
       Assert.That(result, Is.Not.Empty);
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers.OrderBy(c => c.Phone);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(result.SequenceEqual(expected));
+      Assert.That(result.SequenceEqual(expected), Is.True);
     }
 
     [Test]
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.CustomerId)
         .Select(c => new { c.Fax, c.Phone });
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq
         where c == i.Customer
         select new { c.LastName, i.InvoiceDate };
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers.OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c)
         .Where(c => c[0] != 'S');
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -265,7 +265,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>().Select(i => i.DesignatedEmployee).Distinct().ToList();
       var expected = Invoices.Select(i => i.DesignatedEmployee).Distinct();
       Assert.That(result, Is.Not.Empty);
-      Assert.AreEqual(0, result.Except(expected).Count());
+      Assert.That(result.Except(expected).Count(), Is.EqualTo(0));
     }
 
     [Test]
@@ -295,8 +295,8 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(resultList, Is.Not.Empty);
       QueryDumper.Dump(originalList);
       QueryDumper.Dump(resultList);
-      Assert.AreEqual(originalList.Count, resultList.Count);
-      Assert.IsTrue(originalList.SequenceEqual(resultList));
+      Assert.That(resultList.Count, Is.EqualTo(originalList.Count));
+      Assert.That(originalList.SequenceEqual(resultList), Is.True);
     }
 
     [Test]
@@ -309,15 +309,15 @@ namespace Xtensive.Orm.Tests.Linq
       var queryNullDate = Session.Query.All<Invoice>().Where(i => i.PaymentDate == null).ToList();
       var invoice = queryNullDate[0];
       var dateTime = invoice.PaymentDate;
-      Assert.IsFalse(dateTime.HasValue);
+      Assert.That(dateTime.HasValue, Is.False);
       var listNullDate = queryNullDate.Where(i => i.PaymentDate == null).ToList();
       Assert.That(listNullDate, Is.Not.Empty);
-      Assert.AreEqual(queryNullDate.Count, listNullDate.Count);
+      Assert.That(listNullDate.Count, Is.EqualTo(queryNullDate.Count));
       List<int> original = Session.Query.All<Invoice>().ToList()
         .OrderBy(i => i.Commission > 0.5m)
         .ThenBy(i => i.InvoiceId).Select(i => i.InvoiceId)
         .ToList();
-      Assert.IsTrue(list.SequenceEqual(original));
+      Assert.That(list.SequenceEqual(original), Is.True);
     }
 
     [Test]
@@ -329,7 +329,7 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Customers.OrderBy(c => c.Phone)
         .Select(c => c.LastName);
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -342,7 +342,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ThenBy(c => c.Phone).Select(c => c.Address.City);
 
       Assert.That(result, Is.Not.Empty);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      Assert.That(expected.SequenceEqual(result), Is.True);
     }
 
     [Test]
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>().OrderBy(c => c.Status == (InvoiceStatus) 1)
         .Select(c => c.Status)
         .ToArray();
-      Assert.AreEqual(result.Last(), (InvoiceStatus) 1);
+      Assert.That((InvoiceStatus) 1, Is.EqualTo(result.Last()));
     }
 
     [Test]
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
         .Select(c => c.Status)
         .ToArray();
-      Assert.Contains(result.Last(), new[] { (InvoiceStatus) 1, (InvoiceStatus) 2 });
+      Assert.That(new[] { (InvoiceStatus) 1, (InvoiceStatus) 2 }, Does.Contain(result.Last()));
     }
   }
 }

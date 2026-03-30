@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Tests.Storage
           _ = Assert.Throws<InvalidOperationException>(() => session.Query.All<TestModel>().Single(m => m.SomeStringField == "lol"));
         }
         session.Events.QueryExecuted -= InvalidQueryHandler;
-        Assert.IsNotNull(thrownException);
-        Assert.AreSame(typeof (InvalidOperationException), thrownException.GetType());
+        Assert.That(thrownException, Is.Not.Null);
+        Assert.That(thrownException.GetType(), Is.SameAs(typeof (InvalidOperationException)));
       }
 
       void InvalidQueryHandler(object sender, QueryEventArgs args)
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       static void ValidQueryHandler(object sender, QueryEventArgs args)
       {
-        Assert.IsNull(args.Exception);
+        Assert.That(args.Exception, Is.Null);
       }
     }
 
@@ -81,8 +81,8 @@ namespace Xtensive.Orm.Tests.Storage
           session.Events.DbCommandExecuted += InvalidDbCommandHandler;
           _ = Assert.Throws(expectedException, () => session.SaveChanges());
           session.Events.DbCommandExecuted -= InvalidDbCommandHandler;
-          Assert.NotNull(commandExecutedException);
-          Assert.AreEqual(expectedException, commandExecutedException.GetType());
+          Assert.That(commandExecutedException, Is.Not.Null);
+          Assert.That(commandExecutedException.GetType(), Is.EqualTo(expectedException));
         }
       }
 
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       static void ValidDbCommandHandler(object sender, DbCommandEventArgs args)
       {
-        Assert.IsNull(args.Exception);
+        Assert.That(args.Exception, Is.Null);
       }
     }
 

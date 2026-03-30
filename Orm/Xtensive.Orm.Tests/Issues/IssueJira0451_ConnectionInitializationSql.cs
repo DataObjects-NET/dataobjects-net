@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
       const string db2 = MultidatabaseTest.Database2Name;
 
       var configuration = BuildConfiguration(db1, DomainUpgradeMode.Recreate);
-      configuration.ConnectionInitializationSql = string.Format("use [{0}]", db2);
+      configuration.ConnectionInitializationSql = $"use [{db2}]";
 
       long entityId;
 

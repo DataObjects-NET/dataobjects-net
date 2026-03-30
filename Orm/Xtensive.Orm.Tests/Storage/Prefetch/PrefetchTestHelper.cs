@@ -41,11 +41,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       var state = session.EntityStateCache[key, true];
       var realType = state.Key.TypeInfo;
-      Assert.IsTrue(realType.Equals(type) 
+      Assert.That(realType.Equals(type) 
         || realType.Ancestors.Contains(type) 
-        || (type.IsInterface && realType.AllInterfaces.Contains(type)));
+        || (type.IsInterface && realType.AllInterfaces.Contains(type)), Is.True);
       var tuple = state.Tuple;
-      Assert.IsNotNull(tuple);
+      Assert.That(tuple, Is.Not.Null);
       foreach (var field in type.Fields) {
         var isFieldSelected = false;
         if (!field.IsStructure)
@@ -55,9 +55,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             isFieldSelected = fieldSelector.Invoke(column.Field);
           var isAvailable = tuple.GetFieldState(type.Columns.IndexOf(column)).IsAvailable();
           if (isFieldSelected)
-            Assert.IsTrue(isAvailable);
+            Assert.That(isAvailable, Is.True);
           else
-            Assert.IsFalse(isAvailable);
+            Assert.That(isAvailable, Is.False);
         }
       }
     }
@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       EntitySetState setState;
       session.Handler.LookupState(ownerKey, referencingField, out setState);
-      Assert.IsTrue(setState.IsFullyLoaded);
-      Assert.AreEqual(expectedCount, setState.TotalItemCount);
+      Assert.That(setState.IsFullyLoaded, Is.True);
+      Assert.That(setState.TotalItemCount, Is.EqualTo(expectedCount));
     }
 
     public static void FillDataBase(Domain domain)

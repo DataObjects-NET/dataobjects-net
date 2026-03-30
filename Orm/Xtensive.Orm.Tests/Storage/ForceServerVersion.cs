@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.06
 
@@ -35,18 +35,21 @@ namespace Xtensive.Orm.Tests.Storage
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(new Version(10, 0));
+      Require.ProviderVersionAtLeast(new Version(16, 0));
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.ForcedServerVersion = "9.0.0.0";
+      configuration.ForcedServerVersion = "16.0.0.0"; 
       configuration.Types.Register(typeof (Forced));
       return configuration;
     }
 
     [Test]
+    [Ignore(
+      "Test is inconclusive, due to shrinked number of version. " +
+      "New versions are relatively the same in terms of types/supported features at the moment.")]
     public void MainTest()
     {
       // Check that DateTime is used instead of DateTime2

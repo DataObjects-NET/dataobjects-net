@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Storage
         var theHexagon = new Hexagon();
         using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           AssertStateIsValid(theHexagon);
-          Assert.AreEqual(theHexagon.Kwanza, 0);
+          Assert.That(theHexagon.Kwanza, Is.EqualTo(0));
           AssertStateIsValid(theHexagon);
           // rollback
         }
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           theHexagon.IncreaseKwanza();
           AssertStateIsValid(theHexagon);
-          Assert.AreEqual(theHexagon.Kwanza, 1);
+          Assert.That(theHexagon.Kwanza, Is.EqualTo(1));
           // rollback
         }
       }
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Storage
           // rollback
         }
         AssertStateIsValid(theHexagon);
-        Assert.AreEqual(theHexagon.Kwanza, 0);
+        Assert.That(theHexagon.Kwanza, Is.EqualTo(0));
       }
     }
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Storage
           // rollback
         }
         AssertStateIsInvalid(theHexagon);
-        Assert.AreEqual(theHexagon.Kwanza, 0);
+        Assert.That(theHexagon.Kwanza, Is.EqualTo(0));
       }
     }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage
           innerScope.Complete();
         }
         AssertStateIsValid(theHexagon);
-        Assert.AreEqual(theHexagon.Kwanza, 0);
+        Assert.That(theHexagon.Kwanza, Is.EqualTo(0));
       }
     }
 
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Storage
           innerScope.Complete();
         }
         AssertStateIsValid(theHexagon);
-        Assert.AreEqual(theHexagon.Kwanza, 1);
+        Assert.That(theHexagon.Kwanza, Is.EqualTo(1));
       }
     }
 
@@ -127,8 +127,8 @@ namespace Xtensive.Orm.Tests.Storage
         AssertEx.ThrowsInvalidOperationException(outerScope.Dispose);
       }
       var currentSession = Session.Current;
-      Assert.IsNull(currentSession.Transaction);
-      Assert.IsNull(StorageTestHelper.GetNativeTransaction(currentSession));
+      Assert.That(currentSession.Transaction, Is.Null);
+      Assert.That(StorageTestHelper.GetNativeTransaction(currentSession), Is.Null);
     }
 
     [Test]

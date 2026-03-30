@@ -39,9 +39,9 @@ namespace Xtensive.Orm.Tests.Issues
     public void CheckSchemaTest()
     {
       var configuration = Domain.Configuration;
-      Assert.AreEqual(SchemaName, configuration.DefaultSchema);
-      Assert.AreEqual(SchemaName, configuration.Clone().DefaultSchema);
-      Assert.AreEqual(StorageTestHelper.GetDefaultSchema(Domain).Name, SchemaName);
+      Assert.That(configuration.DefaultSchema, Is.EqualTo(SchemaName));
+      Assert.That(configuration.Clone().DefaultSchema, Is.EqualTo(SchemaName));
+      Assert.That(SchemaName, Is.EqualTo(StorageTestHelper.GetDefaultSchema(Domain).Name));
     }
 
     private static void EnsureSchemaExists(ConnectionInfo connectionInfo)
@@ -49,11 +49,11 @@ namespace Xtensive.Orm.Tests.Issues
       var driver = TestSqlDriver.Create(connectionInfo);
       using (var connection = driver.CreateConnection()) {
         connection.Open();
-        string checkSchemaQuery = string.Format("select schema_id('{0}')", SchemaName);
+        string checkSchemaQuery = $"select schema_id('{SchemaName}')";
         using (var command = connection.CreateCommand(checkSchemaQuery))
           if (command.ExecuteScalar()!=DBNull.Value)
             return;
-        var createSchemaQuery = string.Format("create schema {0}", SchemaName);
+        var createSchemaQuery = $"create schema {SchemaName}";
         using (var command = connection.CreateCommand(createSchemaQuery))
           command.ExecuteNonQuery();
       }

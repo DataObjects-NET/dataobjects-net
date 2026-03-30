@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       public override string ToString()
       {
-        return string.Format("{0}", Value);
+        return $"{Value}";
       }
 
       public Item(string value)
@@ -77,23 +77,25 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public const int BaseCount = 10000000;
     public const int InsertCount = (int) (1.1 * Capacity);
 
-    private static LruCache<Item, Item, Item> lruCache = 
-      new LruCache<Item, Item, Item>(Capacity, i => i);
-    private static LruCache<Item, Item> lruCache2 = 
-      new LruCache<Item, Item>(Capacity, i => i);
-    private static MfLruCache<Item, Item> mfLruCache = 
-      new MfLruCache<Item, Item>(LruCapacity, MfuCapacity, 5, i => i);
-    private static WeakCache<Item, Item> weakCache = 
-      new WeakCache<Item, Item>(false, i => i);
-    private static WeakestCache<Item, Item> weakestCache = 
-      new WeakestCache<Item, Item>(false, false, i => i);
-    private static LruCache<Item, Item> lruWeakestCache = 
-      new LruCache<Item, Item>(LruCapacity + MfuCapacity, i => i, 
+    private static readonly LruCache<Item, Item, Item> lruCache = new(Capacity, i => i);
+    private static readonly LruCache<Item, Item> lruCache2 = new(Capacity, i => i);
+    private static readonly MfLruCache<Item, Item> mfLruCache = new(LruCapacity, MfuCapacity, 5, i => i);
+    private static readonly WeakCache<Item, Item> weakCache = new(false, i => i);
+    private static readonly WeakestCache<Item, Item> weakestCache = new(false, false, i => i);
+    private static readonly LruCache<Item, Item> lruWeakestCache = 
+      new(LruCapacity + MfuCapacity, i => i, 
         new WeakestCache<Item, Item>(false, false, i => i));
-    private static InfiniteCache<Item, Item> infiniteCache = new InfiniteCache<Item, Item>(i => i);
-    private static ICache<Item, Item>[] caches = new ICache<Item, Item>[] {lruCache, lruCache2, mfLruCache, weakCache, weakestCache, lruWeakestCache, infiniteCache};
+    private static readonly InfiniteCache<Item, Item> infiniteCache = new(i => i);
+    private static ICache<Item, Item>[] caches = [lruCache, lruCache2, mfLruCache, weakCache, weakestCache, lruWeakestCache, infiniteCache];
 
     private bool warmup = false;
+
+    [OneTimeTearDown]
+    public void TestFixtureTearDown()
+    {
+      weakCache.Dispose();
+      weakestCache.Dispose();
+    }
 
     [Test]
     public void RegularTest()
@@ -143,7 +145,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         }
      
         TestHelper.CollectGarbage();
-        string title = string.Format("Insert ({0})", cache.GetType().GetShortName());
+        string title = $"Insert ({cache.GetType().GetShortName()})";
         using (warmup ? null : new Measurement(title, items.Count)) {
           while (items.Count > 0) {
             cache.Add(items.Dequeue());
@@ -165,7 +167,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
       foreach (var cache in caches) {
         TestHelper.CollectGarbage();
-        string title = string.Format("Fetch ({0})", cache.GetType().GetShortName());
+        string title = $"Fetch ({cache.GetType().GetShortName()})";
         using (warmup ? null : new Measurement(title, items.Count)) {
           foreach (var item in items) {
             var o = cache[item, true];

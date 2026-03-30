@@ -37,12 +37,12 @@ namespace Xtensive.Orm.Tests.Storage.Modules
       }
       Type handler2Type = GetTypeFromAssembly("ModuleAssembly2", "Modules.Model.UpgradeHandler2");
       var handler2Count = (int)handler2Type.GetField("Count").GetValue(null);
-      Assert.AreEqual(3, handler2Count);
+      Assert.That(handler2Count, Is.EqualTo(3));
       var handler2ModuleCount = (int)handler2Type.GetField("ModuleCount").GetValue(null);
-      Assert.AreEqual(3, handler2ModuleCount);
+      Assert.That(handler2ModuleCount, Is.EqualTo(3));
       var module2Type = GetTypeFromAssembly("ModuleAssembly2", "Modules.Model.Module2");
       var module2ModuleCount = (int)module2Type.GetField("ModuleCount").GetValue(null);
-      Assert.AreEqual(3, module2ModuleCount);
+      Assert.That(module2ModuleCount, Is.EqualTo(3));
     }
 
     private static Type GetTypeFromAssembly(string assemblyName, string typeFullName)
@@ -89,14 +89,14 @@ namespace Xtensive.Orm.Tests.Storage.Modules
       compilerParameters.ReferencedAssemblies.Add("..\\..\\..\\Lib\\Xtensive.Storage.dll");
       compilerParameters.ReferencedAssemblies.Add("..\\..\\..\\Lib\\Xtensive.Storage.Model.dll");
       var result = codeProvider.CompileAssemblyFromFile(compilerParameters,
-        String.Format("..\\..\\Storage\\Modules\\Assembly{0}.cs", version));
-      Assert.AreEqual(0, result.Errors.Count);
+        $"..\\..\\Storage\\Modules\\Assembly{version}.cs");
+      Assert.That(result.Errors.Count, Is.EqualTo(0));
       return Assembly.LoadFile(Directory.GetCurrentDirectory() + "\\" + result.PathToAssembly);
     }
 
     private static string GetModelAssemblyName(int version)
     {
-      return String.Format("ModuleAssembly{0}.dll", version);
+      return $"ModuleAssembly{version}.dll";
     }
   }
 }

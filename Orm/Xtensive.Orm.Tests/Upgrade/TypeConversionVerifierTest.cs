@@ -33,8 +33,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         typeof(sbyte)
       };
       foreach (var type in typeList) {
-        Assert.IsTrue(TypeConversionVerifier
-          .CanConvert(new StorageTypeInfo(type, null), stringTypeInfo));
+        Assert.That(TypeConversionVerifier
+          .CanConvert(new StorageTypeInfo(type, null), stringTypeInfo), Is.True);
       }
       typeList = new[] {
         typeof(Guid),
@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         typeof(byte[])
       };
       foreach (var type in typeList) {
-        Assert.IsFalse(TypeConversionVerifier
-          .CanConvert(new StorageTypeInfo(type, null), stringTypeInfo));
+        Assert.That(TypeConversionVerifier
+          .CanConvert(new StorageTypeInfo(type, null), stringTypeInfo), Is.False);
       }
     }
 
@@ -54,14 +54,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       var supportedConversions = CreateSupportedConversions();
       var typeList = CreateTypeList();
       foreach (var type in typeList) {
-        Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(type, null)));
+        Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(type, null)), Is.True);
         if (supportedConversions.ContainsKey(type)) {
           foreach (var targetType in typeList.Where(t => t != type)) {
             if (supportedConversions[type].Contains(targetType)) {
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(targetType, null)));
+              Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(targetType, null)), Is.True);
             }
             else {
-              Assert.IsFalse(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(targetType, null)));
+              Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(targetType, null)), Is.False);
             }
           }
         }
@@ -75,25 +75,25 @@ namespace Xtensive.Orm.Tests.Upgrade
       var supportedConversions = CreateSupportedConversions();
       var typeList = CreateTypeList();
       foreach (var type in typeList.Where(t => t.IsValueType)) {
-        Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(type, null)));
+        Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null), new StorageTypeInfo(type, null)), Is.True);
         if (supportedConversions.ContainsKey(type)) {
           foreach (var targetType in typeList.Where(t => t != type && t.IsValueType)) {
             var nullableSource = nullableDefinition.MakeGenericType(type);
             var nullableTarget = nullableDefinition.MakeGenericType(targetType);
             if (supportedConversions[type].Contains(targetType)) {
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(nullableSource, null),
-                new StorageTypeInfo(nullableTarget, null)));
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(nullableSource, null),
-                new StorageTypeInfo(targetType, null)));
-              Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(new StorageTypeInfo(nullableSource, null),
-                new StorageTypeInfo(targetType, null)));
-              Assert.IsTrue(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null),
-                new StorageTypeInfo(nullableTarget, null)));
+              Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(nullableSource, null),
+                new StorageTypeInfo(nullableTarget, null)), Is.True);
+              Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(nullableSource, null),
+                new StorageTypeInfo(targetType, null)), Is.True);
+              Assert.That(TypeConversionVerifier.CanConvertSafely(new StorageTypeInfo(nullableSource, null),
+                new StorageTypeInfo(targetType, null)), Is.False);
+              Assert.That(TypeConversionVerifier.CanConvert(new StorageTypeInfo(type, null),
+                new StorageTypeInfo(nullableTarget, null)), Is.True);
             }
             else {
-              Assert.IsFalse(TypeConversionVerifier.CanConvert(
+              Assert.That(TypeConversionVerifier.CanConvert(
                 new StorageTypeInfo(nullableDefinition.MakeGenericType(type), null),
-                new StorageTypeInfo(nullableDefinition.MakeGenericType(targetType), null)));
+                new StorageTypeInfo(nullableDefinition.MakeGenericType(targetType), null)), Is.False);
             }
           }
         }
@@ -105,12 +105,12 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var sourceType = new StorageTypeInfo(typeof(string), null, 10);
       var targetType = new StorageTypeInfo(typeof(string), null, 5);
-      Assert.IsTrue(TypeConversionVerifier.CanConvert(sourceType, targetType));
-      Assert.IsFalse(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
+      Assert.That(TypeConversionVerifier.CanConvert(sourceType, targetType), Is.True);
+      Assert.That(TypeConversionVerifier.CanConvertSafely(sourceType, targetType), Is.False);
       targetType = new StorageTypeInfo(typeof(string), null, 10);
-      Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
+      Assert.That(TypeConversionVerifier.CanConvertSafely(sourceType, targetType), Is.True);
       targetType = new StorageTypeInfo(typeof(string), null, 11);
-      Assert.IsTrue(TypeConversionVerifier.CanConvertSafely(sourceType, targetType));
+      Assert.That(TypeConversionVerifier.CanConvertSafely(sourceType, targetType), Is.True);
     }
 
     private static Dictionary<Type, List<Type>> CreateSupportedConversions()

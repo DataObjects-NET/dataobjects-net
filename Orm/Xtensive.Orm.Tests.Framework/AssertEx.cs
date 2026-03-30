@@ -19,13 +19,15 @@ namespace Xtensive.Orm.Tests
   /// </summary>
   public static class AssertEx
   {
+    private const RegexOptions RegexSearchOptions = RegexOptions.Singleline | RegexOptions.CultureInvariant;
+
     public static void IsPatternMatch(string source, string pattern)
     {
       pattern = "^"+Regex.Escape(pattern)+"$";
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
-      Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsTrue(r.IsMatch(source));
+      var r = new Regex(pattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.True);
     }
 
     public static void IsNotPatternMatch(string source, string pattern)
@@ -33,30 +35,30 @@ namespace Xtensive.Orm.Tests
       pattern = "^"+Regex.Escape(pattern)+"$";
       pattern = pattern.Replace(@"\*", @".*");
       pattern = pattern.Replace(@"\?", @".");
-      Regex r = new Regex(pattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsFalse(r.IsMatch(source));
+      var r = new Regex(pattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.False);
     }
 
     public static void IsRegexMatch(string source, string regexPattern)
     {
-      Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsTrue(r.IsMatch(source));
+      var r = new Regex(regexPattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.True);
     }
 
     public static void IsNotRegexMatch(string source, string regexPattern)
     {
-      Regex r = new Regex(regexPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant);
-      Assert.IsFalse(r.IsMatch(source));
+      var r = new Regex(regexPattern, RegexSearchOptions);
+      Assert.That(r.IsMatch(source), Is.False);
     }
 
     public static void HasSameElements<T>(IEnumerable<T> expected, IEnumerable<T> actual)
     {
-      if (expected==null)
-        Assert.IsNull(actual);
+      if (expected is null)
+        Assert.That(actual, Is.Null);
       else {
         var expectedSet = new HashSet<T>(expected);
         var hasAll = actual.Aggregate(true, (result, current) => result && expectedSet.Contains(current));
-        Assert.IsTrue(hasAll, "Collections do not have same elements");
+        Assert.That(hasAll, Is.True, "Collections do not have same elements");
       }
     }
 
@@ -75,11 +77,11 @@ namespace Xtensive.Orm.Tests
         r2 = f2.Invoke();
       }
       catch (Exception e2) {
-        Assert.IsNotNull(e1);
-        Assert.AreEqual(e1.GetType(), e2.GetType());
+        Assert.That(e1, Is.Not.Null);
+        Assert.That(e2.GetType(), Is.EqualTo(e1.GetType()));
         return;
       }
-      Assert.AreEqual(r1, r2);
+      Assert.That(r2, Is.EqualTo(r1));
     }
 
     public static void Throws<TException>([InstantHandle] Action action) 
@@ -93,32 +95,17 @@ namespace Xtensive.Orm.Tests
         thrown = true;
       }
       if (!thrown)
-        Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
+        Assert.Fail($"Expected '{typeof(TException).GetShortName()}' was not thrown.");
     }
 
-    public static void ThrowsNotSupportedException([InstantHandle] Action action)
-    {
-      Throws<NotSupportedException>(action);
-    }
+    public static void ThrowsNotSupportedException([InstantHandle] Action action) => Throws<NotSupportedException>(action);
 
-    public static void ThrowsInvalidOperationException([InstantHandle] Action action)
-    {
-      Throws<InvalidOperationException>(action);
-    }
+    public static void ThrowsInvalidOperationException([InstantHandle] Action action) => Throws<InvalidOperationException>(action);
 
-    public static void ThrowsArgumentException([InstantHandle] Action action)
-    {
-      Throws<ArgumentException>(action);
-    }
+    public static void ThrowsArgumentException([InstantHandle] Action action) => Throws<ArgumentException>(action);
 
-    public static void ThrowsArgumentOutOfRangeException([InstantHandle] Action action)
-    {
-      Throws<ArgumentOutOfRangeException>(action);
-    }
+    public static void ThrowsArgumentOutOfRangeException([InstantHandle] Action action) => Throws<ArgumentOutOfRangeException>(action);
 
-    public static void ThrowsArgumentNullException([InstantHandle] Action action)
-    {
-      Throws<ArgumentNullException>(action);
-    }
+    public static void ThrowsArgumentNullException([InstantHandle] Action action) => Throws<ArgumentNullException>(action);
   }
 }

@@ -68,20 +68,20 @@ namespace Xtensive.Orm.Tests.Issues
         .TableConstraints.OfType<ForeignKey>()
         .OrderBy(i => i.ReferencedTable.Name).ToList();
 
-      Assert.IsTrue(foreignKeys.Count==2);
-      Assert.IsTrue(foreignKeys.All(c => c.Columns.Count==1));
+      Assert.That(foreignKeys.Count==2, Is.True);
+      Assert.That(foreignKeys.All(c => c.Columns.Count==1), Is.True);
 
       var foreignKey1Column = foreignKeys[0].Columns.Single();
       var expectedColumnName = testableType.Fields["TestStructureChild.AnotherTestEntity"].Columns.Single().Name;
-      Assert.IsTrue(foreignKey1Column.Name==expectedColumnName);
-      Assert.IsTrue(foreignKey1Column.Table.Name.Equals("TestEntity", StringComparison.InvariantCultureIgnoreCase));
-      Assert.IsTrue(foreignKeys[0].ReferencedTable.Name.Equals("AnotherTestEntity", StringComparison.InvariantCultureIgnoreCase));
+      Assert.That(foreignKey1Column.Name==expectedColumnName, Is.True);
+      Assert.That(foreignKey1Column.Table.Name.Equals("TestEntity", StringComparison.InvariantCultureIgnoreCase), Is.True);
+      Assert.That(foreignKeys[0].ReferencedTable.Name.Equals("AnotherTestEntity", StringComparison.InvariantCultureIgnoreCase), Is.True);
 
       var foreignKey2Column = foreignKeys[1].Columns.Single();
       expectedColumnName = testableType.Fields["TestStructureChild.AnotherTestEntity2"].Columns.Single().Name;
-      Assert.IsTrue(foreignKey2Column.Name==expectedColumnName);
-      Assert.IsTrue(foreignKey2Column.Table.Name.Equals("TestEntity", StringComparison.InvariantCultureIgnoreCase));
-      Assert.IsTrue(foreignKeys[1].ReferencedTable.Name.Equals("OneMoreTestEntity", StringComparison.InvariantCultureIgnoreCase));
+      Assert.That(foreignKey2Column.Name==expectedColumnName, Is.True);
+      Assert.That(foreignKey2Column.Table.Name.Equals("TestEntity", StringComparison.InvariantCultureIgnoreCase), Is.True);
+      Assert.That(foreignKeys[1].ReferencedTable.Name.Equals("OneMoreTestEntity", StringComparison.InvariantCultureIgnoreCase), Is.True);
     }
 
     protected override DomainConfiguration BuildConfiguration()

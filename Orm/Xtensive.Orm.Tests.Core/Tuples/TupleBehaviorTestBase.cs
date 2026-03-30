@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     private static void TestTuple(Xtensive.Tuples.Tuple tuple)
     {
-      Assert.IsFalse(tuple.GetFieldState(0).IsAvailable());
+      Assert.That(tuple.GetFieldState(0).IsAvailable(), Is.False);
 
       try {
         tuple.GetFieldState(0).IsNull();
@@ -89,28 +89,28 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       }
 
       tuple.SetValue(0, 1);
-      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
-      Assert.IsFalse(tuple.GetFieldState(0).IsNull());
-      Assert.IsTrue(tuple.GetFieldState(0).HasValue());
-      Assert.AreEqual(1, tuple.GetValue(0));
-      Assert.AreEqual(1, tuple.GetValue<int>(0));
-      Assert.AreEqual(new int?(1), tuple.GetValue<int?>(0));
+      Assert.That(tuple.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(tuple.GetFieldState(0).IsNull(), Is.False);
+      Assert.That(tuple.GetFieldState(0).HasValue(), Is.True);
+      Assert.That(tuple.GetValue(0), Is.EqualTo(1));
+      Assert.That(tuple.GetValue<int>(0), Is.EqualTo(1));
+      Assert.That(tuple.GetValue<int?>(0), Is.EqualTo(new int?(1)));
 
       tuple.SetValue(0, null);
-      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
-      Assert.IsTrue(tuple.GetFieldState(0).IsNull());
-      Assert.IsFalse(tuple.GetFieldState(0).HasValue());
-      Assert.AreEqual(null, tuple.GetValue(0));
-      Assert.AreEqual(null, tuple.GetValue<int?>(0));
+      Assert.That(tuple.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(tuple.GetFieldState(0).IsNull(), Is.True);
+      Assert.That(tuple.GetFieldState(0).HasValue(), Is.False);
+      Assert.That(tuple.GetValue(0), Is.EqualTo(null));
+      Assert.That(tuple.GetValue<int?>(0), Is.EqualTo(null));
 
       tuple.SetValue<int?>(0, null);
-      Assert.IsTrue(tuple.GetFieldState(0).IsAvailable());
-      Assert.IsTrue(tuple.GetFieldState(0).IsNull());
-      Assert.IsFalse(tuple.GetFieldState(0).HasValue());
-      Assert.AreEqual(null, tuple.GetValue(0));
-      Assert.AreEqual(null, tuple.GetValue<int?>(0));
-      Assert.AreEqual(null, tuple.GetValueOrDefault(0));
-      Assert.AreEqual(null, tuple.GetValueOrDefault<int?>(0));
+      Assert.That(tuple.GetFieldState(0).IsAvailable(), Is.True);
+      Assert.That(tuple.GetFieldState(0).IsNull(), Is.True);
+      Assert.That(tuple.GetFieldState(0).HasValue(), Is.False);
+      Assert.That(tuple.GetValue(0), Is.EqualTo(null));
+      Assert.That(tuple.GetValue<int?>(0), Is.EqualTo(null));
+      Assert.That(tuple.GetValueOrDefault(0), Is.EqualTo(null));
+      Assert.That(tuple.GetValueOrDefault<int?>(0), Is.EqualTo(null));
 
       try {
         tuple.GetValue(1);
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       catch (NullReferenceException) {}
       catch (InvalidCastException) {}
 
-      Assert.IsTrue(tuple.Equals(tuple));
+      Assert.That(tuple.Equals(tuple), Is.True);
     }
 
     public void EmptyFieldsTest()
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       var d = TupleDescriptor.Create(Array.Empty<Type>());
       var dummyTuple = new DummyTuple(d);
       var tuple = CreateTestTuple(d);
-      Assert.AreEqual(0, tuple.Count);
+      Assert.That(tuple.Count, Is.EqualTo(0));
     }
 
     public void RandomTest()
@@ -178,19 +178,19 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       for (int i = 0; i < dummyTuple.Count; i++) {
         bool available = dummyTuple.GetFieldState(i).IsAvailable();
         try {
-          Assert.AreEqual(available, tuple.GetFieldState(i).IsAvailable());
+          Assert.That(tuple.GetFieldState(i).IsAvailable(), Is.EqualTo(available));
         }
         catch (AssertionException)
         {
-          Console.Out.WriteLine(string.Format("Tuple type: {0}", tuple.GetType().Name));
-          Console.Out.WriteLine(string.Format("Field Index: {0}", i));
+          Console.Out.WriteLine($"Tuple type: {tuple.GetType().Name}");
+          Console.Out.WriteLine($"Field Index: {i}");
           Console.Out.WriteLine();
         }
         
       }
-      Assert.AreEqual(dummyTuple.GetHashCode(), tuple.GetHashCode());
-      Assert.IsTrue(dummyTuple.Equals(tuple));
-      Assert.IsTrue(tuple.Equals(dummyTuple));
+      Assert.That(tuple.GetHashCode(), Is.EqualTo(dummyTuple.GetHashCode()));
+      Assert.That(dummyTuple.Equals(tuple), Is.True);
+      Assert.That(tuple.Equals(dummyTuple), Is.True);
     }
 
     protected void AssertAreSame(ITuple source, ITuple target, int startIndex, int targetStartIndex, int count)
@@ -198,12 +198,12 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       for (int i = 0; i < count; i++) {
         bool available = source.GetFieldState(i + startIndex).IsAvailable();
         try {
-          Assert.AreEqual(available, target.GetFieldState(i + targetStartIndex).IsAvailable());
-          Assert.AreEqual(source.GetValue(i + startIndex), target.GetValue(i + targetStartIndex));
+          Assert.That(target.GetFieldState(i + targetStartIndex).IsAvailable(), Is.EqualTo(available));
+          Assert.That(target.GetValue(i + targetStartIndex), Is.EqualTo(source.GetValue(i + startIndex)));
         }
         catch (AssertionException) {
-          Console.Out.WriteLine(string.Format("Tuple type: {0}", target.GetType().Name));
-          Console.Out.WriteLine(string.Format("Field Index: {0}", i));
+          Console.Out.WriteLine($"Tuple type: {target.GetType().Name}");
+          Console.Out.WriteLine($"Field Index: {i}");
           Console.Out.WriteLine();
         }
       }

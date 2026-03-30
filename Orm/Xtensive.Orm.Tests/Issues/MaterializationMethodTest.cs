@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
       using var _ = session.OpenTransaction();
       var personService = new PersonService();
       var people = testCase.getPeopleMethod(personService, session);
-      Assert.AreEqual(0, people.Count);
+      Assert.That(people.Count, Is.EqualTo(0));
     }
   }
 }
