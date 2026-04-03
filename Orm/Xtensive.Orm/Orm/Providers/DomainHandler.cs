@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Loader;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Linq.MemberCompilation;
@@ -123,7 +125,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Compiler containers for current provider.</returns>
     protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
-      return new[] {
+      IEnumerable<Type> basicCompilerContainers = new[] {
         typeof (NullableCompilers),
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
@@ -135,10 +137,29 @@ namespace Xtensive.Orm.Providers
         typeof (NumericCompilers),
         typeof (DecimalCompilers),
         typeof (GuidCompilers),
+        typeof (EnumCompilers),
         //typeof (VbStringsCompilers),
         //typeof (VbDateAndTimeCompilers),
-        typeof (EnumCompilers),
       };
+      var result = basicCompilerContainers;
+      var loadedAssemblies = AssemblyLoadContext.Default.Assemblies;
+      // dynamic registration to not cause assembly loading
+      if (loadedAssemblies.Any(a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
+        result = result.Concat(new[] {
+          typeof (FSharpMathOperationsCompilers),
+          typeof (FSharpOperatorsCompilers),
+          typeof (FSharpStringCompilers),
+          typeof (FSharpConversionsCompilers),
+        });
+      }
+      //if (loadedAssemblies.Any(a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase)){
+      //  result = result.Concat(new[] {
+      //    typeof (VbStringsCompilers),
+      //    typeof (VbDateAndTimeCompilers),
+      //  });
+      //}
+
+      return result;
     }
 
     protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
