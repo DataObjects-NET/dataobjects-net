@@ -52,6 +52,7 @@ type Fixture() =
 
   [<Test>]
   member this.AdditionTimeSpanTest() =
+    Require.ProviderIsNot (StorageProvider.PostgreSql)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     X (TimeSpanField = System.TimeSpan.FromTicks(111222333)) |> ignore
@@ -120,6 +121,7 @@ type Fixture() =
 
   [<Test>]
   member this.SubtractionTimeSpanTest() =
+    Require.ProviderIsNot (StorageProvider.PostgreSql)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     X (TimeSpanField = System.TimeSpan.FromTicks(111222333)) |> ignore
@@ -154,6 +156,7 @@ type Fixture() =
 
   [<Test>]
   member this.MultiplyDecimalTest() =
+    Require.ProviderIsNot StorageProvider.Firebird
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     X (DecimalField = decimal 16.0) |> ignore

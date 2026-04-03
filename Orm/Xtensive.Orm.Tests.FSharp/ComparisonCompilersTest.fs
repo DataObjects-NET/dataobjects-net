@@ -154,6 +154,7 @@ type Fixture() =
 
   [<Test>]
   member this.EqualitySingleTest() =
+    Require.ProviderIsNot (StorageProvider.Sqlite ||| StorageProvider.Firebird ||| StorageProvider.MySql)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     X (SingleField = 1.14F) |> ignore

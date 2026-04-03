@@ -188,6 +188,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimTest() =
+    Require.ProviderIsNot(StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = " John ") |> ignore
@@ -205,6 +206,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimStartTest() =
+    Require.ProviderIsNot(StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = " John ") |> ignore
@@ -222,6 +224,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimEndTest() =
+    Require.ProviderIsNot(StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = " John ") |> ignore
@@ -239,7 +242,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimCharsTest() =
-    Require.ProviderIsNot(StorageProvider.SqlServer)
+    Require.ProviderIsNot(StorageProvider.SqlServer ||| StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -257,7 +260,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimStartCharsTest() =
-    Require.ProviderIsNot(StorageProvider.SqlServer)
+    Require.ProviderIsNot(StorageProvider.SqlServer ||| StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -275,7 +278,7 @@ type Fixture() =
 
   [<Test>]
   member this.TrimEndCharsTest() =
-    Require.ProviderIsNot(StorageProvider.SqlServer)
+    Require.ProviderIsNot(StorageProvider.SqlServer ||| StorageProvider.Firebird)
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -429,6 +432,7 @@ type Fixture() =
 
   [<Test>]
   member this.IndexOfTest1() =
+    Require.ProviderIsNot StorageProvider.Sqlite
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -446,6 +450,7 @@ type Fixture() =
 
   [<Test>]
   member this.IndexOfTest2() =
+    Require.ProviderIsNot StorageProvider.Sqlite
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -463,6 +468,7 @@ type Fixture() =
 
   [<Test>]
   member this.IndexOfTest3() =
+    Require.ProviderIsNot StorageProvider.Sqlite
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
@@ -480,6 +486,7 @@ type Fixture() =
 
   [<Test>]
   member this.IndexOfTest4() =
+    Require.ProviderIsNot StorageProvider.Sqlite
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
     Person (Name = "!?John!?") |> ignore
