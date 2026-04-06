@@ -6,11 +6,16 @@
     <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>4.7</LangVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
@@ -25,10 +30,19 @@
   <ItemGroup>
     <Compile Include="FsUnit.fs" />
     <Compile Include="Model.fs" />
-    <Compile Include="Test.fs" />
+    <Compile Include="ArithmeticOperationsCompilersTest.fs" />
+    <Compile Include="ComparisonCompilersTest.fs" />
+    <Compile Include="DateTimeCompilersTest.fs" />
+    <Compile Include="MathCompilersTest.fs" />
+    <Compile Include="OtherOperationsCompilersTest.fs" />
+    <Compile Include="QueryEntityBackTest.fs" />
+    <Compile Include="StringCompilersTest.fs" />
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.7.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
+    <PackageReference Update="FSharp.Core" Version="8.0.403" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <PackageReference Update="FSharp.Core" Version="10.0.102" />
   </ItemGroup>
 </Project>

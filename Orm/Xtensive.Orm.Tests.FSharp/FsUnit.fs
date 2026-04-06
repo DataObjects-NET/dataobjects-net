@@ -12,7 +12,7 @@ let should (f : 'a -> #Constraint) x (y : obj) =
 
 let equal x = new EqualConstraint(x)
 
-let not x = new NotConstraint(x)
+let notc x = new NotConstraint(x)
 
 let contain x = new ContainsConstraint(x)
 

@@ -1,4 +1,4 @@
-module Test
+module OtherOperationsCompilersTest
 
 open FsUnit
 open NUnit.Framework
@@ -13,24 +13,22 @@ type Fixture() =
 
   override this.BuildConfiguration() =
     let config = base.BuildConfiguration ()
-    config.Types.Register typeof<Person>
+    config.Types.Register typeof<X>
     config
 
   [<Test>]
-  member this.
-    ``Should persist an entity and query it back via Linq``() =
+  member this.IsNullTest() =
     use session = base.Domain.OpenSession ()
     use ts = session.OpenTransaction ()
-    Person (Name = "John") |> ignore
-    let persons = session.Query.All<Person> ()
+    X (BoolField = false) |> ignore
+    let alll = session.Query.All<X> ()
     let query = 
       query {
-        for p in persons do
-          if p.Name = "John" then 
-            yield p
+        for x in alll do
+          if isNull x.StringField then 
+            yield x
       }
     let list = query |> Seq.toArray
     Assert.That(list.Length, Is.EqualTo(1))
     let fetched = list.[0]
-    Assert.That(fetched.Name, Is.EqualTo("John"))
-
+    Assert.That(fetched.BoolField, Is.False)
