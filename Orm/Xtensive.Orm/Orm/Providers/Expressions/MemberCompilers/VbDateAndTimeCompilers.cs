@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Aleksey Gamzov
@@ -17,7 +17,11 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class VbDateAndTimeCompilers
   {
-    private const string VbDateAndTime = "Microsoft.VisualBasic.DateAndTime, Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+#if NET10_0_OR_GREATER
+    private const string VbDateAndTime = "Microsoft.VisualBasic.DateAndTime, Microsoft.VisualBasic.Core, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+#else
+    private const string VbDateAndTime = "Microsoft.VisualBasic.DateAndTime, Microsoft.VisualBasic.Core, Version=13.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
+#endif
 
     [Compiler(VbDateAndTime, "Year", TargetKind.Static)]
     public static SqlExpression Year(SqlExpression dateExpression)

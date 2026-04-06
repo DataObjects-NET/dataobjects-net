@@ -138,13 +138,14 @@ namespace Xtensive.Orm.Providers
         typeof (DecimalCompilers),
         typeof (GuidCompilers),
         typeof (EnumCompilers),
-        //typeof (VbStringsCompilers),
-        //typeof (VbDateAndTimeCompilers),
+        
       };
       var result = basicCompilerContainers;
-      var loadedAssemblies = AssemblyLoadContext.Default.Assemblies;
+      var defaultLoadedAssemblies = AssemblyLoadContext.Default.Assemblies;
+      var currentLoadedAssemblies = AssemblyLoadContext.CurrentContextualReflectionContext.Assemblies;
       // dynamic registration to not cause assembly loading
-      if (loadedAssemblies.Any(a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
+      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))
+        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
         result = result.Concat(new[] {
           typeof (FSharpMathOperationsCompilers),
           typeof (FSharpOperatorsCompilers),
@@ -152,12 +153,15 @@ namespace Xtensive.Orm.Providers
           typeof (FSharpConversionsCompilers),
         });
       }
-      //if (loadedAssemblies.Any(a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase)){
-      //  result = result.Concat(new[] {
-      //    typeof (VbStringsCompilers),
-      //    typeof (VbDateAndTimeCompilers),
-      //  });
-      //}
+
+      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))
+        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
+        result = result.Concat(new[] {
+          typeof (VbConversionsCompilers),
+          typeof (VbStringsCompilers),
+          typeof (VbDateAndTimeCompilers),
+        });
+      }
 
       return result;
     }
