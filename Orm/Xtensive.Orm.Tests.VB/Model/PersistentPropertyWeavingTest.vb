@@ -1,4 +1,4 @@
-﻿' Copyright (C) 2013 Xtensive LLC.
+' Copyright (C) 2013 Xtensive LLC.
 ' All rights reserved.
 ' For conditions of distribution and use, see license.
 ' Created by: Alena Mikshina
@@ -263,10 +263,10 @@ Namespace Model
           Dim baseEntity = DirectCast(entity, NewFieldBase)
           Assert.That(baseEntity.PersistentValue, [Is].EqualTo(Hello1))
           Assert.That(baseEntity.PersistentVirtualValue, [Is].EqualTo(Hello2))
-          Assert.That(entity.PersistentValue, [Is].EqualTo(Nothing))
-          Assert.That(entity.PersistentVirtualValue, [Is].EqualTo(Nothing))
-          Assert.That(entity.NonPersistentValue, [Is].EqualTo(Nothing))
-          Assert.That(entity.NonPersistentStaticValue, [Is].EqualTo(Nothing))
+          Assert.That(entity.PersistentValue, [Is].Null)
+          Assert.That(entity.PersistentVirtualValue, [Is].Null)
+          Assert.That(entity.NonPersistentValue, [Is].Null)
+          Assert.That(entity.NonPersistentStaticValue, [Is].Null)
 
         End Sub)
     End Sub
