@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Rse.Transformation
   [Serializable]
   public sealed class SkipTakeCorrector : IPreCompiler
   {
+    public static SkipTakeCorrector FullPaginationSupportCorrector { get; } = new(true, true);
+
     private readonly bool takeSupported;
     private readonly bool skipSupported;
 
