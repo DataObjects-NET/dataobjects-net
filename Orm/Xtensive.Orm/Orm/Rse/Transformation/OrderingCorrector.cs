@@ -18,12 +18,38 @@ namespace Xtensive.Orm.Rse.Transformation
   [Serializable]
   public sealed class OrderingCorrector : IPreCompiler
   {
+    public static OrderingCorrector DefaultInstance { get; } = new OrderingCorrector();
+
+
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver;
 
     /// <inheritdoc/>
     CompilableProvider IPreCompiler.Process(CompilableProvider rootProvider)
     {
       return OrderingRewriter.Rewrite(rootProvider, orderingDescriptorResolver);
+    }
+
+    private static ProviderOrderingDescriptor ResolveOrderingDescriptor(CompilableProvider provider)
+    {
+      var isOrderSensitive = provider.Type is ProviderType.Skip
+        or ProviderType.Take
+        or ProviderType.Seek
+        or ProviderType.Paging
+        or ProviderType.RowNumber;
+      var preservesOrder = provider.Type is ProviderType.Skip
+        or ProviderType.Take
+        or ProviderType.Seek
+        or ProviderType.Paging
+        or ProviderType.RowNumber
+        or ProviderType.Distinct
+        or ProviderType.Alias;
+      var isOrderBreaker = provider.Type is ProviderType.Except
+        or ProviderType.Intersect
+        or ProviderType.Union
+        or ProviderType.Concat
+        or ProviderType.Existence;
+      var isSorter = provider.Type is ProviderType.Sort or ProviderType.Index;
+      return new ProviderOrderingDescriptor(isOrderSensitive, preservesOrder, isOrderBreaker, isSorter);
     }
 
 
@@ -37,6 +63,11 @@ namespace Xtensive.Orm.Rse.Transformation
     public OrderingCorrector(Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
       this.orderingDescriptorResolver = orderingDescriptorResolver ?? throw new ArgumentNullException(nameof(orderingDescriptorResolver));
+    }
+
+    private OrderingCorrector()
+    {
+      this.orderingDescriptorResolver = ResolveOrderingDescriptor;
     }
   }
 }
