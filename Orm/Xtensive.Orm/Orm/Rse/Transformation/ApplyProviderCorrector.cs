@@ -15,6 +15,10 @@ namespace Xtensive.Orm.Rse.Transformation
   /// </summary>
   public sealed class ApplyProviderCorrector : IPreCompiler
   {
+    public static ApplyProviderCorrector ExceptionThrowingCorrector { get; } = new ApplyProviderCorrector(true);
+    public static ApplyProviderCorrector SilentCorrector { get; } = new ApplyProviderCorrector(false);
+
+
     private readonly bool throwOnCorrectionFault;
 
     /// <inheritdoc/>
