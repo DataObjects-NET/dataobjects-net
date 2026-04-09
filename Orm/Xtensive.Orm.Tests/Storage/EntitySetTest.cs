@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
@@ -9,11 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
@@ -57,6 +54,100 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
 
     [Field]
     public EntitySet<Book> Books { get; private set; }
+  }
+
+
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyPublisher : Entity
+  {
+    public const int SecondKeyValue = 1;
+
+    [Field, Key(0)]
+    public Guid Id0 {  get; private set; }
+
+    [Field, Key(1)]
+    public int Id1 { get; private set; }
+
+    [Field]
+    public EntitySet<CompositeKeyBook> Books { get; private set; }
+
+    public CompositeKeyPublisher(Session session, Guid id0)
+      : this(session, id0, SecondKeyValue)
+    {
+    }
+
+    public CompositeKeyPublisher(Session session, Guid id0, int id1)
+      : base(session, id0, id1)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyBook : Entity
+  {
+    public const int SecondKeyValue = 2;
+
+    [Field, Key(0)]
+    public Guid Id0 { get; private set; }
+
+    [Field, Key(1)]
+    public int Id1 { get; private set; }
+
+    [Field, Key(2)]
+    public int Id2 { get; private set; }
+
+    [Field]
+    public int Name { get; set; }
+
+    [Field, Association(PairTo = "Books", OnTargetRemove = OnRemoveAction.Clear)]
+    public CompositeKeyAuthor Author { get; private set; }
+
+    public CompositeKeyBook(Session session, Guid id0)
+      : this(session, id0, SecondKeyValue, SecondKeyValue)
+    {
+    }
+
+    public CompositeKeyBook(Session session, Guid id0, int id1, int id2)
+      : base(session, id0, id1, id2)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class CompositeKeyAuthor : Entity
+  {
+    public const int SecondKeyValue = 3;
+
+    [Field, Key(0)]
+    public Guid Id0 { get; private set; }
+
+    [Field, Key(1)]
+    public int Id1 { get; private set; }
+
+    [Field, Key(2)]
+    public int Id2 { get; private set; }
+
+    [Field, Key(3)]
+    public int Id3 { get; private set; }
+
+    [Field]
+    public int Name { get; set; }
+
+    [Field]
+    public EntitySet<CompositeKeyBook> Books { get; private set; }
+
+    public CompositeKeyAuthor(Session session, Guid id0)
+      : this(session, id0, SecondKeyValue, SecondKeyValue, SecondKeyValue)
+    {
+    }
+
+    public CompositeKeyAuthor(Session session, Guid id0, int id1, int id2, int id3)
+      : base(session, id0, id1, id2, id3)
+    {
+    }
   }
 }
 
@@ -111,7 +202,7 @@ namespace Xtensive.Orm.Tests.Storage
           var a = new Author();
           key = a.Key;
           for (int i = 0; i < 10; i++)
-            a.Books.Add(new Book());
+            _ = a.Books.Add(new Book());
           tx.Complete();
         }
       }
@@ -139,7 +230,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
           var books = a.Books; // fetch the author
           var b = new Book();
-          books.Add(b);
+          _ = books.Add(b);
           Assert.That(b.PersistenceState, Is.EqualTo(PersistenceState.New));
           t.Complete();
         }
@@ -155,7 +246,7 @@ namespace Xtensive.Orm.Tests.Storage
           author = new Author();
           for (int i = 0; i < 100; i++) {
             var book = new Book() { Name = i };
-            author.Books.Add(book);
+            _ = author.Books.Add(book);
           }
           t.Complete();
         }
@@ -170,20 +261,63 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void PairedEntitySetTest2()
+    {
+      CompositeKeyAuthor author;
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+          author = new CompositeKeyAuthor(session, Guid.NewGuid());
+          for (int i = 0; i < 100; i++) {
+            var book = new CompositeKeyBook(session, Guid.NewGuid()) { Name = i };
+            _ = author.Books.Add(book);
+          }
+          t.Complete();
+        }
+        using (var t = session.OpenTransaction()) {
+          var list = author.Books.ToList();
+          foreach (var book in list) {
+            Assert.That(book, Is.Not.Null);
+          }
+        }
+      }
+    }
+
+    [Test]
     public void NonPairedEntitySetTest()
     {
-      using (var session = Domain.OpenSession())
-      {
+      using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           var publisher = new Publisher();
           for (int i = 0; i < 100; i++) {
-            var book = new Book() {Name = i};
-            publisher.Books.Add(book);
+            var book = new Book() { Name = i };
+            _ = publisher.Books.Add(book);
           }
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
           var publisher = session.Query.All<Publisher>().First();
+          var list = publisher.Books.ToList();
+          foreach (var book in list) {
+            Assert.That(book, Is.Not.Null);
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void NonPairedEntitySetTest2()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+          var publisher = new CompositeKeyPublisher(session, Guid.NewGuid());
+          for (int i = 0; i < 100; i++) {
+            var book = new CompositeKeyBook(session, Guid.NewGuid()) { Name = i };
+            _ = publisher.Books.Add(book);
+          }
+          t.Complete();
+        }
+        using (var t = session.OpenTransaction()) {
+          var publisher = session.Query.All<CompositeKeyPublisher>().First();
           var list = publisher.Books.ToList();
           foreach (var book in list) {
             Assert.That(book, Is.Not.Null);
@@ -235,16 +369,42 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         var author = new Author();
         for (int i = 0; i < bookCount; i++)
-          author.Books.Add(new Book {Name = i});
+          _ = author.Books.Add(new Book {Name = i});
         var book = new Book {Name = bookCount};
-        author.Books.Add(book);
+        _ = author.Books.Add(book);
         Assert.That(bookCount + 1, Is.EqualTo(author.Books.Count));
-        author.Books.Contains(book);
-        author.Books.Remove(book);
+        _ = author.Books.Contains(book);
+        _ = author.Books.Remove(book);
         Assert.That(bookCount, Is.EqualTo(author.Books.Count));
         var enumerator = author.Books.GetEnumerator();
         var list = new List<Book>();
         while (enumerator.MoveNext()) 
+          list.Add(enumerator.Current);
+        Assert.That(author.Books.Count, Is.EqualTo(list.Count));
+        author.Books.Clear();
+        Assert.That(0, Is.EqualTo(author.Books.Count));
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void NewObjectTest2()
+    {
+      const int bookCount = 10;
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author = new CompositeKeyAuthor(session, Guid.NewGuid());
+        for (int i = 0; i < bookCount; i++)
+          _ = author.Books.Add(new CompositeKeyBook(session, Guid.NewGuid()) { Name = i });
+        var book = new CompositeKeyBook(session, Guid.NewGuid()) { Name = bookCount };
+        _ = author.Books.Add(book);
+        Assert.That(bookCount + 1, Is.EqualTo(author.Books.Count));
+        _ = author.Books.Contains(book);
+        _ = author.Books.Remove(book);
+        Assert.That(bookCount, Is.EqualTo(author.Books.Count));
+        var enumerator = author.Books.GetEnumerator();
+        var list = new List<CompositeKeyBook>();
+        while (enumerator.MoveNext())
           list.Add(enumerator.Current);
         Assert.That(author.Books.Count, Is.EqualTo(list.Count));
         author.Books.Clear();
@@ -261,10 +421,10 @@ namespace Xtensive.Orm.Tests.Storage
           var playlist = session.Query.All<Playlist>().First();
           var trackCount = playlist.Tracks.Count;
           var track = new AudioTrack {Name = "Temp1"};
-          playlist.Tracks.Add(track);
+          _ = playlist.Tracks.Add(track);
           Assert.That(trackCount + 1, Is.EqualTo(playlist.Tracks.Count));
-          playlist.Tracks.Contains(track);
-          playlist.Tracks.Remove(track);
+          _ = playlist.Tracks.Contains(track);
+          _ = playlist.Tracks.Remove(track);
           Assert.That(trackCount, Is.EqualTo(playlist.Tracks.Count));
           var enumerator = playlist.Tracks.GetEnumerator();
           var list = new List<Track>();
@@ -281,7 +441,7 @@ namespace Xtensive.Orm.Tests.Storage
           var category = session.Query.All<Playlist>().First();
           Assert.That(0, Is.EqualTo(category.Tracks.Count));
           var track = new VideoTrack() {Name = "Temp2"};
-          category.Tracks.Add(track);
+          _ = category.Tracks.Add(track);
           Session.Current.SaveChanges();
           t.Complete();
         }
@@ -346,6 +506,23 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void EnumerateFullyLoadedEntitySetWhenItsOwnerIsRemovedTest2()
+    {
+      Key author0Key;
+      Key author1Key;
+      CreateTwoAuthorsAndTheirBooksSet2(out author0Key, out author1Key);
+
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author0 = session.Query.Single<CompositeKeyAuthor>(author0Key);
+        LoadEntitySetThenRemoveOwnerAndEnumerateIt2(author0, author0.Books);
+
+        var author1 = session.Query.Single<CompositeKeyAuthor>(author1Key);
+        LoadEntitySetThenRemoveOwnerAndEnumerateIt2(author1, author1.Books);
+      }
+    }
+
+    [Test]
     public void EnumerateNotLoadedEntitySetWhenItsOwnerIsRemovedTest()
     {
       Key author0Key;
@@ -359,6 +536,23 @@ namespace Xtensive.Orm.Tests.Storage
 
         var author1 = session.Query.Single<Author>(author1Key);
         RemoveOwnerAndEnumerateEntitySet(author1, author1.Books);
+      }
+    }
+
+    [Test]
+    public void EnumerateNotLoadedEntitySetWhenItsOwnerIsRemovedTest2()
+    {
+      Key author0Key;
+      Key author1Key;
+      CreateTwoAuthorsAndTheirBooksSet2(out author0Key, out author1Key);
+
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author0 = session.Query.Single<CompositeKeyAuthor>(author0Key);
+        RemoveOwnerAndEnumerateEntitySet2(author0, author0.Books);
+
+        var author1 = session.Query.Single<CompositeKeyAuthor>(author1Key);
+        RemoveOwnerAndEnumerateEntitySet2(author1, author1.Books);
       }
     }
 
@@ -388,7 +582,7 @@ namespace Xtensive.Orm.Tests.Storage
       Key smallKey;
       Action<Author, int> generator = (a, count) => {
         for (var i = 0; i < count; i++)
-          a.Books.Add(new Book());
+          _ = a.Books.Add(new Book());
       };
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -402,30 +596,74 @@ namespace Xtensive.Orm.Tests.Storage
       }
 
       var booksField = Domain.Model.Types[typeof (Author)].Fields["Books"];
-      TestAdd(bigKey, itemCountOfBigEntitySet, booksField);
-      TestRemove(bigKey, itemCountOfBigEntitySet + 2, booksField);
-      TestSmallEntitySet(smallKey, itemCountOfSmallEntitySet, booksField);
+      TestAdd1(bigKey, itemCountOfBigEntitySet, booksField);
+      TestRemove1(bigKey, itemCountOfBigEntitySet + 2, booksField);
+      TestSmallEntitySet1(smallKey, itemCountOfSmallEntitySet, booksField);
     }
 
-    private void TestAdd(Key key, int itemCount, Orm.Model.FieldInfo booksField)
+    [Test]
+    public void CountPropertyBehaviorTest2()
+    {
+      const int itemCountOfBigEntitySet = 50;
+      const int itemCountOfSmallEntitySet = 30;
+      Key bigKey;
+      Key smallKey;
+      Action<CompositeKeyAuthor, int> generator = (a, count) => {
+        for (var i = 0; i < count; i++)
+          _ = a.Books.Add(new CompositeKeyBook(a.Session, Guid.NewGuid()));
+      };
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var bigAuthor = new CompositeKeyAuthor(session, Guid.NewGuid());
+        bigKey = bigAuthor.Key;
+        generator.Invoke(bigAuthor, itemCountOfBigEntitySet);
+        var smallAuthor = new CompositeKeyAuthor(session, Guid.NewGuid());
+        smallKey = smallAuthor.Key;
+        generator.Invoke(smallAuthor, itemCountOfSmallEntitySet);
+        t.Complete();
+      }
+
+      var booksField = Domain.Model.Types[typeof(CompositeKeyAuthor)].Fields["Books"];
+      TestAdd2(bigKey, itemCountOfBigEntitySet, booksField);
+      TestRemove2(bigKey, itemCountOfBigEntitySet + 2, booksField);
+      TestSmallEntitySet2(smallKey, itemCountOfSmallEntitySet, booksField);
+    }
+
+    private void TestAdd1(Key key, int itemCount, Orm.Model.FieldInfo booksField)
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var author = session.Query.Single<Author>(key);
         FetchEntitySet(author.Books);
-        author.Books.Add(new Book());
-        EntitySetState setState;
-        session.Handler.LookupState(key, booksField, out setState);
+        _ = author.Books.Add(new Book());
+        _ = session.Handler.LookupState(key, booksField, out var setState);
         Assert.That(setState.TotalItemCount, Is.Null);
         Assert.That(author.Books.Count, Is.EqualTo(itemCount + 1));
         Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
-        author.Books.Add(new Book());
+        _ = author.Books.Add(new Book());
         Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 2));
         t.Complete();
       }
     }
 
-    private void TestRemove(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
+    private void TestAdd2(Key key, int itemCount, Orm.Model.FieldInfo booksField)
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author = session.Query.Single<CompositeKeyAuthor>(key);
+        FetchEntitySet(author.Books);
+        _ = author.Books.Add(new CompositeKeyBook(session, Guid.NewGuid()));
+        _ = session.Handler.LookupState(key, booksField, out var setState);
+        Assert.That(setState.TotalItemCount, Is.Null);
+        Assert.That(author.Books.Count, Is.EqualTo(itemCount + 1));
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
+        _ = author.Books.Add(new CompositeKeyBook(session, Guid.NewGuid()));
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 2));
+        t.Complete();
+      }
+    }
+
+    private void TestRemove1(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -434,27 +672,58 @@ namespace Xtensive.Orm.Tests.Storage
         var booksToBeRemoved = session.Query.All<Book>().Where(b => b.Author.Key == key).Take(2).ToList();
         var bookToBeRemoved0 = booksToBeRemoved[0];
         var bookToBeRemoved1 = booksToBeRemoved[1];
-        author.Books.Remove(bookToBeRemoved0);
-        EntitySetState setState;
-        session.Handler.LookupState(key, booksField, out setState);
+        _ = author.Books.Remove(bookToBeRemoved0);
+        _ = session.Handler.LookupState(key, booksField, out var setState);
         Assert.That(setState.TotalItemCount, Is.Null);
         Assert.That(author.Books.Count, Is.EqualTo(itemCount - 1));
         Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 1));
-        author.Books.Remove(bookToBeRemoved1);
+        _ = author.Books.Remove(bookToBeRemoved1);
         Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 2));
         t.Complete();
       }
     }
 
-    private void TestSmallEntitySet(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
+    private void TestRemove2(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author = session.Query.Single<CompositeKeyAuthor>(key);
+        FetchEntitySet(author.Books);
+        var booksToBeRemoved = session.Query.All<CompositeKeyBook>().Where(b => b.Author.Key == key).Take(2).ToList();
+        var bookToBeRemoved0 = booksToBeRemoved[0];
+        var bookToBeRemoved1 = booksToBeRemoved[1];
+        _ = author.Books.Remove(bookToBeRemoved0);
+        _ = session.Handler.LookupState(key, booksField, out var setState);
+        Assert.That(setState.TotalItemCount, Is.Null);
+        Assert.That(author.Books.Count, Is.EqualTo(itemCount - 1));
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 1));
+        _ = author.Books.Remove(bookToBeRemoved1);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount - 2));
+        t.Complete();
+      }
+    }
+
+    private void TestSmallEntitySet1(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var author = session.Query.Single<Author>(key);
         FetchEntitySet(author.Books);
-        author.Books.Add(new Book());
+        _ = author.Books.Add(new Book());
+        Assert.That(session.Handler.LookupState(key, booksField, out var setState), Is.True);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
+      }
+    }
+
+    private void TestSmallEntitySet2(Key searchKey, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var author = session.Query.Single<CompositeKeyAuthor>(searchKey);
+        FetchEntitySet(author.Books);
+        _ = author.Books.Add(new CompositeKeyBook(session, Guid.NewGuid()));
         EntitySetState setState;
-        Assert.That(session.Handler.LookupState(key, booksField, out setState), Is.True);
+        Assert.That(session.Handler.LookupState(searchKey, booksField, out setState), Is.True);
         Assert.That(setState.TotalItemCount, Is.EqualTo(itemCount + 1));
       }
     }
@@ -465,11 +734,24 @@ namespace Xtensive.Orm.Tests.Storage
       RemoveOwnerAndEnumerateEntitySet(owner, entitySet);
     }
 
+    private static void LoadEntitySetThenRemoveOwnerAndEnumerateIt2(CompositeKeyAuthor owner, EntitySet<CompositeKeyBook> entitySet)
+    {
+      foreach (var book in entitySet) { }
+      RemoveOwnerAndEnumerateEntitySet2(owner, entitySet);
+    }
+
     private static void RemoveOwnerAndEnumerateEntitySet(Author owner, EntitySet<Book> entitySet)
     {
       var expectedCount = entitySet.Count;
       owner.Remove();
-      entitySet.GetEnumerator().MoveNext();
+      _ = entitySet.GetEnumerator().MoveNext();
+    }
+
+    private static void RemoveOwnerAndEnumerateEntitySet2(CompositeKeyAuthor owner, EntitySet<CompositeKeyBook> entitySet)
+    {
+      var expectedCount = entitySet.Count;
+      owner.Remove();
+      _ = entitySet.GetEnumerator().MoveNext();
     }
 
     private void CreateTwoAuthorsAndTheirBooksSet(out Key author0Key, out Key author1Key)
@@ -478,12 +760,30 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         Action<Author, int> bookGenerator = (author, count) => {
           for (var i = 0; i < count; i++)
-            author.Books.Add(new Book());
+            _ = author.Books.Add(new Book());
         };
         var author0 = new Author();
         author0Key = author0.Key;
         bookGenerator.Invoke(author0, 5);
         var author1 = new Author();
+        author1Key = author1.Key;
+        bookGenerator.Invoke(author1, 50);
+        t.Complete();
+      }
+    }
+
+    private void CreateTwoAuthorsAndTheirBooksSet2(out Key author0Key, out Key author1Key)
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        Action<CompositeKeyAuthor, int> bookGenerator = (author, count) => {
+          for (var i = 0; i < count; i++)
+            _ = author.Books.Add(new CompositeKeyBook(session, Guid.NewGuid()));
+        };
+        var author0 = new CompositeKeyAuthor(session, Guid.NewGuid());
+        author0Key = author0.Key;
+        bookGenerator.Invoke(author0, 5);
+        var author1 = new CompositeKeyAuthor(session, Guid.NewGuid());
         author1Key = author1.Key;
         bookGenerator.Invoke(author1, 50);
         t.Complete();
@@ -500,8 +800,23 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void FetchEntitySet<T>(EntitySet<T> books) where T : IEntity
     {
-      // fancy trick to force loading at most N items (currently N = 32)
-      books.Contains(Key.Create(Domain, typeof (T), -77));
+      var keyFieldCount = books.Session.Domain.Model.Types[typeof(T)].Key.TupleDescriptor.Count;
+      if (keyFieldCount == 1) {
+        // fancy trick to force loading at most N items (currently N = 32)
+        _ = books.Contains(Key.Create(Domain, typeof(T), -77));
+      }
+      else if (keyFieldCount == 2) {
+        // fancy trick to force loading at most N items (currently N = 32)
+        _ = books.Contains(Key.Create(Domain, typeof(T), Guid.NewGuid(), -77));
+      }
+      else if (keyFieldCount == 3) {
+        // fancy trick to force loading at most N items (currently N = 32)
+        _ = books.Contains(Key.Create(Domain, typeof(T), Guid.NewGuid(), -77, -66));
+      }
+      else if (keyFieldCount == 4) {
+        // fancy trick to force loading at most N items (currently N = 32)
+        _ = books.Contains(Key.Create(Domain, typeof(T), Guid.NewGuid(), -77, -66, -55));
+      }
     }
   }
 }
