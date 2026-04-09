@@ -34,9 +34,9 @@ namespace Xtensive.Tuples
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
     
     [field: NonSerialized]
-    internal Type[] FieldTypes { get; }
+    private Type[] FieldTypes { get; }
 
-    #region IList members
+    #region IReadOnlyList members
 
     /// <inheritdoc/>
     public Type this[int fieldIndex]
@@ -68,6 +68,66 @@ namespace Xtensive.Tuples
     }
 
     #endregion
+
+    /// <summary>
+    /// Creates tuple descriptor containing head of the current one.
+    /// </summary>
+    /// <param name="fieldCount">Head field count.</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Head(int fieldCount)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
+      var fieldTypes = new Type[fieldCount];
+      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
+      return new TupleDescriptor(fieldTypes);
+    }
+
+    /// <summary>
+    /// Creates tuple descriptor containing tail of the current one.
+    /// </summary>
+    /// <param name="tailFieldCount">Tail field count.</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Tail(int tailFieldCount)
+    {
+      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
+      var fieldTypes = new Type[tailFieldCount];
+      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
+      return new TupleDescriptor(fieldTypes);
+    }
+
+    /// <summary>
+    /// Creates tuple descriptor containing segment of the current one
+    /// </summary>
+    /// <param name="segment">Offset and length of segment in form of Segment</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Segment(in Segment<int> segment)
+    {
+      var fields = new Type[segment.Length];
+      Array.Copy(FieldTypes, segment.Offset, fields, 0, segment.Length);
+
+      return new TupleDescriptor(fields);
+    }
+
+    /// <summary>
+    /// Concats fields of the current and the given descriptors to form new one.
+    /// </summary>
+    /// <param name="second">Tail fields descriptor.</param>
+    /// <returns>New tuple descriptor containing fields of the both given source descriptors.</returns>
+    public TupleDescriptor ConcatWith(in TupleDescriptor second)
+    {
+      var (firstCount, secondCount) = (Count, second.Count);
+      var types = new Type[firstCount + secondCount];
+      Array.Copy(FieldTypes, types, firstCount);
+      Array.Copy(second.FieldTypes, 0, types, firstCount, secondCount);
+
+      return new TupleDescriptor(types);
+    }
 
     #region IEquatable members, GetHashCode
 
@@ -174,34 +234,6 @@ namespace Xtensive.Tuples
       if (fieldTypes.Length == 0) {
         return Empty;
       }
-      return new TupleDescriptor(fieldTypes);
-    }
-
-    /// <summary>
-    /// Creates tuple descriptor containing head of the current one.
-    /// </summary>
-    /// <param name="fieldCount">Head field count.</param>
-    /// <returns>Either new or existing tuple descriptor
-    /// describing the specified set of fields.</returns>
-    public TupleDescriptor Head(int fieldCount)
-    {
-      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
-      var fieldTypes = new Type[fieldCount];
-      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
-      return new TupleDescriptor(fieldTypes);
-    }
-
-    /// <summary>
-    /// Creates tuple descriptor containing tail of the current one.
-    /// </summary>
-    /// <param name="tailFieldCount">Tail field count.</param>
-    /// <returns>Either new or existing tuple descriptor
-    /// describing the specified set of fields.</returns>
-    public TupleDescriptor Tail(int tailFieldCount)
-    {
-      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
-      var fieldTypes = new Type[tailFieldCount];
-      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
       return new TupleDescriptor(fieldTypes);
     }
 

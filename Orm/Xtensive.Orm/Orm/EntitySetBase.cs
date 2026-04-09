@@ -956,33 +956,23 @@ namespace Xtensive.Orm
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
       var ownerFieldCount = ownerDescriptor.Count;
 
-      Type[] keyFieldTypes;
       IReadOnlyList<int> itemColumnOffsets;
       if (association.AuxiliaryType == null) {
-        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount).Concat(
-        association.UnderlyingIndex.ValueColumns
+        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount)
+          .Concat(association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)).ToList();
-        var keyFieldCount = itemColumnOffsets.Count;
-        keyFieldTypes = new Type[keyFieldCount];
-        Array.Copy(ownerDescriptor.FieldTypes, keyFieldTypes, ownerFieldCount);
-        for (var index=ownerFieldCount; index<keyFieldCount; index++) {
-          keyFieldTypes[index] = targetDescriptor[itemColumnOffsets[index]];
-        }
       }
       else {
         var keyFieldCount = ownerDescriptor.Count + targetDescriptor.Count;
-        keyFieldTypes = new Type[keyFieldCount];
-        Array.Copy(ownerDescriptor.FieldTypes, keyFieldTypes, ownerFieldCount);
-        Array.Copy(targetDescriptor.FieldTypes, 0, keyFieldTypes, ownerFieldCount, targetDescriptor.Count);
         var offsetMap = new int[keyFieldCount];
-        for (var index=0; index < keyFieldCount; index++) {
+        for (var index = 0; index < keyFieldCount; index++) {
           offsetMap[index] = index - ownerFieldCount;
         }
         itemColumnOffsets = offsetMap;
-      }
 
-      var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
+      }
+      var keyDescriptor = ownerDescriptor.ConcatWith(targetDescriptor);
 
       Func<Tuple, Entity> itemCtor = null;
       if (association.AuxiliaryType != null) {

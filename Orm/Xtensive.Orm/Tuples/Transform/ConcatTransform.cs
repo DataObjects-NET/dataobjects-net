@@ -74,13 +74,8 @@ namespace Xtensive.Tuples.Transform
       ArgumentValidator.EnsureArgumentIsNotDefault(first, nameof(first));
       ArgumentValidator.EnsureArgumentIsNotDefault(second, nameof(second));
 
-      var (firstCount, secondCount) = (first.Count, second.Count);
-      var types = new Type[firstCount + secondCount];
-      Array.Copy(first.FieldTypes, types, firstCount);
-      Array.Copy(second.FieldTypes, 0, types, firstCount, secondCount);
-
       IsReadOnly = isReadOnly;
-      Descriptor = TupleDescriptor.Create(types);
+      Descriptor = first.ConcatWith(second);
       this.sources = (first, second);
     }
   }

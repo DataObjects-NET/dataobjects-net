@@ -79,9 +79,7 @@ namespace Xtensive.Tuples.Transform
 
       IsReadOnly = isReadOnly;
 
-      var fields = new Type[segment.Length];
-      Array.Copy(sourceDescriptor.FieldTypes, segment.Offset, fields, 0, segment.Length);
-      Descriptor = TupleDescriptor.Create(fields);
+      Descriptor = sourceDescriptor.Segment(segment);
       this.segment = segment;
     }
   }
