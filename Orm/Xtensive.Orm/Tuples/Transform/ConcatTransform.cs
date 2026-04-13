@@ -17,7 +17,7 @@ namespace Xtensive.Tuples.Transform
   [Serializable]
   public sealed class ConcatTransform
   {
-    private readonly (TupleDescriptor first, TupleDescriptor second) sources;
+    private readonly (int first, int second) sourceParts;
 
     /// <inheritdoc/>
     public TupleDescriptor Descriptor { get; }
@@ -54,7 +54,23 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      var description = $"{sources.first} + {sources.second}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      var sb = new ValueStringBuilder(stackalloc char[4096]);
+      for (int i = 0, count = sourceParts.first; i < count; i++) {
+        if (i > 0)
+          sb.Append(", ");
+        sb.Append(Descriptor[i].GetShortName());
+      }
+      var sourceOne = string.Format(Strings.TupleDescriptorFormat, sb.ToString());
+
+      sb = new ValueStringBuilder(stackalloc char[4096]);
+      for (int i = sourceParts.first, count = Descriptor.Count; i < count; i++) {
+        if (i > sourceParts.first)
+          sb.Append(", ");
+        sb.Append(Descriptor[i].GetShortName());
+      }
+      var sourceTwo = string.Format(Strings.TupleDescriptorFormat, sb.ToString());
+
+      var description = $"{sourceOne} + {sourceTwo}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
         nameof(ConcatTransform),
         description);
@@ -76,7 +92,7 @@ namespace Xtensive.Tuples.Transform
 
       IsReadOnly = isReadOnly;
       Descriptor = first.ConcatWith(second);
-      this.sources = (first, second);
+      this.sourceParts = (first.Count, second.Count);
     }
   }
 }
