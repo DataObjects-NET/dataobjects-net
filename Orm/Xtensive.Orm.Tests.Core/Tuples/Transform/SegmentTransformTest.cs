@@ -15,7 +15,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
   [TestFixture]
   public class SegmentTransformTest
   {
-    public const int IterationCount = 1000000;
+    private const int IterationCount = 1000000;
+    private const int MeasurementRuns = 5;
 
     [Test]
     public void BaseTest()
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     [Test]
     [Explicit]
     [Category("Performance")]
-    public void PerformanceTest()
+    public void ComparisonPerformanceTest()
     {
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1, 2, 3, 4);
@@ -69,24 +70,71 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
       int count = IterationCount;
 
-      comparer.Equals(ct1, ct2);
-      comparer.Equals(ct1, wt1);
-      comparer.Equals(wt1, wt2);
+      _ = comparer.Equals(ct1, ct2);
+      _ = comparer.Equals(ct1, wt1);
+      _ = comparer.Equals(wt1, wt2);
 
       TestHelper.CollectGarbage();
-      using (new Measurement("O&O", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(ct1, ct2);
+      using (var mx = new Measurement("O&O", MeasurementOptions.Log, count)) {
+        for (int i = 0; i<count; i++) {
+          _ = comparer.Equals(ct1, ct2);
+        }
+      }
 
       TestHelper.CollectGarbage();
-      using (new Measurement("O&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(ct1, wt1);
-      
+      using (var mx = new Measurement("O&W", MeasurementOptions.Log, count)) {
+        for (int i = 0; i<count; i++) {
+          _ = comparer.Equals(ct1, wt1);
+        }
+      }
+
       TestHelper.CollectGarbage();
-      using (new Measurement("W&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
-          comparer.Equals(wt1, wt2);
+      using (var mx = new Measurement("W&W", MeasurementOptions.Log, count)) {
+        for (int i = 0; i<count; i++) {
+          _ = comparer.Equals(wt1, wt2);
+        }
+      }
+    }
+
+    [Test]
+    [Explicit]
+    [Category("Performance")]
+    public void InstanceCreationPerformanceTest()
+    {
+      Xtensive.Tuples.Tuple t = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4", 6L, 7);
+
+      int count = IterationCount * 10;
+
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 1));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 2));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 3));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 4));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 5));
+
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("S1|1", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 1));
+          }
+
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
+
+      Console.WriteLine();
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("S1|5", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 5));
+          }
+
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
     }
   }
 }

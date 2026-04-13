@@ -14,7 +14,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
   [TestFixture]
   public class MergeTransformTest
   {
-    public const int IterationCount = 1000000;
+    private const int IterationCount = 1_000_000;
+    private const int MeasurementRuns = 5;
 
     [Test]
     public void BaseTest()
@@ -56,9 +57,20 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     }
 
     [Test]
+    public void ToStringTest()
+    {
+      Xtensive.Tuples.Tuple t1 = Xtensive.Tuples.Tuple.Create(1, "2");
+      Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(3, 4.0, "5");
+
+      var ct = new ConcatTransform(false, t1.Descriptor, t2.Descriptor);
+      Assert.That(ct.ToString(), Is.EqualTo("ConcatTransform(TupleDescriptor(Int32, String) + TupleDescriptor(Int32, Double, String), r/w)"));
+
+    }
+
+    [Test]
     [Explicit]
     [Category("Performance")]
-    public void PerformanceTest1()
+    public void ComparisonPerformanceTest()
     {
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1);
@@ -74,19 +86,78 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       comparer.Equals(wt1, wt2);
 
       TestHelper.CollectGarbage();
-      using (new Measurement("O&O", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
+      using (var mx = new Measurement("O&O", MeasurementOptions.Log, count)) {
+        for (int i = 0; i < count; i++)
           comparer.Equals(ct1, ct2);
 
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
+
       TestHelper.CollectGarbage();
-      using (new Measurement("O&W", MeasurementOptions.Log, count))
-        for (int i = 0; i<count; i++)
+      using (var mx =new Measurement("O&W", MeasurementOptions.Log, count)) {
+        for (int i = 0; i < count; i++)
           comparer.Equals(ct1, wt1);
+
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
       
       TestHelper.CollectGarbage();
-      using (new Measurement("W&W", MeasurementOptions.Log, count))
+      using (var mx = new Measurement("W&W", MeasurementOptions.Log, count)) {
         for (int i = 0; i<count; i++)
           comparer.Equals(wt1, wt2);
+
+        mx.Complete();
+        Console.WriteLine(mx.ToString());
+      }
+    }
+
+
+    [Test]
+    [Explicit]
+    [Category("Performance")]
+    public void InstanceCreationPerformanceTest()
+    {
+      Xtensive.Tuples.Tuple t1 = Xtensive.Tuples.Tuple.Create(1);
+      Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(1, "2");
+      Xtensive.Tuples.Tuple t3 = Xtensive.Tuples.Tuple.Create(1, 2L, "3");
+      Xtensive.Tuples.Tuple t4 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4");
+      Xtensive.Tuples.Tuple t5 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4", 5);
+      Xtensive.Tuples.Tuple t6 = Xtensive.Tuples.Tuple.Create(1, 2L, "3", "4", 5, 6L);
+     
+      int count = IterationCount * 10;
+
+      _ = new ConcatTransform(false, t1.Descriptor, t1.Descriptor);
+      _ = new ConcatTransform(false, t2.Descriptor, t2.Descriptor);
+      _ = new ConcatTransform(false, t3.Descriptor, t3.Descriptor);
+      _ = new ConcatTransform(false, t4.Descriptor, t4.Descriptor);
+      _ = new ConcatTransform(false, t5.Descriptor, t5.Descriptor);
+
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("N1Concat", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new ConcatTransform(false, t1.Descriptor, t1.Descriptor);
+          }
+
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
+
+      Console.WriteLine();
+      for (var run = 0; run < MeasurementRuns; run++) {
+        TestHelper.CollectGarbage();
+        using (var mx = new Measurement("N5Concat", MeasurementOptions.Log, count)) {
+          for (int i = 0; i < count; i++) {
+            _ = new ConcatTransform(false, t5.Descriptor, t5.Descriptor);
+          }
+
+          mx.Complete();
+          Console.WriteLine(mx.ToString());
+        }
+      }
     }
   }
 }
