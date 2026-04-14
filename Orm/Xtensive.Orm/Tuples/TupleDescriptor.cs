@@ -32,31 +32,30 @@ namespace Xtensive.Tuples
 
     [NonSerialized]
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
-    
-    [field: NonSerialized]
-    private Type[] FieldTypes { get; }
+
+    [NonSerialized]
+    private readonly Type[] fieldTypes;
 
     #region IReadOnlyList members
 
     /// <inheritdoc/>
     public Type this[int fieldIndex]
     {
-      get => FieldTypes[fieldIndex];
-      set => throw Exceptions.CollectionIsReadOnly(null);
+      get => fieldTypes[fieldIndex];
     }
 
     /// <inheritdoc/>
     public int Count
     {
       [DebuggerStepThrough]
-      get => FieldTypes.Length;
+      get => fieldTypes.Length;
     }
 
     /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
       for (int index = 0, count = Count; index < count; index++) {
-        yield return FieldTypes[index];
+        yield return fieldTypes[index];
       }
     }
 
@@ -80,7 +79,7 @@ namespace Xtensive.Tuples
     {
       ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
       var fieldTypes = new Type[fieldCount];
-      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
+      Array.Copy(this.fieldTypes, 0, fieldTypes, 0, fieldCount);
       return new TupleDescriptor(fieldTypes);
     }
 
@@ -95,7 +94,7 @@ namespace Xtensive.Tuples
     {
       ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
       var fieldTypes = new Type[tailFieldCount];
-      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
+      Array.Copy(this.fieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
       return new TupleDescriptor(fieldTypes);
     }
 
@@ -108,10 +107,10 @@ namespace Xtensive.Tuples
     /// </returns>
     public TupleDescriptor Segment(in Segment<int> segment)
     {
-      var fields = new Type[segment.Length];
-      Array.Copy(FieldTypes, segment.Offset, fields, 0, segment.Length);
+      var fieldTypes = new Type[segment.Length];
+      Array.Copy(this.fieldTypes, segment.Offset, fieldTypes, 0, segment.Length);
 
-      return new TupleDescriptor(fields);
+      return new TupleDescriptor(fieldTypes);
     }
 
     /// <summary>
@@ -122,11 +121,11 @@ namespace Xtensive.Tuples
     public TupleDescriptor ConcatWith(in TupleDescriptor second)
     {
       var (firstCount, secondCount) = (Count, second.Count);
-      var types = new Type[firstCount + secondCount];
-      Array.Copy(FieldTypes, types, firstCount);
-      Array.Copy(second.FieldTypes, 0, types, firstCount, secondCount);
+      var fieldTypes = new Type[firstCount + secondCount];
+      Array.Copy(this.fieldTypes, fieldTypes, firstCount);
+      Array.Copy(second.fieldTypes, 0, fieldTypes, firstCount, secondCount);
 
-      return new TupleDescriptor(types);
+      return new TupleDescriptor(fieldTypes);
     }
 
     #region IEquatable members, GetHashCode
@@ -134,15 +133,15 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (FieldTypes == null) {
-        return other.FieldTypes == null;
+      if (fieldTypes == null) {
+        return other.fieldTypes == null;
       }
-      if (other.FieldTypes == null || Count != other.Count) {
+      if (other.fieldTypes == null || Count != other.Count) {
         return false;
       }
 
       for (int i = 0, count = Count; i < count; i++) {
-        if (FieldTypes[i] != other.FieldTypes[i]) {
+        if (fieldTypes[i] != other.fieldTypes[i]) {
           return false;
         }
       }
@@ -158,7 +157,7 @@ namespace Xtensive.Tuples
     {
       int result = Count;
       for (int i = 0, count = Count; i < count; i++)
-        result = unchecked (FieldTypes[i].GetHashCode() + 29 * result);
+        result = unchecked (fieldTypes[i].GetHashCode() + 29 * result);
       return result;
     }
 
@@ -179,11 +178,11 @@ namespace Xtensive.Tuples
       info.AddValue(nameof(ValuesLength), ValuesLength);
       info.AddValue(nameof(ObjectsLength), ObjectsLength);
 
-      var typeNames = new string[FieldTypes.Length];
+      var typeNames = new string[fieldTypes.Length];
       for (var i = 0; i < typeNames.Length; i++)
-        typeNames[i] = FieldTypes[i].ToSerializableForm();
+        typeNames[i] = fieldTypes[i].ToSerializableForm();
 
-      info.AddValue(nameof(FieldTypes), typeNames);
+      info.AddValue(nameof(fieldTypes), typeNames);
       info.AddValue(nameof(FieldDescriptors), FieldDescriptors);
     }
 
@@ -194,7 +193,7 @@ namespace Xtensive.Tuples
       for (int i = 0, count = Count; i < count; i++) {
         if (i > 0)
           sb.Append(", ");
-        sb.Append(FieldTypes[i].GetShortName());
+        sb.Append(fieldTypes[i].GetShortName());
       }
       return string.Format(Strings.TupleDescriptorFormat, sb.ToString());
     }
@@ -286,7 +285,7 @@ namespace Xtensive.Tuples
     private TupleDescriptor(Type[] fieldTypes)
     {
       var fieldCount = fieldTypes.Length;
-      FieldTypes = fieldTypes;
+      this.fieldTypes = fieldTypes;
       FieldDescriptors = new PackedFieldDescriptor[fieldCount];
 
       switch (fieldCount) {
@@ -295,17 +294,17 @@ namespace Xtensive.Tuples
           ObjectsLength = 0;
           return;
         case 1:
-          TupleLayout.ConfigureLen1(ref FieldTypes[0],
+          TupleLayout.ConfigureLen1(ref this.fieldTypes[0],
             ref FieldDescriptors[0],
             out ValuesLength, out ObjectsLength);
           break;
         case 2:
-          TupleLayout.ConfigureLen2(FieldTypes,
+          TupleLayout.ConfigureLen2(this.fieldTypes,
             ref FieldDescriptors[0], ref FieldDescriptors[1],
             out ValuesLength, out ObjectsLength);
           break;
         default:
-          TupleLayout.Configure(FieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
+          TupleLayout.Configure(this.fieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
           break;
       }
     }
@@ -315,14 +314,14 @@ namespace Xtensive.Tuples
       ValuesLength = info.GetInt32(nameof(ValuesLength));
       ObjectsLength = info.GetInt32(nameof(ObjectsLength));
 
-      var typeNames = (string[]) info.GetValue(nameof(FieldTypes), typeof(string[]));
+      var typeNames = (string[]) info.GetValue(nameof(fieldTypes), typeof(string[]));
       FieldDescriptors = (PackedFieldDescriptor[])info.GetValue(
         nameof(FieldDescriptors), typeof(PackedFieldDescriptor[]));
 
-      FieldTypes = new Type[typeNames.Length];
+      fieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
-        FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-        TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], FieldTypes[i]);
+        fieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
+        TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], fieldTypes[i]);
       }
     }
   }
