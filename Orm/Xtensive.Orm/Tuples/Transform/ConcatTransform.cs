@@ -87,10 +87,27 @@ namespace Xtensive.Tuples.Transform
     /// <param name="second">The <see cref="TupleDescriptor"/> of the second source <see cref="Tuple"/>.</param>
     public ConcatTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
     {
-      ArgumentValidator.EnsureArgumentIsNotDefault(first, nameof(first));
-      ArgumentValidator.EnsureArgumentIsNotDefault(second, nameof(second));
+      if (first == default)
+        throw new ArgumentException("Argument is default instance.", nameof(first));
+
+      if (second == default)
+        throw new ArgumentException("Argument is default instance.", nameof(second));
 
       IsReadOnly = isReadOnly;
+      Descriptor = first.ConcatWith(second);
+      this.sourceParts = (first.Count, second.Count);
+    }
+
+
+    /// <summary>
+    /// Initializes a new instance of this type.
+    /// </summary>
+    /// <param name="first">The <see cref="TupleDescriptor"/> of the first source <see cref="Tuple"/>.</param>
+    /// <param name="second">The <see cref="TupleDescriptor"/> of the second source <see cref="Tuple"/>.</param>
+    // WARNING !!!!! NO CHECKS FOR DEFAULT VALUES FOR THE SAKE OF PEFRORMANCE
+    internal ConcatTransform(TupleDescriptor first, TupleDescriptor second)
+    {
+      IsReadOnly = false;
       Descriptor = first.ConcatWith(second);
       this.sourceParts = (first.Count, second.Count);
     }

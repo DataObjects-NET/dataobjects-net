@@ -1055,7 +1055,6 @@ namespace Xtensive.Orm
         var domain = Session.Domain;
         var itemType = domain.Model.Types[Field.ItemType];
         auxilaryTypeKeyTransform = new ConcatTransform(
-          false,
           owner.TypeInfo.Key.TupleDescriptor,
           itemType.Key.TupleDescriptor);
       }

@@ -81,9 +81,26 @@ namespace Xtensive.Tuples.Transform
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
     {
-      ArgumentValidator.EnsureArgumentIsNotDefault(descriptor, nameof(descriptor));
+      if (descriptor == default)
+        throw new ArgumentException("Argument is default instance.",nameof(descriptor));
 
       IsReadOnly = isReadOnly;
+      Descriptor = descriptor;
+
+      this.map = map ?? throw new ArgumentNullException(nameof(map));
+    }
+
+
+
+    /// <summary>
+    /// Initializes a new instance of this type with <see cref="IsReadOnly"/> = <see langword="true"/>.
+    /// </summary>
+    /// <param name="descriptor">The <see cref="TupleDescriptor"/> of the target <see cref="Tuple"/>.</param>
+    /// <param name="map"><see cref="Map"/> property value.</param>
+    // BE CAREFUL, NO VALIDATION OF PARAMETERS for the sake of performance
+    internal MapTransform(TupleDescriptor descriptor, IReadOnlyList<int> map)
+    {
+      IsReadOnly = true;
       Descriptor = descriptor;
 
       this.map = map ?? throw new ArgumentNullException(nameof(map));

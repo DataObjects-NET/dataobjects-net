@@ -115,7 +115,7 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple Concat(this Tuple left, Tuple right)
     {
-      var transform = new ConcatTransform(false, left.Descriptor, right.Descriptor);
+      var transform = new ConcatTransform(left.Descriptor, right.Descriptor);
       return transform.Apply(TupleTransformType.TransformedTuple, left, right);
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple GetSegment(this Tuple tuple, in Segment<int> segment)
     {
-      var transform = new SegmentTransform(false, tuple.Descriptor, segment);
+      var transform = new SegmentTransform(tuple.Descriptor, segment);
       return transform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 

@@ -75,10 +75,23 @@ namespace Xtensive.Tuples.Transform
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {
-      ArgumentValidator.EnsureArgumentIsNotDefault(sourceDescriptor, nameof(sourceDescriptor));
+      if (sourceDescriptor == default)
+        throw new ArgumentException("Argument is default instance.", nameof(sourceDescriptor));
 
       IsReadOnly = isReadOnly;
+      Descriptor = sourceDescriptor.Segment(segment);
+      this.segment = segment;
+    }
 
+    /// <summary>
+    /// Initializes a new instance of this type.
+    /// </summary>
+    /// <param name="sourceDescriptor">The <see cref="TupleDescriptor"/> of the source <see cref="Tuple"/>.</param>
+    /// <param name="segment">The segment to extract.</param>
+    // WARNING !!!!! NO CHECKS FOR DEFAULT VALUES FOR THE SAKE OF PEFRORMANCE
+    internal SegmentTransform(TupleDescriptor sourceDescriptor, in Segment<int> segment)
+    {
+      IsReadOnly = false;
       Descriptor = sourceDescriptor.Segment(segment);
       this.segment = segment;
     }
