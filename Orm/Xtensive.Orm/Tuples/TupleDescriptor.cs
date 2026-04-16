@@ -77,7 +77,8 @@ namespace Xtensive.Tuples
     /// </returns>
     public TupleDescriptor Head(int fieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
+      ArgumentOutOfRangeException.ThrowIfLessThan(fieldCount, 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(fieldCount, this.fieldTypes.Length);
       var fieldTypes = new Type[fieldCount];
       Array.Copy(this.fieldTypes, 0, fieldTypes, 0, fieldCount);
       return new TupleDescriptor(fieldTypes);
@@ -92,7 +93,8 @@ namespace Xtensive.Tuples
     /// </returns>
     public TupleDescriptor Tail(int tailFieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
+      ArgumentOutOfRangeException.ThrowIfLessThan(tailFieldCount, 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(tailFieldCount, this.fieldTypes.Length);
       var fieldTypes = new Type[tailFieldCount];
       Array.Copy(this.fieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
       return new TupleDescriptor(fieldTypes);
