@@ -120,10 +120,11 @@ namespace Xtensive.Tuples
     /// <returns>New tuple descriptor containing fields of the both given source descriptors.</returns>
     public TupleDescriptor ConcatWith(in TupleDescriptor second)
     {
-      var (firstCount, secondCount) = (Count, second.Count);
-      var fieldTypes = new Type[firstCount + secondCount];
-      Array.Copy(this.fieldTypes, fieldTypes, firstCount);
-      Array.Copy(second.fieldTypes, 0, fieldTypes, firstCount, secondCount);
+      var firstLength = this.fieldTypes.Length;
+      var secondLength = second.fieldTypes.Length;
+      var fieldTypes = new Type[firstLength + secondLength];
+      Array.Copy(this.fieldTypes, fieldTypes, firstLength);
+      Array.Copy(second.fieldTypes, 0, fieldTypes, firstLength, secondLength);
 
       return new TupleDescriptor(fieldTypes);
     }
