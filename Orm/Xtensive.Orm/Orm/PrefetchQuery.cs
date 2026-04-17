@@ -21,6 +21,25 @@ namespace Xtensive.Orm
   /// <typeparam name="TElement">The type of the queried elements.</typeparam>
   public readonly struct PrefetchQuery<TElement> : IEnumerable<TElement>, IAsyncEnumerable<TElement>
   {
+    #region Nested types
+    private class ExecuteAsyncResult : IEnumerable<TElement>
+    {
+      private readonly List<TElement> items;
+      // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
+      private readonly StrongReferenceContainer referenceContainer;
+
+      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+      public IEnumerator<TElement> GetEnumerator() => items.GetEnumerator();
+
+      public ExecuteAsyncResult(List<TElement> items, StrongReferenceContainer referenceContainer)
+      {
+        this.items = items;
+        this.referenceContainer = referenceContainer;
+      }
+    }
+    #endregion
+
     private readonly Session session;
     private readonly IEnumerable<TElement> source;
     private readonly SinglyLinkedList<KeyExtractorNode<TElement>> nodes;
@@ -48,23 +67,6 @@ namespace Xtensive.Orm
     [Obsolete("PrefetchQuery itself is an IAsyncEnumerable implementation")]
     public IAsyncEnumerable<TElement> AsAsyncEnumerable() =>
       new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes);
-
-    private class ExecuteAsyncResult : IEnumerable<TElement>
-    {
-      private readonly List<TElement> items;
-      // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
-      private readonly StrongReferenceContainer referenceContainer;
-
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-      public IEnumerator<TElement> GetEnumerator() => items.GetEnumerator();
-
-      public ExecuteAsyncResult(List<TElement> items, StrongReferenceContainer referenceContainer)
-      {
-        this.items = items;
-        this.referenceContainer = referenceContainer;
-      }
-    }
 
     /// <summary>
     /// Asynchronously executes given <see cref="PrefetchQuery{TElement}"/> instance.
