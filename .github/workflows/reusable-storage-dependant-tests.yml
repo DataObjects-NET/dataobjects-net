@@ -115,17 +115,17 @@ jobs:
         timeout-minutes: 10
         run: '${{ vars[env.DOCKER_SCRIPT_KEY] }}'
 
-      - name: Build Orm
-        if: ${{ success() }}
-        timeout-minutes: 5
-        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
-
       - name: Setup .NETs
         if: ${{ success() }}
         timeout-minutes: 2
         uses: ./.github/actions/setup-dotnets
         with:
           target_framework: ${{ env.DO_TargetFrameworks }}
+
+      - name: Build Orm
+        if: ${{ success() }}
+        timeout-minutes: 5
+        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
 
       # Since composite action syntax does not allow to define step timeout
       # we have to run Reprocessing project here, because it may stuck in forever-loop
