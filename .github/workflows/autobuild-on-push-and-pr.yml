@@ -65,6 +65,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: 'net6.0' # not a target framework, but ok to install SDK
+
       - name: Build Orm
         if: ${{ success() }}
         run: dotnet build Orm.sln --configuration $BUILD_CONFIG

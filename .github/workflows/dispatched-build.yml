@@ -67,7 +67,14 @@ jobs:
        # it leads to detached HEAD, but we don't commit anything anyway
       - name: Manual commit checkout if required
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
-        run: git checkout ${{ inputs.specific_sha }}       
+        run: git checkout ${{ inputs.specific_sha }}
+        
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: 'net6.0' # not a target framework, but ok to install SDK
 
       - name: Build Orm
         if: ${{ success() }}
