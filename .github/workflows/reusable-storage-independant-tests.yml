@@ -84,17 +84,17 @@ jobs:
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
         run: git checkout ${{ inputs.specific_sha }}
 
-      - name: Build Orm
-        if: ${{ success() }}
-        timeout-minutes: 5
-        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
-
       - name: Setup .NETs
         if: ${{ success() }}
         timeout-minutes: 2
         uses: ./.github/actions/setup-dotnets
         with:
           target_framework: ${{ env.DO_TargetFrameworks }}
+
+      - name: Build Orm
+        if: ${{ success() }}
+        timeout-minutes: 5
+        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
 
       - name: Run tests
         id: complex_tests
