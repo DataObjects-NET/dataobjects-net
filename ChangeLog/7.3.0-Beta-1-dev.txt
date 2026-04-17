@@ -2,6 +2,10 @@
 [main] Removed obsolete member Values of SqlInsert type
 [main] Removed obsolete methods GetSingleConstructor/GetSingleConstructorOrDefault of TypeHelper type
 [main] Removed obsolete constant WellKnown.MaxNumberOfConditions, use DefaultMaxNumberOfConditions instead
+[main] Tuple transformation heavily refactored, many types from Xtensive.Tuples.Transform removed, renamed or turned to internal
+[main] Collection FixedList3 is removed
+[main] Xtensive.Orm.Rse.Providers.Provider descendants no longer build RecordSetHeader on initialization via virtual method
+[main] Many compilable providers build headers more easily with static methods
 [firebird] Switch to .NET8/.NET10-only support, nuget packages actualized
 [firebird] Support for Firebird 2.5 ended due to end-of-life state
 [mysql] Switch to .NET8/.NET10-only support, nuget packages actualized
