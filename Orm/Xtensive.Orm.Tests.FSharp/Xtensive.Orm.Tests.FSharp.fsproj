@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
@@ -31,9 +31,18 @@
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Keep it before any tests -->
     <Compile Include="FsUnit.fs" />
     <Compile Include="Model.fs" />
-    <Compile Include="Test.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ArithmeticOperationsCompilersTest.fs" />
+    <Compile Include="ComparisonCompilersTest.fs" />
+    <Compile Include="DateTimeCompilersTest.fs" />
+    <Compile Include="MathCompilersTest.fs" />
+    <Compile Include="StringCompilersTest.fs" />
+    <Compile Include="OtherOperationsCompilersTest.fs" />
+    <Compile Include="QueryEntityBackTest.fs" />
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
