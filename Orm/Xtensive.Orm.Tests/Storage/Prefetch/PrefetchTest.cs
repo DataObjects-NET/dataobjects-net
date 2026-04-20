@@ -181,8 +181,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           .Prefetch(i => i.InvoiceLines
             .Prefetch(id => id.Track)
             .Prefetch(id => id.Track.Album)
-            .Prefetch(id => id.Track.Bytes))
-          .AsAsyncEnumerable();
+            .Prefetch(id => id.Track.Bytes));
         await foreach (var invoice in invoices) {
           var id = invoice.InvoiceId;
           var name = invoice.Customer.CompanyName;
@@ -247,7 +246,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
         var invoices = session.Query.Many<Invoice>(keys)
-          .Prefetch(o => o.DesignatedEmployee).AsAsyncEnumerable();
+          .Prefetch(o => o.DesignatedEmployee);
         var invoiceType = Domain.Model.Types[typeof(Invoice)];
         var employeeField = invoiceType.Fields[nameof(Invoice.DesignatedEmployee)];
         var employeeType = Domain.Model.Types[typeof(Employee)];
@@ -361,7 +360,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var invoicesField = Domain.Model.Types[typeof (Track)].Fields["Playlists"];
         var invoiceLinesField = Domain.Model.Types[typeof (Playlist)].Fields["Tracks"];
         var tracks = session.Query.All<Track>().Take(50)
-          .Prefetch(t => t.Playlists.Prefetch(il => il.Tracks)).AsAsyncEnumerable();
+          .Prefetch(t => t.Playlists.Prefetch(il => il.Tracks));
         int count1 = 0, count2 = 0;
         await foreach (var track in tracks) {
           count1++;
@@ -413,7 +412,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var trackField = Domain.Model.Types[typeof(InvoiceLine)].Fields[nameof(InvoiceLine.Track)];
         var invoices = session.Query.All<Invoice>()
           .Take(90)
-          .Prefetch(o => o.InvoiceLines.Prefetch(od => od.Track)).AsAsyncEnumerable();
+          .Prefetch(o => o.InvoiceLines.Prefetch(od => od.Track));
         int count1 = 0, count2 = 0;
         await foreach (var invoice in invoices) {
           count1++;
@@ -483,7 +482,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var employeeType = Domain.Model.Types[typeof(Employee)];
         var invoiceType = Domain.Model.Types[typeof(Invoice)];
         var invoices = session.Query.Many<Invoice>(keys)
-          .Prefetch(o => o.DesignatedEmployee.Invoices).AsAsyncEnumerable();
+          .Prefetch(o => o.DesignatedEmployee.Invoices);
         var count = 0;
         await foreach (var invoice in invoices) {
           Assert.That(invoice.Key, Is.EqualTo(keys[count]));
@@ -674,7 +673,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<Invoice>().ToList();
-        var prefetchQuery = source.Prefetch(i => i.InvoiceLines).AsAsyncEnumerable();
+        var prefetchQuery = source.Prefetch(i => i.InvoiceLines);
         await using (var enumerator0 = prefetchQuery.GetAsyncEnumerator()) {
           _ = await enumerator0.MoveNextAsync();
           _ = await enumerator0.MoveNextAsync();
@@ -729,7 +728,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         await using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<PrefetchModel.Book>().AsEnumerable()
-            .Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1)).Prefetch(b => b.Title).AsAsyncEnumerable();
+            .Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1)).Prefetch(b => b.Title);
           var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
           var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           var count = 0;
@@ -783,7 +782,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         await using (var tx = session.OpenTransaction()) {
           var prefetcher = session.Query.All<PrefetchModel.Book>()
-            .Prefetch(b => b.Title.Book).AsAsyncEnumerable();
+            .Prefetch(b => b.Title.Book);
           var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
           var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           await foreach (var book in prefetcher) {
@@ -837,7 +836,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         await using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<PrefetchModel.Book>().AsEnumerable().Concat(Enumerable.Repeat<PrefetchModel.Book>(null, 1))
-            .Prefetch(b => b.Title.Book).AsAsyncEnumerable();
+            .Prefetch(b => b.Title.Book);
           var titleField = Domain.Model.Types[typeof(PrefetchModel.Book)].Fields[nameof(PrefetchModel.Book.Title)];
           var titleType = Domain.Model.Types[typeof(PrefetchModel.Title)];
           var count = 0;
@@ -883,7 +882,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var tx = session.OpenTransaction()) {
         var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
           .Prefetch(oc => oc.RealOffer.Book)
-          .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop).AsAsyncEnumerable();
+          .Prefetch(oc => oc.IntermediateOffer.RealOffer.BookShop);
         await foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.TypeInfo, session);
           PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key, bookShop1Key.TypeInfo, session);
@@ -917,7 +916,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       await using (var session = await Domain.OpenSessionAsync())
       await using (var tx = session.OpenTransaction()) {
         var containers = session.Query.Many<PrefetchModel.OfferContainer>(Enumerable.Repeat(containerKey, 1))
-          .Prefetch(oc => oc.IntermediateOffer).AsAsyncEnumerable();
+          .Prefetch(oc => oc.IntermediateOffer);
         await foreach (var key in containers) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(containerKey, containerKey.TypeInfo, session,
             field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field) || field.Name.StartsWith("IntermediateOffer"));

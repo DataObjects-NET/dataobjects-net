@@ -143,11 +143,9 @@ namespace Xtensive.Orm.Providers
         
       };
       var result = basicCompilerContainers;
-      var defaultLoadedAssemblies = AssemblyLoadContext.Default.Assemblies;
-      var currentLoadedAssemblies = AssemblyLoadContext.CurrentContextualReflectionContext.Assemblies;
+      var allLoadedAssemblies = AssemblyLoadContext.All.SelectMany(static c => c.Assemblies);
       // dynamic registration to not cause assembly loading
-      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))
-        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
+      if (allLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
         result = result.Concat(new[] {
           typeof (FSharpMathOperationsCompilers),
           typeof (FSharpOperatorsCompilers),
@@ -156,8 +154,7 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))
-        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
+      if (allLoadedAssemblies.Any(static a => a.GetName().Name.StartsWith("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
         result = result.Concat(new[] {
           typeof (VbConversionsCompilers),
           typeof (VbStringsCompilers),

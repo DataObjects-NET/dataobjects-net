@@ -19,8 +19,27 @@ namespace Xtensive.Orm
   /// initial query result.
   /// </summary>
   /// <typeparam name="TElement">The type of the queried elements.</typeparam>
-  public readonly struct PrefetchQuery<TElement> : IEnumerable<TElement>
+  public readonly struct PrefetchQuery<TElement> : IEnumerable<TElement>, IAsyncEnumerable<TElement>
   {
+    #region Nested types
+    private class ExecuteAsyncResult : IEnumerable<TElement>
+    {
+      private readonly List<TElement> items;
+      // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
+      private readonly StrongReferenceContainer referenceContainer;
+
+      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+      public IEnumerator<TElement> GetEnumerator() => items.GetEnumerator();
+
+      public ExecuteAsyncResult(List<TElement> items, StrongReferenceContainer referenceContainer)
+      {
+        this.items = items;
+        this.referenceContainer = referenceContainer;
+      }
+    }
+    #endregion
+
     private readonly Session session;
     private readonly IEnumerable<TElement> source;
     private readonly SinglyLinkedList<KeyExtractorNode<TElement>> nodes;
@@ -38,28 +57,16 @@ namespace Xtensive.Orm
     public IEnumerator<TElement> GetEnumerator() =>
       new PrefetchQueryEnumerable<TElement>(session, source, nodes).GetEnumerator();
 
+    /// <inheritdoc />
+    public IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken token = default) =>
+      new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes).GetAsyncEnumerator(token);
+
     /// <summary>
     /// Transforms <see cref="PrefetchQuery{TElement}"/> to an <see cref="IAsyncEnumerable{T}"/> sequence.
     /// </summary>
+    [Obsolete("PrefetchQuery itself is an IAsyncEnumerable implementation")]
     public IAsyncEnumerable<TElement> AsAsyncEnumerable() =>
       new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes);
-
-    private class ExecuteAsyncResult : IEnumerable<TElement>
-    {
-      private readonly List<TElement> items;
-      // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
-      private readonly StrongReferenceContainer referenceContainer;
-
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-      public IEnumerator<TElement> GetEnumerator() => items.GetEnumerator();
-
-      public ExecuteAsyncResult(List<TElement> items, StrongReferenceContainer referenceContainer)
-      {
-        this.items = items;
-        this.referenceContainer = referenceContainer;
-      }
-    }
 
     /// <summary>
     /// Asynchronously executes given <see cref="PrefetchQuery{TElement}"/> instance.
@@ -68,8 +75,7 @@ namespace Xtensive.Orm
     /// <para>
     /// This method internally puts all elements of the resulting sequence to a list
     /// and then it wraps mentioned list as a <see cref="QueryResult{TItem}"/>.
-    /// As a consequence it is more efficient to use asynchronous enumeration over result of
-    /// <see cref="AsAsyncEnumerable"/> method call because it can perform lazily
+    /// As a consequence it is more efficient to use asynchronous enumeration because it can perform lazily
     /// not putting everything into intermediate list.
     /// </para>
     /// <para> Multiple active operations are not supported. Use <see langword="await"/>

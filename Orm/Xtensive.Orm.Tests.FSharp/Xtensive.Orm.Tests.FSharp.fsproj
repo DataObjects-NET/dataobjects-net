@@ -28,8 +28,11 @@
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Keep it before any tests -->
     <Compile Include="FsUnit.fs" />
     <Compile Include="Model.fs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="ArithmeticOperationsCompilersTest.fs" />
     <Compile Include="ComparisonCompilersTest.fs" />
     <Compile Include="DateTimeCompilersTest.fs" />
