@@ -3,3 +3,4 @@
 [main] PrefetchQuery<T> implements IAsyncEnumerable<T>, extra call for .AsAsyncEmumerable() is not needed for async enumeration
 [main] PrefetchQuery<T>.AsAsyncEmumerable() is marked as Obsolete
 [main] Support for C#14+ optimization that applies ReadOnlySpan<T>.Contains() extension instead of IEnumerable<T>.Contains() one to arrays
+[main] Compatibility with VB and FSharp improved
