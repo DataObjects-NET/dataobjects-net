@@ -204,8 +204,8 @@ namespace Xtensive.Sql.Dml
           foreach (SqlOrder so in t.orderBy)
             clone.OrderBy.Add(so.Clone(c));
         clone.Distinct = t.distinct;
-        clone.Limit = t.Limit;
-        clone.Offset = t.Offset;
+        clone.Limit = t.Limit?.Clone(c);
+        clone.Offset = t.Offset?.Clone(c);
         clone.Lock = t.Lock;
         clone.Comment = t.Comment?.Clone(c);
 
