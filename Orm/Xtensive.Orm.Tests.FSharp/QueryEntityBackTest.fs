@@ -33,3 +33,4 @@ type Fixture() =
     Assert.That(list.Length, Is.EqualTo(1))
     let fetched = list.[0]
     Assert.That(fetched.Name, Is.EqualTo("John"))
+
