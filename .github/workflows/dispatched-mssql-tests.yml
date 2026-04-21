@@ -28,7 +28,7 @@ on:
         type: boolean
         default: false
         required: true
-      mssql2022:
+      mssql2025:
         description: 'MS SQL Server 2025'
         type: boolean
         default: true
