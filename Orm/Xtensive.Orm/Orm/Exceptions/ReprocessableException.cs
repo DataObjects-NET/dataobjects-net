@@ -5,7 +5,6 @@
 // Created:    2009.08.17
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Orm
@@ -15,7 +14,6 @@ namespace Xtensive.Orm
   /// that can be recovered by rolling back active transaction
   /// and reprocessing all actions in a new one.
   /// </summary>
-  [Serializable]
   public abstract class ReprocessableException : StorageException
   {
     // Constructors

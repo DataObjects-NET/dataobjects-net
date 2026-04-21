@@ -5,8 +5,6 @@
 // Created:    2007.09.18
 
 using System;
-using System.Runtime.Serialization;
-using Xtensive.Core;
 
 using Xtensive.Orm.Upgrade;
 
@@ -16,7 +14,6 @@ namespace Xtensive.Orm
   /// Describes schema synchronization errors 
   /// detected during <see cref="Domain"/>.<see cref="Domain.Build"/> execution.
   /// </summary>
-  [Serializable]
   public sealed class SchemaSynchronizationException : StorageException
   {
     /// <summary>

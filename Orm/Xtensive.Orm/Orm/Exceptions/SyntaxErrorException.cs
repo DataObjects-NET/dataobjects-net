@@ -5,7 +5,6 @@
 // Created:    2010.02.08
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Orm
@@ -15,7 +14,6 @@ namespace Xtensive.Orm
   /// When you've got this exception, you either did not configured access permissions
   /// in your RDBMS, or you've found an error in DataObjects.Net.
   /// </summary>
-  [Serializable]
   public class SyntaxErrorException : StorageException
   {
     // Constructors

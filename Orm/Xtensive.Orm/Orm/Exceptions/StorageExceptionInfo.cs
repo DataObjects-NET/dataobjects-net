@@ -15,7 +15,6 @@ namespace Xtensive.Orm
   /// Extended information about <see cref="StorageException"/>.
   /// All fields are optional.
   /// </summary>
-  [Serializable]
   public class StorageExceptionInfo
   {
     /// <summary>

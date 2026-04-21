@@ -5,16 +5,12 @@
 // Created:    2009.08.17
 
 using System;
-using System.Runtime.Serialization;
-
-
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Base class for any storage-level exception.
   /// </summary>
-  [Serializable]
   public class StorageException : Exception
   {
     /// <summary>
