@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -24,8 +25,6 @@ namespace Xtensive.Orm.Rse.Providers
     private const string ToString_Parameters = " ({0})";
     private const int    ToString_IndentSize = 2;
 
-    private RecordSetHeader header;
-
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
     /// </summary>
@@ -35,46 +34,14 @@ namespace Xtensive.Orm.Rse.Providers
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
     /// </summary>
-    public IReadOnlyList<Provider> Sources { [DebuggerStepThrough] get; }
+    public Provider[] Sources { get; }
 
     /// <summary>
     /// Gets or sets the header of the record sequence this provide produces.
     /// </summary>
-    public RecordSetHeader Header
-    {
-      [DebuggerStepThrough]
-      get { return header; }
-      [DebuggerStepThrough]
-      private set {
-        if (header!=null)
-          throw Exceptions.AlreadyInitialized("Header");
-        header = value;
-      }
-    }
+    public RecordSetHeader Header { get; }
 
-    /// <summary>
-    /// Builds the <see cref="Header"/>.
-    /// This method is invoked just once on each provider.
-    /// </summary>
-    /// <returns>Newly created <see cref="RecordSetHeader"/> to assign to <see cref="Header"/> property.</returns>
-    protected abstract RecordSetHeader BuildHeader();
-
-    private string DebuggerDisplayName {
-      get {
-        var type = GetType();
-        return type.IsGenericType
-          ? type.GetShortName()
-          : type.Name;
-      }
-    }
-
-    /// <summary>
-    /// Performs initialization of the provider.
-    /// </summary>
-    protected virtual void Initialize()
-    {
-      Header = BuildHeader();
-    }
+    private string DebuggerDisplayName => GetType().GetShortName();
 
     #region ToString method
 
@@ -89,14 +56,15 @@ namespace Xtensive.Orm.Rse.Providers
     private void AppendBodyTo(StringBuilder sb, int indent)
     {
       AppendTitleTo(sb, indent);
-      indent = indent + ToString_IndentSize;
-      foreach (var source in Sources)
+      indent += ToString_IndentSize;
+      foreach (var source in Sources) {
         source.AppendBodyTo(sb, indent);
+      }
     }
 
     private void AppendTitleTo(StringBuilder sb, int indent)
     {      
-      sb.Append(TitleToString().Indent(indent))
+      _ = sb.Append(TitleToString().Indent(indent))
         .AppendLine();
     }
 
@@ -105,11 +73,12 @@ namespace Xtensive.Orm.Rse.Providers
       var sb = new StringBuilder();
       var type = GetType();
       var providerName = (type.IsGenericType ? type.GetShortName() : type.Name).TryCutSuffix(ToString_ProviderTypeSuffix);
-      var parameters = ParametersToString();
+      var parametersAsString = ParametersToString();
 
-      sb.Append(providerName);
-      if (!parameters.IsNullOrEmpty())
-        sb.AppendFormat(ToString_Parameters, parameters);
+      _ = sb.Append(providerName);
+      if (!parametersAsString.IsNullOrEmpty()) {
+        _ = sb.AppendFormat(ToString_Parameters, parametersAsString);
+      }
       return sb.ToString();
     }
 
@@ -118,10 +87,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// for the <see cref="ToString"/> method.
     /// </summary>
     /// <returns>Provider parameters as a single line string.</returns>
-    protected virtual string ParametersToString()
-    {
-      return string.Empty;
-    }
+    protected virtual string ParametersToString() => string.Empty;
 
     #endregion
 
@@ -132,11 +98,15 @@ namespace Xtensive.Orm.Rse.Providers
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type of the provider.</param>
+    /// <param name="header">The header of the produced sequence of records.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>
-    protected Provider(ProviderType type, IReadOnlyList<Provider> sources)
+    protected Provider(ProviderType type, RecordSetHeader header, Provider[] sources)
     {
       Type = type;
-      Sources = sources;
+      Header = header ?? throw new ArgumentNullException(nameof(header));
+      Sources = (sources.Any(p => p is null))
+        ? throw new ArgumentNullException(nameof(header))
+        : sources;
     }
   }
 }

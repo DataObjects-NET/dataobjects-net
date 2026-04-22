@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var mapping = mappings[provider];
       if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
         return provider;
-      var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
+      var mappingTransform = new MapTransform(provider.Header.TupleDescriptor, mapping);
       var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);
       return new RawProvider(provider.Header.Select(mapping), newExpression);
     }

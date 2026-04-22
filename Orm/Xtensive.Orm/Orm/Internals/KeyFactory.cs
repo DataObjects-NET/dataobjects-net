@@ -82,7 +82,8 @@ namespace Xtensive.Orm.Internals
       TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       var keyInfo = type.Key;
-      ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");
+      ArgumentOutOfRangeException.ThrowIfLessThan(values.Length, 1, "values.Length");
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(values.Length, keyInfo.TupleDescriptor.Count, "values.Length");
 
       var tuple = Tuple.Create(keyInfo.TupleDescriptor);
       int typeIdIndex = keyInfo.TypeIdColumnIndex;

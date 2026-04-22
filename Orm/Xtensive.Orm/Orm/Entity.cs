@@ -127,7 +127,7 @@ namespace Xtensive.Orm
           foreach (var root in ((IHasVersionRoots) this).GetVersionRoots()) {
             if (root is IHasVersionRoots)
               throw new InvalidOperationException(Strings.ExVersionRootObjectCantImplementIHasVersionRoots);
-            version = version.Combine(root.Key, root.VersionInfo);
+            version = version.Concat(root.Key, root.VersionInfo);
           }
           return version;
         }

@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <inheritdoc/>
-    protected CompilableProvider(ProviderType type, params Provider[] sources)
-      : base(type, sources)
+    protected CompilableProvider(ProviderType type, RecordSetHeader header, params Provider[] sources)
+      : base(type, header, sources)
     {
     }
 
-    protected CompilableProvider(ProviderType type)
-      : this(type, Array.Empty<Provider>())
+    protected CompilableProvider(ProviderType type, RecordSetHeader header)
+      : this(type, header, Array.Empty<Provider>())
     {
     }
   }

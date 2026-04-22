@@ -123,7 +123,6 @@ namespace Xtensive.Orm.Providers
       : base(handlers, request, tableDescriptor, origin, new []{source})
     {
       this.filterDataSource = filterDataSource;
-      Initialize();
     }
   }
 }

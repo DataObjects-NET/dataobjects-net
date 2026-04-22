@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals;
@@ -93,8 +92,8 @@ namespace Xtensive.Orm.Linq.Materialization
       ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
       ArraySegment<int> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
-      var transform    = new MapTransform(true, descriptor, allIndexes);
-      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
+      var transform    = new MapTransform(descriptor, allIndexes);
+      var keyTransform = new MapTransform(keyInfo.TupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 

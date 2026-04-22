@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
@@ -35,6 +34,28 @@ namespace Xtensive.Orm
     INotifyPropertyChanged,
     INotifyCollectionChanged
   {
+    #region Nested types
+    private class SeekKeyTupleBuilder
+    {
+      private readonly TupleDescriptor keyDescriptor;
+      private readonly IReadOnlyList<int> itemColumnOffsets;
+
+      public Tuple Build(Tuple ownerKeyTuple, Tuple itemTuple)
+      {
+        var result = Tuple.Create(keyDescriptor);
+        ownerKeyTuple.CopyTo(result);
+        itemTuple.CopyTo(result, itemColumnOffsets);
+        return result;
+      }
+
+      public SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<int> itemColumnOffsets)
+      {
+        this.keyDescriptor = keyDescriptor;
+        this.itemColumnOffsets = itemColumnOffsets;
+      }
+    }
+    #endregion
+
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
 #if DEBUG
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
@@ -45,7 +66,7 @@ namespace Xtensive.Orm
     private static readonly Func<FieldInfo, EntitySetBase, EntitySetTypeState> EntitySetTypeStateFactory = BuildEntitySetTypeState;
 
     private readonly Entity owner;
-    private readonly CombineTransform auxilaryTypeKeyTransform;
+    private readonly ConcatTransform auxilaryTypeKeyTransform;
     private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
 
@@ -903,8 +924,7 @@ namespace Xtensive.Orm
       var entitySetTypeState = GetEntitySetTypeState();
 
       var parameterContext = new ParameterContext();
-      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekTransform
-        .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value));
+      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekKeyBuilder.Invoke(Owner.Key.Value, key.Value));
       using (var recordSetReader = entitySetTypeState.SeekProvider.GetRecordSetReader(Session, parameterContext)) {
         foundInDatabase = recordSetReader.MoveNext();
       }
@@ -929,30 +949,30 @@ namespace Xtensive.Orm
 
     private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field, EntitySetBase entitySet)
     {
-      var association = field.Associations.Last();
+      var association = field.Associations[^1];
       var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
       var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
+      var ownerFieldCount = ownerDescriptor.Count;
 
-      var itemColumnOffsets = association.AuxiliaryType == null
-        ? association.UnderlyingIndex.ValueColumns
+      IReadOnlyList<int> itemColumnOffsets;
+      if (association.AuxiliaryType == null) {
+        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount)
+          .Concat(association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
-            .Select(ci => ci.Field.MappingInfo.Offset)
-            .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+            .Select(ci => ci.Field.MappingInfo.Offset)).ToList();
+      }
+      else {
+        var keyFieldCount = ownerDescriptor.Count + targetDescriptor.Count;
+        var offsetMap = new int[keyFieldCount];
+        for (var index = 0; index < keyFieldCount; index++) {
+          offsetMap[index] = index - ownerFieldCount;
+        }
+        itemColumnOffsets = offsetMap;
 
-      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
-      var keyFieldTypes = ownerDescriptor
-        .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
-        .ToArray(keyFieldCount);
-      var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
-
-      var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => new Pair<int, int>(0, i))
-        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
-        .ToArray(keyFieldCount);
-      var seekTransform = new MapTransform(true, keyDescriptor, map);
+      }
+      var keyDescriptor = ownerDescriptor.ConcatWith(targetDescriptor);
 
       Func<Tuple, Entity> itemCtor = null;
       if (association.AuxiliaryType != null) {
@@ -961,7 +981,8 @@ namespace Xtensive.Orm
           Array.Empty<Type>());
       }
 
-      return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+      var seekKeyTupleBuilder = new SeekKeyTupleBuilder(keyDescriptor, itemColumnOffsets);
+      return new EntitySetTypeState(seek, seekKeyTupleBuilder.Build, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)
@@ -1029,12 +1050,11 @@ namespace Xtensive.Orm
       this.owner = owner;
       Field = field;
       State = new EntitySetState(this);
-      var association = Field.Associations.Last();
+      var association = Field.Associations[^1];
       if (association.AuxiliaryType != null && association.IsMaster) {
         var domain = Session.Domain;
         var itemType = domain.Model.Types[Field.ItemType];
-        auxilaryTypeKeyTransform = new CombineTransform(
-          false,
+        auxilaryTypeKeyTransform = new ConcatTransform(
           owner.TypeInfo.Key.TupleDescriptor,
           itemType.Key.TupleDescriptor);
       }

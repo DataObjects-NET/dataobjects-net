@@ -7,13 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -23,30 +20,17 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class RawProvider : CompilableProvider
   {
-    private readonly RecordSetHeader header;
     private Func<ParameterContext, IEnumerable<Tuple>> compiledSource;
 
     /// <summary>
     /// Raw data source - an array of tuples.
     /// </summary>
-    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> Source { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> Source { get; }
 
     /// <summary>
     /// Gets the compiled <see cref="Source"/>.
     /// </summary>
-    public Func<ParameterContext, IEnumerable<Tuple>> CompiledSource {
-      get {
-        if (compiledSource==null)
-          compiledSource = Source.CachingCompile();
-        return compiledSource;
-      }
-    }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return header;
-    }
+    public Func<ParameterContext, IEnumerable<Tuple>> CompiledSource => compiledSource ??= Source.CachingCompile();
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -63,11 +47,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public RawProvider(RecordSetHeader header, Expression<Func<ParameterContext, IEnumerable<Tuple>>> source)
-      : base(ProviderType.Raw)
+      : base(ProviderType.Raw, header)
     {
       Source = source ?? throw new ArgumentNullException(nameof(source));
-      this.header = header ?? throw new ArgumentNullException(nameof(header));
-      Initialize();
     }
   }
 }

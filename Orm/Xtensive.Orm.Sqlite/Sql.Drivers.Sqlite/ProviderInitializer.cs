@@ -54,12 +54,11 @@ namespace Xtensive.Sql.Drivers.Sqlite
     private static string GetLibraryHash()
     {
       using (var hashProvider = SHA1.Create()) {
-        //hashProvider.Initialize();
-        ReadOnlySpan<byte> hashRaw;
-        using (var stream = GetLibraryStream()) {
-          hashRaw = hashProvider.ComputeHash(stream);
-        }
-        return new StringBuilder().AppendHexArray(hashRaw[..8]).ToString();
+        hashProvider.Initialize();
+        using (var stream = GetLibraryStream())
+          hashProvider.ComputeHash(stream);
+        var hash = hashProvider.Hash.Take(8).ToArray();
+        return new StringBuilder().AppendHexArray(hash).ToString();
       }
     }
 

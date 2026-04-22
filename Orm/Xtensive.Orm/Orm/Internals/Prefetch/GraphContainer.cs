@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
       EntityState ownerState)
     {
-      var association = referencingFieldDescriptor.Field.Associations.Last();
+      var association = referencingFieldDescriptor.Field.Associations[^1];
       var referencedKeyTuple = association
         .ExtractForeignKey(ownerState.Type, ownerState.Tuple);
       var referencedKeyTupleState = referencedKeyTuple.GetFieldStateMap(TupleFieldState.Null);

@@ -1,23 +1,22 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.06.04
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
 
-
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
+  /// A <see cref="ConcatTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple : Tuple, ITransformedTuple
+  internal sealed class ConcatTransformTuple : Tuple, ITransformedTuple
   {
-    private readonly MapTransform transform;
-    private readonly Tuple source;
+    private readonly ConcatTransform transform;
+    private readonly Tuple source1;
+    private readonly Tuple source2;
+    private readonly int totalCount;
     private Tuple defaultResult;
 
     /// <summary>
@@ -34,13 +33,13 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      var index = GetSourceFieldIndex(fieldIndex);
+      var (source, index) = GetSourceAndFieldIndex(fieldIndex);
       return index == TransformUtil.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      var index = GetSourceFieldIndex(fieldIndex);
+      var (source, index) = GetSourceAndFieldIndex(fieldIndex);
       if (index == TransformUtil.NoMapping) {
         return;
       }
@@ -50,7 +49,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      int index = GetSourceFieldIndex(fieldIndex);
+      var (source, index) = GetSourceAndFieldIndex(fieldIndex);
       return index == TransformUtil.NoMapping
         ? DefaultResult.GetValue(fieldIndex, out fieldState)
         : source.GetValue(index, out fieldState);
@@ -62,42 +61,34 @@ namespace Xtensive.Tuples.Transform.Internals
       if (transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
-      source.SetValue(GetSourceFieldIndex(fieldIndex), fieldValue);
+      var (source, index) = GetSourceAndFieldIndex(fieldIndex);
+      source.SetValue(index, fieldValue);
     }
 
     #endregion
 
-    private int GetSourceFieldIndex(int fieldIndex)
+    private (Tuple source, int index) GetSourceAndFieldIndex(int fieldIndex)
     {
-      var mappedIndex = transform.Map[fieldIndex];
-      return mappedIndex < 0 ? TransformUtil.NoMapping : mappedIndex;
-    }
-
-    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
-    {
-      if (isWriting && transform.IsReadOnly) {
-        throw Exceptions.ObjectIsReadOnly(null);
+      if (fieldIndex < 0 || fieldIndex > totalCount) {
+        return (null, TransformUtil.NoMapping);
       }
-      var index = GetSourceFieldIndex(fieldIndex);
-      return index == TransformUtil.NoMapping ? default : source.GetMappedContainer(index, isWriting);
+      var source2Index = fieldIndex - source1.Count;
+      return source2Index < 0 ? (source1, fieldIndex) : (source2, source2Index);
     }
 
     /// <inheritdoc/>
     public override string ToString() =>
-      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, source);
+      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, $"{source1}, {source2}");
 
 
     // Constructors
 
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="transform">The transform.</param>
-    /// <param name="source">Source tuple.</param>
-    public MapTransformTuple(MapTransform transform, Tuple source)
+    public ConcatTransformTuple(ConcatTransform transform, Tuple source1, Tuple source2)
     {
       this.transform = transform;
-      this.source = source ?? throw new ArgumentNullException(nameof(source));
+      this.source1 = source1;
+      this.source2 = source2;
+      totalCount = source1.Count + source2.Count;
     }
   }
 }

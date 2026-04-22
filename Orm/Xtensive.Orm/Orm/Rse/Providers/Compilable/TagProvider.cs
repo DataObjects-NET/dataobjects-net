@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Rse.Providers
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(tag, nameof(tag));
       Tag = tag;
-      Initialize();
     }
   }
 }

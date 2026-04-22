@@ -5,10 +5,7 @@
 // Created:    2009.04.01
 
 using System;
-using System.Diagnostics;
-using Xtensive.Collections;
-
-
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -19,20 +16,18 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ExceptProvider : BinaryProvider
   {
-    protected override RecordSetHeader BuildHeader()
+    #region Header build
+    private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
-      EnsureIntersectIsPossible();
-      return Left.Header;
+      var leftHeader = left.Header;
+      var leftDescriptor = leftHeader.TupleDescriptor;
+      var rightDescriptor = right.Header.TupleDescriptor;
+      if (leftDescriptor != rightDescriptor) {
+        throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Except operation"));
+      }
+      return leftHeader;
     }
-
-    private void EnsureIntersectIsPossible()
-    {
-      var left = Left.Header.TupleDescriptor;
-      var right = Right.Header.TupleDescriptor;
-      if (left!=right)
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Except operation"));
-    }
-
+    #endregion
 
     // Constructors
 
@@ -42,9 +37,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="left">The left provider to execute except operation.</param>
     /// <param name="right">The right provider to to execute except operation.</param>
     public ExceptProvider(CompilableProvider left, CompilableProvider right)
-      : base(ProviderType.Except, left, right)
+      : base(ProviderType.Except, BuildHeader(left, right), left, right)
     {
-      Initialize();
     }
   }
 }

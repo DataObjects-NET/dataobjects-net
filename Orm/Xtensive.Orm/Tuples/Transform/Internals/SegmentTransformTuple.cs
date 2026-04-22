@@ -1,22 +1,19 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.06.04
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
 
-
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
+  /// A <see cref="SegmentTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple : Tuple, ITransformedTuple
+  internal sealed class SegmentTransformTuple : Tuple, ITransformedTuple
   {
-    private readonly MapTransform transform;
+    private readonly SegmentTransform transform;
     private readonly Tuple source;
     private Tuple defaultResult;
 
@@ -69,17 +66,8 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetSourceFieldIndex(int fieldIndex)
     {
-      var mappedIndex = transform.Map[fieldIndex];
-      return mappedIndex < 0 ? TransformUtil.NoMapping : mappedIndex;
-    }
-
-    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
-    {
-      if (isWriting && transform.IsReadOnly) {
-        throw Exceptions.ObjectIsReadOnly(null);
-      }
-      var index = GetSourceFieldIndex(fieldIndex);
-      return index == TransformUtil.NoMapping ? default : source.GetMappedContainer(index, isWriting);
+      var sourceIndex = transform.Segment.Offset + fieldIndex;
+      return sourceIndex < 0 || sourceIndex >= source.Count ? TransformUtil.NoMapping : sourceIndex;
     }
 
     /// <inheritdoc/>
@@ -89,15 +77,10 @@ namespace Xtensive.Tuples.Transform.Internals
 
     // Constructors
 
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="transform">The transform.</param>
-    /// <param name="source">Source tuple.</param>
-    public MapTransformTuple(MapTransform transform, Tuple source)
+    public SegmentTransformTuple(SegmentTransform transform, Tuple source)
     {
       this.transform = transform;
-      this.source = source ?? throw new ArgumentNullException(nameof(source));
+      this.source = source;
     }
   }
 }

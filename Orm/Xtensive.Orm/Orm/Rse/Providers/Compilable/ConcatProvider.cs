@@ -5,10 +5,8 @@
 // Created:    2009.04.01
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
-using Xtensive.Collections;
-
-
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -20,44 +18,55 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ConcatProvider : BinaryProvider
   {
-    protected override RecordSetHeader BuildHeader()
+    #region Header build
+    private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
-      EnsureConcatIsPossible();
+      var leftHeader = left.Header;
+      var rightHeader = right.Header;
+      EnsureConcatIsPossible(leftHeader, rightHeader);
+
       var mappedColumnIndexes = new List<int>();
-      var columns = new List<Column>();
-      for (int i = 0; i < Left.Header.Columns.Count; i++) {
-        var leftColumn = Left.Header.Columns[i];
-        var rightColumn = Right.Header.Columns[i];
+      var rented = ArrayPool<Column>.Shared.Rent(Math.Max(leftHeader.Columns.Count, 64));
+      var lastIndex = 0;
+      for (int i = 0, count = leftHeader.Columns.Count; i < count; i++) {
+        var leftColumn = leftHeader.Columns[i];
+        var rightColumn = rightHeader.Columns[i];
         if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
           if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-            columns.Add(leftMappedColumn);
+            rented[lastIndex++] = leftColumn;
             mappedColumnIndexes.Add(i);
-            }
-          else
-            columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+          }
+          else {
+            rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+          }
         }
-        else
-          columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+        else {
+          rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+        }
       }
-      var columnGroups = Left.Header.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
+      var columns = new Column[lastIndex];
+      Array.Copy(rented, columns, lastIndex);
+      ArrayPool<Column>.Shared.Return(rented, true);
+
+      var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
       return new RecordSetHeader(
-        Left.Header.TupleDescriptor, 
-        columns, 
+        leftHeader.TupleDescriptor,
+        columns,
         columnGroups,
         null,
         null);
     }
 
-    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
-    private void EnsureConcatIsPossible()
+    private static void EnsureConcatIsPossible(RecordSetHeader leftHeader, RecordSetHeader rightHeader)
     {
-      var left = Left.Header.TupleDescriptor;
-      var right = Right.Header.TupleDescriptor;
-      if (!left.Equals(right))
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+      var left = leftHeader.TupleDescriptor;
+      var right = rightHeader.TupleDescriptor;
+      if (!left.Equals(right)) {
+        throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+      }
     }
-
+    #endregion
 
     // Constructors
 
@@ -67,9 +76,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="left">The left provider to intersect.</param>
     /// <param name="right">The right provider to intersect.</param>
     public ConcatProvider(CompilableProvider left, CompilableProvider right)
-      : base(ProviderType.Concat, left, right)
+      : base(ProviderType.Concat, BuildHeader(left, right), left, right)
     {
-      Initialize();
     }
   }
 }

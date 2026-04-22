@@ -8,7 +8,6 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -21,30 +20,16 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class FilterProvider : UnaryProvider
   {
-    private Func<Tuple, bool> compiledPredicate;
-
     /// <summary>
     /// Filtering predicate expression.
     /// </summary>
-    public Expression<Func<Tuple, bool>> Predicate { get; private set; }
-
-    /// <summary>
-    /// Gets the compiled <see cref="Predicate"/>.
-    /// </summary>
-    public Func<Tuple, bool> CompiledPredicate {
-      get {
-        if (compiledPredicate==null)
-          compiledPredicate = Predicate.CachingCompile();
-        return compiledPredicate;
-      }
-    }
+    public Expression<Func<Tuple, bool>> Predicate { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Predicate.ToString(true);
     }
-
 
     // Constructors
 
@@ -57,7 +42,6 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Filter, source)
     {
       Predicate = predicate;
-      Initialize();
     }
   }
 }

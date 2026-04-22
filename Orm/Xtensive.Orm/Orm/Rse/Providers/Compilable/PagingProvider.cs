@@ -5,7 +5,6 @@
 // Created:    2011.03.24
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 
 
@@ -20,22 +19,22 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// From number function.
     /// </summary>
-    public Func<ParameterContext, int> From { get; private set; }
+    public Func<ParameterContext, int> From { get; }
 
     /// <summary>
     /// To number function.
     /// </summary>
-    public Func<ParameterContext, int> To { get; private set; }
+    public Func<ParameterContext, int> To { get; }
 
     /// <summary>
     /// Skip amount function.
     /// </summary>
-    public Func<ParameterContext, int> Skip { get; private set; }
+    public Func<ParameterContext, int> Skip { get; }
 
     /// <summary>
     /// Take amount function.
     /// </summary>
-    public Func<ParameterContext, int> Take { get; private set; }
+    public Func<ParameterContext, int> Take { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -59,7 +58,6 @@ namespace Xtensive.Orm.Rse.Providers
       Take = take;
       From = context => skip(context) + 1;
       To = context => take(context) + skip(context);
-      Initialize();
     }
 
     /// <summary>
@@ -75,7 +73,6 @@ namespace Xtensive.Orm.Rse.Providers
       Take = context => take;
       From = context => skip + 1;
       To = context => take + skip;
-      Initialize();
     }
 
     /// <summary>
@@ -90,7 +87,6 @@ namespace Xtensive.Orm.Rse.Providers
       Take = pagingProvider.Take;
       From = pagingProvider.From;
       To = pagingProvider.To;
-      Initialize();
     }
   }
 }

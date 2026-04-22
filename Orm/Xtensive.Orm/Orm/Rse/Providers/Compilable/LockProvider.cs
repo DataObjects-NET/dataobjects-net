@@ -35,11 +35,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="lockMode">The mode of the lock to be acquired.</param>
     /// <param name="lockBehavior">The behavior of the lock.</param>
     public LockProvider(CompilableProvider source, LockMode lockMode, LockBehavior lockBehavior)
-      : base(ProviderType.Lock, source)
+      : this(source, () => lockMode, () => lockBehavior)
     {
-      LockMode = () => lockMode;
-      LockBehavior = () => lockBehavior;
-      Initialize();
     }
 
     /// <summary>
@@ -52,8 +49,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Lock, source)
     {
       LockMode = lockMode ?? throw new ArgumentNullException(nameof(lockMode));
-      LockBehavior = lockBehavior ?? throw new ArgumentNullException(nameof(lockMode));
-      Initialize();
+      LockBehavior = lockBehavior ?? throw new ArgumentNullException(nameof(lockBehavior));
     }
   }
 }

@@ -1,13 +1,11 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.03.05
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Reflection;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -20,29 +18,16 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the row number column.
     /// </summary>
-    public SystemColumn SystemColumn { get; private set; }
+    public SystemColumn SystemColumn { get; }
 
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform ResizeTransform { get; private set; }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
+    #region Header build
+    private static RecordSetHeader CreateHeaderAndColumn(CompilableProvider source, string columnName, out SystemColumn systemColumn)
     {
-      base.Initialize();
-      var columnIndexes = new int[Header.Length];
-      for (int i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
-      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
+      var sourceHeader = source.Header;
+      systemColumn = new SystemColumn(columnName, sourceHeader.Length, WellKnownTypes.Int64);
+      return sourceHeader.Add(systemColumn);
     }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Add(SystemColumn);
-    }
-
+    #endregion
 
     // Constructors
 
@@ -52,10 +37,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnName">The name of <see cref="SystemColumn"/>.</param>
     public RowNumberProvider(CompilableProvider source, string columnName)
-      : base(ProviderType.RowNumber, source)
+      : base(ProviderType.RowNumber, CreateHeaderAndColumn(source, columnName, out var systemColumn), source)
     {
-      SystemColumn = new SystemColumn(columnName, Source.Header.Length, WellKnownTypes.Int64);
-      Initialize();
+      SystemColumn = systemColumn;
     }
   }
 }

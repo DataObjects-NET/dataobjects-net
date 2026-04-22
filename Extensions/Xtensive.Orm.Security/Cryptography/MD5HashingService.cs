@@ -5,7 +5,6 @@
 // Created:    2011.05.22
 
 using System.Security.Cryptography;
-using System.Text;
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Security.Cryptography
