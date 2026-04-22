@@ -3,9 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -20,8 +18,15 @@ namespace Xtensive.Sql.Dml
     public IEnumerable<SqlTable> Tables { get { return tables; } }
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlForceJoinOrderHint(t.tables?.SelectToArray(table => (SqlTable) table.Clone())));
+      context.GetOrAdd(this, static (t, c) => {
+        if (t.tables is null)
+          return new SqlForceJoinOrderHint();
+        var source = t.tables;
+        var tablesClone = new SqlTable[source.Length];
+        for (int i = 0; i < source.Length; i++)
+          tablesClone[i] = source[i].Clone(c);
+        return new SqlForceJoinOrderHint(tablesClone);
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
