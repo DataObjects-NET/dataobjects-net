@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Xtensive LLC.
+// Copyright (C) 2023-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -12,15 +12,8 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="DefaultExpression"/>.
   /// </summary>
   [Serializable]
+  [DataContract]
   public sealed class SerializableDefaultExpression : SerializableExpression
   {
-    public SerializableDefaultExpression()
-    {
-    }
-
-    public SerializableDefaultExpression(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }

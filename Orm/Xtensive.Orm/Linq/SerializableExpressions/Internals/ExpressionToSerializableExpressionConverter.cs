@@ -141,7 +141,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
           Type = n.Type,
           Constructor = n.Constructor,
           Arguments = VisitExpressionSequence(n.Arguments),
-          Members = n.Members.ToArraySafely()
+          Members = n.Members?.Select(static m => (SerializableMemberInfo)m).ToArray()
         };
     }
 

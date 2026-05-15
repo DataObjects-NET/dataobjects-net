@@ -14,8 +14,22 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal sealed class SerializableExpressionToExpressionConverter
   {
+    private readonly struct LambdaParameterScope : IDisposable
+    {
+      private readonly SerializableExpressionToExpressionConverter converter;
+
+      public void Dispose() => converter.parameterScopes.TryPop(out _);
+
+      public LambdaParameterScope(SerializableExpressionToExpressionConverter converter, Dictionary<string, ParameterExpression> currentScope)
+      {
+        this.converter = converter;
+        this.converter.parameterScopes.Push(currentScope);
+      }
+    }
+
     private readonly SerializableExpression source;
-    private readonly Dictionary<SerializableExpression, Expression> cache;
+    private readonly Dictionary<SerializableExpression, Expression> cache = new();
+    private readonly Stack<Dictionary<string, ParameterExpression>> parameterScopes = new();
 
     public Expression Convert()
     {
@@ -26,15 +40,14 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression Visit(SerializableExpression e)
     {
-      if (e == null)
+      if (e is null)
         return null;
 
       Expression result;
       if (cache.TryGetValue(e, out result))
         return result;
 
-      switch (e.NodeType)
-      {
+      switch (e.NodeType) {
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
         case ExpressionType.Not:
@@ -43,7 +56,12 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
-          result = VisitUnary((SerializableUnaryExpression)e);
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
+          result = VisitUnary((SerializableUnaryExpression) e);
           break;
         case ExpressionType.Add:
         case ExpressionType.AddChecked:
@@ -68,44 +86,52 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
-          result = VisitBinary((SerializableBinaryExpression)e);
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
+          result = VisitBinary((SerializableBinaryExpression) e);
           break;
         case ExpressionType.TypeIs:
-          result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          result = VisitTypeIs((SerializableTypeBinaryExpression) e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
-          result = VisitConditional((SerializableConditionalExpression)e);
+          result = VisitConditional((SerializableConditionalExpression) e);
           break;
         case ExpressionType.Constant:
-          result = VisitConstant((SerializableConstantExpression)e);
+          result = VisitConstant((SerializableConstantExpression) e);
+          break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression) e);
           break;
         case ExpressionType.Parameter:
-          result = VisitParameter((SerializableParameterExpression)e);
+          result = VisitParameter((SerializableParameterExpression) e);
           break;
         case ExpressionType.MemberAccess:
-          result = VisitMemberAccess((SerializableMemberExpression)e);
+          result = VisitMemberAccess((SerializableMemberExpression) e);
           break;
         case ExpressionType.Call:
-          result = VisitMethodCall((SerializableMethodCallExpression)e);
+          result = VisitMethodCall((SerializableMethodCallExpression) e);
           break;
         case ExpressionType.Lambda:
-          result = VisitLambda((SerializableLambdaExpression)e);
+          result = VisitLambda((SerializableLambdaExpression) e);
           break;
         case ExpressionType.New:
-          result = VisitNew((SerializableNewExpression)e);
+          result = VisitNew((SerializableNewExpression) e);
           break;
         case ExpressionType.NewArrayInit:
         case ExpressionType.NewArrayBounds:
-          result = VisitNewArray((SerializableNewArrayExpression)e);
+          result = VisitNewArray((SerializableNewArrayExpression) e);
           break;
         case ExpressionType.Invoke:
-          result = VisitInvocation((SerializableInvocationExpression)e);
+          result = VisitInvocation((SerializableInvocationExpression) e);
           break;
         case ExpressionType.MemberInit:
-          result = VisitMemberInit((SerializableMemberInitExpression)e);
+          result = VisitMemberInit((SerializableMemberInitExpression) e);
           break;
         case ExpressionType.ListInit:
-          result = VisitListInit((SerializableListInitExpression)e);
+          result = VisitListInit((SerializableListInitExpression) e);
           break;
         default:
           throw new ArgumentException();
@@ -117,7 +143,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitUnary(SerializableUnaryExpression u)
     {
-      return Expression.MakeUnary(u.NodeType, Visit(u.Operand), u.Type, u.Method);
+      return Expression.MakeUnary(u.NodeType, Visit(u.Operand), (Type) u.Type, (MethodInfo) u.Method);
     }
 
     private Expression VisitBinary(SerializableBinaryExpression b)
@@ -127,28 +153,38 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitTypeIs(SerializableTypeBinaryExpression tb)
     {
-      return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
+      return Expression.TypeIs(Visit(tb.Expression), (Type) tb.TypeOperand);
+    }
+
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), (Type) tb.TypeOperand);
     }
 
     private Expression VisitConstant(SerializableConstantExpression c)
     {
-      return Expression.Constant(c.Value, c.Type);
+      return Expression.Constant(c.Value, (Type)c.Type);
+    }
+
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
     }
 
     private Expression VisitConditional(SerializableConditionalExpression c)
     {
-      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
+      return Expression.Condition(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse), (Type) c.Type);
     }
 
     private Expression VisitParameter(SerializableParameterExpression p)
     {
-      return Expression.Parameter(p.Type, p.Name);
+      return GetCachedParameter(p.Type, p.Name) ?? Expression.Parameter(p.Type, p.Name);
     }
 
     private Expression VisitMemberAccess(SerializableMemberExpression m)
     {
       var target = Visit(m.Expression);
-      return m.Member switch {
+      return (MemberInfo) m.Member switch {
         FieldInfo field => Expression.Field(target, field),
         PropertyInfo property => Expression.Property(target, property),
         MethodInfo method => Expression.Property(target, method),
@@ -158,20 +194,23 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitMethodCall(SerializableMethodCallExpression mc)
     {
-      return Expression.Call(Visit(mc.Object), mc.Method, VisitExpressionSequence(mc.Arguments));
+      return Expression.Call(Visit(mc.Object), (MethodInfo)mc.Method, VisitExpressionSequence(mc.Arguments));
     }
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)));
+      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToList();
+      using (CreateParameterScope(parameters)) {
+        return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
+      }
     }
 
     private Expression VisitNew(SerializableNewExpression n)
     {
-      if (n.Constructor == null)
-        return Expression.New(n.Type);
+      if (n.Constructor is null)
+        return Expression.New((Type) n.Type);
       if (n.Members != null && n.Members.Length > 0)
-        return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), n.Members);
+        return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments), n.Members?.Select(static m => (MemberInfo) m));
       return Expression.New(n.Constructor, VisitExpressionSequence(n.Arguments));
     }
 
@@ -188,12 +227,12 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     private Expression VisitNewArray(SerializableNewArrayExpression na)
     {
       switch (na.NodeType) {
-      case ExpressionType.NewArrayInit:
-        return Expression.NewArrayInit(na.Type.GetElementType(), VisitExpressionSequence(na.Expressions));
-      case ExpressionType.NewArrayBounds:
-        return Expression.NewArrayBounds(na.Type.GetElementType(), VisitExpressionSequence(na.Expressions));
-      default:
-        throw new ArgumentException();
+        case ExpressionType.NewArrayInit:
+          return Expression.NewArrayInit(((Type) na.Type).GetElementType(), VisitExpressionSequence(na.Expressions));
+        case ExpressionType.NewArrayBounds:
+          return Expression.NewArrayBounds(((Type) na.Type).GetElementType(), VisitExpressionSequence(na.Expressions));
+        default:
+          throw new ArgumentException();
       }
     }
 
@@ -204,28 +243,29 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private IEnumerable<MemberBinding> VisitMemberBindingSequence(IEnumerable<SerializableMemberBinding> bindings)
     {
-      foreach (var binding in bindings)
+      foreach (var binding in bindings) {
         switch (binding.BindingType) {
-        case MemberBindingType.Assignment:
-          yield return Expression.Bind(binding.Member,
-            Visit(((SerializableMemberAssignment) binding).Expression));
-          break;
-        case MemberBindingType.MemberBinding:
-          yield return Expression.MemberBind(binding.Member,
-            VisitMemberBindingSequence(((SerializableMemberMemberBinding) binding).Bindings));
-          break;
-        case MemberBindingType.ListBinding:
-          yield return Expression.ListBind(binding.Member, VisitElementInitSequence(((SerializableMemberListBinding) binding).Initializers));
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
+          case MemberBindingType.Assignment:
+            yield return Expression.Bind(binding.Member,
+              Visit(((SerializableMemberAssignment) binding).Expression));
+            break;
+          case MemberBindingType.MemberBinding:
+            yield return Expression.MemberBind(binding.Member,
+              VisitMemberBindingSequence(((SerializableMemberMemberBinding) binding).Bindings));
+            break;
+          case MemberBindingType.ListBinding:
+            yield return Expression.ListBind((MemberInfo) binding.Member, VisitElementInitSequence(((SerializableMemberListBinding) binding).Initializers));
+            break;
+          default:
+            throw new ArgumentOutOfRangeException();
         }
+      }
     }
 
     private IEnumerable<ElementInit> VisitElementInitSequence(IEnumerable<SerializableElementInit> initializers)
     {
       return initializers.Select(initializer =>
-        Expression.ElementInit(initializer.AddMethod, VisitExpressionSequence(initializer.Arguments)));
+        Expression.ElementInit((MethodInfo) initializer.AddMethod, VisitExpressionSequence(initializer.Arguments)));
     }
 
     private IEnumerable<Expression> VisitExpressionSequence<T>(IEnumerable<T> expressions)
@@ -233,13 +273,46 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     {
       return expressions.Select(e => Visit(e));
     }
+    private LambdaParameterScope CreateParameterScope(IReadOnlyList<ParameterExpression> lambdaParameters)
+    {
+      var parameters = new Dictionary<string, ParameterExpression>(lambdaParameters.Count);
+      foreach (var lambdaParameter in lambdaParameters) {
+        parameters.Add(lambdaParameter.Name, lambdaParameter);
+      }
+      return new LambdaParameterScope(this, parameters);
+    }
+
+    private ParameterExpression GetCachedParameter(Type type, string name)
+    {
+      var replacement = FindParameterFast(type, name);
+      if (replacement == null && parameterScopes.Count > 1)
+        return FindParameterSlow(type, name);
+      return replacement;
+    }
+
+    private ParameterExpression FindParameterFast(Type type, string name)
+    {
+      if (parameterScopes.TryPeek(out var currentParameters)) {
+        if (currentParameters.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
+
+    private ParameterExpression FindParameterSlow(Type type, string name)
+    {
+      foreach (var scope in parameterScopes.Skip(1)) {
+        if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
+          return replacement;
+      }
+      return null;
+    }
 
     #endregion
 
     public SerializableExpressionToExpressionConverter(SerializableExpression source)
     {
       this.source = source;
-      cache = new Dictionary<SerializableExpression, Expression>();
     }
   }
 }

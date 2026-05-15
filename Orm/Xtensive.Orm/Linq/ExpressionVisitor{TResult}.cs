@@ -60,6 +60,11 @@ namespace Xtensive.Linq
       case ExpressionType.ArrayLength:
       case ExpressionType.Quote:
       case ExpressionType.TypeAs:
+      case ExpressionType.Decrement:
+      case ExpressionType.Increment:
+      case ExpressionType.IsFalse:
+      case ExpressionType.IsTrue:
+      case ExpressionType.OnesComplement:
         result = VisitUnary((UnaryExpression) e);
         break;
       case ExpressionType.Add:
@@ -85,9 +90,12 @@ namespace Xtensive.Linq
       case ExpressionType.RightShift:
       case ExpressionType.LeftShift:
       case ExpressionType.ExclusiveOr:
+      case ExpressionType.Power:
+      case ExpressionType.Assign:
         result = VisitBinary((BinaryExpression) e);
         break;
       case ExpressionType.TypeIs:
+      case ExpressionType.TypeEqual:
         result = VisitTypeIs((TypeBinaryExpression) e);
         break;
       case ExpressionType.Conditional:

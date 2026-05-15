@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -7,7 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
-using System.Security;
+using System.Text.Json.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -15,28 +15,13 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="ParameterExpression"/>.
   /// </summary>
   [Serializable]
+  [DataContract]
   public sealed class SerializableParameterExpression : SerializableExpression
   {
     /// <summary>
     /// <see cref="ParameterExpression.Name"/>.
     /// </summary>
+    [DataMember, JsonInclude]
     public string Name;
-
-    [SecurityCritical]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("Name", Name);
-    }
-
-    public SerializableParameterExpression()
-    {
-    }
-
-    public SerializableParameterExpression(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Name = info.GetString("Name");
-    }
   }
 }

@@ -7,9 +7,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
-using System.Security;
+using System.Text.Json.Serialization;
 using Xtensive.Linq.SerializableExpressions.Internals;
-using ExpressionFactory = System.Linq.Expressions.Expression;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -17,34 +16,18 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="TypeBinaryExpression"/>.
   /// </summary>
   [Serializable]
+  [DataContract]
   public sealed class SerializableTypeBinaryExpression : SerializableExpression
   {
     /// <summary>
     /// <see cref="TypeBinaryExpression.Expression"/>
     /// </summary>
+    [DataMember, JsonInclude]
     public SerializableExpression Expression;
     /// <summary>
     /// <see cref="TypeBinaryExpression.TypeOperand"/>
     /// </summary>
-    public Type TypeOperand;
-
-    [SecurityCritical]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("Expression", Expression);
-      info.AddValue("TypeOperand", TypeOperand.ToSerializableForm());
-    }
-
-    public SerializableTypeBinaryExpression()
-    {
-    }
-
-    public SerializableTypeBinaryExpression(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Expression = (SerializableExpression) info.GetValue("Expression", typeof (SerializableExpression));
-      TypeOperand = info.GetString("TypeOperand").GetTypeFromSerializableForm();
-    }
+    [DataMember, JsonInclude]
+    public SerializableType TypeOperand;
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Kryuchkov
@@ -7,8 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
-using System.Security;
-using Xtensive.Linq.SerializableExpressions.Internals;
+using System.Text.Json.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -16,28 +15,13 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="MemberListBinding"/>.
   /// </summary>
   [Serializable]
+  [DataContract]
   public sealed class SerializableMemberListBinding : SerializableMemberBinding
   {
     /// <summary>
     /// <see cref="MemberListBinding.Initializers"/>
     /// </summary>
+    [DataMember, JsonInclude]
     public SerializableElementInit[] Initializers;
-
-    [SecurityCritical]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddArray("Initializers", Initializers);
-    }
-
-    public SerializableMemberListBinding()
-    {
-    }
-
-    public SerializableMemberListBinding(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Initializers = info.GetArrayFromSerializableForm<SerializableElementInit>("Initializers");
-    }
   }
 }

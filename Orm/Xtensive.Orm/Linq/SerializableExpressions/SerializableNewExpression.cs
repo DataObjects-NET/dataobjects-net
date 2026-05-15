@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Security;
+using System.Text.Json.Serialization;
 using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
@@ -18,46 +18,23 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="NewExpression"/>
   /// </summary>
   [Serializable]
+  [DataContract]
   public sealed class SerializableNewExpression : SerializableExpression
   {
     /// <summary>
     /// <see cref="NewExpression.Arguments"/>
     /// </summary>
+    [DataMember, JsonInclude]
     public SerializableExpression[] Arguments;
     /// <summary>
     /// <see cref="NewExpression.Constructor"/>
     /// </summary>
-    public ConstructorInfo Constructor;
+    [DataMember, JsonInclude]
+    public SerializableConstructorInfo Constructor;
     /// <summary>
     /// <see cref="NewExpression.Members"/>
     /// </summary>
-    public MemberInfo[] Members;
-
-    [SecurityCritical]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddArray("Arguments", Arguments);
-      info.AddValue("Ctor", Constructor.ToSerializableForm());
-      var memberNames = new string[Members.Length];
-      for (int i = 0; i < memberNames.Length; i++)
-        memberNames[i] = Members[i].ToSerializableForm();
-      info.AddArray("Members", memberNames);
-    }
-
-    public SerializableNewExpression()
-    {
-    }
-
-    public SerializableNewExpression(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Arguments = info.GetArrayFromSerializableForm<SerializableExpression>("Arguments");
-      Constructor = info.GetString("Ctor").GetConstructorFromSerializableForm();
-      var memberNames = info.GetArrayFromSerializableForm<string>("Members");
-      Members = new MemberInfo[memberNames.Length];
-      for (int i = 0; i < memberNames.Length; i++)
-        Members[i] = memberNames[i].GetMemberFromSerializableForm();
-    }
+    [DataMember, JsonInclude]
+    public SerializableMemberInfo[] Members;
   }
 }

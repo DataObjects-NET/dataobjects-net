@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -8,7 +8,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Security;
+using System.Text.Json.Serialization;
 using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
@@ -17,33 +17,24 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="MemberBinding"/>
   /// </summary>
   [Serializable]
-  public abstract class SerializableMemberBinding : ISerializable
+  [DataContract]
+  [KnownType(typeof(SerializableMemberAssignment)),
+    JsonDerivedType(typeof(SerializableMemberAssignment), nameof(SerializableMemberAssignment))]
+  [KnownType(typeof(SerializableMemberListBinding)),
+    JsonDerivedType(typeof(SerializableMemberListBinding), nameof(SerializableMemberListBinding))]
+  [KnownType(typeof(SerializableMemberMemberBinding)),
+    JsonDerivedType(typeof(SerializableMemberMemberBinding), nameof(SerializableMemberMemberBinding))]
+  public abstract class SerializableMemberBinding
   {
     /// <summary>
     /// <see cref="MemberBinding.BindingType"/>
     /// </summary>
+    [DataMember, JsonInclude]
     public MemberBindingType BindingType;
     /// <summary>
     /// <see cref="MemberBinding.Member"/>
     /// </summary>
-    public MemberInfo Member;
-
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Member", Member.ToSerializableForm());
-      info.AddValue("BindingType", BindingType.ToString());
-    }
-
-
-    protected SerializableMemberBinding()
-    {
-    }
-
-    protected SerializableMemberBinding(SerializationInfo info, StreamingContext context)
-    {
-      Member = info.GetString("Member").GetMemberFromSerializableForm();
-      BindingType = (MemberBindingType) Enum.Parse(typeof(MemberBindingType), info.GetString("BindingType")); 
-    }
+    [DataMember, JsonInclude]
+    public SerializableMemberInfo Member;
   }
 }
