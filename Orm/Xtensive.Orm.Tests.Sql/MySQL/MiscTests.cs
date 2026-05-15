@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      var cloned = Cloner.CloneViaDataContractSerializer(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
+      var cloned = Cloner.CloneViaXmlSerialization(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
 
       Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
       Console.WriteLine(SqlDriver.Compile(cloned).GetCommandText());
