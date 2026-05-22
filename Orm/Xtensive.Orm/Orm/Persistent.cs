@@ -14,6 +14,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
@@ -398,13 +399,13 @@ namespace Xtensive.Orm
       }
 
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var entity = this as Entity;
           if (entity != null) {
-            if (operations.CanRegisterOperation)
-              operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.RegisterOperation(operationsFactory.EntityFieldSetOperation(entity.Key, field, value));
             var entityValue = value as IEntity;
             if (entityValue != null) {
               var valueKey = entityValue.Key;
@@ -423,8 +424,8 @@ namespace Xtensive.Orm
             }
             entity = persistent as Entity;
             if (entity != null) {
-              if (operations.CanRegisterOperation)
-                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+              if (allowRegistration && operations.CanRegisterOperation)
+                operations.RegisterOperation(operationsFactory.EntityFieldSetOperation(entity.Key, currentField, value));
               var entityValue = value as IEntity;
               if (entityValue != null) {
                 var valueKey = entityValue.Key;
@@ -434,13 +435,15 @@ namespace Xtensive.Orm
           }
 
           if (fieldAccessor.AreSameValues(oldValue, value)) {
-            operations.NotifyOperationStarting(false);
-            scope.Complete();
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.NotifyOperationStarting(false);
+            scope?.Complete();
             return;
           }
           {
             SystemBeforeSetValue(field, value);
-            operations.NotifyOperationStarting(false);
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.NotifyOperationStarting(false);
             AssociationInfo association = null;
             entity = value as Entity ?? oldValue as Entity;
             if (entity != null)
@@ -485,7 +488,7 @@ namespace Xtensive.Orm
                   try {
                     SystemSetValue(field, oldValue, value);
                     SystemSetValueCompleted(field, oldValue, value, null);
-                    scope.Complete();
+                    scope?.Complete();
                   }
                   finally {
                     scope.DisposeSafely();
@@ -502,7 +505,7 @@ namespace Xtensive.Orm
             SystemSetValue(field, oldValue, value);
             SystemSetValueCompleted(field, oldValue, value, null);
           }
-          scope.Complete();
+          scope?.Complete();
         }
         finally {
           if (removalContext == null)

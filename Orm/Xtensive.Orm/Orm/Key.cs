@@ -74,6 +74,11 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
+    /// </summary>
+    public bool HasExactType => TypeReference.Accuracy == TypeReferenceAccuracy.ExactType;
+
+    /// <summary>
     /// Determines whether this key is a temporary key in the specified <paramref name="domain"/>.
     /// </summary>
     /// <param name="domain">The domain.</param>
@@ -134,14 +139,6 @@ namespace Xtensive.Orm
     /// Gets the value in form of <see cref="Tuple"/>.
     /// </summary>
     protected abstract Tuple GetValue();
-
-    /// <summary>
-    /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
-    /// </summary>
-    internal bool HasExactType
-    {
-      get { return TypeReference.Accuracy==TypeReferenceAccuracy.ExactType; }
-    }
 
     internal Tuple CreateTuple()
     {
