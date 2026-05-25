@@ -5,6 +5,7 @@
 // Created:    2010.08.04
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Operations
 {
@@ -14,15 +15,25 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   internal sealed class VoidOperationRegistry(Session session) : IOperationRegistry
   {
-    internal sealed class VoidRegistrationScope : ICompletableScope
+    private sealed class VoidRegistrationScope : ICompletableScope
     {
+      private readonly VoidOperationRegistry owner;
       public bool IsCompleted { get; private set; }
       public void Complete() { }
-      public void Dispose() { }
+      public void Dispose()
+      {
+        if (owner.scopes.Peek() != this)
+          throw new InvalidOperationException("Invalid scope disposal order.");
+        _ = owner.scopes.Pop();
+      }
+
+      public VoidRegistrationScope(VoidOperationRegistry owner)
+      {
+
+      }
     }
 
-
-    private readonly Collections.Deque<ICompletableScope> scopes = new();
+    private readonly Stack<ICompletableScope> scopes = new();
 
     /// <inheritdoc />
     public Session Session { get; private set; } = session;
@@ -42,7 +53,9 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc />
     public ICompletableScope BeginRegistration(OperationType operationType)
     {
-      scopes.AddTail(new VoidRegistrationScope()); return scopes.TailOrDefault;
+      var scope = new VoidRegistrationScope(this);
+      scopes.Push(scope);
+      return scope;
     }
 
     /// <inheritdoc />
