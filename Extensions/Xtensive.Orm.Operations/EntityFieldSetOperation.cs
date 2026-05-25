@@ -7,6 +7,10 @@
 using System;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
+using System.Diagnostics.Eventing.Reader;
+using System.Linq;
+using Xtensive.Orm.Operations.Interfaces;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Operations
 {
@@ -16,6 +20,8 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public sealed class EntityFieldSetOperation : EntityFieldOperation
   {
+    private readonly IReadOnlyList<IOperation> nestedOperations = Array.Empty<IOperation>();
+
     /// <summary>
     /// Gets the new field value, if field is NOT a reference field 
     /// (i.e. not a field of <see cref="IEntity"/> type).
@@ -37,8 +43,32 @@ namespace Xtensive.Orm.Operations
     public override string Description {
       get
       {
-        return $"{base.Description}, Value = {Value ?? ValueKey}";
+        if (!IsStructure)
+          return $"{base.Description}, Value = {Value ?? ValueKey}";
+        else {
+          return $"{base.Description}, Values = [{string.Join("," + Environment.NewLine, NestedOperations.Select(n => n.Description))}]";
+        }
       }
+    }
+
+    /// <summary>
+    /// Describes whether changed field is <see cref="IEntity"/> reference field.
+    /// If <see langword="true"/>, ValueKey property defines referenced entity key.
+    /// </summary>
+    public bool IsReference => Field.IsEntity;
+
+    /// <summary>
+    /// Describes whether changed field is <see cref="Structure"/> field.
+    /// If <see langword="true"/>, both Value and ValueKey property will be <see langword="null"/> and NestedOperations will contain actual operations.
+    /// </summary>
+    public bool IsStructure => Field.IsStructure;
+
+    /// <summary>
+    /// In case of setting a field of persistent structure type, declared in Entity, it contains actual operations with Entity fields.
+    /// </summary>
+    public IReadOnlyList<IOperation> NestedOperations
+    {
+      get { return nestedOperations; }
     }
 
     /// <inheritdoc/>
@@ -47,29 +77,49 @@ namespace Xtensive.Orm.Operations
       base.PrepareSelf(context);
       // Next line works properly when ValueKey==null
       context.RegisterKey(context.TryRemapKey(ValueKey), false);
+      foreach(var nested in NestedOperations.OfType<IExecutableOperation>()) {
+        nested.Prepare(context);
+      }
     }
 
     /// <inheritdoc/>
     protected override void ExecuteSelf(OperationExecutionContext context)
     {
-      var session = context.Session;
-      var key = context.TryRemapKey(Key);
-      var valueKey = context.TryRemapKey(ValueKey);
-      var entity = session.Query.Single(key);
-      var value = ValueKey != null ? session.Query.Single(valueKey) : Value;
-
-      context.EntityAccessor.SetFieldValue(entity,Field, value);
-      //entity.SetFieldValue(Field, value);
+      if (IsStructure) {
+        foreach (var nested in NestedOperations.OfType<IExecutableOperation>()) {
+          nested.Execute(context);
+        }
+      }
+      else {
+        var session = context.Session;
+        var key = context.TryRemapKey(Key);
+        var valueKey = context.TryRemapKey(ValueKey);
+        var entity = session.Query.Single(key);
+        var value = IsReference ? session.Query.Single(valueKey) : Value;
+        context.EntityAccessor.SetFieldValue(entity, Field, value);
+        //entity.SetFieldValue(Field, value);
+      }
     }
 
     /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone == null) {
-        if (ValueKey==null)
-          clone = new EntityFieldSetOperation(Key, Field, Value);
-        else
+        if (this.IsReference) {
           clone = new EntityFieldSetOperation(Key, Field, ValueKey);
+        }
+        else if (this.IsStructure) {
+          
+          var clonedNestedOperations = new IOperation[this.NestedOperations.Count];
+          var i = 0;
+          foreach (var nested in this.nestedOperations) {
+            clonedNestedOperations[i++] = nested.Clone(false);
+          }
+
+          clone = new EntityFieldSetOperation(Key, Field, clonedNestedOperations);
+        }
+        else
+          clone = new EntityFieldSetOperation(Key, Field, Value);
       }
       return clone;
     }
@@ -86,10 +136,30 @@ namespace Xtensive.Orm.Operations
     public EntityFieldSetOperation(Key key, FieldInfo field, object value)
       : base(key, field)
     {
-      if (value is IEntity entityValue)
+      if (value is IEntity entityValue) {
         ValueKey = entityValue.Key;
-      else
+      }
+      else if (value is Structure structure) {
+
+        // when update  Entity.SomeStructure field we treat the update as series of single-field updates
+        var structureType = structure.Session.Domain.Model.Types[value.GetType()];
+        var ownerType = key.TypeInfo;
+
+        var nOperations = new IOperation[structureType.Fields.Count];
+        var i = 0;
+        foreach (var strField in structureType.Fields) {
+          var mappedEntityField = ownerType.StructureFieldMapping[new Core.Pair<FieldInfo>(field, strField)];
+          var structFieldValue = structure[strField.Name];
+          nOperations[i++] = new EntityFieldSetOperation(key, mappedEntityField, structFieldValue);
+        }
+        nestedOperations = nOperations;
+
+        // temporary;
+        //Value = value;
+      }
+      else {
         Value = value;
+      }
     }
 
     /// <summary>
@@ -102,6 +172,18 @@ namespace Xtensive.Orm.Operations
       : base(key, field)
     {
       ValueKey = valueKey;
+    }
+
+
+    /// <summary>
+    /// Cloning only.
+    /// </summary>
+    private EntityFieldSetOperation(Key key, FieldInfo field, IReadOnlyList<IOperation> nestedOperations)
+      : base(key, field)
+    {
+      if (!field.IsStructure)
+        throw new InvalidOperationException();
+      this.nestedOperations = nestedOperations;
     }
 
     

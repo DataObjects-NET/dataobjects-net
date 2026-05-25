@@ -523,17 +523,17 @@ namespace Xtensive.Orm.Operations.Tests
         }
 
         Assert.That(changeStructureObjectLog.Count, Is.EqualTo(1));
-        var operation = changeStructureObjectLog.First();
-        Assert.That(operation, Is.InstanceOf<EntityFieldSetOperation>());
+        Assert.That(changeStructureObjectLog.First(), Is.InstanceOf<EntityFieldSetOperation>());
 
-        var followingOperations = operation.FollowingOperations;
-        Assert.That(followingOperations.Count, Is.EqualTo(2));
-        Assert.That(followingOperations[0], Is.InstanceOf<EntityFieldSetOperation>());
-        var x = (EntityFieldSetOperation)followingOperations[0];
+        var operation = (EntityFieldSetOperation) changeStructureObjectLog.First();
+        var nestedOperations = operation.NestedOperations;
+        Assert.That(nestedOperations.Count, Is.EqualTo(2));
+        Assert.That(nestedOperations[0], Is.InstanceOf<EntityFieldSetOperation>());
+        var x = (EntityFieldSetOperation)nestedOperations[0];
         Assert.That(x.Value, Is.EqualTo(1.5));
 
-        Assert.That(followingOperations[1], Is.InstanceOf<EntityFieldSetOperation>());
-        var y = (EntityFieldSetOperation) followingOperations[1];
+        Assert.That(nestedOperations[1], Is.InstanceOf<EntityFieldSetOperation>());
+        var y = (EntityFieldSetOperation) nestedOperations[1];
         Assert.That(y.Value, Is.EqualTo(1.6));
 
         tx.Complete();
