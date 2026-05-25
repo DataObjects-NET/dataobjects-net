@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Orm.Operations
 {
@@ -13,26 +14,6 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   internal sealed class VoidOperationRegistry(Session session) : IOperationRegistry
   {
-    private sealed class VoidRegistrationScope : ICompletableScope
-    {
-      private readonly VoidOperationRegistry owner;
-      public bool IsCompleted { get; private set; }
-      public void Complete() { }
-      public void Dispose()
-      {
-        if (owner.scopes.Peek() != this)
-          throw new InvalidOperationException("Invalid scope disposal order.");
-        _ = owner.scopes.Pop();
-      }
-
-      public VoidRegistrationScope(VoidOperationRegistry owner)
-      {
-
-      }
-    }
-
-    private readonly Stack<ICompletableScope> scopes = new();
-
     /// <inheritdoc />
     public Session Session { get; private set; } = session;
 
@@ -49,12 +30,7 @@ namespace Xtensive.Orm.Operations
     public bool IsSystemOperationRegistrationEnabled => false;
 
     /// <inheritdoc />
-    public ICompletableScope BeginRegistration(OperationType operationType)
-    {
-      var scope = new VoidRegistrationScope(this);
-      scopes.Push(scope);
-      return scope;
-    }
+    public ICompletableScope BeginRegistration(OperationType operationType) => null;
 
     /// <inheritdoc />
     public IDisposable DisableUndoOperationRegistration() => throw new NotSupportedException();
