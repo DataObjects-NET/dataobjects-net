@@ -44,10 +44,9 @@ namespace Xtensive.Collections
   /// as a valid value for reference types and allows duplicate elements.
   /// </para>
   /// </remarks>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public class Deque<T> : IDeque<T>, 
-    ISerializable,
+  [Obsolete]
+  public class Deque<T> : IDeque<T>,
     ICloneable
   {
     private const int minimalCapacity = 16;
@@ -627,37 +626,5 @@ namespace Xtensive.Collections
     {
       this.growFactor = growFactor;
     }
-
-    #region ISerializable Members
-
-    /// <summary>
-    /// Serializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      T[] arrItems = new T[count];
-      InnerCopyTo(arrItems, 0);
-      info.AddValue("Items", arrItems);
-      info.AddValue("GrowFactor", growFactor);
-    }
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    protected Deque(SerializationInfo info, StreamingContext context)
-    {
-      items = (T[])info.GetValue("Items", typeof (T[]));
-      growFactor = info.GetSingle("GrowFactor");
-      count = items.Length;
-      headPos = count - 1;
-      tailPos = count - 1;
-    }
-
-    #endregion
   }
 }

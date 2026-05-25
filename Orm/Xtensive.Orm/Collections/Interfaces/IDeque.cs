@@ -14,6 +14,7 @@ namespace Xtensive.Collections
   /// Double-ended queue contract.
   /// </summary>
   /// <typeparam name="T">The type of queued elements.</typeparam>
+  [Obsolete]
   public interface IDeque<T> : IList<T>
   {
     /// <summary>
