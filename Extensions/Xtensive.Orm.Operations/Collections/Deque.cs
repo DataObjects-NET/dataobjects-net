@@ -6,15 +6,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
-using System.Security.Permissions;
 using Xtensive.Comparison;
 using Xtensive.Core;
 
-
-
-namespace Xtensive.Collections
+namespace Xtensive.Orm.Operations.Collections
 {
   /// <summary>
   /// Double-ended queue.
@@ -45,9 +40,7 @@ namespace Xtensive.Collections
   /// </para>
   /// </remarks>
   [DebuggerDisplay("Count = {Count}")]
-  [Obsolete]
-  public class Deque<T> : IDeque<T>,
-    ICloneable
+  internal class Deque<T> : ICloneable, IEnumerable<T>
   {
     private const int minimalCapacity = 16;
     private const float defaultGrowFactor = 1.4f;
@@ -68,13 +61,14 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public T this[int index] {
+    public T this[int index]
+    {
       get {
-        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count - 1, "index");
         return items[ConvertToBufferIndex(index)];
       }
       set {
-        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+        ArgumentValidator.EnsureArgumentIsInRange(index, 0, count - 1, "index");
         items[ConvertToBufferIndex(index)] = value;
         version++;
       }
@@ -86,11 +80,10 @@ namespace Xtensive.Collections
     public int Capacity
     {
       get { return items.Length; }
-      set
-      {
-        if (value!=items.Length) {
+      set {
+        if (value != items.Length) {
           if (value < count)
-            throw new ArgumentOutOfRangeException("value", Strings.ExSpecifiedCapacityIsLessThenCollectionCount);
+            throw new ArgumentOutOfRangeException(nameof(value), "Specified capacity is less then collection count.");
           if (value > minimalCapacity) {
             T[] newItems = new T[value];
             InnerCopyTo(newItems, 0);
@@ -111,7 +104,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void TrimExcess()
     {
-      int trimThreshold = (int)(items.Length*trimThresholdFactor);
+      int trimThreshold = (int) (items.Length * trimThresholdFactor);
       if (count < trimThreshold)
         Capacity = count;
     }
@@ -121,48 +114,52 @@ namespace Xtensive.Collections
     #region Head, Tail, Add\Extract Head\Tail
 
     /// <inheritdoc/>
-    public T Head {
+    public T Head
+    {
       get {
-        if (count==0)
+        if (count == 0)
           throw Exceptions.CollectionIsEmpty(null);
-        return items[(items.Length - headPos==1 ? 0 : headPos + 1)];
+        return items[(items.Length - headPos == 1 ? 0 : headPos + 1)];
       }
     }
 
     /// <inheritdoc/>
-    public T HeadOrDefault {
+    public T HeadOrDefault
+    {
       get {
-        return count==0 ? default(T) : items[(items.Length - headPos==1 ? 0 : headPos + 1)];
+        return count == 0 ? default(T) : items[(items.Length - headPos == 1 ? 0 : headPos + 1)];
       }
     }
 
     /// <inheritdoc/>
-    public T Tail {
+    public T Tail
+    {
       get {
-        if (count==0)
+        if (count == 0)
           throw Exceptions.CollectionIsEmpty(null);
-        return items[(tailPos==0 ? items.Length : tailPos) - 1];
+        return items[(tailPos == 0 ? items.Length : tailPos) - 1];
       }
     }
 
     /// <inheritdoc/>
-    public T TailOrDefault {
+    public T TailOrDefault
+    {
       get {
-        return count==0 ? default(T) : items[(tailPos==0 ? items.Length : tailPos) - 1];
+        return count == 0 ? default(T) : items[(tailPos == 0 ? items.Length : tailPos) - 1];
       }
     }
 
     /// <inheritdoc/>
     public void AddHead(T element)
     {
-      if (count==items.Length)
+      if (count == items.Length)
         EnsureCapacity(count + 1);
 
       count++;
       items[headPos] = element;
 
       // Shift to the "previous free" position
-      if ((--headPos)==-1) {
+      if ((--headPos) == -1) {
         // If count < buffer.Length then all elements in the interval 
         // [0 ... buffer.Length - count] are "free"
         headPos += items.Length;
@@ -173,14 +170,14 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void AddTail(T element)
     {
-      if (count==items.Length)
+      if (count == items.Length)
         EnsureCapacity(count + 1);
 
       count++;
       items[tailPos] = element;
 
       // Shift to "previous free" position
-      if ((++tailPos)==items.Length) {
+      if ((++tailPos) == items.Length) {
         // If count < buffer.Length then all elements in the interval 
         // [count - 1 ... buffer.Length - 1] are "free"
         tailPos = 0;
@@ -191,11 +188,11 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public T ExtractHead()
     {
-      if (count==0)
+      if (count == 0)
         throw Exceptions.CollectionIsEmpty(null);
 
       // Shift to the "head element" position
-      if ((++headPos)==items.Length)
+      if ((++headPos) == items.Length)
         headPos = 0;
 
       // Extract element
@@ -210,11 +207,11 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public T ExtractTail()
     {
-      if (count==0)
+      if (count == 0)
         throw Exceptions.CollectionIsEmpty(null);
 
       // Shift to the "tail element" position
-      if ((--tailPos)==-1)
+      if ((--tailPos) == -1)
         tailPos += items.Length;
 
       // Extract element
@@ -233,13 +230,13 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public int IndexOf(T item)
     {
-      Predicate<T> criterion = delegate(T innerItem) {
+      Predicate<T> criterion = delegate (T innerItem) {
         return AdvancedComparerStruct<T>.System.Equals(innerItem, item);
       };
       int headIndex = headPos + 1;
-      if (headIndex==items.Length)
+      if (headIndex == items.Length)
         headIndex = 0;
-      if (tailPos==0 || tailPos - headIndex > 0)
+      if (tailPos == 0 || tailPos - headIndex > 0)
         return ConvertToListIndex(Array.FindIndex(items, headIndex, count, criterion));
       else {
         int itemIndex = -1;
@@ -254,7 +251,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool Contains(T item)
     {
-      Predicate<T> criterion = delegate(T innerItem) { return AdvancedComparerStruct<T>.System.Equals(innerItem, item); };
+      Predicate<T> criterion = delegate (T innerItem) { return AdvancedComparerStruct<T>.System.Equals(innerItem, item); };
       int headIndex = headPos + 1;
       if (tailPos - headIndex > 0)
         return Array.FindIndex(items, headIndex, count, criterion) >= 0;
@@ -270,26 +267,26 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid<T>(arrayIndex);
 
       if (arrayIndex + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException("The destination array is too small.", nameof(array));
       InnerCopyTo(array, arrayIndex);
     }
 
     /// <inheritdoc/>
     public void CopyTo(Array array, int index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       array.EnsureIndexIsValid(index);
 
-      if (array.Rank!=1)
-        throw new ArgumentException(Strings.ExArrayIsMultidimensional, "array");
-      if (array.GetLowerBound(0)!=0)
-        throw new ArgumentException(Strings.ExArrayDoesNotHaveZeroBasedIndexing, "array");
+      if (array.Rank != 1)
+        throw new ArgumentException("The destination array is multi-dimentional", nameof(array));
+      if (array.GetLowerBound(0) != 0)
+        throw new ArgumentException("The destination array does'nt have Zero-based indexing.", nameof(array));
       if (index + count > array.Length)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "array");
+        throw new ArgumentException("The destination array is too small.", nameof(array));
       InnerCopyTo(array, index);
     }
 
@@ -302,23 +299,23 @@ namespace Xtensive.Collections
     {
       ArgumentValidator.EnsureArgumentIsInRange(index, 0, count, "index");
 
-      if (count==items.Length)
+      if (count == items.Length)
         EnsureCapacity(count + 1);
 
       int bufferIndex = ConvertToBufferIndex(index);
       int headIndex = headPos + 1;
-      if (headIndex==items.Length)
+      if (headIndex == items.Length)
         headIndex = 0;
-      if (bufferIndex==tailPos)
+      if (bufferIndex == tailPos)
         AddTail(item);
-      else if (bufferIndex==headIndex)
+      else if (bufferIndex == headIndex)
         AddHead(item);
       else if (bufferIndex < tailPos) {
         int dataToMoveLength = tailPos - bufferIndex;
         Array.Copy(items, bufferIndex, items, bufferIndex + 1, dataToMoveLength);
         items[bufferIndex] = item;
         // Shift to "next free" position
-        if ((++tailPos)==items.Length)
+        if ((++tailPos) == items.Length)
           tailPos = 0;
         count++;
         version++;
@@ -328,25 +325,25 @@ namespace Xtensive.Collections
         Array.Copy(items, headPos + 1, items, headPos, dataToMoveLength);
         items[bufferIndex - 1] = item;
         // Shift to "previous free" position
-        if ((--headPos)==-1)
+        if ((--headPos) == -1)
           headPos += items.Length;
         count++;
         version++;
       }
       else {
-        throw Exceptions.InternalError("Deque.Insert: Wrong buffer index detected.", CoreLog.Instance);
+        throw new InvalidOperationException("Deque.Insert: Wrong buffer index detected.");
       }
     }
 
     /// <inheritdoc/>
     public void RemoveAt(int index)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
+      ArgumentValidator.EnsureArgumentIsInRange(index, 0, count - 1, "index");
 
       int bufferIndex = ConvertToBufferIndex(index);
-      if (tailPos - bufferIndex==1)
+      if (tailPos - bufferIndex == 1)
         ExtractTail();
-      else if (bufferIndex - headPos==1)
+      else if (bufferIndex - headPos == 1)
         ExtractHead();
       else if (bufferIndex > headPos) {
         int dataToMoveLength = bufferIndex - headPos - 1;
@@ -367,7 +364,7 @@ namespace Xtensive.Collections
         version++;
       }
       else {
-        throw Exceptions.InternalError("Deque.RemoveAt: Wrong buffer index detected.", CoreLog.Instance);
+        throw new InvalidOperationException("Deque.Insert: Wrong buffer index detected.");
       }
     }
 
@@ -385,8 +382,8 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void RemoveRange(int index, int count)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(index, 0, this.count-1, "index");
-      ArgumentValidator.EnsureArgumentIsInRange(count, 0, this.count-index, "count");
+      ArgumentValidator.EnsureArgumentIsInRange(index, 0, this.count - 1, "index");
+      ArgumentValidator.EnsureArgumentIsInRange(count, 0, this.count - index, "count");
 
       if (count < 0 || (count > this.count - index))
         throw new ArgumentOutOfRangeException("count");
@@ -438,22 +435,6 @@ namespace Xtensive.Collections
 
     #endregion
 
-    #region ICollection<T>, ICollection members
-
-    /// <inheritdoc/>
-    void ICollection<T>.Add(T item)
-    {
-      AddTail(item);
-    }
-
-    /// <inheritdoc/>
-    bool ICollection<T>.IsReadOnly
-    {
-      get { return false; }
-    }
-
-    #endregion
-
     #region IEnumerable<T>, IEnumerable members
 
     /// <inheritdoc/>
@@ -471,9 +452,9 @@ namespace Xtensive.Collections
       int length = items.Length;
       int oldVersion = version;
       while (itemCount-- > 0) {
-        if (version!=oldVersion)
+        if (version != oldVersion)
           throw Exceptions.CollectionHasBeenChanged(null);
-        if ((++itemIndex)==length)
+        if ((++itemIndex) == length)
           itemIndex = 0;
         yield return items[itemIndex];
       }
@@ -546,9 +527,9 @@ namespace Xtensive.Collections
     {
       int currentCapacity = items.Length;
       if (currentCapacity < requiredCapacity) {
-        int newCapacity = currentCapacity==0
+        int newCapacity = currentCapacity == 0
           ? minimalCapacity
-          : Convert.ToInt32(currentCapacity*growFactor);
+          : Convert.ToInt32(currentCapacity * growFactor);
         if (newCapacity < requiredCapacity)
           newCapacity = requiredCapacity;
         Capacity = newCapacity;

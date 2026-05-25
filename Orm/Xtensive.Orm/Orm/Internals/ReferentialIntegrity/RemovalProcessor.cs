@@ -61,14 +61,12 @@ namespace Xtensive.Orm.ReferentialIntegrity
       var processedEntities = new List<Entity>();
       var notifiedEntities = new HashSet<Entity>();
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         using (var scope = operations.BeginRegistration(OperationType.System))
         using (Context = new RemovalContext(this)) {
           Session.EnforceChangeRegistrySizeLimit();
-          if (operations.CanRegisterOperation) {
-            operations.RegisterOperation(
-              new EntitiesRemoveOperation(entities.Select(e => e.Key)));
-          }
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntitiesRemoveOperation(entities.Select(e => e.Key)));
 
           Context.Enqueue(entities, reason);
 
@@ -80,12 +78,14 @@ namespace Xtensive.Orm.ReferentialIntegrity
             }
             if (!isOperationStarted) {
               isOperationStarted = true;
-              operations.NotifyOperationStarting();
+              if (allowRegistration && operations.CanRegisterOperation)
+                operations.NotifyOperationStarting();
             }
             ProcessItems(entitiesForProcessing);
           }
           if (!isOperationStarted) {
-            operations.NotifyOperationStarting();
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.NotifyOperationStarting();
           }
           processedEntities = Context.GetProcessedEntities().ToList();
           foreach (var entity in processedEntities) {
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
           Context.ProcessFinalizers();
           Session.EnforceChangeRegistrySizeLimit();
 
-          scope.Complete(); // Successful anyway
+          scope?.Complete(); // Successful anyway
 
           using (var ea = new ExceptionAggregator()) {
             foreach (var entity in processedEntities) {

@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// 	Initializes a new instance of this class.
     /// </summary>
-    /// <param name="operation">The <see cref="Operation"/> property value.</param>
+    /// <param name="operation">The <see cref="IOperation"/> property value.</param>
     /// <param name="isCompleted"><see cref="IsCompleted"/> property value.</param>
     public OperationCompletedEventArgs(IOperation operation, bool isCompleted)
       : base(operation)

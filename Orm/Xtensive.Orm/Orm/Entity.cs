@@ -21,6 +21,7 @@ using Xtensive.Orm.Operations;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Serialization;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -551,19 +552,19 @@ namespace Xtensive.Orm
       Session.SystemEvents.NotifyEntityCreated(this);
       Session.Events.NotifyEntityCreated(this);
 
-      var operations = Session.Operations;
+      var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
       // Operation 1:
       using (var scope = operations.BeginRegistration(OperationType.System)) {
-        if (operations.CanRegisterOperation)
-          operations.RegisterOperation(new KeyGenerateOperation(Key), true);
-        scope.Complete();
+        if (allowRegistration && operations.CanRegisterOperation)
+          operations.RegisterOperation(operationsFactory.KeyGenerateOperation(Key), true);
+        scope?.Complete();
       }
       // Operation 2:
       using (var scope = operations.BeginRegistration(OperationType.System)) {
-        if (operations.CanRegisterOperation)
-          operations.RegisterOperation(new EntityCreateOperation(Key), true);
+        if (allowRegistration && operations.CanRegisterOperation)
+          operations.RegisterOperation(operationsFactory.EntityCreationOperation(Key), true);
         IdentifyAs(EntityIdentifierType.Auto);
-        scope.Complete();
+        scope?.Complete();
       }
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
@@ -896,10 +897,12 @@ namespace Xtensive.Orm
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         RegisterKeyFieldsOfEntityTypeForRemap(key, values);
-        var operations = Session.Operations;
+
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
+
         using (operations.BeginRegistration(OperationType.System)) {
-          if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntityInitializeOperation(key), true);
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntityInitializeOperation(key), true);
           var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Associations.Any(a => a.IsPaired)).ToList();
           if (references.Count > 0) {
             using (Session.DisableSaveChanges(this)) {
@@ -948,10 +951,12 @@ namespace Xtensive.Orm
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         RegisterKeyFieldsOfEntityTypeForRemap(key, values);
-        var operations = Session.Operations;
+
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
+
         using (operations.BeginRegistration(OperationType.System)) {
-          if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntityInitializeOperation(key), true);
+          if (allowRegistration && operations.CanRegisterOperation)
+            operations.RegisterOperation(operationsFactory.EntityInitializeOperation(key), true);
           var references = TypeInfo.Key.Fields.Where(f => f.IsEntity && f.Associations.Any(a => a.IsPaired)).ToList();
           if (references.Count > 0) {
             using (Session.DisableSaveChanges(this)) {
