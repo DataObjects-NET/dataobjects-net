@@ -22,7 +22,7 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="ConstantExpression.Value"/>
     /// </summary>
     [IgnoreDataMember]
-    [JsonInclude, JsonConverter(typeof(JsonConverters.ObjectToInferredTypesConverter))]
+    [JsonInclude, JsonConverter(typeof(Xtensive.Serialization.Json.ObjectToInferredTypesConverter))]
     public object Value;
 
     /// <summary>

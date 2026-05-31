@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using NUnit.Framework;
+using Xtensive.Serialization.Json;
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Tests.Core.Tuples
@@ -130,6 +132,53 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       if (theSame!=null)
         Assert.That(d2, Is.EqualTo(theSame));
       return d1;
+    }
+
+    [Test]
+    public void SerializationTest()
+    {
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool?) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(int) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(int?) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(string) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(string) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(bool) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool?), typeof(bool?) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(int) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool?), typeof(int?) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(string) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool?), typeof(string) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(int), typeof(string) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(int?), typeof(string) }));
+
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool), typeof(bool), typeof(bool) }));
+      TestDescriptorSerialization(TupleDescriptor.Create(new Type[] { typeof(bool?), typeof(bool), typeof(bool?) }));
+    }
+
+    private void TestDescriptorSerialization(TupleDescriptor origin)
+    {
+      var jsonSerializerOptions = CreateJsonSettings();
+      Assert.That(origin, Is.Not.EqualTo(default(TupleDescriptor)));
+      var cloned = Cloner.CloneViaJsonSerialization(origin, jsonSerializerOptions);
+
+      Assert.That(cloned, Is.Not.EqualTo(default(TupleDescriptor)));
+      Assert.That(cloned, Is.EqualTo(origin));
+    }
+
+    private JsonSerializerOptions CreateJsonSettings()
+    {
+      var jsonSerializerOptions = new JsonSerializerOptions() {
+        WriteIndented = true,
+      };
+      _ = jsonSerializerOptions.RegisterModelConverters();
+      return jsonSerializerOptions;
     }
   }
 }

@@ -1,15 +1,17 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.21
 
 using System.IO;
+using System.Text.Json;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using Xtensive.Serialization.Json;
 
 namespace Xtensive.Orm.Tests.Model
 {
@@ -30,6 +32,29 @@ namespace Xtensive.Orm.Tests.Model
       var serialized = model.Serialize();
       var result = StoredDomainModel.Deserialize(serialized);
       result.UpdateReferences();
+    }
+
+    [Test]
+    public void TypeReferenceJsonSerializationTest()
+    {
+      var typeReference = new TypeReference(Domain.Model.Types[typeof(Customer)], TypeReferenceAccuracy.ExactType);
+
+      var jsonSerializerOptions = CreateJsonSettings();
+
+      var clonedTypeReference = Cloner.CloneViaJsonSerialization(typeReference, jsonSerializerOptions);
+
+      Assert.That(clonedTypeReference, Is.Not.Null);
+      Assert.That(clonedTypeReference.Type, Is.EqualTo(typeReference.Type));
+      Assert.That(clonedTypeReference.Accuracy, Is.EqualTo(typeReference.Accuracy));
+    }
+
+    private JsonSerializerOptions CreateJsonSettings()
+    {
+      var jsonSerializerOptions = new JsonSerializerOptions() {
+        WriteIndented = true,
+      };
+      _ = jsonSerializerOptions.RegisterModelConverters(Domain);
+      return jsonSerializerOptions;
     }
   }
 }
