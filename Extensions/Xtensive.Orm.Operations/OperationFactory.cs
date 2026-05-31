@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
 
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Operations
 
     // Entity Removal
     /// <inheritdoc/>
-    public IOperation EntitiesRemoveOperation(IEnumerable<Key> keys) => new EntitiesRemoveOperation(keys);
+    public IOperation EntitiesRemoveOperation(IEnumerable<Key> keys) => new EntitiesRemoveOperation(keys.ToArray());
 
     /// <inheritdoc/>
     public IOperation EntityRemovalOperation(Key key) => new EntitiesRemoveOperation(key);

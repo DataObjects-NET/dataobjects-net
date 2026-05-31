@@ -5,7 +5,6 @@
 // Created:    2009.11.20
 
 using System;
-using System.Runtime.Serialization;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 
@@ -55,12 +54,6 @@ namespace Xtensive.Orm.Operations
       if (!WellKnownTypes.EntitySetBase.IsAssignableFrom(fieldType))
         throw new ArgumentOutOfRangeException(
           $"Type of {fieldName} must be a descendant of {WellKnownTypes.EntitySetBase.GetShortName()} type");
-    }
-
-    /// <inheritdoc/>
-    protected EntitySetOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

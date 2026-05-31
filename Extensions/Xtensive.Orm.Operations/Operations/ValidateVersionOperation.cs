@@ -5,7 +5,7 @@
 // Created:    2010.02.19
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Operations.Interfaces;
 
@@ -21,24 +21,29 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets the original version of <see cref="Entity"/>.
     /// </summary>
+    [JsonInclude]
     public VersionInfo Version { get; private set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public bool IgnoreIfDuplicate { get { return true; } }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public object Identifier
     {
       get { return Key; }
     }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title
     {
       get { return "Validate version"; }
     }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get
       {
@@ -83,26 +88,12 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     /// <param name="key">The key of the <see cref="Entity"/>.</param>
     /// <param name="version">The original version.</param>
+    [JsonConstructor]
     public ValidateVersionOperation(Key key, VersionInfo version)
       : base(key)
     {
       ArgumentValidator.EnsureArgumentNotNull(version, "version");
       Version = version;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    public ValidateVersionOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Version = (VersionInfo) info.GetValue("Version", typeof (VersionInfo));
-    }
-
-    /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Version", Version);
     }
   }
 }

@@ -6,7 +6,7 @@
 
 using System;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Operations
   public sealed class KeyGenerateOperation : KeyOperation
   {
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Generate Key"; }
     }
@@ -110,12 +111,6 @@ namespace Xtensive.Orm.Operations
       : base(key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-    }
-
-    /// <inheritdoc/>
-    private KeyGenerateOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

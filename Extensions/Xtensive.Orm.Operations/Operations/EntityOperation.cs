@@ -5,7 +5,6 @@
 // Created:    2009.10.22
 
 using System;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 
@@ -27,12 +26,6 @@ namespace Xtensive.Orm.Operations
       : base(key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-    }
-
-    /// <inheritdoc/>
-    protected EntityOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

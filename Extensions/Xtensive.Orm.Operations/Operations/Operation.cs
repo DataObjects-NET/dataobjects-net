@@ -9,61 +9,85 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Operations.Interfaces;
+using Xtensive.Orm.Operations.Serialization;
 
 namespace Xtensive.Orm.Operations
 {
-
-
   /// <summary>
   /// Base abstract class for all <see cref="IOperation"/> implementors.
   /// </summary>
   [DebuggerDisplay("Description = {Description}")]
   [Serializable]
+  [JsonDerivedType(typeof(EntitiesRemoveOperation),      nameof(EntitiesRemoveOperation))]
+  [JsonDerivedType(typeof(EntityCreateOperation),        nameof(EntityCreateOperation))]
+  [JsonDerivedType(typeof(EntityFieldSetOperation),      nameof(EntityFieldSetOperation))]
+  [JsonDerivedType(typeof(EntityInitializeOperation),    nameof(EntityInitializeOperation))]
+  [JsonDerivedType(typeof(EntitySetClearOperation),      nameof(EntitySetClearOperation))]
+  [JsonDerivedType(typeof(EntitySetItemAddOperation),    nameof(EntitySetItemAddOperation))]
+  [JsonDerivedType(typeof(EntitySetItemRemoveOperation), nameof(EntitySetItemRemoveOperation))]
+  [JsonDerivedType(typeof(KeyGenerateOperation),         nameof(KeyGenerateOperation))]
+  [JsonDerivedType(typeof(MethodCallOperation),          nameof(MethodCallOperation))]
+  [JsonDerivedType(typeof(ValidateVersionOperation),     nameof(ValidateVersionOperation))]
   public abstract class Operation : IOperation, IExecutableOperation
   {
-    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = 
-      new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = new Dictionary<string, Key>().AsReadOnly();
 
+    [JsonIgnore]
     private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
+    [JsonIgnore]
     private IReadOnlyList<IOperation> precedingOperations = Array.Empty<IOperation>();
+    [JsonIgnore]
     private IReadOnlyList<IOperation> followingOperations = Array.Empty<IOperation>();
+    [JsonIgnore]
     private IReadOnlyList<IOperation> undoOperations = Array.Empty<IOperation>();
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public abstract string Title { get; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public virtual string Description {
       get { return Title; }
     }
 
     /// <inheritdoc/>
+    [JsonInclude]
     public OperationType Type { get; internal set; }
 
     /// <inheritdoc/>
+    [JsonInclude]
+    [JsonConverter(typeof(CollectionOfOperationsConverter))]
     public IReadOnlyList<IOperation> PrecedingOperations {
       get { return precedingOperations; }
-      internal set { precedingOperations = value; }
+      internal set { precedingOperations = (value.Count == 0) ? Array.Empty<IOperation>() : value; }
     }
 
     /// <inheritdoc/>
+    [JsonInclude]
+    [JsonConverter(typeof(CollectionOfOperationsConverter))]
     public IReadOnlyList<IOperation> FollowingOperations {
       get { return followingOperations; }
-      internal set { followingOperations = value; }
+      internal set { followingOperations = (value.Count == 0) ? Array.Empty<IOperation>(): value ; }
     }
 
     /// <inheritdoc/>
+    [JsonInclude]
+    [JsonConverter(typeof(CollectionOfOperationsConverter))]
     public IReadOnlyList<IOperation> UndoOperations {
       get { return undoOperations; }
-      internal set { undoOperations = value; }
+      internal set { undoOperations = (value.Count == 0) ? Array.Empty<IOperation>() : value; }
     }
 
     /// <inheritdoc/>
+    [JsonInclude]
+    [JsonConverter(typeof(CollectionOfIdentifiedEntitiesConverter))]
     public IReadOnlyDictionary<string, Key> IdentifiedEntities {
       get { return identifiedEntities; }
-      set { identifiedEntities = value; }
+      set { identifiedEntities = value.Count==0 ? EmptyIdentifiedEntities : value; }
     }
 
     /// <inheritdoc/>
@@ -167,6 +191,13 @@ namespace Xtensive.Orm.Operations
     /// Initializes a new instance of this class.
     /// </summary>
     protected Operation()
+    {
+    }
+
+    [JsonConstructor]
+    internal protected Operation(OperationType operationType,
+      IReadOnlyList<IOperation> PrecedingOperations,
+      IReadOnlyList<IOperation> FollowingOperations)
     {
     }
   }

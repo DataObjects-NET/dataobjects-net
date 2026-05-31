@@ -5,8 +5,7 @@
 // Created:    2009.10.22
 
 using System;
-using System.Runtime.Serialization;
-using System.Security;
+using System.Text.Json.Serialization;
 
 
 namespace Xtensive.Orm.Operations
@@ -15,15 +14,16 @@ namespace Xtensive.Orm.Operations
   /// Describes an operation involving the <see cref="Key"/>.
   /// </summary>
   [Serializable]
-  public abstract class KeyOperation : Operation, 
-    ISerializable
+  public abstract class KeyOperation : Operation
   {
     /// <summary>
     /// Gets the key of the entity.
     /// </summary>
+    [JsonInclude]
     public Key Key { get; private set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get
       {
@@ -47,32 +47,6 @@ namespace Xtensive.Orm.Operations
     protected KeyOperation(Key key)
     {
       Key = key;
-    }
-
-    // Serialization
-
-    [SecurityCritical]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      GetObjectData(info, context);
-    }
-
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-    protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Key", Key.Format());
-    }
-
-    /// <inheritdoc/>
-    protected KeyOperation(SerializationInfo info, StreamingContext context)
-    {
-      Key = Key.Parse(Domain.Demand(), info.GetString(WellKnown.KeyFieldName));
-//      Key.TypeReference = new TypeReference(Key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }

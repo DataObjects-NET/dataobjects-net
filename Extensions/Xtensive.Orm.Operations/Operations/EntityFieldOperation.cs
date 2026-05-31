@@ -5,7 +5,7 @@
 // Created:    2009.11.19
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 
 using Xtensive.Orm.Model;
@@ -21,9 +21,11 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets the field involved into the operation.
     /// </summary>
+    [JsonInclude]
     public FieldInfo Field { get; private set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get
       {
@@ -44,24 +46,6 @@ namespace Xtensive.Orm.Operations
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       Field = field;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    protected EntityFieldOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      var session = Session.Demand();
-      var fieldRef = (FieldInfoRef)info.GetValue("field", typeof(FieldInfoRef));
-      Field = fieldRef.Resolve(session.Domain.Model);
-    }
-
-    /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("field", new FieldInfoRef(Field), typeof(FieldInfoRef));
     }
   }
 }

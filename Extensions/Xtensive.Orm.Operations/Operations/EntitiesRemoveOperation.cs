@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 
 
@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Operations
   public class EntitiesRemoveOperation : KeySetOperation
   {
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Remove entities"; }
     }
@@ -57,17 +58,29 @@ namespace Xtensive.Orm.Operations
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="keys">The keys of entities to remove.</param>
-    public EntitiesRemoveOperation(IEnumerable<Key> keys)
+    [JsonConstructor]
+    public EntitiesRemoveOperation(IReadOnlyList<Key> keys)
       : base(keys)
     {
     }
 
-    // Serialization
+    //[JsonConstructor]
+    //private EntitiesRemoveOperation()
+    //  : base(Array.Empty<Key>())
+    //{
 
-    /// <inheritdoc/>
-    public EntitiesRemoveOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
+    //}
+
+    
+    //private EntitiesRemoveOperation(
+    //  IReadOnlyList<Key> keys,
+    //  OperationType type,
+    //  IReadOnlyList<IOperation> precedingOperations,
+    //  IReadOnlyList<IOperation> followingOperations,
+    //  IReadOnlyList<IOperation> undoOperations,
+    //  IReadOnlyDictionary<string, Key> identifiedEntities)
+    //  : base(keys)
+    //{
+    //}
   }
 }

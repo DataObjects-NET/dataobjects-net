@@ -5,12 +5,13 @@
 // Created:    2009.10.22
 
 using System;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Model;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using Xtensive.Orm.Operations.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
+using Xtensive.Orm.Model;
+using Xtensive.Orm.Operations.Interfaces;
+using Xtensive.Orm.Operations.Serialization;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Operations
 {
@@ -20,26 +21,31 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public sealed class EntityFieldSetOperation : EntityFieldOperation
   {
-    private readonly IReadOnlyList<IOperation> nestedOperations = Array.Empty<IOperation>();
+    [JsonIgnore]
+    private IReadOnlyList<IOperation> nestedOperations = Array.Empty<IOperation>();
 
     /// <summary>
     /// Gets the new field value, if field is NOT a reference field 
     /// (i.e. not a field of <see cref="IEntity"/> type).
     /// </summary>
+    [JsonInclude]
     public object Value { get; set; }
 
     /// <summary>
     /// Gets the new field value key, if field is a reference field 
     /// (i.e. field of <see cref="IEntity"/> type).
     /// </summary>
+    [JsonInclude]
     public Key ValueKey { get; set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Set field"; }
     }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get
       {
@@ -55,20 +61,27 @@ namespace Xtensive.Orm.Operations
     /// Describes whether changed field is <see cref="IEntity"/> reference field.
     /// If <see langword="true"/>, ValueKey property defines referenced entity key.
     /// </summary>
+    [JsonIgnore]
     public bool IsReference => Field.IsEntity;
 
     /// <summary>
     /// Describes whether changed field is <see cref="Structure"/> field.
     /// If <see langword="true"/>, both Value and ValueKey property will be <see langword="null"/> and NestedOperations will contain actual operations.
     /// </summary>
+    [JsonIgnore]
     public bool IsStructure => Field.IsStructure;
 
     /// <summary>
     /// In case of setting a field of persistent structure type, declared in Entity, it contains actual operations with Entity fields.
     /// </summary>
+    [JsonInclude]
+    [JsonConverter(typeof(CollectionOfOperationsConverter))]
     public IReadOnlyList<IOperation> NestedOperations
     {
       get { return nestedOperations; }
+      private set {
+        nestedOperations = (value.Count == 0) ? Array.Empty<IOperation>() : value;
+      }
     }
 
     /// <inheritdoc/>
@@ -124,7 +137,7 @@ namespace Xtensive.Orm.Operations
       return clone;
     }
 
-    
+
     // Constructors
 
     /// <summary>
@@ -152,7 +165,7 @@ namespace Xtensive.Orm.Operations
           var structFieldValue = structure[strField.Name];
           nOperations[i++] = new EntityFieldSetOperation(key, mappedEntityField, structFieldValue);
         }
-        nestedOperations = nOperations;
+        nestedOperations = nOperations.AsReadOnly();
 
         // temporary;
         //Value = value;
@@ -186,49 +199,15 @@ namespace Xtensive.Orm.Operations
       this.nestedOperations = nestedOperations;
     }
 
-    
-    // Serialization
-
-//    /// <inheritdoc/>
-//    private EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
-//      : base(info, context)
-//    {
-//      var session = Session.Demand();
-//      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
-//        // deserializing entity
-//        var value = info.GetString("value");
-//        if (!value.IsNullOrEmpty()) {
-//          ValueKey = Key.Parse(session.Domain, value);
-////          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
-//        }
-//      }
-//      else if (WellKnownOrmTypes.Structure.IsAssignableFrom(Field.ValueType)) {
-//        var tuple = (Tuple) info.GetValue("value", WellKnownOrmTypes.Tuple);
-//        Value = session.Services.Get<DirectPersistentAccessor>()
-//          .CreateStructure(Field.ValueType, tuple);
-//      }
-//      else
-//        Value = info.GetValue("value", Field.ValueType);
-//    }
-
-//    /// <inheritdoc/>
-//    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-//    {
-//      base.GetObjectData(info, context);
-//      var structureValue = Value as Structure;
-//      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
-//        // serializing entity value as key
-//        if (ValueKey != null)
-//          info.AddValue("value", ValueKey.Format());
-//        else
-//          info.AddValue("value", string.Empty);
-//      }
-//      else if (structureValue != null) {
-//        // serializing structure value as tuple
-//        info.AddValue("value", structureValue.Tuple.ToRegular(), WellKnownOrmTypes.Tuple);
-//      }
-//      else
-//        info.AddValue("value", Value, Field.ValueType);
-//    }
+    [JsonConstructor]
+    [System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessage("Style", "IDE0051")]
+    private EntityFieldSetOperation(Key key, FieldInfo field, object value, Key valueKey)
+      : base(key, field)
+    {
+      if (field.IsEntity)
+        ValueKey = valueKey;
+      else
+        Value = value;
+    }
   }
 }

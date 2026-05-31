@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes arbitrary method call operation.
   /// </summary>
-  [Serializable]
+  // Can't be serialized because of Actions
   public sealed class MethodCallOperation : Operation
   {
     private readonly Action<OperationExecutionContext, object[]> prepareAction;

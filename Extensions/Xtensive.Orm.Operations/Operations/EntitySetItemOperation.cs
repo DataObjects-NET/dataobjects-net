@@ -5,7 +5,7 @@
 // Created:    2009.10.22
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Core;
 
 using Xtensive.Orm.Model;
@@ -21,9 +21,11 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets the key of the involved item.
     /// </summary>
+    [JsonInclude]
     public Key ItemKey { get; set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get
       {
@@ -52,23 +54,6 @@ namespace Xtensive.Orm.Operations
     {
       ArgumentValidator.EnsureArgumentNotNull(itemKey, "itemKey");
       ItemKey = itemKey;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("ItemKey", ItemKey.Format());
-    }
-
-    /// <inheritdoc/>
-    protected EntitySetItemOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      ItemKey = Key.Parse(Domain.Demand(), info.GetString("ItemKey"));
-//      ItemKey.TypeReference = new TypeReference(ItemKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
     }
   }
 }

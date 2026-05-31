@@ -5,7 +5,7 @@
 // Created:    2010.02.25
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Orm.Services;
 
 
@@ -20,14 +20,17 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets the type name of the entity.
     /// </summary>
+    [JsonInclude]
     public string TypeName { get; private set; }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Create entity"; }
     }
 
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Description {
       get {
         return $"{Title}, TypeName = {TypeName}, Key = {Key}";
@@ -71,22 +74,6 @@ namespace Xtensive.Orm.Operations
       if (!key.HasExactType)
         throw new ArgumentException("Key must have exact type here.", nameof(key));
       TypeName = key.TypeInfo.Name;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    protected override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      base.GetObjectData(info, context);
-      info.AddValue("TypeName", TypeName);
-    }
-
-    /// <inheritdoc/>
-    protected EntityCreateOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      TypeName = info.GetString("TypeName");
     }
   }
 }

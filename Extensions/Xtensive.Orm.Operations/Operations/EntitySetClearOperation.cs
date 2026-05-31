@@ -5,7 +5,7 @@
 // Created:    2010.02.25
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Operations
@@ -14,9 +14,10 @@ namespace Xtensive.Orm.Operations
   /// Describes <see cref="Entity"/> creation operation.
   /// </summary>
   [Serializable]
-  public class EntitySetClearOperation : EntitySetOperation
+  public sealed class EntitySetClearOperation : EntitySetOperation
   {
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Clear entity set"; }
     }
@@ -41,12 +42,6 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public EntitySetClearOperation(Key key, FieldInfo field)
       : base(key, field)
-    {
-    }
-
-    /// <inheritdoc/>
-    protected EntitySetClearOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

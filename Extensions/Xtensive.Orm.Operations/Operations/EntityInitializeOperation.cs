@@ -5,7 +5,7 @@
 // Created:    2010.08.11
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace Xtensive.Orm.Operations
 {
@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Operations
   public class EntityInitializeOperation : EntityOperation
   {
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Initialize entity"; }
     }
@@ -42,14 +43,6 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public EntityInitializeOperation(Key key)
       : base(key)
-    {
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    protected EntityInitializeOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

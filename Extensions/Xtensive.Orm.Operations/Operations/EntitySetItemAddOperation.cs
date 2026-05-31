@@ -5,7 +5,7 @@
 // Created:    2010.02.25
 
 using System;
-using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Operations
@@ -14,9 +14,10 @@ namespace Xtensive.Orm.Operations
   /// Describes <see cref="EntitySet{TItem}"/> item add operation.
   /// </summary>
   [Serializable]
-  public class EntitySetItemAddOperation : EntitySetItemOperation
+  public sealed class EntitySetItemAddOperation : EntitySetItemOperation
   {
     /// <inheritdoc/>
+    [JsonIgnore]
     public override string Title {
       get { return "Add item to entity set"; }
     }
@@ -44,12 +45,6 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public EntitySetItemAddOperation(Key key, FieldInfo field, Key itemKey)
       : base(key, field, itemKey)
-    {
-    }
-
-    /// <inheritdoc/>
-    protected EntitySetItemAddOperation(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }
