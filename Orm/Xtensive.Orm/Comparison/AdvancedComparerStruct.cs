@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 using Xtensive.Core;
 
 
@@ -18,8 +17,7 @@ namespace Xtensive.Comparison
   /// A struct providing faster access for key <see cref="AdvancedComparer{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IAdvancedComparer{T}"/> generic argument.</typeparam>
-  [Serializable]
-  public readonly struct AdvancedComparerStruct<T>: ISerializable
+  public readonly struct AdvancedComparerStruct<T>
   {
     /// <summary>
     /// Gets <see cref="AdvancedComparerStruct{T}"/> for <see cref="AdvancedComparer{T}.Default"/> comparer.
@@ -97,28 +95,6 @@ namespace Xtensive.Comparison
       GetHashCode = Comparer?.GetHashCode;
       GetNearestValue = Comparer?.GetNearestValue;
       ValueRangeInfo = Comparer?.ValueRangeInfo;
-    }
-
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-    private AdvancedComparerStruct(SerializationInfo info, StreamingContext context)
-    {
-      Comparer = (AdvancedComparer<T>)info.GetValue("Comparer", typeof(AdvancedComparer<T>));
-      Compare = Comparer?.Compare;
-      Equals = Comparer?.Equals;
-      GetHashCode = Comparer?.GetHashCode;
-      GetNearestValue = Comparer?.GetNearestValue;
-      ValueRangeInfo = Comparer?.ValueRangeInfo;
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Comparer", Comparer);
     }
   }
 }

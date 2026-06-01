@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -6,21 +6,18 @@
 
 using System;
 using System.Globalization;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class StringComparer: AdvancedComparerBase<string>,
     ISystemComparer<string>
   {
     private static readonly int EmptyHash = string.Empty.GetHashCode();
-    [NonSerialized]
-    private Func<string, string, CompareOptions, int> stringCompare;
-    [NonSerialized]
-    private Func<string, string, CompareOptions, bool> stringIsSuffix;
+    
+    private readonly Func<string, string, CompareOptions, int> stringCompare;
+    private readonly Func<string, string, CompareOptions, bool> stringIsSuffix;
 
     protected override IAdvancedComparer<string> CreateNew(ComparisonRules rules)
     {
@@ -88,20 +85,6 @@ namespace Xtensive.Comparison
       }
     }
 
-    private void Initialize()
-    {
-      ValueRangeInfo = new ValueRangeInfo<string>(true, null, false, null, false, null);
-      var culture = ComparisonRules.Value.Culture;
-      if (culture != null) {
-        stringCompare  = culture.CompareInfo.Compare;
-        stringIsSuffix = culture.CompareInfo.IsSuffix;
-      }
-      else {
-        stringCompare  = CompareOrdinal;
-        stringIsSuffix = CultureInfo.InvariantCulture.CompareInfo.IsSuffix;
-      }
-    }
-
     private static int CompareOrdinal(string first, string second, CompareOptions options)
       => string.CompareOrdinal(first, second);
 
@@ -111,18 +94,16 @@ namespace Xtensive.Comparison
     public StringComparer(IComparerProvider provider, ComparisonRules comparisonRules) 
       : base(provider, comparisonRules)
     {
-      Initialize();
-    }
-
-    public StringComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
-
-    public override void OnDeserialization(object sender)
-    {
-      base.OnDeserialization(sender);
-      Initialize();
+      ValueRangeInfo = new ValueRangeInfo<string>(true, null, false, null, false, null);
+      var culture = ComparisonRules.Value.Culture;
+      if (culture != null) {
+        stringCompare = culture.CompareInfo.Compare;
+        stringIsSuffix = culture.CompareInfo.IsSuffix;
+      }
+      else {
+        stringCompare = CompareOrdinal;
+        stringIsSuffix = CultureInfo.InvariantCulture.CompareInfo.IsSuffix;
+      }
     }
   }
 }

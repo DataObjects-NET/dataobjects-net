@@ -123,9 +123,5 @@ namespace Xtensive.Comparison
       AddHighPriorityLocation(BaseComparerWrapperType.Assembly, BaseComparerWrapperType.Namespace);
     }
 
-    protected ComparerProvider(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }

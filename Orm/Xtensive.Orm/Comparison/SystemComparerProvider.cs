@@ -41,10 +41,5 @@ namespace Xtensive.Comparison
     private SystemComparerProvider()
     {
     }
-
-    public SystemComparerProvider(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }

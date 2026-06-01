@@ -1,11 +1,10 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.10
 
 using System;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -13,7 +12,6 @@ namespace Xtensive.Comparison
   /// <see cref="IAdvancedComparer{T}"/> wrapper for system comparers.
   /// </summary>
   /// <typeparam name="T">Type to compare.</typeparam>
-  [Serializable]
   public sealed class SystemComparer<T>: AdvancedComparerBase<T>
   {
     /// <summary>
@@ -40,11 +38,6 @@ namespace Xtensive.Comparison
 
     internal SystemComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
-    {
-    }
-
-    public SystemComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

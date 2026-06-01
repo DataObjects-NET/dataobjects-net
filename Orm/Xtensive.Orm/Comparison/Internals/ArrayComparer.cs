@@ -1,15 +1,13 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.16
 
 using System;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class ArrayComparer<T> : WrappingComparer<T[], T>, 
     ISystemComparer<T[]>
   {
@@ -82,11 +80,6 @@ namespace Xtensive.Comparison
       : base(provider, comparisonRules)
     {
       ValueRangeInfo = new ValueRangeInfo<T[]>(true, null, false, null, false, null);
-    }
-
-    public ArrayComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

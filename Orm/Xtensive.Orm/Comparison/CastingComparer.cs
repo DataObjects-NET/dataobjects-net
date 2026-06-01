@@ -1,14 +1,12 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: 
 // Created:    2008.03.06
 
 using System;
-using System.Runtime.Serialization;
 using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Reflection;
 
 
 namespace Xtensive.Comparison
@@ -18,20 +16,14 @@ namespace Xtensive.Comparison
   /// </summary>
   /// <typeparam name="TSource">The type to compare.</typeparam>
   /// <typeparam name="TTarget">The base type of <typeparamref name="TSource"/> to provide a comparer for.</typeparam>
-  [Serializable]
   public sealed class CastingComparer<TSource, TTarget>: AdvancedComparerBase<TTarget>
   {
-    private class AsymmetricCompareHandler<TSecond> :
+    private class AsymmetricCompareHandler<TSecond>(Func<TSource, TSecond, int> baseCompare) :
       IComparer<TTarget, TSecond>
     {
-      private readonly Func<TSource, TSecond, int> baseCompare;
+      private readonly Func<TSource, TSecond, int> baseCompare = baseCompare;
 
       public int Compare(TTarget x, TSecond y) => baseCompare(ToSource(x), y);
-
-      public AsymmetricCompareHandler(Func<TSource, TSecond, int> baseCompare)
-      {
-        this.baseCompare = baseCompare;
-      }
     }
 
     private static readonly Converter<TTarget, TSource> ToSource = AdvancedConverterStruct<TTarget, TSource>.Default.Convert;
@@ -87,11 +79,6 @@ namespace Xtensive.Comparison
           vi.HasMaxValue ? ToTarget(vi.MaxValue) : default(TTarget),
           vi.HasDeltaValue,
           vi.HasDeltaValue ? ToTarget(vi.DeltaValue) : default(TTarget));
-    }
-
-    public CastingComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
     }
   }
 }

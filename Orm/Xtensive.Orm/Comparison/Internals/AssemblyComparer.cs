@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -6,11 +6,9 @@
 
 using System;
 using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
-  [Serializable]
   internal sealed class AssemblyComparer: WrappingComparer<Assembly, string>,
     ISystemComparer<Assembly>
   {
@@ -43,11 +41,6 @@ namespace Xtensive.Comparison
 
     public AssemblyComparer(IComparerProvider provider, ComparisonRules comparisonRules) 
       : base(provider, comparisonRules)
-    {
-    }
-
-    public AssemblyComparer(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }
