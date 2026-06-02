@@ -11,13 +11,11 @@ using System.Text;
 using Xtensive.Core;
 
 
-
 namespace Xtensive.Comparison
 {
   /// <summary>
   /// Ordering rule for <see cref="IAdvancedComparer{T}"/> comparer.
   /// </summary>
-  [Serializable]
   public sealed class ComparisonRules :
     IEquatable<ComparisonRules>
   {
@@ -307,7 +305,7 @@ namespace Xtensive.Comparison
       }
     }
 
-    private ComparisonRules(ComparisonRule value, ComparisonRules[] composite, bool ignore)
+    private ComparisonRules(ComparisonRule value, ComparisonRules[] composite, bool _)
     {
       this.value  = value;
       this.composite = composite;

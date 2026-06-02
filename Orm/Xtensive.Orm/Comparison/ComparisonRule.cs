@@ -6,8 +6,6 @@
 
 using System;
 using System.Globalization;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
@@ -15,10 +13,8 @@ namespace Xtensive.Comparison
   /// <summary>
   /// Describes how to compare values of comparable objects.
   /// </summary>
-  [Serializable]
   public readonly struct ComparisonRule :
-    IEquatable<ComparisonRule>,
-    ISerializable
+    IEquatable<ComparisonRule>
   {
     /// <summary>
     /// Predefined rule with <see cref="Direction"/> = <see cref="Core.Direction.None"/>.
@@ -180,28 +176,6 @@ namespace Xtensive.Comparison
     {
       Direction = direction;
       Culture = culture;
-    }
-
-    private ComparisonRule(SerializationInfo info, StreamingContext context)
-    {
-      if (info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
-      Direction = (Direction) info.GetSByte(nameof(Direction));
-      var cultureId = info.GetInt32(nameof(Culture));
-      Culture = (cultureId != int.MinValue) ? CultureInfo.GetCultureInfo(cultureId) : null;
-    }
-
-    [SecurityCritical]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      if(info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
-      info.AddValue(nameof(Direction), (sbyte) Direction);
-
-      var cultureId = (Culture != null) ? Culture.LCID : int.MinValue;
-      info.AddValue(nameof(Culture), cultureId);
     }
   }
 }
