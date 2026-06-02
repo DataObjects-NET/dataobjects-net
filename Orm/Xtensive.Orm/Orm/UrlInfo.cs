@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Comparison;
+using System.Text.Json.Serialization;
 
 
 namespace Xtensive.Orm
@@ -70,10 +71,10 @@ namespace Xtensive.Orm
   [Serializable]
   [DebuggerDisplay("{url}")]
   [TypeConverter(typeof(UrlInfoConverter))]
-  public class UrlInfo : 
+  [DataContract]
+  public class UrlInfo :
     IEquatable<UrlInfo>,
-    IComparable<UrlInfo>,
-    ISerializable
+    IComparable<UrlInfo>
   {
     private static readonly Regex Pattern = new Regex(
           @"^(?'proto'[^:]*[^sS])(?'secure'[sS]?)://" +
@@ -85,6 +86,8 @@ namespace Xtensive.Orm
           @"(\?(?'params'.*))?", 
           RegexOptions.Compiled|RegexOptions.Singleline);
 
+    [DataMember(Name = nameof(UrlInfo.Url))]
+    [JsonInclude, JsonPropertyName(nameof(UrlInfo.Url))]
     private string url = string.Empty;
     private string protocol = string.Empty;
     private bool secure = false;
@@ -95,11 +98,14 @@ namespace Xtensive.Orm
     private string password = string.Empty;
     private ReadOnlyDictionary<string, string> parameters;
 
+    private bool isReady = false;
+
     #region Properties: Url, Protocol, Host, etc...
 
     /// <summary>
     /// Gets an URL this instance describes.
     /// </summary>
+    [JsonIgnore]
     public string Url
     {
       [DebuggerStepThrough]
@@ -110,70 +116,112 @@ namespace Xtensive.Orm
     /// Gets the protocol part of the current <see cref="Url"/>
     /// (e.g. <b>"tcp"</b> is the protocol part of the "<b>tcp</b>://admin:password@localhost/resource" URL).
     /// </summary>
+    [JsonIgnore]
     public string Protocol
     {
       [DebuggerStepThrough]
-      get { return protocol; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return protocol; 
+      }
     }
 
     /// <summary>
     /// Gets the security part of the current <see cref="Url"/>
     /// Scheme with 's' suffix is secure.
     /// </summary>
+    [JsonIgnore]
     public bool Secure
     {
       [DebuggerStepThrough]
-      get => secure;
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return secure;
+      }
     }
 
     /// <summary>
     /// Gets the host part of the current <see cref="Url"/>
     /// (e.g. <b>"localhost"</b> is the host part of the "tcp://admin:password@<b>localhost</b>/resource" URL).
     /// </summary>
+    [JsonIgnore]
     public string Host
     {
       [DebuggerStepThrough]
-      get { return host; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return host;
+      }
     }
 
     /// <summary>
     /// Gets the port part of the current <see cref="Url"/>
     /// (e.g. <b>40000</b> is the port part of the "tcp://admin:password@localhost:<b>40000</b>/resource" URL).
     /// </summary>
+    [JsonIgnore]
     public int Port
     {
       [DebuggerStepThrough]
-      get { return port; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return port;
+      }
     }
 
     /// <summary>
     /// Gets the resource name part of the current <see cref="Url"/>
     /// (e.g. <b>"resource"</b> is the resource name part of the "tcp://admin:password@localhost/<b>resource</b>" URL).
     /// </summary>
+    [JsonIgnore]
     public string Resource
     {
       [DebuggerStepThrough]
-      get { return resource; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return resource;
+      }
     }
 
     /// <summary>
     /// Gets the user name part of the current <see cref="Url"/>
     /// (e.g. <b>"admin"</b> is the user name part of the "tcp://<b>admin</b>:password@localhost/resource" URL).
     /// </summary>
+    [JsonIgnore]
     public string User
     {
       [DebuggerStepThrough]
-      get { return user; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return user;
+      }
     }
 
     /// <summary>
     /// Gets the password part of the current <see cref="Url"/>
     /// (e.g. <b>"password"</b> is the password part of the "tcp://admin:<b>password</b>@localhost/resource" URL).
     /// </summary>
+    [JsonIgnore]
     public string Password
     {
       [DebuggerStepThrough]
-      get { return password; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return password;
+      }
     }
 
     /// <summary>
@@ -185,10 +233,16 @@ namespace Xtensive.Orm
     /// <para>The mentioned part of the <see cref="Url"/> is parsed
     /// and represented in a <see cref="Dictionary{String,String}"/> form.</para>
     /// </remarks>
+    [JsonIgnore]
     public IReadOnlyDictionary<string, string> Params
     {
       [DebuggerStepThrough]
-      get { return parameters; }
+      get {
+        if (!isReady) {
+          Parse(url, this);
+        }
+        return parameters;
+      }
     }
 
     #endregion
@@ -250,6 +304,7 @@ namespace Xtensive.Orm
         info.secure = !string.IsNullOrEmpty(result.Result("${secure}"));
         info.port = @port;
         info.parameters = new ReadOnlyDictionary<string, string>(@params);
+        info.isReady = true;
       }
       catch (Exception e) {
         if (e is ArgumentException || e is InvalidOperationException)
@@ -264,10 +319,10 @@ namespace Xtensive.Orm
     private class UrlDecoder
     {
       // Fields
-      private int m_bufferSize;
+      private readonly int m_bufferSize;
+      private readonly char[] m_charBuffer;
+      private readonly Encoding m_encoding;
       private byte[] m_byteBuffer;
-      private char[] m_charBuffer;
-      private Encoding m_encoding;
       private int m_numBytes;
       private int m_numChars;
 
@@ -442,34 +497,26 @@ namespace Xtensive.Orm
 
     // Constructors
 
+    [JsonConstructor]
     private UrlInfo()
     {
     }
 
-    #region ISerializable members, deserializing constructor
+    //[JsonConstructor]
+    //[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0051")]
+    //private UrlInfo(string url)
+    //{
+    //  Parse(url, this);
+    //}
 
-    ///<summary>
-    /// Deserilizing constructor.
-    ///</summary>
-    /// <param name="context">The source (see <see cref="T:System.Runtime.Serialization.StreamingContext"></see>) for this deserialization. </param>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate the data from. </param>
-    protected UrlInfo(SerializationInfo info, StreamingContext context)
-    {
-      Parse(info.GetString("Url"), this);
-    }
+    //#region ISerializable members, deserializing constructor
 
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"></see>) for this serialization. </param>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate with data. </param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Url", url);
-    }
+    //[OnDeserialized]
+    //private void OnDeserialized(StreamingContext context)
+    //{
+    //  Parse(url, this);
+    //}
 
-    #endregion
+    //#endregion
   }
 }
