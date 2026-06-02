@@ -19,23 +19,14 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override TupleDescriptor Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-      reader.EnsureStartObject();
-
-      _ = reader.Read();
-      if (reader.TokenType is not JsonTokenType.PropertyName)
-        throw JsonExceptions.WrongStructurePropertyExpected();
-      var propertyName = reader.GetString();
-      if (propertyName != options.ApplyNamingPolicy(FieldTypesPropertyName))
-        throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(FieldTypesPropertyName), propertyName);
-      _ = reader.Read();
       var typesArray = JsonSerializer.Deserialize<string[]>(ref reader, options);
-
-      _ = reader.Read();
-      reader.EnsureEndObject();
-
       var types = new Type[typesArray.Length];
       for (var i = 0; i < typesArray.Length; i++) {
-        types[i] = Type.GetType(typesArray[i]);
+        var resolvedType = Type.GetType(typesArray[i]);
+        if (resolvedType is null) {
+          throw JsonExceptions.NoTypeForName(typesArray[i]);
+        }
+        types[i] = resolvedType;
       }
       return TupleDescriptor.Create(types);
     }
@@ -43,16 +34,11 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, TupleDescriptor objectToWrite, JsonSerializerOptions options)
     {
-      writer.WriteStartObject();
-
       var typeNames = new string[objectToWrite.Count];
       for (var i = 0; i < typeNames.Length; i++)
         typeNames[i] = objectToWrite[i].AssemblyQualifiedName;
 
-      writer.WritePropertyName(options.ApplyNamingPolicy(FieldTypesPropertyName));
       JsonSerializer.Serialize<string[]>(writer, typeNames);
-
-      writer.WriteEndObject();
     }
   }
 }

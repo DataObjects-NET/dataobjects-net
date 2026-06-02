@@ -18,22 +18,16 @@ namespace Xtensive.Serialization.Json.Model
   /// </summary>
   public class TupleConverterFactory : JsonConverterFactory
   {
-    #region Nested Types - Converters & containers
+    #region Nested Types
 
-    [Serializable]
-    private sealed class TypedTupleReference
+    private class GenericTupleConverter : JsonConverter<Tuples.Tuple>
     {
-      [JsonInclude]
-      public string TypeName { get; set; }
+      private const string TypeMarkerPropertyName = "TypeMarker";
+      private const string DescriptorPropertyName = "Descriptor";
+      private const string ValuesPropertyName = "Values";
+      private const string DifferenceValuesPropertyName = "DifferenceValues";
 
-      [JsonInclude]
-      public Tuples.Tuple Tuple { get; set; }
-    }
-
-    private sealed class PackedTupleConverter : JsonConverter<Tuples.Packed.PackedTuple>
-    {
-      /// <inheritdoc/>
-      public override Tuples.Packed.PackedTuple Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+      public override Tuples.Tuple Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
       {
         reader.EnsureStartObject();
 
@@ -41,8 +35,17 @@ namespace Xtensive.Serialization.Json.Model
         if (reader.TokenType is not JsonTokenType.PropertyName)
           throw JsonExceptions.WrongStructurePropertyExpected();
         var propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Descriptor)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Descriptor)), propertyName);
+        if (propertyName != options.ApplyNamingPolicy(TypeMarkerPropertyName))
+          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(TypeMarkerPropertyName), propertyName);
+        _ = reader.Read();
+        Type realType = GetRealType(reader.GetString());
+
+        _ = reader.Read();
+        if (reader.TokenType is not JsonTokenType.PropertyName)
+          throw JsonExceptions.WrongStructurePropertyExpected();
+        propertyName = reader.GetString();
+        if (propertyName != options.ApplyNamingPolicy(DescriptorPropertyName))
+          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(DescriptorPropertyName), propertyName);
         _ = reader.Read();
         var descriptor = JsonSerializer.Deserialize<TupleDescriptor>(ref reader, options);
 
@@ -50,252 +53,87 @@ namespace Xtensive.Serialization.Json.Model
         if (reader.TokenType is not JsonTokenType.PropertyName)
           throw JsonExceptions.WrongStructurePropertyExpected();
         propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Values)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Values)), propertyName);
+        if (propertyName != options.ApplyNamingPolicy(ValuesPropertyName))
+          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(ValuesPropertyName), propertyName);
         _ = reader.Read();
-        var values = JsonSerializer.Deserialize<long[]>(ref reader, options);
+        var formattedValues = reader.GetString();
 
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Objects)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Objects)), propertyName);
-        _ = reader.Read();
-        var objects = JsonSerializer.Deserialize<object[]>(ref reader, options);
-
-        _ = reader.Read();
-        reader.EnsureEndObject();
-
-        var ctor = PackedTupleType.GetConstructor(new[] { typeof(TupleDescriptor).MakeByRefType() });
-        var tuple = (Tuples.Packed.PackedTuple) ctor.Invoke(new object[] { descriptor });
-        ValuesAccessor(tuple, values);
-        ObjectsAccessor(tuple, objects);
-        return tuple;
-      }
-
-      /// <inheritdoc/>
-      public override void Write(Utf8JsonWriter writer, Tuples.Packed.PackedTuple value, JsonSerializerOptions options)
-      {
-
-        writer.WriteStartObject();
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Descriptor)));
-        JsonSerializer.Serialize<TupleDescriptor>(writer, value.Descriptor, options);
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Values)));
-        JsonSerializer.Serialize(writer, value.Values, typeof(long[]), options);
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(Tuples.Packed.PackedTuple.Objects)));
-        JsonSerializer.Serialize(writer, value.Objects, typeof(object[]), options);
-
-        writer.WriteEndObject();
-      }
-
-      #region Internal members accessors
-
-      private static void ValuesAccessor(Tuples.Packed.PackedTuple tuple, long[] values)
-      {
-        var valuesField = PackedTupleType.GetField(nameof(Tuples.Packed.PackedTuple.Values), BindingFlags.Instance | BindingFlags.Public);
-        valuesField.SetValue(tuple, values);
-      }
-
-      private static void ObjectsAccessor(Tuples.Packed.PackedTuple tuple, object[] objects)
-      {
-        var objectsField = PackedTupleType.GetField(nameof(Tuples.Packed.PackedTuple.Objects), BindingFlags.Instance | BindingFlags.Public);
-        objectsField.SetValue(tuple, objects);
-      }
-      #endregion
-
-    }
-
-    private sealed class DifferentialTupleConverter : JsonConverter<Tuples.DifferentialTuple>
-    {
-      private const string TupleTypePropSuffix = "TupleType";
-
-      /// <inheritdoc/>
-      public override DifferentialTuple Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-      {
-        reader.EnsureStartObject();
-
-        // read origin true type
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        var propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin) + TupleTypePropSuffix))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin) + TupleTypePropSuffix), propertyName);
-        _ = reader.Read();
-        var originTypeName = reader.GetString();
-        var originType = Type.GetType(originTypeName);
-        if (originType is null)
-          throw JsonExceptions.NoTypeForName(originTypeName);
-
-        // read tuple itself
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin)), propertyName);
-        _ = reader.Read();
-        var origin = (Tuples.Tuple) JsonSerializer.Deserialize(ref reader, originType, options);
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference) + TupleTypePropSuffix))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference) + TupleTypePropSuffix), propertyName);
-        _ = reader.Read();
-
-        Tuples.Tuple difference = null;
-        if (reader.TokenType is not JsonTokenType.Null) {
-          var differenceTypeName = reader.GetString();
-          var differenceType = Type.GetType(differenceTypeName);
-          if (differenceType is null)
-            throw JsonExceptions.NoTypeForName(differenceTypeName);
-
+        var tuple = Tuples.Tuple.Parse(descriptor, formattedValues);
+        if (realType == FastReadOnlyTupleType) {
           _ = reader.Read();
-          propertyName = reader.GetString();
-          if (propertyName != options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference)))
-            throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference)), propertyName);
-          _ = reader.Read();
-          difference = (Tuples.Tuple) JsonSerializer.Deserialize(ref reader, differenceType, options);
+          reader.EnsureEndObject();
+
+          return new FastReadOnlyTuple(tuple);
         }
+        else if (realType == DifferentialTupleType) {
+          _ = reader.Read();
+          if (reader.TokenType is not JsonTokenType.PropertyName)
+            throw JsonExceptions.WrongStructurePropertyExpected();
+          propertyName = reader.GetString();
+          if (propertyName != options.ApplyNamingPolicy(DifferenceValuesPropertyName))
+            throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(DifferenceValuesPropertyName), propertyName);
+          _ = reader.Read();
+          if (reader.TokenType is JsonTokenType.Null) {
+            _ = reader.Read();
+            reader.EnsureEndObject();
+            return new DifferentialTuple(tuple);
+          }
 
-        // no reading of backup
+          var formattedDiffValues = reader.GetString();
 
-        _ = reader.Read();
-        reader.EnsureEndObject();
+          _ = reader.Read();
+          reader.EnsureEndObject();
 
-        return (difference is null)
-          ? new DifferentialTuple(origin)
-          : new DifferentialTuple(origin, difference);
-      }
-
-      /// <inheritdoc/>
-      public override void Write(Utf8JsonWriter writer, DifferentialTuple value, JsonSerializerOptions options)
-      {
-        writer.WriteStartObject();
-
-        // don't store backup, at least for now, but we could
-        var originType = value.Origin.GetType();
-        writer.WriteString(options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin) + TupleTypePropSuffix), originType.AssemblyQualifiedName);
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(DifferentialTuple.Origin)));
-        JsonSerializer.Serialize(writer, value.Origin, originType, options);
-
-        if (value.Difference != null) {
-          var differenceType = value.Difference.GetType();
-          writer.WriteString(options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference) + TupleTypePropSuffix), differenceType.AssemblyQualifiedName);
-          writer.WritePropertyName(options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference)));
-          JsonSerializer.Serialize(writer, value.Difference, differenceType, options);
+          return new DifferentialTuple(tuple, Tuples.Tuple.Parse(descriptor, formattedDiffValues));
         }
         else {
-          writer.WritePropertyName(options.ApplyNamingPolicy(nameof(DifferentialTuple.Difference) + TupleTypePropSuffix));
-          writer.WriteNullValue();
+          _ = reader.Read();
+          reader.EnsureEndObject();
+          return tuple;
         }
-
-        writer.WriteEndObject();
-      }
-    }
-
-    private sealed class FastReadOnlyTupleConverter : JsonConverter<Tuples.FastReadOnlyTuple>
-    {
-      private const string IntertalStatesPropertyName = "_states";
-      private const string InternalValuesPropertyName = "_values";
-
-      /// <inheritdoc/>
-      public override FastReadOnlyTuple Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-      {
-        reader.EnsureStartObject();
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        var propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(FastReadOnlyTuple.Descriptor)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(FastReadOnlyTuple.Descriptor)), propertyName);
-        _ = reader.Read();
-        var descriptor = JsonSerializer.Deserialize<TupleDescriptor>(ref reader, options);
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(InternalValuesPropertyName))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(InternalValuesPropertyName), propertyName);
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.StartArray)
-          throw JsonExceptions.WrongStructureArrayStartExpected();
-
-        var objects = new List<object>(descriptor.Count);
-        var objectCoverter = (JsonConverter<object>) options.GetConverter(typeof(object));
-        var i = 0;
-        while (reader.Read()) {
-          if (reader.TokenType == JsonTokenType.EndArray) {
-            break;
-          }
-          objects.Add(JsonSerializer.Deserialize(ref reader, descriptor[i++], options));
-        }
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(IntertalStatesPropertyName))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(IntertalStatesPropertyName), propertyName);
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.StartArray)
-          throw JsonExceptions.WrongStructureArrayStartExpected();
-
-        var states = new List<TupleFieldState>(descriptor.Count);
-        while (reader.Read()) {
-          if (reader.TokenType == JsonTokenType.EndArray) {
-            break;
-          }
-          states.Add((TupleFieldState) JsonSerializer.Deserialize<int>(ref reader, options));
-        }
-
-        _ = reader.Read();
-        reader.EnsureEndObject();
-
-        // the only incoming parameter is tuple, and it is the source of data, FastReadOnlyTuple does not cache incoming tuple
-        var dummyTuple = Tuples.Tuple.Create(descriptor);
-        for (int j = 0, count = objects.Count; j < count; j++) {
-          dummyTuple.SetValue(j, objects[j]);
-          dummyTuple.SetFieldState(j, states[j]);
-        }
-        return new FastReadOnlyTuple(dummyTuple);
       }
 
-      /// <inheritdoc/>
-      public override void Write(Utf8JsonWriter writer, FastReadOnlyTuple value, JsonSerializerOptions options)
+      public override void Write(Utf8JsonWriter writer, Tuples.Tuple value, JsonSerializerOptions options)
       {
+        var realType = value.GetType();
+
         writer.WriteStartObject();
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(FastReadOnlyTuple.Descriptor)));
-        JsonSerializer.Serialize<TupleDescriptor>(writer, value.Descriptor, options);
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(InternalValuesPropertyName));
-        writer.WriteStartArray();
-
-        var states = new TupleFieldState[value.Count];
-        for (var i = 0; i < value.Count; i++) {
-          var fValue = value.GetValue(i, out var state);
-          states[i] = state;
-          JsonSerializer.Serialize(writer, fValue, value.Descriptor[i], options);
-        }
-        writer.WriteEndArray();
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(IntertalStatesPropertyName));
-        writer.WriteStartArray();
-        for (var i = 0; i < states.Length; i++) {
-          writer.WriteNumberValue((int) states[i]);
-        }
-        writer.WriteEndArray();
+        WriteSharedProperties(writer, value, realType, options);
+        WriteSpecificProperties(writer, value, realType, options);
 
         writer.WriteEndObject();
+      }
+
+      private void WriteSharedProperties(Utf8JsonWriter writer, Tuples.Tuple value, Type realType, JsonSerializerOptions options)
+      {
+        writer.WriteString(options.ApplyNamingPolicy(TypeMarkerPropertyName), realType.Name);
+        writer.WritePropertyName(options.ApplyNamingPolicy(DescriptorPropertyName));
+        JsonSerializer.Serialize<TupleDescriptor>(writer, value.Descriptor, options);
+      }
+
+      private void WriteSpecificProperties(Utf8JsonWriter writer, Tuples.Tuple value, Type realType, JsonSerializerOptions options)
+      {
+        if (realType == DifferentialTupleType) {
+          var diffTuple = value as DifferentialTuple;
+          writer.WriteString(options.ApplyNamingPolicy(ValuesPropertyName), diffTuple.Origin.Format());
+
+          if (diffTuple.Difference is null)
+            writer.WriteNull(options.ApplyNamingPolicy(DifferenceValuesPropertyName));
+          else
+            writer.WriteString(options.ApplyNamingPolicy(DifferenceValuesPropertyName), diffTuple.Difference.Format());
+        }
+        else {
+          writer.WriteString(options.ApplyNamingPolicy(ValuesPropertyName), value.Format());
+        }
+      }
+
+      private static Type GetRealType(string typeMarker)
+      {
+        return typeMarker switch {
+          "DifferentialTuple" => DifferentialTupleType,
+          "FastReadOnlyTuple" => FastReadOnlyTupleType,
+          _ => PackedTupleType
+        };
       }
     }
 
@@ -313,12 +151,14 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-      if (typeToConvert.IsAssignableTo(DifferentialTupleType)) return new DifferentialTupleConverter();
-      if (typeToConvert.IsAssignableTo(FastReadOnlyTupleType)) return new FastReadOnlyTupleConverter();
-      if (typeToConvert.IsAssignableTo(PackedTupleType) 
-        || typeToConvert.IsAssignableFrom(RegularTupleType)) return new PackedTupleConverter();
+      if (typeToConvert.IsAssignableTo(DifferentialTupleType)
+        || typeToConvert.IsAssignableTo(FastReadOnlyTupleType)
+        || typeToConvert.IsAssignableTo(PackedTupleType) 
+        || typeToConvert.IsAssignableFrom(RegularTupleType)) return new GenericTupleConverter();
 
       throw new NotSupportedException($"There is no converter for Tuple descendant {typeToConvert.GetFullName()}");
     }
+
+    
   }
 }

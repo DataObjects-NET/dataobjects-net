@@ -32,10 +32,11 @@ namespace Xtensive.Serialization.Json.Model
         throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(FieldInfo.ReflectedType)), propertyName);
 
       _ = reader.Read();
-      var reflecteType = JsonSerializer.Deserialize<TypeInfo>(ref reader, options);
+      var reflecteTypeRaw = reader.GetString();
+      var reflecteType = Type.GetType(reflecteTypeRaw);
       if (reflecteType is null)
-        throw new JsonException("Reflected type of the field is null.");
-      if (!domain.Model.Types.Contains(reflecteType))
+        throw JsonExceptions.NoTypeForName(reflecteTypeRaw);
+      if (!domain.Model.Types.TryGetValue(reflecteType, out var typeInfo))
         throw new JsonException("Type Owner of the field belongs to different Domain than the one that provided to the converter.");
 
       _ = reader.Read();
@@ -51,7 +52,7 @@ namespace Xtensive.Serialization.Json.Model
       _ = reader.Read();
       reader.EnsureEndObject();
 
-      if (!reflecteType.Fields.TryGetValue(name, out var field))
+      if (!typeInfo.Fields.TryGetValue(name, out var field))
         throw new JsonException("Field is not found.");
 
       return field;
@@ -62,9 +63,7 @@ namespace Xtensive.Serialization.Json.Model
     {
       writer.WriteStartObject();
 
-      writer.WritePropertyName(nameof(FieldInfo.ReflectedType));
-      JsonSerializer.Serialize<TypeInfo>(writer, value.ReflectedType, options);
-
+      writer.WriteString(nameof(FieldInfo.ReflectedType), value.ReflectedType.UnderlyingType.AssemblyQualifiedName);
       writer.WriteString(options.ApplyNamingPolicy(nameof(FieldInfo.Name)), value.Name);
 
       writer.WriteEndObject();

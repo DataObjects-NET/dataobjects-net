@@ -22,23 +22,11 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override TypeInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-      reader.EnsureStartObject();
-
-      _ = reader.Read();
-      if (reader.TokenType is not JsonTokenType.PropertyName)
-        throw JsonExceptions.WrongStructurePropertyExpected();
-      var propertyName = reader.GetString();
-      if (propertyName != options.ApplyNamingPolicy(nameof(TypeInfo.UnderlyingType)))
-        throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(TypeInfo.UnderlyingType)), propertyName);
       _ = reader.Read();
       var assemblyQualifiedName = reader.GetString();
       var type = Type.GetType(assemblyQualifiedName);
       if (type is null)
         throw JsonExceptions.NoTypeForName(assemblyQualifiedName);
-
-      _ = reader.Read();
-      reader.EnsureEndObject();
-
       var typeInfo = domain.Model.Types[type];
       if (typeInfo is null)
         throw new JsonException($"No TypeInfo with underlying type '{assemblyQualifiedName}' found in domain");
@@ -49,11 +37,7 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, TypeInfo objectToWrite, JsonSerializerOptions options)
     {
-      writer.WriteStartObject();
-
       writer.WriteString(options.ApplyNamingPolicy(nameof(TypeInfo.UnderlyingType)), objectToWrite.UnderlyingType.AssemblyQualifiedName);
-
-      writer.WriteEndObject();
     }
   }
 }

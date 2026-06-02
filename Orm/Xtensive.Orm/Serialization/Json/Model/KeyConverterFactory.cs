@@ -24,61 +24,14 @@ namespace Xtensive.Serialization.Json.Model
       /// <inheritdoc/>
       public override Key Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
       {
-        reader.EnsureStartObject();
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-
-        var propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Key.NodeId)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Key.NodeId)), propertyName);
-
-        _ = reader.Read();
-        var nodeId = reader.GetString();
-
-        _ = reader.Read();
-        if (reader.TokenType is not JsonTokenType.PropertyName)
-          throw JsonExceptions.WrongStructurePropertyExpected();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Key.TypeReference)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Key.TypeReference)), propertyName);
-
-        _ = reader.Read();
-        var typeReference = JsonSerializer.Deserialize<TypeReference>(ref reader, options);
-
-        _ = reader.Read();
-        propertyName = reader.GetString();
-        if (propertyName != options.ApplyNamingPolicy(nameof(Key.Value)))
-          throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(Key.Value)), propertyName);
-
-        _ = reader.Read();
-        // normally it is type of tuple for key
-        var tuple = JsonSerializer.Deserialize<Tuples.RegularTuple>(ref reader, options);
-
-        _ = reader.Read();
-        reader.EnsureEndObject();
-
-        // can be optimized if use internal method with TypeInfo parameter instead of System.Type
-        var result = Key.Create(domain, nodeId, typeReference.Type.UnderlyingType, typeReference.Accuracy, tuple);
-
-        return result;
+        var formattedKey = reader.GetString();
+        return Key.Parse(domain, formattedKey);
       }
 
       /// <inheritdoc/>
       public override void Write(Utf8JsonWriter writer, Key value, JsonSerializerOptions options)
       {
-        writer.WriteStartObject();
-
-        writer.WriteString(options.ApplyNamingPolicy(nameof(Key.NodeId)), value.NodeId);
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(Key.TypeReference)));
-        JsonSerializer.Serialize(writer, value.TypeReference, options);
-
-        writer.WritePropertyName(options.ApplyNamingPolicy(nameof(Key.Value)));
-        JsonSerializer.Serialize(writer, value.Value, value.Value.GetType(), options);
-
-        writer.WriteEndObject();
+        writer.WriteStringValue(value.Format());
       }
     }
 

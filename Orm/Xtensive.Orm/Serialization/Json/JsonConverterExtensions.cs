@@ -33,7 +33,6 @@ namespace Xtensive.Serialization.Json
     /// <returns><paramref name="options"/> object with registered converters.</returns>
     public static JsonSerializerOptions RegisterModelConverters(this JsonSerializerOptions options)
     {
-      options.Converters.Add(new TypeReferenceConverter());
       options.Converters.Add(new TupleDescriptorConverter());
       options.Converters.Add(new VersionInfoConverter());
       options.Converters.Add(new ObjectToInferredTypesConverter());
