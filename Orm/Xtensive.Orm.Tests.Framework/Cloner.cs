@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -446,6 +447,10 @@ namespace Xtensive.Orm.Tests
       using (var mStream = new MemoryStream()) {
         var dcSerializer = new DataContractSerializer(typeof(T), settings);
         dcSerializer.WriteObject(mStream, source);
+#if DEBUG
+        var data = mStream.ToArray();
+        var serializedVersion = Encoding.UTF8.GetString(data);
+#endif
         _ = mStream.Seek(0, SeekOrigin.Begin);
         return (T) dcSerializer.ReadObject(mStream);
       }
@@ -460,7 +465,7 @@ namespace Xtensive.Orm.Tests
     /// <returns>Cloned instance.</returns>
     public static T CloneViaJsonSerialization<T>(T source, IEnumerable<Type> knownTypes)
     {
-      var settings = new DataContractJsonSerializerSettings { KnownTypes = knownTypes};
+      var settings = new DataContractJsonSerializerSettings { KnownTypes = knownTypes };
       return CloneViaJsonSerialization(source, settings);
     }
 
@@ -476,6 +481,10 @@ namespace Xtensive.Orm.Tests
       using (var mStream = new MemoryStream()) {
         var dcSerializer = new DataContractJsonSerializer(typeof(T), settings);
         dcSerializer.WriteObject(mStream, source);
+#if DEBUG
+        var data = mStream.ToArray();
+        var serializedVersion = Encoding.UTF8.GetString(data);
+#endif
         _ = mStream.Seek(0, SeekOrigin.Begin);
         return (T) dcSerializer.ReadObject(mStream);
       }
@@ -512,6 +521,10 @@ namespace Xtensive.Orm.Tests
       using (var mStream = new MemoryStream()) {
 
         JsonSerializer.Serialize<T>(mStream, source, options);
+#if DEBUG
+        var data = mStream.ToArray();
+        var serializedVersion = Encoding.UTF8.GetString(data);
+#endif
         _ = mStream.Seek(0, SeekOrigin.Begin);
         return JsonSerializer.Deserialize<T>(mStream, options);
 
