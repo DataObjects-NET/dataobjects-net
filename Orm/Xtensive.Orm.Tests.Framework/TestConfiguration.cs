@@ -17,6 +17,9 @@ namespace Xtensive.Orm.Tests
     private const string StorageFileKey = "DO_STORAGE_FILE";
     private const string ConfigurationFileKey = "DO_CONFIG_FILE";
 
+    private const string InfinityAliasesKey = "DO_PG_INFINITY_ALIASES";
+    private const string LegacyTimestapmKey = "DO_PG_LEGACY_TIMESTAMP";
+
     private const string DefaultStorage = "default";
 
     private static readonly object InstanceLock = new object();
@@ -51,6 +54,30 @@ namespace Xtensive.Orm.Tests
       if (items.Length!=2)
         throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", value));
       return new ConnectionInfo(items[0], items[1]);
+    }
+
+    public void InitAppContextSwitches()
+    {
+      if (configuration.TryGetValue(Storage + "cs", out var info)) {
+        var items = info.Split(new[] { '[', ']' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).ToArray();
+        if (items.Length != 2)
+          throw new InvalidOperationException(string.Format("Invalid connection string format: {0}", info));
+        var provider = items[0];
+        if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.OrdinalIgnoreCase))
+          InitPostgreSqlSwitches();
+      }
+    }
+
+    private void InitPostgreSqlSwitches()
+    {
+      var infinityAliasesValue = GetEnvironmentVariable(InfinityAliasesKey);
+      if (bool.TryParse(infinityAliasesValue, out var switch1Value)) {
+        AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", !switch1Value);
+      }
+      var legacyTimestampsValue = GetEnvironmentVariable(LegacyTimestapmKey);
+      if (bool.TryParse(legacyTimestampsValue, out var switch2Value)) {
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", switch2Value);
+      }
     }
 
     private string GetEnvironmentVariable(string key)
