@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Reflection;
+using ExceptionAggregator = Xtensive.Core.ExceptionAggregator;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
-        if (PrimaryKey==null) {
+        if (PrimaryKey == null) {
           ea.Execute(() => {
             throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
           });
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
         var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
         var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
-        if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First.Type==p.Second.Type.StripNullable()).Count()) {
+        if (pkTypes.Count() != pkTypes.Zip(fkTypes).Where(p => p.First.Type == p.Second.Type.StripNullable()).Count()) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);

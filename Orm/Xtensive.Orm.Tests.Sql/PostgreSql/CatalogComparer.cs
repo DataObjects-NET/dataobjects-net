@@ -6,6 +6,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
