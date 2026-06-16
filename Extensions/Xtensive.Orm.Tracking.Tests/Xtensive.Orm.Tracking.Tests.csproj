@@ -6,7 +6,10 @@
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <!--
+    <RuntimeFrameworkVersion>2.0.3</RuntimeFrameworkVersion>
+    -->
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
