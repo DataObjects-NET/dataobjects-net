@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Compiler;
@@ -13,11 +14,35 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Compiler : SqlCompiler
   {
+    private const string DateTimeIsoFormat = "YYYY-MM-DD\"T\"HH24:MI:SS";
+
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
+
+    private static readonly SqlNative OneHourInterval = SqlDml.Native("interval '1 hour'");
     private static readonly SqlNative OneMinuteInterval = SqlDml.Native("interval '1 minute'");
     private static readonly SqlNative OneSecondInterval = SqlDml.Native("interval '1 second'");
+
+    private static readonly SqlLiteral ReferenceDateTimeLiteral = SqlDml.Literal(new DateTime(2001, 1, 1));
+    private static readonly SqlLiteral EpochLiteral = SqlDml.Literal(new DateTime(1970, 1, 1));
+
+    private static readonly SqlNative ZeroTimeLiteral = SqlDml.Native("'00:00:00.000000'::time(6)");
+    private static readonly SqlNative MaxTimeLiteral = SqlDml.Native("'23:59:59.999999'::time(6)");
+
+    private static readonly SqlNative DateMinValue = SqlDml.Native("'0001-01-01'::timestamp");
+    private static readonly SqlNative DateMaxValue = SqlDml.Native("'9999-12-31'::timestamp");
+
+    private static readonly SqlNative DateTimeMinValue = SqlDml.Native("'0001-01-01 00:00:00.000000'::timestamp(6)");
+    private static readonly SqlNative DateTimeMaxValue = SqlDml.Native("'9999-12-31 23:59:59.999999'::timestamp(6)");
+
+    private static readonly SqlNative DateTimeOffsetMinValue = SqlDml.Native("'0001-01-01 00:00:00.000000+00:00'::timestamp(6) with time zone");
+    private static readonly SqlNative DateTimeOffsetMaxValue = SqlDml.Native("'9999-12-31 23:59:59.999999+00:00'::timestamp(6) with time zone");
+
+    private static readonly SqlNative PositiveInfinity = SqlDml.Native("'Infinity'");
+    private static readonly SqlNative NegativeInfinity = SqlDml.Native("'-Infinity'");
+
+    protected readonly bool infinityAliasForDatesEnabled;
 
     public override void Visit(SqlDeclareCursor node)
     {
@@ -70,7 +95,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         ((node.Arguments[0] / SqlDml.Literal(nanosecondsPerSecond)) * OneSecondInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.IntervalToMilliseconds:
-        SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
+        VisitIntervalToMilliseconds(node);
         return;
       case SqlFunctionType.IntervalToNanoseconds:
         SqlHelper.IntervalToNanoseconds(node.Arguments[0]).AcceptVisitor(this);
@@ -79,23 +104,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlHelper.IntervalAbs(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeConstruct:
-        var newNode = (SqlDml.Literal(new DateTime(2001, 1, 1))
-                       + OneYearInterval * (node.Arguments[0] - 2001)
-                       + OneMonthInterval * (node.Arguments[1] - 1)
-                       + OneDayInterval * (node.Arguments[2] - 1));
-        newNode.AcceptVisitor(this);
+        ConstructDateTime(node.Arguments).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeTruncate:
-        (SqlDml.FunctionCall("date_trunc", "day", node.Arguments[0])).AcceptVisitor(this);
+        DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeAddMonths:
-        (node.Arguments[0] + node.Arguments[1] * OneMonthInterval).AcceptVisitor(this);
+        DateTimeAddXxx(node.Arguments[0], node.Arguments[1] * OneMonthInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeAddYears:
-        (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
+        DateTimeAddXxx(node.Arguments[0], node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeToStringIso:
-        DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+        DateTimeToStringIso(node.Arguments[0], DateTimeIsoFormat, infinityAliasForDatesEnabled).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetTimeOfDay:
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
@@ -110,7 +131,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         ConstructDateTimeOffset(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeToDateTimeOffset:
-        SqlDml.Cast(node.Arguments[0], SqlType.DateTimeOffset).AcceptVisitor(this);
+        DateTimeToDateTimeOffset(node.Arguments[0], infinityAliasForDatesEnabled).AcceptVisitor(this);
         return;
       }
       base.Visit(node);
@@ -184,10 +205,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.Visit(node);
     }
 
-
-    private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
+    protected virtual void VisitIntervalToMilliseconds(SqlFunctionCall node)
     {
-      return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
+      SqlHelper.IntervalToMilliseconds(node.Arguments[0]).AcceptVisitor(this);
+    }
+
+    protected virtual SqlExpression ConstructDateTime(IList<SqlExpression> arguments)
+    {
+      return ReferenceDateTimeLiteral
+        + (OneYearInterval * (arguments[0] - 2001))
+        + (OneMonthInterval * (arguments[1] - 1))
+        + (OneDayInterval * (arguments[2] - 1));
+    }
+
+    private static SqlExpression DateTimeToStringIso(SqlExpression dateTime, in string isoFormat, bool infinityEnabled)
+    {
+      var operand = infinityEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.FunctionCall("TO_CHAR", operand, isoFormat);
     }
 
     private static SqlExpression IntervalToIsoString(SqlExpression interval, bool signed)
@@ -276,61 +312,151 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     public override void Visit(SqlExtract node)
-    {   
-      switch (node.DateTimeOffsetPart) {
-        case SqlDateTimeOffsetPart.Date:
-          DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.DateTime:
-          DateTimeOffsetExtractDateTime(node.Operand).AcceptVisitor(this);
-          return;
+    {
+      if (node.IsDateTimeOffsetPart) {
+        switch (node.DateTimeOffsetPart) {
+          case SqlDateTimeOffsetPart.Date:
+            DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.DateTime:
+            DateTimeOffsetExtractDateTime(node.Operand).AcceptVisitor(this);
+            return;
 
-        case SqlDateTimeOffsetPart.UtcDateTime:
-          DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.LocalDateTime:
-          DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.Offset:
-          DateTimeOffsetExtractOffset(node);
-          return;
+          case SqlDateTimeOffsetPart.UtcDateTime:
+            DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.LocalDateTime:
+            DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.Offset:
+            DateTimeOffsetExtractOffset(node);
+            return;
+        }
       }
-      base.Visit(node);
+
+
+      using (context.EnterScope(node)) {
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
+        var part = (node.IsDateTimePart)
+          ? translator.Translate(node.DateTimePart)
+          : (node.IsIntervalPart) 
+            ? translator.Translate(node.IntervalPart)
+            : translator.Translate(node.DateTimeOffsetPart);
+        context.Output.AppendText(part);
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
+        if (infinityAliasForDatesEnabled && (node.IsDateTimePart || node.IsDateTimeOffsetPart)) {
+          var minMaxValues = GetMinMaxValuesForPart(node);
+          CreateInfinityCheckExpression(node.Operand, minMaxValues.max, minMaxValues.min)
+            .AcceptVisitor(this);
+        }
+        else {
+          node.Operand.AcceptVisitor(this);
+        }
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
+      }
+
+      static (SqlExpression min, SqlExpression max) GetMinMaxValuesForPart(SqlExtract node)
+      {
+        if (node.IsDateTimePart)
+          return (DateTimeMinValue, DateTimeMaxValue);
+        if (node.IsDateTimeOffsetPart)
+          return (DateTimeOffsetMinValue, DateTimeOffsetMaxValue);
+
+        throw new ArgumentOutOfRangeException("Can't define min and max values for given extract statement");
+      }
     }
 
-    
+
+    public override void Visit(SqlLiteral node)
+    {
+      if (!infinityAliasForDatesEnabled) {
+        base.Visit(node);
+      }
+      else {
+        // to keep constants and parameters work the same way we have to make this check
+        var value = node.GetValue();
+        var infinityExpression = value switch {
+          DateTime dtValue => dtValue == DateTime.MinValue
+            ? NegativeInfinity
+            : dtValue == DateTime.MaxValue
+              ? PositiveInfinity
+              : null,
+          DateTimeOffset dtValue => dtValue == DateTimeOffset.MinValue
+            ? NegativeInfinity
+            : dtValue == DateTimeOffset.MaxValue
+              ? PositiveInfinity
+              : null,
+          _ => null
+        };
+
+        if (infinityExpression is null) {
+          base.Visit(node);
+        }
+        else {
+          infinityExpression.AcceptVisitor(this);
+        }
+
+      }
+    }
+
+    protected SqlExpression DateTimeAddXxx(SqlExpression dateTime, SqlExpression addPart)
+    {
+      var operand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return (operand + addPart);
+    }
+
+    protected SqlExpression DateTimeTruncate(SqlExpression dateTime)
+    {
+      var operand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.FunctionCall("date_trunc", "day", operand);
+    }
+
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
     {
+      var extractOperand = (infinityAliasForDatesEnabled)
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
       return SqlDml.FunctionCall("DATE", timestamp);
     }
 
     protected SqlExpression DateTimeOffsetExtractDateTime(SqlExpression timestamp)
     {
-      return SqlDml.Cast(timestamp, SqlType.DateTime);
+      return DateTimeOffsetToDateTime(timestamp, infinityAliasForDatesEnabled);
     }
 
-    protected SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression timeStamp)
+    protected SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression timestamp)
     {
-      return GetDateTimeInTimeZone(timeStamp, TimeSpan.Zero);
+      var convertOperand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
+      return GetDateTimeInTimeZone(convertOperand, TimeSpan.Zero);
     }
-    
+
     protected SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression timestamp)
     {
-      return SqlDml.Cast(timestamp, SqlType.DateTime);
+      var extractOperand = infinityAliasForDatesEnabled
+        ? CreateInfinityCheckExpression(timestamp, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : timestamp;
+      return SqlDml.Cast(extractOperand, SqlType.DateTime);
     }
 
     protected void DateTimeOffsetExtractOffset(SqlExtract node)
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
-        var part = node.DateTimePart!=SqlDateTimePart.Nothing
-          ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart!=SqlIntervalPart.Nothing
-            ? translator.Translate(node.IntervalPart)
-            : translator.Translate(node.DateTimeOffsetPart);
-        context.Output.AppendText(part);
+        context.Output.AppendText(translator.Translate(node.DateTimeOffsetPart));
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
-        node.Operand.AcceptVisitor(this);
+        if (infinityAliasForDatesEnabled) {
+          CreateInfinityCheckExpression(node.Operand, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+            .AcceptVisitor(this);
+        }
+        else {
+          node.Operand.AcceptVisitor(this);
+        }
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
         context.Output.AppendText(translator.Translate(SqlNodeType.Multiply));
         OneSecondInterval.AcceptVisitor(this);
@@ -339,7 +465,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression DateTimeOffsetTimeOfDay(SqlExpression timestamp)
     {
-      return DateTimeOffsetSubstract(timestamp, SqlDml.DateTimeTruncate(timestamp));
+      var resultExpression = DateTimeOffsetSubstract(timestamp, SqlDml.DateTimeTruncate(timestamp));
+      if (infinityAliasForDatesEnabled) {
+        var @case = SqlDml.Case();
+        @case[timestamp == PositiveInfinity] = DateTimeOffsetSubstract(DateTimeOffsetMaxValue, SqlDml.DateTimeTruncate(DateTimeOffsetMaxValue));
+        @case[timestamp == NegativeInfinity] = DateTimeOffsetSubstract(DateTimeOffsetMinValue, SqlDml.DateTimeTruncate(DateTimeOffsetMinValue));
+        @case.Else = resultExpression;
+        return @case;
+      }
+      return resultExpression;
     }
 
     protected SqlExpression DateTimeOffsetSubstract(SqlExpression timestamp1, SqlExpression timestamp2)
@@ -376,20 +510,41 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return IntervalToIsoString(intervalExpression, true);
     }
 
-    private string ZoneStringFromParts(int hours, int minutes)
+    private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime, bool infinityAliasEnabled)
     {
-      return string.Format("{0}{1:00}:{2:00}", hours < 0 ? "-" : "+", Math.Abs(hours), Math.Abs(minutes));
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTime, DateTimeMaxValue, DateTimeMinValue)
+        : dateTime;
+      return SqlDml.Cast(convertOperand, SqlType.DateTimeOffset);
     }
 
-    private SqlExpression GetDateTimeInTimeZone(SqlExpression expression, SqlExpression zone)
+    private static SqlExpression DateTimeOffsetToDateTime(SqlExpression dateTimeOffset, bool infinityAliasEnabled)
     {
-      return SqlDml.FunctionCall("TIMEZONE", zone, expression);
+      var convertOperand = infinityAliasEnabled
+        ? CreateInfinityCheckExpression(dateTimeOffset, DateTimeOffsetMaxValue, DateTimeOffsetMinValue)
+        : dateTimeOffset;
+      return SqlDml.Cast(convertOperand, SqlType.DateTime);
     }
 
-    private SqlExpression GetServerTimeZone()
+    private static SqlCase CreateInfinityCheckExpression(SqlExpression baseExpression,
+      SqlExpression ifPositiveInfinity, SqlExpression ifNegativeInfinity)
     {
-      return SqlDml.FunctionCall("CURRENT_SETTING", SqlDml.Literal("TIMEZONE"));
+      var @case = SqlDml.Case();
+      @case[baseExpression == PositiveInfinity] = ifPositiveInfinity;
+      @case[baseExpression == NegativeInfinity] = ifNegativeInfinity;
+      @case.Else = baseExpression;
+
+      return @case;
     }
+
+    private string ZoneStringFromParts(int hours, int minutes) =>
+      $"{(hours < 0 ? "-" : "+")}{Math.Abs(hours):00}:{Math.Abs(minutes):00}";
+
+    private SqlExpression GetDateTimeInTimeZone(SqlExpression expression, SqlExpression zone) =>
+      SqlDml.FunctionCall("TIMEZONE", zone, expression);
+
+    private SqlExpression GetServerTimeZone() =>
+      SqlDml.FunctionCall("CURRENT_SETTING", SqlDml.Literal("TIMEZONE"));
 
     private bool TryDivideOffsetIntoParts(SqlExpression offsetInMinutes, ref int hours , ref int minutes)
     {
@@ -417,9 +572,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     // Constructors
 
-    protected internal Compiler(SqlDriver driver)
+    protected internal Compiler(PostgreSql.Driver driver)
       : base(driver)
     {
+      infinityAliasForDatesEnabled = driver.PostgreServerInfo.InfinityAliasForDatesEnabled;
     }
   }
 }

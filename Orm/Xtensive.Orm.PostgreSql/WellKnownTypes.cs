@@ -11,6 +11,7 @@ namespace Xtensive.Reflection.PostgreSql
 {
   internal static class WellKnownTypes
   {
+    public static readonly Type DateTimeType = typeof(DateTime);
     public static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
     public static readonly Type TimeSpanType = typeof(TimeSpan);
     public static readonly Type GuidType = typeof(Guid);

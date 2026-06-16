@@ -12,10 +12,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
 {
   internal class Extractor : v8_3.Extractor
   {
-    protected override void ReadSequenceDescriptor(DbDataReader reader, SequenceDescriptor descriptor)
+    /// <inheritdoc/>
+    protected override void ReadSequenceDescriptor(DbDataReader dataReader, ExtractionContext context)
     {
-      base.ReadSequenceDescriptor(reader, descriptor);
-      descriptor.StartValue = Convert.ToInt64(reader["start_value"]);
+      var seqId = Convert.ToInt64(dataReader["id"]);
+      var descriptor = context.SequenceMap[seqId].SequenceDescriptor;
+
+      descriptor.Increment = Convert.ToInt64(dataReader["increment_by"]);
+      descriptor.IsCyclic = Convert.ToBoolean(dataReader["is_cycled"]);
+      descriptor.MinValue = Convert.ToInt64(dataReader["min_value"]);
+      descriptor.MaxValue = Convert.ToInt64(dataReader["max_value"]);
+      descriptor.StartValue = Convert.ToInt64(dataReader["start_value"]);
     }
 
     // Consructors

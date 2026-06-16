@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE INDEX {0} ON {1} USING gin ("
+          return string.Format("CREATE INDEX {0} ON {1} USING gin "
             , QuoteIdentifier(index.Name)
             , Translate(context, index.DataTable));
         case CreateIndexSection.ColumnsExit:

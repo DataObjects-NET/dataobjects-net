@@ -20,8 +20,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    private const string DataSourceFormat = "{0}:{1}/{2}";
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
+
+    private readonly static bool InfinityAliasForDatesEnabled;
+    private readonly static bool LegacyTimestamptBehaviorEnabled;
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -44,9 +46,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         builder.Username = url.User;
         builder.Password = url.Password;
       }
-      else {
-        builder.IntegratedSecurity = true;
-      }
 
       // custom options
       foreach (var param in url.Params) {
@@ -67,15 +66,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.PostgreSqlVersion
           : new Version(configuration.ForcedServerVersion);
-        var builder = new NpgsqlConnectionStringBuilder(connectionString);
-        var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var defaultSchema = GetDefaultSchema(connection);
-        return CreateDriverInstance(connectionString, version, defaultSchema);
+        var defaultTimeZoneInfo = PostgreSqlHelper.GetTimeZoneInfoForServerTimeZone(connection.Timezone);
+        return CreateDriverInstance(connectionString, version, defaultSchema, defaultTimeZoneInfo);
       }
     }
 
     private static SqlDriver CreateDriverInstance(
-      string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+      string connectionString, Version version, DefaultSchemaInfo defaultSchema,
+      TimeZoneInfo defaultTimeZone)
     {
       var coreServerInfo = new CoreServerInfo {
         ServerVersion = version,
@@ -85,24 +84,24 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         DefaultSchemaName = defaultSchema.Schema,
       };
 
+      var pgsqlServerInfo = new PostgreServerInfo(InfinityAliasForDatesEnabled,
+        LegacyTimestamptBehaviorEnabled, defaultTimeZone);
+
       if (version.Major < 8 || (version.Major == 8 && version.Minor < 3)) {
         throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
       }
 
       // We support 8.3, 8.4 and any 9.0+
 
-      if (version.Major == 8) {
-        return version.Minor == 3
-          ? new v8_3.Driver(coreServerInfo)
-          : new v8_4.Driver(coreServerInfo);
-      }
-
-      if (version.Major == 9) {
-        return version.Minor == 0
-          ? new v9_0.Driver(coreServerInfo)
-          : new v9_1.Driver(coreServerInfo);
-      }
-      return new v10_0.Driver(coreServerInfo);
+      return version.Major switch {
+        8 when version.Minor == 3 => new v8_3.Driver(coreServerInfo, pgsqlServerInfo),
+        8 when version.Minor > 3 => new v8_4.Driver(coreServerInfo, pgsqlServerInfo),
+        9 when version.Minor == 0 => new v9_0.Driver(coreServerInfo, pgsqlServerInfo),
+        9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo, pgsqlServerInfo),
+        10 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
+        11 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
+        _ => new v12_0.Driver(coreServerInfo, pgsqlServerInfo)
+      };
     }
 
     /// <inheritdoc/>
@@ -130,6 +129,59 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
         throw;
       }
+    }
+
+    #region Helpers
+
+    private static bool SetOrGetExistingDisableInfinityAliasForDatesSwitch(bool valueToSet) =>
+      GetSwitchValueOrSet(Orm.PostgreSql.WellKnown.DateTimeToInfinityConversionSwitchName, valueToSet);
+
+    private static bool SetOrGetExistingLegacyTimeStampBehaviorSwitch(bool valueToSet) =>
+      GetSwitchValueOrSet(Orm.PostgreSql.WellKnown.LegacyTimestampBehaviorSwitchName, valueToSet);
+
+    private static bool GetSwitchValueOrSet(string switchName, bool valueToSet)
+    {
+      if (!AppContext.TryGetSwitch(switchName, out var currentValue)) {
+        AppContext.SetSwitch(switchName, valueToSet);
+        return valueToSet;
+      }
+      else {
+        return currentValue;
+      }
+    }
+
+    #endregion
+
+    static DriverFactory()
+    {
+      // Starting from Npgsql 6.0 they broke compatibility by forcefully replacing
+      // DateTime.MinValue/MaxValue in parameters with -Infinity and Infinity values.
+      // This new "feature", though doesn't affect reading/writing of values and equality/inequality
+      // filters, breaks some of operations such as parts extraction, default values for columns
+      // (which are constants and declared on high levels of abstraction) and some others.
+
+      // We turn it off to make current code work as before and make current data of
+      // the user be compatible with algorighms as long as possible.
+      // But if the user sets the switch then we work with what we have.
+      // Usage of such aliases makes us to create extra statements in SQL queries to provide
+      // the same results the queries which are already written, which may make queries a bit slower.
+
+      // DO NOT REPLACE method call with constant value when debugging, CHANGE THE PARAMETER VALUE.
+      InfinityAliasForDatesEnabled = !SetOrGetExistingDisableInfinityAliasForDatesSwitch(valueToSet: true);
+
+      // Legacy timestamp behavoir turns off certain parameter value binding requirements
+      // and makes Npgsql work like v4 or older.
+      // Current behavior require manual specification of unspecified kind for DateTime values,
+      // because Local or Utc kind now meand that underlying type of value to Timestamp without time zone 
+      // and Timestamp with time zone respectively.
+      // It also affects DateTimeOffsets, now there is a requirement to move timezone of value to Utc
+      // this forces us to use only local timezone when reading values, which basically ignores
+      // Postgre's setting SET TIME ZONE for database session.
+
+      // We have to use current mode, not the legacy one, because there is a chance of legacy mode elimination.
+
+      // DO NOT REPLACE method call with constant value when debugging, CHANGE THE PARAMETER VALUE.
+      LegacyTimestamptBehaviorEnabled = SetOrGetExistingLegacyTimeStampBehaviorSwitch(valueToSet: false);
     }
   }
 }

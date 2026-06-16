@@ -7,6 +7,7 @@
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
@@ -26,6 +27,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 
       return result.ToString();
     }
+
+    public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
+    {
+      switch (section) {
+        case NodeSection.Exit:
+          return (node.Ascending) ? "ASC NULLS FIRST" : "DESC NULLS LAST";
+      }
+      return string.Empty;
+    }
+
+    public override string TranslateSortOrder(bool ascending) => ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST";
 
     // Constructors
 

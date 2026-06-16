@@ -17,6 +17,39 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
+    protected struct SqlFunctionTypeTranslations
+    {
+      private readonly string[] translations;
+
+      public void Add(in SqlFunctionType enumValue, in string value)
+      {
+        var index = (int) enumValue;
+        if (translations[index] != null) {
+          throw new InvalidOperationException($"Translation for '{enumValue}' is already defined");
+        }
+        translations[index] = value;
+      }
+
+      public void AddOrOverride(in SqlFunctionType enumValue, in string value)
+      {
+        var index = (int) enumValue;
+        translations[index] = value;
+      }
+
+      public string Get(in SqlFunctionType enumValue)
+      {
+        var index = (int) enumValue;
+        return translations[index];
+      }
+
+      public SqlFunctionTypeTranslations(int count)
+      {
+        translations = new string[count];
+      }
+    }
+
+    protected readonly SqlFunctionTypeTranslations FunctionTypeTranslations = new SqlFunctionTypeTranslations((int) SqlFunctionType.RoundDoubleToZero);
+
     public override string DateTimeFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
     public override string TimeSpanFormatString { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
 
@@ -40,6 +73,52 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       DoubleNumberFormat.NaNSymbol = "'Nan'::float8";
       DoubleNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float8";
       DoubleNumberFormat.PositiveInfinitySymbol = "'Infinity'::float8";
+
+      InitFunctionTypeTranslations();
+    }
+
+    protected virtual void InitFunctionTypeTranslations()
+    {
+      FunctionTypeTranslations.Add(SqlFunctionType.User, "current_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentUser, "current_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.SessionUser, "session_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.NullIf, "nullif");
+      FunctionTypeTranslations.Add(SqlFunctionType.Coalesce, "coalesce");
+      FunctionTypeTranslations.Add(SqlFunctionType.BinaryLength, "length");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentDate, "date_trunc('day', current_timestamp)");
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentTimeStamp, "current_timestamp");
+      FunctionTypeTranslations.Add(SqlFunctionType.IntervalNegate, "-");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.CharLength, "char_length");
+      FunctionTypeTranslations.Add(SqlFunctionType.Lower, "lower");
+      FunctionTypeTranslations.Add(SqlFunctionType.Position, "position");
+      FunctionTypeTranslations.Add(SqlFunctionType.Substring, "substring");
+      FunctionTypeTranslations.Add(SqlFunctionType.Upper, "upper");
+      FunctionTypeTranslations.Add(SqlFunctionType.Concat, "textcat");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.Abs, "abs");
+      FunctionTypeTranslations.Add(SqlFunctionType.Acos, "acos");
+      FunctionTypeTranslations.Add(SqlFunctionType.Asin, "asin");
+      FunctionTypeTranslations.Add(SqlFunctionType.Atan, "atan");
+      FunctionTypeTranslations.Add(SqlFunctionType.Atan2, "atan2");
+      FunctionTypeTranslations.Add(SqlFunctionType.Ceiling, "ceil");
+      FunctionTypeTranslations.Add(SqlFunctionType.Cos, "cos");
+      FunctionTypeTranslations.Add(SqlFunctionType.Cot, "cot");
+      FunctionTypeTranslations.Add(SqlFunctionType.Degrees, "degrees");
+      FunctionTypeTranslations.Add(SqlFunctionType.Exp, "exp");
+      FunctionTypeTranslations.Add(SqlFunctionType.Floor, "floor");
+      FunctionTypeTranslations.Add(SqlFunctionType.Log, "ln");
+      FunctionTypeTranslations.Add(SqlFunctionType.Log10, "log");
+      FunctionTypeTranslations.Add(SqlFunctionType.Pi, "pi");
+      FunctionTypeTranslations.Add(SqlFunctionType.Power, "power");
+      FunctionTypeTranslations.Add(SqlFunctionType.Radians, "radians");
+      FunctionTypeTranslations.Add(SqlFunctionType.Rand, "random");
+      FunctionTypeTranslations.Add(SqlFunctionType.Round, "round");
+      FunctionTypeTranslations.Add(SqlFunctionType.Truncate, "trunc");
+      FunctionTypeTranslations.Add(SqlFunctionType.Sign, "sign");
+      FunctionTypeTranslations.Add(SqlFunctionType.Sqrt, "sqrt");
+      FunctionTypeTranslations.Add(SqlFunctionType.Tan, "tan");
     }
 
     public override string DdlStatementDelimiter { get { return ";"; } }
@@ -58,112 +137,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlFunctionType type)
     {
-      switch (type) {
-        case SqlFunctionType.SystemUser:
-          return string.Empty;
-        case SqlFunctionType.User:
-        case SqlFunctionType.CurrentUser:
-          return "current_user";
-        case SqlFunctionType.SessionUser:
-          return "session_user";
-        case SqlFunctionType.NullIf:
-          return "nullif";
-        case SqlFunctionType.Coalesce:
-          return "coalesce";
-        case SqlFunctionType.BinaryLength:
-          return "length";
+      if (type == SqlFunctionType.SystemUser)
+        return string.Empty;
 
-        //datetime/timespan
-
-        case SqlFunctionType.CurrentDate:
-          return "date_trunc('day', current_timestamp)";
-        case SqlFunctionType.CurrentTimeStamp:
-          return "current_timestamp";
-        case SqlFunctionType.IntervalNegate:
-          return "-";
-
-        //string
-
-        case SqlFunctionType.CharLength:
-          return "char_length";
-        case SqlFunctionType.Lower:
-          return "lower";
-        case SqlFunctionType.Position:
-          return "position";
-        case SqlFunctionType.Substring:
-          return "substring";
-        case SqlFunctionType.Upper:
-          return "upper";
-        case SqlFunctionType.Concat:
-          return "textcat";
-
-        //math
-
-        case SqlFunctionType.Abs:
-          return "abs";
-        case SqlFunctionType.Acos:
-          return "acos";
-        case SqlFunctionType.Asin:
-          return "asin";
-        case SqlFunctionType.Atan:
-          return "atan";
-        case SqlFunctionType.Atan2:
-          return "atan2";
-        case SqlFunctionType.Ceiling:
-          return "ceil";
-        case SqlFunctionType.Cos:
-          return "cos";
-        case SqlFunctionType.Cot:
-          return "cot";
-        case SqlFunctionType.Degrees:
-          return "degrees";
-        case SqlFunctionType.Exp:
-          return "exp";
-        case SqlFunctionType.Floor:
-          return "floor";
-        case SqlFunctionType.Log:
-          return "ln";
-        case SqlFunctionType.Log10:
-          return "log";
-        case SqlFunctionType.Pi:
-          return "pi";
-        case SqlFunctionType.Power:
-          return "power";
-        case SqlFunctionType.Radians:
-          return "radians";
-        case SqlFunctionType.Rand:
-          return "random";
-        case SqlFunctionType.Round:
-          return "round";
-        case SqlFunctionType.Truncate:
-          return "trunc";
-        case SqlFunctionType.Sign:
-          return "sign";
-        case SqlFunctionType.Sqrt:
-          return "sqrt";
-        case SqlFunctionType.Tan:
-          return "tan";
-
-        default:
-          return base.Translate(type);
+      var value = FunctionTypeTranslations.Get(type);
+      if (value != null) {
+        return value;
       }
+      else
+        return base.Translate(type);
     }
 
     public override string Translate(ReferentialAction action)
     {
-      switch (action) {
-        case ReferentialAction.Cascade:
-          return "CASCADE";
-        case ReferentialAction.NoAction:
-          return "NO ACTION";
-        case ReferentialAction.Restrict:
-          return "RESTRICT";
-        case ReferentialAction.SetDefault:
-          return "SET DEFAULT";
-        case ReferentialAction.SetNull:
-          return "SET NULL";
-      }
-      return string.Empty;
+      return action switch {
+        ReferentialAction.Cascade => "CASCADE",
+        ReferentialAction.NoAction => "NO ACTION",
+        ReferentialAction.Restrict => "RESTRICT",
+        ReferentialAction.SetDefault => "SET DEFAULT",
+        ReferentialAction.SetNull => "SET NULL",
+        _ => string.Empty,
+      };
     }
 
     public override string Translate(SqlNodeType type)
@@ -187,12 +181,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlMatchType mt)
     {
-      switch (mt) {
-        case SqlMatchType.Full:
-          return "FULL";
-        default:
-          return "SIMPLE";
-      }
+      return mt switch {
+        SqlMatchType.Full => "FULL",
+        _ => "SIMPLE",
+      };
     }
 
     public override string Translate(SqlCompilerContext context, SchemaNode node)
@@ -235,13 +227,21 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       Index index = node.Index;
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE {0}INDEX {1} ON {2} {3}("
+          return string.Format("CREATE {0}INDEX {1} ON {2} {3}"
             , index.IsUnique ? "UNIQUE " : string.Empty
             , QuoteIdentifier(index.Name)
             , Translate(context, index.DataTable)
             , index.IsSpatial ? "USING GIST" : string.Empty);
+        case CreateIndexSection.ColumnsEnter:
+          return " (";
+        case CreateIndexSection.ColumnsExit:
+          return") ";
+        case CreateIndexSection.NonkeyColumnsEnter:
+          return string.Empty;
+        case CreateIndexSection.NonkeyColumnsExit:
+          return string.Empty;
         case CreateIndexSection.StorageOptions:
-          var builder = new StringBuilder(")");
+          var builder = new StringBuilder();
           AppendIndexStorageParameters(builder, index);
           if (!string.IsNullOrEmpty(index.Filegroup))
             _ = builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
@@ -331,21 +331,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second
-        || node.IntervalPart == SqlIntervalPart.Second
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         return base.Translate(context, node, section);
       }
       switch (section) {
         case ExtractSection.Entry:
-          return isSecond ? "(trunc(extract(" : "(extract(";
+          return isSecond || isMillisecond ? "(trunc(extract(" : "(extract(";
         case ExtractSection.Exit:
           return isMillisecond
-           ?  ")::int8 % 1000)"
+           ? "))::int8 % 1000)"
            : isSecond ? ")))" : ")::int8)";
         default:
           return base.Translate(context, node, section);

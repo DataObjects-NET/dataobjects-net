@@ -53,11 +53,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       try {
         if (!IsTransactionCompleted()) {
-          ActiveTransaction.Commit();
+          activeTransaction.Commit();
         }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -69,11 +69,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       try {
         if (!IsTransactionCompleted()) {
-          ActiveTransaction.Rollback();
+          activeTransaction.Rollback();
         }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -123,10 +123,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       underlyingConnection = null;
     }
 
-    private bool IsTransactionCompleted()
-    {
-      return activeTransaction != null && activeTransaction.IsCompleted;
-    }
+    private bool IsTransactionCompleted() => activeTransaction.Connection == null;
 
     // Constructors
 

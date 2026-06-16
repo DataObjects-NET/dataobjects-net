@@ -10,7 +10,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_4
   {
     // Constructors
 
-    public TypeMapper(SqlDriver driver)
+    public TypeMapper(PostgreSql.Driver driver)
       : base(driver)
     {
     }

@@ -11,11 +11,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
   internal class Translator : v8_1.Translator
   {
-    [DebuggerStepThrough]
-    public override string QuoteString(string str)
+    protected override void InitFunctionTypeTranslations()
     {
-      return "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+      base.InitFunctionTypeTranslations();
+
+      FunctionTypeTranslations.AddOrOverride(SqlFunctionType.CurrentDate, "date_trunc('day', clock_timestamp())");
+      FunctionTypeTranslations.AddOrOverride(SqlFunctionType.CurrentTimeStamp, "clock_timestamp()");
     }
+
+    [DebuggerStepThrough]
+    public override string QuoteString(string str) =>
+      "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
 
     protected override void AppendIndexStorageParameters(StringBuilder builder, Index index)
     {
