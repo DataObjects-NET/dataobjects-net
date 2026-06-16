@@ -52,5 +52,12 @@ namespace Xtensive.Sql.Dml
         result.Append("|Throw exception if locked");
       return result.ToString();
     }
+
+    // See the description in the Parts file. Be careful.
+    internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlDateTimePart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
+    internal static SqlDateTimeOffsetPart ToDtoPartFast(this SqlIntervalPart datePart) => (SqlDateTimeOffsetPart) (int) datePart;
+
+    internal static SqlDateTimePart ToDateTimePartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlDateTimePart) (int) dtoPart;
+    internal static SqlIntervalPart ToIntervalPartFast(this SqlDateTimeOffsetPart dtoPart) => (SqlIntervalPart) (int) dtoPart;
   }
 }
