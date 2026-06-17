@@ -33,6 +33,8 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public AggregateType AggregateType { get; private set; }
 
+    public (int Precision, int Scale)? DecimalParametersHint { get; private set; }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -54,6 +56,19 @@ namespace Xtensive.Orm.Rse
       Name = name;
       SourceIndex = index;
       AggregateType = aggregateType;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="name"><see cref="Name"/> property value.</param>
+    /// <param name="index"><see cref="SourceIndex"/> property value.</param>
+    /// <param name="aggregateType">The <see cref="AggregateType"/> property value.</param>
+    /// <param name="decimalParametersHint">Additional informantion about decimal column type.</param>
+    public AggregateColumnDescriptor(string name, int index, AggregateType aggregateType, (int Precision, int Scale) decimalParametersHint)
+      : this(name, index, aggregateType)
+    {
+      DecimalParametersHint = decimalParametersHint;
     }
   }
 }

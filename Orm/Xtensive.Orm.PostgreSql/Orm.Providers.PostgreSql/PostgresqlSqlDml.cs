@@ -5,6 +5,7 @@
 // Created:    2014.05.06;
 
 using Xtensive.Core;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -14,6 +15,15 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class PostgresqlSqlDml
   {
+    /// <summary>
+    /// Creates an expression for native "trim_scale" function call. The function is supported starting from PostgreSQL 13
+    /// </summary>
+    public static SqlExpression DecimalTrimScale(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, nameof(operand));
+      return SqlDml.FunctionCall("TRIM_SCALE", operand);
+    }
+
     #region Spatial types
 
     public static SqlExpression NpgsqlTypeExtractPoint(SqlExpression operand, SqlExpression numberPoint)
