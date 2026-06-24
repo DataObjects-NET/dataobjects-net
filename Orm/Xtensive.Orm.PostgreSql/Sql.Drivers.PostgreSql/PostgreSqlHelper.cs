@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using NpgsqlTypes;
@@ -12,6 +13,28 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal static class PostgreSqlHelper
   {
+    /// <summary>
+    /// Reduces the isolation level to the most commonly supported by PostgreSQL 10+.
+    /// </summary>
+    /// <param name="level">The level.</param>
+    /// <returns>Converted isolation level.</returns>
+    public static IsolationLevel ReduceIsolationLevelForPostgre10(IsolationLevel level)
+    {
+      switch (level) {
+        case IsolationLevel.ReadUncommitted:
+        case IsolationLevel.ReadCommitted:
+          return IsolationLevel.ReadCommitted;
+        case IsolationLevel.RepeatableRead:
+          return IsolationLevel.RepeatableRead;
+        case IsolationLevel.Serializable:
+        case IsolationLevel.Snapshot:
+          return IsolationLevel.Serializable;
+        default:
+          throw new NotSupportedException(string.Format(Resources.Strings.ExIsolationLevelXIsNotSupported, level));
+      }
+    }
+
+
     internal static NpgsqlInterval CreateNativeIntervalFromTimeSpan(in TimeSpan timeSpan)
     {
       // Previous Npgsql versions used days and time, no months.

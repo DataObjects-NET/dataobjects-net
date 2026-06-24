@@ -43,7 +43,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
-      activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+      var reducedIsolationLevel = (Driver.CoreServerInfo.ServerVersion >= new Version(10, 0))
+        ? PostgreSqlHelper.ReduceIsolationLevelForPostgre10(isolationLevel)
+        : SqlHelper.ReduceIsolationLevel(isolationLevel);
+
+      activeTransaction = underlyingConnection.BeginTransaction(reducedIsolationLevel);
     }
 
     public override void Commit()

@@ -79,6 +79,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Isolation level &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExIsolationLevelXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExIsolationLevelXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PostgreSQL below 8.3 is not supported..
         /// </summary>
         internal static string ExPostgreSqlBelow83IsNotSupported {
