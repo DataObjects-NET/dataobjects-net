@@ -100,7 +100,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         9 when version.Minor > 0 => new v9_1.Driver(coreServerInfo, pgsqlServerInfo),
         10 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
         11 => new v10_0.Driver(coreServerInfo, pgsqlServerInfo),
-        _ => new v12_0.Driver(coreServerInfo, pgsqlServerInfo)
+        12 => new v12_0.Driver(coreServerInfo, pgsqlServerInfo),
+        13 => new v12_0.Driver(coreServerInfo, pgsqlServerInfo),
+        14 => new v12_0.Driver(coreServerInfo, pgsqlServerInfo),
+        15 => new v15_0.Driver(coreServerInfo, pgsqlServerInfo),
+        _ => new v15_0.Driver(coreServerInfo, pgsqlServerInfo)
       };
     }
 
