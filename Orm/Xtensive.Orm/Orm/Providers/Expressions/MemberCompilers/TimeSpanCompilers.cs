@@ -157,7 +157,20 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeSpan), "Ticks", TargetKind.PropertyGet)]
     public static SqlExpression TimeSpanTicks(SqlExpression _this)
     {
-      return ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / NanosecondsPerTick);
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.Ordinal)) {
+        return TimeSpanPgTicks(_this);
+      }
+      return TimeSpanGenericTicks(_this);
+    }
+
+    private static SqlExpression TimeSpanGenericTicks(SqlExpression _this)
+      => ExpressionTranslationHelpers.ToLong(SqlDml.IntervalToNanoseconds(_this) / NanosecondsPerTick);
+
+    private static SqlExpression TimeSpanPgTicks(SqlExpression _this)
+    {
+      return SqlDml.RawConcat(SqlDml.RawConcat(SqlDml.Native("(EXTRACT(EPOCH FROM "), _this), SqlDml.Native(") * 10000000.0)"));
     }
 
     [Compiler(typeof(TimeSpan), "TotalMilliseconds", TargetKind.PropertyGet)]
