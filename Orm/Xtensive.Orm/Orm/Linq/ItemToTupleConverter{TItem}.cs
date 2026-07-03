@@ -74,6 +74,7 @@ namespace Xtensive.Orm.Linq
         || type.IsSubclassOf(typeof (Entity))
           || type==typeof (Structure)
             || type.IsSubclassOf(typeof (Structure))
+              || (type.IsInterface && typeof(IEntity).IsAssignableFrom(type))
         ) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
@@ -198,7 +199,7 @@ namespace Xtensive.Orm.Linq
 //        return Expression.Convert(entityExpression, type);
 //      }
 
-      if (type.IsSubclassOf(typeof (Entity))) {
+      if (type.IsSubclassOf(typeof (Entity)) || (type.IsInterface && typeof(IEntity).IsAssignableFrom(type))) {
         TypeInfo typeInfo = model.Types[type];
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
