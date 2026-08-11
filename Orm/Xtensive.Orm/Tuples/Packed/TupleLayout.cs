@@ -5,6 +5,7 @@
 // Created:    2012.12.29
 
 using System;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xtensive.Reflection;
 
@@ -54,10 +55,11 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
+      private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
 
       public static ValueFieldAccessor GetValue(Type probeType)
       {
-        return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
+        return probeType.MetadataToken == NullableTypeMetadataToken && probeType.Module == NullableTypeModule
           ? (ResolveByNullableType(probeType) ?? TryResolveNullableEnum(probeType))
           : (ResolveByType(probeType) ?? TryResolveEnum(probeType));
       }
