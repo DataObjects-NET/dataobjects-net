@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.17
 
@@ -15,41 +15,35 @@ namespace Xtensive.Orm.Tests
   /// Default <see cref="IInstanceGenerator{T}"/> provider. 
   /// Provides default instance generator for the specified type.
   /// </summary>
-  [Serializable]
   public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
   {
-    private static readonly InstanceGeneratorProvider @default = new InstanceGeneratorProvider();
-    private ConcurrentDictionary<(Type, InstanceGeneratorProvider), Lazy<IInstanceGeneratorBase>> generators = 
-      new ConcurrentDictionary<(Type, InstanceGeneratorProvider), Lazy<IInstanceGeneratorBase>>();
+    private readonly ConcurrentDictionary<(Type, InstanceGeneratorProvider), Lazy<IInstanceGeneratorBase>> generators = new();
 
     public static InstanceGeneratorProvider Default {
       [DebuggerStepThrough]
-      get { return @default; }
-    }
+      get;
+    } = new InstanceGeneratorProvider();
 
     #region IInstanceGeneratorProvider members
 
     /// <inheritdoc/>
-    public virtual IInstanceGenerator<T> GetInstanceGenerator<T>()
-    {
-      return GetAssociate<T, IInstanceGenerator<T>, IInstanceGenerator<T>>();
-    }
+    public virtual IInstanceGenerator<T> GetInstanceGenerator<T>() => GetAssociate<T, IInstanceGenerator<T>, IInstanceGenerator<T>>();
 
     /// <inheritdoc/>
     public IInstanceGeneratorBase GetInstanceGenerator(Type type)
     {
+      return generators.GetOrAdd((type, this), InstanceGeneratorFactory).Value;
+
       static Lazy<IInstanceGeneratorBase> InstanceGeneratorFactory((Type, InstanceGeneratorProvider) tuple)
       {
         var (_type, _this) = tuple;
         return new Lazy<IInstanceGeneratorBase>(() => _this.GetType()
-          .GetMethod("GetInstanceGenerator", Array.Empty<Type>())
+          .GetMethod(nameof(GetInstanceGenerator), Array.Empty<Type>())
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] { _type })
           .Invoke(_this, null)
         as IInstanceGeneratorBase);
-      };
-
-      return generators.GetOrAdd((type, this), InstanceGeneratorFactory).Value;
+      }
     }
 
     #endregion
@@ -60,8 +54,8 @@ namespace Xtensive.Orm.Tests
 
     protected InstanceGeneratorProvider()
     {
-      TypeSuffixes = new[] {"InstanceGenerator"};
-      Type t = typeof (InstanceGeneratorProvider);
+      TypeSuffixes = ["InstanceGenerator"];
+      var t = typeof (InstanceGeneratorProvider);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
     }
   }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.21
 
@@ -16,18 +16,19 @@ namespace Xtensive.Orm.Tests
   /// Base class for any random generator.
   /// </summary>
   /// <typeparam name="T">Type of instances to generate.</typeparam>
-  [Serializable]
-  public abstract class InstanceGeneratorBase<T>: 
-    IInstanceGenerator<T>
+  /// <remarks>
+  /// Initializes a new instance of this type.
+  /// </remarks>
+  /// <param name="provider">Instance generator provider this generator is bound to.</param>
+  public abstract class InstanceGeneratorBase<T>(IInstanceGeneratorProvider provider)
+    : IInstanceGenerator<T>
   {
-    private IInstanceGeneratorProvider provider;
-
     /// <inheritdoc/>
     public IInstanceGeneratorProvider Provider
     {
       [DebuggerStepThrough]
-      get { return provider; }
-    }
+      get;
+    } = provider ?? throw new ArgumentNullException(nameof(provider));
 
     /// <inheritdoc/>
     public abstract T GetInstance(Random random);
@@ -35,43 +36,19 @@ namespace Xtensive.Orm.Tests
     /// <inheritdoc/>
     public IEnumerable<T> GetInstances(Random random, int? count)
     {
-      for (int i = 0; !count.HasValue || i<count.Value; i++)
+      for (int i = 0; !count.HasValue || i < count.Value; i++) {
         yield return GetInstance(random);
+      }
     }
 
     #region IInstanceGeneratorBase members
 
     /// <inheritdoc/>
-    object IInstanceGeneratorBase.GetInstance(Random random)
-    {
-      return GetInstance(random);
-    }
+    object IInstanceGeneratorBase.GetInstance(Random random) => GetInstance(random);
 
     /// <inheritdoc/>
-    IEnumerable IInstanceGeneratorBase.GetInstances(Random random, int? count)
-    {
-      return GetInstances(random, count);
-    }
+    IEnumerable IInstanceGeneratorBase.GetInstances(Random random, int? count) => GetInstances(random, count);
 
     #endregion
-
-    
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="provider">Instance generator provider this generator is bound to.</param>
-    public InstanceGeneratorBase(IInstanceGeneratorProvider provider)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      this.provider = provider;
-    }
-
-    public virtual void OnDeserialization(object sender)
-    {
-      if (provider==null || provider.GetType()==typeof (InstanceGeneratorProvider))
-        provider = InstanceGeneratorProvider.Default;
-    }
   }
 }

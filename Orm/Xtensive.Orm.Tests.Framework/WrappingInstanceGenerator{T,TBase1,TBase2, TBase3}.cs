@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.21
 
@@ -15,37 +15,26 @@ namespace Xtensive.Orm.Tests
   /// <typeparam name="TBase1">First base (wrapped) type.</typeparam>
   /// <typeparam name="TBase2">Second base (wrapped) type.</typeparam>
   /// <typeparam name="TBase3">Third base (wrapped) type.</typeparam>
-  [Serializable]
-  public abstract class WrappingInstanceGenerator<T, TBase1, TBase2, TBase3> : InstanceGeneratorBase<T>
+  /// <remarks>
+  /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+  /// </remarks>
+  /// <param name="provider">Instance generator provider this generator is bound to.</param>
+  public abstract class WrappingInstanceGenerator<T, TBase1, TBase2, TBase3>(IInstanceGeneratorProvider provider)
+    : InstanceGeneratorBase<T>(provider)
   {
     /// <summary>
     /// Generator for the first base (wrapped) type.
     /// </summary>
-    protected readonly IInstanceGenerator<TBase1> BaseGenerator1;
+    protected readonly IInstanceGenerator<TBase1> BaseGenerator1 = provider.GetInstanceGenerator<TBase1>();
 
     /// <summary>
     /// Generator for the second base (wrapped) type.
     /// </summary>
-    protected readonly IInstanceGenerator<TBase2> BaseGenerator2;
+    protected readonly IInstanceGenerator<TBase2> BaseGenerator2 = provider.GetInstanceGenerator<TBase2>();
 
     /// <summary>
     /// Generator for the third base (wrapped) type.
     /// </summary>
-    protected readonly IInstanceGenerator<TBase3> BaseGenerator3;
-
-
-    // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="provider">Instance generator provider this generator is bound to.</param>
-    public WrappingInstanceGenerator(IInstanceGeneratorProvider provider)
-      : base(provider)
-    {
-      BaseGenerator1 = provider.GetInstanceGenerator<TBase1>();
-      BaseGenerator2 = provider.GetInstanceGenerator<TBase2>();
-      BaseGenerator3 = provider.GetInstanceGenerator<TBase3>();
-    }
+    protected readonly IInstanceGenerator<TBase3> BaseGenerator3 = provider.GetInstanceGenerator<TBase3>();
   }
 }
