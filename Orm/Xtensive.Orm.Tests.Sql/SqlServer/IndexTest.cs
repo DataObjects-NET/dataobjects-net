@@ -12,7 +12,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
-  [Serializable]
   public class IndexTest2005 : IndexTest
   {
     protected override void CreateTable()

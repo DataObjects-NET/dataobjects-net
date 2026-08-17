@@ -5,13 +5,14 @@
 // Created:    2009.06.25
 
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.StringKeyTestModel;
 
 namespace Xtensive.Orm.Tests.Model.StringKeyTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Product : Entity

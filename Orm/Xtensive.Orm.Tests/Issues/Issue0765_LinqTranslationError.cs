@@ -51,7 +51,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0765_LinqTranslationError : AutoBuildTest
   {
 

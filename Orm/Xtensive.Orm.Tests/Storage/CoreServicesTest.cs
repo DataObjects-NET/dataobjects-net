@@ -14,7 +14,6 @@ using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Tests.Storage.CoreServicesModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {
@@ -90,7 +89,6 @@ namespace Xtensive.Orm.Tests.Storage.CoreServicesModel
     }
   }
 
-  [Serializable]
   public class MyStructure : Structure
   {
     [Field]

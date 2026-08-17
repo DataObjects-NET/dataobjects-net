@@ -54,7 +54,6 @@ namespace Xtensive.Orm.Tests.Storage.BatchingTestModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  [Serializable]
   public class BatchingTest : AutoBuildTest
   {
     private const int TotalEntities = 10;

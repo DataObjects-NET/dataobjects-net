@@ -38,7 +38,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueJIRA0003_OrderByStructureFieldLost : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

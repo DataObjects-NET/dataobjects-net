@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -24,7 +23,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Mode
     public ContainerItemSet Items { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ContainerItem : Entity
   {

@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0351_NameBuilderProblem_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {

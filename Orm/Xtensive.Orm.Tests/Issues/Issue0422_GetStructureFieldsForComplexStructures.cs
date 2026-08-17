@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures
 
 namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStructures_Model
 {
-  [Serializable]
   public class EntityStructure : Structure
   {
     [Field]
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStruct
     public DateTime StructureAge { get; set; }
   }
 
-  [Serializable]
   public class ComplexStructure : Structure
   {
     [Field]
@@ -42,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0422_GetStructureFieldsForComplexStruct
     public EntityStructure EntityStructure { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class EntityB : Entity
   {

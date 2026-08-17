@@ -6,7 +6,6 @@
 
 using System;
 using System.Linq;
-using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model;
@@ -37,7 +36,6 @@ namespace Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model
     IPerson Owner { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person1 : Entity, IPerson
   {
@@ -51,7 +49,6 @@ namespace Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model
     public IAnimal Favorite { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person2 : Entity, IPerson
   {
@@ -65,7 +62,6 @@ namespace Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model
     public IAnimal Favorite { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal1 : Entity, IAnimal
   {
@@ -77,7 +73,6 @@ namespace Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model
     public IPerson Owner { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal2 : Entity, IAnimal
   {
@@ -89,7 +84,6 @@ namespace Xtensive.Orm.Tests.Interfaces.InterfaceTest_Model
     public IPerson Owner { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal3 : Entity, IAnimal
   {

@@ -13,39 +13,37 @@ using Xtensive.Orm.Tests.Issues.Issue0271_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0271_Model
 {
-    [Serializable]
-    [HierarchyRoot]
-    public class Address : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-    }
+  [HierarchyRoot]
+  public class Address : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+  }
 
-    [Serializable]
-    [HierarchyRoot]
-    public class User : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
+  [HierarchyRoot]
+  public class User : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
 
-      [Field]
-      public Address Address { get; set; }
+    [Field]
+    public Address Address { get; set; }
 
-      [Field, Association("User", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Deny)]
-      public Account Account { get; set; }
-    }
+    [Field, Association("User", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Deny)]
+    public Account Account { get; set; }
+  }
 
-    [Serializable]
-    [HierarchyRoot]
-    public class Account : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
+  [HierarchyRoot]
+  public class Account : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
 
-      [Field]
-      public User User { get; set; }
-    }
+    [Field]
+    public User User { get; set; }
+  }
 }
+
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]

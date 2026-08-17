@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

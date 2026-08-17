@@ -15,7 +15,6 @@ using M2 = Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0834_HintGeneratorBug
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

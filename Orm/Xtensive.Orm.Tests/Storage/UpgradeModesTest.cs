@@ -17,7 +17,6 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public string Title { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -39,7 +37,6 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
     public string Title { get; set; }
   }
 
-  [Serializable]
   public class Author : Person
   {
     // Just to validate how model builder handles [Field(Nullable = ...)]

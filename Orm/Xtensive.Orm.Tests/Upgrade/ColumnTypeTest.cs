@@ -595,7 +595,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     #endregion
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -725,7 +724,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
   }
 
-  [Serializable]
   public class TestUpgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

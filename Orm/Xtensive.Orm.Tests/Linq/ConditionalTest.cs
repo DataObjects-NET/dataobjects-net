@@ -13,7 +13,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.ConditionalTestModel
 {
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Root1 : Entity
@@ -25,21 +24,18 @@ namespace Xtensive.Orm.Tests.Linq.ConditionalTestModel
     public int Id2 { get; private set; }
   }
 
-  [Serializable]
   public class A : Root1
   {
     [Field]
     public int FieldA { get; private set; }
   }
 
-  [Serializable]
   public class B : Root1
   {
     [Field]
     public int FieldB { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Root2 : Entity
   {

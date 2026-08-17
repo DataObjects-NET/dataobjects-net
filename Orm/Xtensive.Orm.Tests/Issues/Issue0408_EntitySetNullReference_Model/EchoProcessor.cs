@@ -5,7 +5,6 @@ using System.Text;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
-  [Serializable]
   public class EchoProcessor : QueueProcessor
   {
     public override void ProcessDocument(Document inputDocument)

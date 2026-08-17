@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class A : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0188_ModelBuilderError_Model
     public B B { get; set; }
   }
 
-  [Serializable]
   public class B : A
   {
   }

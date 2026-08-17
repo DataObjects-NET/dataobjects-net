@@ -15,7 +15,6 @@ using M2 = Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

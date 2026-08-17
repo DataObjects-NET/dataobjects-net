@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0371_ObjectEquals_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {

@@ -134,7 +134,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0597_OpenGenericsInDomainModel : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

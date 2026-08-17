@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0630_NullReferenceOnSelect_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity : Entity
     {
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Issues
       public string Text { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity2 : Entity
     {
@@ -45,7 +43,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0630_NullReferenceOnSelect : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

@@ -34,7 +34,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
   }
 
-  [Serializable]
   public class StructureReferencesAnEntityTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

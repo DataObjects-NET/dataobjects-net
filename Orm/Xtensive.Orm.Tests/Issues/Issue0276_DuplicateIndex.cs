@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0276_DuplicateIndex_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0276_DuplicateIndex_Model
 {
-  [Serializable]
   [HierarchyRoot]
   [Index("Id", Unique = true, Name = "IX_Id")]
   [Index("Left", Unique = true, Name = "IX_L")]
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0276_DuplicateIndex_Model
     public Key Right { get; set; }
   }
 
-  [Serializable]
   [KeyGenerator(null)]
   [HierarchyRoot]
   [Index("Target", Unique = true)]

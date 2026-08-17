@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Model.ReferencedKeysModel;
 
 namespace Xtensive.Orm.Tests.Model.ReferencedKeysModel
 {
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class Country : Entity
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Model.ReferencedKeysModel
     }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class City : Entity

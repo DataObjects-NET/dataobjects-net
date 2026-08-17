@@ -10,26 +10,21 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.RegistryModel1;
-using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.RegistryModel1
 {
-  [Serializable]
   public class A : Entity
   {
   }
 
-  [Serializable]
   public class B : A
   {
   }
 
-  [Serializable]
   public class C
   {
   }
 
-  [Serializable]
   public class D : A
   {
   }
@@ -37,22 +32,18 @@ namespace Xtensive.Orm.Tests.RegistryModel1
 
 namespace Xtensive.Orm.Tests.RegistryModel2
 {
-  [Serializable]
   public class A : Entity
   {
   }
 
-  [Serializable]
   public class B : A
   {
   }
 
-  [Serializable]
   public class C
   {
   }
 
-  [Serializable]
   public class D : A
   {
   }

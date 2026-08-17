@@ -26,7 +26,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
-    [Serializable]
     public abstract class EntityBase : Entity
     {
       [Field, Key]

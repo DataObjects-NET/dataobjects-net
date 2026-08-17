@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
     
   }
 
-  [Serializable]
   // No [HierarchyRoot] here
   public class Third : Entity, IThird
   {

@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Counter : Entity
   {

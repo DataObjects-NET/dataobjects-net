@@ -37,7 +37,6 @@ namespace Xtensive.Orm.Tests.Issues
     {}
   }
 
-  [Serializable]
   public class Issue0771_AbstractTypeRegistration 
   {
 

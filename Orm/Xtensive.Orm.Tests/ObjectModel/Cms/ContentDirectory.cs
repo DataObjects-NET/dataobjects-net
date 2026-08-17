@@ -9,8 +9,7 @@ using System.Linq;
 using System.Text;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
-{  
-  [Serializable]
+{
   [HierarchyRoot]
   public class ContentDirectory
     : Entity

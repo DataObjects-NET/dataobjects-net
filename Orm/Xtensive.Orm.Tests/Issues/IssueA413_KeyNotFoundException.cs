@@ -91,7 +91,6 @@ namespace Xtensive.Orm.Tests.Issues
     var x = from e in Session.Query.All<MyEntity>() select new MyEntitiyViewModel(e.Status)*/
   }
 
-  [Serializable]
   public class IssueA413_KeyNotFoundException : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

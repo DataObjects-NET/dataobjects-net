@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {
-  [Serializable]
   public class NewsList
     : ContentItem
   {

@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(Name = "Transaction")] // To ensure there is its own sequence
   [Index("Guid", Unique = true)]
@@ -63,7 +62,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     Removed
   }
 
-  [Serializable]
   [HierarchyRoot]
   [Index("Transaction", "EntityKey", Unique = true)]
   public abstract class AuditRecord : Entity
@@ -91,7 +89,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
   }
 
   // Unused, here it is just to show one more open generic
-  [Serializable]
   [HierarchyRoot]
   public sealed class SyncInfo<T> : Entity
     where T: Entity
@@ -105,7 +102,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {}
   }
 
-  [Serializable]
   public sealed class AuditRecord<T> : AuditRecord
     where T: Entity
   {
@@ -139,7 +135,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -163,7 +158,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal : Entity
   {
@@ -186,7 +180,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {}
   }
 
-  [Serializable]
   public class Cat : Animal
   {
     public Cat(Session session)
@@ -194,7 +187,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     {}
   }
 
-  [Serializable]
   public class Dog : Animal
   {
     public Dog(Session session)

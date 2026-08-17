@@ -1416,7 +1416,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0617_IncorrectRedundantColumnRemove
     }
   }
 
-  [Serializable]
   public sealed class AggregatePortfolio : Portfolio
   {
     public AggregatePortfolio(Guid id)

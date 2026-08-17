@@ -14,7 +14,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
 {
-  [Serializable]
   [HierarchyRoot]
   public class Base : Entity
   {
@@ -22,14 +21,12 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
     public long Id { get; private set; }
   }
 
-  [Serializable]
   public class Child : Base
   {
   }
 
   namespace Nested
   {
-    [Serializable]
     [HierarchyRoot]
     public class Base : Entity
     {
@@ -37,7 +34,6 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
       public long Id { get; private set; }
     }
 
-    [Serializable]
     public class Child : Base
     {
     }

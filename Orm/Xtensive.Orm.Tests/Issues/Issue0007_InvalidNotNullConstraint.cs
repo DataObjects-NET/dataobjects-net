@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0007_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0007_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -26,7 +25,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0007_Model
     public City City { get; set; }
   }
 
-  [Serializable]
   public class Address : Structure
   {
     [Field]
@@ -36,7 +34,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0007_Model
     public int House { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class City : Entity
   {

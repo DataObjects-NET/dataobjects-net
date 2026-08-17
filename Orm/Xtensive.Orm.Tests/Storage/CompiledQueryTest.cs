@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  [Serializable]
   public class CompiledQueryTest : ChinookDOModelTest
   {
     [Test]

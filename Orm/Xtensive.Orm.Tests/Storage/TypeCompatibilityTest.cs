@@ -60,7 +60,6 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
   #endregion
 
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {

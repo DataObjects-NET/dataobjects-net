@@ -103,7 +103,6 @@ namespace Xtensive.Orm.Tests.Storage
       public TimeSpan Key15 { get; private set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Container : Entity
     {

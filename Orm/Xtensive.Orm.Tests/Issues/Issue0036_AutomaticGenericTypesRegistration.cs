@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity, ISecurable
   {
@@ -31,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SyncInfo<TEntity> : Entity 
@@ -46,7 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0036_Model
     }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
   public class SecurityInfo<TEntity> : Entity 

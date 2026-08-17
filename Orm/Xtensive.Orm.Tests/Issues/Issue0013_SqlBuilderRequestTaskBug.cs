@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0013_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0013_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class SqlTaskEntity : Entity
   {

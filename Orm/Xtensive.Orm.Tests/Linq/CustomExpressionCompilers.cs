@@ -15,7 +15,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

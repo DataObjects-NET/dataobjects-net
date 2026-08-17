@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Storage.UnexpectedBehaviorTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.UnexpectedBehaviorTestModel
 {
-  [Serializable]
   [HierarchyRoot, KeyGenerator(KeyGeneratorKind.None)]
   public class UncreatableEntity : Entity
   {

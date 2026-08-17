@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
-  [Serializable]
   [HierarchyRoot] 
   public abstract class Processor : Entity
   {

@@ -10,7 +10,6 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Model.CycleReferenceTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Parent : Entity
   {
@@ -24,12 +23,10 @@ namespace Xtensive.Orm.Tests.Model.CycleReferenceTestModel
     public Neighbor Neighbor { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Neighbor : Entity
   {

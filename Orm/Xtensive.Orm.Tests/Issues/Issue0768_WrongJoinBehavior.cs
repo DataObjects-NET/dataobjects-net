@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0768_WrongJoinBehavior_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class Node : Entity
     {
@@ -46,7 +45,6 @@ namespace Xtensive.Orm.Tests.Issues
       public Node Parent { get; set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Reference : Entity
     {
@@ -67,10 +65,8 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public string Name { get; set; }
     }
-
   }
 
-  [Serializable]
   public class Issue0768_WrongJoinBehavior : AutoBuildTest
   {
 

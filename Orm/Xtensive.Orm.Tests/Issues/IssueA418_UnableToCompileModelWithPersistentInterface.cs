@@ -40,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA418_UnableToCompileModelWithPersistentInterface
   {
     [Test]

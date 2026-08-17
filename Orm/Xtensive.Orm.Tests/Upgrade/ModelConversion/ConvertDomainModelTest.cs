@@ -124,7 +124,6 @@ namespace Xtensive.Orm.Tests.Upgrade
 
 namespace Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model
 {
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   [Index("Col1", "Col2", Unique = true, IncludedFields = new[] { "Col3" })]
   public class A : Entity
@@ -142,7 +141,6 @@ namespace Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model
     public string Col3 { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   [Index("ColA", Name = "A_IX")]
   public class B : Entity
@@ -157,7 +155,6 @@ namespace Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model
     public A ColA { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class C : Entity
   {
@@ -168,7 +165,6 @@ namespace Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model
     public TimeSpan Col1 { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class D : Entity
   {
@@ -179,7 +175,6 @@ namespace Xtensive.Orm.Tests.Upgrade.ConvertDomainModel.Model
     public EntitySet<E> ColE { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class E : Entity
   {

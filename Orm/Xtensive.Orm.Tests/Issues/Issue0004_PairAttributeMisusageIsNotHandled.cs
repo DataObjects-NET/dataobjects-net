@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Issue0004_Model;
 
 namespace Xtensive.Orm.Tests.Issue0004_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -28,7 +27,6 @@ namespace Xtensive.Orm.Tests.Issue0004_Model
     public EntitySet<Notification> Notifications { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Notification : Entity
   {

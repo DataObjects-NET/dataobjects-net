@@ -17,7 +17,6 @@ using M2 = Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

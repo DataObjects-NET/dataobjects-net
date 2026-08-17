@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0776_OrderingCorrectorOfAggregateProvider_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity : Entity
     {
@@ -66,7 +65,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0776_OrderingCorrectorOfAggregateProvider : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

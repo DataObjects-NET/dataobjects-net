@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0409_ConstructorTransactional_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0409_ConstructorTransactional_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Document : Entity
   {

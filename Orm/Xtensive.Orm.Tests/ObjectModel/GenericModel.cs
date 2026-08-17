@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.ObjectModel.GenericModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class A<T> : Entity 
     where T : A<T>
@@ -17,13 +16,11 @@ namespace Xtensive.Orm.Tests.ObjectModel.GenericModel
     public T Generic { get; private set; }
   }
 
-  [Serializable]
   public class B : A<B>
   {
     
   }
 
-  [Serializable]
   public class C<T> : A<T>
     where T : A<T>
   {

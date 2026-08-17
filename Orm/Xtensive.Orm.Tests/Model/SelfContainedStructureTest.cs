@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Model.SelfContainedStructureModel;
 
 namespace Xtensive.Orm.Tests.Model.SelfContainedStructureModel
 {
-  [Serializable]
   public class SelfContained : Structure
   {
     [Field]

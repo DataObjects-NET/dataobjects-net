@@ -14,7 +14,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0298_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -26,12 +25,10 @@ namespace Xtensive.Orm.Tests.Issues.Issue0298_Model
     public EntitySet<MasterTrack> Tracks { get; private set; }
   }
 
-  [Serializable]
   public class AudioMaster : Master
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class MasterTrack : Entity
   {

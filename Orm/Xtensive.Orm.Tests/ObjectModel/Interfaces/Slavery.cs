@@ -35,7 +35,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.Interfaces.Slavery
     EntitySet<TSlave> XSlaves { get; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity, ISlave<IMaster<Slave>>
   {
@@ -48,7 +47,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.Interfaces.Slavery
    
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity, IMaster<Slave>
   {

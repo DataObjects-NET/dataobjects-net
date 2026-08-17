@@ -45,7 +45,6 @@ namespace Xtensive.Orm.Tests.Issues_Issue0827_LinqDtoMaterialization
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Serializable]
   public class Issue0827_LinqDtoMaterialization : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

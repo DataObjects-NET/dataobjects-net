@@ -31,7 +31,6 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
     public EntitySet<Book> Books { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -45,7 +44,6 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
     public Author Author { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {

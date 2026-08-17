@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0715.Model
 {
   public static class Forest
   {
-    [Serializable]
     [HierarchyRoot]
     public class Animal : Entity
     {
@@ -32,7 +31,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0715.Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Animal : Entity
   {

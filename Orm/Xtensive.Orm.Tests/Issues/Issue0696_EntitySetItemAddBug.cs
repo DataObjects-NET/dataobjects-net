@@ -17,7 +17,6 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0696.Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -37,7 +36,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0696.Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Detail : Entity
   {

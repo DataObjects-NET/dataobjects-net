@@ -26,7 +26,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0372_SelfReferenceWithInheritance_Model
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Item
     : Entity
@@ -41,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0372_SelfReferenceWithInheritance_Model
     public WebSite WebSite2 { get; set; }
   }
 
-  [Serializable]
   public class WebSite
     : Item
   {

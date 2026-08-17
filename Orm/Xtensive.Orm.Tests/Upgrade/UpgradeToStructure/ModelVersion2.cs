@@ -8,14 +8,12 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version2
 {
-  [Serializable]
   public class PersonInfo : Structure
   {
     [Field]
     public string Title { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

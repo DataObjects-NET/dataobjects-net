@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class First : Entity
   {
@@ -27,7 +26,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0028_1_1SymmetricAssociationBug_Model
     public Second APair { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Second : Entity
   {

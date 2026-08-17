@@ -12,7 +12,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Storage.Randomized
 {
-  [Serializable]
   [HierarchyRoot]
   public sealed class Tree : Entity,
     IEnumerable<TreeNode>

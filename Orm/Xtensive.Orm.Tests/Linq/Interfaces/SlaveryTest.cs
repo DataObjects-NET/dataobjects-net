@@ -11,7 +11,7 @@ using Xtensive.Orm.Tests.ObjectModel.Interfaces.Slavery;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
-  [Serializable]
+  [TestFixture, Category("Linq")]
   public class SlaveryTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

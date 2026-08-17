@@ -10,7 +10,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 {
   #region Address, Person, BusinessContact, Employee
 
-  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public string Country { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -37,7 +35,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public string PassportNumber { get; set; }
   }
 
-  [Serializable]
   [Index("CompanyName")]
   public class BusinessContact : Person
   {
@@ -48,7 +45,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public string ContactName { get; set; }
   }
 
-  [Serializable]
   [Index("FirstName")]
   [Index("HireDate", "LastName")]
   public class Employee : Person
@@ -74,7 +70,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public string FullName { get { return FirstName + " " + LastName; } }
   }
 
-  [Serializable]
   [Index("OrderDate")]
   [Index("Freight")]
   [HierarchyRoot]
@@ -118,7 +113,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 
   #region GenericTypes
 
-  [Serializable]
   [HierarchyRoot]
   public class Sync<T> : Entity
     where T : Entity
@@ -134,7 +128,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 
   #region Category, Product
 
-  [Serializable]
   [HierarchyRoot]
   public class Category : Entity
   {
@@ -148,7 +141,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public EntitySet<Product> Products { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -169,7 +161,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 
   #region Boy, Girl
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Boy : Entity
@@ -186,7 +177,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Girl : Entity
@@ -207,7 +197,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 
   #region Crazy association/structure nesting
   
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity1 : Entity
@@ -221,7 +210,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity2 : Entity
@@ -238,7 +226,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity3 : Entity
@@ -255,7 +242,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class Entity4 : Entity
@@ -271,15 +257,13 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     {
     }
   }
-  
-  [Serializable]
+
   public class Structure1 : Structure
   {
     [Field]
     public Entity1 E1 { get; set; }
   }
 
-  [Serializable]
   public class Structure2 : Structure
   {
     [Field]
@@ -289,7 +273,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public Entity2 E2 { get; set; }
   }
 
-  [Serializable]
   public class Structure3 : Structure
   {
     [Field]
@@ -299,7 +282,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public Entity3 E3 { get; set; }
   }
 
-  [Serializable]
   public class Structure4 : Structure
   {
     [Field]
@@ -308,8 +290,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     [Field]
     public Entity4 E4 { get; set; }
   }
-  
-  [Serializable]
+
   [HierarchyRoot]
   public class StructureContainer1 : Entity
   {
@@ -320,7 +301,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public Structure1 S1 { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class StructureContainer2 : Entity
   {
@@ -331,7 +311,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public Structure2 S2 { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class StructureContainer3 : Entity
   {
@@ -342,7 +321,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public Structure3 S3 { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class StructureContainer4 : Entity
   {
@@ -357,7 +335,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
 
   #region Complex field copy
 
-  [Serializable]
   public class MyStructure : Structure
   {
     [Field]
@@ -367,7 +344,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     public int B { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class MyStructureOwner : Entity
@@ -387,7 +363,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class ReferencedEntity : Entity

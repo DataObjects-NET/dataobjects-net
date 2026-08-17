@@ -14,7 +14,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class MegaEntity : Entity
   {

@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Storage.DisableSaveChangesTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.DisableSaveChangesTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Killer : Entity
   {
@@ -34,7 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.DisableSaveChangesTestModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Victim : Entity
   {
@@ -63,7 +61,6 @@ namespace Xtensive.Orm.Tests.Storage.DisableSaveChangesTestModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {

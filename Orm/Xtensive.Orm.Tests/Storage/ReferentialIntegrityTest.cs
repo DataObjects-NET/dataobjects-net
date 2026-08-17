@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.ReferentialIntegrityModel;
 
 namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Root : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     private int Id { get; set; }
   }
 
-  [Serializable]
   public class A : Root
   {
     [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
@@ -35,21 +33,18 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class B : Root
   {
     [Field, Association(OnTargetRemove = OnRemoveAction.Cascade, PairTo = "B")]
     public A A { get; set; }
   }
 
-  [Serializable]
   public class C : Root
   {
     [Field, Association(OnTargetRemove = OnRemoveAction.Cascade, PairTo = "C")]
     public A A { get; set; }
   }
 
-  [Serializable]
   public class Master : Root
   {
     [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
@@ -62,7 +57,6 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     public EntitySet<Slave> ManyToMany { get; private set; }
   }
 
-  [Serializable]
   public class Slave : Root
   {
     [Field, Association(PairTo = "OneToMany")]
@@ -72,7 +66,6 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     public EntitySet<Master> ManyToMany { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Container : Entity
   {
@@ -88,7 +81,6 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     public Package Package2 { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Package : Entity
   {
@@ -100,7 +92,6 @@ namespace Xtensive.Orm.Tests.ReferentialIntegrityModel
     public EntitySet<PackageItem> Items { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class PackageItem : Entity
   {

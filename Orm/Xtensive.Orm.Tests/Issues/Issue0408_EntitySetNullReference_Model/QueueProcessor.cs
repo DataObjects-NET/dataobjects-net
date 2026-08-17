@@ -7,7 +7,6 @@ using System.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
-  [Serializable]
   public abstract class QueueProcessor : Processor
   {
     [Field]

@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0009_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0009_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0009_Model
     public EntitySet<Author> Authors { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(Name = "Author")]
   public class Author : Entity
@@ -45,7 +44,6 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(Name = "Book")]
   public class Book : Entity

@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0587_ByteArrayEquals : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

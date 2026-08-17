@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

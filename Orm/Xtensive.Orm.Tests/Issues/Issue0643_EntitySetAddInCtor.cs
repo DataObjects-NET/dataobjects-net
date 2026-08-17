@@ -51,7 +51,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0643_EntitySetAddInCtor : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

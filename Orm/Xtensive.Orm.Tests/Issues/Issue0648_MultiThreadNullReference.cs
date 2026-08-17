@@ -23,7 +23,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0648_MultiThreadNullReference : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

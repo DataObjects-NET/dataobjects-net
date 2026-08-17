@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Structures
 {
-  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -30,7 +29,6 @@ namespace Xtensive.Orm.Manual.Structures
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Range : Entity
   {

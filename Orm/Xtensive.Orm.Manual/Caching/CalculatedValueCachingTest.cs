@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Manual.Caching
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Product : Entity
   {
@@ -45,7 +44,6 @@ namespace Xtensive.Orm.Manual.Caching
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

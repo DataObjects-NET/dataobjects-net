@@ -15,7 +15,6 @@ using M2 = Xtensive.Orm.Tests.Upgrade.UpgradeToStructure.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeToStructure
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

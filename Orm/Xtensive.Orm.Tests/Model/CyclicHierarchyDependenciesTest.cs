@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel;
 
 namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class H1 : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
     public H3 Second { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H2 : Entity
   {
@@ -34,7 +32,6 @@ namespace Xtensive.Orm.Tests.CyclicHierarchyDependenciesModel
     public H3 Second { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class H3 : Entity
   {

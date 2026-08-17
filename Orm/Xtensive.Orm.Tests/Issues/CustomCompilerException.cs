@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Issues
     using System.Linq.Expressions;
     namespace ProjectCustomCompilerException.Model
     {
-        [Serializable]
         [HierarchyRoot]
         public abstract class FundBase : Entity
         {

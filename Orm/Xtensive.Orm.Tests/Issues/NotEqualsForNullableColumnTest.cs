@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class NotEqualsForNullableColumnTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

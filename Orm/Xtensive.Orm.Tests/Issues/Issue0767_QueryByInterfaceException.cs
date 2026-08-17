@@ -64,7 +64,6 @@ namespace Xtensive.Orm.Tests.Issues
 
   }
 
-  [Serializable]
   public class Issue0767_QueryByInterfaceException : AutoBuildTest
   {
 

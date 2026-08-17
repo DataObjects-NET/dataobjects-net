@@ -14,7 +14,6 @@ using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Tests.Storage.StructureModel
 {
-  [Serializable]
   public class Point : Structure
   {
     [Field(Indexed = true)]
@@ -44,7 +43,6 @@ namespace Xtensive.Orm.Tests.Storage.StructureModel
     }
   }
 
-  [Serializable]
   [Index("Vertex.Y")]
   [HierarchyRoot]
   public class Ray : Entity

@@ -64,7 +64,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0624_EntitySetSubqueryError : AutoBuildTest
   {
     protected override void CheckRequirements()

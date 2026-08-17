@@ -15,21 +15,18 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 {
   #region Cyclic referenced structures
 
-  [Serializable]
   public class S1 : Structure
   {
     [Field]
     public S2 Value { get; set; }
   }
 
-  [Serializable]
   public class S2 : Structure
   {
     [Field]
     public S3 Value { get; set; }
   }
 
-  [Serializable]
   public class S3 : Structure
   {
     [Field]
@@ -40,14 +37,12 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 
   #region Cyclic contained structures with inheritance
 
-  [Serializable]
   public class Parent : Structure
   {
     [Field]
     public Child Value { get; set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
   }

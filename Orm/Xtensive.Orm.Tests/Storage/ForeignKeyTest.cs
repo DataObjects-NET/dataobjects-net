@@ -13,7 +13,6 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.Storage.ForeignKeys
 {
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class User : Entity
@@ -38,7 +37,6 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     public EntitySet<Project> Projects { get; private set; }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Company : Entity
@@ -56,7 +54,6 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     public User Director { get; set; }
   }
 
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.Custom, Name = "DualInt")]
   [HierarchyRoot]
   public class Project : Entity
@@ -74,7 +71,6 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     public EntitySet<User> Users { get; private set; }
   }
 
-  [Serializable]
   public class ForeignUser : User
   {
     [Field]

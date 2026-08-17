@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueA424_QueryByInterfaceException_Model
   {
-    [Serializable]
     [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
     public abstract class Animal : Entity
     {
@@ -59,7 +58,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA424_QueryByInterfaceException : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

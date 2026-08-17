@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0647_WrongLinqQuery_Model
   {
-    [Serializable]
     public abstract class EntityBase : Entity
     {
       protected EntityBase(Guid id)
@@ -113,7 +112,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     public abstract class Multilink<TOwner, TLinked> : EntityBase
       where TOwner : EntityBase
       where TLinked : EntityBase
@@ -203,7 +201,6 @@ namespace Xtensive.Orm.Tests.Issues
 
   }
 
-  [Serializable]
   public class Issue0647_WrongLinqQuery : AutoBuildTest
   {
     private Guid globalId1 = new Guid("A3A01D2F-41A9-416E-8513-6C2F55224B56");

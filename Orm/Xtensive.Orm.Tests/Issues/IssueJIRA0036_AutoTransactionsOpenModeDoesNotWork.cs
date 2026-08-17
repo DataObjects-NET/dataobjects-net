@@ -47,7 +47,6 @@ namespace Xtensive.Orm.Tests.Issues
 
   }
 
-  [Serializable]
   public class IssueJIRA0036_AutoTransactionsOpenModeDoesNotWork : AutoBuildTest
   {
     private Session session;

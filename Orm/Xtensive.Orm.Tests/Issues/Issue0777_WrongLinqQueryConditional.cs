@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0777_WrongLinqQueryConditional : AutoBuildTest
   {
     DateTime? apocalypseNow = DateTime.Now;

@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model
 {
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0167_SingleTableProblem_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]

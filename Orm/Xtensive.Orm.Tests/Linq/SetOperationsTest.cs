@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
-  [Serializable]
   public class SetOperationsTest : ChinookDOModelTest
   {
     [Test]

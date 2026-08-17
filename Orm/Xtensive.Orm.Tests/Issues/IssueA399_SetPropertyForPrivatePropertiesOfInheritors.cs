@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA399_SetPropertyForPrivatePropertiesOfInheritors : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

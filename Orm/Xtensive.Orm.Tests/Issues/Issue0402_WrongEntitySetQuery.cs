@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.Issue0402_WrongEntitySetQuery_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0402_WrongEntitySetQuery_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Node : Entity
   {

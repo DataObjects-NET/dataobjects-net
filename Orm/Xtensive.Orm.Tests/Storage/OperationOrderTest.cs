@@ -17,7 +17,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {

@@ -97,7 +97,6 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {
@@ -270,7 +269,6 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class Y : Entity
   {
     [Field, Key]
@@ -281,7 +279,6 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class Z : Entity
   {
     [Field, Key]

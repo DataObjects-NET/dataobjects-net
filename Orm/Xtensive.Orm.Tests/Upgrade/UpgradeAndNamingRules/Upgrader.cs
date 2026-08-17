@@ -15,7 +15,6 @@ using M2 = Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules.Model.Version2;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
 {
-  [Serializable]
   public class Upgrader : UpgradeHandler
   {
     private static bool isEnabled = false;

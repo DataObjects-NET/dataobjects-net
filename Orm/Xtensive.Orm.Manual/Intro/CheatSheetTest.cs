@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -45,7 +44,6 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -63,7 +61,6 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {

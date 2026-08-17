@@ -6,7 +6,6 @@ using Xtensive.Orm.Tests.Issues.Issue0493_BadImageFormatTest_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0493_BadImageFormatTest_Model
 {
-  [Serializable]
   public abstract class Info<T> : Entity where T:Entity
   {
     [Field, Key]
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0493_BadImageFormatTest_Model
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -25,7 +23,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0493_BadImageFormatTest_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   public class PersonInfo : Info<Person>

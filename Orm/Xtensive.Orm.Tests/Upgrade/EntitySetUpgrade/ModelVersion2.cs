@@ -13,7 +13,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

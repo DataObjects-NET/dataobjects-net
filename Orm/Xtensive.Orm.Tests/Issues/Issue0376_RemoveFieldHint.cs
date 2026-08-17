@@ -18,7 +18,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
     public string LastName { get; set; }
   }
 
-  [Serializable]
   public class Son : Father
   {
     [Field]
@@ -42,7 +40,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model1
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {
@@ -56,7 +53,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
     public string FirstName { get; set; }
   }
 
-  [Serializable]
   public class Son : Father
   {
     [Field]
@@ -98,7 +94,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0376.Model2
 
 namespace Xtensive.Orm.Tests.Issues.Issue0376.Model3
 {
-  [Serializable]
   [HierarchyRoot]
   public class Father : Entity
   {

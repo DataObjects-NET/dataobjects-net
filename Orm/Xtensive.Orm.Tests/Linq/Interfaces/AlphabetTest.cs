@@ -15,7 +15,7 @@ using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
-  [Serializable]
+  [TestFixture, Category("Linq")]
   public class AlphabetTest : AutoBuildTest
   {
     const int EachCount = 10;

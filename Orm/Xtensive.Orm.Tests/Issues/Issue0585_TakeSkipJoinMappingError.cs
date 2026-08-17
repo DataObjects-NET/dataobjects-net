@@ -116,7 +116,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0585_TakeSkipJoinMappingError : AutoBuildTest
   {
     public override void TestFixtureSetUp()

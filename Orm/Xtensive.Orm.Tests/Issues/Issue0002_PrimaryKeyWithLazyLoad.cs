@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Issues.Issue0002_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0002_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class X : Entity
   {

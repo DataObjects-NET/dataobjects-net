@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0391_OnRemoveActionNone_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0391_OnRemoveActionNone_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {
@@ -19,7 +18,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0391_OnRemoveActionNone_Model
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {

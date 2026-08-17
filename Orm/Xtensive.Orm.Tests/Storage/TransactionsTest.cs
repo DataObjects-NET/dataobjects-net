@@ -13,7 +13,6 @@ using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.TransactionsTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Hexagon : Entity
   {

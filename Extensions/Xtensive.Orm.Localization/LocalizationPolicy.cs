@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Localization
   /// <summary>
   /// Localization policy.
   /// </summary>
-  [Serializable]
   public enum LocalizationPolicy
   {
     /// <summary>

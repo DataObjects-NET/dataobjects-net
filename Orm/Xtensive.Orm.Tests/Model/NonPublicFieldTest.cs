@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Model.NonPublicFieldTestModel;
 
 namespace Xtensive.Orm.Tests.Model.NonPublicFieldTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

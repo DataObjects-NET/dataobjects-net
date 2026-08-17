@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueA363_WrongInnerJoin_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public abstract class MyEntity : Entity
     {
@@ -48,7 +47,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA363_WrongInnerJoin : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

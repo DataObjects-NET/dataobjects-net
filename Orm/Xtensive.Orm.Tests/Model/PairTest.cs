@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.PairModel;
 
 namespace Xtensive.Orm.Tests.PairModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Master : Entity
   {
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.PairModel
     public Slave Slave { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Slave : Entity
   {

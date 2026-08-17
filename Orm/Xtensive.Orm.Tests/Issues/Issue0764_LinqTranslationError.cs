@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0764_LinqTranslationError_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity : Entity
     {
@@ -46,7 +45,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0764_LinqTranslationError : AutoBuildTest
   {
 

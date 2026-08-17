@@ -43,7 +43,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA401_AmbiguousMatchFoundException
   {
     [Test]

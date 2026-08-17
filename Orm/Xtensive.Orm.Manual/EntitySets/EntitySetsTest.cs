@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Manual.EntitySets
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class User : Entity
   {
@@ -53,7 +52,6 @@ namespace Xtensive.Orm.Manual.EntitySets
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class WebPage : Entity
   {
@@ -71,7 +69,6 @@ namespace Xtensive.Orm.Manual.EntitySets
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BlogPost : Entity
   {
@@ -92,7 +89,6 @@ namespace Xtensive.Orm.Manual.EntitySets
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Meeting : Entity
   {
@@ -113,7 +109,6 @@ namespace Xtensive.Orm.Manual.EntitySets
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Account : Entity
   {

@@ -11,9 +11,8 @@ using Xtensive.Orm.Tests.Issues.Issue0017_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0017_Model
 {
-  [Serializable]
   [HierarchyRoot]
-  public class Master:Entity
+  public class Master : Entity
   {
     [Field, Key]
     public long ID { get; private set; }
@@ -25,9 +24,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue0017_Model
     public EntitySet<Slave> Slaves { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
-  public class Slave:Entity
+  public class Slave : Entity
   {
     [Field, Key]
     public long ID { get; private set; }

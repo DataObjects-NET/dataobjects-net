@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueGithub0224_DelayedQueryCapture : AutoBuildTest
   {
 

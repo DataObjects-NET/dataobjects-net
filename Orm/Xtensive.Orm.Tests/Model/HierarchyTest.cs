@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
   {
   }
 
-  [Serializable]
   public class A : Entity, IA
   {
     string I0.AName { get; set; }
@@ -33,7 +32,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class AB : A
   {
@@ -44,17 +42,14 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string ABName { get; set; }
   }
 
-  [Serializable]
   public class ABC : AB
   {
   }
 
-  [Serializable]
   public abstract class B : Entity
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BC : B
   {
@@ -62,7 +57,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public Guid ID { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BD : B
   {
@@ -73,7 +67,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public string AName { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class BE : B
   {
@@ -81,14 +74,12 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     public int ID { get; private set; }
   }
 
-  [Serializable]
   public class IdentifiableEntity : Entity
   {
     [Field, Key]
     public Guid Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : IdentifiableEntity
   {

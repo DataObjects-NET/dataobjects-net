@@ -9,7 +9,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public sealed class Status : Entity
   {
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Content : Entity
   {
@@ -48,7 +46,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
     }
   }
 
-  [Serializable]
   public class Media : Content
   {
     [Field]

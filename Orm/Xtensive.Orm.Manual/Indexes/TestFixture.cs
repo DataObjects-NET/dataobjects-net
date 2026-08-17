@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Manual.Indexes
 {
   #region Model
   
-  [Serializable]
   [HierarchyRoot]
   public class Pet : Entity
   {
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Manual.Indexes
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   [Index("Email", Unique = true)]
   [Index("FirstName", "LastName")]

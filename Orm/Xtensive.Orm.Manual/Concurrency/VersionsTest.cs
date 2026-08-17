@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -66,7 +65,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Company : Entity
   {

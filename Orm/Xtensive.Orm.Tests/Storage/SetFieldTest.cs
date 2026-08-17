@@ -12,7 +12,6 @@ using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Storage.SetFieldTest
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {

@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueJIRA0020_CustomLINQCompilerContainerInterface_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class Person : Entity, ITest
     {
@@ -60,7 +59,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Serializable]
     [HierarchyRoot]
     public class Region : Entity
     {
@@ -77,7 +75,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueJIRA0020_CustomLINQCompilerContainerInterface : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

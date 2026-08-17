@@ -56,7 +56,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0626_SequenceContainsNoElements : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

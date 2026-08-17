@@ -9,7 +9,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Storage.Randomized
 {
-  [Serializable]
   [HierarchyRoot]
   public sealed class TreeNode : Entity
   {

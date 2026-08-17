@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0641_GroupBySumError_Model
   {
-    [Serializable]
     [HierarchyRoot]
     public class MyEntity : Entity
     {
@@ -42,7 +41,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class Issue0641_GroupBySumError : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

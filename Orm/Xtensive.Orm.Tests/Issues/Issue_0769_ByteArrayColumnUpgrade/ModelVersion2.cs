@@ -13,7 +13,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version3
   // Order.Customer field type changed to Contact
   // Employee removed
 
-  [Serializable]
   public class Address : Structure
   {
     [Field(Length = 15)]
@@ -22,7 +21,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version3
     public string Country { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -36,7 +34,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version3
     public string Phone { get; set; }
   }
 
-  [Serializable]
   [Index("CompanyName")]
   [HierarchyRoot]
   public class Contact : Entity
@@ -51,7 +48,6 @@ namespace Xtensive.Orm.Tests.Upgrade.Models.Version3
     public string ContactName { get; set; }
   }
 
-  [Serializable]
   [Index("OrderDate")]
   [Index("Freight")]
   [Index("ProductName")]

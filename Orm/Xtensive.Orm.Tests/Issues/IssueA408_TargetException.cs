@@ -49,7 +49,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  [Serializable]
   public class IssueA408_TargetException : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

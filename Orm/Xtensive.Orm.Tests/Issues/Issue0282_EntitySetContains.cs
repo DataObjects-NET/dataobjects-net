@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0282_EntitySetContains_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0282_EntitySetContains_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class Parent : Entity
   {
@@ -22,12 +21,10 @@ namespace Xtensive.Orm.Tests.Issues.Issue0282_EntitySetContains_Model
     public EntitySet<Item> Items { get; private set; }
   }
 
-  [Serializable]
   public class Child : Parent
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Item : Entity
   {

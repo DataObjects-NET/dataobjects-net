@@ -169,7 +169,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class Status : Entity
   {
     [Key]
@@ -184,7 +183,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
   }
 
   [HierarchyRoot]
-  [Serializable]
   public class TestEntity4 : Entity, IHasStatus
   {
     [Key]

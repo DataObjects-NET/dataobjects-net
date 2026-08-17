@@ -9,7 +9,6 @@ using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {
-  [Serializable]
   [HierarchyRoot]
   public class WebSiteUrl
     : Entity

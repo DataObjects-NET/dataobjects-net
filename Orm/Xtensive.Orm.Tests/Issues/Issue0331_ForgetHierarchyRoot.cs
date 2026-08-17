@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model
 {
-    [Serializable]
     [HierarchyRoot]
     public class Cell : Entity
     {

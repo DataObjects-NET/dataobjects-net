@@ -13,7 +13,6 @@ using Xtensive.Orm.Building;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
 {
-  [Serializable]
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   public class Ancestor : Entity
   {

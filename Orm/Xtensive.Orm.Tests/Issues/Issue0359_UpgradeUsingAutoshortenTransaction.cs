@@ -11,7 +11,6 @@ using Xtensive.Orm.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Mode
 
 namespace Xtensive.Orm.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model
 {
-  [Serializable]
   [HierarchyRoot]
   public class Class1 : Entity
   {

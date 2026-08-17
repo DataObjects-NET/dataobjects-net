@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException;
 
 namespace Xtensive.Orm.Tests.Issues_Issue0828_LinqMaterializeException
 {
-  [Serializable]
   [HierarchyRoot]
   public class MyEntity : Entity
   {

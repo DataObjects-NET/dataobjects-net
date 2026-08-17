@@ -9,7 +9,6 @@ using System.Diagnostics;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_2
 {
-  [Serializable]
   [HierarchyRoot]
   public class Order : Entity
   {
@@ -30,7 +29,6 @@ namespace Xtensive.Orm.Manual.Upgrade.Model_2
     {}
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Customer : Entity
   {

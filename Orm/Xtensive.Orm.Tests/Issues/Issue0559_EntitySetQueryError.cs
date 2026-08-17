@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   namespace Issue0559_EntitySetQueryError_Model
   {
-    [Serializable]
     [HierarchyRoot]
     [Index("Name")]
     public class Topic : Entity
@@ -29,7 +28,6 @@ namespace Xtensive.Orm.Tests.Issues
       public EntitySet<Subscription> Subscriptions { get; private set; }
     }
 
-    [Serializable]
     [HierarchyRoot]
     [KeyGenerator(KeyGeneratorKind.None)]
     [Index("ApplicationName")]

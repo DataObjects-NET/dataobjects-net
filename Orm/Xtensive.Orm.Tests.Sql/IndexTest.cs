@@ -12,7 +12,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
-  [Serializable]
   [TestFixture]
   public abstract class IndexTest : SqlTest
   {

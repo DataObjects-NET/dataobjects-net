@@ -17,7 +17,6 @@ using Xtensive.Orm.Tests.Storage.VersionModel;
 
 namespace Xtensive.Orm.Tests.Storage.VersionModel
 {
-  [Serializable]
   [HierarchyRoot]
   [KeyGenerator(null)]
   public class Address : Entity
@@ -34,7 +33,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   public class Phone : Structure
   {
     [Field]
@@ -44,7 +42,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public int Number { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -55,7 +52,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public string Name { get; set; }
   }
 
-  [Serializable]
   public class Customer : Person
   {
     [Field]
@@ -65,7 +61,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public Phone Phone { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {
@@ -88,7 +83,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public EntitySet<Comment> Comments { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -105,7 +99,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public EntitySet<Author> Authors { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Comment : Entity
   {
@@ -116,8 +109,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public Author Author { get; set; }
   }
 
-
-  [Serializable]
   public class VersionStructure : Structure
   {
     [Field]
@@ -125,7 +116,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     public int Version { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class VersionEntity : Entity
   {
@@ -152,7 +142,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithEntityVersion : Entity
   {
@@ -172,7 +161,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithCustomVersions : Entity
   {
@@ -192,7 +180,6 @@ namespace Xtensive.Orm.Tests.Storage.VersionModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class ItemWithAutoVersions : Entity
   {

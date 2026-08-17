@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest.Model.Version1
     public EntitySet<Address> Addresses { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Address : Entity
   {
