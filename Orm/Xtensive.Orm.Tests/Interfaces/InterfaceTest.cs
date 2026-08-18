@@ -110,50 +110,50 @@ namespace Xtensive.Orm.Tests.Interfaces
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          IPerson p = new Person1();
-          p.Pets.Add(new Animal1());
-          p.Pets.Add(new Animal1());
-          p.Pets.Add(new Animal2());
+        var iP = (IPerson) new Person1();
+        _ = iP.Pets.Add(new Animal1());
+        _ = iP.Pets.Add(new Animal1());
+        _ = iP.Pets.Add(new Animal2());
 
-          p = new Person2();
-          p.Pets.Add(new Animal1());
-          p.Pets.Add(new Animal1());
-          p.Pets.Add(new Animal2());
+        iP = new Person2();
+        _ = iP.Pets.Add(new Animal1());
+        _ = iP.Pets.Add(new Animal1());
+        _ = iP.Pets.Add(new Animal2());
 
-          Session.Current.SaveChanges();
+        session.SaveChanges();
 
-          p = session.Query.All<IPerson>().First();
-          Assert.That(p.Pets.Count, Is.EqualTo(3));
+        iP = session.Query.All<IPerson>().First();
+        Assert.That(iP.Pets.Count, Is.EqualTo(3));
 
-          var first = p.Pets.First();
-          first.Remove();
-          Assert.That(first.PersistenceState == PersistenceState.Removed, Is.True);
-          Assert.That(p.Pets.Contains(first), Is.False);
-          Assert.That(p.Pets.Count, Is.EqualTo(2));
+        var first = iP.Pets.First();
+        first.Remove();
+        Assert.That(first.PersistenceState == PersistenceState.Removed, Is.True);
+        Assert.That(iP.Pets.Contains(first), Is.False);
+        Assert.That(iP.Pets.Count, Is.EqualTo(2));
 
-          p.Remove();
-          session.Remove(session.Query.All<IAnimal>());
+        iP.Remove();
+        session.Remove(session.Query.All<IAnimal>());
 
-          new Animal1() { PetName = "A" };
-          new Animal1() { PetName = "B" };
-          new Animal1() { PetName = "C" };
-          new Animal2() { PetName = "D" };
-          new Animal2() { PetName = "E" };
-          new Animal2() { PetName = "F" };
-          new Animal3() { PetName = "G" };
-          new Animal3() { PetName = "H" };
-          new Animal3() { PetName = "J" };
+        _ = new Animal1() { PetName = "A" };
+        _ = new Animal1() { PetName = "B" };
+        _ = new Animal1() { PetName = "C" };
+        _ = new Animal2() { PetName = "D" };
+        _ = new Animal2() { PetName = "E" };
+        _ = new Animal2() { PetName = "F" };
+        _ = new Animal3() { PetName = "G" };
+        _ = new Animal3() { PetName = "H" };
+        _ = new Animal3() { PetName = "J" };
 
-          var animals = session.Query.All<IAnimal>();
-          Assert.That(animals.Count(), Is.EqualTo(9));
-          animals.Select(a => new {a.Id, a.PetName}).Where(x => x.Id != 0).ToList();
-          var list = session.Query.All<IAnimal>().Where(a => (string)a["PetName"] == "D").ToList();
-          Assert.That(list.Count, Is.EqualTo(1));
-          t.Complete();
-        }
+        var animals = session.Query.All<IAnimal>();
+        Assert.That(animals.Count(), Is.EqualTo(9));
+
+        _ = animals.Select(a => new { a.Id, a.PetName }).Where(x => x.Id != 0).ToList();
+        var list = session.Query.All<IAnimal>().Where(a => (string) a["PetName"] == "D").ToList();
+        Assert.That(list.Count, Is.EqualTo(1));
+        t.Complete();
       }
     }
   }

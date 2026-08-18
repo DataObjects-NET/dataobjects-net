@@ -149,6 +149,7 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaModel
 
 namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
 {
+  [TestFixture, Category("Model")]
   public abstract class InheritanceSchemaTestBase : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -165,6 +166,12 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
       SingleTableInheritanceBuilder.IsEnabled = false;
       base.TestFixtureTearDown();
     }
+
+    [Test]
+    public virtual void MainTest()
+    {
+      Domain.Model.Dump();
+    }
   }
 
   public class ClassTableInheritanceTest : InheritanceSchemaTestBase
@@ -175,12 +182,6 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = false;
       return dc;
-    }
-
-    [Test]
-    public virtual void MainTest()
-    {
-      Domain.Model.Dump();
     }
   }
 
@@ -193,12 +194,6 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
       SingleTableInheritanceBuilder.IsEnabled = false;
       return configuration;
     }
-
-    [Test]
-    public virtual void MainTest()
-    {
-      Domain.Model.Dump();
-    }
   }
 
   public class SingleTableInheritanceTest : InheritanceSchemaTestBase
@@ -209,12 +204,6 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = true;
       return configuration;
-    }
-
-    [Test]
-    public virtual void MainTest()
-    {
-      Domain.Model.Dump();
     }
   }
 }

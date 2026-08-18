@@ -27,22 +27,21 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (BuggyEntity).Assembly, typeof (BuggyEntity).Namespace);
+      config.Types.Register(typeof (BuggyEntity));
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
 
-          session.Query.SingleOrDefault<BuggyEntity>(1001);
-          var entityState = session.EntityStateCache.FirstOrDefault();
+        _ = session.Query.SingleOrDefault<BuggyEntity>(1001); // fetch inexistent state to cache
+        var entityState = session.EntityStateCache.FirstOrDefault();
 
-          if (entityState!=null)
-            Console.WriteLine(entityState.ToString()); // NullReferenceException is thrown here
-        }
+        if (entityState != null)
+          Console.WriteLine(entityState.ToString()); // NullReferenceException is thrown here
       }
     }
   }

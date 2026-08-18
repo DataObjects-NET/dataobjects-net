@@ -92,12 +92,13 @@ namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class FieldConverterTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.Register(typeof (Person));
       return config;
     }
 

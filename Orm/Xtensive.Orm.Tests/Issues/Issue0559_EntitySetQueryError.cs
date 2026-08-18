@@ -58,7 +58,8 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof(Subscription).Assembly, typeof(Subscription).Namespace);
+      config.Types.Register(typeof(Subscription));
+      config.Types.Register(typeof(Topic));
       return config;
     }
 
@@ -73,10 +74,8 @@ namespace Xtensive.Orm.Tests.Issues
         var subscription = new Subscription(1, 1) {ApplicationName = ApplicationName};
         _ = defaultTopic.Subscriptions.Add(subscription);
 
-        var subTopic = (from topic in session.Query.All<Topic>() where topic.Name == topicName select topic).SingleOrDefault<Topic>();
-        var subscriptions = subTopic.Subscriptions;
-        var result = from sub in subscriptions where sub.ApplicationName == ApplicationName select sub;
-        var list = result.ToList();
+        var subTopic = session.Query.All<Topic>().SingleOrDefault(t => t.Name == topicName);
+        var subscriptions = subTopic.Subscriptions.Where(sub => sub.ApplicationName == ApplicationName).ToList();
 
         t.Complete();
       }

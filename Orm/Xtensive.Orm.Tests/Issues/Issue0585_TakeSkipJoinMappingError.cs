@@ -118,41 +118,33 @@ namespace Xtensive.Orm.Tests.Issues
 
   public class Issue0585_TakeSkipJoinMappingError : AutoBuildTest
   {
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          Fill();
-          t.Complete();
-        }
-      }
-    }
-
-    private void Fill()
-    {
-      for (int i = 0; i < 10; i++) {
-        var user = new User {
-          Name = $"name_{i}", 
-          Password = $"password_{i}", 
-          PasswordQuestion = $"passwordQuestion_{i}", 
-          Email = $"email{i}"
-        };
-        for (int j = 0; j < 10; j++) {
-          var activity = new UserActivity {
-            Comment = $"comment_{i}_{j}", 
-            IsApproved = true, 
-            IsLockedOut = false, 
-            CreationDate = DateTime.Now, 
-            LastLoginDate = DateTime.Now, 
-            LastActivityDate = DateTime.Now, 
-            LastPasswordChangeDate = DateTime.Now, 
-            LastLockoutDate = DateTime.Now,
-            User = user
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (int i = 0; i < 10; i++) {
+          var user = new User {
+            Name = $"name_{i}",
+            Password = $"password_{i}",
+            PasswordQuestion = $"passwordQuestion_{i}",
+            Email = $"email{i}"
           };
+          for (int j = 0; j < 10; j++) {
+            var activity = new UserActivity {
+              Comment = $"comment_{i}_{j}",
+              IsApproved = true,
+              IsLockedOut = false,
+              CreationDate = DateTime.Now,
+              LastLoginDate = DateTime.Now,
+              LastActivityDate = DateTime.Now,
+              LastPasswordChangeDate = DateTime.Now,
+              LastLockoutDate = DateTime.Now,
+              User = user
+            };
+          }
         }
+        t.Complete();
       }
-      Session.Current.SaveChanges();
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -171,31 +163,30 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          int pageIndex = 1;
-          int pageSize = 1;
-          IQueryable<User> usersQuery = session.Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
-          var query =
-            from user in usersQuery
-            from activity in session.Query.All<UserActivity>().Where(a => a.User==user).DefaultIfEmpty()
-            select new {
-              user.Name,
-              user.UniqueIndentifier,
-              user.Email,
-              user.PasswordQuestion,
-              activity.Comment,
-              activity.IsApproved,
-              activity.IsLockedOut,
-              activity.CreationDate,
-              activity.LastLoginDate,
-              activity.LastActivityDate,
-              activity.LastPasswordChangeDate,
-              activity.LastLockoutDate
-            };
-          var result = query.ToList();
-          Assert.That(result.Count, Is.GreaterThan(0));
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        int pageIndex = 1;
+        int pageSize = 1;
+        var usersQuery = session.Query.All<User>().Skip(pageIndex * pageSize).Take(pageSize);
+        var query =
+          from user in usersQuery
+          from activity in session.Query.All<UserActivity>().Where(a => a.User == user).DefaultIfEmpty()
+          select new {
+            user.Name,
+            user.UniqueIndentifier,
+            user.Email,
+            user.PasswordQuestion,
+            activity.Comment,
+            activity.IsApproved,
+            activity.IsLockedOut,
+            activity.CreationDate,
+            activity.LastLoginDate,
+            activity.LastActivityDate,
+            activity.LastPasswordChangeDate,
+            activity.LastLockoutDate
+          };
+        var result = query.ToList();
+        Assert.That(result.Count, Is.GreaterThan(0));
       }
     }
   }

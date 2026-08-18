@@ -55,6 +55,7 @@ namespace Xtensive.Orm.Tests.Linq.ConditionalTestModel
 
 namespace Xtensive.Orm.Tests.Linq
 {
+  [TestFixture, Category("Linq")]
   public class ConditionalTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

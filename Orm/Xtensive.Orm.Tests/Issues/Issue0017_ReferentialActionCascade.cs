@@ -52,18 +52,17 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var m1 = new Master();
-          var s1 = new Slave();
-          m1.Slave = s1;
-          Assert.That(s1.Master1, Is.EqualTo(m1));
-          m1.Remove();
-          Assert.That(m1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
-          Assert.That(s1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
-          Session.Current.SaveChanges();
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var m1 = new Master();
+        var s1 = new Slave();
+        m1.Slave = s1;
+        Assert.That(s1.Master1, Is.EqualTo(m1));
+        m1.Remove();
+        Assert.That(m1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+        Assert.That(s1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+        session.SaveChanges();
+        // Rollback
       }
     }
   }

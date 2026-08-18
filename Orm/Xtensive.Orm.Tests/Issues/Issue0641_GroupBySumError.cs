@@ -45,8 +45,9 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Line).Assembly, typeof (Line).Namespace);
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof(MyEntity));
+      config.Types.Register(typeof(Line));
       return config;
     }
 
@@ -54,44 +55,37 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      {
-        using (TransactionScope transactionScope = session.OpenTransaction())
-        {
-          // Creating new persistent object
-          var helloWorld = new MyEntity
-                             {
-                               Text = "Hello World!",
-                               Lines =
-                                 {
-                                   new Line {Rate = 5.5M, Amount = 2M},
-                                   new Line {Rate = 5.5M, Amount = 2M},
-                                   new Line {Rate = 5.5M, Amount = 2M},
-                                   new Line {Rate = 5.5M, Amount = 2M},
-                                   new Line {Rate = 5.5M, Amount = 2M},
-                                   new Line {Rate = 5.5M, Amount = 2M}
-                                 }
-                             };
-          // Committing transaction
-          transactionScope.Complete();
-        }
+      using (var transactionScope = session.OpenTransaction()) {
+        // Creating new persistent object
+        var helloWorld = new MyEntity {
+          Text = "Hello World!",
+          Lines = {
+              new Line {Rate = 5.5M, Amount = 2M},
+              new Line {Rate = 5.5M, Amount = 2M},
+              new Line {Rate = 5.5M, Amount = 2M},
+              new Line {Rate = 5.5M, Amount = 2M},
+              new Line {Rate = 5.5M, Amount = 2M},
+              new Line {Rate = 5.5M, Amount = 2M}
+            }
+        };
+        // Committing transaction
+        transactionScope.Complete();
       }
 
       // Reading all persisted objects from another Session
       using (var session = Domain.OpenSession())
-      {
-        using (var transactionScope = session.OpenTransaction()) {
-          var query = from l in session.Query.All<MyEntity>().First().Lines
-                      group l by l.Rate.GetValueOrDefault() into g
-                      select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())};
-          var actual = query.ToList().Single();
-          var expected = (from l in session.Query.All<MyEntity>().First().Lines.ToList()
-                         group l by l.Rate.GetValueOrDefault()
-                         into g
-                         select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())})
-                         .Single();
-          Assert.That(actual.Rate, Is.EqualTo(expected.Rate));
-          Assert.That(actual.BaseAmount, Is.EqualTo(expected.BaseAmount));
-        }
+      using (var transactionScope = session.OpenTransaction()) {
+        var query = from l in session.Query.All<MyEntity>().First().Lines
+                    group l by l.Rate.GetValueOrDefault() into g
+                    select new { Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault()) };
+        var actual = query.ToList().Single();
+        var expected = (from l in session.Query.All<MyEntity>().First().Lines.ToList()
+                        group l by l.Rate.GetValueOrDefault()
+                       into g
+                        select new { Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault()) })
+                       .Single();
+        Assert.That(actual.Rate, Is.EqualTo(expected.Rate));
+        Assert.That(actual.BaseAmount, Is.EqualTo(expected.BaseAmount));
       }
     }
   }

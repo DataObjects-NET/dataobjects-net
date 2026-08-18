@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Interfaces.TypeIdModeConflictTestModel
   {
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Root1 : Entity, IRoot
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Interfaces.TypeIdModeConflictTestModel
     public int Id { get; private set; }
   }
 
-  [Serializable]
   [HierarchyRoot(IncludeTypeId = true)]
   public class Root2 : Entity, IRoot
   {
@@ -34,25 +32,27 @@ namespace Xtensive.Orm.Tests.Interfaces.TypeIdModeConflictTestModel
 
 namespace Xtensive.Orm.Tests.Interfaces
 {
-  public class TypeIdModeConflictTest : AutoBuildTest
+  public class TypeIdModeConflictTest
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
-      return config;
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    [Test]
+    public void DomainBuildAsyncTest()
     {
-      try {
-        base.BuildDomain(configuration);
-        Assert.Fail();
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return null;
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
+      return config;
     }
   }
 }

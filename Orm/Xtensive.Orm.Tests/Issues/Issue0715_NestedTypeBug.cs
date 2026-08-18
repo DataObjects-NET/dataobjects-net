@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new Forest.Animal {Name = "Forest Animal"};
-        new Animal {Name = "Animal"};
+        _ = new Forest.Animal {Name = "Forest Animal"};
+        _ = new Animal {Name = "Animal"};
       }
     }
   }

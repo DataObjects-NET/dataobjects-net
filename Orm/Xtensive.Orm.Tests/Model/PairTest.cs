@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.PairModel
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field , Association(PairTo = "Slave")]
+    [Field , Association(PairTo = nameof(PairModel.Master.Slave))]
     public Master Master { get; set; }
   }
 
@@ -35,13 +35,14 @@ namespace Xtensive.Orm.Tests.PairModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class PairTest : AutoBuildTest
   {
     protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(Master).Namespace);
+      config.Types.Register(typeof(Master));
+      config.Types.Register(typeof(Slave));
       return config;
     }
 

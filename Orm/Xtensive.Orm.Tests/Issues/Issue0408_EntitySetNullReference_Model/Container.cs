@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     public virtual T CreateDocument<T>(string name) where T : Document, new()
     {
       T doc = new T() { Name = name };
-      Documents.Add(doc);
+      _ = Documents.Add(doc);
       return doc;
     }
 

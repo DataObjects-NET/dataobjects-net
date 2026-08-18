@@ -72,18 +72,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-//      Domain.Model.Dump();
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var person = new Person();
+        var personSyncInfo = new SyncInfo<Person>(person);
+        var user = new User();
+        var userSyncInfo = new SyncInfo<User>(user);
+        var userSecurityInfo = new SecurityInfo<User>(user);
 
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var person = new Person();
-          var personSyncInfo = new SyncInfo<Person>(person);
-          var user = new User();
-          var userSyncInfo = new SyncInfo<User>(user);
-          var userSecurityInfo = new SecurityInfo<User>(user);
-
-          t.Complete();
-        }
+        t.Complete();
       }
     }
   }

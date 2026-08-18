@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Issues
       domainConfiguration = domainConfiguration.Clone();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
-      Assert.DoesNotThrow(()=>Domain.Build(domainConfiguration));
+      Assert.DoesNotThrow(() => Domain.Build(domainConfiguration).Dispose());
     }
 
     [Test]
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       domainConfiguration = domainConfiguration.Clone();
       domainConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      Assert.Throws<InvalidOperationException>(() => Domain.Build(domainConfiguration));
+      _ = Assert.Throws<InvalidOperationException>(() => Domain.Build(domainConfiguration).Dispose());
     }
   }
 }

@@ -194,9 +194,9 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
       config.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       
       CreateDb(CreateInvalidDbScript1);
-      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
+      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config).Dispose());
       CreateDb(CreateInvalidDbScript2);
-      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config));
+      AssertEx.Throws<SchemaSynchronizationException>(() => Domain.Build(config).Dispose());
     }
 
     [Test]

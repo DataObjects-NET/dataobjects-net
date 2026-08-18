@@ -224,7 +224,8 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       try {
         Dictionary<Type, int> result = new Dictionary<Type, int>();
         using (m = new Measurement("metrics"))
-          result = CheckTypeCount(typeCount, Domain.Build(cfg));
+        using (var domain = Domain.Build(cfg))
+          result = CheckTypeCount(typeCount, domain);
         Console.WriteLine($"  Done, {m}");
         return result;
       }

@@ -108,6 +108,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
   }
 
+  [TestFixture, Category("Linq")]
   public class CustomExpressionCompilers : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -155,13 +156,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AssignmentCurrentTest()
     {
+      var baseDate = DateTime.Today;
+      (bool active, DateTime startDate, DateTime? endDate)[] dataset = new[] {
+        (true,  baseDate.AddYears(-20), (DateTime?)null),
+        (false, baseDate.AddYears(-20), (DateTime?)null),
+        (false, baseDate.AddYears(-5),  baseDate.AddYears(20)),
+        (true,  baseDate.AddYears(1),   baseDate.AddYears(20)),
+        (true,  baseDate.AddYears(-15), baseDate.AddYears(20)),
+      };
+
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
-        new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};
-        new Assignment() {Active = false, Start = new DateTime(2020, 01, 10), End = new DateTime(2044, 12, 3)};
-        new Assignment() {Active = true, Start = new DateTime(2026, 01, 10), End = new DateTime(2045, 11, 3)};
-        new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
+        foreach (var data in dataset) {
+          _ = new Assignment() { Active = data.active, Start = data.startDate, End = data.endDate };
+        }
 
         var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
         Assert.That(currentCount, Is.EqualTo(2));

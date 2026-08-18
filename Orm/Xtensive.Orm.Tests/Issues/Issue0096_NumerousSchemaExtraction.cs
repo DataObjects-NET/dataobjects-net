@@ -19,51 +19,53 @@ namespace Xtensive.Orm.Tests.Issues.Issue0096_NumerousSchemaExtraction_Model
     [Field, Key]
     public int Id { get; private set; }
   }
+
+  public class ModelChanger : IModule
+  {
+    public static bool IsActive { get; set; }
+
+    public void OnBuilt(Domain domain)
+    {
+    }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (!IsActive)
+        return;
+
+      if (!model.Types.Contains("Ancestor"))
+        return;
+
+      var type = model.Types["Ancestor"];
+      var newField = new FieldDef(typeof(int), context.Validator);
+      newField.Name = "NewField";
+      type.Fields.Add(newField);
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  [Explicit("Manual usage only.")]
   public class Issue0096_NumerousSchemaExtraction
   {
-    public class ModelChanger : IModule
-    {
-      public static bool IsActive { get; set; }
-
-      public void OnBuilt(Domain domain)
-      {
-      }
-
-      public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
-      {
-        if (!IsActive)
-          return;
-
-        if (!model.Types.Contains("Ancestor"))
-          return;
-
-        var type = model.Types["Ancestor"];
-        var newField = new FieldDef(typeof (int), context.Validator);
-        newField.Name = "NewField";
-        type.Fields.Add(newField);
-      }
-    }
-
     private void BuildDomain(DomainUpgradeMode mode)
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = mode;
-      config.Types.RegisterCaching(typeof (Ancestor).Assembly, typeof (Ancestor).Namespace);
+      config.Types.Register(typeof(Ancestor));
+      config.Types.Register(typeof(ModelChanger));
       var domain = Domain.Build(config);
 
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          new Ancestor();
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        if (mode != DomainUpgradeMode.Recreate) {
+          Assert.That(session.Query.All<Ancestor>().Count(), Is.GreaterThan(0));
         }
-      }
+        _ = new Ancestor();
 
+        t.Complete();
+      }
     }
 
     [Test]

@@ -10,19 +10,20 @@ using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.FieldSqlDefaultTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.FieldSqlDefaultTestModel
 {
   [HierarchyRoot]
-  public class TestEntity1 : Entity
+  public class ExtendedTypesEntity : Entity
   {
     [Field (DefaultSqlExpression = "newid()"), Key]
     public Guid Id { get; private set; }
   }
 
   [HierarchyRoot]
-  public class TestEntity : Entity
+  public class GeneralTypesEntity : Entity
   {
     [Field (DefaultSqlExpression = "1"), Key]
     public int Id { get; private set; }
@@ -79,7 +80,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldSqlDefaultTestModel
         return;
       }
 
-      var field = model.Types[nameof(TestEntity)].Fields[nameof(TestEntity.FDateTime)];
+      var field = model.Types[nameof(GeneralTypesEntity)].Fields[nameof(GeneralTypesEntity.FDateTime)];
       field.DefaultValue = FormatDate(new DateTime(2012, 12, 12));
       field.DefaultSqlExpression = $"'{FormatDate(new DateTime(2013, 12, 13))}'";
     }
@@ -93,28 +94,47 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class FieldSqlDefaultTest : AutoBuildTest
   {
-    [Test]
-    public void MainTest()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(OracleDefaultValueModifier));
-      Domain = Domain.Build(configuration);
+      configuration.Types.Register(typeof(GeneralTypesEntity));
+      var storageInfo = StorageProviderInfo.Instance;
+      if (storageInfo.CheckProviderIs(StorageProvider.Oracle)) {
+        configuration.Types.Register(typeof(OracleDefaultValueModifier));
+      }
+      if(storageInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+        configuration.Types.Register(typeof(ExtendedTypesEntity));
+      }
+      return configuration;
+    }
 
+    protected override void PopulateData()
+    {
       var driver = TestSqlDriver.Create(Domain.Configuration.ConnectionInfo);
       using (var connection = driver.CreateConnection()) {
-        connection.Open();
-        var command = connection.CreateCommand();
         var translator = driver.Translator;
-        command.CommandText = $"INSERT INTO {translator.QuoteIdentifier("TestEntity")}({translator.QuoteIdentifier("Id")}) values(1)";
-        _ = command.ExecuteNonQuery();
+        connection.Open();
+        using (var command = connection.CreateCommand()) {
+          command.CommandText = $"INSERT INTO {translator.QuoteIdentifier("GeneralTypesEntity")}({translator.QuoteIdentifier("Id")}) values(1)";
+          _ = command.ExecuteNonQuery();
+        }
+        if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer)) {
+          using (var command = connection.CreateCommand()) {
+            command.CommandText = "INSERT INTO [ExtendedTypesEntity] DEFAULT VALUES;";
+            _ = command.ExecuteNonQuery();
+          }
+        }
         connection.Close();
       }
+    }
 
+    [Test]
+    public void MainTest()
+    {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<TestEntity>().First();
+        var entity = session.Query.All<GeneralTypesEntity>().First();
         Assert.That(entity.Id, Is.EqualTo(1));
         Assert.That(entity.FByte, Is.EqualTo(64));
         Assert.That(entity.FSByte, Is.EqualTo(65));
@@ -137,24 +157,10 @@ namespace Xtensive.Orm.Tests.Storage
     public void DefaultValueTestForKeyFieldTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      var configuration = base.BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestEntity1));
-      Domain = Domain.Build(configuration);
 
-      var driver = TestSqlDriver.Create(Domain.Configuration.ConnectionInfo);
-      using (var connection = driver.CreateConnection()) {
-        connection.Open();
-        var command = connection.CreateCommand();
-        var translator = driver.Translator;
-        command.CommandText = $"INSERT INTO {translator.QuoteIdentifier("TestEntity1")} DEFAULT VALUES;";
-        _ = command.ExecuteNonQuery();
-        connection.Close();
-      }
-      
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entity = session.Query.All<TestEntity1>().FirstOrDefault();
+        var entity = session.Query.All<ExtendedTypesEntity>().FirstOrDefault();
         Assert.That(entity, Is.Not.Null);
         Assert.That(entity.Id, Is.Not.Null);
       }

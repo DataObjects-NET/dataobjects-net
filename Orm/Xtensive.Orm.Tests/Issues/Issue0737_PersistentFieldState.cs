@@ -5,48 +5,60 @@
 // Created:    2010.07.12
 
 using System;
-using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.Issue0733_UseINNER_JOIN_Model;
-using System.Linq;
+using Xtensive.Orm.Tests.Issues.Issue0737_PersistentFieldState_Model;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  namespace Issue0733_UseINNER_JOIN_Model
+  namespace Issue0737_PersistentFieldState_Model
   {
     [HierarchyRoot]
-    public class Person : Entity
+    public class Derived : Entity
     {
-      [Key,Field]
+      [Key, Field]
       public int Id { get; private set; }
 
       [Field]
-      public string Name { get; set; }
-
-      [Field(Nullable = false)]
-      public City City { get; set; }
+      public new string State { get; set; }
     }
 
     [HierarchyRoot]
-    public class City : Entity
+    [TableMapping("States")]
+    [KeyGenerator(KeyGeneratorKind.None)]
+    public class State : Entity
     {
-      [Key,Field]
-      public int Id { get; private set; }
+      [Key]
+      [Field(Length = 100)]
+      public string ID { get; private set; }
 
       [Field]
-      public string Name { get; set; }
+      [Association(PairTo = "State")]
+      public EntitySet<AbiturAd> AbiturAds { get; set; }
+    }
+
+    [HierarchyRoot]
+    [TableMapping("AbiturAds")]
+    public class AbiturAd : Entity
+    {
+      [Key]
+      [Field]
+      public int ID { get; private set; }
+
+      [Field]
+      [FieldMapping("StateID")]
+      public new State State { get; set; }
     }
   }
 
-  [Serializable]
-  public class Issue0733_UseINNER_JOIN : AutoBuildTest
+  public class Issue0737_PersistentFieldState : AutoBuildTest
   {
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof(Person).Assembly, typeof(Person).Namespace);
+      var config = base.BuildConfiguration();
+      config.Types.RegisterCaching(typeof(Derived).Assembly, typeof(Derived).Namespace);
       return config;
     }
 
@@ -55,16 +67,10 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var msk = new City() {Name = "Moscow"};
-        var ekb = new City() {Name = "Yekaterinburg"};
-        for (int i = 0; i < 100; i++) {
-          new Person() {Name = "Alex " + i, City = msk};
-          new Person() {Name = "Ivan " + i, City = ekb};
-        }
+        var derived = new Derived() { State = "new" };
 
-        var list = session.Query.All<Person>()
-          .OrderBy(p => p.City.Name)
-          .Take(10)
+        var list = session.Query.All<Derived>()
+          .Where(d => d.State == "new")
           .ToList();
       }
     }

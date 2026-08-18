@@ -50,34 +50,25 @@ namespace Xtensive.Orm.Tests.Issues
       return config;
     }
 
-    /*protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      if (configuration.ConnectionInfo.Url.StartsWith("memory") && configuration.Builders.Contains(typeof(IncludeTypeIdModifier))) {
-        throw new IgnoreException("This configuration hangs the test");
-      }
-      return base.BuildDomain(configuration);
-    }*/
-
     [Test]
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          new Child2
-            {
-              StringField = "1",
-              BoolField = true,
-              DateTimeField = new DateTime(1967, 10, 23)
-            };
-          new Child2
-            {
-              StringField = "2",
-              BoolField = false,
-              DateTimeField = new DateTime(1968, 11, 24)
-            };
+          _ = new Child2 {
+            StringField = "1",
+            BoolField = true,
+            DateTimeField = new DateTime(1967, 10, 23)
+          };
+          _ = new Child2 {
+            StringField = "2",
+            BoolField = false,
+            DateTimeField = new DateTime(1968, 11, 24)
+          };
 
           t.Complete();
         }
+
         using (var t = session.OpenTransaction()) {
           var all = session.Query.All<Child2>();
           foreach (var obj in all) {

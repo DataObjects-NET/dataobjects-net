@@ -143,14 +143,14 @@ namespace Xtensive.Orm.Tests.Model
     public void DenyKeyFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel2").Dispose());
     }
 
     [Test]
     public void DenyLazyLoadFieldsTest()
     {
       AssertEx.Throws<DomainBuilderException>(() => 
-        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3"));
+        BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.InvalidModel3").Dispose());
     }
 
     [Test]

@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof(UpgradeHandler1));
       configuration.Types.Register(typeof(UpgradeHandler2));
-      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration));
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
     [Test]
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof(UpgradeHandler1));
       configuration.Types.Register(typeof(UpgradeHandler2));
-      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => await Domain.BuildAsync(configuration));
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
     }
   }
 }

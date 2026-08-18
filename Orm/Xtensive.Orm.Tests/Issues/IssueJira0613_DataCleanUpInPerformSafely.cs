@@ -170,10 +170,10 @@ namespace Xtensive.Orm.Tests.Issues
       upgradingConfiguration.UpgradeMode = (isSafelyMode) ? DomainUpgradeMode.PerformSafely : DomainUpgradeMode.Perform;
       upgradingConfiguration.Types.RegisterCaching(upgradedType.Assembly, upgradedType.Namespace);
       if (isSafelyMode) {
-        Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradingConfiguration));
+        _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradingConfiguration).Dispose());
       }
       else
-        Assert.DoesNotThrow(() => Domain.Build(upgradingConfiguration));
+        Assert.DoesNotThrow(() => Domain.Build(upgradingConfiguration).Dispose());
 
       var validationConfiguration = inintialConfiguration.Clone();
       validationConfiguration.UpgradeMode = DomainUpgradeMode.Validate;
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Issues
         // In this kind of tests we have only primary keys changed.
         // To be clear, only name is changed,
         // but this change is irrelevant for certain providers and comparison result is null
-        var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration));
+        var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration).Dispose());
         var provider = validationConfiguration.ConnectionInfo.Provider;
         if (provider != WellKnown.Provider.MySql && provider != WellKnown.Provider.Sqlite) {
           Assert.That(exception.ComparisonResult, Is.Not.Null);

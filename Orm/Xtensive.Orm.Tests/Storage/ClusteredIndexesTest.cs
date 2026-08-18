@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-//using Xtensive.Core;
-using Xtensive.Orm.Tests;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -360,7 +358,9 @@ namespace Xtensive.Orm.Tests.Storage
 
       foreach (var type in domainTypes)
         config.Types.Register(type);
-      config.Types.RegisterCaching(typeof (SingleTableSchemaModifier).Assembly, typeof (SingleTableSchemaModifier).Namespace);
+      config.Types.Register(typeof(SingleTableSchemaModifier));
+      config.Types.Register(typeof(ConcreteTableSchemaModifier));
+      config.Types.Register(typeof(ClassTableSchemaModifier));
 
       config.UpgradeMode = upgradeMode;
       if (inheritanceSchema!=null)
@@ -380,7 +380,8 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void RunFailureTest(Type badType)
     {
-      InitializeTest(null, new[] {badType});
+      InitializeTest(null, new[] { badType });
+
       AssertEx.Throws<DomainBuilderException>(() => BuildDomain(DomainUpgradeMode.Recreate));
     }
 

@@ -558,9 +558,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void AddFieldTest(Type newColumnType, object defaultValue = null)
     {
       SetUp();
-      if (domain != null) {
-        domain.DisposeSafely();
-      }
+      domain.DisposeSafely();
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
@@ -577,9 +575,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     private async Task AddFieldAsyncTest(Type newColumnType, object defaultValue = null)
     {
       SetUp();
-      if (domain != null) {
-        domain.DisposeSafely();
-      }
+      domain.DisposeSafely();
+
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
       configuration.Types.Register(typeof(X));

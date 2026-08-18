@@ -297,16 +297,29 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class FieldDefaultValueTest : AutoBuildTest
   {
+    private bool supportsDefaultForArrays = false;
+    private bool supportsDefaultForLongString = false;
+
+    public override void TestFixtureSetUp()
+    {
+      (supportsDefaultForArrays, supportsDefaultForLongString) = StorageProviderInfo.Instance.Provider switch {
+        StorageProvider.Firebird => (false, true),
+        StorageProvider.MySql => (false, false),
+        _ => (true, true)
+      };
+      base.TestFixtureSetUp();
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
       config.Types.Register(typeof(XRef));
       config.Types.Register(typeof(EnumKeyEntity));
       config.Types.Register(typeof(X));
-      if (SupportsDefaultForLongString()) {
+      if (supportsDefaultForLongString) {
         config.Types.Register(typeof(Y));
       }
-      if (SupportsDefaultForArrays()) {
+      if (supportsDefaultForArrays) {
         config.Types.Register(typeof(Z));
       }
       return config;
@@ -325,11 +338,11 @@ namespace Xtensive.Orm.Tests.Storage
           _ = new EnumKeyEntity(CodeRegistry.EnumKeyValue);
           keyX = new X().Key;
 
-          if (SupportsDefaultForLongString()) {
+          if (supportsDefaultForLongString) {
             keyY = new Y().Key;
           }
 
-          if(SupportsDefaultForArrays()) {
+          if(supportsDefaultForArrays) {
             keyZ = new Z().Key;
           }
           t.Complete();
@@ -396,11 +409,11 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.That(x.Ref, Is.Not.Null);
           Assert.That(x.EnumKeyEntityRef, Is.Not.Null);
 
-          if (SupportsDefaultForLongString()) {
+          if (supportsDefaultForLongString) {
             var y = session.Query.SingleOrDefault<Y>(keyY);
             Assert.That(y.FLongString, Is.EqualTo("default value"));
           }
-          if (SupportsDefaultForArrays()) {
+          if (supportsDefaultForArrays) {
             var z = session.Query.SingleOrDefault<Z>(keyZ);
             Assert.That(z.FByteArray, Is.EqualTo(new byte[] { 10, 10, 10, 10 }));
             Assert.That(z.FLongByteArray, Is.EqualTo(new byte[] { 10, 10, 10, 10 }));
@@ -417,30 +430,13 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.Types.Register(typeof(X));
-      if (SupportsDefaultForLongString()) {
+      if (supportsDefaultForLongString) {
         configuration.Types.Register(typeof(Y));
       }
-      if (SupportsDefaultForArrays()) {
+      if (supportsDefaultForArrays) {
         configuration.Types.Register(typeof(Z));
       }
-      var domain = Domain.Build(configuration);
-      domain.Dispose();
-    }
-
-    private bool SupportsDefaultForArrays()
-    {
-      switch (StorageProviderInfo.Instance.Provider) {
-        case StorageProvider.Firebird:
-        case StorageProvider.MySql:
-          return false;
-        default:
-          return true;
-      }
-    }
-
-    private bool SupportsDefaultForLongString()
-    {
-      return StorageProviderInfo.Instance.Provider != StorageProvider.MySql;
+      using var domain = Domain.Build(configuration);
     }
   }
 }

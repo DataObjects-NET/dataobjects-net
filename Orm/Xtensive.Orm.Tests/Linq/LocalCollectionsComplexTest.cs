@@ -99,49 +99,48 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsComplexTestModel
 
 namespace Xtensive.Orm.Tests.Linq
 {
+  [Category("Linq")]
   public class LocalCollectionsComplexTest : AutoBuildTest
   {
     private const int count = 10;
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof (EntityA).Assembly, typeof (EntityA).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
 
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
-      using (Session session = Domain.OpenSession()) {
-        using (TransactionScope t = session.OpenTransaction()) {
-          var entitiesB = Enumerable
-            .Range(0, count)
-            .Select(i => new EntityB {
-              Age = new DateTime(2000 + i, 2, 2),
-              Name = "NameB_" + i,
-              AdditionalInfo = new ComplexStructure {
+      using (var session = Domain.OpenSession()) 
+      using (var tx = session.OpenTransaction()) {
+        var entitiesB = Enumerable
+          .Range(0, count)
+          .Select(i => new EntityB {
+            Age = new DateTime(2000 + i, 2, 2),
+            Name = "NameB_" + i,
+            AdditionalInfo = new ComplexStructure {
+              A = new EntityA {
+                Age = new DateTime(2000 + i, 3, 3),
+                Name = "NameA_1_" + i
+              },
+              StructureAge = new DateTime(2000 + i, 7, 7),
+              StructureName = "StructureName_1_" + i,
+              EntityStructure = new EntityStructure {
                 A = new EntityA {
-                  Age = new DateTime(2000 + i, 3, 3),
-                  Name = "NameA_1_" + i
+                  Age = new DateTime(2000 + i, 1, 1),
+                  Name = "NameA_2_" + i
                 },
-                StructureAge = new DateTime(2000 + i, 7, 7),
-                StructureName = "StructureName_1_" + i,
-                EntityStructure = new EntityStructure {
-                  A = new EntityA {
-                    Age = new DateTime(2000 + i, 1, 1),
-                    Name = "NameA_2_" + i
-                  },
-                  StructureAge = new DateTime(2000 + i, 10, 10),
-                  StructureName = "StructureName_2_" + i,
-                }
+                StructureAge = new DateTime(2000 + i, 10, 10),
+                StructureName = "StructureName_2_" + i,
               }
-            })
-            .ToList();
-          t.Complete();
+            }
+          })
+          .ToList();
+          tx.Complete();
         }
-      }
     }
 
     [Test]

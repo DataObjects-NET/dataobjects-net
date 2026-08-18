@@ -6,11 +6,12 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Issues.IssueA424_QueryByInterfaceException_Model;
-using System.Linq;
+
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -22,7 +23,10 @@ namespace Xtensive.Orm.Tests.Issues
       [Field, Key]
       public int Id { get; private set; }
 
-      protected Animal(Session session) : base(session) { }
+      protected Animal(Session session)
+        : base(session)
+      {
+      }
     }
 
     public interface IHasLegs : IEntity
@@ -36,7 +40,10 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public string NumberOfLegs { get; set; }
 
-      protected Mammal(Session session) : base(session) { }
+      protected Mammal(Session session)
+        : base(session)
+      {
+      }
     }
 
     public interface ICanRun : IHasLegs
@@ -54,7 +61,10 @@ namespace Xtensive.Orm.Tests.Issues
 
     public class Lion : Cat
     {
-      public Lion(Session session) : base(session) { }
+      public Lion(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -63,7 +73,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (IHasLegs).Assembly, typeof (IHasLegs).Namespace);
+      config.Types.RegisterCaching(typeof(IHasLegs).Assembly, typeof(IHasLegs).Namespace);
       return config;
     }
 
@@ -71,10 +81,8 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction())
-      {
-
-        Query.All<IHasLegs>().ToList();
+      using (var t = session.OpenTransaction()) {
+        _ = session.Query.All<IHasLegs>().ToList();
         t.Complete();
       }
     }

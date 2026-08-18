@@ -104,6 +104,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class IndexOnStructureFieldTest : AutoBuildTest
   {
     [Test]

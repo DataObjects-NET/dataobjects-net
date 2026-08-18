@@ -5,55 +5,62 @@
 // Created:    2009.08.03
 
 using System;
-using Xtensive.Orm.Tests;
+using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0331_ForgetHierarchyRoot_Model
 {
-    [HierarchyRoot]
-    public class Cell : Entity
-    {
-        [Key, Field]
-        public int Id { get; private set; }
+  [HierarchyRoot]
+  public class Cell : Entity
+  {
+    [Key, Field]
+    public int Id { get; private set; }
 
-        [Field]
-        public int X { get; set; }
+    [Field]
+    public int X { get; set; }
 
-        [Field]
-        public int Y { get; set; }
+    [Field]
+    public int Y { get; set; }
 
-        [Field, Association(PairTo = "Cell", OnTargetRemove = OnRemoveAction.Clear)]
-        public Creature Creature { get; set; }
-    }
+    [Field, Association(PairTo = "Cell", OnTargetRemove = OnRemoveAction.Clear)]
+    public Creature Creature { get; set; }
+  }
 
-    [Serializable]
-    public class Creature : Entity
-    {
-        [Key, Field]
-        public int ID { get; private set; }
+  public class Creature : Entity
+  {
+    [Key, Field]
+    public int ID { get; private set; }
 
-        [Field]
-        public Cell Cell { get; set; }
-    }
+    [Field]
+    public Cell Cell { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class Issue0331_ForgetHierarchyRoot : AutoBuildTest
+  public class Issue0331_ForgetHierarchyRoot
   {
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Cell).Assembly, typeof (Cell).Namespace);
-      return config;
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
+    [Test]
+    public void DomainBuildAsyncTest()
     {
-      Domain domain = null;
-      AssertEx.Throws<DomainBuilderException>(() => domain = base.BuildDomain(configuration));
-      return domain;
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (Cell));
+      config.Types.Register(typeof (Creature));
+      return config;
     }
   }
 }

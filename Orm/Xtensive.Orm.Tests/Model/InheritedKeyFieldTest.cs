@@ -8,6 +8,7 @@ using System;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using InheritedKeyFieldModel;
+using NUnit.Framework;
 
 namespace InheritedKeyFieldModel
 {
@@ -46,12 +47,14 @@ namespace InheritedKeyFieldModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class InheritedKeyFieldTest : AutoBuildTest
+  [TestFixture, Category("Model")]
+  public class InheritedKeyFieldTest : DomainBuildabilityTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (H0).Assembly, typeof (H0).Namespace);
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (H0));
+      config.Types.Register(typeof (H2));
       return config;
     }
   }

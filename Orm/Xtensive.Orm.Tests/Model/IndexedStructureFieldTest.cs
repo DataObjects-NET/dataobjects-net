@@ -51,19 +51,15 @@ namespace Xtensive.Orm.Tests.Model
     }
   }
 
-  public class IndexedStructureFieldTest : AutoBuildTest
+  [TestFixture, Category("Model")]
+  public class IndexedStructureFieldTest : DomainBuildabilityTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = base.BuildConfiguration();
+      var configuration = DomainConfigurationFactory.Create();
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
       configuration.Types.RegisterCaching(typeof(Hierarchy).Assembly, typeof(Hierarchy).Namespace);
       return configuration;
-    }
-
-    [Test]
-    public void Test()
-    {
     }
   }
 }

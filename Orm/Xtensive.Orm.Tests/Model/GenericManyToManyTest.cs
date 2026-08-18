@@ -5,6 +5,7 @@
 // Created:    2010.03.03
 
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Model
 {
@@ -43,22 +44,15 @@ namespace Xtensive.Orm.Tests.Model
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
-  public class GenericManyToManyTest : AutoBuildTest
+  [TestFixture, Category("Model")]
+  public class GenericManyToManyTest : DomainBuildabilityTest
   {
-
-    protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = base.BuildConfiguration();
+      var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof (Target<string, int>));
       configuration.Types.Register(typeof (Source<string, int>));
       return configuration;
-    }
-
-    [Test]
-    public void CombinedTest()
-    {
-      
     }
   }
 }

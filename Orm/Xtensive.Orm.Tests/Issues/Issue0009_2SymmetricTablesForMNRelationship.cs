@@ -41,7 +41,8 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof(Book).Namespace);
+      config.Types.Register(typeof(Book));
+      config.Types.Register(typeof(Author));
       return config;
     }
 
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var book = new Book();
           var author = new Author();
-          book.Authors.Add(author);
+          _ = book.Authors.Add(author);
 
           Assert.That(book.Authors.Count, Is.EqualTo(1));
           Assert.That(author.Books.Count, Is.EqualTo(1));

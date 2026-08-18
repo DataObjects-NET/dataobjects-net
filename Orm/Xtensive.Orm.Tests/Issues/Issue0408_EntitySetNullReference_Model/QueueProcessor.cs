@@ -18,51 +18,37 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Field]
     public Container ProcessedContainer { get; set; }
 
+    public string SchedulerKey
+    {
+      get {
+        return this.GetType().FullName + "~" + this.Id;
+      }
+    }
+
     public static IList<object> GetWork(string key, Domain domain)
     {
       using (var session = domain.OpenSession())
-      {
-        QueueProcessor queueProcessor = null;
-        IList<object> result;
-        using (TransactionScope transactionScope = session.OpenTransaction())
-        {
-          queueProcessor = GetQueueProcessorByKey(key);
-          transactionScope.Complete();
-          result = queueProcessor.GetWork();
-        }
-        return result;
+      using (var transactionScope = session.OpenTransaction()) {
+        var queueProcessor = GetQueueProcessorByKey(session, key);
+        transactionScope.Complete();
+        return queueProcessor.GetWork();
       }
     }
 
     public static void Execute(string key, object workUnit, Domain domain)
     {
       using (var session = domain.OpenSession())
-      {
-        QueueProcessor queueProcessor = null;
-        using (TransactionScope transactionScope = session.OpenTransaction())
-        {
-          queueProcessor = GetQueueProcessorByKey(key);
-          queueProcessor.Execute(workUnit);
-          transactionScope.Complete();
-        }
+      using (var transactionScope = session.OpenTransaction()) {
+        var queueProcessor = GetQueueProcessorByKey(session, key);
+        queueProcessor.Execute(workUnit);
+        transactionScope.Complete();
       }
     }
 
-    private static QueueProcessor GetQueueProcessorByKey(string key)
+    private static QueueProcessor GetQueueProcessorByKey(Session session, string key)
     {
-      string[] parts = key.Split('~');
-      long id = Convert.ToInt64(parts[1]);
-      return (from p in Session.Demand().Query.All<QueueProcessor>()
-              where p.Id == id
-              select p).FirstOrDefault();
-    }
-
-    public string SchedulerKey
-    {
-      get
-      {
-        return this.GetType().FullName + "~" + this.Id;
-      }
+      var id = Convert.ToInt64(key.Split('~')[1]);
+      return session.Query.All<QueueProcessor>().FirstOrDefault(p => p.Id == id);
     }
 
     /// <summary>
@@ -83,20 +69,20 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       var work = from d in InputContainer.Documents
                  select (object)d.Id;
 
-      return (IList<object>)work.ToList();
+      return work.ToList();
     }
 
     //-> pour commiter chaque document traité
     //on laisse remonter les exceptions dataobjects
     public virtual void Execute(object workUnit)
     {
-      long id = (long)workUnit;
-      Document inputDocument = InputContainer.Documents.Where(d => d.Id == id).FirstOrDefault();
+      var id = (long)workUnit;
+      var inputDocument = InputContainer.Documents.FirstOrDefault(d => d.Id == id);
       System.Diagnostics.Debug.Assert(inputDocument != null, "QueueProcessor.Execute() called with nothing to do. There must be a document in the InputContainer"); 
 
       try
       {
-        Document documentToProcess = GetDocumentToProcessFromInputDocument(inputDocument);
+        var documentToProcess = GetDocumentToProcessFromInputDocument(inputDocument);
         if (documentToProcess == null)
         {
           string message = $"No document with DocumentTypeToProcess={DocumentTypeToProcess} found in the group of the inputDocument.";
@@ -108,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
       catch (Exception ex) // yes, general exception type
       {
-        using (TransactionScope transactionScope = Session.OpenTransaction())
+        using (var transactionScope = Session.OpenTransaction())
         {
           string message = $"Exception caught in {this.Name}.Execute() : '";
           TestLog.Error(message, ex);
@@ -136,7 +122,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
       documentToProcess.AddHistoryEntry("Document processed by " + this.Name, HistoryEntryVisibility.AdministratorUser);
 
-      Container processedContainer = GetProcessedContainerForDocument(inputDocument);
+      var processedContainer = GetProcessedContainerForDocument(inputDocument);
       if (processedContainer != null)
       {
         MoveDocumentToContainer(inputDocument, processedContainer);
@@ -166,7 +152,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
 
       string documentTypeToProcess = DocumentTypeToProcess;
-      if (String.IsNullOrEmpty(documentTypeToProcess))
+      if (string.IsNullOrEmpty(documentTypeToProcess))
       {
         return inputDocument;
       }
@@ -175,7 +161,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
         return inputDocument;
       }
 
-      List<Document> documentsMatchingDocType = inputDocument.FindDocumentsInMyGroupsByType(documentTypeToProcess, 0);
+      var documentsMatchingDocType = inputDocument.FindDocumentsInMyGroupsByType(documentTypeToProcess, 0);
 
       // return the document in the innermost group : 
       if (documentsMatchingDocType.Count > 0)

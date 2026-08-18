@@ -54,24 +54,23 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          var am = new AudioMaster();
-          _ = am.Tracks.Add(new MasterTrack());
-          _ = am.Tracks.Add(new MasterTrack());
+        var am = new AudioMaster();
+        _ = am.Tracks.Add(new MasterTrack());
+        _ = am.Tracks.Add(new MasterTrack());
 
-          Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(1));
-          Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(2));
+        Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(1));
+        Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(2));
 
-          AssertEx.Throws<ReferentialIntegrityException>(() => am.Tracks.First().Remove());
+        _ = Assert.Throws<ReferentialIntegrityException>(() => am.Tracks.First().Remove());
 
-          am.Remove();
+        am.Remove();
 
-          Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(0));
-          Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(0));
-          // Rollback
-        }
+        Assert.That(session.Query.All<AudioMaster>().Count(), Is.EqualTo(0));
+        Assert.That(session.Query.All<MasterTrack>().Count(), Is.EqualTo(0));
+        // Rollback
       }
     }
 
@@ -85,7 +84,7 @@ namespace Xtensive.Orm.Tests.Issues
         _ = am.Tracks.Add(new MasterTrack());
         _ = am.Tracks.Add(new MasterTrack());
 
-        AssertEx.Throws<ReferentialIntegrityException>(() => ((IEnumerable<MasterTrack>) am.Tracks).First().Remove());
+        _ = Assert.Throws<ReferentialIntegrityException>(() => ((IEnumerable<MasterTrack>) am.Tracks).First().Remove());
 
         am.Remove();
         // Rollback

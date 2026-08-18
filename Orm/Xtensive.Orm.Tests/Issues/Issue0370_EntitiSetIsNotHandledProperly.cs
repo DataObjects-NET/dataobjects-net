@@ -56,14 +56,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          
-          var c = new Container();
-          c.Items.Add(new ContainerItem());
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          // Rollback
-        }
+        var c = new Container();
+        _ = c.Items.Add(new ContainerItem());
+
+        // Rollback
       }
     }
   }

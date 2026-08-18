@@ -114,6 +114,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class IndexOnStructureFieldNamingTest : AutoBuildTest
   {
     private static readonly List<string> UnderscoreRuleExpectedColumns = new List<string> {

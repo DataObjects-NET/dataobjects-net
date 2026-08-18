@@ -42,8 +42,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.ForeignKeyMode = ForeignKeyMode.Reference;
       configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
       configuration.Types.Register(typeof (Handler));
-
-      Domain.DisposeSafely();
       return Domain.Build(configuration);
     }
 
@@ -59,6 +57,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       if (Domain != null) {
         Domain.Dispose();
+        Domain = null;
       }
     }
 

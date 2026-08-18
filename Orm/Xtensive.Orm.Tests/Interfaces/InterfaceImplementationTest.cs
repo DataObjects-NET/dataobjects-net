@@ -71,20 +71,21 @@ namespace Xtensive.Orm.Tests.Interfaces
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.RegisterCaching(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
-      var domain = GetClassTableDomain(config);
-      using (var session = domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var d = new D();
-        d.Title = "A";
-        d.Name = "B";
-        d.Tag = "C";
-        t.Complete();
-      }
-      using (var session = domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var d = session.Query.All<D>().Single();
-        Assert.That(d, Is.Not.Null);
-        t.Complete();
+      using (var domain = GetClassTableDomain(config)) {
+        using (var session = domain.OpenSession())
+        using (var t = session.OpenTransaction()) {
+          var d = new D();
+          d.Title = "A";
+          d.Name = "B";
+          d.Tag = "C";
+          t.Complete();
+        }
+        using (var session = domain.OpenSession())
+        using (var t = session.OpenTransaction()) {
+          var d = session.Query.All<D>().Single();
+          Assert.That(d, Is.Not.Null);
+          t.Complete();
+        }
       }
     }
 
@@ -101,11 +102,12 @@ namespace Xtensive.Orm.Tests.Interfaces
       var config = DomainConfigurationFactory.Create();
       config.Types.RegisterCaching(typeof(IHasName).Assembly, typeof(IHasName).Namespace);
       var domain = generator(config);
+      using (domain)
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new A() {Name = "A"};
-        new B() {Name = "B"};
-        new C() {Name = "C"};
+        _ = new A() { Name = "A" };
+        _ = new B() { Name = "B" };
+        _ = new C() { Name = "C" };
         var hasNames = session.Query.All<IHasName>().ToList();
         Assert.That(hasNames.Count, Is.EqualTo(2));
         t.Complete();

@@ -5,11 +5,9 @@
 // Created:    2009.09.14
 
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel;
 
 namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
@@ -50,31 +48,27 @@ namespace Xtensive.Orm.Tests.Interfaces.UnusedTypeRemovalTestModel
 
 namespace Xtensive.Orm.Tests.Interfaces
 {
-  public class UnusedTypeRemovalTest : AutoBuildTest
+  public class UnusedTypeRemovalTest
   {
     [Test]
-    public void MainTest()
+    public void DomainBuildTest()
     {
-      Assert.That(Domain, Is.Null);
+      var configuration = BuildConfiguration();
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildAsyncTest()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (IFirst).Assembly, typeof (IFirst).Namespace);
+      var configuration = BuildConfiguration();
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      config.Types.RegisterCaching(typeof(IFirst).Assembly, typeof(IFirst).Namespace);
       return config;
-    }
-
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      try {
-        base.BuildDomain(configuration);
-        Assert.Fail();
-      }
-      catch (DomainBuilderException e) {
-        Console.WriteLine(e);
-      }
-      return null;
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -105,19 +105,18 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
         configuration.MappingRules.Map(types[i].Namespace).ToDatabase(name);
       }
 
-      var domain = Domain.Build(configuration);
+      using (var domain = Domain.Build(configuration)) {
 
-      Assert.That(domain.Configuration.IsMultidatabase);
+        Assert.That(domain.Configuration.IsMultidatabase);
 
-      for (int i = 0; i < types.Length; i++) {
-        var expected = names[i];
-        if (expected==null)
-          continue;
-        var actual = domain.Model.Types[types[i]].MappingDatabase;
-        Assert.That(actual, Is.EqualTo(expected));
+        for (int i = 0; i < types.Length; i++) {
+          var expected = names[i];
+          if (expected == null)
+            continue;
+          var actual = domain.Model.Types[types[i]].MappingDatabase;
+          Assert.That(actual, Is.EqualTo(expected));
+        }
       }
-
-      domain.Dispose();
     }
 
     public override void TestFixtureSetUp()

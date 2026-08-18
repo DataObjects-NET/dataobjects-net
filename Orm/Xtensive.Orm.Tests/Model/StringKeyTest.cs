@@ -29,18 +29,13 @@ namespace Xtensive.Orm.Tests.Model.StringKeyTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class StringKeyTest : AutoBuildTest
+  public class StringKeyTest : DomainBuildabilityTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Product));
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Product));
       return config;
-    }
-
-    [Test]
-    public void MainTest()
-    {
     }
   }
 }

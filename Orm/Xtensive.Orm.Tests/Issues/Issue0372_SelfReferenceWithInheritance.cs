@@ -62,39 +62,36 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var webSite = new WebSite();
-          webSite.WebSite = webSite; // self-refernece
-          Session.Current.SaveChanges();
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var webSite = new WebSite();
+        webSite.WebSite = webSite; // self-refernece
+        session.SaveChanges();
+        // Rollback
       }
     }
 
     [Test]
     public void DualSelfreferenceTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var webSite = new WebSite();
-          webSite.WebSite = webSite; // self-refernece 1
-          webSite.WebSite2 = webSite; // self-refernece 2
-          Session.Current.SaveChanges();
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var webSite = new WebSite();
+        webSite.WebSite = webSite; // self-refernece 1
+        webSite.WebSite2 = webSite; // self-refernece 2
+        Session.Current.SaveChanges();
+        // Rollback
       }
     }
 
     [Test]
     public void SelfreferenceTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var myEntity = new MyEntity();
-          Session.Current.SaveChanges();
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var myEntity = new MyEntity();
+        session.SaveChanges();
+        // Rollback
       }
     }
   }

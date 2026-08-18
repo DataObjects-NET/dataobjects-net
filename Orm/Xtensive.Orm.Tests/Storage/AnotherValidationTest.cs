@@ -517,60 +517,62 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
     [Test]
     public void ModelValidationTest()
     {
-      var domain = BuildDomain(false);
-      var passportType = domain.Model.Types[typeof (model1.Passport)];
+      using (var domain = BuildDomain(false)) {
+        var passportType = domain.Model.Types[typeof(model1.Passport)];
 
-      Assert.That(passportType.HasValidators, Is.EqualTo(true));
-      Assert.That(passportType.Validators.Count, Is.EqualTo(0));
+        Assert.That(passportType.HasValidators, Is.EqualTo(true));
+        Assert.That(passportType.Validators.Count, Is.EqualTo(0));
 
-      var passportTypeField = passportType.Fields["Number"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(2));
+        var passportTypeField = passportType.Fields["Number"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(2));
 
-      passportTypeField = passportType.Fields["Series"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
+        passportTypeField = passportType.Fields["Series"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
 
-      passportTypeField = passportType.Fields["Department"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+        passportTypeField = passportType.Fields["Department"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
 
-      passportTypeField = passportType.Fields["DepartmentNumber"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
+        passportTypeField = passportType.Fields["DepartmentNumber"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
 
-      passportTypeField = passportType.Fields["DistributeDate"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+        passportTypeField = passportType.Fields["DistributeDate"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+      }
 
 
-      domain = BuildDomain(true);
-      var passportType1 = domain.Model.Types[typeof (model2.Passport)];
+      using (var domain = BuildDomain(true)) {
+        var passportType1 = domain.Model.Types[typeof(model2.Passport)];
 
-      passportTypeField = passportType1.Fields["Number"];
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(2));
+        var passportTypeField = passportType1.Fields["Number"];
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(2));
 
-      passportTypeField = passportType1.Fields["Series"];
-      Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
+        passportTypeField = passportType1.Fields["Series"];
+        Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
 
-      passportTypeField = passportType1.Fields["Department"];
-      Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+        passportTypeField = passportType1.Fields["Department"];
+        Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
 
-      passportTypeField = passportType1.Fields["DepartmentNumber"];
-      Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
+        passportTypeField = passportType1.Fields["DepartmentNumber"];
+        Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(3));
 
-      passportTypeField = passportType1.Fields["DistributeDate"];
-      Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
-      Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+        passportTypeField = passportType1.Fields["DistributeDate"];
+        Assert.That(passportTypeField.HasImmediateValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.HasValidators, Is.EqualTo(true));
+        Assert.That(passportTypeField.Validators.Count, Is.EqualTo(1));
+      }
     }
     #endregion
 
@@ -582,10 +584,10 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.DoesNotThrow(
-          ()=> {
-            new model1.Measure {Name = "kilogramm", ShortName = "kg"};
-            new model1.Measure {Name = "gramm", ShortName = "g"};
-            new model1.Measure {Name = "liter"};
+          () => {
+            _ = new model1.Measure {Name = "kilogramm", ShortName = "kg"};
+            _ = new model1.Measure {Name = "gramm", ShortName = "g"};
+            _ = new model1.Measure {Name = "liter"};
             session.Validate();
           });
       }
@@ -598,10 +600,10 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.DoesNotThrow(
-          ()=> {
-            new model2.Measure {Name = "kilogramm", ShortName = "kg"};
-            new model2.Measure {Name = "gramm", ShortName = "g"};
-            new model2.Measure {Name = "liter"};
+          () => {
+            _ = new model2.Measure {Name = "kilogramm", ShortName = "kg"};
+            _ = new model2.Measure {Name = "gramm", ShortName = "g"};
+            _ = new model2.Measure {Name = "liter"};
           });
       }
     }
@@ -612,8 +614,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(() => {
-          new model1.Measure {Name = "", ShortName = "kg/m"};
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          _ = new model1.Measure {Name = "", ShortName = "kg/m"};
           session.Validate();
         });
       }
@@ -625,9 +627,9 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
-            new model2.Measure {Name = "", ShortName = "kg/m"};
+            _ = new model2.Measure {Name = "", ShortName = "kg/m"};
           });
       }
     }
@@ -640,7 +642,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var transaction = session.OpenTransaction()) {
         Assert.DoesNotThrow(()=> {
           var measure = new model1.Measure {Name = "kilogramm", ShortName = "kg"};
-          new model1.Product {Name = "Banana", Measure = measure};
+          _ = new model1.Product {Name = "Banana", Measure = measure};
           session.Validate();
         });
       }
@@ -655,7 +657,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         Assert.DoesNotThrow(
           () => {
             var measure = new model2.Measure {Name = "kilogramm", ShortName = "kg"};
-            new model2.Product {Name = "Banana", Measure = measure};
+            _ = new model2.Product {Name = "Banana", Measure = measure};
           });
       }
     }
@@ -666,8 +668,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(()=> {
-          new model1.Product {Name = "Banana"};
+        _ = Assert.Throws<ValidationFailedException>(()=> {
+          _ = new model1.Product {Name = "Banana"};
           session.Validate();
         });
       }
@@ -679,9 +681,9 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
-            new model2.Product {Name = "Banana", Measure = null};
+            _ = new model2.Product {Name = "Banana", Measure = null};
           });
       }
     }
@@ -721,7 +723,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var measure = new model1.Measure {Name = "kilogramm"};
             var product = new model1.Product {Name = "", Measure = measure};
@@ -736,7 +738,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var measure = new model2.Measure {Name = "kilogramm"};
             var product = new model2.Product {Name = "", Measure = measure};
@@ -754,7 +756,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           () => {
             var measure = new model1.Measure {Name = "kilogramm"};
             var product = new model1.Product {Name = "Banana", Measure = measure};
-            new model1.Review {Product = product, Text = "Bananas is very tasty", Rating = 5};
+            _ = new model1.Review {Product = product, Text = "Bananas is very tasty", Rating = 5};
             session.Validate();
           });
       }
@@ -770,7 +772,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           () => {
             var measure = new model2.Measure {Name = "kilogramm"};
             var product = new model2.Product {Name = "Banana", Measure = measure};
-            new model2.Review {Product = product, Text = "Bananas is very tasty", Rating = 5};
+            _ = new model2.Review {Product = product, Text = "Bananas is very tasty", Rating = 5};
           });
       }
     }
@@ -781,11 +783,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var measure = new model1.Measure {Name = "kilogramm"};
             var product = new model1.Product {Name = "Banana", Measure = measure};
-            new model1.Review {Product = product, Text = "Bananas is very tasty", Rating = 6};
+            _ = new model1.Review {Product = product, Text = "Bananas is very tasty", Rating = 6};
             session.Validate();
           });
       }
@@ -797,11 +799,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var measure = new model2.Measure {Name = "kilogramm"};
             var product = new model2.Product {Name = "Banana", Measure = measure};
-            new model2.Review {Product = product, Text = "Bananas is very tasty", Rating = 6};
+            _ = new model2.Review {Product = product, Text = "Bananas is very tasty", Rating = 6};
           });
       }
     }
@@ -841,7 +843,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var passport = new model1.Passport {Number = "357867", Series = "223", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
@@ -870,7 +872,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var measure = new model1.Measure {Name = "kilogramm", ShortName = "kg"};
             var product = new model1.Product {Name = "Banana", Measure = measure};
@@ -886,7 +888,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var measure = new model2.Measure {Name = "kilogramm", ShortName = "kg"};
             var product = new model2.Product {Name = "Banana", Measure = measure};
@@ -901,7 +903,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var passport = new model1.Passport {Number = "3578", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
@@ -930,7 +932,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var passport = new model1.Passport {Number = "357878", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru", Phone = "878d8re7878"};
@@ -945,7 +947,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var passport = new model2.Passport {Number = "878597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
             var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru", Phone = "878d8re7878"};
@@ -961,11 +963,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var transaction = session.OpenTransaction()) {
         foreach (var email in validEmails) {
           Assert.DoesNotThrow(
-          ()=> {
-            var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
-            var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
-            session.Validate();
-          });
+            () => {
+              var passport = new model1.Passport { Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1) };
+              var customer = new model1.Customer { FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email };
+              session.Validate();
+            });
         }
       }
     }
@@ -978,10 +980,10 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var transaction = session.OpenTransaction()) {
         foreach (var email in validEmails) {
           Assert.DoesNotThrow(
-          () => {
-            var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
-            var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
-          });
+            () => {
+              var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
+              var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
+            });
         }
       }
     }
@@ -993,12 +995,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         foreach (var email in notValidEmails) {
-          Assert.Throws<ValidationFailedException>(
-          () => {
-            var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
-            var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
-            session.Validate();
-          });
+          _ = Assert.Throws<ValidationFailedException>(
+            () => {
+              var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
+              var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
+              session.Validate();
+            });
         }
       }
     }
@@ -1010,11 +1012,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         foreach (var email in notValidEmails) {
-          Assert.Throws<ArgumentException>(
-          () => {
-            var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
-            var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
-          });
+          _ = Assert.Throws<ArgumentException>(
+            () => {
+              var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
+              var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = email};
+            });
         }
       }
     }
@@ -1054,7 +1056,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now.AddSeconds(2)};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
@@ -1088,7 +1090,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             var product = new model1.Product { Name = "Banana", Measure = new model1.Measure { Name = "kilogramm" } };
             var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
             session.Validate();
           });
       }
@@ -1105,7 +1107,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             var product = new model2.Product {Name = "Banana", Measure = new model2.Measure {Name = "kilogramm"}};
             var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
           });
       }
     }
@@ -1116,12 +1118,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           ()=> {
             var product = new model1.Product {Name = "Banana", Measure = new model1.Measure {Name = "kilogramm"}};
             var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model1.Order {Customer = customer, Product = product, Date = DateTime.Now.AddMinutes(2), DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model1.Order {Customer = customer, Product = product, Date = DateTime.Now.AddMinutes(2), DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
             session.Validate();
           });
       }
@@ -1133,12 +1135,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var product = new model2.Product {Name = "Banana", Measure = new model2.Measure {Name = "kilogramm"}};
             var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model2.Order {Customer = customer, Product = product, Date = DateTime.Now.AddMinutes(2), DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model2.Order {Customer = customer, Product = product, Date = DateTime.Now.AddMinutes(2), DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
           });
       }
     }
@@ -1154,7 +1156,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             var product = new model1.Product {Name = "Banana", Measure = new model1.Measure {Name = "kilogramm"}};
             var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
             session.Validate();
           });
       }
@@ -1171,7 +1173,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             var product = new model2.Product {Name = "Banana", Measure = new model2.Measure {Name = "kilogramm"}};
             var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
+            _ = new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now.AddDays(1)};
           });
       }
     }
@@ -1182,12 +1184,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ValidationFailedException>(
+        _ = Assert.Throws<ValidationFailedException>(
           () => {
             var product = new model1.Product {Name = "Banana", Measure = new model1.Measure {Name = "kilogramm"}};
             var passport = new model1.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now};
+            _ = new model1.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIsOrdered = true, DeliveryDate = DateTime.Now};
             session.Validate();
           });
       }
@@ -1199,12 +1201,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<ArgumentException>(
+        _ = Assert.Throws<ArgumentException>(
           () => {
             var product = new model2.Product {Name = "Banana", Measure = new model2.Measure {Name = "kilogramm"}};
             var passport = new model2.Passport {Number = "898597", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = DateTime.Now};
             var customer = new model2.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(2000, 3, 8), Passport = passport, Email = "login@domain.ru"};
-            new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now};
+            _ = new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now};
             session.Validate();
           });
       }
@@ -1271,7 +1273,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1292,7 +1294,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1313,7 +1315,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1334,7 +1336,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1355,7 +1357,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1376,7 +1378,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1397,7 +1399,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1418,7 +1420,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1439,7 +1441,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1468,7 +1470,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1488,7 +1490,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1508,7 +1510,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1528,7 +1530,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1548,7 +1550,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1568,7 +1570,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1588,7 +1590,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1608,7 +1610,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1628,7 +1630,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1656,7 +1658,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(false))
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               var measure = new model1.Measure {
                 Name = "measure",
@@ -1706,7 +1708,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       using (var domain = BuildDomain(true))
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               var measure = new model2.Measure {
                 Name = "measure",
@@ -1900,12 +1902,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               measure.Name = "";
               session.Validate();
             });
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               measure.Name = null;
               session.Validate();
@@ -1925,11 +1927,11 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               measure.Name = "";
             });
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               measure.Name = null;
             });
@@ -1989,7 +1991,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               product.Measure = null;
               session.Validate();
@@ -2009,7 +2011,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               product.Measure = null;
             });
@@ -2029,7 +2031,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               product.Name = "Orange";
               session.Validate();
             });
@@ -2049,7 +2051,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               product.Name = "Orange";
             });
         }
@@ -2067,7 +2069,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               product.Name = "";
               session.Validate();
@@ -2087,7 +2089,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               product.Name = "";
             });
@@ -2107,7 +2109,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               review.Rating = 2;
               session.Validate();
             });
@@ -2127,7 +2129,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               review.Rating = 2;
             });
         }
@@ -2145,7 +2147,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               review.Rating = 6;
               session.Validate();
@@ -2165,7 +2167,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               review.Rating = 6;
             });
@@ -2185,7 +2187,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               customer.Passport.Series = "6743";
               customer.Passport.Number = "868764";
               session.Validate();
@@ -2207,7 +2209,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
-            ()=> {
+            () => {
               customer.Passport.Series = "7643";
               customer.Passport.Number = "797834";
             });
@@ -2226,8 +2228,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
-            ()=> {
+          _ = Assert.Throws<ValidationFailedException>(
+            () => {
               customer.Passport.Series = "674";
               customer.Passport.Number = "868764";
               session.Validate();
@@ -2248,8 +2250,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
-            ()=> {
+          _ = Assert.Throws<ArgumentException>(
+            () => {
               customer.Passport.Series = "764";
               customer.Passport.Number = "797834";
             });
@@ -2268,7 +2270,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               review.Text = "5";
               session.Validate();
@@ -2288,7 +2290,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               review.Text = "5";
             });
@@ -2307,13 +2309,13 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               customer.Passport.Series = "6748";
               customer.Passport.Number = "8687";
               session.Validate();
             });
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               customer.Passport.Series = "6748";
               customer.Passport.Number = "8687av";
@@ -2334,12 +2336,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               customer.Passport.Series = "7648";
               customer.Passport.Number = "7978";
             });
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               customer.Passport.Series = "7648";
               customer.Passport.Number = "7978av";
@@ -2359,7 +2361,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               customer.Phone = "88dfg78dfg";
               session.Validate();
@@ -2380,7 +2382,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               customer.Phone = "88dfg78dfg";
             });
@@ -2443,7 +2445,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           foreach (var email in notValidEmails) {
-            Assert.Throws<ValidationFailedException>(
+            _ = Assert.Throws<ValidationFailedException>(
               () => {
                 customer.Email = email;
                 session.Validate();
@@ -2465,7 +2467,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         }
         using (var transaction = session.OpenTransaction()) {
           foreach (var email in notValidEmails) {
-            Assert.Throws<ArgumentException>(
+            _ = Assert.Throws<ArgumentException>(
               () => {
                 customer.Email = email;
               });
@@ -2524,7 +2526,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               customer.Passport.DistributeDate = DateTime.Now.AddSeconds(2);
               session.Validate();
@@ -2545,7 +2547,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               customer.Passport.DistributeDate = DateTime.Now.AddSeconds(2);
             });
@@ -2604,7 +2606,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               order.Date = DateTime.Now.AddSeconds(2);
               session.Validate();
@@ -2625,7 +2627,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               order.Date = DateTime.Now.AddSeconds(2);
             });
@@ -2683,7 +2685,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               order.DeliveryDate = DateTime.Now;
               session.Validate();
@@ -2703,7 +2705,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               order.DeliveryDate = DateTime.Now;
             });
@@ -2779,63 +2781,63 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.NotEmptyString = "";
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.NotNullOrEmptyString = "";
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.NotNullOrEmptyString = null;
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.NotNullString = null;
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.FutureDateTime = DateTime.Now;
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.IntValueInRange = 11;
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.PastDateTime = DateTime.Now.AddSeconds(2);
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.StringForRegexValidation = "%&%%";
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg";
               session.Validate();
@@ -2855,55 +2857,55 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.NotEmptyString = "";
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.NotNullOrEmptyString = "";
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.NotNullOrEmptyString = null;
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.NotNullString = null;
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.FutureDateTime = DateTime.Now;
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.IntValueInRange = 11;
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.PastDateTime = DateTime.Now.AddSeconds(2);
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.StringForRegexValidation = "%&%%";
             });
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg";
             });
@@ -2924,7 +2926,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ValidationFailedException>(
+          _ = Assert.Throws<ValidationFailedException>(
             () => {
               childClass.OverridedField = "";
               session.Validate();
@@ -2953,7 +2955,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           transaction.Complete();
         }
         using (var transaction = session.OpenTransaction()) {
-          Assert.Throws<ArgumentException>(
+          _ = Assert.Throws<ArgumentException>(
             () => {
               childClass.OverridedField = "";
             });

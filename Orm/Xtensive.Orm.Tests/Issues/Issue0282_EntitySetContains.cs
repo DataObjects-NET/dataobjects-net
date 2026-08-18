@@ -52,8 +52,10 @@ namespace Xtensive.Orm.Tests.Issues
 
           var child = new Child();
           var item = new Item();
-          child.Items.Contains(item);
+          Assert.That(child.Items.Contains(item), Is.False);
 
+          _ = child.Items.Add(item);
+          Assert.That(child.Items.Contains(item), Is.True);
           // Rollback
         }
       }

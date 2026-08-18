@@ -8,8 +8,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 {
@@ -52,7 +50,7 @@ namespace Xtensive.Orm.Tests.Model.ReferenceTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class CyclicContainedStructureTest
   {
     [Test]
@@ -61,7 +59,7 @@ namespace Xtensive.Orm.Tests.Model
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Model.ReferenceTestModel");
-      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
+      var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config).Dispose());
       Assert.That(ex.Message.StartsWith("At least one loop have been found"), Is.True);
     }
   }

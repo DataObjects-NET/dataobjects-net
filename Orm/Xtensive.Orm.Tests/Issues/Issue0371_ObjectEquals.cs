@@ -59,70 +59,66 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ObjectEqualsTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var item1 = new Item();
-          var item2 = new Item();
-          var result = session.Query.All<Item>().Where(item => Equals(item, item1));
-          QueryDumper.Dump(result);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item1 = new Item();
+        var item2 = new Item();
+        var result = session.Query.All<Item>().Where(item => Equals(item, item1));
+        QueryDumper.Dump(result);
+        // Rollback
       }
     }
 
     [Test]
     public void ItemEquals1Test()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var item1 = new Item();
-          var item2 = new Item();
-          var result = session.Query.All<Item>().Where(item => Item.Equals((object)item, (object)item1));
-          Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item1 = new Item();
+        var item2 = new Item();
+        var result = session.Query.All<Item>().Where(item => Item.Equals((object) item, (object) item1));
+        _ = Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
+        // Rollback
       }
     }
 
     [Test]
     public void ItemEquals2Test()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var item1 = new Item();
-          var item2 = new Item();
-          var result = session.Query.All<Item>().Where(item => Item.Equals(item, item1));
-          QueryDumper.Dump(result);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item1 = new Item();
+        var item2 = new Item();
+        var result = session.Query.All<Item>().Where(item => Item.Equals(item, item1));
+        QueryDumper.Dump(result);
+        // Rollback
       }
+      
     }
 
     [Test]
     public void ClassEqualsTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var item1 = new Item();
-          var item2 = new Item();
-          var result = session.Query.All<Item>().Where(item => String.Equals(item.Name, item1.Name));
-          QueryDumper.Dump(result);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item1 = new Item();
+        var item2 = new Item();
+        var result = session.Query.All<Item>().Where(item => String.Equals(item.Name, item1.Name));
+        QueryDumper.Dump(result);
+        // Rollback
       }
     }
 
     [Test]
     public void StringEqualsTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var item1 = new Item();
-          var item2 = new Item();
-          var result = session.Query.All<Item>().Where(item => item.Equals(item1));
-          QueryDumper.Dump(result);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item1 = new Item();
+        var item2 = new Item();
+        var result = session.Query.All<Item>().Where(item => item.Equals(item1));
+        QueryDumper.Dump(result);
+        // Rollback
       }
     }
   }

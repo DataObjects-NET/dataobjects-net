@@ -36,13 +36,12 @@ namespace Xtensive.Orm.Tests.Configuration
 
     public void TestCacheType(DomainConfiguration config, Type expectedType)
     {
-      var d = Domain.Build(config);
+      using (var d = Domain.Build(config))
       using (var s = d.OpenSession()) {
         var cacheType = s.EntityStateCache.GetType();
         TestLog.Debug($"Session CacheType: {cacheType.Name}");
         Assert.That(cacheType.IsOfGenericType(expectedType), Is.True);
       }
-      d.DisposeSafely();
     }
 
     [Test]

@@ -32,8 +32,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       public Module()
       {
-        new ModuleItem();
-//        Items.Add(new ModuleItem());
+        _ = Items.Add(new ModuleItem());
       }
     }
 
@@ -55,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof (Module).Assembly, typeof (Module).Namespace);
       return config;
     }
@@ -63,14 +62,21 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          // Creating new persistent object
-          var modules = new Module();
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        // Creating new persistent object
+        var modules = new Module();
 
-          // Committing transaction
-          transactionScope.Complete();
-        }
+        // Committing transaction
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+
+        var allItems = session.Query.All<ModuleItem>().ToList();
+        Assert.That(allItems.Count, Is.EqualTo(1));
+        Assert.That(allItems[0].Module, Is.Not.Null);
       }
     }
   }

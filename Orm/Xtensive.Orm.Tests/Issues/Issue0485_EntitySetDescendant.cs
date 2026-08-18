@@ -74,18 +74,17 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var company = new Company();
-          var employee1 = new Employee();
-          var employee2 = new Employee();
-          var employee3 = new Employee();
-          company.Employees.Add(employee1);
-          company.Employees.Add(employee2);
-          company.Employees.Add(employee3);
-          Assert.That(company.Employees.ElementAt(0), Is.Not.Null);
-          // Rollback
-        }
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var company = new Company();
+        var employee1 = new Employee();
+        var employee2 = new Employee();
+        var employee3 = new Employee();
+        _ = company.Employees.Add(employee1);
+        _ = company.Employees.Add(employee2);
+        _ = company.Employees.Add(employee3);
+        Assert.That(company.Employees.ElementAt(0), Is.Not.Null);
+        // Rollback
       }
     }
   }

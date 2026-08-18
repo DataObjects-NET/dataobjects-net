@@ -1,16 +1,16 @@
-﻿using System;
+using System;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 {
   [HierarchyRoot]
   public class HistoryEntry : Entity
   {
+    public const HistoryEntryVisibility VisibilityForAll = HistoryEntryVisibility.EndUser | HistoryEntryVisibility.AdministratorUser | HistoryEntryVisibility.Debugger;
+
     [Field, Key]
     public long Id { get; private set; }
 
-    public const HistoryEntryVisibility VisibilityForAll = HistoryEntryVisibility.EndUser | HistoryEntryVisibility.AdministratorUser | HistoryEntryVisibility.Debugger;
-
-    [Field(Length = Int32.MaxValue)]
+    [Field(Length = int.MaxValue)]
     public string What { get; set; }
 
     [Field]

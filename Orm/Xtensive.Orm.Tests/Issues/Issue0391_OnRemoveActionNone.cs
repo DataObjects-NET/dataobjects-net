@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0391_OnRemoveActionNone_Model
 
     public bool HasCustomerKey()
     {
-      var field = GetTypeInfo().Fields["Customer"];
+      var field = TypeInfo.Fields["Customer"];
       return GetReferenceKey(field)!=null;
     }
   }
@@ -43,24 +43,24 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Customer).Assembly, typeof (Customer).Namespace);
+      config.Types.Register(typeof(Customer));
+      config.Types.Register(typeof(Order));
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
 
-          var c = new Customer();
-          var o = new Order();
-          o.Customer = c;
-          c.Remove();
-          Assert.That(o.HasCustomerKey(), Is.True);
-          
-          t.Complete();
-        }
+        var c = new Customer();
+        var o = new Order();
+        o.Customer = c;
+        c.Remove();
+        Assert.That(o.HasCustomerKey(), Is.True);
+
+        t.Complete();
       }
     }
   }

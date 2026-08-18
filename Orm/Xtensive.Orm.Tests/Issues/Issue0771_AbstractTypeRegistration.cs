@@ -1,16 +1,12 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
 // Created:    2010.07.26
 
 using System;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using NUnit.Framework;
 using System.Linq;
-using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
+using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.Issue0771_AbstractTypeRegistration_Model;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -41,12 +37,12 @@ namespace Xtensive.Orm.Tests.Issues
   {
 
     [Test]
-//    [ExpectedException(typeof(DomainBuilderException))]
     public void AbstractClassPerHierarchyTest()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof (A));
-      var domain = Domain.Build(config);
+
+      using (var domain = Domain.Build(config))
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var list = session.Query.All<A>().ToList();
@@ -54,13 +50,13 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-//    [ExpectedException(typeof(DomainBuilderException))]
     public void AbstractHierarchyTest()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(A));
       config.Types.Register(typeof(B));
-      var domain = Domain.Build(config);
+
+      using (var domain = Domain.Build(config))
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var listA = session.Query.All<A>().ToList();
@@ -77,7 +73,8 @@ namespace Xtensive.Orm.Tests.Issues
       config.Types.Register(typeof(C));
       config.Types.Register(typeof(D));
       config.Types.Register(typeof(E));
-      var domain = Domain.Build(config);
+
+      using (var domain = Domain.Build(config))
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var listA = session.Query.All<A>().ToList();

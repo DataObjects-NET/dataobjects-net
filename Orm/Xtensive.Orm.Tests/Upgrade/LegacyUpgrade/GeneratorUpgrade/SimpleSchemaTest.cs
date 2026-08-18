@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
       var upgradeConfiguration = BuildDomainConfiguration(DomainUpgradeMode.PerformSafely, refModelTypes);
       InitializeGenerators(upgradeConfiguration, 128, 0);
 
-      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration));
+      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration).Dispose());
     }
 
     [Test]
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
       var upgradeConfiguration = BuildDomainConfiguration(DomainUpgradeMode.PerformSafely, refModelTypes);
       InitializeGenerators(upgradeConfiguration, 0, 128);
 
-      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration));
+      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration).Dispose());
     }
 
     [Test]
@@ -271,7 +271,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
       var upgradeConfiguration = BuildDomainConfiguration(DomainUpgradeMode.PerformSafely, refModelTypes);
       InitializeGenerators(upgradeConfiguration);
 
-      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration));
+      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration).Dispose());
     }
 
     [Test]
@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade.GeneratorUpgrade
       var upgradeConfiguration = BuildDomainConfiguration(DomainUpgradeMode.PerformSafely, refModelTypes);
       InitializeGenerators(upgradeConfiguration);
 
-      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration));
+      _ = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradeConfiguration).Dispose());
     }
 
     private void DropExistingSequences()

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Linq
       configuration.Types.Register(typeof (PreprocessorB));
       configuration.Types.Register(typeof (PreprocessorC));
 
-      AssertEx.ThrowsInvalidOperationException(() => Domain.Build(configuration));
+      AssertEx.ThrowsInvalidOperationException(() => Domain.Build(configuration).Dispose());
     }
 
     [Test]

@@ -6,10 +6,11 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueA418_UnableToCompileModelWithPersistentInterface_Model;
-using System.Linq;
+
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -40,20 +41,23 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 
-  public class IssueA418_UnableToCompileModelWithPersistentInterface
+  public class IssueA418_UnableToCompileModelWithPersistentInterface : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.RegisterCaching(typeof(IWithReference).Assembly, typeof(IWithReference).Namespace);
+      return config;
+    }
+
     [Test]
     public void MainTest()
     {
-      var config = DomainConfigurationFactory.Create();
-      config.Types.RegisterCaching(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
-      var domain = Domain.Build(config);
-
-      using (var session = domain.OpenSession())
+      using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new SomeWithReference {Reference = new Reference()};
+        _ = new SomeWithReference { Reference = new Reference() };
 
-        var result = Query.All<SomeWithReference>()
+        var result = session.Query.All<SomeWithReference>()
           .Prefetch(s => s.Reference)
           .ToList();
 

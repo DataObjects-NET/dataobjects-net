@@ -6,6 +6,7 @@
 
 using System;
 using System.Transactions;
+using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_Model;
 
@@ -21,14 +22,23 @@ namespace Xtensive.Orm.Tests.Issues.Issue0359_CustomSessionConfigurationProblem_
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class Issue0359_UpgradeUsingAutoshortenTransaction : AutoBuildTest
+  public class Issue0359_UpgradeUsingAutoshortenTransaction
   {
-    protected override void CheckRequirements()
+    [Test]
+    public void DomainBuildTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrow(() => Domain.Build(configuration).Dispose());
     }
 
-    protected override DomainConfiguration BuildConfiguration()
+    [Test]
+    public void DomainBuildAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      Assert.DoesNotThrowAsync(async () => (await Domain.BuildAsync(configuration)).Dispose());
+    }
+
+    private static DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
       config.ForeignKeyMode = ForeignKeyMode.All;
@@ -36,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       config.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      config.Types.RegisterCaching(typeof (Class1).Assembly, typeof (Class1).Namespace);
+      config.Types.Register(typeof(Class1));
       config.Sessions.Default.DefaultIsolationLevel = IsolationLevel.Serializable;
 
       return config;

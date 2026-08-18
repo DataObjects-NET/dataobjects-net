@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Model
     }
   }
 
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public class AutoGenericsOverrideTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

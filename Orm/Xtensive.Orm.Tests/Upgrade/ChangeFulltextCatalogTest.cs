@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => (await Domain.BuildAsync(configuration)).Dispose());
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }

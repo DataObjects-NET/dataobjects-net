@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel;
@@ -153,9 +152,7 @@ namespace Xtensive.Orm.Tests.Storage
       domainConfig.Types.Register(typeof(DummyEntity));
       domainConfig.Types.Register(typeof(NoDefaultConstructorAccessor));
 
-      Domain domain = null;
-      _ = Assert.Throws<NotSupportedException>(() => domain = Domain.Build(domainConfig));
-      domain.DisposeSafely();
+      _ = Assert.Throws<NotSupportedException>(() => Domain.Build(domainConfig).Dispose());
     }
 
     [Test]
@@ -166,9 +163,7 @@ namespace Xtensive.Orm.Tests.Storage
       domainConfig.Types.Register(typeof(DummyEntity));
       domainConfig.Types.Register(typeof(NoDefaultConstructorAccessor));
 
-      Domain domain = null;
-      _ = Assert.ThrowsAsync<NotSupportedException>(async () => domain = await Domain.BuildAsync(domainConfig));
-      domain.DisposeSafely();
+      _ = Assert.ThrowsAsync<NotSupportedException>(async () => (await Domain.BuildAsync(domainConfig)).Dispose());
     }
 
     [Test]

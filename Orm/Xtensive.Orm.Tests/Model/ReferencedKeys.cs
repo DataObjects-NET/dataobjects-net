@@ -45,20 +45,15 @@ namespace Xtensive.Orm.Tests.Model.ReferencedKeysModel
 }
 
 namespace Xtensive.Orm.Tests.Model
-{   
-  [TestFixture]
-  public class  ReferencedKeys : AutoBuildTest
+{
+  public class  ReferencedKeys : DomainBuildabilityTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = base.BuildConfiguration();
-      config.Types.RegisterCaching(typeof (Country).Assembly, typeof (Country).Namespace);
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof(Country));
+      config.Types.Register(typeof(City));
       return config;
-    }
-
-    [Test]
-    public void MainTest()
-    {
     }
   }
 }

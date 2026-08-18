@@ -36,8 +36,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
     [Test]
     public void DomainBuildTest()
     {
-      BuildReadOnlyDomain();
-      Assert.DoesNotThrow(()=>BuildReadOnlyDomain());
+      Assert.DoesNotThrow(() => BuildReadOnlyDomain().Dispose());
     }
 
     [Test]

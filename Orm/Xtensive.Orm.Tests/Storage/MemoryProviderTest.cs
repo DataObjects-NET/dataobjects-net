@@ -66,33 +66,33 @@ namespace Xtensive.Orm.Tests.Storage
       var domain = Domain.Build(configuration);
       var singleConnection = Upgrader.Connection;
 
-      Assert.That(domain.StorageProviderInfo.Supports(ProviderFeatures.SingleConnection));
+      using (domain) {
+        Assert.That(domain.StorageProviderInfo.Supports(ProviderFeatures.SingleConnection));
 
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        _ = new TheEntity {Value = "in-memory"};
-        CheckSingleConnection(session, singleConnection);
-        tx.Complete();
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          _ = new TheEntity { Value = "in-memory" };
+          CheckSingleConnection(session, singleConnection);
+          tx.Complete();
+        }
+
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          var theEntity = session.Query.All<TheEntity>().Single();
+          Assert.That(theEntity.Value, Is.EqualTo("in-memory"));
+          CheckSingleConnection(session, singleConnection);
+          tx.Complete();
+        }
+
+        using (var session = domain.OpenSession()) {
+          AssertEx.ThrowsInvalidOperationException(() => domain.OpenSession());
+        }
+
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          CheckSingleConnection(session, singleConnection);
+        }
       }
-
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var theEntity = session.Query.All<TheEntity>().Single();
-        Assert.That(theEntity.Value, Is.EqualTo("in-memory"));
-        CheckSingleConnection(session, singleConnection);
-        tx.Complete();
-      }
-
-      using (var session = domain.OpenSession()) {
-        AssertEx.ThrowsInvalidOperationException(() => domain.OpenSession());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        CheckSingleConnection(session, singleConnection);
-      }
-
-      domain.Dispose();
 
       Assert.DoesNotThrow(() => singleConnection.State.ToString());
       Assert.That(singleConnection.State, Is.EqualTo(ConnectionState.Closed));

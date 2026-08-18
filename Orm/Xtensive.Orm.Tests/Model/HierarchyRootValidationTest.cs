@@ -20,7 +20,7 @@ using Models = Xtensive.Orm.Tests.Model.HierarchyRootValidationTestModel;
 
 namespace Xtensive.Orm.Tests.Model
 {
-  [TestFixture]
+  [TestFixture, Category("Model")]
   public sealed class HierarchyRootValidationTest
   {
     private const string CantBeOfMsg = "can't be of";
@@ -1253,7 +1253,7 @@ namespace Xtensive.Orm.Tests.Model
         typeof(Models.IModuleModifications.ModelDefModifier)
       });
 
-      _ = Assert.Throws<DomainBuilderException>(() => domain = Domain.Build(configuration));
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration).Dispose());
 
       // IModule changes HierarhyRootDef.IncludeTypeId
       configuration = CreateDomainConfiguration(new[] {

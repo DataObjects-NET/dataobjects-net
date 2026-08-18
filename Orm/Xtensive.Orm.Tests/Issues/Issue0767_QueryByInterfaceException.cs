@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof(BusinessEntity).Assembly, typeof(BusinessEntity).Namespace);
       return config;
     }
@@ -78,10 +78,9 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction())
-      {
-        new Foo() {Name = "foo", Some = 10, Tag = "foo tag"};
-        new Bar() {Name = "bar", Some = Guid.NewGuid(), Tag = "bar tag"};
+      using (var t = session.OpenTransaction()) {
+        _ = new Foo() {Name = "foo", Some = 10, Tag = "foo tag"};
+        _ = new Bar() { Name = "bar", Some = Guid.NewGuid(), Tag = "bar tag" };
 
         var all = session.Query.All<IBusinessEntity>().ToList();
         Assert.That(all.Count, Is.EqualTo(2));

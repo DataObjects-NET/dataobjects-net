@@ -4,18 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2008.06.16
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Tests;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.Association;
-using System.Linq;
-using System.Collections.Generic;
-using System;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Model.Association
 {
@@ -121,6 +119,7 @@ namespace Xtensive.Orm.Tests.Model.Association
 
 namespace Xtensive.Orm.Tests.Model
 {
+  [TestFixture, Category("Model")]
   public class AssociationTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

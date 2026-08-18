@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
+      var config = base.BuildConfiguration();
       config.Types.RegisterCaching(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       return config;
     }
@@ -59,11 +59,10 @@ namespace Xtensive.Orm.Tests.Issues
         using (var transactionScope = session.OpenTransaction()) {
           // Creating new persistent object
           // Creating new persistent object
-          var helloWorld = new MyEntity
-          {
+          var helloWorld = new MyEntity {
             Text = "Hello World!"
-          }; var helloWorld2 = new MyEntity2
-          {
+          };
+          var helloWorld2 = new MyEntity2 {
             Text = "Hello World!"
           };
 
@@ -73,13 +72,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         using (var transactionScope = session.OpenTransaction()) {
           var c = session.Query.All<MyEntity>()
-            .Select(a => new ValObj {Id = a.Id, Text = a.Text})
+            .Select(a => new ValObj { Id = a.Id, Text = a.Text })
             .ToList();
           var d = session.Query.All<MyEntity2>()
             .Select(a => new ValObj { Id = a.Id, Text = a.Text })
             .ToList();
-          var a11 = new ArrayList() {session.Query.All<MyEntity>().Select("new(Id,Text)")};
-          var b12 = new ArrayList() {session.Query.All<MyEntity2>().Select("new(Id,Text)")};
+          var a11 = new ArrayList() { session.Query.All<MyEntity>().Select("new(Id,Text)") };
+          var b12 = new ArrayList() { session.Query.All<MyEntity2>().Select("new(Id,Text)") };
         }
       }
     }

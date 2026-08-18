@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var initialConfiguration = DomainConfigurationFactory.Create();
       initialConfiguration.Types.RegisterCaching(typeof(RecycledEntity).Assembly, typeof(RecycledEntity).Namespace);
-      BuildDomain(initialConfiguration).Dispose();
+      using (BuildDomain(initialConfiguration)) { }
 
       Domain domain = null;
       Assert.DoesNotThrow(() => domain = BuildDomain(BuildConfiguration(DomainUpgradeMode.Validate)));

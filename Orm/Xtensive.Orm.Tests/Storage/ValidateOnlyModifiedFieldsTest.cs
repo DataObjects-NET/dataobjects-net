@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2017 Xtensive LLC.
+// Copyright (C) 2003-2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -769,137 +769,142 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class ValidateOnlyModifiedFieldsTest
   {
-    private Domain domain;
 
     #region General
 
     [Test]
     public void PostPersistValidationTest()
     {
-      PrepareDomain<model1.LengthTestEntity>(() => 
+      var domain = PrepareDomain<model1.LengthTestEntity>(() => 
         new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession()) {
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model1.LengthTestEntity>().Single();
-            entity.ValidatedField = "";
-            entity.ValidatedIfChangedField = "";
-            session.SaveChanges();
-            transaction.Complete();
+      using (domain) {
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession()) {
+            using (var transaction = session.OpenTransaction()) {
+              var entity = session.Query.All<model1.LengthTestEntity>().Single();
+              entity.ValidatedField = "";
+              entity.ValidatedIfChangedField = "";
+              session.SaveChanges();
+              transaction.Complete();
+            }
           }
-        }
-      });
+        });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession()) {
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model1.LengthTestEntity>().Single();
-            entity.ValidatedField = "valid";
-            entity.ValidatedIfChangedField = "valid";
-            session.SaveChanges();
-            transaction.Complete();
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession()) {
+            using (var transaction = session.OpenTransaction()) {
+              var entity = session.Query.All<model1.LengthTestEntity>().Single();
+              entity.ValidatedField = "valid";
+              entity.ValidatedIfChangedField = "valid";
+              session.SaveChanges();
+              transaction.Complete();
+            }
           }
-        }
-      });
+        });
+      }
     }
 
     [Test]
     public void NewEntityValidationTest()
     {
-      PrepareDomain<model1.LengthTestEntity>(() =>
+      var domain = PrepareDomain<model1.LengthTestEntity>(() =>
         new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity() {
-            ValidatedField = string.Empty, 
-            ValidatedIfChangedField = string.Empty
-          };
-          transaction.Complete();
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = string.Empty,
+              ValidatedIfChangedField = string.Empty
+            };
+            transaction.Complete();
+          }
+        });
 
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity() {
-            ValidatedField = string.Empty,
-            ValidatedIfChangedField = string.Empty
-          };
-          session.Validate();
-        }
-      });
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = string.Empty,
+              ValidatedIfChangedField = string.Empty
+            };
+            session.Validate();
+          }
+        });
 
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity() {
-            ValidatedField = string.Empty,
-            ValidatedIfChangedField = string.Empty
-          };
-          entity.Validate();
-        }
-      });
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = string.Empty,
+              ValidatedIfChangedField = string.Empty
+            };
+            entity.Validate();
+          }
+        });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity() {
-            ValidatedField = "valid",
-            ValidatedIfChangedField = "valid"
-          };
-          transaction.Complete();
-        }
-      });
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = "valid",
+              ValidatedIfChangedField = "valid"
+            };
+            transaction.Complete();
+          }
+        });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity()  {
-            ValidatedField = "valid",
-            ValidatedIfChangedField = "valid"
-          };
-          session.Validate();
-        }
-      });
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = "valid",
+              ValidatedIfChangedField = "valid"
+            };
+            session.Validate();
+          }
+        });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity() {
-            ValidatedField = "valid",
-            ValidatedIfChangedField = "valid"
-          };
-          entity.Validate();
-        }
-      });
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = new model1.LengthTestEntity() {
+              ValidatedField = "valid",
+              ValidatedIfChangedField = "valid"
+            };
+            entity.Validate();
+          }
+        });
+      }
     }
 
     [Test]
     public void UnchangedEntityTest()
     {
-      PrepareDomain<model1.LengthTestEntity>(() =>
+      var domain = PrepareDomain<model1.LengthTestEntity>(() =>
         new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-          entityToChange.ValidatedField = entityToChange.ValidatedField;
-          transaction.Complete();
-        }
-      });
+      using (domain) {
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+            entityToChange.ValidatedField = entityToChange.ValidatedField;
+            transaction.Complete();
+          }
+        });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-          entityToChange.ValidatedField = entityToChange.ValidatedField;
-          session.Validate();
-        }
-      });
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+            entityToChange.ValidatedField = entityToChange.ValidatedField;
+            session.Validate();
+          }
+        });
+      }
     }
     #endregion
 
@@ -908,429 +913,447 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LengthConstraintTest1()
     {
-      PrepareDomain<model1.LengthTestEntity>(() =>
+      var domain = PrepareDomain<model1.LengthTestEntity>(() =>
         new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession()) 
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        Assert.Throws<ValidationFailedException>(() => {
-          session.Validate();
-        });
-      }
-
-      using (var session = domain.OpenSession()) 
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        Assert.Throws<ValidationFailedException>(() => {
-          entityToChange.Validate();
-        });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        var errors = session.ValidateAndGetErrors();
-        var temp = errors;
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "x";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "";
+          _ = Assert.Throws<ValidationFailedException>(() => {
+            session.Validate();
+          });
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
-          entityToChange.ValidatedField = "";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "";
+          _ = Assert.Throws<ValidationFailedException>(() => {
+            entityToChange.Validate();
+          });
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "";
+          var errors = session.ValidateAndGetErrors();
+          var temp = errors;
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "x";
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+            entityToChange.ValidatedField = "";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotEmptyConstraintTest1()
     {
-      PrepareDomain<model1.NotEmptyTestEntity>(() =>
-        new model1.NotEmptyTestEntity() {  ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
+      var domain = PrepareDomain<model1.NotEmptyTestEntity>(() =>
+        new model1.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = string.Empty;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
-          entityToChange.ValidatedField = string.Empty;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = string.Empty;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = string.Empty;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = string.Empty;
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedField = string.Empty;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullConstraintTest1()
     {
-      PrepareDomain<model1.NotNullTestEntity>(() => 
+      var domain = PrepareDomain<model1.NotNullTestEntity>(() => 
         new model1.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = null;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
-          entityToChange.ValidatedField = null;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = null;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = null;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
+            entityToChange.ValidatedField = null;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintTest1()
     {
-      PrepareDomain<model1.NotNullOrEmptyTestEntity>(() => 
+      var domain = PrepareDomain<model1.NotNullOrEmptyTestEntity>(() => 
         new model1.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession()) 
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = null;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
-          entityToChange.ValidatedField = null;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = null;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = null;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedField = null;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void PastConstraintTest1()
     {
-      PrepareDomain<model1.PastConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model1.PastConstraintTestEntity>(() => 
         new model1.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = DateTime.Now + TimeSpan.FromHours(1);
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = DateTime.Now + TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void FutureConstraintTest1()
     {
-      PrepareDomain<model1.FutureConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model1.FutureConstraintTestEntity>(() => 
         new model1.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
-      using (var session = domain.OpenSession()) 
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = DateTime.Now - TimeSpan.FromHours(1);
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = DateTime.Now - TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void EmailConstraintTest1()
     {
-      PrepareDomain<model1.EmailConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model1.EmailConstraintTestEntity>(() => 
         new model1.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession()) 
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = "lol";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = "lol";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "lol";
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "lol";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "lol";
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = "lol";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void RangeConstraintTest1()
     {
-      PrepareDomain<model1.RangeConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model1.RangeConstraintTestEntity>(() => 
         new model1.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = 12;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = 12;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = 12;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = 12;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = 12;
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = 12;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void RegExConstraintTest1()
     {
-      PrepareDomain<model1.RegExConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model1.RegExConstraintTestEntity>(() => 
         new model1.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = "***";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = "***";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "***";
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "***";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "***";
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = "***";
+            transaction.Complete();
+          }
+        });
+      }
     }
     #endregion
 
@@ -1339,424 +1362,442 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LengthConstraintTest2()
     {
-      PrepareDomain<model2.LengthTestEntity>(() => 
+      var domain = PrepareDomain<model2.LengthTestEntity>(() => 
         new model2.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        Assert.Throws<ValidationFailedException>(() => { session.Validate(); });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        Assert.Throws<ValidationFailedException>(() => { entityToChange.Validate(); });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = "";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => { session.Validate(); });
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
-          entityToChange.ValidatedField = "";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "";
+          _ = Assert.Throws<ValidationFailedException>(() => { entityToChange.Validate(); });
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "";
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
+            entityToChange.ValidatedField = "";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotEmptyConstraintTest2()
     {
-      PrepareDomain<model2.NotEmptyTestEntity>(() => 
+      var domain = PrepareDomain<model2.NotEmptyTestEntity>(() => 
         new model2.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = string.Empty;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = string.Empty;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
-          entityToChange.ValidatedField = string.Empty;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = string.Empty;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = string.Empty;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = string.Empty;
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedField = string.Empty;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullConstraintTest2()
     {
-      PrepareDomain<model2.NotNullTestEntity>(() => 
+      var domain = PrepareDomain<model2.NotNullTestEntity>(() => 
         new model2.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = null;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
-          entityToChange.ValidatedField = null;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = null;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = null;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
+            entityToChange.ValidatedField = null;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintTest2()
     {
-      PrepareDomain<model2.NotNullOrEmptyTestEntity>(() => 
+      var domain = PrepareDomain<model2.NotNullOrEmptyTestEntity>(() => 
         new model2.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = null;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = null;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
-          entityToChange.ValidatedField = null;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = null;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = null;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedField = null;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void PastConstraintTest2()
     {
-      PrepareDomain<model2.PastConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model2.PastConstraintTestEntity>(() => 
         new model2.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = DateTime.Now + TimeSpan.FromHours(1);
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = DateTime.Now + TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void FutureConstraintTest2()
     {
-      PrepareDomain<model2.FutureConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model2.FutureConstraintTestEntity>(() => 
         new model2.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = DateTime.Now - TimeSpan.FromHours(1);
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = DateTime.Now - TimeSpan.FromHours(1);
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void EmailConstraintTest2()
     {
-      PrepareDomain<model2.EmailConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model2.EmailConstraintTestEntity>(() => 
         new model2.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()){
-        var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "lol";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = "lol";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = "lol";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "lol";
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "lol";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "lol";
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = "lol";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void RangeConstraintTest2()
     {
-      PrepareDomain<model2.RangeConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model2.RangeConstraintTestEntity>(() =>
         new model2.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = 12;
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = 12;
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = 12;
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = 12;
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = 12;
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = 12;
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = 12;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void RegExConstraintTest2()
     {
-      PrepareDomain<model2.RegExConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model2.RegExConstraintTestEntity>(() => 
         new model2.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        Assert.Throws<ValidationFailedException>(() => session.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
-        entityToChange.ValidatedIfChangedField = "***";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
           entityToChange.ValidatedIfChangedField = "***";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
-          entityToChange.ValidatedField = "***";
-          transaction.Complete();
+          entityToChange.ValidatedIfChangedField = "***";
+          _ = Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
+          entityToChange.ValidatedIfChangedField = "***";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "***";
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedField = "***";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     #endregion
@@ -1765,137 +1806,154 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void LengthConstraintTest3() {
-      PrepareDomain<model3.LengthTestEntity>(() => 
+      var domain = PrepareDomain<model3.LengthTestEntity>(() => 
         new model3.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
-     
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.LengthTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "";
-        }
-      });
+
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.LengthTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "";
+          }
+        });
+      }
     }
 
     [Test]
     public void NotEmptyConstraintTest3()
     {
-      PrepareDomain<model3.NotEmptyTestEntity>(() =>
+      var domain = PrepareDomain<model3.NotEmptyTestEntity>(() =>
         new model3.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.NotEmptyTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = string.Empty;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = string.Empty;
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullConstraintTest3()
     {
-      PrepareDomain<model3.NotNullTestEntity>(() => 
+      var domain = PrepareDomain<model3.NotNullTestEntity>(() => 
         new model3.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.NotNullTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = null;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.NotNullTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintTest3()
     {
-      PrepareDomain<model3.NotNullOrEmptyTestEntity>(() =>
+      var domain = PrepareDomain<model3.NotNullOrEmptyTestEntity>(() =>
         new model3.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.NotNullOrEmptyTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = null;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+          }
+        });
+      }
     }
 
     [Test]
     public void PastConstraintTest3()
     {
-      PrepareDomain<model3.PastConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model3.PastConstraintTestEntity>(() =>
         new model3.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
-
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.PastConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          }
+        });
+      }
     }
 
     [Test]
     public void FutureConstraintTest3()
     {
-      PrepareDomain<model3.FutureConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model3.FutureConstraintTestEntity>(() => 
         new model3.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.FutureConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          }
+        });
+      }
     }
 
     [Test]
     public void EmailConstraintTest3()
     {
-      PrepareDomain<model3.EmailConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model3.EmailConstraintTestEntity>(() =>
         new model3.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.EmailConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "lol";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "lol";
+          }
+        });
+      }
     }
 
     [Test]
     public void RangeConstraintTest3()
     {
-      PrepareDomain<model3.RangeConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model3.RangeConstraintTestEntity>(() =>
         new model3.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.RangeConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = 12;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = 12;
+          }
+        });
+      }
     }
 
     [Test]
     public void RegExConstraintTest3()
     {
-      PrepareDomain<model3.RegExConstraintTestEntity>(() => 
+      var domain = PrepareDomain<model3.RegExConstraintTestEntity>(() => 
         new model3.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model3.RegExConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "***";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "***";
+          }
+        });
+      }
     }
 
     #endregion
@@ -1903,137 +1961,156 @@ namespace Xtensive.Orm.Tests.Storage
     #region ValidateIfChanged_IsImmediate_SkipOnTransactionCommit
 
     [Test]
-    public void LengthConstraintTest4() {
-      PrepareDomain<model4.LengthTestEntity>(() => 
+    public void LengthConstraintTest4()
+    {
+      var domain = PrepareDomain<model4.LengthTestEntity>(() => 
         new model4.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.LengthTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.LengthTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "";
+          }
+        });
+      }
     }
 
     [Test]
     public void NotEmptyConstraintTest4()
     {
-      PrepareDomain<model4.NotEmptyTestEntity>(() =>
+      var domain = PrepareDomain<model4.NotEmptyTestEntity>(() =>
         new model4.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.NotEmptyTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = string.Empty;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.NotEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = string.Empty;
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullConstraintTest4()
     {
-      PrepareDomain<model4.NotNullTestEntity>(() => 
+      var domain = PrepareDomain<model4.NotNullTestEntity>(() => 
         new model4.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.NotNullTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = null;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.NotNullTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+          }
+        });
+      }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintTest4()
     {
-      PrepareDomain<model4.NotNullOrEmptyTestEntity>(() => 
+      var domain = PrepareDomain<model4.NotNullOrEmptyTestEntity>(() => 
         new model4.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.NotNullOrEmptyTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = null;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.NotNullOrEmptyTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = null;
+          }
+        });
+      }
     }
 
     [Test]
     public void PastConstraintTest4()
     {
-      PrepareDomain<model4.PastConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model4.PastConstraintTestEntity>(() =>
         new model4.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.PastConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.PastConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
+          }
+        });
+      }
     }
 
     [Test]
     public void FutureConstraintTest4()
     {
-      PrepareDomain<model4.FutureConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model4.FutureConstraintTestEntity>(() =>
         new model4.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.FutureConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.FutureConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
+          }
+        });
+      }
     }
 
     [Test]
     public void EmailConstraintTest4()
     {
-      PrepareDomain<model4.EmailConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model4.EmailConstraintTestEntity>(() =>
         new model4.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.EmailConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "lol";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.EmailConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "lol";
+          }
+        });
+      }
     }
 
     [Test]
     public void RangeConstraintTest4()
     {
-      PrepareDomain<model4.RangeConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model4.RangeConstraintTestEntity>(() =>
         new model4.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.RangeConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = 12;
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.RangeConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = 12;
+          }
+        });
+      }
     }
 
     [Test]
     public void RegExConstraintTest4()
     {
-      PrepareDomain<model4.RegExConstraintTestEntity>(() =>
+      var domain = PrepareDomain<model4.RegExConstraintTestEntity>(() =>
         new model4.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entityToChange = session.Query.All<model4.RegExConstraintTestEntity>().Single();
-          entityToChange.ValidatedIfChangedField = "***";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.RegExConstraintTestEntity>().Single();
+            entityToChange.ValidatedIfChangedField = "***";
+          }
+        });
+      }
     }
 
     #endregion
@@ -2043,173 +2120,182 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void StructureTest1()
     {
-      PrepareDomain<model1.StructureTestEntity>(() => new model1.StructureTestEntity() {
+      var domain = PrepareDomain<model1.StructureTestEntity>(() => new model1.StructureTestEntity() {
         StructureField = new model1.TestStructure() {
           ValidatedField = "valid",
           ValidatedIfChangedField = "valid"
         }
       });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction())  {
-        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => { session.Validate(); });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => {
-          entityToChange.Validate();
-        });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.Throws<ValidationFailedException>(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
           entityToChange.StructureField.ValidatedIfChangedField = "lol";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => { session.Validate(); });
         }
-      });
 
-      Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
-          entityToChange.StructureField.ValidatedField = "lol";
-          transaction.Complete();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          _ = Assert.Throws<ValidationFailedException>(() => {
+            entityToChange.Validate();
+          });
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedIfChangedField = "lol";
+            transaction.Complete();
+          }
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedField = "lol";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void StructureTest2()
     {
-      PrepareDomain<model2.StructureTestEntity>(() => new model2.StructureTestEntity() {
+      var domain = PrepareDomain<model2.StructureTestEntity>(() => new model2.StructureTestEntity() {
         StructureField = new model2.TestStructure() {
           ValidatedField = "valid",
           ValidatedIfChangedField = "valid"
         }
       });
 
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => {
-          session.Validate();
-        });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        Assert.Throws<ValidationFailedException>(() => {
-          entityToChange.Validate();
-        });
-      }
-
-      using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
-        entityToChange.StructureField.ValidatedIfChangedField = "lol";
-        var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(1));
-      }
-
-      Assert.DoesNotThrow(() => {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
           entityToChange.StructureField.ValidatedIfChangedField = "lol";
-          transaction.Complete();
+          _ = Assert.Throws<ValidationFailedException>(() => {
+            session.Validate();
+          });
         }
-      });
 
-      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction())  {
+        using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
-          entityToChange.StructureField.ValidatedField = "lol";
-          transaction.Complete();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          _ = Assert.Throws<ValidationFailedException>(() => {
+            entityToChange.Validate();
+          });
         }
-      });
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          var errors = session.ValidateAndGetErrors();
+          Assert.That(errors.Count, Is.EqualTo(1));
+        }
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedIfChangedField = "lol";
+            transaction.Complete();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedField = "lol";
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void StructureTest3()
     {
-      PrepareDomain<model3.StructureTestEntity>(() => new model3.StructureTestEntity() {
+      var domain = PrepareDomain<model3.StructureTestEntity>(() => new model3.StructureTestEntity() {
         StructureField = new model3.TestStructure() {
           ValidatedField = "valid",
           ValidatedIfChangedField = "valid"
         }
       });
-
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction())  {
-          var entityToChange = session.Query.All<model3.StructureTestEntity>().Single();
-          entityToChange.StructureField.ValidatedIfChangedField = "***";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model3.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedIfChangedField = "***";
+          }
+        });
+      }
     }
 
     [Test]
     public void StructureTest4()
     {
-      PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
+      var domain = PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
         StructureField = new model4.TestStructure() {
           ValidatedField = "valid",
           ValidatedIfChangedField = "valid"
         }
       });
 
-      Assert.Throws<ArgumentException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction())  {
-          var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
-          entityToChange.StructureField.ValidatedIfChangedField = "***";
-        }
-      });
+      using (domain) {
+        _ = Assert.Throws<ArgumentException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedIfChangedField = "***";
+          }
+        });
+      }
     }
 
     [Test]
     public void UnchangedStructureTest()
     {
-      PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
+      var domain = PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
         StructureField = new model4.TestStructure() {
           ValidatedField = "valid",
           ValidatedIfChangedField = "valid"
         }
       });
 
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction())  {
-          var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
-          entityToChange.StructureField.ValidatedIfChangedField = entityToChange.StructureField.ValidatedIfChangedField;
-          transaction.Complete();
-        }
-      });
+      using (domain) {
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
+            entityToChange.StructureField.ValidatedIfChangedField = entityToChange.StructureField.ValidatedIfChangedField;
+            transaction.Complete();
+          }
+        });
+      }
     }
 
     [Test]
     public void IncludedStructureTest()
     {
-      PrepareDomain<model1.IncludedStructure>(() => new model1.IncludedStructure() {
+      var domain = PrepareDomain<model1.IncludedStructure>(() => new model1.IncludedStructure() {
         StructureField = new model1.Structure1() {
           ValidatedIfChangedField = "valid",
           EnclosedStructureField = new model1.Structure2() {
@@ -2218,56 +2304,59 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession()) 
-        using (var transaction = session.OpenTransaction())  {
-          var entity = session.Query.All<model1.IncludedStructure>().Single();
-          entity.StructureField.ValidatedIfChangedField = "";
-          session.Validate();
-        }
-      });
-
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model1.IncludedStructure>().Single();
-          entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = "";
-          session.Validate();
-        }
-      });
-
-      Assert.DoesNotThrow(() => {
-        using (var session = domain.OpenSession()) {
+      using (domain) {
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
           using (var transaction = session.OpenTransaction()) {
             var entity = session.Query.All<model1.IncludedStructure>().Single();
-            entity.StructureField.ValidatedIfChangedField = entity.StructureField.ValidatedIfChangedField;
-            entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2;
-            transaction.Complete();
+            entity.StructureField.ValidatedIfChangedField = "";
+            session.Validate();
           }
-        }
-      });
+        });
+
+        _ = Assert.Throws<ValidationFailedException>(() => {
+          using (var session = domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var entity = session.Query.All<model1.IncludedStructure>().Single();
+            entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = "";
+            session.Validate();
+          }
+        });
+
+        Assert.DoesNotThrow(() => {
+          using (var session = domain.OpenSession()) {
+            using (var transaction = session.OpenTransaction()) {
+              var entity = session.Query.All<model1.IncludedStructure>().Single();
+              entity.StructureField.ValidatedIfChangedField = entity.StructureField.ValidatedIfChangedField;
+              entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2;
+              transaction.Complete();
+            }
+          }
+        });
+      }
     }
     #endregion
 
-    private void PrepareDomain<T>(Func<Entity> entity) where T : Entity
+    private Domain PrepareDomain<T>(Func<Entity> entity) where T : Entity
     {
-      BuildDomain(typeof (T));
-      PoppualateData(entity);
+      var domain = BuildDomain(typeof (T));
+      PopualateData(domain, entity);
+      return domain;
     }
 
-    private void PoppualateData(Func<Entity> entity)
+    private void PopualateData(Domain domain, Func<Entity> entityFactory)
     {
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
-        entity.Invoke();
+        _ = entityFactory();
         transaction.Complete();
       }
     }
 
-    private void BuildDomain(Type type)
+    private Domain BuildDomain(Type type)
     {
       var config = BuildConfiguration(type);
-      domain = Domain.Build(config);
+      return Domain.Build(config);
     }
 
     private DomainConfiguration BuildConfiguration(Type type)
