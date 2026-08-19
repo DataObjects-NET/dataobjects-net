@@ -24,10 +24,5 @@ namespace Xtensive.Orm.Tests.ObjectModel.Cms
       : base(owner, field)
     {
     }
-
-    protected ContentDirectoryCollection(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }

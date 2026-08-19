@@ -32,11 +32,6 @@ namespace Xtensive.Orm.Tests.Issues
         : base(owner, field)
       {
       }
-
-      protected ItemItemVersionsEntitySet(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-      {
-      }
     }
 
     public abstract class ItemBase : Entity, IItemBase

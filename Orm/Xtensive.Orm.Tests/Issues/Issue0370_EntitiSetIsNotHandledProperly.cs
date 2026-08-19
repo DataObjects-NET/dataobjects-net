@@ -35,10 +35,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0370_EntitiSetIsNotHandledProperly_Mode
     protected ContainerItemSet(Entity owner, FieldInfo field)
       : base(owner, field)
     {}
-
-    protected ContainerItemSet(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {}
   }
 }
 

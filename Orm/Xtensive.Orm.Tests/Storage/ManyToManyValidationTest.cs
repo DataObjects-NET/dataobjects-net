@@ -78,11 +78,6 @@ namespace Xtensive.Orm.Tests.Storage
         : base(owner, field)
       {
       }
-
-      protected EntitySetValidatedByOwner(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-      {
-      }
     }
   }
 

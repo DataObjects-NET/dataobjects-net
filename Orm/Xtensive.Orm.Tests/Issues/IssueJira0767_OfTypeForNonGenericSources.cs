@@ -43,11 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0767_OfTypeForNonGenericSourcesMode
       : base(owner, field)
     {
     }
-
-    protected EntitySetOfTestEntity(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }
 

@@ -254,16 +254,5 @@ namespace Xtensive.Orm
       : base(owner, field)
     {
     }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-    /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected EntitySet(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      throw new NotImplementedException();
-    }
   }
 }

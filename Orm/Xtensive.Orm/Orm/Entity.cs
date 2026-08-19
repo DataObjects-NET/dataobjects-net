@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -20,7 +18,6 @@ using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
@@ -59,13 +56,10 @@ namespace Xtensive.Orm
   /// </example>
   /// <seealso cref="Structure">Structure class</seealso>
   /// <seealso cref="EntitySet{TItem}"><c>EntitySet</c> class</seealso>
-  [Serializable]
   [SystemType]
   [DebuggerDisplay("{Key}")]
   public abstract class Entity : Persistent,
-    IEntity,
-    ISerializable,
-    IDeserializationCallback
+    IEntity
   {
     private static readonly Func<(TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior), Session, ExecutableProvider> ExecutableProviderGenerator = ((TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior) t, Session session) =>
       session.Compile(t.typeInfo.Indexes.PrimaryIndex.GetQuery()
@@ -144,8 +138,8 @@ namespace Xtensive.Orm
           }
         }
         if (columnsToPrefetch!=null) {
-          Session.Handler.Prefetch(Key, TypeInfo, columnsToPrefetch);
-          Session.Handler.ExecutePrefetchTasks(true);
+          _ = Session.Handler.Prefetch(Key, TypeInfo, columnsToPrefetch);
+          _ = Session.Handler.ExecutePrefetchTasks(true);
         }
         var versionTuple = TypeInfo.VersionExtractor.Apply(TupleTransformType.Tuple, State.Tuple);
         return new VersionInfo(versionTuple);
@@ -273,7 +267,7 @@ namespace Xtensive.Orm
       parameterContext.SetValue(keyParameter, Key.Value);
       var source = Session.StorageNode.EntityLockProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator, Session);
       using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
-      recordSetReader.MoveNext();
+      _ = recordSetReader.MoveNext();
     }
 
     /// <inheritdoc/>
@@ -680,7 +674,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
       if (changeVersionOnSetAttempt)
-        UpdateVersionInfo(this, field);
+        _ = UpdateVersionInfo(this, field);
 
       Session.SystemEvents.NotifyFieldValueSettingAttempt(this, field, value);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -702,7 +696,7 @@ namespace Xtensive.Orm
       EnsureNotRemoved();
 
       if (!changeVersionOnSetAttempt)
-        UpdateVersionInfo(this, field);
+        _ = UpdateVersionInfo(this, field);
 
 
       Session.SystemEvents.NotifyFieldValueSetting(this, field, value);
@@ -778,25 +772,6 @@ namespace Xtensive.Orm
       var entityKey = Key;
       return new Pair<Key, Delegate>(entityKey,
         Session.EntityEvents.GetSubscriber(entityKey, eventKey));
-    }
-
-    #endregion
-
-    #region Serialization-related methods
-
-    [SecurityCritical]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      using (Session.OpenSystemLogicOnlyRegion()) {
-        SerializationContext.Demand().GetEntityData(this, info, context);
-      }
-    }
-
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
-      using (Session.OpenSystemLogicOnlyRegion()) {
-        DeserializationContext.Demand().OnDeserialization();
-      }
     }
 
     #endregion
@@ -1028,19 +1003,6 @@ namespace Xtensive.Orm
       }
       finally {
         IsMaterializing = false;
-      }
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-    /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected Entity(SerializationInfo info, StreamingContext context)
-    {
-      using (Session.OpenSystemLogicOnlyRegion()) {
-        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
-        DeserializationContext.Demand().SetObjectData(this, info, context);
       }
     }
   }

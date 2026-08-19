@@ -12,7 +12,6 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
@@ -128,7 +127,7 @@ namespace Xtensive.Orm
             var dt = p.DeclaringType;
             mi = dt.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetSetMethod(true);
           }
-          mi.Invoke(this, new object[] { value });
+          _ = mi.Invoke(this, new object[] { value });
         }
         else
           SetFieldValue(pair.First, (object) value); // Untyped, since T might be wrong
@@ -146,7 +145,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
@@ -169,7 +168,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
@@ -240,7 +239,7 @@ namespace Xtensive.Orm
         SystemBeforeGetValue(field);
         if (!field.IsEntity)
           throw new InvalidOperationException(
-            String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+            string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
         var types = Session.Domain.Model.Types;
         var type = types[field.ValueType];
@@ -337,7 +336,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
@@ -360,7 +359,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
@@ -375,7 +374,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>

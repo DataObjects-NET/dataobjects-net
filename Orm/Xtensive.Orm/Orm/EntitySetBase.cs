@@ -9,12 +9,10 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
@@ -1045,16 +1043,6 @@ namespace Xtensive.Orm
         : Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
 
       Initialize(WellKnownOrmTypes.EntitySetBase);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="info">The <see cref="SerializationInfo"/>.</param>
-    /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    protected EntitySetBase(SerializationInfo info, StreamingContext context)
-    {
-      throw new NotImplementedException();
     }
   }
 }
