@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
@@ -38,8 +40,8 @@ namespace Xtensive.Orm.Weaver.Stages
         new[] {references.Entity, references.FieldInfo},
       };
 
-      propertyChecker = (context.Language==SourceLanguage.CSharp) 
-        ? (IPersistentPropertyChecker) new CsPropertyChecker() 
+      propertyChecker = (context.Language==SourceLanguage.CSharp)
+        ? (IPersistentPropertyChecker) new CsPropertyChecker()
         : new VbPropertyChecker();
 
       foreach (var type in context.PersistentTypes)
@@ -107,26 +109,44 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
+    private Dictionary<PropertyInfo, int> GetPropertyToIndexMap(TypeInfo type)
+    {
+      if (type is null) {
+        return new();
+      }
+      var r = GetPropertyToIndexMap(type.BaseType);
+      int idx = r.Count == 0 ? 0 : r.Values.Max() + 1;
+      if (idx == 0 && type.Kind == PersistentTypeKind.Entity) {
+        idx = 1;   // for TypeId
+      }
+      foreach (var p in type.Properties.Values.Where(p => p.IsPersistent)
+          .OrderBy(p => p.Definition.MetadataToken.ToInt32())) {
+        r[p] = (p.IsOverride && p.BaseProperty.IsPersistent)
+          ? r[p.BaseProperty]               // For overridden persistent property assign base property's index
+          : idx++;
+      }
+      return r;
+    }
+
     private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
-      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent)) {
-        if (!propertyChecker.ShouldProcess(property, context))
-          continue;
+      var typeDefinition = type.Definition;
+      var propertyToIndex = GetPropertyToIndexMap(type);
 
-        var typeDefinition = type.Definition;
+      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && propertyChecker.ShouldProcess(p, context))) {
+        var persistentIndex = propertyToIndex[property];
         var propertyDefinition = property.Definition;
-        var persistentName = property.PersistentName ?? property.Name;
         // Backing field
         context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition));
         // Getter
         context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Getter,
-          typeDefinition, propertyDefinition, persistentName));
+          typeDefinition, propertyDefinition, persistentIndex));
         // Setter
         if (property.IsKey)
           context.WeavingTasks.Add(new ImplementKeySetterTask(typeDefinition, propertyDefinition));
         else
           context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
-            typeDefinition, propertyDefinition, persistentName));
+            typeDefinition, propertyDefinition, persistentIndex));
         if (property.PersistentName!=null)
           context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
             context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
