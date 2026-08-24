@@ -46,11 +46,6 @@ namespace Xtensive.Orm.Tests.Issues.Issue0485_EntitySetDescendant_Model
       : base(owner, field)
     {
     }
-
-    protected EntitySetDescendant(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-    }
   }
 }
 
