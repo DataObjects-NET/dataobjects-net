@@ -14,7 +14,6 @@ namespace Xtensive.Conversion
   /// </summary>
   /// <typeparam name="TFrom">Type to convert from.</typeparam>
   /// <typeparam name="TTo">Type to convert to.</typeparam>
-  [Serializable]
   public readonly struct Biconverter<TFrom, TTo> :
     IEquatable<Biconverter<TFrom, TTo>>
   {
@@ -48,9 +47,7 @@ namespace Xtensive.Conversion
 
     /// <inheritdoc/>
     public bool Equals(Biconverter<TFrom, TTo> obj)
-    {
-      return Equals(obj.ConvertForward, ConvertForward) && Equals(obj.ConvertBackward, ConvertBackward);
-    }
+      => Equals(obj.ConvertForward, ConvertForward) && Equals(obj.ConvertBackward, ConvertBackward);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>

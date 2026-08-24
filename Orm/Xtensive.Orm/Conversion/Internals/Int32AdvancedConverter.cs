@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class Int32AdvancedConverter :
     StrictAdvancedConverterBase<int>,
     IAdvancedConverter<int, byte>,
@@ -63,10 +62,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    long IAdvancedConverter<int, long>.Convert(int value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<int, long>.Convert(int value) => value;
 
     ulong IAdvancedConverter<int, ulong>.Convert(int value)
     {
@@ -75,15 +71,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    double IAdvancedConverter<int, double>.Convert(int value)
-    {
-      return System.Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<int, double>.Convert(int value) => System.Convert.ToDouble(value);
 
-    decimal IAdvancedConverter<int, decimal>.Convert(int value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<int, decimal>.Convert(int value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<int, DateTime>.Convert(int value)
     {
@@ -99,16 +89,9 @@ namespace Xtensive.Conversion
       }
     }
 
+    string IAdvancedConverter<int, string>.Convert(int value) => value.ToString(CultureInfo.InvariantCulture);
 
-    string IAdvancedConverter<int, string>.Convert(int value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
-
-    char IAdvancedConverter<int, char>.Convert(int value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<int, char>.Convert(int value) => System.Convert.ToChar(value);
 
 
     // Constructors

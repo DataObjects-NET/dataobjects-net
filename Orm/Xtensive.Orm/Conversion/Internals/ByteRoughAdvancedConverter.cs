@@ -8,15 +8,11 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class ByteRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<byte, bool>
   {
-    bool IAdvancedConverter<byte, bool>.Convert(byte value)
-    {
-      return System.Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<byte, bool>.Convert(byte value) => Convert.ToBoolean(value);
 
 
     // Constructors

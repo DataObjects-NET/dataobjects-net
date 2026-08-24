@@ -8,27 +8,17 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class UInt64RoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<ulong, bool>,
     IAdvancedConverter<ulong, float>,
     IAdvancedConverter<ulong, double>
   {
-    bool IAdvancedConverter<ulong, bool>.Convert(ulong value)
-    {
-      return Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<ulong, bool>.Convert(ulong value) => Convert.ToBoolean(value);
 
-    float IAdvancedConverter<ulong, float>.Convert(ulong value)
-    {
-      return Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<ulong, float>.Convert(ulong value) => Convert.ToSingle(value);
 
-    double IAdvancedConverter<ulong, double>.Convert(ulong value)
-    {
-      return Convert.ToDouble(value);
-    }
+    double IAdvancedConverter<ulong, double>.Convert(ulong value) => Convert.ToDouble(value);
 
 
     // Constructors

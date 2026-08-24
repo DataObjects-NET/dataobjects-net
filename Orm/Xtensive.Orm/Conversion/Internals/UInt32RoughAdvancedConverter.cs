@@ -8,21 +8,14 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class UInt32RoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<uint, bool>,
     IAdvancedConverter<uint, float>
   {
-    bool IAdvancedConverter<uint, bool>.Convert(uint value)
-    {
-      return Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<uint, bool>.Convert(uint value) => Convert.ToBoolean(value);
 
-    float IAdvancedConverter<uint, float>.Convert(uint value)
-    {
-      return Convert.ToSingle(value);
-    }
+    float IAdvancedConverter<uint, float>.Convert(uint value) => Convert.ToSingle(value);
 
 
     // Constructors

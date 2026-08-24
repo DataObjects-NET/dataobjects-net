@@ -9,23 +9,16 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class EnumAdvancedConverter<TFrom, TTo> : AdvancedConverterBase, 
     IAdvancedConverter<TFrom, TTo>
     where TFrom : struct
     where TTo : struct
   {
-    private static readonly Converter<TFrom, TTo> converter = DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TTo>(); 
+    private static readonly Converter<TFrom, TTo> Converter = DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TTo>();
 
-    public virtual TTo Convert(TFrom value)
-    {
-      return converter(value);
-    }
+    public bool IsRough => true;
 
-    public bool IsRough
-    {
-      get { return true; }
-    }
+    public virtual TTo Convert(TFrom value) => Converter(value);
 
 
     // Constructors

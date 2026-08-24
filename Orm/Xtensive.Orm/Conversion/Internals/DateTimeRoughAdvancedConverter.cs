@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class DateTimeRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<DateTime, float>,
@@ -16,15 +15,8 @@ namespace Xtensive.Conversion
   {
     private readonly long baseDateTimeTicks;
 
-    float IAdvancedConverter<DateTime, float>.Convert(DateTime value)
-    {
-      return Convert.ToSingle(value.Ticks - baseDateTimeTicks);
-    }
-
-    double IAdvancedConverter<DateTime, double>.Convert(DateTime value)
-    {
-      return Convert.ToDouble(value.Ticks - baseDateTimeTicks);
-    }
+    float IAdvancedConverter<DateTime, float>.Convert(DateTime value) => Convert.ToSingle(value.Ticks - baseDateTimeTicks);
+    double IAdvancedConverter<DateTime, double>.Convert(DateTime value) => Convert.ToDouble(value.Ticks - baseDateTimeTicks);
 
 
     // Constructors

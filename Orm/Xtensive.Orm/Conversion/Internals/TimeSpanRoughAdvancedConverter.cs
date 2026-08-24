@@ -8,21 +8,14 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class TimeSpanRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<TimeSpan, float>,
     IAdvancedConverter<TimeSpan, double>
   {
-    float IAdvancedConverter<TimeSpan, float>.Convert(TimeSpan value)
-    {
-      return Convert.ToSingle(value.Ticks);
-    }
+    float IAdvancedConverter<TimeSpan, float>.Convert(TimeSpan value) => Convert.ToSingle(value.Ticks);
 
-    double IAdvancedConverter<TimeSpan, double>.Convert(TimeSpan value)
-    {
-      return Convert.ToDouble(value.Ticks);
-    }
+    double IAdvancedConverter<TimeSpan, double>.Convert(TimeSpan value) => Convert.ToDouble(value.Ticks);
 
 
     // Constructors

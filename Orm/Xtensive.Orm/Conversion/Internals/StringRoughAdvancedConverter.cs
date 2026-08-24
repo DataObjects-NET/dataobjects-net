@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class StringRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<string, bool>,
@@ -28,19 +27,16 @@ namespace Xtensive.Conversion
     IAdvancedConverter<string, TimeSpan>,
     IAdvancedConverter<string, Guid>
   {
-    bool IAdvancedConverter<string, bool>.Convert(string value)
-    {
-      return Boolean.Parse(value);
-    }
+    bool IAdvancedConverter<string, bool>.Convert(string value) => bool.Parse(value);
 
     byte IAdvancedConverter<string, byte>.Convert(string value)
     {
       try {
-        return Byte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return byte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return Byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -48,11 +44,11 @@ namespace Xtensive.Conversion
     sbyte IAdvancedConverter<string, sbyte>.Convert(string value)
     {
       try {
-        return SByte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return sbyte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return SByte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+          return sbyte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
       }
     }
@@ -155,15 +151,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value)
-    {
-      return TimeSpan.Parse(value);
-    }
+    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value) => TimeSpan.Parse(value);
 
-    Guid IAdvancedConverter<string, Guid>.Convert(string value)
-    {
-      return new Guid(value);
-    }
+    Guid IAdvancedConverter<string, Guid>.Convert(string value) => new Guid(value);
 
 
     // Constructors

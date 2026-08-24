@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal abstract class StrictAdvancedConverterBase<TFrom>: AdvancedConverterBase,  
     IAdvancedConverter<TFrom, TFrom>
   {

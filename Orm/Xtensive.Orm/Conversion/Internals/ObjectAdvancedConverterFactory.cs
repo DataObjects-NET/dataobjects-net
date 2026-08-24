@@ -9,7 +9,6 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class ObjectAdvancedConverterFactory<TFrom> : 
     IAdvancedConverterFactory<TFrom>
   {
@@ -34,15 +33,15 @@ namespace Xtensive.Conversion
 
     public IAdvancedConverter<TTo, TFrom> CreateBackwardConverter<TTo>()
     {
-      Type fromType = typeof (TFrom);
-      Type toType = typeof (TTo);
+      var fromType = typeof (TFrom);
+      var toType = typeof (TTo);
       if (fromType.IsAssignableFrom(toType)) {
-        Type[] genericArguments = new Type[] {toType, fromType};
+        Type[] genericArguments = [toType, fromType];
         Type   genericType      = typeof (ObjectToBaseAdvancedConverter<,>);
         return genericType.Activate(genericArguments, provider) as IAdvancedConverter<TTo, TFrom>;
       }
       else if (toType.IsAssignableFrom(fromType)) {
-        Type[] genericArguments = new Type[] {toType, fromType};
+        Type[] genericArguments = [toType, fromType];
         Type   genericType      = typeof (ObjectToDescendantAdvancedConverter<,>);
         return genericType.Activate(genericArguments, provider) as IAdvancedConverter<TTo, TFrom>;
       }

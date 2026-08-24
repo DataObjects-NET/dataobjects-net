@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class Int64AdvancedConverter :
     StrictAdvancedConverterBase<long>,
     IAdvancedConverter<long, byte>,
@@ -76,10 +75,7 @@ namespace Xtensive.Conversion
       }
     }
 
-    decimal IAdvancedConverter<long, decimal>.Convert(long value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<long, decimal>.Convert(long value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<long, DateTime>.Convert(long value)
     {
@@ -95,15 +91,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<long, string>.Convert(long value)
-    {
-      return value.ToString(CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<long, string>.Convert(long value) => value.ToString(CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<long, char>.Convert(long value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<long, char>.Convert(long value) => System.Convert.ToChar(value);
 
 
     // Constructors

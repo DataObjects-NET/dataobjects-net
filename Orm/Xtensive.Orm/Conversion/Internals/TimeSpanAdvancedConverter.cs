@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class TimeSpanAdvancedConverter :
     StrictAdvancedConverterBase<TimeSpan>,
     IAdvancedConverter<TimeSpan, byte>,
@@ -79,20 +78,11 @@ namespace Xtensive.Conversion
       }
     }
 
-    decimal IAdvancedConverter<TimeSpan, decimal>.Convert(TimeSpan value)
-    {
-      return System.Convert.ToDecimal(value.Ticks);
-    }
+    decimal IAdvancedConverter<TimeSpan, decimal>.Convert(TimeSpan value) => System.Convert.ToDecimal(value.Ticks);
 
-    TimeSpan IAdvancedConverter<TimeSpan, TimeSpan>.Convert(TimeSpan value)
-    {
-      return value;
-    }
+    TimeSpan IAdvancedConverter<TimeSpan, TimeSpan>.Convert(TimeSpan value) => value;
 
-    string IAdvancedConverter<TimeSpan, string>.Convert(TimeSpan value)
-    {
-      return value.ToString();
-    }
+    string IAdvancedConverter<TimeSpan, string>.Convert(TimeSpan value) => value.ToString();
 
 
     // Constructors

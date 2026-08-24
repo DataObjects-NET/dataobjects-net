@@ -8,20 +8,13 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class ObjectToDescendantAdvancedConverter<TFrom, TTo> : AdvancedConverterBase, 
     IAdvancedConverter<TFrom, TTo>
     where TTo : TFrom
   {
-    public virtual TTo Convert(TFrom value)
-    {
-      return (TTo)value;
-    }
+    public bool IsRough => false;
 
-    public bool IsRough
-    {
-      get { return false; }
-    }
+    public virtual TTo Convert(TFrom value) => (TTo) value;
 
 
     // Constructors

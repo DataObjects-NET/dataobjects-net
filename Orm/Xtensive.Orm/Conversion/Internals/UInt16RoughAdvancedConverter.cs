@@ -8,15 +8,11 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class UInt16RoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<ushort, bool>
   {
-    bool IAdvancedConverter<ushort, bool>.Convert(ushort value)
-    {
-      return Convert.ToBoolean(value);
-    }
+    bool IAdvancedConverter<ushort, bool>.Convert(ushort value) => Convert.ToBoolean(value);
 
 
     // Constructors

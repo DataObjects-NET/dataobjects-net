@@ -6,15 +6,13 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class ConvertingEnumerator<T1, T2> : IEnumerator<T2>
   {
-    private IEnumerator<T1> innerEnumerator;
+    private readonly IEnumerator<T1> innerEnumerator;
     private readonly Converter<T1, T2> converter;
     private T2 current;
     private bool currentIsValid = false;
@@ -38,7 +36,7 @@ namespace Xtensive.Conversion
         }
         return current;
       }
-    }    
+    }
 
     public bool MoveNext()
     {
@@ -62,10 +60,8 @@ namespace Xtensive.Conversion
     /// <param name="converter">The converter.</param>
     public ConvertingEnumerator(IEnumerator<T1> innerEnumerator, Converter<T1, T2> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(innerEnumerator, "innerEnumerator");
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
-      this.innerEnumerator = innerEnumerator;
-      this.converter = converter;
+      this.innerEnumerator = innerEnumerator ?? throw new ArgumentNullException();
+      this.converter = converter ?? throw new ArgumentNullException();
     }
 
 
@@ -78,7 +74,6 @@ namespace Xtensive.Conversion
     {
       currentIsValid = false;
       innerEnumerator.Dispose();
-      innerEnumerator = null;
     }
   }
 }

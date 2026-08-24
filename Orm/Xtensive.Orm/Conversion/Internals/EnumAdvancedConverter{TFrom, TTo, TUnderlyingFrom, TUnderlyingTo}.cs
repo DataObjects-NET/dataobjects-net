@@ -9,7 +9,6 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class EnumAdvancedConverter<TFrom, TTo, TUnderlyingFrom, TUnderlyingTo> : AdvancedConverterBase, 
     IAdvancedConverter<TFrom, TTo>
     where TFrom : struct
@@ -17,20 +16,14 @@ namespace Xtensive.Conversion
     where TUnderlyingFrom : struct
     where TUnderlyingTo : struct
   {
-    private static readonly Converter<TFrom, TUnderlyingFrom> intermediateConverter1 = DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TUnderlyingFrom>();
-    private static readonly Converter<TUnderlyingTo, TTo> outputConverter = DelegateHelper.CreatePrimitiveCastDelegate<TUnderlyingTo, TTo>();
+    private static readonly Converter<TFrom, TUnderlyingFrom> IntermediateConverter1 = DelegateHelper.CreatePrimitiveCastDelegate<TFrom, TUnderlyingFrom>();
+    private static readonly Converter<TUnderlyingTo, TTo> OutputConverter = DelegateHelper.CreatePrimitiveCastDelegate<TUnderlyingTo, TTo>();
+
     private readonly AdvancedConverterStruct<TUnderlyingFrom, TUnderlyingTo> intermediateConverter2;
 
+    public bool IsRough => true;
 
-    public TTo Convert(TFrom value)
-    {
-      return outputConverter(intermediateConverter2.Convert(intermediateConverter1(value)));
-    }
-
-    public bool IsRough
-    {
-      get { return true; }
-    }
+    public TTo Convert(TFrom value) => OutputConverter(intermediateConverter2.Convert(IntermediateConverter1(value)));
 
 
     // Constructors
@@ -39,8 +32,8 @@ namespace Xtensive.Conversion
       : base(provider)
     {
       // Checking types
-      Type toType = typeof (TTo);
-      Type fromType = typeof (TFrom);
+      var toType = typeof (TTo);
+      var fromType = typeof (TFrom);
       if (!toType.IsEnum && !fromType.IsEnum)
         throw new InvalidOperationException();
       intermediateConverter2 = provider.GetConverter<TUnderlyingFrom, TUnderlyingTo>();

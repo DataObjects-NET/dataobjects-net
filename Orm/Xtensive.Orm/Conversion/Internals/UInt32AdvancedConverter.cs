@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Roman Churakov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class UInt32AdvancedConverter :
     StrictAdvancedConverterBase<uint>,
     IAdvancedConverter<uint, byte>,
@@ -63,26 +62,13 @@ namespace Xtensive.Conversion
       }
     }
 
-    long IAdvancedConverter<uint, long>.Convert(uint value)
-    {
-      return value;
-    }
+    long IAdvancedConverter<uint, long>.Convert(uint value) => value;
 
-    ulong IAdvancedConverter<uint, ulong>.Convert(uint value)
-    {
-      return value;
-    }
+    ulong IAdvancedConverter<uint, ulong>.Convert(uint value) => value;
 
+    double IAdvancedConverter<uint, double>.Convert(uint value) => System.Convert.ToDouble(value);
 
-    double IAdvancedConverter<uint, double>.Convert(uint value)
-    {
-      return System.Convert.ToDouble(value);
-    }
-
-    decimal IAdvancedConverter<uint, decimal>.Convert(uint value)
-    {
-      return System.Convert.ToDecimal(value);
-    }
+    decimal IAdvancedConverter<uint, decimal>.Convert(uint value) => System.Convert.ToDecimal(value);
 
     DateTime IAdvancedConverter<uint, DateTime>.Convert(uint value)
     {
@@ -98,15 +84,9 @@ namespace Xtensive.Conversion
       }
     }
 
-    string IAdvancedConverter<uint, string>.Convert(uint value)
-    {
-      return System.Convert.ToString(value, CultureInfo.InvariantCulture);
-    }
+    string IAdvancedConverter<uint, string>.Convert(uint value) => System.Convert.ToString(value, CultureInfo.InvariantCulture);
 
-    char IAdvancedConverter<uint, char>.Convert(uint value)
-    {
-      return System.Convert.ToChar(value);
-    }
+    char IAdvancedConverter<uint, char>.Convert(uint value) => System.Convert.ToChar(value);
 
 
     // Constructors

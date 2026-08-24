@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class SingleRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<float, bool>,

@@ -16,14 +16,13 @@ namespace Xtensive.Conversion
   /// <summary>
   /// A struct providing faster access for key <see cref="C.AdvancedConverter{TFrom,TTo}"/> delegates.
   /// </summary>
-  [Serializable]
-  public struct AdvancedConverterStruct<TFrom, TTo> : ISerializable
+  public struct AdvancedConverterStruct<TFrom, TTo>
   {
     /// <summary>
     /// Gets <see cref="AdvancedConverterStruct{TFrom, TTo}"/> for 
     /// <see cref="C.AdvancedConverter{TFrom,TTo}.Default"/> hasher.
     /// </summary>
-    public static readonly AdvancedConverterStruct<TFrom, TTo> Default = new AdvancedConverterStruct<TFrom, TTo>(AdvancedConverter<TFrom, TTo>.Default);
+    public static readonly AdvancedConverterStruct<TFrom, TTo> Default = new(AdvancedConverter<TFrom, TTo>.Default);
 
 
     /// <summary>
@@ -61,27 +60,14 @@ namespace Xtensive.Conversion
     private AdvancedConverterStruct(AdvancedConverter<TFrom, TTo> advancedConverter)
     {
       AdvancedConverter = advancedConverter;
-      Convert = AdvancedConverter==null ? null : AdvancedConverter.Convert;
-      IsRough = AdvancedConverter==null ? true : AdvancedConverter.IsRough;
-    }
-
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-    private AdvancedConverterStruct(SerializationInfo info, StreamingContext context)
-    {
-      AdvancedConverter = (AdvancedConverter<TFrom, TTo>) info.GetValue("AdvancedConverter", typeof (AdvancedConverter<TFrom, TTo>));
-      Convert = AdvancedConverter==null ? null : AdvancedConverter.Convert;
-      IsRough = AdvancedConverter==null ? true : AdvancedConverter.IsRough;
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("AdvancedConverter", AdvancedConverter);
+      if (AdvancedConverter is null) {
+        Convert = null;
+        IsRough = true;
+      }
+      else {
+        Convert = AdvancedConverter.Convert;
+        IsRough = AdvancedConverter.IsRough;
+      }
     }
   }
 }
