@@ -19,9 +19,7 @@ namespace Xtensive.Arithmetic
   /// Base class for <see cref="IArithmetic{T}"/> implementations.
   /// </summary>
   /// <typeparam name="T">Type to provide arithmetic operations for.</typeparam>
-  [Serializable]
-  public abstract class ArithmeticBase<T> : IArithmetic<T>,
-    IDeserializationCallback
+  public abstract class ArithmeticBase<T> : IArithmetic<T>
   {
     private IArithmeticProvider provider;
     
@@ -122,19 +120,6 @@ namespace Xtensive.Arithmetic
       Rules = rules;
       OverflowAllowed = (rules.OverflowBehavior==OverflowBehavior.AllowOverflow);
       NullIsZero = (rules.NullBehavior==NullBehavior.ThreatNullAsZero);
-    }
-
-    /// <summary>
-    /// Performs post-deserialization actions.
-    /// </summary>
-    /// <param name="sender"></param>
-    public virtual void OnDeserialization(object sender)
-    {
-      if (provider==null || provider.GetType()==typeof (ArithmeticProvider))
-        provider = ArithmeticProvider.Default;
-      OverflowAllowed = (Rules.OverflowBehavior==OverflowBehavior.AllowOverflow);
-      NullIsZero = (Rules.NullBehavior==NullBehavior.ThreatNullAsZero);
-      cachedArithmetics = new ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>>();
     }
   }
 }

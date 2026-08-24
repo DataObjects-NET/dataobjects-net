@@ -15,7 +15,6 @@ namespace Xtensive.Arithmetic
   /// </summary>
   /// <typeparam name="T">The type to provide arithmetic operations for.</typeparam>
   /// <typeparam name="TBase">Base (wrapped) type.</typeparam>
-  [Serializable]
   public abstract class WrappingArithmetic<T, TBase> : ArithmeticBase<T>
   {
     /// <summary>

@@ -11,7 +11,6 @@ namespace Xtensive.Arithmetic
   /// <summary>
   /// Describes arithmetic overflow behavior.   
   /// </summary>
-  [Serializable]
   public enum OverflowBehavior : sbyte
   {
     /// <summary>

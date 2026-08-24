@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 
 using A=Xtensive.Arithmetic;
 
@@ -18,8 +17,7 @@ namespace Xtensive.Arithmetic
   /// <see cref="Xtensive.Arithmetic.Arithmetic{T}"/> delegates.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
-  [Serializable]
-  public struct ArithmeticStruct<T> : ISerializable
+  public struct ArithmeticStruct<T>
   {
     /// <summary>
     /// Gets <see cref="A.ArithmeticStruct{T}"/> for 
@@ -120,34 +118,6 @@ namespace Xtensive.Arithmetic
       Negation = Arithmetic==null ? null : Arithmetic.Negation;
       ApplyRules = Arithmetic==null ? null : Arithmetic.ApplyRules;
 
-    }
-
-    /// <summary>
-    /// Deserializes the instance of this class.
-    /// </summary>
-    /// <param name="info">Serialization info.</param>
-    /// <param name="context">Streaming context.</param>
-    private ArithmeticStruct(SerializationInfo info, StreamingContext context)
-    {
-      Arithmetic = (Arithmetic<T>)info.GetValue("Arithmetic", typeof (Arithmetic<T>));
-      Zero = Arithmetic==null ? default(T) : Arithmetic.Zero;
-      One = Arithmetic==null ? default(T) : Arithmetic.One;
-      MinValue = Arithmetic == null ? default(T) : Arithmetic.MinValue;
-      MaxValue = Arithmetic == null ? default(T) : Arithmetic.MaxValue;
-      IsSigned = Arithmetic == null ? true : Arithmetic.IsSigned;
-      Add = Arithmetic==null ? null : Arithmetic.Add;
-      Subtract = Arithmetic==null ? null : Arithmetic.Subtract;
-      Multiply = Arithmetic==null ? null : Arithmetic.Multiply;
-      Divide = Arithmetic==null ? null : Arithmetic.Divide;
-      Negation = Arithmetic==null ? null : Arithmetic.Negation;
-      ApplyRules = Arithmetic==null ? null : Arithmetic.ApplyRules;
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Arithmetic", Arithmetic);
     }
   }
 }

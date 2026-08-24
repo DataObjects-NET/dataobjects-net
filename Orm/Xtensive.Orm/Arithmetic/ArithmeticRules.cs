@@ -11,7 +11,6 @@ namespace Xtensive.Arithmetic
   /// <summary>
   /// Describes how to calculate arithmetics.
   /// </summary>
-  [Serializable]
   public struct ArithmeticRules : IEquatable<ArithmeticRules>
   {
     private readonly OverflowBehavior overflowBehavior;

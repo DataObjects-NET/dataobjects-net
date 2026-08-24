@@ -9,7 +9,6 @@ using System;
 
 namespace Xtensive.Arithmetic
 {
-  [Serializable]
   internal class NullableArithmetic<T>
     : WrappingArithmetic<T?, T>
     where T : struct

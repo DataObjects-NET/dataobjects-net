@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2008 Xtensive LLC.
+// Copyright (C) 2008 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
@@ -10,7 +10,6 @@ using Xtensive.Arithmetic;
 
 namespace Xtensive.Arithmetic
 {
-  [Serializable]
   internal sealed class ByteArithmetic
     : ArithmeticBase<Byte>
   {
@@ -141,7 +140,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class SByteArithmetic
     : ArithmeticBase<SByte>
   {
@@ -272,7 +270,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class CharArithmetic
     : ArithmeticBase<Char>
   {
@@ -403,7 +400,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class Int16Arithmetic
     : ArithmeticBase<Int16>
   {
@@ -534,7 +530,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class UInt16Arithmetic
     : ArithmeticBase<UInt16>
   {
@@ -665,7 +660,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class Int32Arithmetic
     : ArithmeticBase<Int32>
   {
@@ -796,7 +790,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class UInt32Arithmetic
     : ArithmeticBase<UInt32>
   {
@@ -927,7 +920,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class Int64Arithmetic
     : ArithmeticBase<Int64>
   {
@@ -1058,7 +1050,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class UInt64Arithmetic
     : ArithmeticBase<UInt64>
   {
@@ -1189,7 +1180,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class DecimalArithmetic
     : ArithmeticBase<Decimal>
   {
@@ -1320,7 +1310,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class SingleArithmetic
     : ArithmeticBase<Single>
   {
@@ -1451,7 +1440,6 @@ namespace Xtensive.Arithmetic
     }
   }
   
-  [Serializable]
   internal sealed class DoubleArithmetic
     : ArithmeticBase<Double>
   {

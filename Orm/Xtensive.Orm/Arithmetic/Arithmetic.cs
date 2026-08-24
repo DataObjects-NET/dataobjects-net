@@ -18,10 +18,9 @@ namespace Xtensive.Arithmetic
   /// Provides delegates allowing to call <see cref="IArithmetic{T}"/> methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
-  [Serializable]
   public sealed class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
-    private static Lazy<Arithmetic<T>> cached =
+    private readonly static Lazy<Arithmetic<T>> cached =
       new Lazy<Arithmetic<T>>(() => ArithmeticProvider.Default.GetArithmetic<T>());
 
     /// <summary>
@@ -98,28 +97,6 @@ namespace Xtensive.Arithmetic
 
 
     // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
-    public Arithmetic(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      Provider = Implementation.Provider;
-      Zero = Implementation.Zero;
-      One = Implementation.One;
-      MaxValue = Implementation.MaxValue;
-      MinValue = Implementation.MinValue;
-      IsSigned = Implementation.IsSigned;
-      Add = Implementation.Add;
-      Subtract = Implementation.Subtract;
-      Multiply = Implementation.Multiply;
-      Divide = Implementation.Divide;
-      Negation = Implementation.Negation;
-      ApplyRules = Implementation.ApplyRules;
-    }
 
     /// <summary>
     /// Initializes new instance of this type.

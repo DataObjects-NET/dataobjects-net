@@ -28,7 +28,6 @@ namespace Xtensive.Arithmetic
   /// </para>
   /// </remarks>
   /// </assert>
-  [Serializable]
   public class ArithmeticProvider : AssociateProvider,
     IArithmeticProvider
   {

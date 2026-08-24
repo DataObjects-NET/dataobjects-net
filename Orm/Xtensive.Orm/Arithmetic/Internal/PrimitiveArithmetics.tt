@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" #>
+<#@ template language="C#" #>
 <#@ assembly name="System.Core" #>
 <#@ import namespace="System.Linq" #>
 // Copyright (C) 2008 Xtensive LLC.
@@ -32,7 +32,6 @@ foreach (var type in types) {
   var primitiveName = type.Name;
   var className = type.Name + "Arithmetic";
 #>
-  [Serializable]
   internal sealed class <#= className #>
     : ArithmeticBase<<#= primitiveName #>>
   {
