@@ -56,7 +56,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
   }
 
-  [Serializable]
   internal sealed class EntityGroupTask : IEquatable<EntityGroupTask>
   {
     private const int MaxKeyCountInOneStatement = 40;

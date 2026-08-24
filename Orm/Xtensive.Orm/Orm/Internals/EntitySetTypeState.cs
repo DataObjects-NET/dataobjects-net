@@ -5,16 +5,12 @@
 // Created:    2009.08.04
 
 using System;
-using Xtensive.Tuples;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal sealed class EntitySetTypeState
   {
     public readonly ExecutableProvider SeekProvider;

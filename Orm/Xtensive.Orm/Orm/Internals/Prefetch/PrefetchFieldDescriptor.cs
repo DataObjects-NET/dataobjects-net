@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   /// <summary>
   /// Descriptor of a field's fetching request.
   /// </summary>
-  [Serializable]
   public sealed class PrefetchFieldDescriptor
   {
     private readonly Action<Key, FieldInfo, Key> keyExtractionSubscriber;
@@ -46,27 +45,17 @@ namespace Xtensive.Orm.Internals.Prefetch
     public readonly Guid? PrefetchOperationId;
 
     /// <inheritdoc/>
-    public bool Equals(PrefetchFieldDescriptor other)
-    {
-      return Equals(other.Field, Field);
-    }
+    public bool Equals(PrefetchFieldDescriptor other) => Equals(other.Field, Field);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
       obj is PrefetchFieldDescriptor other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Field.GetHashCode();
-    }
+    public override int GetHashCode() => Field.GetHashCode();
 
-    internal void NotifySubscriber(Key ownerKey, Key referencedKey)
-    {
-      if (keyExtractionSubscriber != null) {
-        keyExtractionSubscriber.Invoke(ownerKey, Field, referencedKey);
-      }
-    }
+    internal void NotifySubscriber(Key ownerKey, Key referencedKey) =>
+      keyExtractionSubscriber?.Invoke(ownerKey, Field, referencedKey);
 
 
     // Constructors

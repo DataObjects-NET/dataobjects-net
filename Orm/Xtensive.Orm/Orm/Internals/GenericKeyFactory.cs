@@ -11,7 +11,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal sealed class GenericKeyFactory
   {
     public readonly Type Type;

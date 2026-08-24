@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Internals
   /// Delayed query task. 
   /// Used internally to support delayed (future) queries.
   /// </summary>
-  [Serializable]
   public sealed class QueryTask : IEnumerable<Tuple>
   {
     /// <summary>
@@ -67,8 +66,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter value context.</param>
     public QueryTask(ExecutableProvider dataSource, StateLifetimeToken lifetimeToken, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(dataSource, "dataSource");
-      DataSource = dataSource;
+      DataSource = dataSource ?? throw new ArgumentNullException(nameof(dataSource));
       LifetimeToken = lifetimeToken;
       ParameterContext = parameterContext;
     }
