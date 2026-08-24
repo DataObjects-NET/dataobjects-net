@@ -21,10 +21,10 @@ namespace Xtensive.Orm.Building.Definitions
   /// Defines a signle persistent field.
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
-  [Serializable]
   public class FieldDef : MappedNode
   {
     private readonly PropertyInfo           underlyingProperty;
+    private readonly Validator              validator;
     private FieldAttributes                 attributes;
     private OnRemoveAction?                 onTargetRemove;
     private OnRemoveAction?                 onOwnerRemove;
@@ -34,7 +34,6 @@ namespace Xtensive.Orm.Building.Definitions
     private int?                            precision;
     private object                          defaultValue;
     private string                          defaultSqlExpression;
-    private Validator                       validator;
 
     /// <summary>
     /// Gets or sets the maximal length of the field.

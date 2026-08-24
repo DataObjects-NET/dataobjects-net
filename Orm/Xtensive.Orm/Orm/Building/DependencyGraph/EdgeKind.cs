@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Building.DependencyGraph
 {
-  [Serializable]
   internal enum EdgeKind
   {
     Default = Reference,

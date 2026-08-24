@@ -15,7 +15,6 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Building
 {
-  [Serializable]
   internal sealed class PrefetchActionContainer
   {
     private readonly TypeInfo type;
@@ -32,7 +31,7 @@ namespace Xtensive.Orm.Building
     private void Prefetch(SessionHandler sh, IEnumerable<Key> keys)
     {
       foreach (var key in keys)
-        sh.Prefetch(key, type, fields);
+        _ = sh.Prefetch(key, type, fields);
     }
 
     public PrefetchActionContainer(TypeInfo type)

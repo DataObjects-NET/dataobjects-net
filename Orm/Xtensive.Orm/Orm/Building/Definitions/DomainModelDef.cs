@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// Defines the whole <see cref="Domain"/> model.
   /// The root definition.
   /// </summary>
-  [Serializable]
   public sealed class DomainModelDef : Node
   {
     private readonly ModelDefBuilder builder;
@@ -31,7 +30,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets the <see cref="TypeDef"/> instances contained in this instance.
     /// </summary>
-    public TypeDefCollection Types { get { return types; } }
+    public TypeDefCollection Types => types;
 
     /// <summary>
     /// Gets the collection of <see cref="HierarchyDef"/> instances contained in this instance.
@@ -41,7 +40,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets the collection of <see cref="FullTextIndexDef"/> instances contained in this instance.
     /// </summary>
-    public FullTextIndexDefCollection FullTextIndexes { get { return fullTextIndexes; } }
+    public FullTextIndexDefCollection FullTextIndexes => fullTextIndexes;
 
     /// <summary>
     /// Defines new <see cref="TypeDef"/> and adds it to <see cref="DomainModelDef"/> instance.
@@ -81,8 +80,8 @@ namespace Xtensive.Orm.Building.Definitions
 
     private void OnTypeRemoved(object sender, TypeDefCollectionChangedEventArgs e)
     {
-      HierarchyDef hd = Hierarchies.TryGetValue(e.Item);
-      if (hd != null)
+      var hd = Hierarchies.TryGetValue(e.Item);
+      if (hd is not null)
         Hierarchies.Remove(hd);
     }
 

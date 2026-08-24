@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Orm.Building.DependencyGraph
 {
-  [Serializable]
   internal readonly struct Edge<TValue> : IEquatable<Edge<TValue>>
   {
     public Node<TValue> Tail { get; }
@@ -36,10 +35,16 @@ namespace Xtensive.Orm.Building.DependencyGraph
       obj is Edge<TValue> other && Equals(other);
 
     /// <inheritdoc/>
-    public static bool operator ==(Edge<TValue> left, Edge<TValue> right) => left.Equals(right);
+    public static bool operator ==(Edge<TValue> left, Edge<TValue> right)
+    {
+      return left.Equals(right);
+    }
 
     /// <inheritdoc/>
-    public static bool operator !=(Edge<TValue> left, Edge<TValue> right) => !left.Equals(right);
+    public static bool operator !=(Edge<TValue> left, Edge<TValue> right)
+    {
+      return !left.Equals(right);
+    }
 
     /// <inheritdoc/>
     public override string ToString()

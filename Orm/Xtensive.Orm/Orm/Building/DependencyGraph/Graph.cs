@@ -9,19 +9,15 @@ using System.Collections.Generic;
 
 namespace Xtensive.Orm.Building.DependencyGraph
 {
-  [Serializable]
   internal class Graph<TValue>
   {
     private readonly Dictionary<TValue, Node<TValue>> nodeTable = new Dictionary<TValue, Node<TValue>>();
 
-    public IEnumerable<Node<TValue>> Nodes { 
-      get { return nodeTable.Values; }
-    }
+    public IEnumerable<Node<TValue>> Nodes => nodeTable.Values;
 
     public Node<TValue> TryGetNode(TValue value)
     {
-      Node<TValue> result;
-      if (!nodeTable.TryGetValue(value, out result))
+      if (!nodeTable.TryGetValue(value, out var result))
         return null;
       return result;
     }
@@ -41,8 +37,8 @@ namespace Xtensive.Orm.Building.DependencyGraph
       var tailNode = GetNode(tail);
       var headNode = GetNode(head);
       var edge = new Edge<TValue>(tailNode, headNode, kind, weight);
-      tailNode.OutgoingEdges.Add(edge);
-      headNode.IncomingEdges.Add(edge);
+      _ = tailNode.OutgoingEdges.Add(edge);
+      _ = headNode.IncomingEdges.Add(edge);
       return edge;
     }
 
@@ -53,13 +49,13 @@ namespace Xtensive.Orm.Building.DependencyGraph
         return;
 
       foreach (var edge in node.IncomingEdges)
-        edge.Tail.OutgoingEdges.Remove(edge);
+        _ = edge.Tail.OutgoingEdges.Remove(edge);
       foreach (var edge in node.OutgoingEdges)
-        edge.Head.IncomingEdges.Remove(edge);
+        _ = edge.Head.IncomingEdges.Remove(edge);
 
       node.IncomingEdges.Clear();
       node.OutgoingEdges.Clear();
-      nodeTable.Remove(value);
+      _ = nodeTable.Remove(value);
     }
   }
 }
