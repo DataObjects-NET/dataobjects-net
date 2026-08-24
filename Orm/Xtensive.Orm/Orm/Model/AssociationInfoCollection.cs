@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of <see cref="AssociationInfo"/> objects.
   /// </summary>
-  [Serializable]
   public sealed class AssociationInfoCollection : NodeCollection<AssociationInfo>
   {
     /// <summary>

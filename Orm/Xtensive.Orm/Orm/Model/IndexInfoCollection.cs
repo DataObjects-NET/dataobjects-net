@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of <see cref="IndexInfo"/> objects.
   /// </summary>
-  [Serializable]
   public class IndexInfoCollection: NodeCollection<IndexInfo>,
     IFilterable<IndexAttributes, IndexInfo>
   {

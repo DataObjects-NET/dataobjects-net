@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Describes key for a particular <see cref="hierarchy"/>.
   /// </summary>
-  [Serializable]
   public sealed class KeyInfo : Node
   {
+    private readonly Type singleColumnType;
     private HierarchyInfo hierarchy;
     private SequenceInfo sequence;
     private object equalityIdentifier;
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Model
     private string generatorName;
     private string generatorBaseName;
     private KeyGeneratorKind generatorKind;
-    private Type singleColumnType;
+    
 
     /// <summary>
     /// Gets single column type if this <see cref="KeyInfo"/>
@@ -36,14 +36,14 @@ namespace Xtensive.Orm.Model
     /// If this <see cref="KeyInfo"/> has multiple columns
     /// returns <see langword="null"/>.
     /// </summary>
-    public Type SingleColumnType { get { return singleColumnType; } }
+    public Type SingleColumnType => singleColumnType;
 
     /// <summary>
     /// Gets the hierarchy this key belongs to.
     /// </summary>
     public HierarchyInfo Hierarchy
     {
-      get { return hierarchy; }
+      get => hierarchy;
       set {
         EnsureNotLocked();
         hierarchy = value;
@@ -53,12 +53,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the fields forming the key.
     /// </summary>
-    public IReadOnlyList<FieldInfo> Fields { get; private set; }
+    public IReadOnlyList<FieldInfo> Fields { get; }
 
     /// <summary>
     /// Gets the columns forming the key.
     /// </summary>
-    public IReadOnlyList<ColumnInfo> Columns { get; private set; }
+    public IReadOnlyList<ColumnInfo> Columns { get; }
 
     /// <summary>
     /// Gets the key generator name.
@@ -66,9 +66,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string GeneratorName
     {
-      get { return generatorName; }
-      set
-      {
+      get => generatorName;
+      set {
         EnsureNotLocked();
         generatorName = value;
       }
@@ -81,9 +80,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string GeneratorBaseName
     {
-      get { return generatorBaseName; }
-      set
-      {
+      get => generatorBaseName;
+      set {
         EnsureNotLocked();
         generatorBaseName = value;
       }
@@ -94,9 +92,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public KeyGeneratorKind GeneratorKind
     {
-      get { return generatorKind; }
-      set
-      {
+      get => generatorKind;
+      set {
         EnsureNotLocked();
         generatorKind = value;
       }
@@ -107,24 +104,25 @@ namespace Xtensive.Orm.Model
     /// Gets the tuple descriptor of the key.
     /// </summary>
     /// <value></value>
-    public TupleDescriptor TupleDescriptor { get; private set; }
+    public TupleDescriptor TupleDescriptor { get; }
 
     /// <summary>
     /// Gets the index of the column related to field with <see cref="FieldInfo.IsTypeId"/>==<see langword="true" />.
     /// If there is no such field, returns <see langword="-1" />.
     /// </summary>
-    public int TypeIdColumnIndex { get; private set; }
+    public int TypeIdColumnIndex { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether key contains foreign keys.
     /// </summary>
-    public bool ContainsForeignKeys { get; private set; }
+    public bool ContainsForeignKeys { get; }
 
     /// <summary>
     /// Gets the information on associated sequence.
     /// </summary>
-    public SequenceInfo Sequence {
-      get { return sequence; }
+    public SequenceInfo Sequence
+    {
+      get => sequence;
       set {
         EnsureNotLocked();
         sequence = value;
@@ -137,7 +135,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public bool IsFirstAmongSimilarKeys
     {
-      get { return isFirstAmongSimilarKeys; }
+      get => isFirstAmongSimilarKeys;
       set {
         EnsureNotLocked();
         isFirstAmongSimilarKeys = value;
@@ -153,7 +151,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public object EqualityIdentifier
     {
-      get { return equalityIdentifier; }
+      get => equalityIdentifier;
       set {
         EnsureNotLocked();
         equalityIdentifier = value;
@@ -164,24 +162,22 @@ namespace Xtensive.Orm.Model
     public override void UpdateState()
     {
       base.UpdateState();
-      if (Sequence!=null)
-        Sequence.UpdateState();
+      Sequence?.UpdateState();
     }
  
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Hierarchy must be set before locking this instance.</exception>
     public override void Lock(bool recursive)
     {
-      if (Hierarchy==null)
-        throw Exceptions.NotInitialized("Hierarchy");
-      if (EqualityIdentifier==null)
-        throw Exceptions.NotInitialized("EqualityIdentifier");
+      if (Hierarchy is null)
+        throw Exceptions.NotInitialized(nameof(Hierarchy));
+      if (EqualityIdentifier is null)
+        throw Exceptions.NotInitialized(nameof(EqualityIdentifier));
       base.Lock(recursive);
       if (!recursive)
         return;
       // Hierarchy.Lock() is not necessary, because it isn't a contained object (= likely, already locked)
-      if (Sequence!=null)
-        Sequence.Lock(true);
+      Sequence?.Lock(true);
     }
 
 
@@ -205,7 +201,7 @@ namespace Xtensive.Orm.Model
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;
 
-      ContainsForeignKeys = fields.Any(f => f.Parent!=null);
+      ContainsForeignKeys = fields.Any(static f => f.Parent is not null);
 
       if (Columns.Where((c, i) => i!=TypeIdColumnIndex).Count()==1)
         singleColumnType = Columns.Where((c, i) => i!=TypeIdColumnIndex).First().ValueType;

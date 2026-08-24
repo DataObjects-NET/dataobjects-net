@@ -16,29 +16,28 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="ColumnInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}, ColumnName = {ColumnName}, CultureInfo = {CultureInfo}")]
   public readonly struct ColumnInfoRef: IEquatable<ColumnInfoRef>
   {
     /// <summary>
     /// Gets type name of reflecting <see cref="TypeInfo"/>.
     /// </summary>
-    public string TypeName { get; }
+    public readonly string TypeName;
 
     /// <summary>
     /// Gets name of the <see cref="FieldInfo"/>.
     /// </summary>
-    public string FieldName { get; }
+    public readonly string FieldName;
 
     /// <summary>
     /// Gets name of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public string ColumnName { get; }
+    public readonly string ColumnName;
 
     /// <summary>
     /// Gets <see cref="CultureInfo"/> info of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public CultureInfo CultureInfo { get; }
+    public readonly CultureInfo CultureInfo;
 
     /// <summary>
     /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
@@ -61,7 +60,10 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(in ColumnInfoRef x, in ColumnInfoRef y) => !x.Equals(y);
+    public static bool operator !=(in ColumnInfoRef x, in ColumnInfoRef y)
+    {
+      return !x.Equals(y);
+    }
 
     /// <summary>
     /// Implements the operator ==.
@@ -71,7 +73,10 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(in ColumnInfoRef x, in ColumnInfoRef y) => x.Equals(y);
+    public static bool operator ==(in ColumnInfoRef x, in ColumnInfoRef y)
+    {
+      return x.Equals(y);
+    }
 
     /// <inheritdoc/>
     public bool Equals(ColumnInfoRef other) =>

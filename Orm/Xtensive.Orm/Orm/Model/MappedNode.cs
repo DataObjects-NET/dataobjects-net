@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A <see cref="Node"/> that can be mapped to existing named node.
   /// </summary>
-  [Serializable]
   public abstract class MappedNode : Node
   {
     private string mappingName;
@@ -22,9 +21,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string MappingName
     {
-      get { return mappingName; }
-      set
-      {
+      get => mappingName;
+      set {
         EnsureNotLocked();
         ValidateName(value);
         mappingName = value;

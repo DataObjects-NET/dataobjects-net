@@ -11,7 +11,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Defines actions that can be taken to preserve referential integrity.
   /// </summary>
-  [Serializable]
   public enum OnRemoveAction
   {
     /// <summary>

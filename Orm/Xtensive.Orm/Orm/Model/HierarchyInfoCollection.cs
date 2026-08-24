@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// A collection of <see cref="HierarchyInfo"/> objects.
   /// </summary>
-  [Serializable]
   public sealed class HierarchyInfoCollection : NodeCollection<HierarchyInfo>
   {
     /// <inheritdoc/>

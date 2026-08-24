@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="FieldInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}")]
   public sealed class FieldInfoRef : IEquatable<FieldInfoRef>
   {
@@ -37,8 +36,7 @@ namespace Xtensive.Orm.Model
     public FieldInfo Resolve(DomainModel model)
     {
       var type = TypeRef.Resolve(model);
-      FieldInfo field;
-      if (!type.Fields.TryGetValue(FieldName, out field))
+      if (!type.Fields.TryGetValue(FieldName, out var field))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName));
       return field;
     }
@@ -106,10 +104,7 @@ namespace Xtensive.Orm.Model
     #endregion
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, TypeRef.TypeName, FieldName);
-    }
+    public override string ToString() => string.Format(ToStringFormat, TypeRef.TypeName, FieldName);
 
 
     // Constructors
