@@ -4,12 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlRow: SqlExpressionList
   {
     internal override SqlRow Clone(SqlNodeCloneContext context)

@@ -9,23 +9,15 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Describes SQL DELETE statement.
   /// </summary>
-  [Serializable]
   public class SqlDelete : SqlQueryStatement, ISqlCompileUnit
   {
     private SqlExpression where;
-    private SqlTableRef delete;
-    private SqlTable from;
-    private SqlExpression limit;
 
     /// <summary>
     /// Gets or sets the table.
     /// </summary>
     /// <value>The table to change.</value>
-    public SqlTableRef Delete
-    {
-      get { return delete; }
-      set { delete = value; }
-    }
+    public SqlTableRef Delete { get; set; }
 
     /// <summary>
     /// Gets or sets the WHERE clause expression.
@@ -45,28 +37,20 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the FROM clause expression.
     /// </summary>
-    public SqlTable From 
-    {
-      get { return from;}
-      set { from = value; }
-    }
+    public SqlTable From { get; set; }
 
     /// <summary>
     /// Gets or sets the LIMIT clause expression
     /// </summary>
-    public SqlExpression Limit
-    {
-      get { return limit; }
-      set { limit = value; }
-    }
+    public SqlExpression Limit { get; set; }
 
     internal override SqlDelete Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         SqlDelete clone = new SqlDelete();
         if (t.Delete != null)
           clone.Delete = t.Delete.Clone(c);
-        if (t.from != null)
-          clone.From = (SqlQueryRef) t.from.Clone(c);
+        if (t.From != null)
+          clone.From = (SqlQueryRef) t.From.Clone(c);
         if (t.where is not null)
           clone.Where = t.where.Clone(c);
 
@@ -85,7 +69,7 @@ namespace Xtensive.Sql.Dml
 
     internal SqlDelete(SqlTableRef table) : this()
     {
-      delete = table;
+      Delete = table;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

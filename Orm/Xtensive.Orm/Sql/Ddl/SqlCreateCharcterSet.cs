@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlCreateCharacterSet : SqlStatement, ISqlCompileUnit
   {
     public CharacterSet CharacterSet { get; }
@@ -23,7 +22,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateCharacterSet(CharacterSet characterSet) : base(SqlNodeType.Create)
     {
-      this.CharacterSet = characterSet;
+      CharacterSet = characterSet;
     }
   }
 }

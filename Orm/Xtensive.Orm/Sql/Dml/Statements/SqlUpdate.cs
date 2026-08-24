@@ -7,34 +7,22 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlUpdate : SqlQueryStatement, ISqlCompileUnit
   {
+    private readonly Dictionary<ISqlLValue, SqlExpression> values = new();
     private SqlExpression where;
-    private readonly Dictionary<ISqlLValue, SqlExpression> values = new Dictionary<ISqlLValue, SqlExpression>();
-    private SqlTable from;
-    private SqlTableRef update;
-    private SqlExpression limit;
 
     /// <summary>
     /// Gets or sets the table.
     /// </summary>
     /// <value>The table to change.</value>
-    public SqlTableRef Update
-    {
-      get { return update; }
-      set { update = value; }
-    }
+    public SqlTableRef Update { get; set; }
 
     /// <summary>
     /// Gets the values.
     /// </summary>
     /// <value>The values.</value>
-    public Dictionary<ISqlLValue, SqlExpression> Values {
-      get {
-        return values;
-      }
-    }
+    public Dictionary<ISqlLValue, SqlExpression> Values => values;
 
     /// <summary>
     /// Gets or sets the WHERE clause expression.
@@ -52,34 +40,26 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the FROM clause expression.
     /// </summary>
-    public SqlTable From 
-    {
-      get { return from;}
-      set { from = value; }
-    }
+    public SqlTable From { get; set; }
 
     /// <summary>
     /// Gets or sets the LIMIT clause expression.
     /// </summary>
-    public SqlExpression Limit
-    {
-      get { return limit; }
-      set { limit = value; }
-    }
+    public SqlExpression Limit { get; set; }
 
     internal override SqlUpdate Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlUpdate();
-        if (t.update != null)
+        if (t.Update != null)
           clone.Update = t.Update.Clone(c);
-        if (t.from != null)
-          clone.From = (SqlQueryRef) t.from.Clone(c);
+        if (t.From != null)
+          clone.From = (SqlQueryRef) t.From.Clone(c);
         foreach (KeyValuePair<ISqlLValue, SqlExpression> p in t.values)
           clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(c)] =
             p.Value?.Clone(c);
         if (t.where is not null)
           clone.Where = t.where.Clone(c);
-        if (t.limit is not null)
+        if (t.Limit is not null)
           clone.Limit = t.where.Clone(c);
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
@@ -96,7 +76,7 @@ namespace Xtensive.Sql.Dml
 
     internal SqlUpdate(SqlTableRef table) : this()
     {
-      update = table;
+      Update = table;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

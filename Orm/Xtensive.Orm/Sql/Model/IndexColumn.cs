@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represent a <see cref="Index"/> bound column.
   /// </summary>
-  [Serializable]
   public class IndexColumn : Node, IPairedNode<Index>
   {
     private DataTableColumn column;

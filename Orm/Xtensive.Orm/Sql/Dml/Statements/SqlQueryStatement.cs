@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Base class for DML statements.
   /// </summary>
-  [Serializable]
   public abstract class SqlQueryStatement : SqlStatement
   {
     private IList<SqlHint> hints;

@@ -8,7 +8,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlCollate : SqlExpression
   {
     private Collation collation;
@@ -18,21 +17,13 @@ namespace Xtensive.Sql.Dml
     /// Gets the collation.
     /// </summary>
     /// <value>The collation.</value>
-    public Collation Collation {
-      get {
-        return collation;
-      }
-    }
+    public Collation Collation => collation;
 
     /// <summary>
     /// Gets the operand.
     /// </summary>
     /// <value>The operand.</value>
-    public SqlExpression Operand {
-      get {
-        return operand;
-      }
-    }
+    public SqlExpression Operand => operand;
 
     public override void ReplaceWith(SqlExpression expression)
     {

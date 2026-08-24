@@ -7,10 +7,9 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropDefault : SqlAction
   {
-    public TableColumn Column { get; private set; }
+    public TableColumn Column { get; }
 
     internal override SqlDropDefault Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>

@@ -10,69 +10,51 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents MATCH SQL statement.
   /// </summary>
-  [Serializable]
   public class SqlMatch: SqlExpression
   {
-    private SqlExpression value;
-    private SqlSubQuery subQuery;
-    private bool unique = false;
-    private SqlMatchType matchType = SqlMatchType.None;
-
     /// <summary>
     /// Gets the value which will be tested for matching.
     /// </summary>
-    public SqlExpression Value
-    {
-      get { return value; }
-    }
+    public SqlExpression Value { get; private set; }
 
     /// <summary>
     /// Gets the sub query to search of matching.
     /// </summary>
-    public SqlSubQuery SubQuery
-    {
-      get { return subQuery; }
-    }
+    public SqlSubQuery SubQuery { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether unique sub query rows for search matching will be used only.
     /// </summary>
-    public bool Unique
-    {
-      get { return unique; }
-    }
+    public bool Unique { get; private set; } = false;
 
     /// <summary>
     /// Gets the type of the match.
     /// </summary>
-    public SqlMatchType MatchType
-    {
-      get { return matchType; }
-    }
+    public SqlMatchType MatchType { get; private set; } = SqlMatchType.None;
 
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlMatch>(expression);
-      value = replacingExpression.Value;
-      subQuery = replacingExpression.SubQuery;
-      matchType = replacingExpression.MatchType;
-      unique = replacingExpression.Unique;
+      Value = replacingExpression.Value;
+      SubQuery = replacingExpression.SubQuery;
+      MatchType = replacingExpression.MatchType;
+      Unique = replacingExpression.Unique;
     }
 
     internal override SqlMatch Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlMatch(t.value.Clone(c),
-                                    t.subQuery.Clone(c),
-                                    t.unique,
-                                    t.matchType));
+        new SqlMatch(t.Value.Clone(c),
+                                    t.SubQuery.Clone(c),
+                                    t.Unique,
+                                    t.MatchType));
 
     internal SqlMatch(SqlExpression value, SqlSubQuery subQuery, bool unique, SqlMatchType matchType)
       : base(SqlNodeType.Match)
     {
-      this.value = value;
-      this.subQuery = subQuery;
-      this.unique = unique;
-      this.matchType = matchType;
+      Value = value;
+      SubQuery = subQuery;
+      Unique = unique;
+      MatchType = matchType;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

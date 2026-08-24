@@ -10,7 +10,6 @@ namespace Xtensive.Sql
   /// Specifies to which side of each boundary value interval, left or right, the boundary value
   /// belongs.
   /// </summary>
-  [Serializable]
   public enum BoundaryType
   {
     /// <summary>

@@ -31,8 +31,6 @@ namespace Xtensive.Sql.Dml
   // UtcDateTime    = 15,
   // Offset         = 16,
   // Nothing        = 25,
-
-  [Serializable]
   public enum SqlIntervalPart
   {
     Day = 2,

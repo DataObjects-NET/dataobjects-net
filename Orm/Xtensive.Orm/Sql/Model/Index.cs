@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents an index.
   /// </summary>
-  [Serializable]
   public class Index : DataTableNode, IPartitionable
   {
     private PairedNodeCollection<Index, IndexColumn> columns;

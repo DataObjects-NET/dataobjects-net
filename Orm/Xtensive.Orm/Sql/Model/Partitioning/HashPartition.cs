@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a hash partition.
   /// </summary>
-  [Serializable]
   public class HashPartition : Partition
   {
     #region Constructors

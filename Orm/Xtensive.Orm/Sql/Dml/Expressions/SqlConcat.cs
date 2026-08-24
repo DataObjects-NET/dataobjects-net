@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlConcat : SqlExpressionList
   {
     internal override SqlConcat Clone(SqlNodeCloneContext context)

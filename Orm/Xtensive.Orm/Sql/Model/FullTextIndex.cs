@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents full-text index.
   /// </summary>
-  [Serializable]
   public class FullTextIndex : Index
   {
     private string fullTextCatalog;

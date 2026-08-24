@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represent a <see cref="View"/> bound column.
   /// </summary>
-  [Serializable]
   public class ViewColumn : DataTableColumn, IPairedNode<View>
   {
     /// <summary>

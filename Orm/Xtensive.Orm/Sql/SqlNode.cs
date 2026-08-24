@@ -9,7 +9,6 @@ namespace Xtensive.Sql
   /// <summary>
   /// Represents any node in Sql expression tree.
   /// </summary>
-  [Serializable]
   public abstract class SqlNode : ISqlNode
   {
     /// <summary>

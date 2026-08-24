@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents a reference to a SQL column.
   /// </summary>
-  [Serializable]
   public class SqlColumnRef : SqlColumn
   {
     /// <summary>

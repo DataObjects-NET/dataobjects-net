@@ -11,66 +11,44 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents SQL SELECT statement.
   /// </summary>
-  [Serializable]
   public class SqlSelect
     : SqlQueryStatement,
       ISqlQueryExpression
   {
     private readonly SqlUserColumn asterisk = SqlDml.Column(SqlDml.Asterisk);
     private readonly SqlColumnCollection columns = new SqlColumnCollection();
-    private SqlLockType _lock;
-    private bool distinct;
-    private SqlTable from;
     private SqlColumnCollection groupBy = new SqlColumnCollection();
     private SqlExpression having;
     private SqlOrderCollection orderBy;
     private SqlExpression where;
     private SqlExpression limit;
     private SqlExpression offset;
-    private SqlComment comment;
 
-    public SqlComment Comment
-    {
-      get { return comment; }
-      set { comment = value; }
-    }
+    public SqlComment Comment { get; set; }
 
     /// <summary>
     /// Gets the collection of columns to select.
     /// </summary>
     /// <value>The collection of columns.</value>
-    public SqlColumnCollection Columns
-    {
-      get { return columns; }
-    }
+    public SqlColumnCollection Columns => columns;
 
     /// <summary>
     /// An indexer that provides access to collection items by their names.
     /// Returns <see langword="null"/> if there is no such item.
     /// </summary>
-    public SqlColumn this[string name]
-    {
-      get { return columns[name]; }
-    }
+    public SqlColumn this[string name] => columns[name];
 
     /// <summary>
     /// An indexer that provides access to collection items by their index.
     /// Returns <see langword="null"/> if there is no such item.
     /// </summary>
-    public SqlColumn this[int index]
-    {
-      get { return columns[index]; }
-    }
+    public SqlColumn this[int index] => columns[index];
 
     /// <summary>
     /// Gets or sets from clause.
     /// </summary>
     /// <value>The from clause.</value>
-    public SqlTable From
-    {
-      get { return from; }
-      set { from = value; }
-    }
+    public SqlTable From { get; set; }
 
     /// <summary>
     /// Gets or sets the where clause.
@@ -95,7 +73,7 @@ namespace Xtensive.Sql.Dml
     {
       get
       {
-        if (groupBy == null)
+        if (groupBy is null)
           groupBy = new SqlColumnCollection();
         return groupBy;
       }
@@ -124,7 +102,7 @@ namespace Xtensive.Sql.Dml
     {
       get
       {
-        if (orderBy == null)
+        if (orderBy is null)
           orderBy = new SqlOrderCollection();
         return orderBy;
       }
@@ -134,22 +112,11 @@ namespace Xtensive.Sql.Dml
     /// Gets or sets a value indicating whether this <see cref="SqlSelect"/> is distinct.
     /// </summary>
     /// <value><see langword="true"/> if distinct is set; otherwise, <see langword="false"/>.</value>
-    public bool Distinct
-    {
-      get { return distinct; }
-      set { distinct = value; }
-    }
+    public bool Distinct { get; set; }
 
-    public SqlUserColumn Asterisk
-    {
-      get { return asterisk; }
-    }
+    public SqlUserColumn Asterisk => asterisk;
 
-    public SqlLockType Lock
-    {
-      get { return _lock; }
-      set { _lock = value; }
-    }
+    public SqlLockType Lock { get; set; }
 
     /// <summary>
     /// Gets or sets the limit.
@@ -189,7 +156,7 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlSelect Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
-        SqlSelect clone = new SqlSelect(t.from==null ? null : t.from.Clone(c));
+        SqlSelect clone = new SqlSelect(t.From==null ? null : t.From.Clone(c));
 
         foreach (SqlColumn column in t.columns)
           clone.Columns.Add((SqlColumn)column.Clone(c));
@@ -203,7 +170,7 @@ namespace Xtensive.Sql.Dml
         if (t.orderBy != null)
           foreach (SqlOrder so in t.orderBy)
             clone.OrderBy.Add(so.Clone(c));
-        clone.Distinct = t.distinct;
+        clone.Distinct = t.Distinct;
         clone.Limit = t.Limit;
         clone.Offset = t.Offset;
         clone.Lock = t.Lock;
@@ -300,7 +267,7 @@ namespace Xtensive.Sql.Dml
     internal SqlSelect(SqlTable from)
       : this()
     {
-      this.from = from;
+      From = from;
     }
 
     internal SqlSelect()

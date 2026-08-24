@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Defines base class for any sql expression.
   /// </summary>
-  [Serializable]
   public abstract class SqlExpression : SqlNode
   {
     public static bool operator true(SqlExpression operand)

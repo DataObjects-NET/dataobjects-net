@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public enum SqlFetchOption
   {
     Next = 0,

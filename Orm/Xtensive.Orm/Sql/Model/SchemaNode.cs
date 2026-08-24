@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents any <see cref="Schema"/> bound <see cref="Node"/>.
   /// </summary>
-  [Serializable]
   public abstract class SchemaNode : Node, IPairedNode<Schema>
   {
     private Schema schema;

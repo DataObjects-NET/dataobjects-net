@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents unique table constraint.
   /// </summary>
-  [Serializable]
   public class UniqueConstraint : TableConstraint
   {
     private NodeCollection<TableColumn> columns;

@@ -8,10 +8,9 @@ using System;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlCommand : SqlStatement, ISqlCompileUnit
   {
-    public SqlCommandType CommandType { get; private set; }
+    public SqlCommandType CommandType { get; }
 
     internal override SqlCommand Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>

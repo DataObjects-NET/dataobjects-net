@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents binary expression.
   /// </summary>
-  [Serializable]
   public class SqlBinary : SqlExpression
   {
     /// <summary>

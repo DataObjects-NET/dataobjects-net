@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Dml
   /// <see cref="Hash"/> and <see cref="Remote"/> methods.
   /// Oracle supports all methods except <see cref="Remote"/> method.
   /// </remarks>
-  [Serializable]
   public enum SqlJoinMethod
   {
     /// <summary>

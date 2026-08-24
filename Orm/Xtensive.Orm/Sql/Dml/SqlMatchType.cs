@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Enums types of search of matching in MATCH SQL statement.
   /// </summary>
-  [Serializable]
   public enum SqlMatchType
   {
     /// <summary>

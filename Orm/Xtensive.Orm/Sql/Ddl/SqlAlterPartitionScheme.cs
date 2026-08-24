@@ -7,19 +7,15 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterPartitionScheme : SqlStatement, ISqlCompileUnit
   {
-    private readonly PartitionSchema partitionSchema;
-    private readonly string filegroup;
+    public PartitionSchema PartitionSchema { get; }
 
-    public PartitionSchema PartitionSchema => partitionSchema;
-
-    public string Filegroup => filegroup;
+    public string Filegroup { get; }
 
     internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterPartitionScheme(t.partitionSchema, t.filegroup));
+        new SqlAlterPartitionScheme(t.PartitionSchema, t.Filegroup));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -29,8 +25,8 @@ namespace Xtensive.Sql.Ddl
     internal SqlAlterPartitionScheme(PartitionSchema partitionSchema, string filegroup)
       : base(SqlNodeType.Alter)
     {
-      this.partitionSchema = partitionSchema;
-      this.filegroup = filegroup;
+      PartitionSchema = partitionSchema;
+      Filegroup = filegroup;
     }
   }
 }

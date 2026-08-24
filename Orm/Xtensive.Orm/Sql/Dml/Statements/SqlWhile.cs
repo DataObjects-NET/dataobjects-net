@@ -10,23 +10,14 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents SQL while loop.
   /// </summary>
-  [Serializable]
   public class SqlWhile : SqlStatement
   {
-    private SqlStatement statement;
     private SqlExpression condition;
 
     /// <summary>
     /// Gets or sets the statement to execute.
     /// </summary>
-    public SqlStatement Statement {
-      get {
-        return statement;
-      }
-      set {
-        statement = value;
-      }
-    }
+    public SqlStatement Statement { get; set; }
 
     /// <summary>
     /// Gets or sets the condition for the repeated execution
@@ -46,8 +37,8 @@ namespace Xtensive.Sql.Dml
     internal override SqlWhile Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         SqlWhile clone = new SqlWhile(t.condition.Clone(c));
-        if (t.statement!=null)
-          clone.Statement = (SqlStatement) t.statement.Clone(c);
+        if (t.Statement!=null)
+          clone.Statement = (SqlStatement) t.Statement.Clone(c);
         return clone;
       });
     

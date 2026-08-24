@@ -8,44 +8,30 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlQueryExpression
     : SqlStatement,
       ISqlQueryExpression
   {
-    private readonly ISqlQueryExpression left;
-    private readonly ISqlQueryExpression right;
-    private readonly bool all;
+    public ISqlQueryExpression Left { get; }
 
-    public ISqlQueryExpression Left
-    {
-      get { return left; }
-    }
+    public ISqlQueryExpression Right { get; }
 
-    public ISqlQueryExpression Right
-    {
-      get { return right; }
-    }
-
-    public bool All
-    {
-      get { return all; }
-    }
+    public bool All { get; }
 
     internal override SqlQueryExpression Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlQueryExpression(t.NodeType,
-          (ISqlQueryExpression)((SqlNode) t.left).Clone(c),
-          (ISqlQueryExpression)((SqlNode) t.right).Clone(c), t.all));
+          (ISqlQueryExpression)((SqlNode) t.Left).Clone(c),
+          (ISqlQueryExpression)((SqlNode) t.Right).Clone(c), t.All));
 
     #region IEnumerable<ISqlQueryExpression> Members
 
     public IEnumerator<ISqlQueryExpression> GetEnumerator()
     {
-      foreach (ISqlQueryExpression expression in left)
+      foreach (ISqlQueryExpression expression in Left)
         yield return expression;
 
-      foreach (ISqlQueryExpression expression in right)
+      foreach (ISqlQueryExpression expression in Right)
         yield return expression;
 
       yield break;
@@ -106,9 +92,9 @@ namespace Xtensive.Sql.Dml
     internal SqlQueryExpression(SqlNodeType nodeType, ISqlQueryExpression left, ISqlQueryExpression right, bool all)
       : base(nodeType)
     {
-      this.left = left;
-      this.right = right;
-      this.all = all;
+      Left = left;
+      Right = right;
+      All = all;
     }
   }
 }

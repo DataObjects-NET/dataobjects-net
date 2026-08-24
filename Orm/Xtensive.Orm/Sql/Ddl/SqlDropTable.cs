@@ -7,25 +7,15 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropTable : SqlStatement, ISqlCompileUnit
   {
-    private bool cascade = true;
-
     public Table Table { get; }
 
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
+    public bool Cascade { get; set; } = true;
 
     internal override SqlDropTable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlDropTable(t.Table, t.cascade));
+        new SqlDropTable(t.Table, t.Cascade));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -40,7 +30,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropTable(Table table, bool cascade) : base(SqlNodeType.Drop)
     {
       Table = table;
-      this.cascade = cascade;
+      Cascade = cascade;
     }
   }
 }

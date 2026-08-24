@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents primary key constraint.
   /// </summary>
-  [Serializable]
   public class PrimaryKey
     : UniqueConstraint
   {

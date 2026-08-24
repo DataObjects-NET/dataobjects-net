@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlColumnStub : SqlColumn
   {
     public SqlColumn Column { get; set; }

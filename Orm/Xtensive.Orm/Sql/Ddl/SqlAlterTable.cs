@@ -7,20 +7,16 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterTable : SqlStatement, ISqlCompileUnit
   {
-    private readonly SqlAction action;
-    private readonly Table table;
+    public SqlAction Action { get; }
 
-    public SqlAction Action => action;
-
-    public Table Table => table;
+    public Table Table { get; }
 
 
     internal override SqlAlterTable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterTable(t.table, (SqlAction)t.action.Clone(c)));
+        new SqlAlterTable(t.Table, (SqlAction)t.Action.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -30,8 +26,8 @@ namespace Xtensive.Sql.Ddl
     internal SqlAlterTable(Table table, SqlAction action)
       : base(SqlNodeType.Alter)
     {
-      this.action = action;
-      this.table = table;
+      Action = action;
+      Table = table;
     }
   }
 }

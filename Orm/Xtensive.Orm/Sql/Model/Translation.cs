@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a characher translation object.
   /// </summary>
-  [Serializable]
   public class Translation : SchemaNode
   {
     #region SchemaNode Members

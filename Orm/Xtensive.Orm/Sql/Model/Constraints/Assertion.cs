@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Model
   /// of individual rows of a table, to the entire contents of a table,
   /// or to a state required to exist among a number of tables.
   /// </summary>
-  [Serializable]
   public class Assertion : SchemaNode
   {
-    private Constraint constraint;
+    private readonly Constraint constraint;
 
     /// <summary>
     /// Gets or sets the check condition for this instance.

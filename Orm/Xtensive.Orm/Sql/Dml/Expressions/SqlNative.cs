@@ -7,7 +7,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlNative : SqlExpression, IConvertible
   {
     /// <summary>

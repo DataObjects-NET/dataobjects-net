@@ -11,11 +11,10 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a single database catalog that can contain multiple database schemas.
   /// </summary>
-  [Serializable]
   public class Catalog : Node
   {
+    private readonly PairedNodeCollection<Catalog, Schema> schemas;
     private Schema defaultSchema;
-    private PairedNodeCollection<Catalog, Schema> schemas;
     private PairedNodeCollection<Catalog, PartitionFunction> partitionFunctions;
     private PairedNodeCollection<Catalog, PartitionSchema> partitionSchemas;
 

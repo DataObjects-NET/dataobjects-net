@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public abstract class SqlAction : SqlNode
   {
     public override void AcceptVisitor(ISqlVisitor visitor)

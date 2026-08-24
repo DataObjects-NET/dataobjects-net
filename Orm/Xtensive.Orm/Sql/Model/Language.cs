@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Model
 {
-  [Serializable]
   public class Language : Node
   {
     public Language(string name)

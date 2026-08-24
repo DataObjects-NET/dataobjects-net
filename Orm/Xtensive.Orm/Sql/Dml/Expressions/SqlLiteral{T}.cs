@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents literal value expression.
   /// </summary>
-  [Serializable]
   public class SqlLiteral<T> : SqlLiteral
   {
     /// <summary>
@@ -19,7 +18,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The value.</value>
     public T Value { get; private set; }
 
-    public override Type LiteralType { get { return typeof (T); } }
+    public override Type LiteralType => typeof(T);
 
     public override object GetValue()
     {

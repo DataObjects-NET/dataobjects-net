@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public enum SqlCommandType
   {
     SetConstraintsAllDeferred,

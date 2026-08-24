@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a range partition.
   /// </summary>
-  [Serializable]
   public class RangePartition : Partition
   {
     private string boundary;

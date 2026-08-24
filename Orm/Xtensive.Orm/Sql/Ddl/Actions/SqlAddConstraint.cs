@@ -7,10 +7,9 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAddConstraint : SqlAction
   {
-    public Constraint Constraint { get; private set; }
+    public Constraint Constraint { get; }
 
     internal override SqlAddConstraint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>

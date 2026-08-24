@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlContinue : SqlStatement
   {
     internal override SqlContinue Clone(SqlNodeCloneContext context) => this;

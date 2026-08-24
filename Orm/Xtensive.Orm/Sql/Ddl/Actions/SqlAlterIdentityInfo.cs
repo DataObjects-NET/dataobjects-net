@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlAlterIdentityInfo : SqlAction
   {
     public TableColumn Column { get; private set; }

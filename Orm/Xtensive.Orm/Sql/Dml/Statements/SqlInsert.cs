@@ -9,7 +9,6 @@ using Xtensive.Sql.Dml.Collections;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlInsert : SqlQueryStatement, ISqlCompileUnit
   {
     /// <summary>
@@ -21,7 +20,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets rows of values.
     /// </summary>
-    public SqlInsertValuesCollection ValueRows { get; private set; } = new SqlInsertValuesCollection();
+    public SqlInsertValuesCollection ValueRows { get; private set; } = new();
 
     /// <summary>
     /// Gets or sets the FROM clause expression.

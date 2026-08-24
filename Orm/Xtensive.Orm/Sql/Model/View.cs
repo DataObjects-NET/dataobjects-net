@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a View node.
   /// </summary>
-  [Serializable]
   public class View : DataTable
   {
     private PairedNodeCollection<View, ViewColumn> columns;

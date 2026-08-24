@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql
 {
-  [Serializable]
   public enum SqlNodeType
   {
     Action,

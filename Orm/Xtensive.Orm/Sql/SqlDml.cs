@@ -1150,6 +1150,11 @@ namespace Xtensive.Sql
       return new SqlLiteral<DateTime>(value);
     }
 
+    public static SqlLiteral<DateTimeOffset> Literal(DateTimeOffset value)
+    {
+      return new SqlLiteral<DateTimeOffset>(value);
+    }
+
     public static SqlLiteral<DateOnly> Literal(DateOnly value)
     {
       return new SqlLiteral<DateOnly>(value);

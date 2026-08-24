@@ -10,7 +10,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents a set of information concerning sequence.
   /// </summary>
-  [Serializable]
   public class SequenceDescriptor : Node, ICloneable
   {
     private ISequenceable owner;

@@ -10,7 +10,6 @@ namespace Xtensive.Sql
   /// Defines all possible actions applicable in the case
   /// of foreign key conflict.
   /// </summary>
-  [Serializable]
   public enum ReferentialAction
   {
     /// <summary>

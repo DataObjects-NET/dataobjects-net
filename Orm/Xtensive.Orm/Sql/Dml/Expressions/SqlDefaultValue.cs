@@ -7,13 +7,12 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlDefaultValue : SqlExpression
   {
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression);
+      _ = ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression);
     }
     
     internal override SqlDefaultValue Clone(SqlNodeCloneContext context)

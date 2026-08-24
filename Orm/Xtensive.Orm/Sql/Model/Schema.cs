@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Model
   /// the  <see cref="CharacterSet"> default character set</see> for the schema,
   /// and the descriptor of every component of the schema.
   /// </summary>
-  [Serializable]
   public class Schema : CatalogNode
   {
     private CharacterSet defaultCharacterSet;

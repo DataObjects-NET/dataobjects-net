@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Describes a reference to <see cref="Table"/> object;
   /// </summary>
-  [Serializable]
   public abstract class SqlTable : 
     SqlNode,
     IEnumerable<SqlTable>

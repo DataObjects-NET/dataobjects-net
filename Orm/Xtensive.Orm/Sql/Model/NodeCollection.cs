@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Model
   /// Represents lockable indexed by <see cref="Node.Name"/> collection of <see cref="Node"/>s.
   /// </summary>
   /// <typeparam name="TNode">Node type</typeparam>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class NodeCollection<TNode>: CollectionBaseSlim<TNode>
     where TNode: Node

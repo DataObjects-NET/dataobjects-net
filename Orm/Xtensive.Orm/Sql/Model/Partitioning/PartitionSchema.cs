@@ -14,7 +14,6 @@ namespace Xtensive.Sql.Model
   /// partitioned table or index to filegroups. The number and domain of the partitions of a 
   /// partitioned table or index are determined in a <see cref="PartitionFunction"/>.
   /// </summary>
-  [Serializable]
   public class PartitionSchema : CatalogNode
   {
     private PartitionFunction partitionFunction;

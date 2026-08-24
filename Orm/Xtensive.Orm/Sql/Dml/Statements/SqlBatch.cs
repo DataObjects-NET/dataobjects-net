@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlBatch: SqlStatement,
     IList<SqlStatement>,
     ISqlCompileUnit
@@ -19,10 +18,7 @@ namespace Xtensive.Sql.Dml
     #region IList<SqlStatement> Members
 
     /// <inheritdoc/>
-    public void Add(SqlStatement item)
-    {
-      statements.Add(item);
-    }
+    public void Add(SqlStatement item) => statements.Add(item);
 
     public void AddRange(IEnumerable<SqlStatement> items)
     {
@@ -31,28 +27,16 @@ namespace Xtensive.Sql.Dml
     }
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-      statements.Clear();
-    }
+    public void Clear() => statements.Clear();
 
     /// <inheritdoc/>
-    public bool Contains(SqlStatement item)
-    {
-      return statements.Contains(item);
-    }
+    public bool Contains(SqlStatement item) => statements.Contains(item);
 
     /// <inheritdoc/>
-    public void CopyTo(SqlStatement[] array, int arrayIndex)
-    {
-      statements.CopyTo(array, arrayIndex);
-    }
+    public void CopyTo(SqlStatement[] array, int arrayIndex) => statements.CopyTo(array, arrayIndex);
 
     /// <inheritdoc/>
-    public bool Remove(SqlStatement item)
-    {
-      return statements.Remove(item);
-    }
+    public bool Remove(SqlStatement item) => statements.Remove(item);
 
     /// <inheritdoc/>
     public int Count => statements.Count;
@@ -61,22 +45,13 @@ namespace Xtensive.Sql.Dml
     public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public int IndexOf(SqlStatement item)
-    {
-      return statements.IndexOf(item);
-    }
+    public int IndexOf(SqlStatement item) => statements.IndexOf(item);
 
     /// <inheritdoc/>
-    public void Insert(int index, SqlStatement item)
-    {
-      statements.Insert(index, item);
-    }
+    public void Insert(int index, SqlStatement item) => statements.Insert(index, item);
 
     /// <inheritdoc/>
-    public void RemoveAt(int index)
-    {
-      statements.RemoveAt(index);
-    }
+    public void RemoveAt(int index) => statements.RemoveAt(index);
 
     /// <inheritdoc/>
     public SqlStatement this[int index]
@@ -86,16 +61,10 @@ namespace Xtensive.Sql.Dml
     }
 
     /// <inheritdoc/>
-    IEnumerator<SqlStatement> IEnumerable<SqlStatement>.GetEnumerator()
-    {
-      return statements.GetEnumerator();
-    }
+    IEnumerator<SqlStatement> IEnumerable<SqlStatement>.GetEnumerator() => statements.GetEnumerator();
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return statements.GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => statements.GetEnumerator();
 
     #endregion
 

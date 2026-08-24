@@ -7,7 +7,6 @@ using System;
 namespace Xtensive.Sql.Ddl
 {
   [Flags]
-  [Serializable]
   public enum SqlAlterIdentityInfoOptions
   {
     None = 0x0,

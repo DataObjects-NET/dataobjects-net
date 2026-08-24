@@ -9,10 +9,9 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlForceJoinOrderHint : SqlHint
   {
-    private SqlTable[] tables;
+    private readonly SqlTable[] tables;
 
     /// <summary>
     /// Gets the corresponding tables.

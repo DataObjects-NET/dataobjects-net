@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represent a <see cref="DataTable"/> bound column.
   /// </summary>
-  [Serializable]
   public abstract class DataTableColumn : DataTableNode
   {
     #region Constructors

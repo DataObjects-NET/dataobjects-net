@@ -4,6 +4,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -11,7 +12,6 @@ namespace Xtensive.Sql.Model
   /// <summary>
   /// Represents base lockable named node.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Name = {Name}")]
   public abstract class Node: LockableBase
   {

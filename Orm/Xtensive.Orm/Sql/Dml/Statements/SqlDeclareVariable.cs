@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlDeclareVariable : SqlStatement, ISqlCompileUnit
   {
     /// <summary>

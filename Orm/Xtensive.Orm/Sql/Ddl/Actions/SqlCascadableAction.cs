@@ -8,10 +8,9 @@ using System;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public abstract class SqlCascadableAction : SqlAction
   {
-    public bool Cascade { get; private set; }
+    public bool Cascade { get; }
 
     // Constructors
 

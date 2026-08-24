@@ -9,7 +9,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents order specification.
   /// </summary>
-  [Serializable]
   public class SqlOrder : SqlNode
   {
     /// <summary>
