@@ -16,7 +16,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Describes read-only tuple transformation.
   /// </summary>
-  [Serializable]
   public sealed class ReadOnlyTransform : TupleTransformBase
   {
     private static readonly ReadOnlyTransform instance = new ReadOnlyTransform();

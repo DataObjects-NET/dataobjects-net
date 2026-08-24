@@ -13,7 +13,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Base class for any tuple transform.
   /// </summary>
-  [Serializable]
   public abstract class TupleTransformBase : ITupleTransform
   {
     private TupleDescriptor descriptor;

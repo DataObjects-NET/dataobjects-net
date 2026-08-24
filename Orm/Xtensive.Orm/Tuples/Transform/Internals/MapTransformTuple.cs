@@ -15,7 +15,6 @@ namespace Xtensive.Tuples.Transform.Internals
   /// <summary>
   /// A <see cref="MapTransform"/> result tuple mapping arbitrary count of source tuples to a single one (this).
   /// </summary>
-  [Serializable]
   public sealed class MapTransformTuple : TransformedTuple<MapTransform>
   {
     private readonly Tuple[] tuples;

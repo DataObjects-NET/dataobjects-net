@@ -20,7 +20,6 @@ namespace Xtensive.Tuples.Transform
   /// Base class for any tuple field mapping transform.
   /// Maps fields of destination tuple to fields of a set of source tuples.
   /// </summary>
-  [Serializable]
   public class MapTransform : TupleTransformBase
   {
     private readonly bool isReadOnly;

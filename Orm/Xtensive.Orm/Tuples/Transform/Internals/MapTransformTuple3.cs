@@ -15,7 +15,6 @@ namespace Xtensive.Tuples.Transform.Internals
   /// <summary>
   /// A <see cref="MapTransform"/> result tuple mapping up to 3 source tuples to a single one (this).
   /// </summary>
-  [Serializable]
   public sealed class MapTransformTuple3 : TransformedTuple<MapTransform>
   {
     private FixedList3<Tuple> tuples;

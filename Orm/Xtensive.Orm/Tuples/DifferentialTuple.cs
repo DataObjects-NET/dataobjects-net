@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 
@@ -18,7 +17,6 @@ namespace Xtensive.Tuples
   /// with <see cref="Difference"/> tuple providing all the 
   /// changes made to <see cref="Origin"/>.
   /// </summary>
-  [Serializable]
   public sealed class DifferentialTuple : Tuple
   {
     private Tuple origin;

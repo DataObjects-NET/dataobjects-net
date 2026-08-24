@@ -15,7 +15,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Base class for one-to-one tuple transformations.
   /// </summary>
-  [Serializable]
   public abstract class WrappingTransformTupleBase: TransformedTuple
   {
     protected readonly Tuple origin;

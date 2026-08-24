@@ -8,13 +8,11 @@ using System;
 
 namespace Xtensive.Tuples.Packed
 {
-  [Serializable]
   internal struct PackedFieldDescriptor
   {
     internal int DataPosition;
     internal ushort StatePosition;
 
-    [NonSerialized]
     internal byte AccessorIndex;
   }
 }

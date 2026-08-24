@@ -17,7 +17,6 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// This class is used for source <see cref="Tuple"/>s combining.
   /// </summary>
-  [Serializable]
   public sealed class CombineTransform : MapTransform
   {
     private TupleDescriptor[] sources;

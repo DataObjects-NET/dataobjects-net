@@ -15,7 +15,6 @@ namespace Xtensive.Tuples.Transform.Internals
   /// <summary>
   /// A tuple wrapper for <see cref="ReadOnlyTransform"/>.
   /// </summary>
-  [Serializable]
   public sealed class ReadOnlyTransformTuple : WrappingTransformTupleBase
   {
     /// <inheritdoc/>
