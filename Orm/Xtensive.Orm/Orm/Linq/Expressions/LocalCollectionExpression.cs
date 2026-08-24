@@ -14,7 +14,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal class LocalCollectionExpression : ParameterizedExpression,
     IMappedExpression
   {

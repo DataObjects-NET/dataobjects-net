@@ -23,7 +23,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
     private const string RootQueryTagsPrefix = "Root query tags ->";

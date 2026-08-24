@@ -9,7 +9,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal sealed class ParameterizedQuery : TranslatedQuery
   {
     public readonly Parameter QueryParameter;

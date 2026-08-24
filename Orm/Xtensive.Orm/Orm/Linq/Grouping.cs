@@ -13,12 +13,11 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class Grouping<TKey, TElement> :
     SubQuery<TElement>,
     IGrouping<TKey, TElement>
   {
-    public TKey Key { get; private set; }
+    public TKey Key { get; }
 
     public Grouping(ProjectionExpression projectionExpression, TranslatedQuery translatedQuery, Parameter<Tuple> parameter, Tuple tuple, TKey key, ItemMaterializationContext context)
       : base(projectionExpression, translatedQuery, parameter, tuple, context)

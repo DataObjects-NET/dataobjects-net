@@ -15,11 +15,9 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal abstract class ItemToTupleConverter
   {
     private static readonly Type ItemToTupleConverterType = typeof(ItemToTupleConverter<>);
-    protected static readonly Type RefOfTType = typeof(Ref<>);
 
     public abstract Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable();
 
@@ -32,7 +30,7 @@ namespace Xtensive.Orm.Linq
       return (ItemToTupleConverter) ItemToTupleConverterType
         .CachedMakeGenericType(type)
         .GetConstructors()[0]
-        .Invoke(new[] { enumerable, model, sourceExpression, storedEntityType });
+        .Invoke([enumerable, model, sourceExpression, storedEntityType]);
     }
   }
 }

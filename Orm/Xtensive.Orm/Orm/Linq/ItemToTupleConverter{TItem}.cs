@@ -25,7 +25,6 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
     private class TupleTypeCollection: IReadOnlyCollection<Type>
@@ -52,6 +51,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
+    private static readonly Type RefOfTType = typeof(Ref<>);
     private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
 

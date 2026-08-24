@@ -12,7 +12,6 @@ using Xtensive.Orm.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class LinqBindingCollection : BindingCollection<ParameterExpression, ProjectionExpression>
   {
     internal readonly ref struct ParameterScope

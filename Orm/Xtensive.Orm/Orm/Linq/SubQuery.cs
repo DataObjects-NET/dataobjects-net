@@ -19,15 +19,14 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class SubQuery<TElement> :
     IOrderedQueryable<TElement>,
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
+    private readonly QueryProvider provider;
     private DelayedQuery<TElement> delayedQuery;
     private List<TElement> materializedSequence;
-    private readonly QueryProvider provider;
 
     public IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending)
     {
@@ -36,7 +35,7 @@ namespace Xtensive.Orm.Linq
 
     public IEnumerator<TElement> GetEnumerator()
     {
-      if (materializedSequence == null)
+      if (materializedSequence is null)
         materializedSequence = delayedQuery.ToList();
       return materializedSequence.GetEnumerator();
     }
@@ -46,24 +45,15 @@ namespace Xtensive.Orm.Linq
       return GetEnumerator();
     }
 
-    public Expression Expression
-    {
-      get { return projectionExpression; }
-    }
+    public Expression Expression => projectionExpression;
 
-    public Type ElementType
-    {
-      get { return typeof (TElement); }
-    }
+    public Type ElementType => typeof(TElement);
 
-    public IQueryProvider Provider
-    {
-      get { return provider; }
-    }
+    public IQueryProvider Provider => provider;
 
     private void MaterializeSelf()
     {
-      if (materializedSequence != null)
+      if (materializedSequence is not null)
         return;
       materializedSequence = delayedQuery.ToList();
       delayedQuery = null;
@@ -76,7 +66,7 @@ namespace Xtensive.Orm.Linq
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
 // ReSharper restore MemberCanBeProtected.Global
     {
-      this.provider = context.Session.Query.Provider;
+      provider = context.Session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
       var currentTranslatedQuery = query;
 

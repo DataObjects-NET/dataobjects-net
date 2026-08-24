@@ -14,7 +14,6 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal class FullTextExpression : ParameterizedExpression,
     IMappedExpression
   {
@@ -26,8 +25,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var entityExpression = (EntityExpression) EntityExpression.BindParameter(parameter, processedExpressions);
@@ -37,8 +35,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var entityExpression = (EntityExpression) EntityExpression.RemoveOuterParameter(processedExpressions);
@@ -51,8 +48,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(offset, processedExpressions);
@@ -65,8 +61,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(map, processedExpressions);

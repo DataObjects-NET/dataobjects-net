@@ -11,7 +11,6 @@ using Xtensive.IoC;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal class RemapScope : Scope<RemapContext>
   {
     /// <summary>
