@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Modelling
@@ -17,21 +16,16 @@ namespace Xtensive.Modelling
   /// <summary>
   /// An abstract base class for collection of nodes in model.
   /// </summary>
-  [Serializable]
   public abstract class NodeCollection : LockableBase,
-    INodeCollection,
-    IDeserializationCallback
+    INodeCollection
   {
-    [NonSerialized]
-    private string escapedName;
-    [NonSerialized]
-    private string cachedPath;
-    private Node parent;
-    private string name;
-    [NonSerialized]
-    private Dictionary<string, Node> nameIndex = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
-    private readonly List<Node> list = new List<Node>();
+    private readonly string escapedName;
+    private readonly Node parent;
+    private readonly string name;
+    private readonly Dictionary<string, Node> nameIndex = new(StringComparer.OrdinalIgnoreCase);
+    private readonly List<Node> list = new();
 
+    private string cachedPath;
 
     #region Properties
 
@@ -40,11 +34,9 @@ namespace Xtensive.Modelling
     public string Name
     {
       [DebuggerStepThrough]
-      get { return name; }
+      get => name;
       [DebuggerStepThrough]
-      set {
-        throw Exceptions.AlreadyInitialized("Name");
-      }
+      set => throw Exceptions.AlreadyInitialized("Name");
     }
 
     /// <inheritdoc/>
@@ -69,7 +61,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public Node Model {
       [DebuggerStepThrough]
-      get { return Parent.Model; }
+      get => Parent.Model;
     }
 
     /// <inheritdoc/>
@@ -90,7 +82,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public int Count {
       [DebuggerStepThrough]
-      get { return list.Count; }
+      get => list.Count;
     }
 
     #endregion
@@ -98,9 +90,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public Node this[int index] {
       [DebuggerStepThrough]
-      get {
-        return list[index];
-      }
+      get => list[index];
     }
 
     /// <inheritdoc/>
@@ -108,34 +98,26 @@ namespace Xtensive.Modelling
     public Node this[string name] {
       [DebuggerStepThrough]
       get {
-        Node result;
-        if (!TryGetValue(name, out result))
-          throw new ArgumentException(String.Format(String.Format(
-            Strings.ExItemWithNameXIsNotFound, name)));
-        return result;
+        return TryGetValue(name, out var result)
+          ? result
+          : throw new ArgumentException(string.Format(Strings.ExItemWithNameXIsNotFound, name));
       }
     }
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public bool TryGetValue(string name, out Node value)
-    {
-      return nameIndex.TryGetValue(name, out value);
-    }
+      => nameIndex.TryGetValue(name, out value);
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public bool Contains(string name)
-    {
-      return nameIndex.ContainsKey(name);
-    }
+      => nameIndex.ContainsKey(name);
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public virtual string GetTemporaryName()
-    {
-      return Guid.NewGuid().ToString();
-    }
+      => Guid.NewGuid().ToString();
 
     /// <inheritdoc/>
     public IPathNode Resolve(string path)
@@ -143,10 +125,9 @@ namespace Xtensive.Modelling
       if (path.IsNullOrEmpty())
         return this;
       var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
-      Node next;
-      if (!TryGetValue(parts.First, out next))
+      if (!TryGetValue(parts.First, out var next))
         return null;
-      if (parts.Second==null)
+      if (parts.Second is null)
         return next;
       return next.Resolve(parts.Second);
     }
@@ -182,10 +163,7 @@ namespace Xtensive.Modelling
     /// <param name="args">The <see cref="NotifyCollectionChangedEventArgs"/> 
     /// instance containing the event data.</param>
     protected void OnCollectionChanged(NotifyCollectionChangedEventArgs args)
-    {
-      if (CollectionChanged!=null)
-        CollectionChanged.Invoke(this, args);
-    }
+      => CollectionChanged?.Invoke(this, args);
 
     #endregion
 
@@ -193,10 +171,7 @@ namespace Xtensive.Modelling
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public IEnumerator GetEnumerator()
-    {
-      return list.GetEnumerator();
-    }
+    public IEnumerator GetEnumerator() => list.GetEnumerator();
 
     #endregion
 
@@ -236,7 +211,7 @@ namespace Xtensive.Modelling
         if (list.Count > count)
           list.RemoveAt(count);
         if (nameIndex.Count > count)
-          nameIndex.Remove(name);
+          _ = nameIndex.Remove(name);
         throw;
       }
     }
@@ -251,7 +226,7 @@ namespace Xtensive.Modelling
       string name = node.Name;
       try {
         list.RemoveAt(index);
-        nameIndex.Remove(name);
+        _ = nameIndex.Remove(name);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Remove, index));
       }
@@ -300,7 +275,7 @@ namespace Xtensive.Modelling
       string name = node.Name;
       if (nameIndex[name]!=node)
         throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", CoreLog.Instance);
-      nameIndex.Remove(name);
+      _ = nameIndex.Remove(name);
     }
 
     /// <exception cref="InvalidOperationException">Internal error.</exception>
@@ -342,7 +317,7 @@ namespace Xtensive.Modelling
     {
       var m = Model;
       string fullName = Path;
-      if (m!=null)
+      if (m is not null)
         fullName = string.Concat(m.EscapedName, Node.PathDelimiterString, fullName);
       return string.Format(Strings.NodeInfoFormat, fullName, Count);
     }
@@ -355,9 +330,6 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException"><see cref="Name"/> is not initialized yet.</exception>
     protected virtual void Initialize()
     {
-      if (Name.IsNullOrEmpty())
-        throw Exceptions.NotInitialized("Name");
-      escapedName = new[] {Name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
     }
 
 
@@ -374,22 +346,8 @@ namespace Xtensive.Modelling
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       this.name = name;
       this.parent = parent;
+      escapedName = new[] { this.name }.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
       Initialize();
-    }
-
-    // Deserialization
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
-      if (nameIndex!=null)
-        return; // Protects from multiple calls
-      Initialize();
-      nameIndex = new Dictionary<string, Node>(Count, StringComparer.OrdinalIgnoreCase);
-      foreach (var node in list)
-        nameIndex.Add(node.Name, node);
-      if (IsLocked)
-        cachedPath = Path;
     }
   }
 }

@@ -13,14 +13,12 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Describes node removal.
   /// </summary>
-  [Serializable]
   public class RemoveNodeAction : NodeAction
   {
     /// <inheritdoc/>
     protected override void PerformExecute(IModel model, IPathNode item)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      var node = (Node) item;
+      var node = (Node) (item ?? throw new ArgumentNullException(nameof(item)));
       node.Remove();
     }
   }

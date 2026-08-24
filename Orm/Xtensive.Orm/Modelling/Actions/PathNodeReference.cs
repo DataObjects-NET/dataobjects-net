@@ -10,7 +10,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Path node reference.
   /// </summary>
-  [Serializable]
   public readonly struct PathNodeReference :
     IEquatable<PathNodeReference>
   {
@@ -19,9 +18,7 @@ namespace Xtensive.Modelling.Actions
     /// <summary>
     /// Gets the path to the node.
     /// </summary>
-    public string Path {
-      get { return path; }
-    }
+    public string Path => path;
 
     /// <summary>
     /// Gets the <see cref="PathNodeReference"/> to the specified source,
@@ -35,7 +32,7 @@ namespace Xtensive.Modelling.Actions
     public static object Get(object source)
     {
       var pathNode = source as IPathNode;
-      if (pathNode==null)
+      if (pathNode is null)
         return source;
       return new PathNodeReference(pathNode.Path);
     }
@@ -67,17 +64,20 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public override int GetHashCode() => path != null ? path.GetHashCode() : 0;
 
-    public static bool operator ==(PathNodeReference left, PathNodeReference right) => left.Equals(right);
+    public static bool operator ==(PathNodeReference left, PathNodeReference right)
+    {
+      return left.Equals(right);
+    }
 
-    public static bool operator !=(PathNodeReference left, PathNodeReference right) => !left.Equals(right);
+    public static bool operator !=(PathNodeReference left, PathNodeReference right)
+    {
+      return !left.Equals(right);
+    }
 
     #endregion
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return path;
-    }
+    public override string ToString() => path;
 
 
     // Constructors

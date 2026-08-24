@@ -16,7 +16,6 @@ namespace Xtensive.Modelling
   /// Read-only <see cref="PropertyAccessor"/> dictionary.
   /// Items returned by its enumerator are ordered by item <see cref="PropertyAccessor.Priority"/>.
   /// </summary>
-  [Serializable]
   public sealed class PropertyAccessorDictionary : IReadOnlyDictionary<string, PropertyAccessor>
   {
     private readonly IReadOnlyDictionary<string, PropertyAccessor> items;

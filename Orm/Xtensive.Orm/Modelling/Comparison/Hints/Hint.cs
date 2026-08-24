@@ -12,7 +12,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// An abstract base for comparison hint implementation.
   /// </summary>
-  [Serializable]
   public abstract class Hint : IHint
   {
     /// <inheritdoc/>

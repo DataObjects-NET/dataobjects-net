@@ -18,31 +18,26 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// <see cref="Hint"/> set.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class HintSet : LockableBase,
     IHintSet
   {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private static Lazy<HintSet> cachedEmpty = new Lazy<HintSet>(() => {
-      var hs = new HintSet();
-      hs.Lock(true);
-      return hs;
+    private static Lazy<HintSet> cachedEmpty = new (() => {
+      return new HintSet(); // locked
     });
 
     /// <summary>
     /// Gets the empty <see cref="HintSet"/>.
     /// </summary>
-    public static HintSet Empty {
-      get {
-        return cachedEmpty.Value;
-      }
-    }
+    public static HintSet Empty => cachedEmpty.Value;
 
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private readonly List<Hint> list = new List<Hint>();
+    private readonly List<Hint> list = new();
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly HashSet<Hint> set = new HashSet<Hint>();
+    private readonly HashSet<Hint> set = new();
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Dictionary<Node, Dictionary<Type, object>> hintMap =
       new Dictionary<Node, Dictionary<Type, object>>();
@@ -51,15 +46,15 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the number of elements contained in a collection.
     /// </summary>
     /// <value></value>
-    public int Count {
-      get { return set.Count; }
-    }
+    public int Count => set.Count;
 
     /// <inheritdoc/>
-    public IModel SourceModel { get; private set; }
+    public IModel SourceModel { get; }
 
     /// <inheritdoc/>
-    public IModel TargetModel { get; private set; }
+    public IModel TargetModel { get; }
+
+    public Dictionary<Node, Dictionary<Type, object>> HintMap => hintMap;
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">One of paths returned by
@@ -105,7 +100,7 @@ namespace Xtensive.Modelling.Comparison.Hints
           Add(oldHint);
         throw;
       }
-      set.Add(hint);
+      _ = set.Add(hint);
       list.Add(hint);
     }
 
@@ -114,7 +109,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       set.Clear();
       list.Clear();
-      hintMap.Clear();
+      HintMap.Clear();
     }
 
     /// <inheritdoc/>
@@ -167,8 +162,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
-      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
-        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
+      if (!HintMap.TryGetValue(node, out var nodeHintMap)) {
+        HintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
       }
       return nodeHintMap;
     }
@@ -206,14 +201,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="targetModel">The target model.</param>
     public HintSet(IModel sourceModel, IModel targetModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      SourceModel = sourceModel;
-      TargetModel = targetModel;
+      SourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      TargetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
     }
 
     private HintSet()
     {
+      this.Lock();
     }
   }
 }

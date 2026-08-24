@@ -7,10 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
 using System.Linq;
 
@@ -19,7 +16,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Abstract base class for any node action.
   /// </summary>
-  [Serializable]
   public abstract class NodeAction : LockableBase,
     INodeAction
   {
@@ -71,10 +67,7 @@ namespace Xtensive.Modelling.Actions
     /// </summary>
     /// <param name="name">The name to escape.</param>
     /// <returns>Escaped name.</returns>
-    protected static string EscapeName(string name)
-    {
-      return new[] {name}.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
-    }
+    protected static string EscapeName(string name) => new[] { name }.RevertibleJoin(Node.PathEscape, Node.PathDelimiter);
 
     #endregion
 
@@ -85,17 +78,17 @@ namespace Xtensive.Modelling.Actions
     {
       var sb = new StringBuilder();
       if (this is GroupingNodeAction)
-        sb.Append("[");
-      sb.Append(GetActionName());
+        _ = sb.Append("[");
+      _ = sb.Append(GetActionName());
       var parameters = new List<Pair<string>>();
       GetParameters(parameters);
       foreach (var kvp in parameters)
-        sb.AppendFormat($", {kvp.First}={kvp.Second}");
+        _ = sb.AppendFormat($", {kvp.First}={kvp.Second}");
       if (this is GroupingNodeAction)
-        sb.Append("]");
+        _ = sb.Append("]");
       var nestedActions = GetNestedActions();
       foreach (var action in nestedActions)
-        sb.AppendLine().Append(action.ToString().Indent(2));
+        _ = sb.AppendLine().Append(action.ToString().Indent(2));
       return sb.ToString();
     }
 
@@ -114,7 +107,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The sequence of parameters.</returns>
     protected virtual void GetParameters(List<Pair<string>> parameters)
     {
-      if (path!=null)
+      if (path is not null)
         parameters.Add(new Pair<string>("Path", path));
     }
 
@@ -122,10 +115,7 @@ namespace Xtensive.Modelling.Actions
     /// Gets the sequence of nested actions for <see cref="ToString"/> formatting, if any.
     /// </summary>
     /// <returns>The sequence of nested actions.</returns>
-    protected virtual IEnumerable<NodeAction> GetNestedActions()
-    {
-      return Enumerable.Empty<NodeAction>();
-    }
+    protected virtual IEnumerable<NodeAction> GetNestedActions() => Enumerable.Empty<NodeAction>();
 
     #endregion
 

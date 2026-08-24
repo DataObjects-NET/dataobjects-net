@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -24,37 +23,29 @@ namespace Xtensive.Modelling
   /// <summary>
   /// An abstract base class for model node.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{Name}")]
   public abstract class Node : LockableBase,
-    INode,
-    IDeserializationCallback
+    INode
   {
     /// <summary>
     /// Path delimiter character.
     /// </summary>
     public static readonly char PathDelimiter = '/';
+    /// <summary>
+    /// Same as <see cref="PathDelimiter"/> but string.
+    /// </summary>
     public static readonly string PathDelimiterString = PathDelimiter.ToString();
     /// <summary>
     /// Path escape character.
     /// </summary>
     public static readonly char PathEscape = '\\';
 
-    [NonSerialized]
-    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors =
-      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
-    [NonSerialized]
-    private Node model;
-    [NonSerialized]
-    private string cachedPath;
-    [NonSerialized]
-    private Nesting nesting;
-    [NonSerialized]
-    private PropertyAccessorDictionary propertyAccessors;
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors = new();
+
     internal Node parent;
+    private string cachedPath;
     private string name;
     private string escapedName;
-    private NodeState state;
     private int index;
 
     #region Properties
@@ -77,10 +68,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public Node Model {
-      [DebuggerStepThrough]
-      get { return model; }
-    }
+    public Node Model { get; private set; }
 
     /// <inheritdoc/>
     [SystemProperty]
@@ -89,26 +77,17 @@ namespace Xtensive.Modelling
       [DebuggerStepThrough]
       get { return name; }
       [DebuggerStepThrough]
-      set {
-        Move(Parent, value, Index);
-      }
+      set => Move(Parent, value, Index);
     }
 
     /// <inheritdoc/>
     public string EscapedName
-    {
-      [DebuggerStepThrough]
-      get {
-        if (escapedName==null)
-          escapedName = new[] {Name}.RevertibleJoin(PathEscape, PathDelimiter);
-        return escapedName;
-      }
+    { [DebuggerStepThrough]
+      get => escapedName ??= new[] { Name }.RevertibleJoin(PathEscape, PathDelimiter);
     }
 
     /// <inheritdoc/>
-    public NodeState State {
-      get { return state; }
-    }
+    public NodeState State { get; private set; }
 
     /// <inheritdoc/>
     [SystemProperty]
@@ -125,13 +104,13 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public Nesting Nesting {
       [DebuggerStepThrough]
-      get { return nesting; }
+      get; private set;
     }
 
     /// <inheritdoc/>
     public PropertyAccessorDictionary PropertyAccessors {
       [DebuggerStepThrough]
-      get { return propertyAccessors; }
+      get; private set;
     }
 
     /// <inheritdoc/>
@@ -166,7 +145,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly)
     {
-      foreach (var pair in propertyAccessors) {
+      foreach (var pair in PropertyAccessors) {
         string propertyName = pair.Key;
         var accessor = pair.Value;
         if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
@@ -509,7 +488,7 @@ namespace Xtensive.Modelling
         }
       }
 
-      state = NodeState.Live;
+      State = NodeState.Live;
     }
 
     /// <summary>
@@ -659,7 +638,7 @@ namespace Xtensive.Modelling
     /// </summary>
     protected virtual void PerformRemove(Node source)
     {
-      state = NodeState.Removed;
+      State = NodeState.Removed;
       if (source == this) {
         // Updating parents
         if (!Nesting.IsNestedToCollection) {
@@ -845,7 +824,7 @@ namespace Xtensive.Modelling
     private void UpdateModel()
     {
       var p = Parent;
-      model = p == null ? (Node) (this as IModel) : p.Model;
+      Model = p == null ? (Node) (this as IModel) : p.Model;
     }
 
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
@@ -900,12 +879,12 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException"><see cref="CreateNesting"/> has returned <see langword="null" />.</exception>
     protected virtual void Initialize()
     {
-      nesting = CreateNesting();
-      if (nesting == null) {
+      Nesting = CreateNesting();
+      if (Nesting == null) {
         throw new InvalidOperationException(Strings.ExNoNesting);
       }
 
-      propertyAccessors = GetPropertyAccessors(GetType());
+      PropertyAccessors = GetPropertyAccessors(GetType());
     }
 
     #endregion
@@ -941,7 +920,7 @@ namespace Xtensive.Modelling
         }
 
         // Everything else
-        foreach (var pair in propertyAccessors) {
+        foreach (var pair in PropertyAccessors) {
           var propertyName = pair.Key;
           var accessor = pair.Value;
           if (accessor.PropertyInfo.GetAttribute<SystemPropertyAttribute>(
@@ -1019,26 +998,6 @@ namespace Xtensive.Modelling
       }
       else {
         Move(parent, name, ((NodeCollection) Nesting.PropertyGetter(parent)).Count);
-      }
-    }
-
-    // Deserialization
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
-      if (nesting!=null) {
-        return; // Protects from multiple calls
-      }
-
-      Initialize();
-      if (Parent is IDeserializationCallback p) {
-        p.OnDeserialization(sender);
-      }
-
-      UpdateModel();
-      if (IsLocked) {
-        cachedPath = Path;
       }
     }
   }

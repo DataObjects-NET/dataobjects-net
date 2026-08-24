@@ -16,14 +16,13 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint for update data operation.
   /// </summary>
-  [Serializable]
   public class UpdateDataHint : DataHint
   {
     /// <summary>
     /// Gets the update parameter. The first is updated column path, 
     /// the second is new value or null (default value).
     /// </summary>
-    public IReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
+    public IReadOnlyList<Pair<string, object>> UpdateParameter { get; }
 
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -60,8 +59,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       IList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {
-      ArgumentValidator.EnsureArgumentNotNull(updateParameters, "updateParameters");
-      UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters);
+      UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters ?? throw new ArgumentNullException(nameof(updateParameters)));
     }
 
   }

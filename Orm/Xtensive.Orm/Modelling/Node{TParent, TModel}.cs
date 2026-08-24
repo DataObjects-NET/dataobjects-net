@@ -16,7 +16,6 @@ namespace Xtensive.Modelling
   /// </summary>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   /// <typeparam name="TModel">The type of the model.</typeparam>
-  [Serializable]
   public abstract class Node<TParent, TModel> : Node,
     INode<TParent>
     where TParent : Node

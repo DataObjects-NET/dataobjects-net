@@ -20,7 +20,6 @@ namespace Xtensive.Modelling
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent.</typeparam>
   /// <typeparam name="TProperty">The type of the property.</typeparam>
-  [Serializable]
   public sealed class Nesting<TNode, TParent, TProperty> : Nesting
     where TNode: Node
     where TParent: Node

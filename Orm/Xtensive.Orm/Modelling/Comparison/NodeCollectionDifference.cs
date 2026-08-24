@@ -10,45 +10,36 @@ using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
 
-using Xtensive.Modelling.Actions;
-
 
 namespace Xtensive.Modelling.Comparison
 {
   /// <summary>
   /// <see cref="NodeCollection"/> comparison result.
   /// </summary>
-  [Serializable]
   public class NodeCollectionDifference : Difference,
     IDifference<NodeCollection>
   {
     /// <inheritdoc/>
-    public new NodeCollection Source {
-      get { return (NodeCollection) base.Source; }
-    }
+    public new NodeCollection Source => (NodeCollection) base.Source;
 
     /// <inheritdoc/>
-    public new NodeCollection Target {
-      get { return (NodeCollection) base.Target; }
-    }
+    public new NodeCollection Target => (NodeCollection) base.Target;
 
     /// <summary>
     /// Gets the item changes.
     /// </summary>
-    public List<NodeDifference> ItemChanges { get; private set; }
+    public List<NodeDifference> ItemChanges { get; }
 
     /// <inheritdoc/>
-    public override bool HasChanges {
-      get { return ItemChanges.Count!=0; }
-    }
+    public override bool HasChanges => ItemChanges.Count != 0;
 
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
       var sb = new StringBuilder();
-      sb.AppendFormat(Strings.ItemChangeCountFormat, ItemChanges.Count);
+      _ = sb.AppendFormat(Strings.ItemChangeCountFormat, ItemChanges.Count);
       foreach (var difference in ItemChanges)
-        sb.AppendLine().AppendFormat(Strings.ItemChangeFormat, difference);
+        _ = sb.AppendLine().AppendFormat(Strings.ItemChangeFormat, difference);
       return sb.ToString().Indent(ToString_IndentSize, false);
     }
 

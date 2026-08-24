@@ -13,16 +13,13 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// An abstract base class for any <see cref="IActionHandler"/> implementor.
   /// </summary>
-  [Serializable]
   public abstract class ActionHandler : IActionHandler,
     IContext<ActionHandlerScope>
   {
     /// <summary>
     /// Gets the current <see cref="ActionHandler"/>.
     /// </summary>
-    public static ActionHandler Current {
-      get { return ActionHandlerScope.CurrentHandler; }
-    }
+    public static ActionHandler Current => ActionHandlerScope.CurrentHandler;
 
     /// <inheritdoc/>
     public abstract void Execute(NodeAction action);
@@ -30,21 +27,13 @@ namespace Xtensive.Modelling.Actions
     #region IContext<...> implementation
 
     /// <inheritdoc/>
-    public bool IsActive {
-      get { return ActionHandlerScope.CurrentHandler==this; }
-    }
+    public bool IsActive => ActionHandlerScope.CurrentHandler == this;
 
     /// <inheritdoc/>
-    public ActionHandlerScope Activate()
-    {
-      return new ActionHandlerScope(this);
-    }
+    public ActionHandlerScope Activate() => new ActionHandlerScope(this);
 
     /// <inheritdoc/>
-    IDisposable IContext.Activate()
-    {
-      return Activate();
-    }
+    IDisposable IContext.Activate() => Activate();
 
     #endregion
   }

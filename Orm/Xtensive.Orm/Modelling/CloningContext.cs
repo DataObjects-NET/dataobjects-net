@@ -17,28 +17,25 @@ namespace Xtensive.Modelling
   /// <summary>
   /// <see cref="Node"/> cloning context.
   /// </summary>
-  [Serializable]
   public class CloningContext : IContext<CloningScope>
   {
     private List<Action> fixups;
 
     /// <summary>
+    /// Gets the current validation context.
+    /// </summary>
+    public static CloningContext Current => CloningScope.CurrentContext;
+
+    /// <summary>
     /// Gets all the added fixups.
     /// </summary>
-    public IEnumerable<Action> Fixups {
-      get { return fixups ?? Enumerable.Empty<Action>(); }
-    }
+    public IEnumerable<Action> Fixups => fixups ?? Enumerable.Empty<Action>();
 
     /// <summary>
     /// Adds the new fixup to fixups sequence.
     /// </summary>
     /// <param name="fixup">The fixup to add.</param>
-    public void AddFixup(Action fixup)
-    {
-      if (fixups==null)
-        fixups = new List<Action>();
-      fixups.Add(fixup);
-    }
+    public void AddFixup(Action fixup) => (fixups ??= new List<Action>()).Add(fixup);
 
     /// <summary>
     /// Clears all the fixups.
@@ -53,35 +50,20 @@ namespace Xtensive.Modelling
     /// </summary>
     public void ApplyFixups()
     {
-      if (fixups==null)
+      if (fixups is null)
         return;
       foreach (var fixup in fixups)
         fixup.Invoke();
       fixups = null;
     }
 
-    /// <summary>
-    /// Gets the current validation context.
-    /// </summary>
-    public static CloningContext Current {
-      get {
-        return CloningScope.CurrentContext;
-      }
-    }
-
     #region IContext<...> methods
 
     /// <inheritdoc/>
-    public CloningScope Activate()
-    {
-      return new CloningScope(this);
-    }
+    public CloningScope Activate() => new CloningScope(this);
 
     /// <inheritdoc/>
-    public bool IsActive
-    {
-      get { return Current==this; }
-    }
+    public bool IsActive => Current == this;
 
     /// <inheritdoc/>
     IDisposable IContext.Activate()

@@ -14,7 +14,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint for delete data operation.
   /// </summary>
-  [Serializable]
   public class DeleteDataHint : DataHint
   {
     [Flags]
