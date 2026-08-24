@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Enumerates all possible namespace treatment options in naming policy.
   /// </summary>
-  [Serializable]
   public enum NamespacePolicy
   {
     /// <summary>

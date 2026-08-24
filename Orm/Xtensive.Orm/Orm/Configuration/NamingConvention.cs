@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// A set of rules for model definition objects naming.
   /// </summary>
-  [Serializable]
   public class NamingConvention : LockableBase,
     ICloneable
   {

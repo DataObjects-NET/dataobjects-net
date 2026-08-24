@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Collection of configurations of extensions.
   /// </summary>
-  [Serializable]
   public sealed class ExtensionConfigurationCollection : LockableBase,
     IEnumerable<ConfigurationBase>
   {

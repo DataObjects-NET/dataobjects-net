@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Storage node configuration.
   /// </summary>
-  [Serializable]
   public class NodeConfiguration : LockableBase, ICloneable
   {
     private string nodeId;

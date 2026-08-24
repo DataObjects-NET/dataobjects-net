@@ -15,20 +15,19 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Name mapping collection.
   /// </summary>
-  [Serializable]
   public class NameMappingCollection : LockableBase, IEnumerable<KeyValuePair<string, string>>, ICloneable
   {
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty = new NameMappingCollection();
+    public static readonly NameMappingCollection Empty = new();
 
-    private readonly Dictionary<string, string> items = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> items = new();
 
     /// <summary>
     /// Gets number of elements in this collection.
     /// </summary>
-    public int Count { get { return items.Count; } }
+    public int Count => items.Count;
 
     /// <summary>
     /// Adds mapping between <paramref name="originalName"/>
@@ -62,8 +61,7 @@ namespace Xtensive.Orm.Configuration
     public string Apply([NotNull] string name)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      string result;
-      if (items.TryGetValue(name, out result))
+      if (items.TryGetValue(name, out var result))
         return result;
       return name;
     }
@@ -81,28 +79,19 @@ namespace Xtensive.Orm.Configuration
     /// Returns an enumerator that iterates through the collection.
     /// </summary>
     /// <returns>A <see cref="IEnumerator{T}" /> that can be used to iterate through the collection.</returns>
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
-    {
-      return items.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => items.GetEnumerator();
 
     /// <summary>
     /// Returns an enumerator that iterates through a collection.
     /// </summary>
     /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Creates clone of this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public object Clone()
-    {
-      return new NameMappingCollection(this);
-    }
+    public object Clone() => new NameMappingCollection(this);
 
     /// <summary>
     /// Initializes new instance of this type.

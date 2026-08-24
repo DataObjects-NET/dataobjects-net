@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// <see cref="Session"/> configuration.
   /// </summary>
-  [Serializable]
   public class SessionConfiguration : ConfigurationBase
   {
     #region Defaults
