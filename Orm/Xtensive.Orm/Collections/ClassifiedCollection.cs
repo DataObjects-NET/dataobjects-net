@@ -17,36 +17,29 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="TClass">The type of the class.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}, ClassCount = {ClassCount}")]
-  public class ClassifiedCollection<TClass, TItem> : 
+  public class ClassifiedCollection<TClass, TItem> :
     IClassifiedCollection<TClass, TItem>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private HashSet<TItem> set = new HashSet<TItem>();
+    private readonly HashSet<TItem> set = new();
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private List<TItem> list = new List<TItem>();
-    private Dictionary<TClass, List<TItem>> classified = new Dictionary<TClass, List<TItem>>();
+    private readonly List<TItem> list = new();
+    private readonly Dictionary<TClass, List<TItem>> classified = new();
 
     #region Properties: Count, ClassCount, IsSet, ...
 
     /// <inheritdoc/>
-    public bool IsSet { get; private set; }
+    public bool IsSet { get; }
 
     /// <inheritdoc/>
-    public bool IsReadOnly {
-      get { return false; }
-    }
+    public bool IsReadOnly => false;
 
     /// <inheritdoc/>
-    public int Count {
-      get { return list.Count; }
-    }
+    public int Count => list.Count;
 
     /// <inheritdoc/>
-    public int ClassCount {
-      get { return classified.Keys.Count; }
-    }
+    public int ClassCount => classified.Keys.Count;
 
     /// <inheritdoc/>
     public Func<TItem, TClass[]> Classifier { get; private set; }
@@ -62,7 +55,7 @@ namespace Xtensive.Collections
       var classes = Classifier.Invoke(item);
       foreach (var @class in classes) {
         var classList = classified.GetValueOrDefault(@class);
-        if (classList==null) {
+        if (classList is null) {
           classList = new List<TItem>();
           classified.Add(@class, classList);
         }
@@ -82,13 +75,13 @@ namespace Xtensive.Collections
     {
       if (!set.Remove(item))
         return false;
-      list.Remove(item);
+      _ = list.Remove(item);
       var classes = Classifier.Invoke(item);
       foreach (var @class in classes) {
         var classList = classified[@class];
-        classList.Remove(item);
+        _ = classList.Remove(item);
         if (classList.Count==0)
-          classified.Remove(@class);
+          _ = classified.Remove(@class);
       }
       return true;
     }
@@ -102,28 +95,19 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item)
-    {
-      return set.Contains(item);
-    }
+    public bool Contains(TItem item) => set.Contains(item);
 
     /// <inheritdoc/>
     public void CopyTo(TItem[] array, int arrayIndex)
-    {
-      list.CopyTo(array, arrayIndex);
-    }
+      => list.CopyTo(array, arrayIndex);
 
     /// <inheritdoc/>
     public IEnumerable<TItem> GetItems(TClass @class)
-    {
-      return classified.GetValueOrDefault(@class) ?? Enumerable.Empty<TItem>();
-    }
+      => classified.GetValueOrDefault(@class)
+           ?? Enumerable.Empty<TItem>();
 
     /// <inheritdoc/>
-    public IEnumerable<TClass> GetClasses()
-    {
-      return classified.Keys;
-    }
+    public IEnumerable<TClass> GetClasses() => classified.Keys;
 
     public int GetItemCount(TClass @class)
     {
@@ -133,15 +117,9 @@ namespace Xtensive.Collections
 
     #region IEnumerable<...> members
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TItem> GetEnumerator()
-    {
-      return list.GetEnumerator();
-    }
+    public IEnumerator<TItem> GetEnumerator() => list.GetEnumerator();
 
     #endregion
 

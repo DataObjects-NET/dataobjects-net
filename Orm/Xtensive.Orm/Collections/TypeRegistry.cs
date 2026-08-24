@@ -18,7 +18,6 @@ namespace Xtensive.Collections
   /// <summary>
   /// <see cref="Type"/> registration endpoint.
   /// </summary>
-  [Serializable]
   public class TypeRegistry : LockableBase,
     IEnumerable<Type>,
     ICloneable
@@ -38,7 +37,7 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets assemblies containing registered types.
     /// </summary>
-    public IReadOnlySet<Assembly> Assemblies { get { return (IReadOnlySet<Assembly>)assemblies; } }
+    public IReadOnlySet<Assembly> Assemblies => (IReadOnlySet<Assembly>) assemblies;
 
     /// <summary>
     /// Determines whether the specified <see cref="Type"/> is contained in this instance.
@@ -60,11 +59,11 @@ namespace Xtensive.Collections
       EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!isProcessingPendingActions)
-        Register(new TypeRegistration(type));
+        _ = Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
         serviceRegistrations = null;
         types.Add(type);
-        assemblies.Add(type.Assembly);
+        _ = assemblies.Add(type.Assembly);
       }
     }
 
@@ -80,7 +79,7 @@ namespace Xtensive.Collections
     {
       EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      Register(new TypeRegistration(assembly));
+      _ = Register(new TypeRegistration(assembly));
     }
 
     /// <summary>
@@ -98,7 +97,7 @@ namespace Xtensive.Collections
       EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
-      Register(new TypeRegistration(assembly, @namespace));
+      _ = Register(new TypeRegistration(assembly, @namespace));
     }
 
     /// <summary>
@@ -113,7 +112,7 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
       if (actionSet.Contains(action))
         return false;
-      actionSet.Add(action);
+      _ = actionSet.Add(action);
       actions.Add(action);
       return true;
     }
@@ -155,10 +154,7 @@ namespace Xtensive.Collections
     /// Clones this instance.
     /// </summary>
     /// <returns></returns>
-    public virtual object Clone()
-    {
-      return new TypeRegistry(this);
-    }
+    public virtual object Clone() => new TypeRegistry(this);
 
     #endregion
 
@@ -172,10 +168,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 
@@ -198,8 +191,7 @@ namespace Xtensive.Collections
     /// <param name="processor">The registry action processor.</param>
     public TypeRegistry(ITypeRegistrationProcessor processor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
-      this.processor = processor;
+      this.processor = processor ?? throw new ArgumentNullException(nameof(processor));
     }
 
     /// <summary>

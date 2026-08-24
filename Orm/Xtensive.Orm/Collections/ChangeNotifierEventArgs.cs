@@ -12,22 +12,16 @@ namespace Xtensive.Collections
   /// <summary>
   /// Represents a set of information describing <see cref="IChangeNotifier"/> change.
   /// </summary>
-  [Serializable]
-  public readonly struct ChangeNotifierEventArgs
+  /// <remarks>
+  /// Initializes a new instance of this type.
+  /// </remarks>
+  /// <param name="changeInfo">The info.</param>
+  public readonly struct ChangeNotifierEventArgs(object changeInfo)
   {
     /// <summary>
     /// Gets the object representing some additional change information.
     /// </summary>
     /// <value>The info.</value>
-    public object ChangeInfo { get; }
-
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="changeInfo">The info.</param>
-    public ChangeNotifierEventArgs(object changeInfo)
-    {
-      ChangeInfo = changeInfo;
-    }
+    public object ChangeInfo { get; } = changeInfo;
   }
 }

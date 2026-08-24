@@ -12,7 +12,6 @@ namespace Xtensive.Collections.Graphs
   /// <summary>
   /// Graph node. 
   /// </summary>
-  [Serializable]
   public class Node
   {
     private HashSet<Edge> incomingEdges;
@@ -21,17 +20,17 @@ namespace Xtensive.Collections.Graphs
     /// <summary>
     /// Gets node value.
     /// </summary>
-    public virtual object UntypedValue { get { return null; } }
+    public virtual object UntypedValue => null;
 
     /// <summary>
     /// Indicates whether this node has incoming edges.
     /// </summary>
-    public bool HasIncomingEdges { get { return incomingEdges!=null && incomingEdges.Count!=0; } }
-    
+    public bool HasIncomingEdges => incomingEdges is not null && incomingEdges.Count != 0;
+
     /// <summary>
     /// Indicates whether this node has outgoing edges.
     /// </summary>
-    public bool HasOutgoingEdges { get { return outgoingEdges!=null && outgoingEdges.Count!=0; } }
+    public bool HasOutgoingEdges => outgoingEdges is not null && outgoingEdges.Count != 0;
 
     /// <summary>
     /// Gets incoming edges.
@@ -63,12 +62,9 @@ namespace Xtensive.Collections.Graphs
           foreach (var c in outgoingEdges)
             yield return c;
       }
-    } 
+    }
 
     /// <inheritdoc />
-    public override string ToString()
-    {
-      return string.Concat("[", UntypedValue, "]");
-    }
+    public override string ToString() => $"[{UntypedValue}]";
   }
 }

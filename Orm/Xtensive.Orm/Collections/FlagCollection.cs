@@ -28,13 +28,11 @@ namespace Xtensive.Collections
   /// </remarks>
   /// <typeparam name="TKey">Type of the key.</typeparam>
   /// <typeparam name="TFlag">Type of the flag.</typeparam>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class FlagCollection<TKey, TFlag>: LockableBase,
     IList<KeyValuePair<TKey, TFlag>>,
     IDictionary<TKey, TFlag>,
-    IEquatable<FlagCollection<TKey, TFlag>>,
-    ISerializable
+    IEquatable<FlagCollection<TKey, TFlag>>
   {
     private const int MaxItemCount = 32;
     private readonly Biconverter<TFlag, bool> converter;
@@ -373,38 +371,5 @@ namespace Xtensive.Collections
       keys = new List<TKey>();
       readOnlyKeys = keys.AsReadOnly();
     }
-
-    #region ISerializable members
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    protected FlagCollection(SerializationInfo info, StreamingContext context)
-      : base(info.GetBoolean("IsLocked"))
-    {
-      converter = (Biconverter<TFlag, bool>)
-        info.GetValue("AdvancedConverter", typeof(Biconverter<TFlag, bool>));
-      keys = (List<TKey>)info.GetValue("Keys", typeof(List<TKey>));
-      readOnlyKeys = keys.AsReadOnly();
-      flags = new BitVector32(info.GetInt32("Flags"));
-    }
-
-    /// <summary>
-    /// Serializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("IsLocked", IsLocked);
-      info.AddValue("AdvancedConverter", converter);
-      info.AddValue("Keys", keys);
-      info.AddValue("Flags", flags.Data);
-    }
-
-    #endregion
   }
 }

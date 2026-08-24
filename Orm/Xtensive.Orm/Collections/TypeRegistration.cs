@@ -15,49 +15,35 @@ namespace Xtensive.Collections
   /// <summary>
   /// Describes a single type registration call to <see cref="TypeRegistry"/>.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Type = {Type}, Assembly = {Assembly}, Namespace = {Namespace}")]
   public sealed class TypeRegistration : IEquatable<TypeRegistration>
   {
-    private readonly Type type;
-    private readonly Assembly assembly;
-    private readonly string @namespace;
-
     /// <summary>
     /// Gets the type registered by this action.
     /// </summary>
-    public Type Type
-    {
-      get { return type; }
-    }
+    public Type Type { get; }
 
     /// <summary>
     /// Gets the assembly registered by this action.
     /// </summary>
-    public Assembly Assembly
-    {
-      get { return assembly; }
-    }
+    public Assembly Assembly { get; }
 
     /// <summary>
     /// Gets the namespace registered by this action.
     /// </summary>
-    public string Namespace
-    {
-      get { return @namespace; }
-    }
+    public string Namespace { get; }
 
     #region Equality members
 
     /// <inheritdoc/>
     public bool Equals(TypeRegistration other)
     {
-      if (other == null)
+      if (other is null)
         return false;
       return 
-        type==other.type && 
-        assembly==other.assembly && 
-        @namespace==other.@namespace;
+        Type==other.Type && 
+        Assembly==other.Assembly && 
+        Namespace==other.Namespace;
     }
 
     /// <inheritdoc/>
@@ -72,9 +58,9 @@ namespace Xtensive.Collections
     public override int GetHashCode()
     {
       unchecked {
-        int result = (type!=null ? type.GetHashCode() : 0);
-        result = (result * 397) ^ (assembly!=null ? assembly.GetHashCode() : 0);
-        result = (result * 397) ^ (@namespace!=null ? @namespace.GetHashCode() : 0);
+        int result = (Type is not null ? Type.GetHashCode() : 0);
+        result = (result * 397) ^ (Assembly is not null ? Assembly.GetHashCode() : 0);
+        result = (result * 397) ^ (Namespace is not null ? Namespace.GetHashCode() : 0);
         return result;
       }
     }
@@ -102,8 +88,7 @@ namespace Xtensive.Collections
     /// <param name="type">The type to register.</param>
     public TypeRegistration(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      this.type = type;
+      Type = type ?? throw new ArgumentNullException(nameof(type));
     }
 
     /// <summary>
@@ -112,8 +97,7 @@ namespace Xtensive.Collections
     /// <param name="assembly">The assembly to register.</param>
     public TypeRegistration(Assembly assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      this.assembly = assembly;
+      Assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
     }
 
     /// <summary>
@@ -125,7 +109,7 @@ namespace Xtensive.Collections
       : this(assembly)
     {
       ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
-      this.@namespace = @namespace;
+      Namespace = @namespace;
     }
   }
 }

@@ -14,9 +14,8 @@ namespace Xtensive.Collections
   /// <summary>
   /// Read-only wrapper over the <see cref="HashSet{T}"/> class instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  internal class ReadOnlyHashSet<T>: System.Collections.Generic.ISet<T>, IReadOnlySet<T>
+  internal class ReadOnlyHashSet<T>: ISet<T>, IReadOnlySet<T>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly HashSet<T> innerSet;
