@@ -5,12 +5,8 @@
 // Created:    2008.07.03
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -18,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces equality join between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class JoinProvider : BinaryProvider
   {
     private const string ToStringFormat = "{0}, {1}";

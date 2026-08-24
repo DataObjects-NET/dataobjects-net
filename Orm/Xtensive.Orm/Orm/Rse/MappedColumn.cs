@@ -12,11 +12,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Mapped column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public sealed class MappedColumn : Column
   {
-    private const string ToStringFormat = "{0} = {1}";
-
     private readonly ColumnInfoRef columnInfo;
     /// <summary>
     /// Gets the reference that describes a column.
@@ -24,22 +21,13 @@ namespace Xtensive.Orm.Rse
     public ref readonly ColumnInfoRef ColumnInfoRef => ref columnInfo;
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
-    }
+    public override string ToString() => $"{base.ToString()} = {ColumnInfoRef}";
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
-    {
-      return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
-    }
+    public override MappedColumn Clone(int newIndex) => new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
-    {
-      return new MappedColumn(this, newName);
-    }
+    public override MappedColumn Clone(string newName) => new MappedColumn(this, newName);
 
     // Constructors
 

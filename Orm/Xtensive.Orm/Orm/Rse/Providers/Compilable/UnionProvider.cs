@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
-
-
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -17,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces union between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class UnionProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()

@@ -5,9 +5,7 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse.Compilation;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -15,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Gives access to the specified <see cref="Index"/>.
   /// </summary>
-  [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
     private readonly RecordSetHeader indexHeader;

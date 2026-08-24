@@ -5,10 +5,6 @@
 // Created:    2009.04.01
 
 using System;
-using System.Diagnostics;
-using Xtensive.Collections;
-
-
 
 namespace Xtensive.Orm.Rse.Providers
 { 
@@ -16,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces intersect operation between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
-  [Serializable]
   public sealed class IntersectProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()

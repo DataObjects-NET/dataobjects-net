@@ -5,14 +5,7 @@
 // Created:    2009.03.05
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
-using Xtensive.Core;
-
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -21,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Produces join between <see cref="BinaryProvider.Left"/> and 
   /// <see cref="BinaryProvider.Right"/> sources by <see cref="Predicate"/>.
   /// </summary>
-  [Serializable]
   public sealed class PredicateJoinProvider : BinaryProvider
   {
     /// <summary>

@@ -5,11 +5,7 @@
 // Created:    2008.08.14
 
 using System;
-using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Linq;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -17,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that returns one record if it matches specified <see cref="Key"/> from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class SeekProvider : UnaryProvider
   {
     /// <summary>

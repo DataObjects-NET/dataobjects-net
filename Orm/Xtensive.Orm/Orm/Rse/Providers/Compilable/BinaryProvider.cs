@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Base class for binary operation provider over 
   /// the <see cref="Left"/> and <see cref="Right"/> providers.
   /// </summary>
-  [Serializable]
   public abstract class BinaryProvider : CompilableProvider
   {
     /// <summary>

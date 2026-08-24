@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -20,13 +17,8 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that applies aggregate functions to grouped columns from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class AggregateProvider : UnaryProvider
   {
-    private const string ToStringFormatGroupOnly = "Group by ({0})";
-    private const string ToStringFormatAggregateOnly = "{0}";
-    private const string ToStringFormatFull = "{0}, Group by ({1})";
-
     /// <summary>
     /// Gets the aggregate columns.
     /// </summary>
@@ -53,20 +45,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      if (AggregateColumns.Length==0)
-        return string.Format(
-          ToStringFormatGroupOnly,
-          GroupColumnIndexes.ToCommaDelimitedString());
+      if (AggregateColumns.Length == 0)
+        return $"Group by ({GroupColumnIndexes.ToCommaDelimitedString()})";
 
-      if (GroupColumnIndexes.Length==0)
-        return string.Format(
-          ToStringFormatAggregateOnly,
-          AggregateColumns.ToCommaDelimitedString());
+      if (GroupColumnIndexes.Length == 0)
+        return AggregateColumns.ToCommaDelimitedString();
 
-      return string.Format(
-        ToStringFormatFull,
-        AggregateColumns.ToCommaDelimitedString(),
-        GroupColumnIndexes.ToCommaDelimitedString());
+      return $"{AggregateColumns.ToCommaDelimitedString()}, Group by ({GroupColumnIndexes.ToCommaDelimitedString()})";
     }
 
     /// <inheritdoc/>
@@ -95,19 +80,13 @@ namespace Xtensive.Orm.Rse.Providers
       // TODO: very stupid - remove when nullables handing fixed everywhere.
       if (sourceColumnType.IsNullable())
         sourceColumnType = sourceColumnType.GetGenericArguments()[0];
-      switch (aggregateType) {
-      case AggregateType.Count:
-        return WellKnownTypes.Int64;
-      case AggregateType.Min:
-      case AggregateType.Max:
-        return GetMinMaxColumnType(sourceColumnType, aggregateType);
-      case AggregateType.Sum:
-        return GetSumColumnType(sourceColumnType);
-      case AggregateType.Avg:
-        return GetAvgColumnType(sourceColumnType);
-      default:
-        throw AggregateNotSupported(sourceColumnType, aggregateType);
-      }
+      return aggregateType switch {
+        AggregateType.Count => WellKnownTypes.Int64,
+        AggregateType.Min or AggregateType.Max => GetMinMaxColumnType(sourceColumnType, aggregateType),
+        AggregateType.Sum => GetSumColumnType(sourceColumnType),
+        AggregateType.Avg => GetAvgColumnType(sourceColumnType),
+        _ => throw AggregateNotSupported(sourceColumnType, aggregateType),
+      };
     }
 
     #region Private / internal methods
@@ -115,68 +94,68 @@ namespace Xtensive.Orm.Rse.Providers
     private static Type GetMinMaxColumnType(Type sourceColumnType, AggregateType aggregateType)
     {
       switch (System.Type.GetTypeCode(sourceColumnType)) {
-      case TypeCode.Char:
-      case TypeCode.SByte:
-      case TypeCode.Byte:
-      case TypeCode.Int16:
-      case TypeCode.Int32:
-      case TypeCode.Int64:
-      case TypeCode.UInt16:
-      case TypeCode.UInt32:
-      case TypeCode.UInt64:
-      case TypeCode.Decimal:
-      case TypeCode.Single:
-      case TypeCode.Double:
-      case TypeCode.String:
-      case TypeCode.DateTime:
-        return sourceColumnType;
-      default:
-        if (sourceColumnType==WellKnownTypes.TimeSpan || sourceColumnType==WellKnownTypes.DateTimeOffset)
+        case TypeCode.Char:
+        case TypeCode.SByte:
+        case TypeCode.Byte:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+        case TypeCode.Decimal:
+        case TypeCode.Single:
+        case TypeCode.Double:
+        case TypeCode.String:
+        case TypeCode.DateTime:
           return sourceColumnType;
-        if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
-          return sourceColumnType;
-        throw AggregateNotSupported(sourceColumnType, aggregateType);
+        default:
+          if (sourceColumnType == WellKnownTypes.TimeSpan || sourceColumnType == WellKnownTypes.DateTimeOffset)
+            return sourceColumnType;
+          if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
+            return sourceColumnType;
+          throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }
 
     private static Type GetSumColumnType(Type sourceColumnType)
     {
       switch (System.Type.GetTypeCode(sourceColumnType)) {
-      case TypeCode.SByte:
-      case TypeCode.Byte:
-      case TypeCode.Int16:
-      case TypeCode.Int32:
-      case TypeCode.Int64:
-      case TypeCode.UInt16:
-      case TypeCode.UInt32:
-      case TypeCode.UInt64:
-      case TypeCode.Decimal:
-      case TypeCode.Single:
-      case TypeCode.Double:
-        return sourceColumnType;
-      default:
-        throw AggregateNotSupported(sourceColumnType, AggregateType.Sum);
+        case TypeCode.SByte:
+        case TypeCode.Byte:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+        case TypeCode.Decimal:
+        case TypeCode.Single:
+        case TypeCode.Double:
+          return sourceColumnType;
+        default:
+          throw AggregateNotSupported(sourceColumnType, AggregateType.Sum);
       }
     }
 
     private static Type GetAvgColumnType(Type sourceColumnType)
     {
       switch (System.Type.GetTypeCode(sourceColumnType)) {
-      case TypeCode.SByte:
-      case TypeCode.Byte:
-      case TypeCode.Int16:
-      case TypeCode.Int32:
-      case TypeCode.Int64:
-      case TypeCode.UInt16:
-      case TypeCode.UInt32:
-      case TypeCode.UInt64:
-        return WellKnownTypes.Double;
-      case TypeCode.Decimal:
-      case TypeCode.Single:
-      case TypeCode.Double:
-        return sourceColumnType;
-      default:
-        throw AggregateNotSupported(sourceColumnType, AggregateType.Avg);
+        case TypeCode.SByte:
+        case TypeCode.Byte:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+          return WellKnownTypes.Double;
+        case TypeCode.Decimal:
+        case TypeCode.Single:
+        case TypeCode.Double:
+          return sourceColumnType;
+        default:
+          throw AggregateNotSupported(sourceColumnType, AggregateType.Avg);
       }
     }
 

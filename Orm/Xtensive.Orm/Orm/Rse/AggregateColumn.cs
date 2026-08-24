@@ -11,11 +11,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Aggregate column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public sealed class AggregateColumn : Column
   {
-    private const string ToStringFormat = "{0} = {1} on ({2})";
-
     /// <summary>
     /// Gets the aggregate function.
     /// </summary>
@@ -33,22 +30,14 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public override string ToString()
-    {
-      return string.Format(ToStringFormat,
-        base.ToString(), AggregateType, SourceIndex);
-    }
+      => $"{base.ToString()} = {AggregateType} on ({SourceIndex})";
+
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
-    {
-      return new AggregateColumn(this, newIndex);
-    }
+    public override AggregateColumn Clone(int newIndex) => new AggregateColumn(this, newIndex);
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
-    {
-      return new AggregateColumn(this, newName);
-    }
+    public override AggregateColumn Clone(string newName) => new AggregateColumn(this, newName);
 
 
     // Constructors

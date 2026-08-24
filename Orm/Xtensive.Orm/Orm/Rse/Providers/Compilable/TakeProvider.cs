@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that takes first N result records from <see cref="UnaryProvider.Source"/>. Amount of records is specified using <see cref="Count"/> property.
   /// </summary>
-  [Serializable]
   public sealed class TakeProvider : UnaryProvider
   {
     /// <summary>

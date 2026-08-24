@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Transformation
   /// <summary>
   /// Corrects an using of <see cref="SkipProvider"/> and <see cref="TakeProvider"/>
   /// </summary>
-  [Serializable]
   public sealed class SkipTakeCorrector : IPreCompiler
   {
     private readonly bool takeSupported;

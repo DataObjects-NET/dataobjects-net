@@ -6,9 +6,7 @@
 
 using System;
 using Xtensive.Core;
-
 using Xtensive.Tuples.Transform;
-using Xtensive.Collections;
 using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -16,7 +14,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that calculates columns from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public class CalculateProvider : UnaryProvider,
     IInlinableProvider
   {

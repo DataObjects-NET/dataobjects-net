@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Rse.Transformation
   /// <summary>
   /// Corrects an ordering of records.
   /// </summary>
-  [Serializable]
   public sealed class OrderingCorrector : IPreCompiler
   {
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver;

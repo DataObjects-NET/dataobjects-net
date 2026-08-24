@@ -5,24 +5,19 @@
 // Created:    2008.07.08
 
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
+
 
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Base class for any compilable sorting providers (such as <see cref="SortProvider"/>).
   /// </summary>
-  [Serializable]
   public abstract class OrderProviderBase : UnaryProvider
   {
     /// <summary>
@@ -63,16 +58,6 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void Initialize()
     {
       base.Initialize();
-      var comparisonRules = new ComparisonRules[Order.Count];
-      for (int i = 0; i < Order.Count; i++) {
-        var orderItem = Order[i];
-        var column = Header.Columns[orderItem.Key];
-
-        var culture = column is MappedColumn mColumn && mColumn.ColumnInfoRef.TypeName != null
-          ? mColumn.ColumnInfoRef.CultureInfo
-          : CultureInfo.InvariantCulture;
-        comparisonRules[i] = new ComparisonRule(orderItem.Value, culture);
-      }
 
       var fieldTypes = new Type[Order.Count];
       var map = new int[Order.Count];

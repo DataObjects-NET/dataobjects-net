@@ -5,14 +5,11 @@
 // Created:    2009.12.28
 
 using System;
-using System.Diagnostics;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -20,7 +17,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Executes full-text search (free text query) against specified <see cref="PrimaryIndex"/>.
   /// </summary>
-  [Serializable]
   public sealed class FreeTextProvider : CompilableProvider
   {
     private readonly RecordSetHeader indexHeader;

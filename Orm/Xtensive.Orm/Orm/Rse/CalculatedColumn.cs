@@ -17,11 +17,8 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Calculated column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public sealed class CalculatedColumn : Column
   {
-    private const string ToStringFormat = "{0} = {1}";
-
     /// <summary>
     /// Gets the column expression.
     /// </summary>
@@ -29,22 +26,13 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public override string ToString()
-    {
-      return string.Format(ToStringFormat,
-        base.ToString(), Expression.ToString(true));
-    }
+      => $"{base.ToString()} = {Expression.ToString(true)}";
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
-    {
-      return new CalculatedColumn(this, newIndex);
-    }
+    public override CalculatedColumn Clone(int newIndex) => new CalculatedColumn(this, newIndex);
 
     /// <inheritdoc/>
-    public override Column Clone(string newName)
-    {
-      return new CalculatedColumn(this, newName);
-    }
+    public override CalculatedColumn Clone(string newName) => new CalculatedColumn(this, newName);
 
 
     // Constructors

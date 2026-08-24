@@ -7,8 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -18,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Compilable provider that declares filtering operation 
   /// over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class FilterProvider : UnaryProvider
   {
     private Func<Tuple, bool> compiledPredicate;

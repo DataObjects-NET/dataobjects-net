@@ -5,7 +5,6 @@
 // Created:    2009.03.05
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Transform;
 
@@ -14,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that adds row number to <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class RowNumberProvider : UnaryProvider
   {
     /// <summary>

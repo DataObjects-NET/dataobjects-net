@@ -5,16 +5,12 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Collections;
-
-using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Aliases the <see cref="UnaryProvider.Source"/> with specified <see cref="Alias"/>.
   /// </summary>
-  [Serializable]
   public sealed class AliasProvider : UnaryProvider
   {
     /// <summary>
@@ -23,16 +19,10 @@ namespace Xtensive.Orm.Rse.Providers
     public string Alias { get; private set; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return base.BuildHeader().Alias(Alias);
-    }
+    protected override RecordSetHeader BuildHeader() => base.BuildHeader().Alias(Alias);
 
     /// <inheritdoc/>
-    protected override string ParametersToString()
-    {
-      return Alias;
-    }
+    protected override string ParametersToString() => Alias;
 
 
     // Constructors

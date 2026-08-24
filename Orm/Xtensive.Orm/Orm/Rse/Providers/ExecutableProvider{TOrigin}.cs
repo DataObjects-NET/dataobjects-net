@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for <typeparamref name="TOrigin"/>-typed executable providers.
   /// </summary>
   /// <typeparam name="TOrigin">The type of the <see cref="Origin"/>.</typeparam>
-  [Serializable]
   public abstract class ExecutableProvider<TOrigin> : ExecutableProvider
     where TOrigin: CompilableProvider
   {

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Provides access to some previously stored named <see cref="Provider"/> 
   /// or stores the specified <see cref="Source"/> with the specified <see cref="Name"/>.
   /// </summary>
-  [Serializable]
   public sealed class StoreProvider : CompilableProvider
   {
     private readonly RecordSetHeader header;

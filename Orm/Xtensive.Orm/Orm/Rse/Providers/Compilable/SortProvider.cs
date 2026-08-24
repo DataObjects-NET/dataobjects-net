@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Compilable provider that sorts the 
   /// <see cref="UnaryProvider.Source"/> by <see cref="OrderProviderBase.Order"/>.
   /// </summary>
-  [Serializable]
   public sealed class SortProvider : OrderProviderBase
   {
     // Constructors

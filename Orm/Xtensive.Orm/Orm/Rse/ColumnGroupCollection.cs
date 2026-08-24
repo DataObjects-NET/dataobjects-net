@@ -17,11 +17,10 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Read only collection of the <see cref="ColumnGroup"/> instances.
   /// </summary>
-  [Serializable]
   public class ColumnGroupCollection : IReadOnlyList<ColumnGroup>
   {
     private static readonly Lazy<ColumnGroupCollection> CachedEmpty =
-      new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
+      new(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
 
     private readonly IReadOnlyList<ColumnGroup> items;
 
@@ -36,11 +35,10 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
     /// </summary>
-    public static ColumnGroupCollection Empty {
+    public static ColumnGroupCollection Empty
+    {
       [DebuggerStepThrough]
-      get {
-        return CachedEmpty.Value;
-      }
+      get => CachedEmpty.Value;
     }
 
     /// <inheritdoc/>

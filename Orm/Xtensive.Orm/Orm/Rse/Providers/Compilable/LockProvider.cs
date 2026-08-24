@@ -6,13 +6,11 @@
 
 using System;
 
-
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Acquires the lock for a data in a source provider.
   /// </summary>
-  [Serializable]
   public sealed class LockProvider : UnaryProvider
   {
     /// <summary>

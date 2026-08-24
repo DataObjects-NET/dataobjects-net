@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Rse.Transformation
   /// <summary>
   /// <see cref="IPreCompiler"/> implementation that removes redundant columns in tree.
   /// </summary>
-  [Serializable]
   public class RedundantColumnOptimizer: IPreCompiler
   {
     public static RedundantColumnOptimizer Instance { get; } = new RedundantColumnOptimizer();

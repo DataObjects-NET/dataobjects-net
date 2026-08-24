@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Abstract base class for any query provider.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Count}")]
   public abstract class Provider
   {
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
     /// </summary>
-    public IReadOnlyList<Provider> Sources { [DebuggerStepThrough] get; }
+    public IReadOnlyList<Provider> Sources { get; }
 
     /// <summary>
     /// Gets or sets the header of the record sequence this provide produces.

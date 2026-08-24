@@ -7,20 +7,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class RawProvider : CompilableProvider
   {
     private readonly RecordSetHeader header;

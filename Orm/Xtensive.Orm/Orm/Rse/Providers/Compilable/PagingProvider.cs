@@ -5,7 +5,6 @@
 // Created:    2011.03.24
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 
 
@@ -14,7 +13,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Compilable provider that skips X result records and takes Y result records from <see cref="UnaryProvider.Source"/>.
   /// </summary>
-  [Serializable]
   public sealed class PagingProvider : UnaryProvider
   {
     /// <summary>

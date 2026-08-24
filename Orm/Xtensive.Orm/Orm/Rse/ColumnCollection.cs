@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Collection of <see cref="Column"/> items.
   /// </summary>
-  [Serializable]
   public sealed class ColumnCollection : IReadOnlyList<Column>
   {
     public struct Enumerator : IEnumerator<Column>, IEnumerator

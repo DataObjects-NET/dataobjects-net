@@ -6,14 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using System.Linq;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Rse
@@ -21,7 +19,6 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Header of <see cref="Provider"/>.
   /// </summary>
-  [Serializable]
   public sealed class RecordSetHeader
   {
     private volatile bool hasOrderTupleDescriptor;
