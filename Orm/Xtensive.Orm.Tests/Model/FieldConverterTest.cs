@@ -5,19 +5,16 @@
 // Created:    2009.11.20
 
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Model.FieldConverterTestModel;
 
 namespace Xtensive.Orm.Tests.Model.FieldConverterTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

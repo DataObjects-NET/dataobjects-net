@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version1
     public int Id { get; private set; }
   }
 
-  [Serializable]
   public class B : A
   {
   }

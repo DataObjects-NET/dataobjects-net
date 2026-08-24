@@ -60,7 +60,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet
     public string Second { get; set;}
   }
 
-  [Serializable]
   public class E : D, IComposite
   {
     string IComposite.First { get; set; }
