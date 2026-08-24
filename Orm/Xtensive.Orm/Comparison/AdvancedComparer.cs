@@ -7,10 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
-using Xtensive.Reflection;
 
 namespace Xtensive.Comparison
 {
@@ -18,33 +15,28 @@ namespace Xtensive.Comparison
   /// Provides delegates allowing to call comparison methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IAdvancedComparer{T}"/> generic argument.</typeparam>
-  [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
-    private static readonly Lazy<AdvancedComparer<T>> SystemCached =
-      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.System.GetComparer<T>());
-
-    private static readonly Lazy<AdvancedComparer<T>> DefaultCached =
-      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.Default.GetComparer<T>());
+    private static readonly Lazy<AdvancedComparer<T>> SystemCached = new(ComparerProvider.System.GetComparer<T>());
+    private static readonly Lazy<AdvancedComparer<T>> DefaultCached = new(ComparerProvider.Default.GetComparer<T>());
 
     /// <summary>
     /// Gets default advanced comparer for type <typeparamref name="T"/>
     /// (uses <see cref="ComparerProvider.Default"/> <see cref="ComparerProvider"/>).
     /// </summary>
-    public static AdvancedComparer<T> Default {
+    public static AdvancedComparer<T> Default
+    {
       [DebuggerStepThrough]
-      get {
-        return DefaultCached.Value;
-      }
+      get => DefaultCached.Value;
     }
 
     /// <summary>
     /// Gets system comparers exposed as <see cref="AdvancedComparer{T}"/> for type <typeparamref name="T"/>.
     /// </summary>
-    public static AdvancedComparer<T> System {
-      get {
-        return SystemCached.Value;
-      }
+    public static AdvancedComparer<T> System
+    {
+      [DebuggerStepThrough]
+      get => SystemCached.Value;
     }
 
     /// <summary>

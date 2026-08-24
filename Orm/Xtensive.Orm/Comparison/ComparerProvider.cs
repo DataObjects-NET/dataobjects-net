@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -17,7 +16,6 @@ namespace Xtensive.Comparison
   /// Default <see cref="IComparer{T}"/> provider. 
   /// Provides default comparer for the specified type.
   /// </summary>
-  [Serializable]
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
@@ -58,14 +56,14 @@ namespace Xtensive.Comparison
     protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
     {
       var associate = base.CreateAssociate<TKey, TAssociate>(out foundFor);
-      if (associate != null) {
+      if (associate is not null) {
         return associate;
       }
       // Ok, null, but probably just because type cast has failed;
       // let's try to wrap it. TKey is type for which we're getting
       // the comparer.
       var comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
-      if (foundFor == null) {
+      if (foundFor is null) {
         if (CoreLog.IsLogged(Orm.Logging.LogLevel.Warning)) {
           CoreLog.Warning(nameof(Strings.LogCantFindAssociateFor),
             TypeSuffixes.ToDelimitedString(" \\ "),
@@ -77,8 +75,8 @@ namespace Xtensive.Comparison
       if (foundFor == typeof(TKey)) {
         return (TAssociate) comparer;
       }
-      associate = BaseComparerWrapperType.Activate(new[] { typeof(TKey), foundFor }, ConstructorParams) as TAssociate;
-      if (associate != null) {
+      associate = BaseComparerWrapperType.Activate([typeof(TKey), foundFor], ConstructorParams) as TAssociate;
+      if (associate is not null) {
         if (CoreLog.IsLogged(Orm.Logging.LogLevel.Warning)) {
           CoreLog.Warning(nameof(Strings.LogGenericAssociateIsUsedFor),
           BaseComparerWrapperType.GetShortName(),
@@ -118,8 +116,8 @@ namespace Xtensive.Comparison
     /// </summary>
     protected ComparerProvider()
     {
-      TypeSuffixes = new[] { "Comparer" };
-      ConstructorParams = new object[] { this, ComparisonRules.Positive };
+      TypeSuffixes = ["Comparer"];
+      ConstructorParams = [this, ComparisonRules.Positive];
       AddHighPriorityLocation(BaseComparerWrapperType.Assembly, BaseComparerWrapperType.Namespace);
     }
 
