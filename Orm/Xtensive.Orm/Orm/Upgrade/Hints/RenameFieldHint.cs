@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Rename field hint.
   /// </summary>
-  [Serializable]
   public sealed class RenameFieldHint : UpgradeHint,
     IEquatable<RenameFieldHint>
   {

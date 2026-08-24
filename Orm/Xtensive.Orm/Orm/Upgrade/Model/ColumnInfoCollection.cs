@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -13,7 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Column collection.
   /// </summary>
-  [Serializable]
   public sealed class ColumnInfoCollection : NodeCollectionBase<StorageColumnInfo, TableInfo>,
     IUnorderedNodeCollection
   {

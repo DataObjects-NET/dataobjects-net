@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Full-text index.
   /// </summary>
-  [Serializable]
   public sealed class StorageFullTextIndexInfo : NodeBase<TableInfo>
   {
     /// <summary>
@@ -64,9 +63,7 @@ namespace Xtensive.Orm.Upgrade.Model
         var columns = Columns.Select(keyRef => keyRef.Value).ToList();
         
         if (columns.Count == 0) {
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExEmptyColumnsCollection, Path);
-          });
+          ea.Add(new ValidationException(Strings.ExEmptyColumnsCollection, Path), handle: true);
         }
 
         ea.Complete();

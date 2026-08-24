@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Table.
   /// </summary>
-  [Serializable]
   public sealed class TableInfo : NodeBase<StorageModel>
   {
     private PrimaryIndexInfo primaryIndex;
@@ -29,8 +28,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Gets or sets the primary index.
     /// </summary>
     [Property(Priority = -1200, IsImmutable = true)]
-    public PrimaryIndexInfo PrimaryIndex {
-      get { return primaryIndex; }
+    public PrimaryIndexInfo PrimaryIndex
+    {
+      get => primaryIndex;
       set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("PrimaryIndex", value)) {
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       base.Initialize();
 
-      if (Columns==null)
+      if (Columns is null)
         Columns = new ColumnInfoCollection(this);
       if (SecondaryIndexes == null)
         SecondaryIndexes = new SecondaryIndexInfoCollection(this);

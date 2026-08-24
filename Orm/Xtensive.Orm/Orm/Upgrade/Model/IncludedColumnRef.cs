@@ -5,7 +5,6 @@
 // Created:    2009.03.24
 
 using System;
-
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -13,7 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to included column.
   /// </summary>
-  [Serializable]
   public sealed class IncludedColumnRef : ColumnInfoRef<SecondaryIndexInfo>
   {
     /// <inheritdoc/>

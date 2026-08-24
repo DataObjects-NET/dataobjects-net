@@ -5,16 +5,12 @@
 // Created:    2010.01.14
 
 using System;
-using System.Diagnostics;
-
-using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
 {
   /// <summary>
   /// A collection of <see cref="FullTextColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class FullTextColumnRefCollection : NodeCollectionBase<FullTextColumnRef, StorageFullTextIndexInfo>
   {
 

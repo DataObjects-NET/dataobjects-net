@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Storage schema.
   /// </summary>
-  [Serializable]
   public sealed class StorageModel : NodeBase<StorageModel>,
     IModel
   {
@@ -27,8 +26,9 @@ namespace Xtensive.Orm.Upgrade.Model
     private ActionSequence actions;
 
     /// <inheritdoc/>
-    public ActionSequence Actions {
-      get { return actions; }
+    public ActionSequence Actions
+    {
+      get => actions;
       set {
         EnsureIsEditable();
         actions = value;

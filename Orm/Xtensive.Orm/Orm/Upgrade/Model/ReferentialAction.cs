@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Referential integrity maintenance actions.
   /// </summary>
-  [Serializable]
   public enum ReferentialAction
   {
     /// <summary>

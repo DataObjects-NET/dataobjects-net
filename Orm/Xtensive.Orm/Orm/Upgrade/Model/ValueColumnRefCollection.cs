@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of <see cref="ValueColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class ValueColumnRefCollection : NodeCollectionBase<ValueColumnRef, PrimaryIndexInfo>,
     IUnorderedNodeCollection
   {

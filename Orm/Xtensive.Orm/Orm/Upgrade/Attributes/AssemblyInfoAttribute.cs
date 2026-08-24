@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// An attribute providing persistence-related information for the assembly.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class,
     AllowMultiple = false, Inherited = false)]
   public sealed class AssemblyInfoAttribute : Attribute

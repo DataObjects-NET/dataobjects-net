@@ -14,12 +14,9 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Rename type hint.
   /// </summary>
-  [Serializable]
   public sealed class RenameTypeHint : UpgradeHint,
     IEquatable<RenameTypeHint>
   {
-    private const string ToStringFormat = "Rename type: {0} -> {1}";
-
     /// <summary>
     /// Gets the new type.
     /// </summary>

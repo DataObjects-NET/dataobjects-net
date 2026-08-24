@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to foreign key column.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyColumnRef : Ref<StorageColumnInfo, ForeignKeyInfo>
   {
     /// <inheritdoc/>

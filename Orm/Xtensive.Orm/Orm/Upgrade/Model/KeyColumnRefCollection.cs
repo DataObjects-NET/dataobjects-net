@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// A collection of <see cref="KeyColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class KeyColumnRefCollection : NodeCollectionBase<KeyColumnRef, StorageIndexInfo>
   {
     // Constructors

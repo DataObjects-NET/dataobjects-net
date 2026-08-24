@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to key column.
   /// </summary>
-  [Serializable]
   public abstract class KeyColumnRef<TParent> : ColumnInfoRef<TParent>
     where TParent: StorageIndexInfo
   {
@@ -23,8 +22,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Gets or sets the column direction.
     /// </summary>
     [Property(Priority = -1000)]
-    public Direction Direction {
-      get { return direction; }
+    public Direction Direction
+    {
+      get => direction;
       set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("Direction", value)) {
@@ -42,9 +42,7 @@ namespace Xtensive.Orm.Upgrade.Model
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
         if (direction==Direction.None) {
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExInvalidDirectionValue, Path);
-          });
+          ea.Add(new ValidationException(Strings.ExInvalidDirectionValue, Path), handle: true);
         }
         ea.Complete();
       }

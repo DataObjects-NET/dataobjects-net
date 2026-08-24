@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Remove field hint.
   /// </summary>
-  [Serializable]
   public class RemoveFieldHint : UpgradeHint,
     IEquatable<RemoveFieldHint>
   {

@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -14,7 +13,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// References to key column.
   /// </summary>
-  [Serializable]
   public sealed class PrimaryKeyColumnRef : KeyColumnRef<SecondaryIndexInfo>
   {
     /// <inheritdoc/>
