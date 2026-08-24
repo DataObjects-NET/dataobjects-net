@@ -17,7 +17,6 @@ namespace Xtensive.Core
   /// </summary>
   /// <typeparam name="TValue">The <see cref="Type"/> of <see cref="Value"/>.</typeparam>
   /// <typeparam name="TVersion">The <see cref="Type"/> of <see cref="Version"/>.</typeparam>
-  [Serializable]
   [DebuggerDisplay("{Value}, Version = {Version}")]
   public struct HasVersion<TValue, TVersion> : 
     IComparable<HasVersion<TValue, TVersion>>,

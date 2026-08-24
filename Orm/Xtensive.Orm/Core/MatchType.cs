@@ -11,7 +11,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Possible types of match to look for.
   /// </summary>
-  [Serializable]
   public enum MatchType
   {
     None = 0,

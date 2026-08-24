@@ -11,7 +11,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Possible directions of iteration through the enumerable.
   /// </summary>
-  [Serializable]
   public enum Direction : sbyte
   {
     /// <summary>

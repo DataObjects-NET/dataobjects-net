@@ -14,7 +14,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Disposes two <see cref="IDisposable"/> objects.
   /// </summary>
-  [Serializable]
   public sealed class JoiningDisposable : IDisposable
   {
     private IDisposable first;
@@ -23,16 +22,12 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the first object to dispose.
     /// </summary>
-    public IDisposable First {
-      get { return first; }
-    }
+    public IDisposable First => first;
 
     /// <summary>
     /// Gets the second object to dispose.
     /// </summary>
-    public IDisposable Second {
-      get { return second; }
-    }
+    public IDisposable Second => second;
 
     /// <summary>
     /// Joins the <see cref="JoiningDisposable"/> and <see cref="IDisposable"/>.
@@ -43,7 +38,7 @@ namespace Xtensive.Core
     /// dispose both of them on its disposal</returns>
     public static JoiningDisposable operator &(JoiningDisposable first, IDisposable second)
     {
-      if (second==null)
+      if (second is null)
         return first;
       return new JoiningDisposable(first, second);
     }

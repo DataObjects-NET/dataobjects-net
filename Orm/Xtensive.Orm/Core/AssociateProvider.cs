@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Serialization;
-using System.Security;
 using System.Text;
 using System.Threading;
 using Xtensive.Comparison;
@@ -23,10 +21,7 @@ namespace Xtensive.Core
   /// Implements base functionality for associate provider.
   /// Creates and caches associates.
   /// </summary>
-  [Serializable]
-  public abstract class AssociateProvider :
-    IDeserializationCallback,
-    ISerializable
+  public abstract class AssociateProvider
   {
     private static readonly AsyncLocal<HashSet<(Type, Type)>> inProgressAsync = new AsyncLocal<HashSet<(Type, Type)>>();
 
@@ -36,16 +31,10 @@ namespace Xtensive.Core
       set => inProgressAsync.Value = value;
     }
 
-    [NonSerialized]
     private readonly object highPriorityLocationsLock = new object();
+    private readonly ConcurrentDictionary<(Type, Type), Lazy<object>> cache = new();
 
-    [NonSerialized]
-    private ConcurrentDictionary<(Type, Type), Lazy<object>> cache;
-
-    private object[] constructorParams;
-    private string[] typeSuffixes;
-
-    private List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
+    private List<Pair<Assembly, string>> highPriorityLocations = new();
 
     private List<Pair<Assembly, string>> HighPriorityLocations {
       get {
@@ -58,24 +47,12 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets associate constructor parameters.
     /// </summary>
-    protected object[] ConstructorParams
-    {
-      [DebuggerStepThrough]
-      get => constructorParams;
-      [DebuggerStepThrough]
-      set => constructorParams = value;
-    }
+    protected object[] ConstructorParams { get; set; }
 
     /// <summary>
     /// Gets or sets associate type suffixes.
     /// </summary>
-    protected string[] TypeSuffixes
-    {
-      [DebuggerStepThrough]
-      get => typeSuffixes;
-      [DebuggerStepThrough]
-      set => typeSuffixes = value;
-    }
+    protected string[] TypeSuffixes { get; set; }
 
     /// <summary>
     /// Adds high priority location for associate search.
@@ -83,9 +60,7 @@ namespace Xtensive.Core
     /// <param name="assembly">Assembly to search in.</param>
     /// <param name="nameSpace">Namespace to search in.</param>
     public void AddHighPriorityLocation(Assembly assembly, string nameSpace)
-    {
-      AddHighPriorityLocation(assembly, nameSpace, false);
-    }
+      => AddHighPriorityLocation(assembly, nameSpace, false);
 
     /// <summary>
     /// Adds high priority location for associate search.
@@ -239,7 +214,7 @@ namespace Xtensive.Core
       }
       try {
         return TypeHelper.CreateAssociate<TAssociate>(
-          typeof(TKey), out foundFor, TypeSuffixes, constructorParams, HighPriorityLocations);
+          typeof(TKey), out foundFor, TypeSuffixes, ConstructorParams, HighPriorityLocations);
       }
       finally {
         _ = InProgress.Remove(progressionMark);
@@ -289,54 +264,7 @@ namespace Xtensive.Core
     /// </summary>
     protected AssociateProvider()
     {
-      constructorParams = new object[] { this };
-      cache = new ConcurrentDictionary<(Type, Type), Lazy<object>>();
-    }
-
-    protected AssociateProvider(SerializationInfo info, StreamingContext context)
-    {
-      if (info == null) {
-        throw new ArgumentNullException(nameof(info));
-      }
-
-      var constructorParamsExceptThis = (object[]) info.GetValue(nameof(constructorParams), typeof(object[]));
-      constructorParams = new object[constructorParamsExceptThis.Length + 1];
-      constructorParams[0] = this;
-      Array.Copy(constructorParamsExceptThis, 0, constructorParams, 1, constructorParamsExceptThis.Length);
-
-      typeSuffixes = (string[]) info.GetValue(nameof(typeSuffixes), typeof(string[]));
-
-      var highPriorityLocationsSerializable = (List<Pair<string, string>>) info.GetValue(nameof(highPriorityLocations), typeof(List<Pair<string, string>>));
-      highPriorityLocations = highPriorityLocationsSerializable.SelectToList(ls => new Pair<Assembly, string>(Assembly.Load(ls.First), ls.Second));
-    }
-
-    /// <summary>
-    /// Performs post-deserialization actions.
-    /// </summary>
-    /// <param name="sender"></param>
-    public virtual void OnDeserialization(object sender)
-    {
-      cache = new ConcurrentDictionary<(Type, Type), Lazy<object>>();
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      object[] constructorParamsExceptThis = null;
-      // need to exclude this form parameters to prevent loop
-      if (constructorParams.Length == 1) {
-        constructorParamsExceptThis = Array.Empty<object>();
-      }
-      else {
-        constructorParamsExceptThis = new object[constructorParams.Length - 1];
-        Array.Copy(constructorParams, 1, constructorParamsExceptThis, 0, constructorParamsExceptThis.Length);
-      }
-      info.AddValue(nameof(constructorParams), constructorParamsExceptThis, constructorParams.GetType());
-      info.AddValue(nameof(typeSuffixes), typeSuffixes, typeSuffixes.GetType());
-
-      var highPriorityLocationsSerializable = HighPriorityLocations.SelectToList(l => new Pair<string, string>(l.First.FullName, l.Second));
-      info.AddValue(nameof(highPriorityLocations), highPriorityLocationsSerializable, highPriorityLocationsSerializable.GetType());
+      ConstructorParams = new object[] { this };
     }
   }
 }

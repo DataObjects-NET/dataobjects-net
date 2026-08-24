@@ -16,8 +16,7 @@ namespace Xtensive.Core
   /// Base class for any method caching class.
   /// </summary>
   /// <typeparam name="TImplementation">The type of <see cref="Implementation"/>.</typeparam>
-  [Serializable]
-  public abstract class MethodCacheBase<TImplementation>: ISerializable
+  public abstract class MethodCacheBase<TImplementation>
     where TImplementation: class 
   {
     /// <summary>
@@ -35,27 +34,6 @@ namespace Xtensive.Core
     public MethodCacheBase(TImplementation implementation)
     {
       Implementation = implementation;
-    }
-
-    /// <summary>
-    /// Deserializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    protected MethodCacheBase(SerializationInfo info, StreamingContext context)
-    {
-      Implementation = (TImplementation) info.GetValue("Implementation", typeof(TImplementation));
-    }
-
-    /// <summary>
-    /// Serializes instance of this type.
-    /// </summary>
-    /// <param name="info"></param>
-    /// <param name="context"></param>
-    [SecurityCritical]
-    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("Implementation", Implementation, Implementation.GetType());
     }
   }
 }
