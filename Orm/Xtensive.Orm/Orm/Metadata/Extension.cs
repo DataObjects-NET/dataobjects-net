@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Metadata
   /// <summary>
   /// Persistent value of any kind indentified by its <see cref="Name"/>.
   /// </summary>
-  [Serializable]
   [SystemType(3)]
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Metadata
   /// <summary>
   /// Abstract base class for any metadata type.
   /// </summary>
-  [Serializable]
   public abstract class MetadataBase : Entity
   {
     /// <exception cref="Exception">Object is read-only.</exception>
