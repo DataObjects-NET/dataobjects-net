@@ -11,7 +11,6 @@ namespace Xtensive.Sorting
   /// <summary>
   /// Type of <see cref="NodeConnection{TNodeItem,TConnectionItem}"/> connection.
   /// </summary>
-  [Serializable]
   public enum ConnectionType
   {
     /// <summary>

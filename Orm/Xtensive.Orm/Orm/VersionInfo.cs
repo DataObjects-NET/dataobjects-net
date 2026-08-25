@@ -5,13 +5,10 @@
 // Created:    2009.08.13
 
 using System;
-using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
-
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Orm
 {
@@ -19,36 +16,32 @@ namespace Xtensive.Orm
   /// Contains information about entity version.
   /// </summary>
   [DebuggerDisplay("{Value}")]
-  [Serializable]
   public struct VersionInfo : IEquatable<VersionInfo>
   {
     private static VersionInfo @void = default;
 
     private readonly Tuple value;
 
-    [NonSerialized]
     private int cachedHashCode;
 
     /// <summary>
     /// Gets the void <see cref="VersionInfo"/> object.
     /// </summary>
-    public static VersionInfo Void {
-      get { return @void; }
-    }
+    public static VersionInfo Void => @void;
 
     /// <summary>
     /// Gets a value indicating whether this instance is not contains version.
     /// </summary>
-    public bool IsVoid {
+    public bool IsVoid
+    {
       [DebuggerStepThrough]
-      get { return Value==null; }
+      get => Value is null;
     }
 
-    internal Tuple Value {
+    internal Tuple Value
+    {
       [DebuggerStepThrough]
-      get {
-        return value;
-      }
+      get => value;
     }
 
     /// <summary>
@@ -62,7 +55,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
 
       Tuple resultVersion = Value;
-      if (resultVersion==null)
+      if (resultVersion is null)
         resultVersion = key.Value;
       else
         resultVersion = resultVersion.Combine(key.Value);
@@ -88,16 +81,16 @@ namespace Xtensive.Orm
       var tuple = Value;
       var otherTuple = other.Value;
 
-      if (tuple==null) {
-        if (otherTuple==null)
+      if (tuple is null) {
+        if (otherTuple is null)
           return false;
         else
           return true;
       }
-      else if (otherTuple==null)
+      else if (otherTuple is null)
         return true;
       
-      if (tuple.Count!=otherTuple.Count)
+      if (tuple.Count != otherTuple.Count)
         return true;
 
       int count = tuple.Count;

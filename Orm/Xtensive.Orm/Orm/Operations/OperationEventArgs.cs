@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Arguments for <see cref="IOperation"/>-related events.
   /// </summary>
-  [Serializable]
   public class OperationEventArgs : EventArgs
   {
     /// <summary>

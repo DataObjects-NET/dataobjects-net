@@ -14,7 +14,6 @@ namespace Xtensive.Orm
   /// An exception that is thrown when RDBMS can not serialize concurrent access.
   /// This exception is not related to .NET serialization!
   /// </summary>
-  [Serializable]
   public sealed class TransactionSerializationFailureException : ReprocessableException
   {
     // Constructors

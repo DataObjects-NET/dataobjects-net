@@ -68,10 +68,7 @@ namespace Xtensive.Orm
   /// </pre>
   /// </para>
   /// </remarks>
-  [Serializable]
   [DebuggerDisplay("{url}")]
-  [TypeConverter(typeof(UrlInfoConverter))]
-  [DataContract]
   public class UrlInfo :
     IEquatable<UrlInfo>,
     IComparable<UrlInfo>
@@ -86,8 +83,6 @@ namespace Xtensive.Orm
           @"(\?(?'params'.*))?", 
           RegexOptions.Compiled|RegexOptions.Singleline);
 
-    [DataMember(Name = nameof(UrlInfo.Url))]
-    [JsonInclude, JsonPropertyName(nameof(UrlInfo.Url))]
     private string url = string.Empty;
     private string protocol = string.Empty;
     private bool secure = false;
@@ -105,18 +100,16 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets an URL this instance describes.
     /// </summary>
-    [JsonIgnore]
     public string Url
     {
       [DebuggerStepThrough]
-      get { return url; }
+      get => url;
     }
 
     /// <summary>
     /// Gets the protocol part of the current <see cref="Url"/>
     /// (e.g. <b>"tcp"</b> is the protocol part of the "<b>tcp</b>://admin:password@localhost/resource" URL).
     /// </summary>
-    [JsonIgnore]
     public string Protocol
     {
       [DebuggerStepThrough]
@@ -132,7 +125,6 @@ namespace Xtensive.Orm
     /// Gets the security part of the current <see cref="Url"/>
     /// Scheme with 's' suffix is secure.
     /// </summary>
-    [JsonIgnore]
     public bool Secure
     {
       [DebuggerStepThrough]
@@ -148,7 +140,6 @@ namespace Xtensive.Orm
     /// Gets the host part of the current <see cref="Url"/>
     /// (e.g. <b>"localhost"</b> is the host part of the "tcp://admin:password@<b>localhost</b>/resource" URL).
     /// </summary>
-    [JsonIgnore]
     public string Host
     {
       [DebuggerStepThrough]
@@ -164,7 +155,6 @@ namespace Xtensive.Orm
     /// Gets the port part of the current <see cref="Url"/>
     /// (e.g. <b>40000</b> is the port part of the "tcp://admin:password@localhost:<b>40000</b>/resource" URL).
     /// </summary>
-    [JsonIgnore]
     public int Port
     {
       [DebuggerStepThrough]
@@ -180,7 +170,6 @@ namespace Xtensive.Orm
     /// Gets the resource name part of the current <see cref="Url"/>
     /// (e.g. <b>"resource"</b> is the resource name part of the "tcp://admin:password@localhost/<b>resource</b>" URL).
     /// </summary>
-    [JsonIgnore]
     public string Resource
     {
       [DebuggerStepThrough]
@@ -196,7 +185,6 @@ namespace Xtensive.Orm
     /// Gets the user name part of the current <see cref="Url"/>
     /// (e.g. <b>"admin"</b> is the user name part of the "tcp://<b>admin</b>:password@localhost/resource" URL).
     /// </summary>
-    [JsonIgnore]
     public string User
     {
       [DebuggerStepThrough]
@@ -212,7 +200,6 @@ namespace Xtensive.Orm
     /// Gets the password part of the current <see cref="Url"/>
     /// (e.g. <b>"password"</b> is the password part of the "tcp://admin:<b>password</b>@localhost/resource" URL).
     /// </summary>
-    [JsonIgnore]
     public string Password
     {
       [DebuggerStepThrough]
@@ -233,7 +220,6 @@ namespace Xtensive.Orm
     /// <para>The mentioned part of the <see cref="Url"/> is parsed
     /// and represented in a <see cref="Dictionary{String,String}"/> form.</para>
     /// </remarks>
-    [JsonIgnore]
     public IReadOnlyDictionary<string, string> Params
     {
       [DebuggerStepThrough]
@@ -496,27 +482,8 @@ namespace Xtensive.Orm
 
 
     // Constructors
-
-    [JsonConstructor]
     private UrlInfo()
     {
     }
-
-    //[JsonConstructor]
-    //[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0051")]
-    //private UrlInfo(string url)
-    //{
-    //  Parse(url, this);
-    //}
-
-    //#region ISerializable members, deserializing constructor
-
-    //[OnDeserialized]
-    //private void OnDeserialized(StreamingContext context)
-    //{
-    //  Parse(url, this);
-    //}
-
-    //#endregion
   }
 }

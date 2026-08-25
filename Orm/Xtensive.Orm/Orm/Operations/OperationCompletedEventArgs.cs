@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Arguments for <see cref="IOperation"/> completion events.
   /// </summary>
-  [Serializable]
   public sealed class OperationCompletedEventArgs : OperationEventArgs
   {
     /// <summary>
@@ -21,7 +20,7 @@ namespace Xtensive.Orm.Operations
     /// <see langword="True" />, if operation was completed successfully;
     /// otherwise, <see langword="false" />.
     /// </summary>
-    public bool IsCompleted { get; private set; }
+    public bool IsCompleted { get; }
 
 
     // Constructors

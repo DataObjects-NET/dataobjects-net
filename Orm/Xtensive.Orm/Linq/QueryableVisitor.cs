@@ -15,7 +15,6 @@ namespace Xtensive.Linq
   /// <summary>
   /// Abstract base visitor that handles methods of <see cref="IQueryable"/> and <see cref="IEnumerable{T}"/> by calling <see cref="VisitQueryableMethod"/>.
   /// </summary>
-  [Serializable]
   public abstract class QueryableVisitor : ExpressionVisitor
   {
     /// <inheritdoc/>
@@ -26,7 +25,7 @@ namespace Xtensive.Linq
       }
 
       var method = GetQueryableMethod(mc);
-      if (method == null) {
+      if (method is null) {
         return base.VisitMethodCall(mc);
       }
 

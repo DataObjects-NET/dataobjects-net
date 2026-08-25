@@ -16,26 +16,18 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes a set of key-version pairs used to validate versions.
   /// </summary>
-  [Serializable]
   public sealed class VersionSet : IEnumerable<KeyValuePair<Key, VersionInfo>>
   {
-    private Dictionary<Ref<Entity>, VersionInfo> versions = 
-      new Dictionary<Ref<Entity>, VersionInfo>();
+    private readonly Dictionary<Ref<Entity>, VersionInfo> versions = new();
 
     /// <inheritdoc/>
-    public long Count {
-      get { return versions.Count; }
-    }
+    public long Count => versions.Count;
 
     /// <summary>
     /// Gets the <see cref="VersionInfo"/> by the specified key.
     /// If there is no such <see cref="VersionInfo"/>, it returns <see cref="VersionInfo.Void"/>.
     /// </summary>
-    public VersionInfo this[Key key] {
-      get {
-        return Get(key);
-      }
-    }
+    public VersionInfo this[Key key] => Get(key);
 
     /// <summary>
     /// Gets the <see cref="VersionInfo"/> for the specified 
@@ -45,10 +37,7 @@ namespace Xtensive.Orm
     /// <param name="entity">The entity to get associated <see cref="VersionInfo"/> for.</param>
     /// <returns>Associated <see cref="VersionInfo"/>, if found;
     /// otherwise, <see cref="VersionInfo.Void"/>.</returns>
-    public VersionInfo Get(Entity entity)
-    {
-      return Get(entity!=null ? entity.Key : null);
-    }
+    public VersionInfo Get(Entity entity) => Get(entity is not null ? entity.Key : null);
 
     /// <summary>
     /// Gets the <see cref="VersionInfo"/> by the specified key.
@@ -57,38 +46,22 @@ namespace Xtensive.Orm
     /// <param name="key">The key to get associated <see cref="VersionInfo"/> for.</param>
     /// <returns>Associated <see cref="VersionInfo"/>, if found;
     /// otherwise, <see cref="VersionInfo.Void"/>.</returns>
-    public VersionInfo Get(Key key)
-    {
-      VersionInfo result;
-      if (versions.TryGetValue(key, out result))
-        return result;
-      else
-        return VersionInfo.Void;
-    }
+    public VersionInfo Get(Key key) =>
+      versions.TryGetValue(key, out var result) ? result : VersionInfo.Void;
 
     /// <summary>
     /// Determines whether this set contains the key of the specified entity.
     /// </summary>
     /// <param name="entity">The entity to check the key for containment.</param>
     /// <returns>Check result.</returns>
-    public bool Contains(Entity entity)
-    {
-      if (entity==null)
-        return false;
-      return Contains(entity.Key);
-    }
+    public bool Contains(Entity entity) => entity is not null && versions.ContainsKey(entity.Key);
 
     /// <summary>
     /// Determines whether this set contains the specified key.
     /// </summary>
     /// <param name="key">The key to check for containment.</param>
     /// <returns>Check result.</returns>
-    public bool Contains(Key key)
-    {
-      if (key==null)
-        return false;
-      return versions.ContainsKey(key);
-    }
+    public bool Contains(Key key) => key is not null && versions.ContainsKey(key);
 
     #region Validate methods
 
@@ -209,7 +182,7 @@ namespace Xtensive.Orm
       }
       else if (overwrite) {
         if (version.IsVoid)
-          versions.Remove(key);
+          _ = versions.Remove(key);
         else
           versions[key] = version;
         return true;

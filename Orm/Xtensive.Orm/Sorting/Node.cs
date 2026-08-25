@@ -18,7 +18,6 @@ namespace Xtensive.Sorting
   /// </summary>
   /// <typeparam name="TNodeItem">Type of node item.</typeparam>
   /// <typeparam name="TConnectionItem">Type of connection item.</typeparam>
-  [Serializable]
   public class Node<TNodeItem, TConnectionItem>
   {
     private List<NodeConnection<TNodeItem, TConnectionItem>> incomingConnections;
@@ -56,12 +55,12 @@ namespace Xtensive.Sorting
     /// <summary>
     /// Gets count of outgoing connections.
     /// </summary>
-    public int OutgoingConnectionCount { get{ return outgoingConnections==null ? 0 : outgoingConnections.Count;} }
+    public int OutgoingConnectionCount => outgoingConnections is null ? 0 : outgoingConnections.Count;
 
     /// <summary>
     /// Gets count of breakable outgoing connections.
     /// </summary>
-    public int BreakableOutgoingConnectionCount { get{ return outgoingConnections==null ? 0 : outgoingConnections.Count - PermanentOutgoingConnectionCount;} }
+    public int BreakableOutgoingConnectionCount => outgoingConnections is null ? 0 : outgoingConnections.Count - PermanentOutgoingConnectionCount;
 
     /// <summary>
     /// Gets count of permanent outgoing connections.
@@ -71,12 +70,12 @@ namespace Xtensive.Sorting
     /// <summary>
     /// Gets count of breakable incoming connections.
     /// </summary>
-    public int BreakableIncomingConnectionCount { get{ return incomingConnections==null ? 0 : incomingConnections.Count - PermanentIncomingConnectionCount;} }
+    public int BreakableIncomingConnectionCount => incomingConnections is null ? 0 : incomingConnections.Count - PermanentIncomingConnectionCount;
 
     /// <summary>
     /// Gets count of breakable incoming connections.
     /// </summary>
-    public int IncomingConnectionCount { get{ return incomingConnections==null ? 0 : incomingConnections.Count;} }
+    public int IncomingConnectionCount { get{ return incomingConnections is null ? 0 : incomingConnections.Count;} }
 
     /// <summary>
     /// Gets count of permanent incoming connections.
@@ -101,8 +100,8 @@ namespace Xtensive.Sorting
 
     internal void RemoveOutgoingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
     {
-      if (outgoingConnections!=null) {
-        outgoingConnections.Remove(connection);
+      if (outgoingConnections is not null) {
+        _ = outgoingConnections.Remove(connection);
       if (connection.ConnectionType==ConnectionType.Permanent) 
         PermanentOutgoingConnectionCount --;
       }
@@ -110,8 +109,8 @@ namespace Xtensive.Sorting
 
     internal void RemoveIncomingConnection(NodeConnection<TNodeItem, TConnectionItem> connection)
     {
-      if (incomingConnections!=null) {
-        incomingConnections.Remove(connection);
+      if (incomingConnections is not null) {
+        _ = incomingConnections.Remove(connection);
       if (connection.ConnectionType==ConnectionType.Permanent) 
         PermanentIncomingConnectionCount --;
       }
@@ -151,7 +150,7 @@ namespace Xtensive.Sorting
     public IEnumerable<NodeConnection<TNodeItem, TConnectionItem>> RemoveConnections(Node<TNodeItem, TConnectionItem> destination)
     {
       ArgumentValidator.EnsureArgumentNotNull(destination, "destination");
-      if (outgoingConnections==null)
+      if (outgoingConnections is null)
         return Enumerable.Empty<NodeConnection<TNodeItem, TConnectionItem>>();
 
       var nodesToRemove = outgoingConnections.Where(connection => connection.Destination==destination).ToList();
@@ -164,7 +163,7 @@ namespace Xtensive.Sorting
 
     private void EnsureIncomingConnections()
     {
-      if (incomingConnectionsReadOnlyList==null) {
+      if (incomingConnectionsReadOnlyList is null) {
         incomingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
         incomingConnectionsReadOnlyList = incomingConnections.AsReadOnly();
       }
@@ -172,7 +171,7 @@ namespace Xtensive.Sorting
 
     private void EnsureOutgoingConnections()
     {
-      if (outgoingConnectionsReadOnlyList==null) {
+      if (outgoingConnectionsReadOnlyList is null) {
         outgoingConnections = new List<NodeConnection<TNodeItem, TConnectionItem>>();
         outgoingConnectionsReadOnlyList = outgoingConnections.AsReadOnly();
       }

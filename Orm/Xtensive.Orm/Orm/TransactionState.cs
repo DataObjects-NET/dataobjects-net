@@ -11,7 +11,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Indicates operational state of the <see cref="Transaction"/> instance.
   /// </summary>
-  [Serializable]
   public enum TransactionState
   {
     /// <summary>

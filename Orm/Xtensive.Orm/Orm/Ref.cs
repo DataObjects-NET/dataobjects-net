@@ -6,9 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
-
 using Xtensive.Reflection;
 
 
@@ -18,12 +15,10 @@ namespace Xtensive.Orm
   /// Typed reference to <see cref="Entity"/>.
   /// </summary>
   /// <typeparam name="T">The type of referenced object (<see cref="Value"/> property).</typeparam>
-  [Serializable]
   [DebuggerDisplay("Key = {Key}")]
   public struct Ref<T> : 
     IEquatable<Ref<T>>,
-    IEquatable<Key>,
-    ISerializable
+    IEquatable<Key>
     where T : class, IEntity
   {
     private object keyOrString;
@@ -33,7 +28,7 @@ namespace Xtensive.Orm
     /// </summary>
     public Key Key {
       get {
-        if (keyOrString==null)
+        if (keyOrString is null)
           return null;
         var key = keyOrString as Key;
         if (key==null) {
@@ -50,7 +45,7 @@ namespace Xtensive.Orm
     /// </summary>
     public string FormattedKey {
       get {
-        if (keyOrString==null)
+        if (keyOrString is null)
           return null;
         var key = keyOrString as Key;
         return key!=null ? key.Format() : (string) keyOrString;
@@ -82,7 +77,7 @@ namespace Xtensive.Orm
       };
 
     /// <inheritdoc/>
-    public override int GetHashCode() => Key!=null ? Key.GetHashCode() : 0;
+    public override int GetHashCode() => Key is not null ? Key.GetHashCode() : 0;
 
     #endregion
 
@@ -166,31 +161,7 @@ namespace Xtensive.Orm
     /// <param name="entity">The entity this reference points to.</param>
     public Ref(T entity)
     {
-      if (entity==null)
-        keyOrString = null;
-      else
-        keyOrString = entity.Key;
+      keyOrString = entity is null ?  null : (object) entity.Key;
     }
-
-    #region ISerializable members
-
-    private Ref(SerializationInfo info, StreamingContext context)
-    {
-      keyOrString = info.GetString("FormattedKey");
-    }
-
-    /// <summary>
-    /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo"/> with the data needed to serialize the target object.
-    /// </summary>
-    /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"/> to populate with data.</param>
-    /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"/>) for this serialization.</param>
-    /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-    [SecurityCritical]
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("FormattedKey", FormattedKey);
-    }
-
-    #endregion
   }
 }

@@ -16,28 +16,27 @@ namespace Xtensive.Reflection
   /// <summary>
   /// Faster <see cref="ReflectionInterfaceMapping"/> analogue.
   /// </summary>
-  [Serializable]
   public readonly struct InterfaceMapping
   {
     /// <summary>
     /// Gets the target type of this mapping.
     /// </summary>
-    public Type TargetType { get; }
+    public readonly Type TargetType;
 
     /// <summary>
     /// Gets the interface type of this mapping.
     /// </summary>
-    public Type InterfaceType { get; }
+    public readonly Type InterfaceType;
 
     /// <summary>
     /// Gets the type members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> TargetMethods { get; }
+    public readonly IReadOnlyList<MethodInfo> TargetMethods;
 
     /// <summary>
     /// Gets the interface members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> InterfaceMethods { get; }
+    public readonly IReadOnlyList<MethodInfo> InterfaceMethods;
 
     
     // Constructors
