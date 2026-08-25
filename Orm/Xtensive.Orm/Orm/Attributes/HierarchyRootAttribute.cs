@@ -37,7 +37,6 @@ namespace Xtensive.Orm
   /// public class Invoice : Document { ... }
   /// </code>
   /// </example>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
   [BaseTypeRequired(typeof (Entity))]
   public sealed class HierarchyRootAttribute : StorageAttribute

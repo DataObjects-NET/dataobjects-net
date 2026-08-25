@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// Attribute for specifying parameter types of compiled method.
   /// See <see cref="CompilerAttribute"/> for details.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue, AllowMultiple = false, Inherited = false)]
   public sealed class TypeAttribute : Attribute
   {

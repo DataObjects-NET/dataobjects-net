@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -14,7 +14,6 @@ namespace Xtensive.Orm
   /// Attribute for specifying method which acts as compiler
   /// for desired <see cref="TargetMember"/> of type with specified <see cref="TargetTypeAssemblyQualifiedName"/>.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [MeansImplicitUse]
   public sealed class CompilerAttribute : Attribute

@@ -11,7 +11,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Specifies version check mode for particular persistent property. Applied via <see cref="VersionAttribute"/>.
   /// </summary>
-  [Serializable]
   public enum VersionMode
   {
     /// <summary>

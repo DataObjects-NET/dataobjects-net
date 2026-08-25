@@ -15,7 +15,6 @@ namespace Xtensive.Orm
   /// <example>
   ///   <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\Attributes\AttributesTest.cs" region="Model" />
   /// </example>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
   public sealed class IndexAttribute : StorageAttribute
   {
@@ -43,8 +42,8 @@ namespace Xtensive.Orm
     /// </summary>
     public double FillFactor
     {
-      get { return fillFactor ?? 0; }
-      set { fillFactor = value; }
+      get => fillFactor ?? 0;
+      set => fillFactor = value;
     }
 
     /// <summary>
@@ -52,8 +51,8 @@ namespace Xtensive.Orm
     /// </summary>
     public bool Unique
     {
-      get { return unique ?? false; }
-      set { unique = value; }
+      get => unique ?? false;
+      set => unique = value;
     }
 
     /// <summary>
