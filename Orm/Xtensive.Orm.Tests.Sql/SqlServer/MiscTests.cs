@@ -72,10 +72,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      var cloned = Cloner.CloneViaXmlSerialization(select, [typeof(SqlLiteral<int>), typeof(SqlBinary), typeof(SqlNative), typeof(SqlArray<int>)]);
-
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(cloned).GetCommandText());
     }
 
     [Test]
@@ -135,7 +132,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-     Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
+      _ = Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]

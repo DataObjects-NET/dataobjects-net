@@ -493,23 +493,5 @@ namespace Xtensive.Orm.Tests.Storage
         }
       }
     }
-
-    [Test]
-    public void SerializeVersionInfoTest()
-    {
-      VersionInfo versionInfo;
-
-      using (var session = Domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var instance = new ItemWithAutoVersions();
-          versionInfo = instance.VersionInfo;
-          transactionScope.Complete();
-        }
-      }
-      Assert.That(versionInfo.IsVoid, Is.False);
-      var clone = Cloner.CloneViaBinarySerialization(versionInfo);
-      Assert.That(clone.IsVoid, Is.False);
-      Assert.That(versionInfo==clone, Is.True);
-    }
   }
 }

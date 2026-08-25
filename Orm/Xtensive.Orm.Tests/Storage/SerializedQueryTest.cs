@@ -20,25 +20,6 @@ namespace Xtensive.Orm.Tests.Storage
   public class SerializedQueryTest : ChinookDOModelTest
   {
     [Test]
-    [Obsolete("No BinaryFormating allowed from now on")]
-    public void BinarySerializationTest()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var query = Session.Query.All<MediaType>()
-        .Where(c => c.Name=="MPEG audio file")
-        .Where(c => c.MediaTypeId > 0)
-        .Take(5)
-        .Skip(0);
-
-      var serializableExpression = query.Expression.ToSerializableExpression();
-      var serializedExpression = Cloner.CloneViaBinarySerialization(serializableExpression);
-
-      var deserializedExpression = serializedExpression.ToExpression();
-      var deserializedQuery = new Queryable<MediaType>((QueryProvider) query.Provider, deserializedExpression);
-      var result = deserializedQuery.ToList();
-    }
-
-    [Test]
     public void DataContractXmlSerializationTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);

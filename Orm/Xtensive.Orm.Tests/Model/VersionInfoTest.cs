@@ -7,10 +7,11 @@
 using System;
 using System.Reflection;
 using System.Linq;
+using System.Text.Json;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Tests;
+using Xtensive.Serialization.Json;
 using Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel;
+
 
 #region Models
 
@@ -184,30 +185,6 @@ namespace Xtensive.Orm.Tests.Model
       Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField.LazyField"]), Is.False);
       Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["StructureField.ReferenceField.Id"]), Is.True);
       Assert.That(versionColumns.Any(pair => pair.Field == simpleType.Fields["ByteArrayField"]), Is.False);
-    }
-    
-    [Test]
-    public void SerializeVersionInfoTest()
-    {
-      using var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
-      VersionInfo version;
-
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var instance = new Simple();
-          instance.NonLazyField1 = "Value";
-          instance.NonLazyField2 = 123;
-          instance.StructureField = new SimpleStructure {NonLazyField = "Value"};
-          instance.ReferenceField = instance;
-          version = instance.VersionInfo;
-          transactionScope.Complete();
-        }
-      }
-
-      Assert.That(version.IsVoid, Is.False);
-      var versionClone = Cloner.CloneViaBinarySerialization(version);
-      Assert.That(versionClone.IsVoid, Is.False);
-      Assert.That(versionClone, Is.EqualTo(version));
     }
   }
 }

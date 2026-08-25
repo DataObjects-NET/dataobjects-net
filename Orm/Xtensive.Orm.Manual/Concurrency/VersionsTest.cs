@@ -237,9 +237,6 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
           tx.Complete();
         }
 
-        // Let's clone VersionSet (actually - serialize & deserialize)
-        versions = Cloner.CloneViaBinarySerialization(versions);
-        // And dump it
         Dump(versions);
 
         using (VersionValidator.Attach(session, versions))

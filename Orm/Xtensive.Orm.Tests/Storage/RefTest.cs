@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
     }
 
     [Test]
-    public void CombinedTest()
+    public void MainTest()
     {
       Key authorKey;
       Ref<Author> authorRef;
@@ -43,8 +43,6 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         tx.Complete();
       }
 
-      authorRef = Cloner.CloneViaBinarySerialization(authorRef);
-
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         Assert.That(authorRef.Key, Is.EqualTo(authorKey));
@@ -53,7 +51,6 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         Assert.That(author.Key, Is.EqualTo(authorRef.Key));
         tx.Complete();
       }
-
     }
   }
 }
