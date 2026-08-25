@@ -405,23 +405,6 @@ namespace Xtensive.Orm.Tests
         ]);
     }
 
-
-    private static readonly IFormatter Formatter = new BinaryFormatter();
-
-    /// <summary>
-    /// Clones the <paramref name="source"/> using <see cref="BinaryFormatter"/>.
-    /// </summary>
-    /// <param name="source">The source to clone.</param>
-    [Obsolete]
-    public static T CloneViaBinarySerialization<T>(T source)
-    {
-      using (var stream = new MemoryStream()) {
-        Formatter.Serialize(stream, source);
-        stream.Position = 0;
-        return (T) Formatter.Deserialize(stream);
-      }
-    }
-
     /// <summary>
     /// Clones the <paramref name="source"/> via <see cref="DataContractSerializer"/>.
     /// </summary>
