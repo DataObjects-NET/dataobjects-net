@@ -23,11 +23,6 @@ namespace Xtensive.Serialization.Json
       return WrongStructure("Property expected");
     }
 
-    public static JsonException WrongStructureArrayStartExpected()
-    {
-      return WrongStructure("Start of array expected");
-    }
-
     public static JsonException WrongStructurePropertyNameExpected(string expected, string actual)
     {
       return WrongStructure($"Property '{expected}' expected, but was '{actual}'");

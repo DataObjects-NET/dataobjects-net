@@ -22,7 +22,6 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override TypeInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-      _ = reader.Read();
       var assemblyQualifiedName = reader.GetString();
       var type = Type.GetType(assemblyQualifiedName);
       if (type is null)
@@ -37,7 +36,7 @@ namespace Xtensive.Serialization.Json.Model
     /// <inheritdoc/>
     public override void Write(Utf8JsonWriter writer, TypeInfo objectToWrite, JsonSerializerOptions options)
     {
-      writer.WriteString(options.ApplyNamingPolicy(nameof(TypeInfo.UnderlyingType)), objectToWrite.UnderlyingType.AssemblyQualifiedName);
+      writer.WriteStringValue(objectToWrite.UnderlyingType.AssemblyQualifiedName);
     }
   }
 }

@@ -53,7 +53,7 @@ namespace Xtensive.Serialization.Json.Model
       if (propertyName != options.ApplyNamingPolicy(nameof(VersionInfo.Value)))
         throw JsonExceptions.WrongStructurePropertyNameExpected(options.ApplyNamingPolicy(nameof(VersionInfo.Value)), propertyName);
       _ = reader.Read();
-      var tuple = (Tuples.Tuple)JsonSerializer.Deserialize(ref reader, tupleType, options);
+      var tuple = (Tuples.Tuple) JsonSerializer.Deserialize(ref reader, tupleType, options);
       _ = reader.Read();
       reader.EnsureEndObject();
 

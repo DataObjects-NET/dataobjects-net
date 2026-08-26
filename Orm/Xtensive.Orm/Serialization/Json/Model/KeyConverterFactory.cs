@@ -47,7 +47,5 @@ namespace Xtensive.Serialization.Json.Model
       // there might be implementation of per-type converters
       return new DefaultKeyConverter(domain);
     }
-
-    
   }
 }

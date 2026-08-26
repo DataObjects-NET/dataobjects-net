@@ -143,7 +143,7 @@ namespace Xtensive.Serialization.Json.Model
     private static readonly Type PackedTupleType = typeof(Tuples.Packed.PackedTuple);
     private static readonly Type DifferentialTupleType = typeof(Tuples.DifferentialTuple);
     private static readonly Type FastReadOnlyTupleType = typeof(Tuples.FastReadOnlyTuple);
-   
+
     /// <inheritdoc/>
     public override bool CanConvert(Type typeToConvert) =>
       typeToConvert.IsAssignableTo(WellKnownOrmTypes.Tuple);
@@ -153,12 +153,13 @@ namespace Xtensive.Serialization.Json.Model
     {
       if (typeToConvert.IsAssignableTo(DifferentialTupleType)
         || typeToConvert.IsAssignableTo(FastReadOnlyTupleType)
-        || typeToConvert.IsAssignableTo(PackedTupleType) 
-        || typeToConvert.IsAssignableFrom(RegularTupleType)) return new GenericTupleConverter();
+        || typeToConvert.IsAssignableTo(PackedTupleType)
+        || typeToConvert.IsAssignableFrom(RegularTupleType))
+        return new GenericTupleConverter();
 
       throw new NotSupportedException($"There is no converter for Tuple descendant {typeToConvert.GetFullName()}");
     }
 
-    
+
   }
 }
