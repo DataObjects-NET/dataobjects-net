@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc />
     public void RegisterUndoOperation(IOperation operation) => throw new NotSupportedException();
 
+#pragma warning disable CS0067
     /// <inheritdoc />
     public event EventHandler<OperationEventArgs> OutermostOperationStarting;
     /// <inheritdoc />
@@ -62,5 +63,6 @@ namespace Xtensive.Orm.Operations
     public event EventHandler<OperationCompletedEventArgs> NestedOperationCompleted;
     /// <inheritdoc />
     public event EventHandler<OperationEventArgs> UndoOperation;
+#pragma warning restore CS0067
   }
 }

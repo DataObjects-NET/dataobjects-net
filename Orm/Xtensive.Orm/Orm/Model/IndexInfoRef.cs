@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string TypeName { get; private set; }
 
-    // <summary>
+    /// <summary>
     /// Gets the tuple descriptor containing just key columns.
     /// </summary>
     public TupleDescriptor KeyTupleDescriptor { get; private set; }
