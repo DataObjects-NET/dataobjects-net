@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Secondary index.
   /// </summary>
-  [Serializable]
   public sealed class SecondaryIndexInfo : IndexInfo
   {
     /// <summary>

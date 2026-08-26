@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// Describes errors detected during 
   /// <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
-  [Serializable]
   public class ValidationException : Exception
   {
     /// <summary>
@@ -49,29 +48,5 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     {
       NodePath = nodePath;
     }
-
-    #region Serializing members
-
-    /// <inheritdoc/>
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    protected ValidationException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      NodePath = info.GetString("NodePath");
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-#if NET8_0_OR_GREATER
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-#endif
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("NodePath", NodePath);
-    }
-
-    #endregion
   }
 }

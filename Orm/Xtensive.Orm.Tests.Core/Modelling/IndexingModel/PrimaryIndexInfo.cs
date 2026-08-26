@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Primary index.
   /// </summary>
-  [Serializable]
   public sealed class PrimaryIndexInfo : IndexInfo
   {
     /// <summary>

@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of <see cref="ForeignKeyColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class ForeignKeyColumnCollection : NodeCollectionBase<ForeignKeyColumnRef, ForeignKeyInfo>
   {
     /// <summary>

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   /// <typeparam name="TParent">The type of the parent node.</typeparam>
-  [Serializable]
   public abstract class NodeCollectionBase<TNode, TParent> : NodeCollection<TNode, TParent, StorageInfo>
     where TNode : Node
     where TParent : Node

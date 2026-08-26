@@ -9,7 +9,6 @@ using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public sealed class Role : NodeBase<Security>
   {
     protected override Nesting CreateNesting()

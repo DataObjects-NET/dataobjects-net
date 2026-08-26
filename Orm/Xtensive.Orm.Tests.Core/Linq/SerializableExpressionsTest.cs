@@ -1433,8 +1433,10 @@ namespace Xtensive.Orm.Tests.Core.Linq
       };
     }
 
+#pragma warning disable IDE0060 // Remove unused parameter
     public static void SFromCloneMethodCallExpressionDummy(int a, long b) { }
     private static void PSFromCloneMethodCallExpressionDummy(int a, long b) { }
+#pragma warning restore IDE0060 // Remove unused parameter
   }
     #endregion
 }

@@ -12,7 +12,6 @@ using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public abstract class Ref<TTarget, TParent> : NodeBase<TParent>,
     INodeReference
     where TTarget : Node

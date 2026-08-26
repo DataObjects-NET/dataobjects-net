@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of <see cref="FullTextColumnRef"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class FullTextColumnRefCollection : NodeCollectionBase<FullTextColumnRef, FullTextIndexInfo>
   {
 

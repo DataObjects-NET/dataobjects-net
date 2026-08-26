@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// An abstract base class for all columns refs.
   /// </summary>
-  [Serializable]
   public abstract class ColumnInfoRef<TParent>: Ref<ColumnInfo, TParent>
     where TParent: Node
   {

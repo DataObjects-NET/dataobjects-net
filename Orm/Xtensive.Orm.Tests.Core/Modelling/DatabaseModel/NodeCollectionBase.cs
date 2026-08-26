@@ -9,7 +9,6 @@ using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public class NodeCollectionBase<TNode, TParent> : NodeCollection<TNode, TParent, Server>
     where TNode : Node
     where TParent : Node

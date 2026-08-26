@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
   }
 
-  [Serializable]
   internal class TestClassAdvancedConverter :
     AdvancedConverterBase,
     IAdvancedConverter<TestClass, string>

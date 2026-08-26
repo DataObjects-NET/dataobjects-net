@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// The base abstract class for all indexes.
   /// </summary>
-  [Serializable]
   public abstract class IndexInfo : NodeBase<TableInfo>
   {
     private bool isUnique;

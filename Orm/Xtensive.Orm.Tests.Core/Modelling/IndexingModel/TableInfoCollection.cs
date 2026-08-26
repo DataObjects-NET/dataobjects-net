@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// A collection of <see cref="TableInfo"/> instances.
   /// </summary>
-  [Serializable]
   public sealed class TableInfoCollection: NodeCollectionBase<TableInfo, StorageInfo>,
     IUnorderedNodeCollection
   {

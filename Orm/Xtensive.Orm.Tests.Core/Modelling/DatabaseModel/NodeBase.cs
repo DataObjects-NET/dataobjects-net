@@ -13,7 +13,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
 {
-  [Serializable]
   public abstract class NodeBase<TParent> : Node<TParent, Server>
     where TParent : Node
   {

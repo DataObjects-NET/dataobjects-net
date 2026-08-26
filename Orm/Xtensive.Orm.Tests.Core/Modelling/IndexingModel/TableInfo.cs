@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Table.
   /// </summary>
-  [Serializable]
   public sealed class TableInfo : NodeBase<StorageInfo>
   {
     private PrimaryIndexInfo primaryIndex;

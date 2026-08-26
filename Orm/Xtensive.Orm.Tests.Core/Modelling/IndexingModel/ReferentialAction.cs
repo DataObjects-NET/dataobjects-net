@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Referential integrity maintenance actions.
   /// </summary>
-  [Serializable]
   public enum ReferentialAction
   {
     /// <summary>

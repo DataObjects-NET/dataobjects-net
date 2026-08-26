@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// References to value column.
   /// </summary>
-  [Serializable]
   public sealed class ValueColumnRef : ColumnInfoRef<PrimaryIndexInfo>
   {
     /// <inheritdoc/>

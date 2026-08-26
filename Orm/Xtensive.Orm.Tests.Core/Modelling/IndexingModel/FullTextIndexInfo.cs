@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// <summary>
   /// Full-text index.
   /// </summary>
-  [Serializable]
   public sealed class FullTextIndexInfo : NodeBase<TableInfo>
   {
     /// <summary>
