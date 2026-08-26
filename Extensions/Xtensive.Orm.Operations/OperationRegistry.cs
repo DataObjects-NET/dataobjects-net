@@ -29,8 +29,6 @@ namespace Xtensive.Orm.Operations
 
     /// <summary>
     /// Indicates whether operation logging is enabled.
-    /// <see cref="Orm.Session.OpenSystemLogicOnlyRegion"/> implicitly turns this option off;
-    /// <see cref="DisableUndoOperationRegistration"/> does this explicitly.
     /// </summary>
     public bool IsRegistrationEnabled => isOperationRegistrationEnabled || isUndoOperationRegistrationEnabled;
 
@@ -421,6 +419,11 @@ namespace Xtensive.Orm.Operations
 
     // Constructors
 
+
+    /// <summary>
+    /// Creates instance of this class.
+    /// </summary>
+    /// <param name="session">The session registry is bound to.</param>
     [ServiceConstructor]
     public OperationRegistry(Session session)
     {

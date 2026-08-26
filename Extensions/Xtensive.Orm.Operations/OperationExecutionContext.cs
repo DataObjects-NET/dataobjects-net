@@ -32,8 +32,19 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     public readonly ReadOnlyDictionary<Key, Key> KeyMapping;
 
+    /// <summary>
+    /// The persistent accessor service, accessed from <see cref="Session"/> of the context.
+    /// </summary>
     public readonly DirectPersistentAccessor PersistentAccessor;
+
+    /// <summary>
+    /// The entity accessor service, accessed from <see cref="Session"/> of the context.
+    /// </summary>
     public readonly DirectEntityAccessor EntityAccessor;
+
+    /// <summary>
+    /// The EntitySet accessor service, accessed from <see cref="Session"/> of the context.
+    /// </summary>
     public readonly DirectEntitySetAccessor EntitySetAccessor;
 
     /// <summary>

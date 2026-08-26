@@ -193,12 +193,5 @@ namespace Xtensive.Orm.Operations
     protected Operation()
     {
     }
-
-    [JsonConstructor]
-    internal protected Operation(OperationType operationType,
-      IReadOnlyList<IOperation> PrecedingOperations,
-      IReadOnlyList<IOperation> FollowingOperations)
-    {
-    }
   }
 }
