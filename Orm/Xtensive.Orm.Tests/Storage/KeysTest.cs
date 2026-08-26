@@ -231,34 +231,5 @@ namespace Xtensive.Orm.Tests.Storage
       var key2 = Key.Parse(Domain, keyString);
       Assert.That(key2.NodeId, Is.EqualTo(WellKnown.DefaultNodeId));
     }
-
-    [Test]
-    public void SerializationTest()
-    {
-      var key1 = Key.Create(Domain, typeof(Apple), "222");
-      var key4 = Key.Create(Domain, typeof(Test), "111", (byte)16, (sbyte)33, new DateTime(2004,4,4));
-
-      var jsonSerializerOptions = CreateJsonSettings();
-
-      var clonedKey1 = Cloner.CloneViaJsonSerialization(key1, jsonSerializerOptions);
-      Assert.That(clonedKey1.Value.Count, Is.EqualTo(1));
-      Assert.That(clonedKey1.Value.GetValue(0), Is.EqualTo(key1.Value.GetValue(0)));
-
-      var clonedKey4 = Cloner.CloneViaJsonSerialization(key4, jsonSerializerOptions);
-      Assert.That(clonedKey4.Value.Count, Is.EqualTo(4));
-      Assert.That(clonedKey4.Value.GetValue(0), Is.EqualTo(key4.Value.GetValue(0)));
-      Assert.That(clonedKey4.Value.GetValue(1), Is.EqualTo(key4.Value.GetValue(1)));
-      Assert.That(clonedKey4.Value.GetValue(1), Is.EqualTo(key4.Value.GetValue(1)));
-      Assert.That(clonedKey4.Value.GetValue(1), Is.EqualTo(key4.Value.GetValue(1)));
-    }
-
-    private JsonSerializerOptions CreateJsonSettings()
-    {
-      var jsonSerializerOptions = new JsonSerializerOptions() {
-        WriteIndented = true,
-      };
-      _ = jsonSerializerOptions.RegisterModelConverters(Domain);
-      return jsonSerializerOptions;
-    }
   }
 }

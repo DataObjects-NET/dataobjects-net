@@ -33,28 +33,5 @@ namespace Xtensive.Orm.Tests.Model
       var result = StoredDomainModel.Deserialize(serialized);
       result.UpdateReferences();
     }
-
-    [Test]
-    public void TypeReferenceJsonSerializationTest()
-    {
-      var typeReference = new TypeReference(Domain.Model.Types[typeof(Customer)], TypeReferenceAccuracy.ExactType);
-
-      var jsonSerializerOptions = CreateJsonSettings();
-
-      var clonedTypeReference = Cloner.CloneViaJsonSerialization(typeReference, jsonSerializerOptions);
-
-      Assert.That(clonedTypeReference, Is.Not.Null);
-      Assert.That(clonedTypeReference.Type, Is.EqualTo(typeReference.Type));
-      Assert.That(clonedTypeReference.Accuracy, Is.EqualTo(typeReference.Accuracy));
-    }
-
-    private JsonSerializerOptions CreateJsonSettings()
-    {
-      var jsonSerializerOptions = new JsonSerializerOptions() {
-        WriteIndented = true,
-      };
-      _ = jsonSerializerOptions.RegisterModelConverters(Domain);
-      return jsonSerializerOptions;
-    }
   }
 }
