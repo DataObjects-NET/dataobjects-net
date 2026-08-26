@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Xtensive.Core;
+using Xtensive.Orm.Operations.Serialization.Json;
 
 
 namespace Xtensive.Orm.Operations
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public abstract class KeySetOperation : Operation
   {
-    private IReadOnlyList<Key> keys = Array.Empty<Key>();
+    private readonly IReadOnlyList<Key> keys;
 
     /// <inheritdoc/>
     [JsonIgnore]
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Operations
     public KeySetOperation(IReadOnlyList<Key> keys)
     {
       ArgumentNullException.ThrowIfNull(keys);
-      if (keys.Count < 1)
+      if (keys.Count == 0)
         throw new ArgumentException("Keys collection must have at least 1 item");
 
       Keys = keys;

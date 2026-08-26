@@ -28,7 +28,6 @@ namespace Xtensive.Orm.Operations
       var key = context.TryRemapKey(Key);
       var target = session.Query.Single(key);
       return context.EntitySetAccessor.GetEntitySet(target, Field);
-      //return (EntitySetBase) target.GetFieldValue(Field);
     }
 
 

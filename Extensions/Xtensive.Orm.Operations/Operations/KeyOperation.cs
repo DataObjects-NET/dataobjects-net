@@ -6,7 +6,7 @@
 
 using System;
 using System.Text.Json.Serialization;
-
+using Xtensive.Orm.Operations.Serialization.Json;
 
 namespace Xtensive.Orm.Operations
 {

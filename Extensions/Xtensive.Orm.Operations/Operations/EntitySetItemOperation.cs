@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using Xtensive.Core;
 
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Operations.Serialization.Json;
 
 namespace Xtensive.Orm.Operations
 {

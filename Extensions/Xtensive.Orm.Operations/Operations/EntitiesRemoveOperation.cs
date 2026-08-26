@@ -63,24 +63,5 @@ namespace Xtensive.Orm.Operations
       : base(keys)
     {
     }
-
-    //[JsonConstructor]
-    //private EntitiesRemoveOperation()
-    //  : base(Array.Empty<Key>())
-    //{
-
-    //}
-
-    
-    //private EntitiesRemoveOperation(
-    //  IReadOnlyList<Key> keys,
-    //  OperationType type,
-    //  IReadOnlyList<IOperation> precedingOperations,
-    //  IReadOnlyList<IOperation> followingOperations,
-    //  IReadOnlyList<IOperation> undoOperations,
-    //  IReadOnlyDictionary<string, Key> identifiedEntities)
-    //  : base(keys)
-    //{
-    //}
   }
 }

@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations.Interfaces;
-using Xtensive.Orm.Operations.Serialization;
+using Xtensive.Orm.Operations.Serialization.Json;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Operations

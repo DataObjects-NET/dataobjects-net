@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Xtensive.Orm.Operations.Serialization
+namespace Xtensive.Orm.Operations.Serialization.Json
 {
   internal sealed class CollectionOfIdentifiedEntitiesConverter : JsonConverter<IReadOnlyDictionary<string, Key>>
   {
