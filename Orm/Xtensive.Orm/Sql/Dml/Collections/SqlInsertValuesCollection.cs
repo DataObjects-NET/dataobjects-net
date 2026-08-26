@@ -123,7 +123,7 @@ namespace Xtensive.Sql.Dml.Collections
 
       clone.rows = new List<SqlRow>(rows.Count);
       foreach(var oldRow in rows) {
-        clone.rows.Add((SqlRow) oldRow.Clone());
+        clone.rows.Add(oldRow.Clone(context));
       }
 
       return clone;
