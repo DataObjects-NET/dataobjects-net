@@ -5,15 +5,8 @@
 // Created:    2011.03.17
 
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Sql;

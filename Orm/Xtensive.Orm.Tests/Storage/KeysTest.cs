@@ -3,10 +3,8 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Text.Json;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Serialization.Json;
 using Xtensive.Orm.Tests.Storage.Keys;
 using Tuple = Xtensive.Tuples.Tuple;
 

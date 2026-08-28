@@ -5,7 +5,6 @@
 // Created:    2009.09.03
 
 using System;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;

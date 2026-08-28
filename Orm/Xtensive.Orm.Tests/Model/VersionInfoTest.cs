@@ -7,9 +7,7 @@
 using System;
 using System.Reflection;
 using System.Linq;
-using System.Text.Json;
 using NUnit.Framework;
-using Xtensive.Serialization.Json;
 using Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel;
 
 

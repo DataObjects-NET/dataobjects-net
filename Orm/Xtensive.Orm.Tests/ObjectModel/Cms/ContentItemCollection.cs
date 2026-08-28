@@ -4,8 +4,6 @@
 // Created by: Alex Ilyin
 // Created:    2009.09.02
 
-using System.Runtime.Serialization;
-using Xtensive.Orm;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms

@@ -5,7 +5,6 @@
 // Created:    2019.06.21
 
 using System.Linq;
-using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;

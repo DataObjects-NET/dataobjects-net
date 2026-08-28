@@ -4,17 +4,13 @@
 
 using System;
 using System.Data;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
-using System.Data.Common;
 using System.Linq;
 using Xtensive.Sql.Model;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {

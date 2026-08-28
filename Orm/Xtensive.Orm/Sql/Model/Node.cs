@@ -4,7 +4,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model

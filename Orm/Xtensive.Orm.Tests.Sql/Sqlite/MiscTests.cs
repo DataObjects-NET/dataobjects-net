@@ -5,12 +5,7 @@
 // Created:    2011.05.13
 
 using System;
-using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;

@@ -4,9 +4,8 @@
 // Created by: Alex Ilyin
 // Created:    2009.09.03
 
-using System.Runtime.Serialization;
-using Xtensive.Orm;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Tests.ObjectModel.Cms
 {

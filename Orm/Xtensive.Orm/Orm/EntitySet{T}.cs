@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;

@@ -5,7 +5,6 @@
 // Created:    2007.11.28
 
 using System;
-using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {

@@ -5,9 +5,6 @@
 // Created:    2009.03.23
 
 using System;
-using System.Runtime.Serialization;
-using System.Security;
-using System.Security.Permissions;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel

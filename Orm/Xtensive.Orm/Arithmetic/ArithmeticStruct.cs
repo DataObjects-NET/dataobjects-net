@@ -5,10 +5,7 @@
 // Created:    2008.02.12
 
 using System;
-using System.Runtime.Serialization;
-using System.Security;
-
-using A=Xtensive.Arithmetic;
+using A = Xtensive.Arithmetic;
 
 namespace Xtensive.Arithmetic
 {

@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Conversion;
 using Xtensive.Core;
 

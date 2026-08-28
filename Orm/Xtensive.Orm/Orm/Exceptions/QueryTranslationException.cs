@@ -5,7 +5,6 @@
 // Created:    2009.12.07
 
 using System;
-using System.Runtime.Serialization;
 
 
 namespace Xtensive.Orm
