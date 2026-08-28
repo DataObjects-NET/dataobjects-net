@@ -326,15 +326,15 @@ namespace Xtensive.Modelling
         var model = isModel ? null : (IModel) newParent.Model;
         Node node;
         if (isModel) {
-          node = TryConstructor(null, newName);
+          node = TryConstructor(newName);
         }
         else {
-          node = TryConstructor(model, newParent, newName); // Regular node
-          if (node == null) {
-            node = TryConstructor(model, newParent); // Unnamed node
-          }
+          //node = TryConstructor(currentType, newParent, newName, out var newParentType) // Regular node
+          //  ?? TryConstructor(currentType, newParent, newParentType); // Unnamed node
+          // first Regular node and then Unnamed one as fallback
+          node = TryConstructor(newParent, newName);
         }
-        if (node==null) {
+        if (node is null) {
           throw new InvalidOperationException(string.Format(
             Strings.ExCannotFindConstructorToExecuteX, this));
         }
@@ -362,15 +362,15 @@ namespace Xtensive.Modelling
     {
       var propertyName = accessor.PropertyInfo.Name;
       var nested = GetNestedProperty(propertyName);
-      if (nested!=null) {
+      if (nested is not null) {
         if (nested is NodeCollection collection) {
           foreach (Node newNode in collection) {
-            newNode.Clone(target, newNode.Name);
+            _ = newNode.Clone(target, newNode.Name);
           }
         }
         else {
           var newNode = (Node) nested;
-          newNode.Clone(target, newNode.Name);
+          _ = newNode.Clone(target, newNode.Name);
         }
       }
       else if (accessor.HasSetter) {
@@ -764,7 +764,6 @@ namespace Xtensive.Modelling
     #region INotifyPropertyChanged methods
 
     /// <inheritdoc/>
-    [field : NonSerialized]
     public event PropertyChangedEventHandler PropertyChanged;
 
     /// <summary>
@@ -773,9 +772,7 @@ namespace Xtensive.Modelling
     /// <param name="name">Name of the property.</param>
     protected virtual void OnPropertyChanged(string name)
     {
-      if (PropertyChanged != null) {
-        PropertyChanged.Invoke(this, new PropertyChangedEventArgs(name));
-      }
+      PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
     /// <summary>
@@ -791,7 +788,7 @@ namespace Xtensive.Modelling
       EnsureIsEditable();
       var pathNode = value as IPathNode;
       var model = Model;
-      if (pathNode!=null && model!=null && pathNode.Model!=model) {
+      if (pathNode is not null && model is not null && pathNode.Model!=model) {
         throw new ArgumentOutOfRangeException(nameof(value), Strings.ExPropertyValueMustBelongToTheSameModel);
       }
 
@@ -844,7 +841,7 @@ namespace Xtensive.Modelling
           const BindingFlags propertyBindingFlags =
             BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly;
           foreach (var p in entityType.GetProperties(propertyBindingFlags)) {
-            if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone) != null) {
+            if (p.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone) is not null) {
               d.Add(p.Name, new PropertyAccessor(p));
             }
           }
@@ -856,11 +853,21 @@ namespace Xtensive.Modelling
       return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
-    private Node TryConstructor(IModel model, params object[] args)
+    private Node TryConstructor(string nameAsParameter)
     {
-      var argTypes = args.Select(a => a.GetType()).ToArray();
-      var ci = GetType().GetConstructor(argTypes);
-      return ci == null ? null : (Node) ci.Invoke(args);
+      var ci = GetType().GetConstructor([WellKnownTypes.String]);
+      return ci is null ? null : (Node) ci.Invoke([nameAsParameter]);
+    }
+
+    private Node TryConstructor(Node node, string nameAsParameter)
+    {
+      var instanceType = GetType();
+      var nodeType = node.GetType();
+      var ci = instanceType.GetConstructor([nodeType, WellKnownTypes.String]);
+      if (ci is not null)
+        return (Node) ci.Invoke([node, nameAsParameter]);
+      ci = instanceType.GetConstructor([nodeType]);
+      return ci is null ? null : (Node) ci.Invoke([node]);
     }
 
     #endregion
@@ -880,7 +887,7 @@ namespace Xtensive.Modelling
     protected virtual void Initialize()
     {
       Nesting = CreateNesting();
-      if (Nesting == null) {
+      if (Nesting is null) {
         throw new InvalidOperationException(Strings.ExNoNesting);
       }
 
@@ -934,7 +941,7 @@ namespace Xtensive.Modelling
           }
 
           var propertyType =
-            (propertyValue == null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
+            (propertyValue is null ? accessor.PropertyInfo.PropertyType : propertyValue.GetType())
             .GetShortName();
           var nested = GetNestedProperty(propertyName);
           if (nested != null) {
@@ -961,7 +968,7 @@ namespace Xtensive.Modelling
     {
       var m = Model;
       var fullName = Path;
-      if (m != null) {
+      if (m is not null) {
         fullName = string.Concat(m.EscapedName, PathDelimiterString, fullName);
       }
 

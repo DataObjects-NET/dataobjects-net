@@ -21,25 +21,19 @@ namespace Xtensive.Arithmetic
   /// <typeparam name="T">Type to provide arithmetic operations for.</typeparam>
   public abstract class ArithmeticBase<T> : IArithmetic<T>
   {
-    private IArithmeticProvider provider;
-    
-    [NonSerialized] 
-    private ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>> cachedArithmetics =
-      new ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>>();
+    private readonly ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>> cachedArithmetics = new();
 
     /// <summary>
     /// Indicates whether overflow is allowed (doesn't lead to an exception)
     /// on arithmetic operations.
     /// </summary>
-    [NonSerialized] 
-    protected bool OverflowAllowed;
+    protected readonly bool OverflowAllowed;
 
     /// <summary>
     /// Indicates whether <see langword="null"/> value is threated as zero
     /// in arithmetic operations.
     /// </summary>
-    [NonSerialized] 
-    protected bool NullIsZero;
+    protected readonly bool NullIsZero;
 
     /// <summary>
     /// Gets <see cref="ArithmeticRules"/> used by this arithmetic.
@@ -47,11 +41,7 @@ namespace Xtensive.Arithmetic
     protected readonly ArithmeticRules Rules;
 
     /// <inheritdoc/>
-    public IArithmeticProvider Provider
-    {
-      [DebuggerStepThrough]
-      get { return provider; }
-    }
+    public IArithmeticProvider Provider { get; }
 
     /// <inheritdoc/>
     public abstract T Zero { get; }
@@ -115,11 +105,10 @@ namespace Xtensive.Arithmetic
     /// <param name="rules">Arithmetic rules.</param>
     public ArithmeticBase(IArithmeticProvider provider, ArithmeticRules rules)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      this.provider = provider;
+      Provider = provider ?? throw new ArgumentNullException(nameof(provider));
       Rules = rules;
-      OverflowAllowed = (rules.OverflowBehavior==OverflowBehavior.AllowOverflow);
-      NullIsZero = (rules.NullBehavior==NullBehavior.ThreatNullAsZero);
+      OverflowAllowed = (rules.OverflowBehavior is OverflowBehavior.AllowOverflow);
+      NullIsZero = (rules.NullBehavior is NullBehavior.ThreatNullAsZero);
     }
   }
 }

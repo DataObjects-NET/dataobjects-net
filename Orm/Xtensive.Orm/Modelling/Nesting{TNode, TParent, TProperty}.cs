@@ -25,13 +25,9 @@ namespace Xtensive.Modelling
     where TParent: Node
     where TProperty: IPathNode
   {
-    [NonSerialized]
     private PropertyInfo propertyInfo;
-    [NonSerialized]
     private bool isNestedToCollection;
-    [NonSerialized]
     private Func<Node, IPathNode> propertyGetter;
-    [NonSerialized]
     private Action<Node, IPathNode> propertySetter;
 
     /// <inheritdoc/>
@@ -70,7 +66,7 @@ namespace Xtensive.Modelling
       var tProperty = typeof (TProperty);
       
       propertyInfo = tParent.GetProperty(PropertyName);
-      if (propertyInfo==null)
+      if (propertyInfo is null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, tParent.GetShortName()+"."+PropertyName));
       if (propertyInfo.PropertyType!=tProperty)
@@ -81,7 +77,7 @@ namespace Xtensive.Modelling
 
       // Getter
       var typedGetter = DelegateHelper.CreateGetMemberDelegate<TParent, TProperty>(PropertyName);
-      if (typedGetter==null)
+      if (typedGetter is null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, propertyInfo.GetShortName(true)));
       propertyGetter = 
@@ -89,7 +85,7 @@ namespace Xtensive.Modelling
       
       // Setter
       var typedSetter = DelegateHelper.CreateSetMemberDelegate<TParent, TProperty>(PropertyName);
-      if (typedSetter==null)
+      if (typedSetter is null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, propertyInfo.GetShortName(true)));
       propertySetter = 

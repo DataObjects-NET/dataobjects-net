@@ -154,7 +154,6 @@ namespace Xtensive.Modelling
     #region INotifyCollectionChanged, INotifyPropertyChanged members
 
     /// <inheritdoc/>
-    [field : NonSerialized]
     public event NotifyCollectionChangedEventHandler CollectionChanged;
 
     /// <summary>
