@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes <see cref="Entity"/> removal operation.
   /// </summary>
-  [Serializable]
   public class EntitiesRemoveOperation : KeySetOperation
   {
     /// <inheritdoc/>

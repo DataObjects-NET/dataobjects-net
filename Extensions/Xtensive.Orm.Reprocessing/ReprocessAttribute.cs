@@ -1,4 +1,4 @@
-﻿#if NOT_IMPLMENETED
+#if NOT_IMPLMENETED
 
 using System;
 using System.Transactions;
@@ -9,7 +9,6 @@ namespace Xtensive.Orm.Reprocessing
   /// <summary>
   /// Execute method in reprocessable mode.
   /// </summary>
-  [Serializable]
   public class ReprocessAttribute : MethodInterceptionAspect
   {
     private StandardExecutionStrategy? _strategy;

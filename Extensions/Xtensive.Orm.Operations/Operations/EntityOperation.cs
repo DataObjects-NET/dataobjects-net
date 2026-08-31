@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes an operation with <see cref="Entity"/>.
   /// </summary>
-  [Serializable]
   public abstract class EntityOperation : KeyOperation
   {
     // Constructors

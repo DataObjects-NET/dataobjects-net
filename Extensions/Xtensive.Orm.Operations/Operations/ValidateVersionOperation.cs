@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes <see cref="Entity"/> version validation operation.
   /// </summary>
-  [Serializable]
   public sealed class ValidateVersionOperation : EntityOperation,
     IUniqueOperation
   {

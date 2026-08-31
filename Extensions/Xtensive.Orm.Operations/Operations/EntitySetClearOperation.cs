@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes <see cref="Entity"/> creation operation.
   /// </summary>
-  [Serializable]
   public sealed class EntitySetClearOperation : EntitySetOperation
   {
     /// <inheritdoc/>

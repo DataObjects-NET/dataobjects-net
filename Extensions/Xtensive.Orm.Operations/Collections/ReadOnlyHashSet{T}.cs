@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Operations.Collections
   /// <summary>
   /// Read-only wrapper over the <see cref="HashSet{T}"/> class instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   internal class ReadOnlyHashSet<T> : IReadOnlySet<T>
   {

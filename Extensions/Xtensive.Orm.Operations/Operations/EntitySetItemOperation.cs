@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes an operation with <see cref="EntitySet{TItem}"/> item.
   /// </summary>
-  [Serializable]
   public abstract class EntitySetItemOperation : EntitySetOperation
   {
     /// <summary>

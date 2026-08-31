@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes an operation with <see cref="Entity"/> field of <see cref="EntitySet{TItem}"/> type.
   /// </summary>
-  [Serializable]
   public abstract class EntitySetOperation : EntityFieldOperation
   {
     /// <summary>

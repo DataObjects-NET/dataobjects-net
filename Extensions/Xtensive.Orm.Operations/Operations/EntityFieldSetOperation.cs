@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes <see cref="Entity"/> field set operation.
   /// </summary>
-  [Serializable]
   public sealed class EntityFieldSetOperation : EntityFieldOperation
   {
     [JsonIgnore]

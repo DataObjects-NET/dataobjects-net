@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Localization
   /// <summary>
   /// Base localization class.
   /// </summary>
-  [Serializable]
   public abstract class Localization : Entity
   {
     /// <summary>
@@ -41,7 +40,6 @@ namespace Xtensive.Orm.Localization
   /// Base localization class with typed reference to localizable one.
   /// </summary>
   /// <typeparam name="T"></typeparam>
-  [Serializable]
   [KeyGenerator(KeyGeneratorKind.None)]
   public abstract class Localization<T> : Localization where T : Entity
   {

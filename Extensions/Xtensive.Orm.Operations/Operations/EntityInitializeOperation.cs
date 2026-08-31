@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Operations
   /// Actually, does nothing - it is used to suppress nested
   /// system operations.
   /// </summary>
-  [Serializable]
   public class EntityInitializeOperation : EntityOperation
   {
     /// <inheritdoc/>

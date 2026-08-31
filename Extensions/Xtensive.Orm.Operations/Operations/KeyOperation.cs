@@ -6,14 +6,12 @@
 
 using System;
 using System.Text.Json.Serialization;
-using Xtensive.Orm.Operations.Serialization.Json;
 
 namespace Xtensive.Orm.Operations
 {
   /// <summary>
   /// Describes an operation involving the <see cref="Key"/>.
   /// </summary>
-  [Serializable]
   public abstract class KeyOperation : Operation
   {
     /// <summary>

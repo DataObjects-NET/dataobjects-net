@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Operations
   /// Base abstract class for all <see cref="IOperation"/> implementors.
   /// </summary>
   [DebuggerDisplay("Description = {Description}")]
-  [Serializable]
   [JsonDerivedType(typeof(EntitiesRemoveOperation),      nameof(EntitiesRemoveOperation))]
   [JsonDerivedType(typeof(EntityCreateOperation),        nameof(EntityCreateOperation))]
   [JsonDerivedType(typeof(EntityFieldSetOperation),      nameof(EntityFieldSetOperation))]

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using Xtensive.Core;
-using Xtensive.Orm.Operations.Serialization.Json;
 
 
 namespace Xtensive.Orm.Operations
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes operation over key set.
   /// </summary>
-  [Serializable]
   public abstract class KeySetOperation : Operation
   {
     private readonly IReadOnlyList<Key> keys;

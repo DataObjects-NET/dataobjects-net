@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes key generation operation.
   /// </summary>
-  [Serializable]
   public sealed class KeyGenerateOperation : KeyOperation
   {
     /// <inheritdoc/>

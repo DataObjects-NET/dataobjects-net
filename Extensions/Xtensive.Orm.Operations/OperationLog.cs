@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Operations
   /// Built-in implementation of both <see cref="IOperationLogger"/>
   /// and <see cref="IOperationSequence"/>.
   /// </summary>
-  [Serializable]
   public sealed class OperationLog : IOperationLogger, 
     Interfaces.IOperationSequence
   {

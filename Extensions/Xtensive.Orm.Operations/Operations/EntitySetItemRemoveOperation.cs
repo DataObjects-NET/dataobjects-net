@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Describes <see cref="EntitySet{TItem}"/> item add operation.
   /// </summary>
-  [Serializable]
   public sealed class EntitySetItemRemoveOperation : EntitySetItemOperation
   {
     /// <inheritdoc/>

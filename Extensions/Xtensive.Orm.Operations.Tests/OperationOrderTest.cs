@@ -15,7 +15,6 @@ using Xtensive.Orm.Operations.Tests.OperationOrderTestModel;
 
 namespace Xtensive.Orm.Operations.Tests.OperationOrderTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {

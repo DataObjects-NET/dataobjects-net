@@ -13,7 +13,6 @@ using Xtensive.Orm.Operations.Tests.OperationCapturingTestModel;
 
 namespace Xtensive.Orm.Operations.Tests.OperationCapturingTestModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class Line2d : Entity
   {
@@ -34,7 +33,6 @@ namespace Xtensive.Orm.Operations.Tests.OperationCapturingTestModel
     }
   }
 
-  [Serializable]
   public class Point : Structure
   {
     [Field]
@@ -51,7 +49,6 @@ namespace Xtensive.Orm.Operations.Tests.OperationCapturingTestModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Book : Entity
   {
@@ -85,7 +82,6 @@ namespace Xtensive.Orm.Operations.Tests.OperationCapturingTestModel
     }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class Author : Entity
   {
