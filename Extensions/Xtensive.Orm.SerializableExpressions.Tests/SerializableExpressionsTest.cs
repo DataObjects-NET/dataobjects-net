@@ -1,49 +1,74 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.13
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
-using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Linq;
-using Xtensive.Linq.SerializableExpressions;
-using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Reflection;
+using Xtensive.Core;
+using Xtensive.Linq;
+using Xtensive.Orm.Tests;
 
-namespace Xtensive.Orm.Tests.Core.Linq
+namespace Xtensive.Orm.SerializableExpressions.Tests
 {
   [TestFixture]
-  public class SerializableExpressionsTest : ExpressionTestBase
+  public class SerializableExpressionsTest
   {
     #region Nested Types
-    [Serializable]
+    private struct Struct
+    {
+      public int Id;
+    }
+
+    private class Helper
+    {
+      public int Field;
+
+      public Helper NestedClass;
+
+      public List<int> NestedCollection;
+
+      public int InstanceGenericMethod<T>(int value)
+      {
+        return value + typeof(T).Name.Length + +GetHashCode();
+      }
+
+      public static int StaticGenericMethod<T>(int value)
+      {
+        return value + typeof(T).GetHashCode();
+      }
+    }
+
+    [DataContract]
     internal class Foo
     {
-      [JsonInclude]
+      [JsonInclude, DataMember]
       public int IntField;
 
-      [JsonInclude]
+      [JsonInclude, DataMember]
       public int IntProperty { get; set; }
 
-      [JsonInclude]
+      [JsonInclude, DataMember]
       public List<string> ListProperty { get; set; }
 
       public Foo() { }
     }
 
-    [Serializable]
+    [DataContract]
     internal class Address
     {
+      [JsonInclude, DataMember]
       public string City { get; set; }
+      [JsonInclude, DataMember]
       public string ZipCode { get; set; }
 
       public override bool Equals(object obj) => Equals((Address) obj);
@@ -77,13 +102,15 @@ namespace Xtensive.Orm.Tests.Core.Linq
       }
     }
 
-    [Serializable]
+    [DataContract]
     internal class Person
     {
+      [JsonInclude, DataMember]
       public Address HomeAddress { get; set; }
+      [JsonInclude, DataMember]
       public string Name { get; set; }
 
-      public override bool Equals(object obj) => Equals((Person)obj);
+      public override bool Equals(object obj) => Equals((Person) obj);
 
       public bool Equals(Person other)
       {
@@ -156,6 +183,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
       typeof(string[]),
       ];
 
+    public LambdaExpression[] LambdaExpressions { get; private set; }
+
     #region Additional Test Data
 
     public ConstantExpression[] ConstantExpressions { get; private set; }
@@ -176,9 +205,11 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
     #endregion
 
-    public override void TestFixtureSetUp()
+    [OneTimeSetUp]
+    public void TestFixtureSetUp()
     {
-      base.TestFixtureSetUp();
+      LambdaExpressions = GetTestLambdaExpressions();
+
       ConstantExpressions = GetTestConstantExpressions();
       DefaultExpressions = GetTestDefaultExpressions();
       ParameterExpressions = GetTestParameterExpressions();
@@ -724,7 +755,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void InvocationExpressionDataContractJsonCloneTest()
     {
-      var settings = new DataContractJsonSerializerSettings { KnownTypes = SystemTypes};
+      var settings = new DataContractJsonSerializerSettings { KnownTypes = SystemTypes };
       RunDataContractTest(new DataContractJsonSerializer(typeof(SerializableExpression), settings), InvocationExpressions);
     }
 
@@ -741,7 +772,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void LambdaExpressionTest()
     {
-      foreach (var origin in Expressions) {
+      foreach (var origin in LambdaExpressions) {
         Console.WriteLine(origin.ToString(true));
         var converted = origin.ToSerializableExpression().ToExpression();
         Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
@@ -756,30 +787,30 @@ namespace Xtensive.Orm.Tests.Core.Linq
         KnownTypes = SystemTypes,
         PreserveObjectReferences = true
       };
-      RunDataContractTest(new DataContractSerializer(typeof(SerializableExpression), settings), Expressions);
+      RunDataContractTest(new DataContractSerializer(typeof(SerializableExpression), settings), LambdaExpressions);
 
       settings = new DataContractSerializerSettings {
         KnownTypes = SystemTypes,
         PreserveObjectReferences = false
       };
-      RunDataContractTest(new DataContractSerializer(typeof(SerializableExpression), settings), Expressions);
+      RunDataContractTest(new DataContractSerializer(typeof(SerializableExpression), settings), LambdaExpressions);
     }
 
     [Test]
     public void LambdaExpressionDataContractJsonCloneTest()
     {
-      var settings = new DataContractJsonSerializerSettings { KnownTypes = SystemTypes,  };
-      RunDataContractTest(new DataContractJsonSerializer(typeof(SerializableExpression), settings), Expressions);
+      var settings = new DataContractJsonSerializerSettings { KnownTypes = SystemTypes, };
+      RunDataContractTest(new DataContractJsonSerializer(typeof(SerializableExpression), settings), LambdaExpressions);
     }
 
     [Test]
     public void LambdaExpressionJsonSerializerCloneTest()
     {
       var options = new JsonSerializerOptions { WriteIndented = true };
-      RunJsonSerializerTest(Expressions, options);
+      RunJsonSerializerTest(LambdaExpressions, options);
 
       options = new JsonSerializerOptions { WriteIndented = true, ReferenceHandler = ReferenceHandler.Preserve };
-      RunJsonSerializerTest(Expressions, options);
+      RunJsonSerializerTest(LambdaExpressions, options);
     }
 
     private void RunDataContractTest(XmlObjectSerializer serializer, IEnumerable<Expression> expressions)
@@ -796,7 +827,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         }
       }
     }
-    
+
     private void RunJsonSerializerTest(IEnumerable<Expression> expressions, JsonSerializerOptions options)
     {
       using (var stream = new MemoryStream()) {
@@ -948,7 +979,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         long length = 0;
         using (CreateMeasurement(warmUp, serializer.GetType().Name, operationCount)) {
           while (operation < operationCount) {
-            foreach (var expression in Expressions) {
+            foreach (var expression in LambdaExpressions) {
               operation++;
               if (operation > operationCount)
                 break;
@@ -973,7 +1004,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         long length = 0;
         using (CreateMeasurement(warmUp, "JsonSerializer", operationCount)) {
           while (operation < operationCount) {
-            foreach (var expression in Expressions) {
+            foreach (var expression in LambdaExpressions) {
               operation++;
               if (operation > operationCount)
                 break;
@@ -1002,6 +1033,88 @@ namespace Xtensive.Orm.Tests.Core.Linq
     #endregion
 
     #region Test Data initializers
+    private LambdaExpression[] GetTestLambdaExpressions()
+    {
+      return new LambdaExpression[]
+        {
+          // Simple expression
+          (Expression<Func<int, int>>) (k => k + 1),
+
+          // Instance method call
+          (Expression<Func<object, object>>) (p => p.ToString()),
+
+          // Static method call
+          (Expression<Action<int, int>>) ((a, b) => Console.Write($"{a} + {b} = {a + b}")),
+
+          // Instance generic method call
+          (Expression<Func<Helper, int>>) (h => h.InstanceGenericMethod<long>(0)),
+
+          // Static generic method call
+          (Expression<Func<int>>) (() => Helper.StaticGenericMethod<long>(0)),
+
+          // Instance generic method call (with generic argument being generic type)
+          (Expression<Func<Helper, int>>) (h => h.InstanceGenericMethod<Func<int>>(0)),
+
+          // Static generic method call (with generic argument being generic type)
+          (Expression<Func<int>>) (() => Helper.StaticGenericMethod<Func<int>>(0)),
+
+          // Static (extension) generic method call
+          (Expression<Func<IEnumerable<Func<int>>, IEnumerable<int>>>) (funcs => funcs.Select(f => f.Invoke())),
+
+          // Anonymous type constructor
+          (Expression<Func<string, object>>) (s => new {Value = s}),
+
+          // Static property access + binary operator
+          (Expression<Func<DateTime, string>>) (d => (d - DateTime.Now).Duration().ToString()),
+
+          // Constructor + a lots of generics
+          (Expression<Func<int, List<int>>>) (i => new List<int>(i)),
+          (Expression<Func<int, List<List<int>>>>) (i => new List<List<int>>(i)),
+          (Expression<Func<int, List<List<List<int>>>>>) (i => new List<List<List<int>>>(i)),
+          (Expression<Func<int, List<List<List<List<int>>>>>>) (i => new List<List<List<List<int>>>>(i)),
+
+          // Static generic method call + static method call + constant expression
+          (Expression<Func<long, Expression<Func<long>>>>) (x => Expression.Lambda<Func<long>>(Expression.Constant(x))),
+
+          // Constructor
+          (Expression<Func<int, int, int, DateTime>>) ((y, m, d) => new DateTime(y, m, d)),
+
+          // List init expression
+          (Expression<Func<string, List<int>>>) (s => new List<int> {s.Length}),
+
+          // Array init expression
+          (Expression<Func<Guid, Guid[]>>) (g => new[] {g}),
+
+          // Delegate call
+          (Expression<Func<int>>) (() => ((Func<int, int>) (x => x + 1)).Invoke(5)),
+
+          // Conditional + new array + static property of generic type
+          // Stupid casts are required because otherwise expression won't construct at runtime
+          (Expression<Func<int, byte[]>>) (k => k <= 0 ? (byte[])  Array.Empty<byte>() : (byte[]) new byte[k]),
+
+          // TypeIs
+          (Expression<Func<object, bool>>) (o => o is string),
+
+          // Coalesce + constructor + member assignment
+          (Expression<Func<object, object>>) (o => o ?? new Helper {Field = 5}),
+
+          // Member list init
+          (Expression<Func<object>>) (() => new Helper {NestedCollection = {1,2,3}}),
+
+          // Member member binding
+          (Expression<Func<object>>) (() => new Helper {NestedClass = {Field = 5}}),
+
+          // Struct constructor
+          (Expression<Func<int, Struct>>) (a => new Struct {Id = 2}),
+
+          // Don't know how to write InvocationExpression in C# syntax :-(
+          Expression.Lambda<Func<int>>(
+            Expression.Invoke(
+              Expression.Lambda<Func<int, int>>(Expression.Constant(0), Expression.Parameter(typeof(int), "p")),
+              Expression.Constant(1)))
+        };
+    }
+
     private ConstantExpression[] GetTestConstantExpressions()
     {
       return new ConstantExpression[] {
@@ -1141,7 +1254,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
         Expression.Constant(new LongEnum?[] { LongEnum.One, null }, typeof(LongEnum?[])),
         Expression.Constant(new Guid?[] { Guid.NewGuid(), Guid.NewGuid(), null }, typeof(Guid?[])),
 
-      }; ;
+      };
+      ;
     }
 
     private DefaultExpression[] GetTestDefaultExpressions()
