@@ -18,12 +18,21 @@ namespace Xtensive.Orm.SerializableExpressions
   [DataContract]
   public sealed class SerializableMethodInfo
   {
+    /// <summary>
+    /// See <see cref="MemberInfo.DeclaringType"/>
+    /// </summary>
     [DataMember, JsonInclude]
-    public string DeclaredType;
+    public string DeclaringType;
 
+    /// <summary>
+    /// Method name.
+    /// </summary>
     [DataMember, JsonInclude]
     public string Name;
 
+    /// <summary>
+    /// Generic parameters of the method.
+    /// </summary>
     [DataMember, JsonInclude]
     public SerializableType[] GenericParameters;
 
@@ -39,7 +48,7 @@ namespace Xtensive.Orm.SerializableExpressions
       if (method == null)
         return null;
       var type = method.DeclaringType.AssemblyQualifiedName;
-      var reference = new SerializableMethodInfo { DeclaredType = type };
+      var reference = new SerializableMethodInfo { DeclaringType = type };
       reference.Name = (method.IsGenericMethod) ? method.GetGenericMethodDefinition().ToString() : method.ToString();
 
       if (method.IsGenericMethod) {
@@ -58,7 +67,7 @@ namespace Xtensive.Orm.SerializableExpressions
       if (reference == null)
         return null;
       var name = reference.Name;
-      var type = Type.GetType(reference.DeclaredType);
+      var type = Type.GetType(reference.DeclaringType);
       var method = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static).FirstOrDefault(m => m.ToString() == name);
       if (method == null)
         method = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static).FirstOrDefault(m => m.ToString() == name);

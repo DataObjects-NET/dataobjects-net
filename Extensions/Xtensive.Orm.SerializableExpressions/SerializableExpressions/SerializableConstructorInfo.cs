@@ -18,9 +18,15 @@ namespace Xtensive.Orm.SerializableExpressions
   [DataContract]
   public sealed class SerializableConstructorInfo
   {
+    /// <summary>
+    /// See <see cref="MemberInfo.DeclaringType"/>.
+    /// </summary>
     [DataMember, JsonInclude]
-    public string DeclaredType;
+    public string DeclaringType;
 
+    /// <summary>
+    /// Constructor signature.
+    /// </summary>
     [DataMember, JsonInclude]
     public string Ctor;
 
@@ -36,7 +42,7 @@ namespace Xtensive.Orm.SerializableExpressions
       if (ctor == null)
         return null;
       return new SerializableConstructorInfo {
-        DeclaredType = ctor.DeclaringType.AssemblyQualifiedName,
+        DeclaringType = ctor.DeclaringType.AssemblyQualifiedName,
         Ctor = ctor.ToString()
       };
     }
@@ -52,7 +58,7 @@ namespace Xtensive.Orm.SerializableExpressions
         return null;
 
       var name = reference.Ctor;
-      var ctor = Type.GetType(reference.DeclaredType).GetConstructors().First(m => m.ToString() == name);
+      var ctor = Type.GetType(reference.DeclaringType).GetConstructors().First(m => m.ToString() == name);
       return ctor;
     }
 

@@ -18,9 +18,15 @@ namespace Xtensive.Orm.SerializableExpressions
   [DataContract]
   public sealed class SerializableMemberInfo
   {
+    /// <summary>
+    /// See <see cref="MemberInfo.DeclaringType"/>.
+    /// </summary>
     [DataMember, JsonInclude]
-    public string DeclaredType;
+    public string DeclaringType;
 
+    /// <summary>
+    /// Member signature.
+    /// </summary>
     [DataMember, JsonInclude]
     public string Member;
 
@@ -36,7 +42,7 @@ namespace Xtensive.Orm.SerializableExpressions
       if (member == null)
         return null;
       return new SerializableMemberInfo {
-        DeclaredType = member.DeclaringType.AssemblyQualifiedName,
+        DeclaringType = member.DeclaringType.AssemblyQualifiedName,
         Member = member.ToString()
       };
     }
@@ -52,7 +58,7 @@ namespace Xtensive.Orm.SerializableExpressions
         return null;
 
       var name = reference.Member;
-      var member = Type.GetType(reference.DeclaredType).GetMembers().First(m => m.ToString() == name);
+      var member = Type.GetType(reference.DeclaringType).GetMembers().First(m => m.ToString() == name);
       return member;
     }
 

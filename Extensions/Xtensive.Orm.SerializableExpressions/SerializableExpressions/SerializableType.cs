@@ -16,6 +16,9 @@ namespace Xtensive.Orm.SerializableExpressions
   [DataContract]
   public sealed class SerializableType
   {
+    /// <summary>
+    /// See <see cref="Type.AssemblyQualifiedName"/>.
+    /// </summary>
     [DataMember, JsonInclude]
     public string AssemblyQualifiedName;
 
