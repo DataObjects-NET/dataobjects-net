@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>Xtensive.Orm.SerializableExpressions</PackageId>
+    <Title>Serializable variants of System.Linq.Expressions</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Provides serializable form of System.Linq.Expressions, ready to json/data-contract serialization.</PackageDescription>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NugetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
+  </ItemGroup>
+</Project>

@@ -1,19 +1,16 @@
-// Copyright (C) 2009-2023 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Linq;
-using Xtensive.Linq.SerializableExpressions;
-using Xtensive.Linq.SerializableExpressions.Internals;
-
-using System.Linq;
 using Xtensive.Reflection;
-using System.Collections.Concurrent;
+
 
 namespace Xtensive.Core
 {
@@ -93,26 +90,6 @@ namespace Xtensive.Core
       }
       return ExpressionReplacer.ReplaceAll(
         lambdaExpression.Body, lambdaExpression.Parameters, convertedParameters);
-    }
-
-    /// <summary>
-    /// Converts specified <see cref="Expression"/> to <see cref="SerializableExpression"/>.
-    /// </summary>
-    /// <param name="expression">The expression to convert.</param>
-    /// <returns>Serializable expression that represents <paramref name="expression"/>.</returns>
-    public static SerializableExpression ToSerializableExpression(this Expression expression)
-    {
-      return new ExpressionToSerializableExpressionConverter(expression).Convert();
-    }
-
-    /// <summary>
-    /// Converts specified <see cref="SerializableExpression"/> to <see cref="Expression"/>.
-    /// </summary>
-    /// <param name="expression">The expression to convert.</param>
-    /// <returns>Expression that represents given <see cref="SerializableExpression"/>.</returns>
-    public static Expression ToExpression(this SerializableExpression expression)
-    {
-      return new SerializableExpressionToExpressionConverter(expression).Convert();
     }
 
     /// <summary>
