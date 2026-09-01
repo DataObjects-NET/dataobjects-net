@@ -6,23 +6,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.Operations</PackageId>
-    <Title>Change tracking extension for $(DoProductName)</Title>
+    <Title>Operations log for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
-    <PackageDescription>Adds tracking functionality for $(DoProductName)-powered projects</PackageDescription>
+    <PackageDescription>Adds logging of entity life-cycle in form of operations.</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
-  <!--
-  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net10.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
-  </ItemGroup>
-  -->
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
