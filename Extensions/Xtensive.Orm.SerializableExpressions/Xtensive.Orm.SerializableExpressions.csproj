@@ -6,9 +6,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.SerializableExpressions</PackageId>
-    <Title>Serializable expressions</Title>
+    <Title>Serializable variants of System.Linq.Expressions</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
-    <PackageDescription>Provides serializable form of Expressions, ready to json/data-contract serialization.</PackageDescription>
+    <PackageDescription>Provides serializable form of System.Linq.Expressions, ready to json/data-contract serialization.</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
