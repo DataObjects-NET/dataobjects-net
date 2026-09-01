@@ -4,6 +4,7 @@
 [main] Removed obsolete constant WellKnown.MaxNumberOfConditions, use DefaultMaxNumberOfConditions instead
 [main] Collections.Deque<T> collection as well as Collections.Interfaces.IDeque interface marked obsolete because there is no internal use
 [main] Operations API moved to Xtensive.Orm.Operations extension, which is functionally the same. Only base types left
+[main] SerializableExpressions API moved to Xtensive.Orm.SerializableExpressions extension.
 [main] Session.Operations property ty changed to interface, real implementor of which is in Xtensive.Orm.Operations extension
 [main] By default, no operations registered nor heavy registration scopes create, during Entity lifetime, which made Entites work faster
 [firebird] Switch to .NET8/.NET10-only support, nuget packages actualized
