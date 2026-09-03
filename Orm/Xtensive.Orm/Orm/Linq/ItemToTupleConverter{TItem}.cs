@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq
       public void Add(Type type)
       {
         count++;
-        types = types==null ? EnumerableUtils.One(type) : types.Concat(EnumerableUtils.One(type));
+        types = types == null ? Enumerable.Repeat(type, 1) : types.Append(type);
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Linq
         || type.IsSubclassOf(typeof (Entity))
           || type==typeof (Structure)
             || type.IsSubclassOf(typeof (Structure))
-        ) {
+              || (type.IsInterface && typeof(IEntity).IsAssignableFrom(type))) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -198,7 +198,7 @@ namespace Xtensive.Orm.Linq
 //        return Expression.Convert(entityExpression, type);
 //      }
 
-      if (type.IsSubclassOf(typeof (Entity))) {
+      if (type.IsSubclassOf(typeof (Entity)) || (type.IsInterface && typeof(IEntity).IsAssignableFrom(type)) ) {
         TypeInfo typeInfo = model.Types[type];
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
