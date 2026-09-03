@@ -415,9 +415,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      bool isSecond = node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second;
-      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond ||
-        node.IntervalPart==SqlIntervalPart.Millisecond;
+      bool isSecond = node.IsSecondExtraction;
+      bool isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond))
         return base.Translate(context, node, section);
       switch (section) {

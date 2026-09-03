@@ -105,15 +105,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override void Visit(SqlExtract node)
     {
-      if (node.IntervalPart!=SqlIntervalPart.Nothing) {
+      if (node.IsIntervalPart) {
         VisitInterval(node);
         return;
       }
-      if (node.DateTimePart!=SqlDateTimePart.Nothing) {
+      if (node.IsDateTimePart) {
         VisitDateTime(node);
         return;
       }
-      if (node.DateTimeOffsetPart!=SqlDateTimeOffsetPart.Nothing) {
+      if (node.IsDateTimeOffsetPart) {
         VisitDateTimeOffset(node);
         return;
       }
@@ -301,7 +301,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void VisitDateTime(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.Millisecond) {
+      if (node.IsDateTimePart && node.DateTimePart==SqlDateTimePart.Millisecond) {
         Visit(CastToLong(DateGetMilliseconds(node.Operand)));
         return;
       }

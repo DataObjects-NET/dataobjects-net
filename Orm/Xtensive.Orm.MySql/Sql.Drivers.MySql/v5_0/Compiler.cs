@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Malisa Ncube
@@ -211,9 +211,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public override void Visit(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.DayOfWeek || node.DateTimePart==SqlDateTimePart.DayOfYear) {
-          Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
-          return;
+      if (node.IsDateTimePart && (node.DateTimePart==SqlDateTimePart.DayOfWeek || node.DateTimePart==SqlDateTimePart.DayOfYear)) {
+        Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
+        return;
       }
       base.Visit(node);
     }

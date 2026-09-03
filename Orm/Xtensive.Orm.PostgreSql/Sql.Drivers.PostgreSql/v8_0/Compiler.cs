@@ -276,24 +276,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     public override void Visit(SqlExtract node)
-    {   
-      switch (node.DateTimeOffsetPart) {
-        case SqlDateTimeOffsetPart.Date:
-          DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.DateTime:
-          DateTimeOffsetExtractDateTime(node.Operand).AcceptVisitor(this);
-          return;
+    {
+      if (node.IsDateTimeOffsetPart) {
+        switch (node.DateTimeOffsetPart) {
+          case SqlDateTimeOffsetPart.Date:
+            DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.DateTime:
+            DateTimeOffsetExtractDateTime(node.Operand).AcceptVisitor(this);
+            return;
 
-        case SqlDateTimeOffsetPart.UtcDateTime:
-          DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.LocalDateTime:
-          DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
-          return;
-        case SqlDateTimeOffsetPart.Offset:
-          DateTimeOffsetExtractOffset(node);
-          return;
+          case SqlDateTimeOffsetPart.UtcDateTime:
+            DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.LocalDateTime:
+            DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+            return;
+          case SqlDateTimeOffsetPart.Offset:
+            DateTimeOffsetExtractOffset(node);
+            return;
+        }
       }
       base.Visit(node);
     }
@@ -323,9 +325,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
-        var part = node.DateTimePart!=SqlDateTimePart.Nothing
+        var part = node.IsDateTimePart
           ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart!=SqlIntervalPart.Nothing
+          : node.IsIntervalPart
             ? translator.Translate(node.IntervalPart)
             : translator.Translate(node.DateTimeOffsetPart);
         context.Output.AppendText(part);

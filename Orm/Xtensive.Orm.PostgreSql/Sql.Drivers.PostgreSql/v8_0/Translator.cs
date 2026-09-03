@@ -331,12 +331,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      var isSecond = node.DateTimePart == SqlDateTimePart.Second
-        || node.IntervalPart == SqlIntervalPart.Second
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
-      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
-        || node.IntervalPart == SqlIntervalPart.Millisecond
-        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      var isSecond = node.IsSecondExtraction;
+      var isMillisecond = node.IsMillisecondExtraction;
       if (!(isSecond || isMillisecond)) {
         return base.Translate(context, node, section);
       }
