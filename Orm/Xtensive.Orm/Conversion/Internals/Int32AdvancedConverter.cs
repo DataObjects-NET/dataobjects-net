@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.21
 
@@ -21,6 +21,7 @@ namespace Xtensive.Conversion
     IAdvancedConverter<int, double>,
     IAdvancedConverter<int, decimal>,
     IAdvancedConverter<int, DateTime>,
+    IAdvancedConverter<int, DateOnly>,
     IAdvancedConverter<int, TimeSpan>,
     IAdvancedConverter<int, string>,
     IAdvancedConverter<int, char>
@@ -80,6 +81,11 @@ namespace Xtensive.Conversion
       checked{
         return new DateTime(value + baseDateTimeTicks, DateTimeKind.Utc);
       }
+    }
+
+    DateOnly IAdvancedConverter<int, DateOnly>.Convert(int value)
+    {
+      return DateOnly.FromDayNumber(value);
     }
 
     TimeSpan IAdvancedConverter<int, TimeSpan>.Convert(int value)

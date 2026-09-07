@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.02.08
 
@@ -22,10 +22,13 @@ namespace Xtensive.Conversion
     IAdvancedConverter<float, double>,
     IAdvancedConverter<float, decimal>,
     IAdvancedConverter<float, DateTime>,
+    IAdvancedConverter<float, DateOnly>,
+    IAdvancedConverter<float, TimeOnly>,
     IAdvancedConverter<float, TimeSpan>,
     IAdvancedConverter<float, char>
   {
     private readonly long baseDateTimeTicks;
+    private readonly long ticksPerDay;
 
     bool IAdvancedConverter<float, bool>.Convert(float value)
     {
@@ -96,6 +99,20 @@ namespace Xtensive.Conversion
       }
     }
 
+    DateOnly IAdvancedConverter<float, DateOnly>.Convert(float value)
+    {
+      checked {
+        return DateOnly.FromDayNumber(Convert.ToInt32(Math.Round(value)));
+      }
+    }
+
+    TimeOnly IAdvancedConverter<float, TimeOnly>.Convert(float value)
+    {
+      checked {
+        return new TimeOnly((long) Math.Round(value));
+      }
+    }
+
     TimeSpan IAdvancedConverter<float, TimeSpan>.Convert(float value)
     {
       // Since "Convert.ToUInt64(double)" does not check overflow:
@@ -119,6 +136,7 @@ namespace Xtensive.Conversion
       : base(provider)
     {
       baseDateTimeTicks = provider.BaseTime.Ticks;
+      ticksPerDay = TimeSpan.FromDays(1).Ticks;
     }
   }
 }

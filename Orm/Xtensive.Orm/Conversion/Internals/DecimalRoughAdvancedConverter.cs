@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.02.08
 
@@ -22,6 +22,8 @@ namespace Xtensive.Conversion
     IAdvancedConverter<decimal, float>,
     IAdvancedConverter<decimal, double>,
     IAdvancedConverter<decimal, DateTime>,
+    IAdvancedConverter<decimal, DateOnly>,
+    IAdvancedConverter<decimal, TimeOnly>,
     IAdvancedConverter<decimal, TimeSpan>,
     IAdvancedConverter<decimal, char>
   {
@@ -63,6 +65,14 @@ namespace Xtensive.Conversion
     /// <inheritdoc/>
     DateTime IAdvancedConverter<decimal, DateTime>.Convert(decimal value)
       => new DateTime(Convert.ToInt64(value) + baseDateTimeTicks, DateTimeKind.Utc);
+
+    /// <inheritdoc/>
+    DateOnly IAdvancedConverter<decimal, DateOnly>.Convert(decimal value)
+      => DateOnly.FromDayNumber(Convert.ToInt32(value));
+
+    /// <inheritdoc/>
+    TimeOnly IAdvancedConverter<decimal, TimeOnly>.Convert(decimal value)
+      => new TimeOnly(Convert.ToInt64(value));
 
     /// <inheritdoc/>
     TimeSpan IAdvancedConverter<decimal, TimeSpan>.Convert(decimal value) => new TimeSpan(Convert.ToInt64(value));

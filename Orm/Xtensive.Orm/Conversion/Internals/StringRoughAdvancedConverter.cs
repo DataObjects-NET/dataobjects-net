@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -24,8 +24,11 @@ namespace Xtensive.Conversion
     IAdvancedConverter<string, double>,
     IAdvancedConverter<string, decimal>,
     IAdvancedConverter<string, DateTime>,
+    IAdvancedConverter<string, DateOnly>,
+    IAdvancedConverter<string, TimeOnly>,
     IAdvancedConverter<string, TimeSpan>,
-    IAdvancedConverter<string, Guid>
+    IAdvancedConverter<string, Guid>,
+    IAdvancedConverter<string, char>
   {
     bool IAdvancedConverter<string, bool>.Convert(string value) => bool.Parse(value);
 
@@ -142,7 +145,7 @@ namespace Xtensive.Conversion
 
     DateTime IAdvancedConverter<string, DateTime>.Convert(string value)
     {
-      string[] strings = {"yyyy/MM/dd hh:mm:ss.fffffff tt K "};
+      string[] strings = { "yyyy/MM/dd hh:mm:ss.fffffff tt K " };
       try {
         return DateTime.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
       }
@@ -151,9 +154,33 @@ namespace Xtensive.Conversion
       }
     }
 
+    DateOnly IAdvancedConverter<string, DateOnly>.Convert(string value)
+    {
+      string[] strings = { "yyyy/MM/dd" };
+      try {
+        return DateOnly.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return DateOnly.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+    }
+
+    TimeOnly IAdvancedConverter<string, TimeOnly>.Convert(string value)
+    {
+      string[] strings = { "hh:mm:ss.fffffff tt" };
+      try {
+        return TimeOnly.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return TimeOnly.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+    }
+
     TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value) => TimeSpan.Parse(value);
 
     Guid IAdvancedConverter<string, Guid>.Convert(string value) => new Guid(value);
+
+    char IAdvancedConverter<string, char>.Convert(string value) => char.Parse(value);
 
 
     // Constructors

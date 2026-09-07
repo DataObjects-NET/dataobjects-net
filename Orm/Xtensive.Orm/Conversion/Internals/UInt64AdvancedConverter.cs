@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Roman Churakov
 // Created:    2008.01.23
 
@@ -20,6 +20,8 @@ namespace Xtensive.Conversion
     IAdvancedConverter<ulong, long>,
     IAdvancedConverter<ulong, decimal>,
     IAdvancedConverter<ulong, DateTime>,
+    IAdvancedConverter<ulong, DateOnly>,
+    IAdvancedConverter<ulong, TimeOnly>,
     IAdvancedConverter<ulong, TimeSpan>,
     IAdvancedConverter<ulong, string>,
     IAdvancedConverter<ulong, char>
@@ -84,6 +86,20 @@ namespace Xtensive.Conversion
     {
       checked{
         return new DateTime((long)value + baseDateTimeTicks, DateTimeKind.Utc);
+      }
+    }
+
+    DateOnly IAdvancedConverter<ulong, DateOnly>.Convert(ulong value)
+    {
+      checked {
+        return DateOnly.FromDayNumber((int) value);
+      }
+    }
+
+    TimeOnly IAdvancedConverter<ulong, TimeOnly>.Convert(ulong value)
+    {
+      checked {
+        return new TimeOnly((long) value);
       }
     }
 
